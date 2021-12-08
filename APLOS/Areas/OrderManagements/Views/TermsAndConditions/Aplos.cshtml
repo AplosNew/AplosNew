@@ -1,6 +1,28 @@
 ﻿<togglable name="{{title}}"></togglable>
-<div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
+<div class="form-horizontal row" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <input type="hidden" ng-model="ModelNew.Id">
+                <label class="col-sm-4 control-label" style="padding-right: 52px;">Company<sup>*</sup></label>
+                <div class="col-sm-8 show-message" style="padding-left: 20px;padding-right: 31px;">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.CompanyId" ng-change="getData();"
+                                ng-options="item.Value as item.Text for item in companyList" id="CompanyId"
+                                name="Company" required tabindex="1" @*ng-disabled="PlantWiseHRMSSetting.SystemID != null"*@>
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+        </div>
+    </div>
+</div>
+<div class="form-horizontal form-elements" ng-form name="ModelNewForm">
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>

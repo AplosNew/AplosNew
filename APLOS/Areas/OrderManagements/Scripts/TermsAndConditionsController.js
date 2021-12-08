@@ -20,7 +20,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
+            data: { column: $scope.searchBy, value: $scope.search, CompanyId: $scope.ModelNew.CompanyId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -28,7 +28,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
             $scope.GetSequence();
         });
     }
-    $scope.getData();
+    //$scope.getData();
 
     $scope.ModelTemp = {
         Id: null,
@@ -42,7 +42,8 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
         Description: null,
         Remarks: null,
         Active: true,
-        Mandatory: false
+        Mandatory: false,
+        CompanyId: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -69,7 +70,10 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
         }
 
     };
-
+    $scope.companyList = [];
+    cboService.getCompanyGroupCompanyCbo(null, function (result) {
+        $scope.companyList = result;
+    });
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {

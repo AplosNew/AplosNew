@@ -47,17 +47,19 @@ namespace Library.OrderManagement.TermsAndConditions
             }
         }
 
-        public IEnumerable<object> GetList(string column, string value)
+        public IEnumerable<object> GetList(string column, string value,string CompanyId)
         {
             try
             {
                 string TableName = "hkp.TermsAndConditions";
                 string strkey = "1=1";
+
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+                string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " And TEMP.CompanyId='"+ CompanyId + @"' order by sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

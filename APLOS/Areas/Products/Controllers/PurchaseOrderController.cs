@@ -3804,7 +3804,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
 			{
-				string _sql = "select Id,Description,UserName TermsAndConditions from HKP.TermsAndConditions where Type='PO'";
+				string _sql = "select Id,Description,UserName TermsAndConditions from HKP.TermsAndConditions where Type='PO' And CompanyId='"+identity.CompanyId+@"'";
 				//_sqlRepository.ExecuteSqlCommand(_sql);
 
 				return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
@@ -3839,6 +3839,7 @@ left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMaster
 where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+
 		}
 
 		[HttpPost, Authorize]

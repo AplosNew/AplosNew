@@ -92,7 +92,7 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetOperationList()
+        public JsonResult GetOperationList(string ProductionBulletinMasterId,string ProcessId)
         {
             string sql = "";
             sql = @"SELECT ov.ArticleId,m.MaterialMasterId,mm.UserName AS MachineMaster,M.StandardName MachineName,mm.UserName MaterialMasterDesc
@@ -103,10 +103,13 @@ namespace Aplos.Areas.IE.Controllers
                     ISNULL(M.RPM,0)RPM,OV.TotalSAM,O.IsMachineRequired,ov.TotalSAM AS TotalSPT
                     ,M.StandardName AS ArticleDesc,M.ShortName AS ArticleShortName
                     FROM [MST].[OperationVariation] OV
+                    join trn.ProductionBulletinTemplateDetail pbt on pbt.OperationVariationId = ov.Id
+                    JOIN  trn.ProductionBulletinTemplateMaster pbtm ON pbtm.Id = pbt.ProductionBulletinTemplateMasterId AND pbtm.ProcessId='"+ ProcessId + @"'
                     LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = OV.ArticleId
                     LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=m.MaterialMasterId
                     LEFT JOIN [MST].[Operation] O ON O.Id = OV.OperationId
-                    LEFT JOIN hkp.ProductionSystem AS ps ON ps.Id=o.ProductionSystemId";
+                    LEFT JOIN hkp.ProductionSystem AS ps ON ps.Id=o.ProductionSystemId
+                     where pbtm.ProductionBulletinTemplateId = '"+ ProductionBulletinMasterId + "' ORDER BY pbt.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

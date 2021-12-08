@@ -230,8 +230,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                         Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
                                                         Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
                                                         Sum(Case When InStatus ='O' then 1 else 0 end) as Other
-                                                       ,Sum(Case when pv.InTime is null then 1 else 0 end) as INVM
-							                           ,Sum(Case when pv.OutTime is null then 1 else 0 end) as OVM
+                                                       ,Sum(Case when ap.InTime is not null and pv.InTime is null then 1 else 0 end) as INVM
+							                           ,Sum(Case when ap.OutTime is not null and pv.OutTime is null then 1 else 0 end) as OVM
                             from AttdnProcessData ap
                             left join EmployeeInformation ei on ei.SystemId = ap.EmpSystemID
                             left join mst.ManpowerBudget mb on mb.Id=ei.BudgetCode
@@ -403,11 +403,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                         Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
                                                         Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
                                                         Sum(Case When InStatus ='O' then 1 else 0 end) as Other
-                                                        ,Sum(Case when ManualInTime is null and PunchInTime is not null then 1 else 0 end) as INVM
-							                            ,Sum(Case when ManualOutTime is null and PunchOutTime is not null then 1 else 0 end) as OVM
+                                                        ,Sum(Case when ap.InTime is not null and pv.InTime is null then 1 else 0 end) as INVM
+							                           ,Sum(Case when ap.OutTime is not null and pv.OutTime is null then 1 else 0 end) as OVM
                             from AttdnProcessData ap
                             left join EmployeeInformation ei on ei.SystemId = ap.EmpSystemID
                             left join mst.ManpowerBudget mb on mb.Id=ei.BudgetCode
+                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = ap.EmpSystemID and pv.WorkDate = '" + date + @"'
                             where ap.WorkDate = '" + date + @"'  " + empStat + @"
 
                             group by mb.Id 
@@ -554,11 +555,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 if (Column == "INVM")
                 {
-                    whereCol = " and  apd.ManualInTime is null and apd.PunchInTime is not null";
+                    whereCol = " and  apd.InTime is not null and pv.InTime is null";
                 }
                 if (Column == "OVM")
                 {
-                    whereCol = " and  apd.ManualOutTime is null and apd.PunchOutTime is not null";
+                    whereCol = " and  apd.OutTime is not null and pv.OutTime is null";
                 }
                 #endregion settingTheColumnStat
 
@@ -602,6 +603,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date + @"'
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @"
                             ";

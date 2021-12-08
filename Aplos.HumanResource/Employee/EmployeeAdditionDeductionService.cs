@@ -153,7 +153,7 @@ namespace Library.HumanResource.Employee
             try
             {
                 var sql = @"Select ep.Id, ep.MasterId,ep.PlantId, ep.EmpTypeId, isnull(ep.DesignationId, 'All') as DesignationId, et.UserName as EmployeeCodeType ,ep.EmployeeCodeTypeId , isnull(ep.EmploymentType,'ALL') as EmploymentType from dbo.EmployeeAdditionDeductionPlantChild ep 
-left join dbo.EmployeeCodeType et on et.Id = ep.EmployeeCodeTypeId
+                            left join dbo.EmployeeCodeType et on et.Id = ep.EmployeeCodeTypeId
                              where MasterId ='" + MasterId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }

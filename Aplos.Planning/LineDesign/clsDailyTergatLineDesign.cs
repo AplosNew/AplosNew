@@ -173,7 +173,7 @@ namespace Library.Planning.LineDesign
         }
 
 
-        public void SaveData(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
+        public void SaveData(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate, out DataSet dsData)
         {
             bplib.clsGenID objGenID = null;
             string idFromDB = "";
@@ -202,8 +202,46 @@ namespace Library.Planning.LineDesign
                 }
             }
 
-            DataSet dsMaster, dsChild;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("select L.EmployeeSystemId,E.EmployeeCode,E.EmployeeName,FixedAssetRegisterId from LineLayoutDailyTargetData L  " +
+                @" left join EmployeeInformation E on e.SystemId=L.EmployeeSystemId " +
+                @" WHERE L.LineLayoutDailyTargetId=(select top 1 Id from LineLayoutDailyTarget " +
+                "where WorkCenterMasterId <> '" + WorkCenterMasterId + @"' AND TargetDate='" + TargetDate + @"')", out DataSet dsVaidationChild, false, "1");
+
+            for (int j = 0; j < HtmlsInfo.Count; j++)
+            {
+                if (string.IsNullOrEmpty(HtmlsInfo[j].EmployeeId) == false)
+                {
+
+                    dsVaidationChild.Tables[0].DefaultView.RowFilter = "EmployeeSystemId='" + HtmlsInfo[j].EmployeeId + "'";
+                    if (dsVaidationChild.Tables[0].DefaultView.Count > 0)
+                        throw new Exception("employee has already tagged with other work center for the day [" + dsVaidationChild.Tables[0].DefaultView[0]["EmployeeCode"].ToString() + @"-" + dsVaidationChild.Tables[0].DefaultView[0]["EmployeeName"].ToString() + @"]");
+
+                    var xy = HtmlsInfo.Where(H => H.EmployeeId == HtmlsInfo[j].EmployeeId).ToList();
+                    if (xy.Count > 1)
+                    {
+                        throw new Exception("Duplicate employee found in layout " + xy[0].EmployeeCode + "-" + xy[0].EmployeeName);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(HtmlsInfo[j].FixedAssetRegisterId) == false)
+                {
+
+                    dsVaidationChild.Tables[0].DefaultView.RowFilter = "FixedAssetRegisterId='" + HtmlsInfo[j].FixedAssetRegisterId + "'";
+                    if (dsVaidationChild.Tables[0].DefaultView.Count > 0)
+                        throw new Exception("Machine has already tagged with other work center for the day [" + dsVaidationChild.Tables[0].DefaultView[0]["FixedAssetRegisterId"].ToString() +"]");
+
+                    var xy = HtmlsInfo.Where(H => H.FixedAssetRegisterId == HtmlsInfo[j].FixedAssetRegisterId).ToList();
+                    if (xy.Count > 1)
+                    {
+                        throw new Exception("Duplicate machine found in layout " + xy[0].FixedAssetRegisterId);
+                    }
+                }
+            }
+            
+
+            DataSet dsMaster, dsChild;
+            con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTarget where WorkCenterMasterId = '" + WorkCenterMasterId + @"' AND  ProductionOrderId='" + ProductionOrderId + @"' AND TargetDate='" + TargetDate + @"'", out dsMaster, false, "1");
             con.OpenDataSetThroughAdapter("select * from LineLayoutDailyTargetData where LineLayoutDailyTargetId=(select top 1 Id from LineLayoutDailyTarget where WorkCenterMasterId = '" + WorkCenterMasterId + @"' AND  ProductionOrderId='" + ProductionOrderId + @"' AND TargetDate='" + TargetDate + @"')", out dsChild, false, "1");
 
@@ -224,6 +262,8 @@ namespace Library.Planning.LineDesign
             //delete missing items from db
             while (dsChild.Tables[0].DefaultView.Count > 0)
                 dsChild.Tables[0].DefaultView[0].Delete();
+
+            
 
             string ChildPK = "";
             for (int i = 0; i < HtmlsInfo.Count; i++)
@@ -256,10 +296,73 @@ namespace Library.Planning.LineDesign
                 dr["UpdatedFromIP"] = identity.IPAddress;
                 dsChild.Tables[0].Rows.Add(dr);
             }
-
             OTSBD.clsStaticInfo SaveInfo = new OTSBD.clsStaticInfo();
             SaveInfo.SaveDataSets(dsMaster, dsChild);
+
+            DataSet dsDailyProduction;
+
+            GetTotalHandOrMachineData(ProductionOrderId, TargetDate, WorkCenterMasterId, out dsData);
+            con.OpenDataSetThroughAdapter("SELECT * FROM trn.DailyProductionTarget AS dpt WHERE dpt.TargetDate='" + TargetDate + "' AND dpt.ProductionOrderId='" + ProductionOrderId + "' AND dpt.WorkCenterMasterID='" + WorkCenterMasterId + "'", out dsDailyProduction, false, "1");
+
+            if (dsData.Tables[0].Rows.Count > 0)
+            {
+                DataRow drx = dsDailyProduction.Tables[0].Rows[0];
+                drx.BeginEdit();
+                drx["ManPowerWithMachine"] = dsData.Tables[0].Rows[0]["TotalMachine"].ToString();
+                drx["ManPowerWithHand"] = dsData.Tables[0].Rows[0]["TotalHand"].ToString();
+                drx.EndEdit();
+            }
+            SaveInfo.SaveDataSets(dsDailyProduction);
         }
+        //void SaveDailyProduction(ref DataSet dsSaveBonusMaster, DataSet dsData)
+        //{
+        //    DataView _dvSave = null;
+        //    try
+        //    {
+        //        _dvSave = new DataView(dsSaveBonusMaster.Tables[0]);
+
+        //        DataRow drx = _dvSave[0].Row;
+        //        drx.BeginEdit();
+        //        drx["ManPowerWithMachineBulletin"] = dsData.Tables[0].Rows[0]["TotalMachine"].ToString();
+        //        drx["ManPowerWithHandBulletin"] = dsData.Tables[0].Rows[0]["TotalHand"].ToString();
+        //        drx.EndEdit();
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+        public void GetTotalHandOrMachineData(string ProductionOrderId, string TargetDate, string WorkCenterMasterId, out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT SUM( CASE WHEN ISNULL(o.IsMachineRequired,'')='M'  THEN 1 ELSE 0 END) AS TotalMachine,
+		                          SUM( CASE WHEN ISNULL(o.IsMachineRequired,'')!='M' THEN 1 ELSE 0 END) AS TotalHand
+                                        FROM [MST].[OperationVariation] OV
+                                        join LineLayoutDailyTargetData AS lldtd ON lldtd.OperationVariationId = OV.Id
+                                        JOIN  LineLayoutDailyTarget AS lldt ON lldt.Id = lldtd.LineLayoutDailyTargetId
+                                        LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = OV.ArticleId
+                                        LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=m.MaterialMasterId
+                                        LEFT JOIN [MST].[Operation] O ON O.Id = OV.OperationId
+                                        LEFT JOIN hkp.ProductionSystem AS ps ON ps.Id=o.ProductionSystemId
+                                        where lldt.ProductionOrderId='" + ProductionOrderId + "' " +
+                                        "AND lldt.TargetDate='" + TargetDate + "' AND lldt.WorkCenterMasterId='" + WorkCenterMasterId + "' ";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
         public void SaveProductionData(List<Dictionary<string, object>> HtmlsInfo, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
         {
             bplib.clsGenID objGenID = null;
