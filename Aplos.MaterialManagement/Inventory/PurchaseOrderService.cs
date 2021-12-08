@@ -4101,7 +4101,7 @@ namespace Library.MaterialManagement.Inventory
             rightAlign.CharacterFormat.TextColor = Color.Black;
             rightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
 
-            int LasColumnIndex = 1;
+            int LasColumnIndex = 2;
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
             wTable.ResetCells(1, LasColumnIndex);
@@ -4119,11 +4119,9 @@ namespace Library.MaterialManagement.Inventory
 
             for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
             {
-                if (dsTermsAndCondition.Rows[i]["TermsAndConditionChildId"].ToString() != CmpTitile)
+                if (dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString() != CmpTitile)
                 {
                     IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
-                    // range.ApplyCharacterFormat(FontBold);
-                    //COL++;
                     wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
                     sl = 0;
                 }
@@ -4143,7 +4141,8 @@ namespace Library.MaterialManagement.Inventory
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
-                CmpTitile = dsTermsAndCondition.Rows[i]["TermsAndConditionChildId"].ToString();
+                //TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
+                CmpTitile = dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString();
             }
             ROW++;
 
@@ -5179,12 +5178,13 @@ namespace Library.MaterialManagement.Inventory
             string strSQL;
             try
             {
-                strSQL = @"SELECT  ROW_NUMBER() OVER(ORDER BY tac.Sequence) RoWNo, PO.Id POId,tac.Id TermsAndConditionMasterId,tacc.Id TermsAndConditionChildId,tacd.id TermsAndConditionDetailId,
-tacc.Title,tacd.HeaderCaption
+                strSQL = @"SELECT  ROW_NUMBER() OVER(ORDER BY tac.Sequence) RoWNo, PO.Id POId
+,tac.Id TermsAndConditionMasterId,tacc.Id TermsAndConditionPOChildId,tacd.id TermsAndConditionPODetailId,
+tacc.Title,tacd.HeaderCaption,tacd.[Description]
 FROM TRN.PurchaseOrder AS PO
 LEFT OUTER JOIN HKP.TermsAndConditions AS tac ON PO.TermsAndConditionsId=tac.Id
-LEFT OUTER JOIN TermsAndConditionsChild AS tacc ON tacc.TermsAndConditionsMasterId=tac.Id
-LEFT OUTER JOIN TermsAndConditionsDetails AS tacd ON tacd.TermsAndConditionsChildId=tacc.Id
+LEFT OUTER JOIN TermsAndConditionsPOChild AS tacc ON tacc.TermsAndConditionsMasterId=tac.Id
+LEFT OUTER JOIN TermsAndConditionsPODetails AS tacd ON tacd.TermsAndConditionsPOChildId=tacc.Id
 WHERE PO.id='" + purchaseOrderId + @"' Order By tac.Sequence ";
 
                 return _sqlRepository.GetDataTable(strSQL);
