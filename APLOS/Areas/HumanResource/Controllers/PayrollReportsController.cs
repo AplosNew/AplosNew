@@ -593,7 +593,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpPost, Authorize]
-        public ActionResult GetEmpInfoSalaryPorcessed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId , string TypeId)
+        public ActionResult GetEmpInfoSalaryPorcessedWithType(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId , string TypeId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string Plant = string.Empty;
@@ -620,6 +620,26 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             return jsondata;
         }
 
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmpInfoSalaryPorcessed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string Plant = string.Empty;
+            string typeId = string.Empty;
+            if (!string.IsNullOrEmpty(PlantId))
+            {
+                Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            }
+            else
+            {
+                Plant = "'" + identity.PlantId + "'";
+            }
+
+            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetEmpInfoSalaryFromArrearPorcessed(string ArrearProcessBatchId)
