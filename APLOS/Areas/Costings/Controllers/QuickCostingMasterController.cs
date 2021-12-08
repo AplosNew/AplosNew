@@ -95,7 +95,6 @@ namespace Aplos.Areas.Costings.Controllers
         }
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
-
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
@@ -3266,6 +3265,22 @@ namespace Aplos.Areas.Costings.Controllers
             {
                 return Json(new { Error = true, Message = ex.Message });
             }
+        }
+
+        public ActionResult GetPreCostingReport(string CostingTempleteId)
+        {
+            try
+            {
+                Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
+                Report.CostingTempleteReport(CostingTempleteId);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
         #endregion
     }

@@ -2248,7 +2248,21 @@
             <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="2"></div>
 
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+
+            <div e-column e-template="#costingDownload" e-headertext="" e-width="1"></div>
         </div>
+        <script type="text/ng-template" id="costingDownload">
+            <div class="common-btn">
+                <ul class="list-inline ">
+                    <li>
+                        <button ng-click="$parent.PreCostingTemplete(data);" title="Costing Templete" class="btn small">
+                            <i class="glyphicon glyphicon-cloud-download"></i>
+                        </button>
+                    </li>
+                    
+                </ul>
+            </div>
+        </script>
     </div>
 </div>
 <!-- region Responsible Person popup-->
