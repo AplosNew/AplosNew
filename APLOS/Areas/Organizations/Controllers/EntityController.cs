@@ -109,7 +109,7 @@ namespace Aplos.Areas.Organizations.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 companyId = identity.CompanyId;
             }
-            return Json(_sqlRepository.GetDataCollection(@"select Id,UserName from ORG.Entity Where CompanyGroupId='"+ companyGroupId + "' AND CompanyId='"+ companyId + "' AND PlantId='"+ plantId + "'"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(@"select Id Value,UserName Text from ORG.Entity Where CompanyGroupId='" + companyGroupId + "' AND CompanyId='"+ companyId + "' AND PlantId='"+ plantId + "'"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
