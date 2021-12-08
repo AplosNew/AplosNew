@@ -281,6 +281,7 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
         $scope.companyStructureSetup = { CompanyId: cId };
         $scope.companyStructureSetup.Active = true;
         $scope.isUsed = false;
+        $scope.addressMaster = {};
     }
 
     $scope.getCompanyStructurerRelation = function (id, data) {
