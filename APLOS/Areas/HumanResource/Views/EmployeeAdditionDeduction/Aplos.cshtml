@@ -331,7 +331,18 @@
                                     <div class="col-sm-8">
                                         <div class="select-style">
                                             <select class="form-control" ng-model="Child.DesignationId" name="EmpType"
-                                                    ng-options="item.Value as item.Text for item in DesignationList"  tabindex="2">
+                                                    ng-options="item.Value as item.Text for item in DesignationList" tabindex="2">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Employee Code Type</label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="Child.EmployeeCodeTypeId" name="EmpCodeType"
+                                                    ng-options="item.Value as item.Text for item in EmpCodeTypeList" tabindex="2">
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
@@ -357,6 +368,7 @@
                                         <div e-column e-field="EmpTypeId" e-headertext="Emp Type Id" e-width="120"></div>
                                         <div e-column e-field="DesignationId" e-headertext="Designation Id" e-width="120"></div>
                                         <div e-column e-field="EmploymentType" e-headertext="Employment Type" e-width="120"></div>
+                                        <div e-column e-field="EmployeeCodeType" e-headertext="Employee Code Type" e-width="120"></div>
                                         <div e-column e-template="#DeleteFile" e-headertext="" e-width="30"></div>
 
                                     </div>

@@ -52,6 +52,13 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
+        public ActionResult getEmpCodeType()
+        {
+            return Json(ds.getEmpCodeType(), JsonRequestBehavior.AllowGet);
+        }
+        
+
+        [HttpPost, Authorize]
         public ActionResult getDesignation(string empType)
         {
             return Json(ds.getDesignation(empType), JsonRequestBehavior.AllowGet);

@@ -2549,6 +2549,1701 @@ namespace Library.HumanResource.Report.OT
             }
         }
 
+
+        public IWorkbook GetSalarySheetExtraOTCTCReportWithType(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string typeId, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool sa, bool ca, bool isTopSheet)
+        {
+            #region Variable
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            clsReport objRpt = null;
+            DataView dvEmp = null;
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+            DataSet dsEmpLoyeeInfo = null;
+            DataTable dtEmployees = null;
+
+            DataView dvSlrSheet = null;
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+            ReportUtility ru = null;
+            var FactoryName = string.Empty;
+            var CmpName = string.Empty;
+            var done1 = "Ok";
+            var done2 = "Ok";
+            var done3 = "Ok";
+            int xlsRow = 1, xlsCol = 1, endXlsCol = 1;
+            int colCtc = 0;
+            int endGenericColumn = 0;
+            #endregion Variable
+
+            try
+            {
+                var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(month));//Month Name from Month No
+                var daysInMonth = DateTime.DaysInMonth(Convert.ToInt32(year), Convert.ToInt32(month));//Number of Days in a month
+                var ldateOfMonth = daysInMonth + "-" + monthName + "-" + year;
+                var fdateOfMonth = "1" + "-" + monthName + "-" + year;
+                string strPath = "";
+                Image companyLogo = null;
+                string companyLogoName = _sqlRepository.GetDataTable(@"select * from ORG.Company where Id = '" + companyId + @"'").Rows[0]["Image"].ToString();
+
+                string FromDate = new DateTime(Convert.ToInt32(year), Convert.ToInt32(month), 1).ToString("dd-MMM-yyyy");
+                string ToDate = new DateTime(Convert.ToInt32(year), Convert.ToInt32(month), daysInMonth).ToString("dd-MMM-yyyy");
+
+                try
+                {
+                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyLogoName);  // IDCardEng.xlsx
+                    companyLogo = Image.FromFile(strPath);
+                }
+                catch (Exception)
+                {
+                }
+                ru = new ReportUtility();
+                objRpt = new clsReport();
+
+                #region Variable
+                var para = new ParamList();
+                var leavePara = new ParamList();
+                var attdnProcessParam = new ParamList();
+
+                #endregion Variable
+
+                #region DataSet
+
+                DataSet dsExtraAbsent = null;
+                DataView dvExtraAbsent = null;
+                objRpt.GetExtraAbsent(plantId, parameters, month.ToInt(), year.ToInt(), out dsExtraAbsent);
+
+                dvExtraAbsent = new DataView(dsExtraAbsent.Tables[0]);
+
+
+                #region GWR Extra OT (Weekend WeekOFF & Holiday)
+                Dictionary<string, double> dicNW = null;
+                Dictionary<string, double> dicW = null;
+                Dictionary<string, double> dicH = null;
+                DataSet dsCurrency = null;
+
+                Dictionary<string, DataRow> dicHourlyOTNW = new Dictionary<string, DataRow>();
+                Dictionary<string, DataRow> dicHourlyOTW = new Dictionary<string, DataRow>();
+                Dictionary<string, DataRow> dicHourlyOTH = new Dictionary<string, DataRow>();
+
+                dicHourlyOTNW = GetDictionaryHourotmonthReportwithoutWeekendHolidayExtraOTCTC(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated);
+                dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekendORHolidayPOSTCTC(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated, "Weekend");
+                dicHourlyOTH = GetDictionaryHourOTMonthReportWithWeekendORHolidayPOSTCTC(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated, "Holiday");
+
+
+                //otc.LoadSalaryStructure(plantId, fdateOfMonth, ldateOfMonth, out dsSStructureOT);
+                //otc.LoadOverTimePolicy(plantId, fdateOfMonth, ldateOfMonth, out dsOTPolicy);
+
+
+
+                Dictionary<string, List<DataRow>> dicSalStructure = LoadSalaryStructure(plantId, fdateOfMonth, ldateOfMonth);
+                Dictionary<string, DataRow> dicOTpolicy = LoadOverTimePolicy(plantId, fdateOfMonth, ldateOfMonth);
+
+                clsSalaryInfo objSal = new clsSalaryInfo();
+                objSal.GetLocalCurrency(companyGroupId, plantId, out dsCurrency);
+                string _currencyId = "";
+                if (dsCurrency.Tables[0].Rows.Count > 0)
+                {
+                    _currencyId = "" + dsCurrency.Tables[0].Rows[0]["LocalCurrency"].ToString().Trim();
+                }
+                else
+                {
+                    throw new Exception("No currency found...");
+                }
+                GenerateDic(dicOTpolicy, dicSalStructure, _currencyId, out dicNW, out dicW, out dicH);
+
+                #endregion
+
+
+                //Sql Salary Structure 
+                List<SalarySheetReportUD> listdsSlrStr = new List<SalarySheetReportUD>();
+
+                //Sql Salary Process 
+                DataTable dtSalaryHeadSheet;
+                List<SalarySheetReportUD> listdsSlrProc = new List<SalarySheetReportUD>();
+                GetEmployeeInfoDetailSalaryLogWiseWithType(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, typeId ,out dsEmpLoyeeInfo);//Sql Query For Salary  Data
+                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, out dtSalaryHeadSheet);
+
+                if (dicEmpSalry.First().Value[0].Table.Rows.Count > 0)
+                {
+                    listdsSlrProc = dicEmpSalry.First().Value[0].Table.ToList<SalarySheetReportUD>();
+                    listdsSlrStr = dicEmpSalry.First().Value[0].Table.ToList<SalarySheetReportUD>();
+                    dtEmployees = dsEmpLoyeeInfo.Tables[0];//dicEmpSalry.First().Value[0].Table;
+                }
+                else
+                {
+                    Exception ex = new Exception("No Data found...");
+                    throw (ex);
+                }
+
+                dvSlrSheet = new DataView();
+
+                objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+
+                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
+
+                #endregion DataSet
+
+                //clsSalaryProcessAplosR r = new clsSalaryProcessAplosR();
+                //r.GetSundayMondayCount(FromDate, ToDate, out Dictionary<string, int> DicWeekOffCount);
+                //r.GetWeekOffAll(identity.PlantId, ToDate, out DataSet dsEmployeeWiseWeekoff);
+                //Dictionary<string, string> dicEmployeeWiseWeekoff = new Dictionary<string, string>();
+                //for (int i = 0; i < dsEmployeeWiseWeekoff.Tables[0].Rows.Count; i++)
+                //    if (dicEmployeeWiseWeekoff.ContainsKey(dsEmployeeWiseWeekoff.Tables[0].Rows[i]["EmpSystemID"].ToString()) == false)
+                //        dicEmployeeWiseWeekoff.Add(dsEmployeeWiseWeekoff.Tables[0].Rows[i]["EmpSystemID"].ToString(), dsEmployeeWiseWeekoff.Tables[0].Rows[i]["offday"].ToString());
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                if (isTopSheet == true)
+                {
+                    workbook = application.Workbooks.Create(5);
+                }
+                else
+                {
+                    workbook = application.Workbooks.Create(1);
+                }
+
+                sheet1 = workbook.Worksheets[0];
+                sheet1.IsGridLinesVisible = true;
+
+                #region------------------Column Header------------------
+                xlsRow = 6;
+                xlsCol = 1;
+
+                #region Column Variables
+                int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColContractor = 0, ColDOS = 0, ColPlantName = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
+                    cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
+                   , ColLWP = 0, cDMP = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0;
+                int npstruct = 0;
+
+                #endregion
+
+                //1
+                SetCellValue("Sr. No.", sheet1, xlsRow, ref xlsCol, out ColSr);
+                SetCellValue("ID No.", sheet1, xlsRow, ref xlsCol, out ColIDNo, 12);
+                SetCellValue("Name", sheet1, xlsRow, ref xlsCol, out ColName, 17);
+                SetCellValue("Plant Name", sheet1, xlsRow, ref xlsCol, out ColPlantName, 17);
+                SetCellValue("DOJ", sheet1, xlsRow, ref xlsCol, out ColDOJ, 12);
+                SetCellValue("DOS", sheet1, xlsRow, ref xlsCol, out ColDOS, 12);
+                SetCellValue("EmployeeCurrentStatus", sheet1, xlsRow, ref xlsCol, out colEmpCurrentStat, 12);
+                SetCellValue("EmployeeSatatus", sheet1, xlsRow, ref xlsCol, out colEmpStatus, 12);
+                SetCellValue("Gender", sheet1, xlsRow, ref xlsCol, out cGender, 12);
+                SetCellValue("Designation", sheet1, xlsRow, ref xlsCol, out ColGVDG, 25);
+                SetCellValue("Contractor", sheet1, xlsRow, ref xlsCol, out ColContractor, 17);
+                SetCellValue("Employee Category", sheet1, xlsRow, ref xlsCol, out int colEmpCategory, 25);
+                SetCellValue("Department", sheet1, xlsRow, ref xlsCol, out cDept, 25);
+                SetCellValue("Section", sheet1, xlsRow, ref xlsCol, out cSec, 25);
+                SetCellValue("SubSection", sheet1, xlsRow, ref xlsCol, out cSubSec, 25);
+                SetCellValue("Unit", sheet1, xlsRow, ref xlsCol, out cUnit, 25);
+                SetCellValue("Line", sheet1, xlsRow, ref xlsCol, out cLine, 25);
+                SetCellValue("JobLocation", sheet1, xlsRow, ref xlsCol, out cJobLocation, 25);
+                SetCellValue("Payroll group", sheet1, xlsRow, ref xlsCol, out cPayrollGroup, 25);
+                SetCellValue("Payment mode", sheet1, xlsRow, ref xlsCol, out cPaymentMode, 25);
+                SetCellValue("Bank", sheet1, xlsRow, ref xlsCol, out colBank, 25);
+                SetCellValue("Bank Acc No.", sheet1, xlsRow, ref xlsCol, out colBankAccountNo, 25);
+                SetCellValue("Grade", sheet1, xlsRow, ref xlsCol, out cGrade, 25);
+                SetCellValue("Direct Manpower Cost", sheet1, xlsRow, ref xlsCol, out colDirectManpowerCost, 25);
+                SetCellValue("Weekoff Days", sheet1, xlsRow, ref xlsCol, out int colWeekoffDays, 25);
+
+                SetCellValue("Total Days", sheet1, xlsRow, ref xlsCol, out ColTotalWorkingDay, 8);
+                SetCellValue("Working Days", sheet1, xlsRow, ref xlsCol, out ColActualWorkingDay, 8);
+                SetCellValue("Pay Days", sheet1, xlsRow, ref xlsCol, out colPayDays, 8);
+                SetCellValue("Present", sheet1, xlsRow, ref xlsCol, out ColPdDy, 9);
+                SetCellValue("Late", sheet1, xlsRow, ref xlsCol, out ColLate, 9);
+                SetCellValue("Total Present (Including Late)", sheet1, xlsRow, ref xlsCol, out ColLatePresent, 23);
+
+                SetCellValue("Absent", sheet1, xlsRow, ref xlsCol, out ColAbDy, 9);
+                SetCellValue("Holiday", sheet1, xlsRow, ref xlsCol, out ColHlDy, 9);
+                SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
+                SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
+                SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
+                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
+
+                SetCellValue("Structured Basic", sheet1, xlsRow, ref xlsCol, out colBasic, 11);
+                SetCellValue("Structured Gross", sheet1, xlsRow, ref xlsCol, out colGross, 11);
+                SetCellValue("Structured CTC", sheet1, xlsRow, ref xlsCol, out colCTC, 11);
+                SetCellValue("Total OT Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
+                endGenericColumn = xlsCol;
+
+                //SR to
+                sheet1.Range[xlsRow, ColSr].Text = "Employee Information";
+                sheet1.Range[xlsRow, ColSr, xlsRow, ColTotalOTHR].Merge();
+                //xlsCol += 1;
+                ColGrs = ColTotalOTHR;
+                // 9
+
+                int _count_earning_head = 0;
+                int _count_earning_ctchead = 0;
+                int _count_deducting_head = 0;
+                int _total_head_count = 0;
+                int _count_earning_notionalhead = 0;
+                double totalBankPayDisbusmentAmount = 0.00;
+                double totalCashPayDisbusmentAmount = 0.00;
+
+                Dictionary<string, SalaryHeadSequence> shtList = null;
+
+                CreateDynamicSHead(dtSalaryHeadSheet, out _total_head_count, ref sheet1, ref xlsRow, ref xlsCol, ref ColGrs, out _count_earning_head, out _count_deducting_head, out _count_earning_ctchead, out _count_earning_notionalhead, out shtList);
+
+
+
+
+                List<SalaryHeadSequence> salList = new List<SalaryHeadSequence>();
+                salList.AddRange(shtList.Values);
+
+                xlsCol--;
+
+                //Header Col
+                if (_count_earning_ctchead > 0)
+                {
+                    sheet1.Range[xlsRow, ColGrs + 1].Text = "Earning head";
+                    sheet1.Range[xlsRow, ColGrs + 1, xlsRow, ColGrs + _count_earning_head + _count_earning_ctchead].Merge();
+                }
+
+                var ds = ColGrs + 1 + _count_earning_head + _count_earning_ctchead;
+
+                if (_count_deducting_head > 0)
+                {
+                    sheet1.Range[xlsRow, ds].Text = "Deduction head";
+                    sheet1.Range[xlsRow, ds, xlsRow, ds + _count_deducting_head - 1].Merge();
+                }
+                npstruct = 0;
+                //int endxlsCol = 0;
+                if (shtList.Count > 0)
+                {
+                    xlsCol++;
+                    //npstruct = ColGrs + shtList.Count + 1;
+                    npstruct = ds + _count_deducting_head;
+                    //sheet1.Range[xlsRow + 1, npstruct].Text = "Net Payable";
+                }
+                endXlsCol = npstruct + _count_earning_notionalhead - 1;
+
+                int colBankPaymentPercentage = 0;
+                int colCashPaymentPercentage = 0;
+
+                DataTable dtbankCash = _sqlRepository.GetDataTable("SELECT * FROM EmployeeWiseBankCashAmount WHERE PlantId in (" + plantId + ") AND MonthNo = '" + month + @"' AND YearNo  ='" + year + @"'");
+
+
+                if (dtbankCash.Rows.Count > 0)
+                {
+                    xlsCol++;
+
+                    colBankPaymentPercentage = npstruct + 1;
+                    sheet1.Range[xlsRow + 1, colBankPaymentPercentage].Text = "Bank";
+                    sheet1.Range[xlsRow + 1, colBankPaymentPercentage].ColumnWidth = 10;
+                    sheet1.Range[xlsRow + 1, colBankPaymentPercentage].CellStyle.Font.Size = 8;
+                    xlsCol++;
+                    colCashPaymentPercentage = colBankPaymentPercentage + 1;
+                    sheet1.Range[xlsRow + 1, colCashPaymentPercentage].Text = "Cash";
+                    sheet1.Range[xlsRow + 1, colCashPaymentPercentage].ColumnWidth = 10;
+                    sheet1.Range[xlsRow + 1, colCashPaymentPercentage].CellStyle.Font.Size = 8;
+
+                    endXlsCol = colCashPaymentPercentage;
+                }
+
+                endXlsCol++;
+                int colGWRDailyExtraOTweekoffOT = endXlsCol;
+                sheet1.Range[xlsRow + 1, colGWRDailyExtraOTweekoffOT].Text = "GWR (Daily Extra OT & week off OT)";
+                sheet1.Range[xlsRow + 1, colGWRDailyExtraOTweekoffOT].ColumnWidth = 10;
+                sheet1.Range[xlsRow + 1, colGWRDailyExtraOTweekoffOT].CellStyle.Font.Size = 8;
+                endXlsCol++;
+                int colHolidayOT = endXlsCol;
+                sheet1.Range[xlsRow + 1, colHolidayOT].Text = "Holiday OT";
+                sheet1.Range[xlsRow + 1, colHolidayOT].ColumnWidth = 10;
+                sheet1.Range[xlsRow + 1, colHolidayOT].CellStyle.Font.Size = 8;
+                endXlsCol++;
+                int colExtraOT = endXlsCol;
+                sheet1.Range[xlsRow + 1, colExtraOT].Text = "Week Day(OT Hrs)";
+                sheet1.Range[xlsRow + 1, colExtraOT].ColumnWidth = 10;
+                sheet1.Range[xlsRow + 1, colExtraOT].CellStyle.Font.Size = 8;
+                endXlsCol++;
+                int colWeekOff = endXlsCol;
+                sheet1.Range[xlsRow + 1, colWeekOff].Text = "WeekOff(OT Hrs)";
+                sheet1.Range[xlsRow + 1, colWeekOff].ColumnWidth = 10;
+                sheet1.Range[xlsRow + 1, colWeekOff].CellStyle.Font.Size = 8;
+                endXlsCol++;
+                int colTotalCTC = endXlsCol;
+                sheet1.Range[xlsRow + 1, colTotalCTC].Text = "Total CTC";
+                sheet1.Range[xlsRow + 1, colTotalCTC].ColumnWidth = 10;
+                sheet1.Range[xlsRow + 1, colTotalCTC].CellStyle.Font.Size = 8;
+
+                xlsCol++;
+                sheet1.Range[xlsRow - 1, 1].Text = "Report Ref No.";
+                sheet1.Range[xlsRow - 1, 1].ColumnWidth = 14;
+                sheet1.Range[xlsRow - 1, 1, xlsRow - 1, 3].Merge();
+                sheet1.Range[xlsRow, 1, xlsRow + 1, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow - 1, 1, xlsRow + 1, endXlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //endXlsCol = endxlsCol;
+
+
+                #endregion------------------Column Header------------------
+
+                int RowIndex = xlsRow + 3;
+
+                #region ******************Report Header******************
+                xlsRow = 1;
+                xlsCol = 1;
+                Param param = new Param();
+                param.CompanyGroupId = companyGroupId;
+                param.CompanyId = companyId;
+
+                string FactoryAddress = string.Empty;
+                try
+                {
+
+                    if (companyLogo != null)
+                    {
+                        double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                        int totalWidthPixel = (int)(totalWidth * 7.5);
+                        int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                        companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                        IPictureShape pic = null;
+
+                        pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+
+                if (dsCmp.Tables[0].Rows.Count > 0)
+                {
+                    CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = CmpName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dsCmp.Tables[0].Rows.Count > 0)
+                {
+                    FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                if (dsCmp.Tables[0].Rows.Count > 0)
+                {
+                    FactoryAddress = dsCmp.Tables[0].Rows[0]["Address1"].ToString();
+                }
+                else
+                {
+                    FactoryAddress = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                xlsRow += 1;
+                sheet1.Range[xlsRow, 3].Text = "Salary Sheet For The Month Of " + Convert.ToDateTime(fdateOfMonth).ToString("MMMM") + "," + Convert.ToDateTime(fdateOfMonth).ToString("yyyy");
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 14;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+
+                #endregion ******************Report Header******************
+
+                #region ----------------------Data-----------------------
+                var SrNo = 0;
+                var x = "";
+
+                var oRU = new ReportUtility();
+
+                xlsRow = RowIndex;
+
+                xlsRow--;
+
+                double FOT = 0.00;
+                double HolidayOT = 0.00;
+                for (int i = 0; i <= dtEmployees.Rows.Count - 1; i++)
+                {
+                    Double ExtraOT = 0.00;
+                    Double ExtraOTH = 0.00;
+                    Double ExtraOTW = 0.00;
+
+                    #region EmpInfo
+                    try
+                    {
+                        SrNo += 1;
+                        x = dtEmployees.Rows[i]["EmpSystemID"].ToString().Trim();
+
+                        FOT = 0.00;
+                        HolidayOT = 0.00;
+
+                        if (dicHourlyOTW.ContainsKey(x))
+                        {
+                            FOT = clsStaticInfo.dbl(dicHourlyOTW[x]["Duration"].ToString());
+                            ExtraOTW = clsStaticInfo.dbl(dicHourlyOTW[x]["DurationH"].ToString());
+                        }
+                        if (dicHourlyOTH.ContainsKey(x))
+                        {
+                            HolidayOT = clsStaticInfo.dbl(dicHourlyOTH[x]["Duration"].ToString());
+                            if (dicH.ContainsKey(x))
+                            {
+                                //ExtraOTH = clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString());
+                                sheet1.Range[xlsRow, colHolidayOT].Number = clsStaticInfo.dbl(dicH[x]) * (clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString()));
+
+                                sheet1.Range[xlsRow, colHolidayOT].NumberFormat = NumberFormatTwoDecimal;
+                            }
+                        }
+                        if (x == "209740")
+                        {
+
+
+                        }
+                        if (dicW.ContainsKey(x))
+                        {
+                            FOT = (FOT / 60) * dicW[x];
+                        }
+                        double TotalOTAmount = FOT;
+                        if (dicNW.ContainsKey(x))
+                        {
+                            if (dicHourlyOTNW.ContainsKey(x))
+                            {
+
+                                ExtraOTH = clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString());
+                                TotalOTAmount += clsStaticInfo.dbl(dicNW[x]) * (clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString()));
+
+                            }
+                        }
+                        sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].Number = TotalOTAmount;
+                        sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].NumberFormat = NumberFormatTwoDecimal;
+
+
+
+                        //10
+                        sheet1.Range[xlsRow, ColSr].Number = (SrNo);
+                        sheet1.Range[xlsRow, ColSr].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColSr].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        //2
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeCode"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColIDNo].Text = dtEmployees.Rows[i]["EmployeeCode"].ToString();
+                        sheet1.Range[xlsRow, ColIDNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColIDNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        //3
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeName"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColName].Text = dtEmployees.Rows[i]["EmployeeName"].ToString();
+                        sheet1.Range[xlsRow, ColName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PlantName"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColPlantName].Text = dtEmployees.Rows[i]["PlantName"].ToString();
+                        sheet1.Range[xlsRow, ColPlantName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColPlantName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        //4
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DOJ"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColDOJ].Text = dtEmployees.Rows[i]["DOJ"].ToString();
+                        sheet1.Range[xlsRow, ColDOJ].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColDOJ].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DOS"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColDOS].Text = dtEmployees.Rows[i]["DOS"].ToString();
+                        sheet1.Range[xlsRow, ColDOS].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Contractor"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColContractor].Text = dtEmployees.Rows[i]["Contractor"].ToString();
+                        sheet1.Range[xlsRow, ColContractor].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColContractor].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString()) == false)
+                            sheet1.Range[xlsRow, colEmpCurrentStat].Text = dtEmployees.Rows[i]["EmployeeCurrentStatus"].ToString();
+                        sheet1.Range[xlsRow, colEmpCurrentStat].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colEmpCurrentStat].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeStatus"].ToString()) == false)
+                            sheet1.Range[xlsRow, colEmpStatus].Text = dtEmployees.Rows[i]["EmployeeStatus"].ToString();
+                        sheet1.Range[xlsRow, colEmpStatus].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colEmpStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        //
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["LegalDesignation"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColGVDG].Text = dtEmployees.Rows[i]["LegalDesignation"].ToString();
+                        sheet1.Range[xlsRow, ColGVDG].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColGVDG].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmpCategoryName"].ToString()) == false)// EmployeeCategory Need to Make Correct
+                            sheet1.Range[xlsRow, colEmpCategory].Text = dtEmployees.Rows[i]["EmpCategoryName"].ToString();
+                        sheet1.Range[xlsRow, colEmpCategory].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colEmpCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        //4.2
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DepartmentName"].ToString()) == false)
+                            sheet1.Range[xlsRow, cDept].Text = dtEmployees.Rows[i]["DepartmentName"].ToString();
+                        sheet1.Range[xlsRow, cDept].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cDept].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["SectionName"].ToString()) == false)
+                            sheet1.Range[xlsRow, cSec].Text = dtEmployees.Rows[i]["SectionName"].ToString();
+                        sheet1.Range[xlsRow, cSec].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["SubSectionName"].ToString()) == false)
+                            sheet1.Range[xlsRow, cSubSec].Text = dtEmployees.Rows[i]["SubSectionName"].ToString();
+                        sheet1.Range[xlsRow, cSubSec].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cSubSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["UnitName"].ToString()) == false)
+                            sheet1.Range[xlsRow, cUnit].Text = dtEmployees.Rows[i]["UnitName"].ToString();
+                        sheet1.Range[xlsRow, cUnit].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cUnit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PaymentMode"].ToString()) == false)
+                            sheet1.Range[xlsRow, cPaymentMode].Text = dtEmployees.Rows[i]["PaymentMode"].ToString();
+                        sheet1.Range[xlsRow, cPaymentMode].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cPaymentMode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Gender"].ToString()) == false)
+                            sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
+                        sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["JobLocation"].ToString()) == false)
+                            sheet1.Range[xlsRow, cJobLocation].Text = dtEmployees.Rows[i]["JobLocation"].ToString();
+                        sheet1.Range[xlsRow, cJobLocation].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cJobLocation].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["LineName"].ToString()) == false)
+                            sheet1.Range[xlsRow, cLine].Text = dtEmployees.Rows[i]["LineName"].ToString();
+                        sheet1.Range[xlsRow, cLine].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cLine].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PayRollGroup"].ToString()) == false)
+                            sheet1.Range[xlsRow, cPayrollGroup].Text = dtEmployees.Rows[i]["PayRollGroup"].ToString();
+                        sheet1.Range[xlsRow, cPayrollGroup].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cPayrollGroup].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        //5
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["GradeCode"].ToString()) == false)
+                            sheet1.Range[xlsRow, cGrade].Text = dtEmployees.Rows[i]["GradeCode"].ToString();
+                        sheet1.Range[xlsRow, cGrade].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cGrade].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["BankName"].ToString()) == false)
+                            sheet1.Range[xlsRow, colBank].Text = dtEmployees.Rows[i]["BankName"].ToString();
+                        sheet1.Range[xlsRow, colBank].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colBank].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["BankAccNo"].ToString()) == false)
+                            sheet1.Range[xlsRow, colBankAccountNo].Text = dtEmployees.Rows[i]["BankAccNo"].ToString();
+                        sheet1.Range[xlsRow, colBankAccountNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colBankAccountNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DirectManpowerCost"].ToString()) == false)
+                            sheet1.Range[xlsRow, colDirectManpowerCost].Text = dtEmployees.Rows[i]["DirectManpowerCost"].ToString();
+                        sheet1.Range[xlsRow, colDirectManpowerCost].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colDirectManpowerCost].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        sheet1.Range[xlsRow, colWeekoffDays].Text = dtEmployees.Rows[i]["WeekoffDays"].ToString();
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Gender"].ToString()) == false)
+                            sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
+                        sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, cGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                        #endregion
+                        #region Attendance Data
+                        SetCellTextAttdn(sheet1, xlsRow, ColTotalWorkingDay, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWorkingDay"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColActualWorkingDay, clsStaticInfo.dbl(dtEmployees.Rows[i]["ActualWorkingDay"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, colPayDays, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalPayDay"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColPdDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalPresent"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColLate, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLate"].ToString()));
+                        var LatePresent = Convert.ToDecimal(dtEmployees.Rows[i]["TotalPresent"].ToString()) + Convert.ToDecimal(dtEmployees.Rows[i]["TotalLate"].ToString());
+                        SetCellTextAttdn(sheet1, xlsRow, ColLatePresent, clsStaticInfo.dbl(LatePresent));
+                        SetCellTextNumber(sheet1, xlsRow, ColAbDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColLWP, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLWP"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColHlDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalHoliDay"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColWkOf, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLv"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColMLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalMLv"].ToString()));
+
+
+                        SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
+
+
+                        //ExtraOT = ExtraOTH + ExtraOTW;
+                        SetCellTextAttdn(sheet1, xlsRow, colExtraOT, ExtraOTH);
+                        SetCellTextAttdn(sheet1, xlsRow, colWeekOff, ExtraOTW);
+
+                        //}
+                        #endregion
+
+                        #region ------------------------------------Salary Sheet----------------------------------
+                        if (dicEmpSalry.ContainsKey(dtEmployees.Rows[i]["EmpSystemID"].ToString()))
+                        {
+                            List<DataRow> drSalaryHeadCollection = dicEmpSalry[dtEmployees.Rows[i]["EmpSystemID"].ToString()];
+                            if (drSalaryHeadCollection.Count > 0)
+                            {
+                                //for (int ix = 0; ix < listdsSlrStr.Count; ix++)
+                                //{
+                                //    if (listdsSlrStr[ix].HeadCategory == "Basic" )
+                                //    {
+                                //        sheet1.Range[xlsRow, colBasic].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                //        sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                //        sheet1.Range[xlsRow, colBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                //    }
+                                //    if (listdsSlrStr[ix].HeadCategory == "CTC" )
+                                //    {
+                                //        sheet1.Range[xlsRow, colCTC].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                //        sheet1.Range[xlsRow, colCTC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                //        sheet1.Range[xlsRow, colCTC].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                //    }
+                                //    if (listdsSlrStr[ix].HeadCategory == "GROSS" )
+                                //    {
+                                //        sheet1.Range[xlsRow, colGross].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                //        sheet1.Range[xlsRow, colGross].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                //        sheet1.Range[xlsRow, colGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                //    }
+
+                                //}
+                                for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
+                                {
+
+                                    if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "BASIC")
+                                    {
+                                        sheet1.Range[xlsRow, colBasic].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["EntryAmount"].ToString());
+                                        sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    }
+                                    if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "CTC")
+                                    {
+                                        sheet1.Range[xlsRow, colCTC].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["EntryAmount"].ToString());
+                                        sheet1.Range[xlsRow, colCTC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colCTC].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    }
+                                    if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "GROSS")
+                                    {
+                                        sheet1.Range[xlsRow, colGross].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["EntryAmount"].ToString());
+                                        sheet1.Range[xlsRow, colGross].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    }
+
+                                    if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "NET PAYABLE")
+                                    {
+                                        SalaryHeadSequence xx = shtList[drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()];// shtList.Where(ee => ee.SalaryHeadId == drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()).ToList();
+                                        if (xx != null)
+                                        {
+                                            sheet1.Range[xlsRow, xx.XLColIndex].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                            continue;
+                                        }
+                                    }
+
+                                    try
+                                    {
+                                        SalaryHeadSequence xx = shtList[drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()];// shtList.Where(ee => ee.SalaryHeadId == drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()).ToList();
+                                        if (xx != null)
+                                        {
+                                            if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "CTC")
+                                            {
+                                                colCtc = xx.XLColIndex;
+                                            }
+                                            if (drSalaryHeadCollection[CI]["HeadType"].ToString() == "D")
+                                            {
+                                                sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString()) * (-1);
+                                            }
+
+                                            else
+                                            {
+
+                                                sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                            }
+
+                                            sheet1.Range[xlsRow, xx.XLColIndex].NumberFormat = oRU.NumberFormatInt();
+                                            sheet1.Range[xlsRow, xx.XLColIndex].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                                            sheet1.Range[xlsRow, xx.XLColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                        throw ex;
+                                    }
+                                    if (dtbankCash.Rows.Count > 0)
+                                    {
+                                        dtbankCash.DefaultView.RowFilter = "EmpSystemId = '" + dtEmployees.Rows[i]["EmpsystemId"].ToString() + @"'";
+
+                                        if (dtbankCash.DefaultView.Count > 0)
+                                        {
+                                            sheet1.Range[xlsRow, colBankPaymentPercentage, xlsRow, colBankPaymentPercentage].Number = Convert.ToDouble(dtbankCash.DefaultView[0]["BankAmount"].ToString());
+                                            sheet1.Range[xlsRow, colBankPaymentPercentage, xlsRow, colBankPaymentPercentage].NumberFormat = ru.GetDecimalFormatlocalNetPay(Convert.ToBoolean(drSalaryHeadCollection[CI]["IntegerInDisb"].ToString()), Convert.ToInt32(drSalaryHeadCollection[CI]["DecimalNo"].ToString()), "");
+                                            sheet1.Range[xlsRow, colBankPaymentPercentage].CellStyle.Font.Size = 34;
+
+                                            sheet1.Range[xlsRow, colCashPaymentPercentage, xlsRow, colCashPaymentPercentage].Number = Convert.ToDouble(dtbankCash.DefaultView[0]["CashAmount"].ToString());
+                                            sheet1.Range[xlsRow, colCashPaymentPercentage, xlsRow, colCashPaymentPercentage].NumberFormat = ru.GetDecimalFormatlocalNetPay(Convert.ToBoolean(drSalaryHeadCollection[CI]["IntegerInDisb"].ToString()), Convert.ToInt32(drSalaryHeadCollection[CI]["DecimalNo"].ToString()), "");
+                                            sheet1.Range[xlsRow, colCashPaymentPercentage].CellStyle.Font.Size = 34;
+
+                                            totalBankPayDisbusmentAmount += clsStaticInfo.dbl(dtbankCash.DefaultView[0]["BankAmount"].ToString());
+                                            totalCashPayDisbusmentAmount += clsStaticInfo.dbl(dtbankCash.DefaultView[0]["CashAmount"].ToString());
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+                        }
+
+                        sheet1.Range[xlsRow, colTotalCTC].Formula = clsStaticInfo.GetxlsCol(colGWRDailyExtraOTweekoffOT) + xlsRow + "+" + clsStaticInfo.GetxlsCol(colHolidayOT) + xlsRow + "+" + clsStaticInfo.GetxlsCol(colCtc) + xlsRow;
+
+                        sheet1.Range[xlsRow, colTotalCTC].NumberFormat = NumberFormatTwoDecimal;
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw ex;
+                    }
+
+
+                    #endregion
+
+                    xlsRow++;
+                }//for emp count
+                int sheetEndXlsRow = xlsRow - 1;
+                #endregion ----------------------Data-----------------------
+
+                #region Line Setup
+                if (RowIndex >= (xlsRow - 1))
+                {
+                    xlsRow = RowIndex + 2;
+                }
+
+                sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].WrapText = true;
+                #endregion
+
+                #region Freeze Panes
+                var freezePan = RowIndex - 1;
+                sheet1.UsedRange["A" + freezePan].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 10;
+                #endregion
+
+                #region UsedRange Alignment
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + userId + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "EmpSalaryInfo";
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+
+                #endregion
+
+                workbook.Version = ExcelVersion.Excel2016;
+
+                if (isTopSheet == true)
+                {
+                    #region Salary Summary
+                    string filePath = HostingEnvironment.MapPath("~/") + "TempSalaeySummary.xlsx";
+                    workbook.SaveAs(filePath);
+                    workbook = application.Workbooks.Open(filePath);
+
+                    IWorksheet worksheet = workbook.Worksheets[0];
+                    worksheet.Move(4);
+
+                    #region PivotSheet 1 EmployeeStatus, PaymentMode, Department   
+                    IWorksheet pivotSheet = workbook.Worksheets[0];
+                    pivotSheet.Name = "Summary 1";
+
+                    try
+                    {
+
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = pivotSheet.GetColumnWidth(1) + pivotSheet.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.5);
+                            int totalheight = (int)((pivotSheet.GetRowHeight(1) + pivotSheet.GetRowHeight(2) + pivotSheet.GetRowHeight(3) + pivotSheet.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = pivotSheet.Pictures.AddPicture(1, 1, companyLogo);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                    #region Report Header
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+
+                    pivotSheet.Range[xlsRow, 3].Text = CmpName;
+                    pivotSheet.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    pivotSheet.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    pivotSheet.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                    pivotSheet.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow += 1;
+
+                    pivotSheet.Range[xlsRow, 3].Text = FactoryName;
+                    pivotSheet.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    pivotSheet.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                    pivotSheet.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+
+                    xlsRow += 1;
+
+                    pivotSheet.Range[xlsRow, 3].Text = FactoryAddress;
+                    pivotSheet.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    pivotSheet.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
+                    pivotSheet.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //pivotSheet.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    xlsRow += 1;
+                    pivotSheet.Range[xlsRow, 3].Text = "Salary Summary for the month of " + Convert.ToDateTime(fdateOfMonth).ToString("MMMM") + "," + Convert.ToDateTime(fdateOfMonth).ToString("yyyy");
+                    pivotSheet.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    pivotSheet.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    pivotSheet.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    pivotSheet.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    // pivotSheet.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    #endregion
+
+                    pivotSheet.Range[xlsRow + 1, 1].Text = "Report Ref No:";
+                    pivotSheet.Range[xlsRow + 1, 1].CellStyle.Font.Size = 10;
+                    pivotSheet.Range[xlsRow + 1, 1].CellStyle.Font.Bold = true;
+                    int tableColRange = 0;
+                    if (dtbankCash.Rows.Count > 0)
+                    {
+                        tableColRange = colCashPaymentPercentage;
+                    }
+                    else
+                    {
+                        tableColRange = npstruct;
+                    }
+
+                    IRange iRange = worksheet["A7:" + clsStaticInfo.GetxlsCol(tableColRange) + (sheetEndXlsRow)];
+                    IPivotCache cache2 = workbook.PivotCaches.Add(iRange);
+                    IPivotCache cache = workbook.PivotCaches.Add(iRange);
+
+
+                    #region Second Pivot table
+                    pivotSheet.Range[xlsRow + 2, 1].Text = "EmployeeStatus, PaymentMode, Department Wise Salary Summary";
+                    pivotSheet.Range[xlsRow + 2, 1, xlsRow + 2, 5].Merge();
+                    pivotSheet.Range[xlsRow + 2, 1].CellStyle.Font.Size = 12;
+
+                    pivotSheet.Range[xlsRow + 2, 1].CellStyle.Font.Bold = true;
+
+                    IPivotTable pivotTable2 = pivotSheet.PivotTables.Add("PivotTable2", pivotSheet["A8"], cache);
+
+                    pivotTable2.Fields[colEmpStatus - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable2.Fields[cPaymentMode - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable2.Fields[cDept - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable2.Fields[cSec - 1].Axis = PivotAxisTypes.Row;
+
+
+                    IPivotTable pivotTable2_1 = pivotSheet.PivotTables["PivotTable2"];
+                    pivotTable2_1.Options.RowLayout = PivotTableRowLayout.Tabular;
+                    pivotTable2_1.Options.ShowDrillIndicators = false;
+
+                    pivotTable2_1.DisplayFieldCaptions = true;
+
+                    //Add data field
+                    IPivotField field2 = pivotTable2_1.Fields[ColSr - 1];
+                    pivotTable2_1.DataFields.Add(field2, "Total Employees", PivotSubtotalTypes.Count);
+                    int pivotColumnCount = 0;
+                    IPivotField fieldGross = null;
+                    for (int i = 0; i < salList.Count; i++)
+                    {
+                        var ob = salList[i];
+                        fieldGross = null;
+                        if (ob.SalaryHead.Length > 0)
+                        {
+                            if (ob.HeadType == "E")
+                            {
+                                if (ob.SalaryHead.ToUpper() == "GROSS")
+                                {
+                                    pivotColumnCount++;
+                                    fieldGross = pivotTable2_1.Fields[ob.XLColIndex - 1];
+                                    pivotTable2_1.DataFields.Add(fieldGross, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                                }
+                                if (!ob.IsGrossComponent && ob.IsNetPayEffect)
+                                {
+                                    pivotColumnCount++;
+                                    fieldGross = pivotTable2_1.Fields[ob.XLColIndex - 1];
+                                    pivotTable2_1.DataFields.Add(fieldGross, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+                                }
+                                if (ob.SalaryHead.ToUpper() == "CTC")
+                                {
+                                    pivotColumnCount++;
+                                    fieldGross = pivotTable2_1.Fields[ob.XLColIndex - 1];
+                                    pivotTable2_1.DataFields.Add(fieldGross, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+                                }
+                            }
+                            try
+                            {
+                                if (ob.HeadType == "D")
+                                {
+                                    pivotColumnCount++;
+                                    fieldGross = pivotTable2_1.Fields[ob.XLColIndex - 1];
+                                    pivotTable2_1.DataFields.Add(fieldGross, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                                //throw ex;
+                            }
+
+                        }
+                    }
+                    try
+                    {
+                        fieldGross = null;
+                        pivotColumnCount++;
+                        fieldGross = pivotTable2_1.Fields[npstruct - 1];
+                        pivotTable2_1.DataFields.Add(fieldGross, "Net Payable", PivotSubtotalTypes.Sum);
+                        fieldGross.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+
+                        if (dtbankCash.Rows.Count > 0)
+                        {
+                            fieldGross = null;
+                            pivotColumnCount++;
+                            fieldGross = pivotTable2_1.Fields[colBankPaymentPercentage - 1];
+                            pivotTable2_1.DataFields.Add(fieldGross, "Employee", PivotSubtotalTypes.Count);
+                            fieldGross.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+                            pivotColumnCount++;
+                            fieldGross = pivotTable2_1.Fields[colBankPaymentPercentage - 1];
+                            pivotTable2_1.DataFields.Add(fieldGross, "Bank", PivotSubtotalTypes.Sum);
+                            fieldGross.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+                            pivotColumnCount++;
+                            fieldGross = pivotTable2_1.Fields[colCashPaymentPercentage - 1];
+                            pivotTable2_1.DataFields.Add(fieldGross, "Cash", PivotSubtotalTypes.Sum);
+                            fieldGross.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+
+                        }
+
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    pivotTable2_1.BuiltInStyle = PivotBuiltInStyles.PivotStyleLight1;
+
+                    int totalColumns = pivotTable2_1.RowFields.Count + pivotColumnCount;
+
+                    int lastCloumn = totalColumns + 2;
+
+                    #endregion
+
+
+                    pivotSheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    pivotSheet.IsGridLinesVisible = false;
+                    pivotSheet.IsDisplayZeros = false;
+
+                    pivotSheet.UsedRange.WrapText = false;
+                    pivotSheet.PageSetup.TopMargin = 0.5;
+                    pivotSheet.PageSetup.BottomMargin = 0.7;
+                    pivotSheet.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    pivotSheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + userId + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                    pivotSheet.PageSetup.LeftMargin = 0.5;
+                    pivotSheet.PageSetup.RightMargin = 0.2;
+                    pivotSheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    pivotSheet.PageSetup.FitToPagesTall = 0;
+                    pivotSheet.PageSetup.FitToPagesWide = 1;
+                    pivotSheet.PageSetup.PaperSize = ExcelPaperSize.PaperLegal;
+
+                    #endregion
+
+
+                    #region PivotSheet 2 Employee Category  No 
+                    IWorksheet pivotSheet2EmpC = workbook.Worksheets[1];
+                    pivotSheet2EmpC.Name = "Summary 2";
+
+                    try
+                    {
+
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = pivotSheet2EmpC.GetColumnWidth(1) + pivotSheet2EmpC.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.5);
+                            int totalheight = (int)((pivotSheet2EmpC.GetRowHeight(1) + pivotSheet2EmpC.GetRowHeight(2) + pivotSheet2EmpC.GetRowHeight(3) + pivotSheet2EmpC.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = pivotSheet2EmpC.Pictures.AddPicture(1, 1, companyLogo);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                    #region Report Header
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+
+                    pivotSheet2EmpC.Range[xlsRow, 3].Text = CmpName;
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet2EmpC.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    pivotSheet2EmpC.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    pivotSheet2EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet2EmpC.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow += 1;
+
+                    pivotSheet2EmpC.Range[xlsRow, 3].Text = FactoryName;
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+
+                    pivotSheet2EmpC.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    pivotSheet2EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet2EmpC.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+
+                    xlsRow += 1;
+
+                    pivotSheet2EmpC.Range[xlsRow, 3].Text = FactoryAddress;
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet2EmpC.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    pivotSheet2EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet2EmpC.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //pivotSheet2EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    xlsRow += 1;
+                    pivotSheet2EmpC.Range[xlsRow, 3].Text = "Salary Summary for the month of " + Convert.ToDateTime(fdateOfMonth).ToString("MMMM") + "," + Convert.ToDateTime(fdateOfMonth).ToString("yyyy");
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet2EmpC.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    pivotSheet2EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    pivotSheet2EmpC.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet2EmpC.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //pivotSheet2EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    #endregion
+
+                    pivotSheet2EmpC.Range[xlsRow + 1, 1].Text = "Report Ref No:";
+                    pivotSheet2EmpC.Range[xlsRow + 1, 1].CellStyle.Font.Size = 10;
+                    pivotSheet2EmpC.Range[xlsRow + 1, 1].CellStyle.Font.Bold = true;
+
+                    #region Second Pivot table
+
+                    lastCloumn = 1;
+                    pivotSheet2EmpC.Range[xlsRow + 2, lastCloumn].Text = "Employee Category Wise Salary Summary";
+                    pivotSheet2EmpC.Range[xlsRow + 2, lastCloumn].CellStyle.Font.Size = 12;
+                    pivotSheet2EmpC.Range[xlsRow + 2, lastCloumn, xlsRow + 2, lastCloumn + 5].Merge();
+                    pivotSheet2EmpC.Range[xlsRow + 2, lastCloumn].CellStyle.Font.Bold = true;
+
+                    IPivotTable pivotTable = pivotSheet2EmpC.PivotTables.Add("PivotTable1", pivotSheet2EmpC["A8"], cache);
+
+                    //Add Pivot table fields (Row and Column fields)
+                    pivotTable.Fields[colEmpStatus - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable.Fields[colEmpCategory - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable.Fields[cDept - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable.Fields[cSec - 1].Axis = PivotAxisTypes.Row;
+
+
+                    IPivotTable pivotTable1 = pivotSheet2EmpC.PivotTables["PivotTable1"];
+                    pivotTable1.Options.RowLayout = PivotTableRowLayout.Tabular;
+                    pivotTable1.Options.ShowDrillIndicators = false;
+
+                    pivotTable1.DisplayFieldCaptions = true;
+                    pivotTable1.BuiltInStyle = PivotBuiltInStyles.PivotStyleLight1;
+
+                    //Add data field
+                    IPivotField field = pivotTable.Fields[ColSr - 1];
+                    pivotTable.DataFields.Add(field, "Total Employee", PivotSubtotalTypes.Count);
+
+                    int pivot2ColumnCount = 0;
+                    IPivotField fieldGross2 = null;
+                    for (int i = 0; i < salList.Count; i++)
+                    {
+                        var ob = salList[i];
+                        fieldGross2 = null;
+                        if (ob.SalaryHead.Length > 0)
+                        {
+                            if (ob.HeadType == "E")
+                            {
+                                if (ob.SalaryHead.ToUpper() == "GROSS")
+                                {
+                                    pivot2ColumnCount++;
+                                    fieldGross2 = pivotTable.Fields[ob.XLColIndex - 1];
+                                    pivotTable.DataFields.Add(fieldGross2, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross2.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                                }
+                                if (!ob.IsGrossComponent && ob.IsNetPayEffect)
+                                {
+                                    pivot2ColumnCount++;
+                                    fieldGross2 = pivotTable.Fields[ob.XLColIndex - 1];
+                                    pivotTable.DataFields.Add(fieldGross2, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross2.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                                }
+                                if (ob.SalaryHead.ToUpper() == "CTC")
+                                {
+                                    pivot2ColumnCount++;
+                                    fieldGross2 = pivotTable.Fields[ob.XLColIndex - 1];
+                                    pivotTable.DataFields.Add(fieldGross2, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross2.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                                }
+                            }
+                            if (ob.HeadType == "D")
+                            {
+                                pivot2ColumnCount++;
+                                fieldGross2 = pivotTable.Fields[ob.XLColIndex - 1];
+                                pivotTable.DataFields.Add(fieldGross2, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                fieldGross2.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                            }
+
+                        }
+                    }
+                    fieldGross2 = null;
+                    pivot2ColumnCount++;
+                    fieldGross2 = pivotTable.Fields[npstruct - 1];
+                    pivotTable.DataFields.Add(fieldGross2, "Net Payable", PivotSubtotalTypes.Sum);
+                    fieldGross2.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+
+                    if (dtbankCash.Rows.Count > 0)
+                    {
+                        fieldGross2 = null;
+                        pivotColumnCount++;
+                        fieldGross2 = pivotTable.Fields[colBankPaymentPercentage - 1];
+                        pivotTable.DataFields.Add(fieldGross2, "Employee Bank", PivotSubtotalTypes.Count);
+                        fieldGross2.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+                        pivotColumnCount++;
+                        fieldGross2 = pivotTable.Fields[colBankPaymentPercentage - 1];
+                        pivotTable.DataFields.Add(fieldGross2, "Bank", PivotSubtotalTypes.Sum);
+                        fieldGross2.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+                        pivotColumnCount++;
+                        fieldGross2 = pivotTable.Fields[colCashPaymentPercentage - 1];
+                        pivotTable.DataFields.Add(fieldGross2, "Cash", PivotSubtotalTypes.Sum);
+                        fieldGross2.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+
+                    }
+
+
+
+
+                    pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleLight1;
+                    totalColumns = 0;
+                    totalColumns = pivotTable.RowFields.Count + pivotColumnCount;
+                    //lastCloumn = 0;
+                    //lastCloumn = totalColumns + 2;
+
+                    #endregion
+
+                    pivotSheet2EmpC.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    pivotSheet2EmpC.IsGridLinesVisible = false;
+                    pivotSheet2EmpC.IsDisplayZeros = false;
+
+                    pivotSheet2EmpC.UsedRange.WrapText = false;
+                    pivotSheet2EmpC.PageSetup.TopMargin = 0.5;
+                    pivotSheet2EmpC.PageSetup.BottomMargin = 0.7;
+                    pivotSheet2EmpC.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    pivotSheet2EmpC.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + userId + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                    pivotSheet2EmpC.PageSetup.LeftMargin = 0.5;
+                    pivotSheet2EmpC.PageSetup.RightMargin = 0.2;
+                    pivotSheet2EmpC.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    pivotSheet2EmpC.PageSetup.FitToPagesTall = 0;
+                    pivotSheet2EmpC.PageSetup.FitToPagesWide = 1;
+                    pivotSheet2EmpC.PageSetup.PaperSize = ExcelPaperSize.PaperLegal;
+                    #endregion
+
+
+                    #region PivotSheet 3 EmployeeStatus ,Employee Category and Department
+                    IWorksheet pivotSheet3EmpC = workbook.Worksheets[2];
+                    pivotSheet3EmpC.Name = "Summary 3";
+
+                    try
+                    {
+
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = pivotSheet3EmpC.GetColumnWidth(1) + pivotSheet3EmpC.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.5);
+                            int totalheight = (int)((pivotSheet3EmpC.GetRowHeight(1) + pivotSheet3EmpC.GetRowHeight(2) + pivotSheet3EmpC.GetRowHeight(3) + pivotSheet3EmpC.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = pivotSheet3EmpC.Pictures.AddPicture(1, 1, companyLogo);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                    #region Report Header
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+
+                    pivotSheet3EmpC.Range[xlsRow, 3].Text = CmpName;
+                    pivotSheet3EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet3EmpC.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    pivotSheet3EmpC.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    pivotSheet3EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                    pivotSheet3EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet3EmpC.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow += 1;
+
+                    pivotSheet3EmpC.Range[xlsRow, 3].Text = FactoryName;
+                    pivotSheet3EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet3EmpC.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    pivotSheet3EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                    pivotSheet3EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet3EmpC.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+
+                    xlsRow += 1;
+
+                    pivotSheet3EmpC.Range[xlsRow, 3].Text = FactoryAddress;
+                    pivotSheet3EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet3EmpC.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    pivotSheet3EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
+                    pivotSheet3EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet3EmpC.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow += 1;
+                    pivotSheet3EmpC.Range[xlsRow, 3].Text = "Salary Summary for the month of " + Convert.ToDateTime(fdateOfMonth).ToString("MMMM") + "," + Convert.ToDateTime(fdateOfMonth).ToString("yyyy");
+                    pivotSheet3EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet3EmpC.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    pivotSheet3EmpC.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    pivotSheet3EmpC.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    pivotSheet3EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet3EmpC.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    #endregion
+
+                    pivotSheet3EmpC.Range[xlsRow + 1, 1].Text = "Report Ref No:";
+                    pivotSheet3EmpC.Range[xlsRow + 1, 1].CellStyle.Font.Size = 10;
+                    pivotSheet3EmpC.Range[xlsRow + 1, 1].CellStyle.Font.Bold = true;
+
+                    #region Second Pivot table
+
+                    totalColumns += pivotTable.RowFields.Count + pivot2ColumnCount;
+
+                    lastCloumn = 1;
+
+                    pivotSheet3EmpC.Range[xlsRow + 2, lastCloumn].Text = "EmployeeStatus ,Employee Category and Department Wise  Salary Summary";
+                    pivotSheet3EmpC.Range[xlsRow + 2, lastCloumn].CellStyle.Font.Size = 12;
+                    pivotSheet3EmpC.Range[xlsRow + 2, lastCloumn, xlsRow + 2, lastCloumn + 5].Merge();
+                    pivotSheet3EmpC.Range[xlsRow + 2, lastCloumn].CellStyle.Font.Bold = true;
+
+                    IPivotTable pivotTable3 = pivotSheet3EmpC.PivotTables.Add("PivotTable13", pivotSheet3EmpC["A8"], cache);
+
+                    pivotTable3.Fields[colEmpStatus - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable3.Fields[cDept - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable3.Fields[colEmpCategory - 1].Axis = PivotAxisTypes.Row;
+
+                    IPivotTable pivotTable13_1 = pivotSheet3EmpC.PivotTables["PivotTable13"];
+                    pivotTable13_1.Options.RowLayout = PivotTableRowLayout.Tabular;
+                    pivotTable13_1.Options.ShowDrillIndicators = false;
+
+                    pivotTable13_1.DisplayFieldCaptions = true;
+                    pivotTable13_1.BuiltInStyle = PivotBuiltInStyles.PivotStyleLight1;
+
+                    IPivotField fields3 = pivotTable13_1.Fields[ColSr - 1];
+                    pivotTable13_1.DataFields.Add(fields3, "Total Employee", PivotSubtotalTypes.Count);
+
+                    int pivot3ColumnCount = 0;
+                    IPivotField fieldGross3 = null;
+                    for (int i = 0; i < salList.Count; i++)
+                    {
+                        var ob = salList[i];
+                        fieldGross3 = null;
+                        if (ob.SalaryHead.Length > 0)
+                        {
+                            if (ob.HeadType == "E")
+                            {
+                                if (ob.SalaryHead.ToUpper() == "GROSS")
+                                {
+                                    pivot3ColumnCount++;
+                                    fieldGross3 = pivotTable13_1.Fields[ob.XLColIndex - 1];
+                                    pivotTable13_1.DataFields.Add(fieldGross3, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross3.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                                }
+                                if (!ob.IsGrossComponent && ob.IsNetPayEffect)
+                                {
+                                    pivot2ColumnCount++;
+                                    fieldGross3 = pivotTable13_1.Fields[ob.XLColIndex - 1];
+                                    pivotTable13_1.DataFields.Add(fieldGross3, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross3.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                                }
+
+                                if (ob.SalaryHead.ToUpper() == "CTC")
+                                {
+                                    pivot2ColumnCount++;
+                                    fieldGross3 = pivotTable13_1.Fields[ob.XLColIndex - 1];
+                                    pivotTable13_1.DataFields.Add(fieldGross3, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldGross3.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                                }
+                            }
+                            if (ob.HeadType == "D")
+                            {
+                                pivot2ColumnCount++;
+                                fieldGross3 = pivotTable13_1.Fields[ob.XLColIndex - 1];
+                                pivotTable13_1.DataFields.Add(fieldGross3, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                fieldGross3.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                            }
+
+                        }
+                    }
+                    fieldGross3 = null;
+                    pivot2ColumnCount++;
+                    fieldGross3 = pivotTable13_1.Fields[npstruct - 1];
+                    pivotTable13_1.DataFields.Add(fieldGross3, "Net Payable", PivotSubtotalTypes.Sum);
+                    fieldGross3.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+
+                    if (dtbankCash.Rows.Count > 0)
+                    {
+                        fieldGross3 = null;
+                        pivotColumnCount++;
+                        fieldGross3 = pivotTable13_1.Fields[colBankPaymentPercentage - 1];
+                        pivotTable13_1.DataFields.Add(fieldGross3, "Employee Bank", PivotSubtotalTypes.Count);
+                        fieldGross3.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+                        pivotColumnCount++;
+                        fieldGross3 = pivotTable13_1.Fields[colBankPaymentPercentage - 1];
+                        pivotTable13_1.DataFields.Add(fieldGross3, "Bank", PivotSubtotalTypes.Sum);
+                        fieldGross3.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+                        pivotColumnCount++;
+                        fieldGross3 = pivotTable13_1.Fields[colCashPaymentPercentage - 1];
+                        pivotTable13_1.DataFields.Add(fieldGross3, "Cash", PivotSubtotalTypes.Sum);
+                        fieldGross3.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+
+                    }
+                    #endregion
+
+                    pivotSheet3EmpC.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    pivotSheet3EmpC.IsGridLinesVisible = false;
+                    pivotSheet3EmpC.IsDisplayZeros = false;
+
+                    pivotSheet3EmpC.UsedRange.WrapText = false;
+                    pivotSheet3EmpC.PageSetup.TopMargin = 0.5;
+                    pivotSheet3EmpC.PageSetup.BottomMargin = 0.7;
+                    pivotSheet3EmpC.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    pivotSheet3EmpC.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + userId + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                    pivotSheet3EmpC.PageSetup.LeftMargin = 0.5;
+                    pivotSheet3EmpC.PageSetup.RightMargin = 0.2;
+                    pivotSheet3EmpC.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    pivotSheet3EmpC.PageSetup.FitToPagesTall = 0;
+                    pivotSheet3EmpC.PageSetup.FitToPagesWide = 1;
+                    pivotSheet3EmpC.PageSetup.PaperSize = ExcelPaperSize.PaperLegal;
+                    #endregion
+
+
+
+
+                    #region PivotSheet 4 bank Sheet No 4
+                    IWorksheet pivotSheet2 = workbook.Worksheets[3];
+                    pivotSheet2.Name = "Bank Summary";
+
+                    try
+                    {
+
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = pivotSheet2.GetColumnWidth(1) + pivotSheet2.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.5);
+                            int totalheight = (int)((pivotSheet2.GetRowHeight(1) + pivotSheet2.GetRowHeight(2) + pivotSheet2.GetRowHeight(3) + pivotSheet2.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = pivotSheet2.Pictures.AddPicture(1, 1, companyLogo);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                    #region Report Header
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+
+                    pivotSheet2.Range[xlsRow, 3].Text = CmpName;
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet2.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    pivotSheet2.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    pivotSheet2.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                    pivotSheet2.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet2.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow += 1;
+
+                    pivotSheet2.Range[xlsRow, 3].Text = FactoryName;
+                    pivotSheet2.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+                    pivotSheet2.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    pivotSheet2.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                    pivotSheet2.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet2.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+
+                    xlsRow += 1;
+
+                    pivotSheet2.Range[xlsRow, 3].Text = FactoryAddress;
+                    pivotSheet2.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+
+                    pivotSheet2.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    pivotSheet2.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
+                    pivotSheet2.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet2.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow += 1;
+                    pivotSheet2.Range[xlsRow, 3].Text = "Salary Summary for the month of " + Convert.ToDateTime(fdateOfMonth).ToString("MMMM") + "," + Convert.ToDateTime(fdateOfMonth).ToString("yyyy");
+                    pivotSheet2EmpC.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
+
+                    pivotSheet2.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    pivotSheet2.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    pivotSheet2.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    pivotSheet2.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    pivotSheet2.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    #endregion
+
+                    pivotSheet2.Range[xlsRow + 1, 1].Text = "Report Ref No:";
+                    pivotSheet2.Range[xlsRow + 1, 1].CellStyle.Font.Size = 10;
+                    pivotSheet2.Range[xlsRow + 1, 1].CellStyle.Font.Bold = true;
+                    //tableColRange = 0;
+                    //if (dtbankCash.Rows.Count > 0)
+                    //{
+                    //    tableColRange = colCashPaymentPercentage;
+                    //}
+                    //else
+                    //{
+                    //    tableColRange = npstruct;
+                    //}
+
+                    ///IRange iRange = worksheet["A7:" + clsStaticInfo.GetxlsCol(tableColRange) + (sheetEndXlsRow)];
+                    //IPivotCache cache2 = workbook.PivotCaches.Add(iRange);
+                    //IPivotCache cache = workbook.PivotCaches.Add(iRange);
+
+
+                    #region Second Pivot table
+                    pivotSheet2.Range[xlsRow + 2, 1].Text = "EmployeeStatus, PaymentMode, Bank Wise Salary Summary";
+                    pivotSheet2.Range[xlsRow + 2, 1, xlsRow + 2, 5].Merge();
+                    pivotSheet2.Range[xlsRow + 2, 1].CellStyle.Font.Size = 12;
+
+                    pivotSheet2.Range[xlsRow + 2, 1].CellStyle.Font.Bold = true;
+
+                    IPivotTable pivotTableBank = pivotSheet2.PivotTables.Add("PivotTableBank", pivotSheet2["A8"], cache);
+
+                    pivotTableBank.Fields[colEmpStatus - 1].Axis = PivotAxisTypes.Row;
+                    pivotTableBank.Fields[cPaymentMode - 1].Axis = PivotAxisTypes.Row;
+                    pivotTableBank.Fields[colBank - 1].Axis = PivotAxisTypes.Row;
+                    //pivotTableBank.Fields[cSec - 1].Axis = PivotAxisTypes.Row;
+
+
+                    IPivotTable pivotTableBank_1 = pivotSheet2.PivotTables["PivotTableBank"];
+                    pivotTableBank_1.Options.RowLayout = PivotTableRowLayout.Tabular;
+                    pivotTableBank_1.Options.ShowDrillIndicators = false;
+
+                    pivotTableBank_1.DisplayFieldCaptions = true;
+
+                    //Add data field
+                    IPivotField fieldbank = pivotTableBank_1.Fields[ColSr - 1];
+                    pivotTableBank_1.DataFields.Add(fieldbank, "Total Employees", PivotSubtotalTypes.Count);
+                    pivotColumnCount = 0;
+                    IPivotField fieldBankGross = null;
+                    for (int i = 0; i < salList.Count; i++)
+                    {
+                        var ob = salList[i];
+                        fieldBankGross = null;
+                        if (ob.SalaryHead.Length > 0)
+                        {
+                            if (ob.HeadType == "E")
+                            {
+                                if (ob.SalaryHead.ToUpper() == "GROSS")
+                                {
+                                    pivotColumnCount++;
+                                    fieldBankGross = pivotTableBank_1.Fields[ob.XLColIndex - 1];
+                                    pivotTableBank_1.DataFields.Add(fieldBankGross, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldBankGross.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+                                }
+                                if (!ob.IsGrossComponent && ob.IsNetPayEffect)
+                                {
+                                    pivotColumnCount++;
+                                    fieldBankGross = pivotTableBank_1.Fields[ob.XLColIndex - 1];
+                                    pivotTableBank_1.DataFields.Add(fieldBankGross, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldBankGross.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+                                }
+                                if (ob.SalaryHead.ToUpper() == "CTC")
+                                {
+                                    pivotColumnCount++;
+                                    fieldBankGross = pivotTableBank_1.Fields[ob.XLColIndex - 1];
+                                    pivotTableBank_1.DataFields.Add(fieldBankGross, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldBankGross.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+                                }
+                            }
+                            try
+                            {
+                                if (ob.HeadType == "D")
+                                {
+                                    pivotColumnCount++;
+                                    fieldBankGross = pivotTableBank_1.Fields[ob.XLColIndex - 1];
+                                    pivotTableBank_1.DataFields.Add(fieldBankGross, ob.SalaryHead, PivotSubtotalTypes.Sum);
+                                    fieldBankGross.NumberFormat = ru.GetDecimalFormatlocal(ob.DecimalNo, "");
+
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                                //throw ex;
+                            }
+
+                        }
+                    }
+                    try
+                    {
+                        fieldBankGross = null;
+                        pivotColumnCount++;
+                        fieldBankGross = pivotTableBank_1.Fields[npstruct - 1];
+                        pivotTableBank_1.DataFields.Add(fieldBankGross, "Net Payable", PivotSubtotalTypes.Sum);
+                        fieldBankGross.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+
+                        if (dtbankCash.Rows.Count > 0)
+                        {
+                            fieldBankGross = null;
+                            pivotColumnCount++;
+                            fieldBankGross = pivotTableBank_1.Fields[colBankPaymentPercentage - 1];
+                            pivotTableBank_1.DataFields.Add(fieldBankGross, "Employee", PivotSubtotalTypes.Count);
+                            fieldBankGross.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+                            pivotColumnCount++;
+                            fieldBankGross = pivotTableBank_1.Fields[colBankPaymentPercentage - 1];
+                            pivotTableBank_1.DataFields.Add(fieldBankGross, "Bank", PivotSubtotalTypes.Sum);
+                            fieldBankGross.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+                            pivotColumnCount++;
+                            fieldBankGross = pivotTableBank_1.Fields[colCashPaymentPercentage - 1];
+                            pivotTableBank_1.DataFields.Add(fieldBankGross, "Cash", PivotSubtotalTypes.Sum);
+                            fieldBankGross.NumberFormat = ru.GetDecimalFormatlocal(0, "");
+
+                        }
+
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    pivotTableBank_1.BuiltInStyle = PivotBuiltInStyles.PivotStyleLight1;
+                    totalColumns = 0;
+                    totalColumns = pivotTableBank_1.RowFields.Count + pivotColumnCount;
+                    //lastCloumn = 0;
+                    //lastCloumn = totalColumns + 2;
+
+                    #endregion
+
+                    pivotSheet2.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    pivotSheet2.IsGridLinesVisible = false;
+                    pivotSheet2.IsDisplayZeros = false;
+
+                    pivotSheet2.UsedRange.WrapText = false;
+                    pivotSheet2.PageSetup.TopMargin = 0.5;
+                    pivotSheet2.PageSetup.BottomMargin = 0.7;
+                    pivotSheet2.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    pivotSheet2.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + userId + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                    pivotSheet2.PageSetup.LeftMargin = 0.5;
+                    pivotSheet2.PageSetup.RightMargin = 0.2;
+                    pivotSheet2.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    pivotSheet2.PageSetup.FitToPagesTall = 0;
+                    pivotSheet2.PageSetup.FitToPagesWide = 1;
+                    pivotSheet2.PageSetup.PaperSize = ExcelPaperSize.PaperLegal;
+                    #endregion
+                    #endregion
+
+                    workbook.ActiveSheetIndex = 0;
+                }
+
+                return workbook;
+                //}
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                //objRpt = null;
+                //excelEngine = null;
+                //application = null;
+                //workbook = null;
+            }
+        }
+
         public Dictionary<string, object> GetFinalOTForforSpecincDayType(string DayCategory, string year, string month, string plantId, Dictionary<string, string> parameters)
         {
             try
@@ -4451,6 +6146,210 @@ namespace Library.HumanResource.Report.OT
                 objCon = null;
             }
         }//End Function
+
+        //With Type 
+        public void GetEmployeeInfoDetailSalaryLogWiseWithType(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string typeId,out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            string salaryProcessId = "";
+            var _wc = string.Empty;
+            var wcSalaryProcessSystemIdStr = "";
+
+
+            if (!string.IsNullOrEmpty(salaryProcessSystemId) && salaryProcessSystemId != "undefined" && salaryProcessSystemId != "null")
+            {
+                wcSalaryProcessSystemIdStr = "SystemID IN ('" + salaryProcessSystemId + @"')";
+            }
+            else
+            {
+                wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                                        WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
+                                        AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
+
+
+                string strSql = @"SELECT SystemID FROM SalaryProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                                        WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
+                                        AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')";
+
+                DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
+                salaryProcessId = "''";
+                for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
+                {
+                    salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
+                }
+            }
+            string wcEmpStatus = " AND (1=0 ";
+
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND (1=1 ";
+            }
+            else
+            {
+                if (isActive == true)
+                {
+                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='Regular'";
+                }
+                if (isSeperated == true)
+                {
+                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='SEPARATED'";
+                }
+                if (isMaternity == true)
+                {
+                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='MLV_PRE'";
+
+                }
+            }
+
+            wcEmpStatus += ")";
+
+            try
+            {
+                strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage
+                            FROM
+                                    (
+									SELECT DISTINCT E.SystemID EmpSystemId, isnull(E.VendorId,'') as ContractorId , isnull(P.UserName,'') as Contractor ,AP.WorkDays,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
+											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
+											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
+											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,
+											EC.UserName EmpCategoryName,EC.WorkingDaysInAMonth--, BK.BankNameShort BankName, BK.BankNameFull, E.BankAccNo
+                                            ,egdsgg.GivenDesignationGroup,e.SalaryRuleMasterSystemID,Format(E.DOJ,'dd-MMM-yyyy') DOJ,Format(E.DOS,'dd-MMM-yyyy') DOS,Format(E.DOB,'dd-MMM-yyyy') DOB
+											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
+											,ISNULL(Line.UserName,'') LineName
+											,ISNULL(E.GenderID,'') Gender
+                                            ,ISNULL(LSalGr.Code,'') GradeCode
+											,ISNULL(PG.UserName,'') PayRollGroup
+                                    , CASE WHEN ISNULL(SPM.SalaryProcFlag,'') = '' THEN 'Regular' ELSE SalaryProcFlag END EmployeeStatus
+                                    ,ISNULL(jl.JobLocation, '') JobLocation
+									,ISNULL(SPLD.PaymentMode,'') PaymentMode
+									,ISNULL(bb.UserName,'') BankName
+                                    ,ISNULL(spld.BankAccNo,'') BankAccNo
+                                    ,ISNULL(spld.IFSCCode,'') IFSCCode
+                                    ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
+                                    ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
+
+                                     FROM EmployeeInformation E
+                                    JOIN (
+                                    SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
+                                    FROM SalaryProcChild c
+                                    JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
+                                    WHERE SlrProcMstSystemID in (SELECT systemid FROM SalaryProcMaster WHERE MonthNo= MONTH('" + fromDate + @"') AND YearNo=YEAR('" + toDate + @"'))
+                                    AND PlantID in (" + plantId + @")
+                                    ) SPM ON spm.EmpInfoSystemID=e.SystemId
+									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
+                         
+									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
+												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
+												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
+												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
+								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
+								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
+                                LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+                                LEFT JOIN [HKP].[PARTY] P ON P.ID = E.VendorId
+												LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+												  LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
+									LEFT JOIN [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
+                                    LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+                                        left join (select EmpSystemID,count(*) AS WorkDays from AttdnProcessData 
+                                        where WorkDate between '" + fromDate + @"' and '" + toDate + @"' and DayStatus NOT IN(select DayType from DayType where Category='Weekend')
+                                        group by EmpSystemID) AS AP ON AP.EmpSystemID=e.SystemId
+									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+                                                LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LDS.Id and E.PlantId = LSGD.PlantId
+                                                LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId  --and SPLD.PlantId = LSalGr.PlantId
+												
+												LEFT JOIN org.Unit FU ON ENT.UnitID = FU.Id
+												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
+												LEFT JOIN org.Department DP ON PO.DepartmentID = DP.Id
+												LEFT JOIN org.Section S ON PO.SectionID = S.Id
+												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
+
+												LEFT JOIN
+                                                --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
+            --                                    (
+            --                                    SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+												--LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+												--)EC ON EC.DesignationId=E.GivenDesignationId
+												[HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
+												LEFT JOIN (SELECT dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
+									            ,dg.UserName GivenDesignationGroup
+									            FROM MST.DesignationMaster dm
+									            LEFT JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+									            ) egdsgg ON egdsgg.DesignationId=e.GivenDesignationId
+									            AND egdsgg.EmployeeCategoryId=SPLD.EmployeeCategoryId
+                                                where E.EmployeeCodeTypeId in ( "+typeId+@")
+                                      --Where SPC.SlrProcMstSystemID IN( SELECT SystemID FROM SalaryProcMaster
+                                      --WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                                        --WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
+                                        --AND MonthNo =   MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')   )   
+									) EmpBasic
+                                   LEFT JOIN 
+													(
+													 SELECT E.SystemID, SUM(SV.SalaryHeadValue) SalaryHeadValue,LSG.UserName Grade
+														FROM EmployeeInformation E   
+																LEFT JOIN MST.ManpowerBudget b ON e.BudgetCode = b.Id
+																LEFT JOIN MST.LegalSalaryGradeDesignation GD ON GD.LegalDesignationId = E.LegalDesignationId 
+                                                                                                AND E.PlantId = gd.PlantId
+																LEFT JOIN (
+																			SELECT MAX(EffectiveDate) EffectiveDate, LegalSalaryGradeId, EmployeeLocationId 
+																				FROM MST.LegalSalaryStructure 
+																				WHERE EffectiveDate <= '" + fromDate + @"'
+																			GROUP BY LegalSalaryGradeId, EmployeeLocationId 
+																		  ) S ON S.LegalSalaryGradeId = GD.LegalSalaryGradeId AND S.EmployeeLocationId = B.EmployeeLocationId
+																LEFT JOIN MST.LegalSalaryStructure SS ON SS.LegalSalaryGradeId = S.LegalSalaryGradeId 
+                                                                                            AND SS.EmployeeLocationId = S.EmployeeLocationId 
+                                                                                            AND SS.EffectiveDate = S.EffectiveDate
+																LEFT JOIN MST.LegalSalaryStructureValue SV ON SV.LegalSalaryStructureId = SS.Id 	
+                                                                left join  [SCS].[LegalSalaryGrade] LSG ON LSG.Id=S.LegalSalaryGradeId	
+														GROUP BY E.SystemId,LSG.UserName
+													) MW ON MW.SystemId = EmpBasic.EmpSystemId
+                                    INNER JOIN
+		                                    (
+													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalWorkingDay,0) TotalWorkingDay,ISNULL(TotalPayDay,0)TotalPayDay,ISNULL(TotalNonPayDay,0)TotalNonPayDay,ISNULL(ActualWorkingDay,0)ActualWorkingDay,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
+										,ISNULL(TotalLv,0) TotalLv,WeekoffDays
+										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
+										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
+										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
+										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
+						                               MMDSA.YearNo = YEAR('" + fromDate + @"') AND MMDSA.PlantID in (" + plantId + @")
+											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
+                                            WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"'  AND EmpBasic.PlantId in (" + plantId + @") " + wcEmpStatus + @"";
+                try
+                {
+                    if (parameters.Count > 0)
+                    {
+                        if (parameters.Keys.ElementAt(0) != "")
+                        {
+                            strSQL += @"and EmpBasic.EmpSystemId IN(" + parameters["EmpSystemId"] + ")";
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+                strSQL += @"Order by EmpBasic.EmployeeCodePreFix,EmpBasic.EmployeeCodeNumeric ";
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
+                con.getDataSet(strSQL, out dsRef);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
 
         private void FormatText(ref IWorksheet sheet1, ref IRichTextString rtf, string NewText, double FontSize)
         {
