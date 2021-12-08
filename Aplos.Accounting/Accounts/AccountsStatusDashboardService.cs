@@ -18158,7 +18158,7 @@ union ALL
         {
             var sql = @"select x.* from (
 
-                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                         SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,isnull( V.VoucherNo,'')VoucherNo
                                         , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
@@ -18196,17 +18196,19 @@ union ALL
 															end
 
 										, ISNULL(IVD.NetAmount,0) AS Gross
-										,ISNULL(IDND.DNAmount,0) DebitNoteAmount
-										,isnull( IWD.TaxAmount ,0)TaxAmount,
-                                         SetOff=ISNULL(IVD.WrittenOffAmount, 0) - (ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0))
-										 , ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+										,0 DebitNoteAmount
+										,isnull( IWD.TaxAmount ,0)TaxAmount
+           --                              ,SetOff=ISNULL(IVD.WrittenOffAmount, 0) - (ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0))
+										 --, ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+										 ,SetOff=ISNULL(IDND.WrittenOffAmount,0)
+										 , ISNULL(IVD.NetAmount-ISNULL(IDND.WrittenOffAmount,0),0) AS Balance
 
-							
+										,CC.CompanyCurrencyRate
 										,ISNULL(IVD.NetAmount*CC.CompanyCurrencyRate,0) AS BooksGross
-								    	,ISNULL(IDND.DNAmount * CC.CompanyCurrencyRate,0) DebitNoteBooksAmount
+								    	,0 DebitNoteBooksAmount
 										,isnull(IWD.TaxAmount* CC.CompanyCurrencyRate,0) BooksTaxAmount
-										,ISNULL (IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) -(ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0))  AS BooksSetOff
-										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+										,ISNULL((ISNULL(IDND.WrittenOffAmount,0)*CC.CompanyCurrencyRate),0)   AS BooksSetOff
+										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(ISNULL(IDND.WrittenOffAmount,0)*CC.CompanyCurrencyRate),0) AS BooksBalance
 										
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
@@ -18223,9 +18225,10 @@ union ALL
 								            group by wd.InvoiceDetailId
 								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
 
-                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) WrittenOffAmount  FROM TRN.InvoiceWriteOffDetail WD 
 								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
-								                where WD.InvoiceDetailId<>''
+								                where WD.InvoiceDetailId<>'' and DNW.PaymentSource<>'Tax'
+												and  DNW.PostingDate <= '" + ToDate + @"'
 								                group by wd.InvoiceDetailId
 								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
 										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
@@ -18237,7 +18240,7 @@ union ALL
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
-                                        WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+                                        WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable')
                                         AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + @"' --AND IV.PlantId='20171'
                                         and IV.PurchaseDocAcceptanceId is null 
                                         and IV.PostingDate <= '" + ToDate + @"'
@@ -18280,17 +18283,18 @@ union ALL
 															end
 
 										, ISNULL(IVD.NetAmount,0) AS Gross
-										,ISNULL(IDND.DNAmount,0) DebitNoteAmount
-										,isnull( IWD.TaxAmount ,0)TaxAmount,
-                                         SetOff=ISNULL(IVD.WrittenOffAmount, 0) - (ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0))
-										 , ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+										,0 DebitNoteAmount
+										,isnull( IWD.TaxAmount ,0)TaxAmount 
+										,SetOff=ISNULL(IDND.WrittenOffAmount,0)
+										 , ISNULL(IVD.NetAmount-ISNULL(IDND.WrittenOffAmount,0),0) AS Balance
 
-							
+							            ,CC.CompanyCurrencyRate
 										,ISNULL(IVD.NetAmount*CC.CompanyCurrencyRate,0) AS BooksGross
-									    ,ISNULL(IDND.DNAmount * CC.CompanyCurrencyRate,0) DebitNoteBooksAmount
+									    ,0 DebitNoteBooksAmount
 										,isnull(IWD.TaxAmount* CC.CompanyCurrencyRate,0) BooksTaxAmount
-										,ISNULL (IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) -(ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0))  AS BooksSetOff
-										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+										,ISNULL((ISNULL(IDND.WrittenOffAmount,0)*CC.CompanyCurrencyRate),0)   AS BooksSetOff
+										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(ISNULL(IDND.WrittenOffAmount,0)*CC.CompanyCurrencyRate),0) AS BooksBalance
+										
 
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
@@ -18306,9 +18310,10 @@ union ALL
 								                where w.PaymentSource='Tax'
 								                group by wd.InvoiceDetailId
 								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
-                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+                                         LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) WrittenOffAmount  FROM TRN.InvoiceWriteOffDetail WD 
 								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
-								                where WD.InvoiceDetailId<>''
+								                where WD.InvoiceDetailId<>'' and DNW.PaymentSource<>'Tax'
+												and  DNW.PostingDate <= '" + ToDate + @"'
 								                group by wd.InvoiceDetailId
 								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
                                         LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
@@ -18329,6 +18334,7 @@ union ALL
 
 
 										) x
+                                        where x.Balance>0
 										order by x.SortDocDate asc";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -21061,238 +21067,108 @@ group by Id) O60 ON O60.Id=IV.Id
         {
             try
             {
-                string dateStatus = " ";
-                //if (dateRange == true)
-                //{
-                //    dateStatus = " AND V.PostingDate Between '" + fromDate + "' AND '" + toDate + @"'";
-                //}
-                //else
-                //{
+                var sql = @"select x.* from (
 
-                //    dateStatus = " AND V.PostingDate <= '" + fromDate + @"' ";
+                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,isnull( V.VoucherNo,'')VoucherNo,VD.VoucherId,isnull( PDA.InvoiceNo,'')InvoiceNo
+										 ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,PONo= isnull( STUFF((select distinct ','+xpomap.POId from
+											dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+											LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
+										where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+                                        , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo
+										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
+										, C.Code CurrencyCode
+										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
+										
+										,Days=DATEDIFF(DAY, GETDATE(),IV.BaseOnDueDate)
+										,AgingInvoice= case 
+													--	when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then 'Overdue'
 
-                //}
-
-                var sql = @"select IR.Id InventoryReceiveId
-                    --,IR.CurrencyId
-                    ,C.Code Currency
-					
-                    ,IR.PartyId
-					,p.UserName Vendor
-					,IR.PartyType
-                    , IR.DocRefNo
-					,isnull( format( IR.DocDate, 'dd-MMM-yyyy'),'')DocDate
-                    ,IR.GateEntryNo
-					,IR.EntryDate
-                    ,IR.IsApproved
-                    --,IR.POId
-                    -- IR.PurchaseDocumentAcceptanceId
-                    ,GAM.PurchaseDocumentAcceptanceId
-                    ,IR.IsInvoice
-					,IR.GRNType
-					,isnull(format( IR.GRNDate,'dd-MMM-yyyy'),'')GRNDate
-                    ,ISNULL( IR.EmployeeId,'')EmployeeId
-
-                  --  ,IRD.InventoryMaterialId
-                    ,SUM(ISNULL( IRD.TransactionQty ,0))TransactionQty
-					--,IRD.TransactionUoMId
-					--,IRD.BaseUOMId
-                    --,SUM(IRD.TrnCurrencyBaseRate)TrnCurrencyBaseRate
-                   -- ,SUM(IRD.MaterialTranRate)MaterialTranRate
-					,SUM(IRD.MaterialTranAmount)MaterialTranAmount
-                    ,SUM(IRD.TotalTaxAmount)TotalTaxAmount
-					,SUM(IRD.ChargesTranAmount)ChargesTranAmount
-					,SUM(IRD.ChargesTaxTranAmount)ChargesTaxTranAmount
-					,SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount
-
-					,cc.Code ComCurrency
-					--,IRD.BaseQty
-				--	,SUM(IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
-                    ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
-             
-				
-                    --,IRD.POId
-					,IRD.IsAsset
-                    ,SUM( IRD.GRNQty)GRNQty
-					, SUM(IRD.GRNTotalAmount)GRNTotalAmount
-                    ,SUM(IRD.GrossAmount)GrossAmount
-					,SUM(IRD.DiscountAmount)DiscountAmount
-
-						--,IRD.IssueQty
-                       -- ,IRD.BaseIssueQty
-
-                     --,po.Id POId 
-					-- ,po.DocRefNo PODocRefNo
-					-- ,po.DocDate PODocDate
-                   -- ,po.PODate
-					--,po.POType
-				--	,po.OrderSpecific
-
-                    --,IR.FixedAssetOrInventory
-                    --,IR.AlongwithInvoice,IR.InvoiceNo,IR.InvoiceDate,IR.BaseOnDueDate
-                    --,IR.BaseNoOfDays,IR.MatureDate,IR.Status,IR.BaseCurrencyId,IR.ToCurrencyRate
-                    --,IR.JWWIPVoucherId,IR.JWGRIRVoucherId,IR.JWChangeInInvVoucherId
-
-                  --  ,plc.Id PurchaseLCId
-				--	,plc.ContractId
-					--, plc.LCRef PLCRef
-                   -- ,plc.LCANo
-                  --  ,isnull( plc.IsAccepptanceFirst,0)IsAccepptanceFirst
-                  --  ,plc.LCDate
-				--	,plc.Type
-				, SUM(isnull( plc.Amount,0) )PLCAmount
-
-				    --,con.Id ContractId 	,con.ContractNo, con.UDNo, cus.UserName Customer
-					--,ML.Id MasterLCId, ML.LCRef MLCRef
-					,Sum(isnull( ml.Amount ,0))MLCAmount
-
-					  ,POId= STUFF((select distinct ','+PG.POId
-			                            FROM TRN.POGGRNMap PG 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-					 ,PODocRefNo= STUFF((select distinct ','+PO.DocRefNo
-			                            from TRN.POGGRNMap PG 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-			                            where PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                  
-				    ,PLCRef= STUFF((select distinct ','+PLC.LCRef
-			                            FROM PurchaseLC PLC 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
-										left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
 
 
-				    ,PINo= STUFF((select distinct ','+PLC.PINo
-			                            FROM PurchaseLC PLC 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
-										left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+															end
+										,AgingSorting= case 
+														--when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then '1.Overdue'
 
-					--,plc.LCDate LCOpeningDate
-					--,plc.ExpiryDate
-
-               ,LCOpeningDate= STUFF((select distinct ','+FORMAT(PLC.LCDate,'dd-MMM-yyyy')
-			                            FROM PurchaseLC PLC 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
-										left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-			    ,ExpiryDate= STUFF((select distinct ','+format( PLC.ExpiryDate,'dd-MMM-yyyy')
-			                            FROM PurchaseLC PLC 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
-										left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
 
 
-				 --,PLCAmount= STUFF((select distinct ','+PLC.Amount
-			  --                          FROM PurchaseLC PLC 
-     --                                   LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
-					--					left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			  --                          WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
+															end
 
-			
-				,ContractNo= STUFF((select distinct ','+Con.ContractNo
-			                            FROM Contract Con 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
-										left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										, ISNULL(IVD.NetAmount,0) AS Gross
+										,0 DebitNoteAmount
+										,isnull( IWD.TaxAmount ,0)TaxAmount,
+                                         SetOff=ISNULL(IRD.TotalMaterialTranAmount, 0) 
+										 , ISNULL(IVD.NetAmount-ISNULL(IRD.TotalMaterialTranAmount, 0),0) AS Balance
 
+										,CC.CompanyCurrencyRate
+										,ISNULL(IVD.NetAmount*CC.CompanyCurrencyRate,0) AS BooksGross
+								    	,0 DebitNoteBooksAmount
+										,isnull(IWD.TaxAmount* CC.CompanyCurrencyRate,0) BooksTaxAmount
+										,ISNULL (ISNULL(IRD.TotalMaterialTranAmount, 0)*CC.CompanyCurrencyRate,0)   AS BooksSetOff
+										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(ISNULL(IRD.TotalMaterialTranAmount, 0)*CC.CompanyCurrencyRate),0) AS BooksBalance
+										
+                                        FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+										LEFT JOIN TRN.PurchasedocAcceptance AS PDA ON IV.PurchaseDocAcceptanceId=PDA.Id
+									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+										LEFT JOIN (SELECT PurchaseDocumentAcceptanceId,SUM(MaterialTranAmount) MaterialTranAmount
+											,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
+											,SUM(ChargesTaxTranAmount) ChargesTaxTranAmount
+											FROM TRN.InventoryReceiveDetail GROUP BY PurchaseDocumentAcceptanceId) AS IRD ON IRD.PurchaseDocumentAcceptanceId=PDA.Id
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+								        LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+								            where w.PaymentSource='Tax'
+								            group by wd.InvoiceDetailId
+								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
 
-			,Customer= STUFF((select distinct ','+cus.UserName
-			                            FROM Contract Con 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
-                                        LEFT JOIN hkp.Party cus ON cus.Id= con.CustomerId	
-										left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-
-			,UDNo= STUFF((select distinct ','+Con.UDNo
-			                            FROM Contract Con 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
-                                       -- LEFT JOIN hkp.Party cus ON cus.Id= con.CustomerId	
-										left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-													
-				,MasterLCRef= STUFF((select distinct ','+mlc.LCRef
-			                            FROM Contract Con 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
-                                        LEFT JOIN MasterLC mlc ON mlc.Id=Con.MasterLCId	
-										left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								
-			--	,MLCAmount= STUFF((select distinct ','+mlc.Amount
-			--                            FROM Contract Con 
-   --                                     LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
-   --                                     LEFT JOIN MasterLC mlc ON mlc.Id=Con.MasterLCId	
-			--							left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			--                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-
-
-
-				   from trn.InventoryReceive IR  
-                    left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId = IR.Id
-                    LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
-                    left join trn.PurchaseOrder po on po.Id =IRD.POId
-                    left join PurchaseLC plc on plc.Id = po.PurchaseLCId
-                    LEFT JOIN TRN.GRNAcceptanceMap GAM ON GAM.GRNId =IR.Id
-					left join HKP.party p on p.Id = ir.PartyId
-					left join org.Company Com on Com.Id = IR.CompanyId
-                    LEFT JOIN SCS.Currency CC ON CC.Id = Com.BaseCurrencyId
-					left join [Contract] as Con on plc.ContractId= Con.Id
-					left join MasterLC ML on ML.Id=con.MasterLCId
-					--left join HKP.party Cus on cus.Id= con.CustomerId
-					
-                    where IR.CompanyGroupId = '" + companyGroupId+"' AND IR.CompanyId ='"+companyId+"' AND IR.PlantId='"+plantId+ @"'
-                    AND  IR.IsInvoice=0 
-					and GAM.PurchaseDocumentAcceptanceId is null
-	                AND IR.Id not in (select InventoryReceiveId from trn.Invoice where InventoryReceiveId<>'')
-					AND IR.Id not in (select InventoryReceiveId from trn.EmployeePayable where InventoryReceiveId<>'')
-					and ir.VoucherId<>''
-                          and IR.GRNDate <='" + toDate+@"'
-			              --and plc.IsAccepptanceFirst=0
-					--AND IR.Id='2021638'
-					group by 
-					IR.Id 
-					,cc.Code
-                    ,C.Code 
-                    ,IR.PartyId
-					,IR.PartyType
-                    , IR.DocRefNo
-					, IR.DocDate
-                    ,IR.GateEntryNo
-					,IR.EntryDate
-                    ,IR.IsApproved
-                    ,GAM.PurchaseDocumentAcceptanceId
-                    ,IR.IsInvoice
-					,IR.GRNType
-					,IR.GRNDate
-                    ,IR.EmployeeId
-
-                   -- ,IRD.InventoryMaterialId
-					,IRD.IsAsset
-					,p.UserName
-                   --  ,po.Id  
-					-- ,po.DocRefNo 
-					-- ,po.DocDate 
-                   -- ,po.PODate
-				--	,po.POType
-					--,po.OrderSpecific
-
-                   -- ,plc.Id 
-					--,plc.ContractId
-					--, plc.LCRef
-                  --  ,plc.LCANo
-                 --   ,plc.IsAccepptanceFirst
-                  --  ,plc.LCDate
-				--	,plc.Type
-					
-
-					-- ,con.Id ,con.ContractNo, con.UDNo, cus.UserName 
-				--	,ML.Id , ML.LCRef, ml.Amount ";
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
+								                where WD.InvoiceDetailId<>''
+								                group by wd.InvoiceDetailId
+								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
+										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                        WHERE IV.Archive=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('PurchaseDocAcceptance')
+                                        AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"'
+                                       
+                                        and IV.PostingDate <= '" + toDate + @"'
+										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
+										) x
+                                        where x.Balance>0
+										order by x.SortDocDate asc";
                 return _sqlRepository.GetDataCollection(sql);
+                
             }
             catch (Exception ex)
             {
@@ -21322,10 +21198,8 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 //}
 
-                var sql = @"select IR.Id InventoryReceiveId
-                    --,IR.CurrencyId
-                    ,C.Code Currency
-					
+                var sql = @"select IR.Id GRNNo
+                    ,V.VoucherNo
                     ,IR.PartyId
 					,p.UserName Vendor
 					,IR.PartyType
@@ -21357,6 +21231,8 @@ group by Id) O60 ON O60.Id=IV.Id
 					,cc.Code ComCurrency
 					--,IRD.BaseQty
 				--	,SUM(IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
+					,C.Code Currency
+				    ,IR.ToCurrencyRate
                     ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
              
 				
@@ -21478,8 +21354,7 @@ group by Id) O60 ON O60.Id=IV.Id
 			--							left join TRN.POGGRNMap pg on pg.PoId= po.Id
 			--                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-
-
+				
 
 				   from trn.InventoryReceive IR  
                     left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId = IR.Id
@@ -21492,6 +21367,8 @@ group by Id) O60 ON O60.Id=IV.Id
                     LEFT JOIN SCS.Currency CC ON CC.Id = Com.BaseCurrencyId
 					left join [Contract] as Con on plc.ContractId= Con.Id
 					left join MasterLC ML on ML.Id=con.MasterLCId
+                    LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+					LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
 					--left join HKP.party Cus on cus.Id= con.CustomerId
 					
                     where IR.CompanyGroupId = '" + companyGroupId + "' AND IR.CompanyId ='" + companyId + "' AND IR.PlantId='" + plantId + @"'
@@ -21505,6 +21382,7 @@ group by Id) O60 ON O60.Id=IV.Id
 					--AND IR.Id='2021638'
 					group by 
 					IR.Id 
+                    ,V.VoucherNo
 					,cc.Code
                     ,C.Code 
                     ,IR.PartyId
@@ -21523,6 +21401,8 @@ group by Id) O60 ON O60.Id=IV.Id
                    -- ,IRD.InventoryMaterialId
 					,IRD.IsAsset
 					,p.UserName
+					,IR.ToCurrencyRate
+					
                    --  ,po.Id  
 					-- ,po.DocRefNo 
 					-- ,po.DocDate 

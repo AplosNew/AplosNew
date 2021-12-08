@@ -4290,7 +4290,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetOthersLiabilityDataList",
-                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
+                data: { ToDate: $scope.reportParameters.ToDate },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -4554,6 +4554,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         if (baseService.isUndefinedOrNull(data.VoucherNo)) return ShowResult('No Id found', 'failure');
         $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
     };
+    $scope.onInvoiceVoucherPrint = function (data) {
+        var reportFormat = "Pdf";
+        $window.open('Products/PurchaseDocumentsAcceptance/DocumentAcceptanceVoucher?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+    };
 
 
     $scope.issueQtyList = [];
@@ -4639,31 +4643,31 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //**********************#endregion Asset WIP Status **************************
 
     $scope.InvoiceWithOutGRNList = [];
-    $scope.GetNonRegisterAssetData = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetInvoiceWithOutGRNDataList",
-                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
-                dataType: 'JSON'
+    //$scope.GetNonRegisterAssetData = function () {
+    //    try {
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.path + "GetInvoiceWithOutGRNDataList",
+    //            data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
+    //            dataType: 'JSON'
 
-            }).then(function successCallback(response) {
-                $scope.InvoiceWithOutGRNList = response.data.DATA;
+    //        }).then(function successCallback(response) {
+    //            $scope.InvoiceWithOutGRNList = response.data.DATA;
 
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-        }
+    //        }),
+    //            function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //    }
 
-        catch (e) {
+    //    catch (e) {
 
-        }
-    }
+    //    }
+    //}
 
 
     $scope.NonRegisterAssetList = [];
-    $scope.GetAssetWIPstatusList = function () {
+    $scope.GetNonRegisterAssetData = function () {
         $http({
             method: "GET",
             dataType: 'JSON',
@@ -4673,7 +4677,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.NonRegisterAssetList = response.data.DATA
         });
     }
-    $scope.GetAssetWIPstatusList();
+    $scope.GetNonRegisterAssetData();
 
 
     $scope.TotalNonRegisterAsset = [{

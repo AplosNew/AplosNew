@@ -803,6 +803,10 @@ namespace Aplos.Areas.Products.Controllers
 		[HttpPost, Authorize]
 		public JsonResult PoApproved(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string CheckedRejectReason)
 		{
+			if (CheckedStataus == "" || CheckedStataus == null)
+			{
+				throw new CustomException("Please Select Checked By Status!");
+			}
 			_inventoryReveiveService.PoApproved(PoId, PoValue, CheckedStataus, AuthorizedBy, CheckedRejectReason);
 			return Json(new { Message = "PO Approved" + AplosMessage.Success });
 		}
@@ -816,6 +820,10 @@ namespace Aplos.Areas.Products.Controllers
 		[HttpPost, Authorize]
 		public JsonResult PoApprovedAuth(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy, string ApproveRejectReason)
 		{
+			if (CheckedStataus == "" || CheckedStataus == null)
+			{
+				throw new CustomException("Please Select Checked By Status!");
+			}
 			_inventoryReveiveService.PoApprovedAuth(PoId, PoValue, CheckedStataus, AuthorizedBy, ApproveRejectReason);
 			return Json(new { Message = "PO Approved" + AplosMessage.Success });
 		}
@@ -3796,7 +3804,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
 			{
-				string _sql = "select Id,Description,UserName TermsAndConditions from HKP.TermsAndConditions where Type='PO'";
+				string _sql = "select Id,Description,UserName TermsAndConditions from HKP.TermsAndConditions where Type='PO' And CompanyId='"+identity.CompanyId+@"'";
 				//_sqlRepository.ExecuteSqlCommand(_sql);
 
 				return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
@@ -3831,6 +3839,7 @@ left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMaster
 where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+
 		}
 
 		[HttpPost, Authorize]

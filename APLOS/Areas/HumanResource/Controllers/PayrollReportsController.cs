@@ -512,10 +512,19 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpPost, Authorize]
-        public ActionResult GetSalarySheetExtraOTCTCReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string PlantId)
+        public ActionResult GetSalarySheetExtraOTCTCReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string PlantId , string TypeId)
         {
             try
             {
+                string typeId = string.Empty;
+                if (!string.IsNullOrEmpty(TypeId))
+                {
+                    typeId = "'" + TypeId.Replace(",", "','") + "'";//replaced with ""
+                }
+                else
+                {
+                    throw new Exception("Please Select the Employee Code Type");
+                }
                 // parameters = null;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 WeekOFFandHolidayOT clsWeekOFFOTReport = new WeekOFFandHolidayOT();
@@ -524,7 +533,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
 
-                var workbook = clsWeekOFFOTReport.GetSalarySheetExtraOTCTCReport(identity.CompanyGroupId, identity.CompanyId, PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, false);
+                var workbook = clsWeekOFFOTReport.GetSalarySheetExtraOTCTCReportWithType(identity.CompanyGroupId, identity.CompanyId, PlantId, identity.UserId, month, year, typeId ,salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, false);
                 workbook.Version = ExcelVersion.Excel2013;
                 workbook.SaveAs(fullPath);
 
@@ -584,10 +593,11 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpPost, Authorize]
-        public ActionResult GetEmpInfoSalaryPorcessed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId)
+        public ActionResult GetEmpInfoSalaryPorcessedWithType(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId , string TypeId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string Plant = string.Empty;
+            string typeId = string.Empty;
             if (!string.IsNullOrEmpty(PlantId))
             {
                 Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
@@ -596,11 +606,40 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             {
                 Plant = "'" + identity.PlantId + "'";
             }
-            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+
+            if (!string.IsNullOrEmpty(TypeId))
+            {
+                typeId = "'" + TypeId.Replace(",", "','") + "'";//replaced with ""
+            }
+            else
+            {
+                throw new Exception("Please Select the Employee Code Type");
+            }
+            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessedWithType(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity , typeId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
 
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmpInfoSalaryPorcessed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string Plant = string.Empty;
+            string typeId = string.Empty;
+            if (!string.IsNullOrEmpty(PlantId))
+            {
+                Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            }
+            else
+            {
+                Plant = "'" + identity.PlantId + "'";
+            }
+
+            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetEmpInfoSalaryFromArrearPorcessed(string ArrearProcessBatchId)
