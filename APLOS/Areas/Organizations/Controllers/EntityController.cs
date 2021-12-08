@@ -2,6 +2,8 @@
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
+using Library.Model.Addresses;
 using Library.Model.Organizations;
 using Library.Service.Organizations;
 using Library.Service.Setups;
@@ -16,16 +18,18 @@ namespace Aplos.Areas.Organizations.Controllers
         private readonly IEntityService _entityService;
         private readonly IEntityAllowanceService _entityAllowanceService;
         private readonly IOrganizationReportService _organizationReportService;
-
+        private readonly ISqlRepository _sqlRepository;
         public EntityController(
               IEntityService entityService
             , IEntityAllowanceService entityAllowanceService
             , IOrganizationReportService organizationReportService
+            , ISqlRepository R
             )
         {
             _organizationReportService = organizationReportService;
             _entityService = entityService;
             _entityAllowanceService = entityAllowanceService;
+            _sqlRepository = R;
         }
 
         [HttpGet, Authorize]
@@ -85,6 +89,27 @@ namespace Aplos.Areas.Organizations.Controllers
                 companyId = identity.CompanyId;
             }
             return Json(_entityService.GetCbo(companyGroupId, companyId, plantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetEntityCboByPlant(string companyGroupId, string companyId, string plantId)
+        {
+            if (string.IsNullOrEmpty(plantId))
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                plantId = identity.PlantId;
+            }
+            if (string.IsNullOrEmpty(companyGroupId))
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                companyGroupId = identity.CompanyGroupId;
+            }
+            if (string.IsNullOrEmpty(companyId))
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                companyId = identity.CompanyId;
+            }
+            return Json(_sqlRepository.GetDataCollection(@"select Id Value,UserName Text from ORG.Entity Where CompanyGroupId='" + companyGroupId + "' AND CompanyId='"+ companyId + "' AND PlantId='"+ plantId + "'"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -184,11 +209,11 @@ namespace Aplos.Areas.Organizations.Controllers
         }
 
         [HttpPost]
-        public JsonResult Edit(Entity entity)
+        public JsonResult Edit(Entity entity, AddressMaster addressMaster)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
-            _entityService.Update(entity);
+            _entityService.Update(entity, addressMaster);
             return Json(new { Message = AplosMessage.Updated });
         }
 
@@ -199,11 +224,11 @@ namespace Aplos.Areas.Organizations.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Entity entity)
+        public JsonResult Create(Entity entity, AddressMaster addressMaster)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
-            _entityService.Insert(entity);
+            _entityService.Insert(entity, addressMaster);
             return Json(new { Message = AplosMessage.Insert });
         }
 
@@ -218,7 +243,6 @@ namespace Aplos.Areas.Organizations.Controllers
         {
             return Json(_entityService.Get(companyId, id), JsonRequestBehavior.AllowGet);
         }
-
         #region Allowance
 
         [HttpGet, Authorize]

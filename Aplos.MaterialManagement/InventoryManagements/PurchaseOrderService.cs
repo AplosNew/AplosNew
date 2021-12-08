@@ -83,7 +83,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
 						--,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
 						--,RefferenceNo=ISNULL(moi.OwnReferenceNo,'') 
-						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  
+						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
 						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
                         ,ISNULL(uom1.UserName,'') POUoM,Round(Round(ISNULL(b.RequiredQtyPO,0),4)-Round(ISNULL(OtherPOData.TransactionQty,0),4),4) TransactionQty,0 Tolerance
 						FROM BOQ AS b
@@ -103,7 +103,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-
+                        left outer join mst.Destination DE ON DE.Id=so.DestinationId
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty ,POD.TransactionUoMId 	

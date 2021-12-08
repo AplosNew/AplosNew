@@ -159,7 +159,7 @@ namespace Library.OrderManagement.Production
             }
             else if (productionLevel == ProductionBookingLevel.MasterOrderItem.ToString())
             {
-                string CmdText = @"SELECT DISTINCT mo.MasterOrderNo
+                string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId
 	                                ,ISNULL(so.Id,'') SOId
 	                                ,SO.CustomerPOId
 	                                ,CPO.PONumber
@@ -216,7 +216,7 @@ namespace Library.OrderManagement.Production
             }
             else if (productionLevel == ProductionBookingLevel.ProductCode.ToString())
             {
-                string CmdText = @"SELECT DISTINCT mo.MasterOrderNo
+                string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,MOI.ProductLibraryId,PL.Code ProductCode
 	                                ,ISNULL(so.Id,'') SOId
 	                                ,SO.CustomerPOId
 	                                ,CPO.PONumber
@@ -246,6 +246,7 @@ namespace Library.OrderManagement.Production
 	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
 	                                ) so ON POD.SalesOrderId = SO.Id
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
 	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
@@ -271,7 +272,7 @@ namespace Library.OrderManagement.Production
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
-            else 
+            else
             {
                 string CmdText = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
@@ -954,7 +955,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                if (ProductionLevel != "ProductionOrder")
+                if (ProductionLevel == ProductionBookingLevel.SalesOrder.ToString())
                 {
                     string _sql = @"select p.Id,mo.MasterOrderNo
 								,moi.Id MOrderLineNo
@@ -999,7 +1000,7 @@ namespace Library.OrderManagement.Production
                     return _sqlRepository.GetDataCollection(_sql, null);
 
                 }
-                else
+                else if (ProductionLevel == ProductionBookingLevel.ProductionOrder.ToString())
                 {
                     string _sql = @"SELECT PS.Id,PS.ProductionOrderId,FORMAT(PS.ProductionDate,'dd-MMM-yyyy') ProductionDate, PS.ProductionGrade, PS.Quantity, PBP.UserName ProductionBookingPeriod
                                     ,PS.ResponsiblePersonId,R.EmployeeName ResponsiblePersonName,PS.MentorId, M.EmployeeName MentorName, PS.CheckedBy,C.EmployeeName CheckedByName
@@ -1086,6 +1087,97 @@ namespace Library.OrderManagement.Production
 								 and PS.ProductionDate='" + ProductionDate + @"' ";
                     return _sqlRepository.GetDataCollection(_sql, null);
                 }
+                else if (ProductionLevel == ProductionBookingLevel.MasterOrderItem.ToString())
+                {
+                    string _sql = @"select p.Id,mo.MasterOrderNo,MOI.Id MasterOrderItemId
+								,moi.Id MOrderLineNo
+								,so.Id SalesOrderId,SO.Description
+                                ,PO.PONumber
+                                  ,mm.UserName MaterialMaster, mma.StandardName Article
+								  ,b.UserName Customer
+                                 --,so.ConfirmDate,so.DeliveryDate
+                                 ,Replace(CONVERT(VARCHAR(11), so.ConfirmDate, 106), ' ', '-') ConfirmDate
+								 ,Replace(CONVERT(VARCHAR(11), so.DeliveryDate, 106), ' ', '-') DeliveryDate
+								 ,mo.TotalQty MOQty
+								 ,moi.TotalQty MOIQty
+                                 ,so.Qty SOQty,p.Quantity ,p.ProductionBookingPeriodId,p.ProductionGrade 
+								,u.UserName UOM
+								,moi.ExtraOrderPercentage [ExtraP],moi.OrderWastagePercentage [WastageP]
+								,mma.Id ArticleId,mm.Id MaterialMasterId,mmc.CharCount, p.PlantID,p.WorkCenterMasterId,EP.ProductionBookingLevel
+                                ,PBP.UserName ProductionBookingPeriod,P.ResponsiblePersonId,R.EmployeeName ResponsiblePersonName,P.MentorId, M.EmployeeName MentorName
+                                ,FORMAT (P.InTime, 'dd-MMM-yyyy hh:mm:tt') InTime, FORMAT (P.OutTime, 'dd-MMM-yyyy hh:mm:tt') OutTime,P.ConsumeHour,P.ManPower, P.CheckedBy,C.EmployeeName CheckedByName,p.LotNumber
+                                ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description
+                                 FROM [TRN].[ProductionSummary] p
+								 LEFT JOIN trn.SalesOrder so on so.Id=p.SalesOrderId
+                                 LEFT JOIN trn.[MasterOrderItem] moi on moi.id=P.MasterOrderItemId
+                                 LEFT JOIN trn.MasterOrder mo on mo.id=moi.MasterOrderId
+                                 LEFT JOIN hkp.Party b on b.id=mo.PartyId
+								 LEFT JOIN scs.UnitOfMeasurement u on u.id=mo.TotalQtyUOMId
+                                 LEFT JOIN mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+                                 LEFT JOIN mst.MaterialMasterArticle mma on mma.id=moi.ArticleId
+                                 LEFT JOIN (
+											SELECT count(Id) CharCount,MaterialMasterId from [MST].[MaterialMasterCharacteristics] group by  MaterialMasterId
+											) mmc on mmc.MaterialMasterId=mm.id
+                                 LEFT JOIN [HKP].[EntityProcessTag] EP ON EP.ProcessId=P.ProcessId and EP.EntityId=P.EntityId
+                                 LEFT JOIN [HKP].[ProductionBookingPeriod] PBP ON PBP.Id=P.ProductionBookingPeriodId
+                                 LEFT JOIN EmployeeInformation R ON P.ResponsiblePersonId=R.SystemId
+                                 LEFT JOIN EmployeeInformation M ON P.MentorId=M.SystemId
+                                 LEFT JOIN [TRN].[CustomerPO] PO ON PO.Id=SO.CustomerPOId
+                                 LEFT JOIN EmployeeInformation C ON P.CheckedBy=C.SystemId
+                                 WHERE p.EntityId='" + EntityId + @"' 
+								 and p.ProcessId='" + ProcessId + @"' 
+								 and p.WorkCenterMasterId='" + WorkCenterMasterId + @"' 
+								 and p.ProductionShiftId='" + ProductionShiftId + @"'  
+								 and p.ProductionDate='" + ProductionDate + @"' ";
+                    return _sqlRepository.GetDataCollection(_sql, null);
+
+                }
+                else
+                {
+                    string _sql = @"select p.Id,mo.MasterOrderNo
+								,moi.Id MOrderLineNo
+								,so.Id SalesOrderId,SO.Description
+                                ,PO.PONumber
+                                  ,mm.UserName MaterialMaster, mma.StandardName Article
+								  ,b.UserName Customer
+                                 --,so.ConfirmDate,so.DeliveryDate
+                                 ,Replace(CONVERT(VARCHAR(11), so.ConfirmDate, 106), ' ', '-') ConfirmDate
+								 ,Replace(CONVERT(VARCHAR(11), so.DeliveryDate, 106), ' ', '-') DeliveryDate
+								 ,mo.TotalQty MOQty
+								 ,moi.TotalQty MOIQty
+                                 ,so.Qty SOQty,p.Quantity ,p.ProductionBookingPeriodId,p.ProductionGrade 
+								,u.UserName UOM
+								,moi.ExtraOrderPercentage [ExtraP],moi.OrderWastagePercentage [WastageP]
+								,mma.Id ArticleId,mm.Id MaterialMasterId,mmc.CharCount, p.PlantID,p.WorkCenterMasterId,EP.ProductionBookingLevel
+                                ,PBP.UserName ProductionBookingPeriod,P.ResponsiblePersonId,R.EmployeeName ResponsiblePersonName,P.MentorId, M.EmployeeName MentorName
+                                ,FORMAT (P.InTime, 'dd-MMM-yyyy hh:mm:tt') InTime, FORMAT (P.OutTime, 'dd-MMM-yyyy hh:mm:tt') OutTime,P.ConsumeHour,P.ManPower, P.CheckedBy,C.EmployeeName CheckedByName,p.LotNumber
+                                ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description
+                                 FROM [TRN].[ProductionSummary] p
+								 LEFT JOIN trn.SalesOrder so on so.Id=p.SalesOrderId
+                                 LEFT JOIN trn.[MasterOrderItem] moi on moi.id=so.MasterOrderItemId
+                                 LEFT JOIN trn.MasterOrder mo on mo.id=moi.MasterOrderId
+                                 LEFT JOIN hkp.Party b on b.id=mo.PartyId
+								 LEFT JOIN scs.UnitOfMeasurement u on u.id=mo.TotalQtyUOMId
+                                 LEFT JOIN mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+                                 LEFT JOIN mst.MaterialMasterArticle mma on mma.id=moi.ArticleId
+                                 LEFT JOIN (
+											SELECT count(Id) CharCount,MaterialMasterId from [MST].[MaterialMasterCharacteristics] group by  MaterialMasterId
+											) mmc on mmc.MaterialMasterId=mm.id
+                                 LEFT JOIN [HKP].[EntityProcessTag] EP ON EP.ProcessId=P.ProcessId and EP.EntityId=P.EntityId
+                                 LEFT JOIN [HKP].[ProductionBookingPeriod] PBP ON PBP.Id=P.ProductionBookingPeriodId
+                                 LEFT JOIN EmployeeInformation R ON P.ResponsiblePersonId=R.SystemId
+                                 LEFT JOIN EmployeeInformation M ON P.MentorId=M.SystemId
+                                 LEFT JOIN [TRN].[CustomerPO] PO ON PO.Id=SO.CustomerPOId
+                                 LEFT JOIN EmployeeInformation C ON P.CheckedBy=C.SystemId
+                                 WHERE p.EntityId='" + EntityId + @"' 
+								 and p.ProcessId='" + ProcessId + @"' 
+								 and p.WorkCenterMasterId='" + WorkCenterMasterId + @"' 
+								 and p.ProductionShiftId='" + ProductionShiftId + @"'  
+								 and p.ProductionDate='" + ProductionDate + @"' ";
+                    return _sqlRepository.GetDataCollection(_sql, null);
+
+                }
+
             }
             catch (Exception ex)
             {
@@ -1093,7 +1185,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetSFGWIPQty(string EntityId, string processId, string workCenterMasterId, string salesOrderId, string productionOrderId, string status,bool IsCrossAllowed)
+        public IEnumerable<object> GetSFGWIPQty(string EntityId, string processId, string workCenterMasterId, string salesOrderId, string productionOrderId, string status, bool IsCrossAllowed)
         {
             try
             {
@@ -1107,7 +1199,7 @@ namespace Library.OrderManagement.Production
                     productionOrderId = string.Empty;
                 }
 
-                if (IsCrossAllowed==false)
+                if (IsCrossAllowed == false)
                 {
                     if (status == "PROCESS")
                     {
@@ -1127,7 +1219,7 @@ namespace Library.OrderManagement.Production
                                 WHERE ps.ProcessId='" + processId + @"' AND PS.EntityId='" + EntityId + @"' AND ps.WorkCenterMasterId='" + workCenterMasterId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"')
                                 ) AS K ";
 
-                        
+
                     }
                     else
                     {
@@ -1147,8 +1239,8 @@ namespace Library.OrderManagement.Production
                                WHERE ps.FromSFGInventoryId='" + processId + @"' AND PS.EntityId='" + EntityId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"')
                                ) AS K ";
 
-                        
-                    } 
+
+                    }
                 }
                 else
                 {
@@ -1170,7 +1262,7 @@ namespace Library.OrderManagement.Production
                                 WHERE ps.ProcessId='" + processId + @"' AND ps.WorkCenterMasterId='" + workCenterMasterId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"')
                                 ) AS K ";
 
-                        
+
                     }
                     else
                     {
@@ -1190,7 +1282,7 @@ namespace Library.OrderManagement.Production
                                WHERE ps.FromSFGInventoryId='" + processId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"')
                                ) AS K ";
 
-                        
+
                     }
 
                 }
@@ -1215,7 +1307,7 @@ namespace Library.OrderManagement.Production
                 productionOrderId = string.Empty;
             }
 
-            if (IsCrossAllowed==false)
+            if (IsCrossAllowed == false)
             {
                 if (status == "PROCESS")
                 {
@@ -1247,7 +1339,7 @@ namespace Library.OrderManagement.Production
                             and ps.id<>'" + Id + @"'
                         ) AS K  ";
 
-                } 
+                }
             }
             else
             {
@@ -1300,7 +1392,7 @@ namespace Library.OrderManagement.Production
             {
                 salesOrderId = "null";
             }
-            if (IsCrossAllowed==false)
+            if (IsCrossAllowed == false)
             {
                 if (status == "PROCESS")
                 {
@@ -1335,7 +1427,7 @@ namespace Library.OrderManagement.Production
                                FROM trn.ProductionSummary AS ps
                                WHERE ps.FromSFGInventoryId='" + processId + @"' AND PS.EntityId='" + EntityId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
                                ) AS K ";
-                } 
+                }
             }
             else
             {
@@ -1355,7 +1447,7 @@ namespace Library.OrderManagement.Production
                 }
                 else
                 {
-                     sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
+                    sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
                                (SELECT ps.ProductionOrderId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.FromSFGInventoryId,PS.SalesOrderId
                                FROM trn.ProductionSummary AS ps
                                WHERE ps.ToSFGInventoryId='" + processId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
@@ -1385,8 +1477,8 @@ namespace Library.OrderManagement.Production
                             FROM trn.ProductionOrder AS PO
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
                             LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
-                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '"+ processId + @"' GROUP BY PS.ProductionOrderId
-                            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='"+ productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
+                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId
+                            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -1632,7 +1724,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                string sql = @"Select IsProductionHourOpen from SCS.PlantConfig Where PlantId='"+ plantId + "'";
+                string sql = @"Select IsProductionHourOpen from SCS.PlantConfig Where PlantId='" + plantId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -1887,7 +1979,7 @@ namespace Library.OrderManagement.Production
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								  
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								   WHERE PS.UserName = 'Running' AND PPO.PackingContentMasterId='"+ MasterId + "'";
+								   WHERE PS.UserName = 'Running' AND PPO.PackingContentMasterId='" + MasterId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

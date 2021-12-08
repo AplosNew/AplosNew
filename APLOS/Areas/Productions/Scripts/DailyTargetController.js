@@ -630,6 +630,16 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.selectednode.items[0].addInfo.TotalSPT = args.data.TotalSPT;
             //$scope.selectednode.items[0].addInfo.WorkstationTargetPerHour = args.data.WorkstationTargetPerHour;
 
+            $scope.selectednode.items[0].addInfo.FixedAssetRegisterId = null;
+            $scope.selectednode.items[0].addInfo.FixedAssetRegisterDesc = null;
+            $scope.selectednode.items[0].addInfo.EmployeeId = null;
+            $scope.selectednode.items[0].addInfo.EmployeeName = null;
+            $scope.selectednode.items[0].addInfo.EmpPicPath = null;
+            $scope.selectednode.items[0].addInfo.Designation = null;
+            $scope.selectednode.items[0].addInfo.EmployeeCode = null;
+            $scope.selectednode.items[0].addInfo["DayStatus"] = null;
+            $scope.selectednode.items[0].addInfo["DayColor"] = null;
+
             angular.element(document.querySelector("#modalOperationList")).modal("hide");
         } catch (e) {
 
@@ -685,12 +695,13 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     //if (_explicitSave)
                         ShowResult(response.data.Message, 'success');
 
-                    //$scope.DailyProductionTargetNew.ManPowerWithMachine = response.data.Data[0].TotalMachine;
-                    //$scope.DailyProductionTargetNew.ManPowerWithHand = response.data.Data[0].TotalHand;
+                    $scope.SelectedLine.ManPowerWithMachine = response.data.Data[0].TotalMachine;
+                    $scope.SelectedLine.ManPowerWithHand = response.data.Data[0].TotalHand;
+                    $scope.SelectedLine.HasLayout = true;
 
                     //var gridObj = $("#GridDailyTargetList").data("ejGrid");
                     //gridObj.refreshContent();
-                    $scope.getDailytarget();
+                    //$scope.getDailytarget();
 
                 }
             }), function errorCallBack(response) {
