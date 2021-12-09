@@ -243,6 +243,7 @@ namespace Aplos.Areas.Organizations.Controllers
         {
             return Json(_entityService.Get(companyId, id), JsonRequestBehavior.AllowGet);
         }
+
         #region Allowance
 
         [HttpGet, Authorize]

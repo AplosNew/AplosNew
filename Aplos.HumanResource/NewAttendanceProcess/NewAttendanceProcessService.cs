@@ -437,15 +437,20 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
+
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-                                // Updations in APD Table
-                                dr["LeaveDuration"] = LeaveDuration;
-                                dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
-                                dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
-                                dr["UpdatedBy"] = "Schedule";
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
+                                string Leave = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"LeaveStatus"]).ToString();
+                                if (Leave == "" || Leave.ToString()!=LeaveStatus.ToString())
+                                {
+                                    // Updations in APD Table
+                                    dr["LeaveDuration"] = LeaveDuration;
+                                    dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
+                                    dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
+                                    dr["UpdatedBy"] = "Schedule";
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
                             }
                         }
                         SaveDataSets(dsRef);
@@ -481,13 +486,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-                                // Updations in APD Table
-                                dr["LeaveDuration"] = LeaveDuration;
-                                dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
-                                dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
-                                dr["UpdatedBy"] = "Schedule";
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
+                                string Leave = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"LeaveStatus"]).ToString();
+                                if (Leave == "" || Leave.ToString() != LeaveStatus.ToString())
+                                {
+                                    // Updations in APD Table
+                                    dr["LeaveDuration"] = LeaveDuration;
+                                    dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
+                                    dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
                             }
                         }
                         SaveDataSets(dsRef);
@@ -694,7 +702,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
 
                                 dr["IsOTEntitled"] = clsWebLib.GetBoolData(IsOTEntitled);
-                                dr["UpdatedBy"] = "Schedule";
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -726,12 +733,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-
-                                dr["IsOD"] = 1;
-                                dr["IsManualDayStatus"] = true;
-                                dr["ManualDayStatus"] = "OD";
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
+                                string ManualDayStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ManualDayStatus"]).ToString();
+                                if (ManualDayStatus != "OD")
+                                {
+                                    dr["IsOD"] = 1;
+                                    dr["IsManualDayStatus"] = true;
+                                    dr["ManualDayStatus"] = "OD";
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
                             }
                         }
                         SaveDataSets(dsRef);
@@ -763,11 +773,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-
-                                dr["AttendanceRestDetailId"] = RestId;
-                                dr["ManualDayStatus"] = "RST";
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
+                                string ManualDayStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ManualDayStatus"]).ToString();
+                                if (ManualDayStatus != "RST")
+                                {
+                                    dr["AttendanceRestDetailId"] = RestId;
+                                    dr["ManualDayStatus"] = "RST";
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
                             }
                         }
                         SaveDataSets(dsRef);
