@@ -150,6 +150,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									group By IRD.InventoryMaterialId ,IRD.IsAsset
 
 			                        UNION ALL 
+                                    select * from (
 									SELECT IRD.InventoryMaterialId
                                     ,IRD.IsAsset,Sum(IRD.BaseQty)- sum(isnull(II.IssueQty,0))-SUM(isnull(ISD.Qty,0)) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount)-sum(ISNULL(II.PolicyAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0)) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
@@ -161,20 +162,21 @@ namespace Library.MaterialManagement.InventoryManagements
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
 									    WHERE convert(Date,II.IssueDate) < '" + fromDate + @"'  AND II.PlantId='" + plantId + @"'   
 									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId
-									    ) II ON II.InventoryReceiveDetailId=IRD.Id
+									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.IsAsset=ird.IsAsset
                                     -- InventorySales OB 
-								    Left join (select ISD.InventoryMaterialId,ISH.InventoryReceiveDetailId,sum(ISNULL(ISH.Qty,0)) Qty,sum(ISH.BaseRate) Rate, (sum(ISNULL(ISH.BooksCurrencyBaseAmount,0))) InventorySalesAmount 
+								    Left join (select ISD.InventoryMaterialId,ISD.IsAsset,ISH.InventoryReceiveDetailId,sum(ISNULL(ISH.Qty,0)) Qty,sum(ISH.BaseRate) Rate, (sum(ISNULL(ISH.BooksCurrencyBaseAmount,0))) InventorySalesAmount 
 					                 from [TRN].[InventorySalesHistory] ISH
 									 Left JOIN [TRN].[InventorySalesDetail] ISD on ISD.Id=ISH.InventorySalesDetailId
 									 Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
 									 --Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
-									 WHERE convert(Date,Ins.SalesDate) < '" + fromDate + @"' AND Ins.PlantId='" + plantId + @"' GROUP BY ISD.InventoryMaterialId,ISH.InventoryReceiveDetailId
-								        )ISD ON ISD.InventoryReceiveDetailId=IRD.Id
+									 WHERE convert(Date,Ins.SalesDate) < '" + fromDate + @"' AND Ins.PlantId='" + plantId + @"' 
+                                    GROUP BY ISD.InventoryMaterialId,ISH.InventoryReceiveDetailId,ISD.IsAsset
+								        )ISD ON ISD.InventoryReceiveDetailId=IRD.Id and ISD.IsAsset=ird.IsAsset
 
 			                        where convert(Date,IR.GRNDate) < '" + fromDate + @"' AND isnull(IR.OpeningBalanceId,NULL) IS NULL  " + assetInvStatus + @" --MaterialMasterId='2447'
 									group By IRD.InventoryMaterialId--,IRD.MaterialStorageId
-                                    ,IRD.IsAsset
-			                        
+                                    ,IRD.IsAsset ) x
+			                        where x.TransactionQty>0
                                     ) AS opbal ON opbal.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' 
                         
                         --left join [HKP].[MaterialStorage] MS on ms.id=opbal.MaterialStorageId
@@ -271,7 +273,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 							, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 							,MaterialStorageLocation= MS.UserName
-							,TUoM.UserName UOM,  opbal.IsAsset
+							,TUoM.UserName UOM,  IsAsset=CASE WHEN opbal.IsAsset=0 THEN opbal2.IsAsset ELSE opbal.IsAsset END
 							
                              --Opening Balance
                             ,isnull(opbal.TransactionQty,0)-isnull(PurchaseReturnOBData.Qty,0) As OpeningBalance	
@@ -363,7 +365,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     ,IRD.IsAsset
 
 			                        UNION ALL 
-
+                                    SELECT * FROM (
 									SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId
                                     ,IRD.IsAsset,Sum(IRD.BaseQty)-sum(isnull(ii.IssueQty,0))-sum(isnull(ISD.Qty,0)) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount)-SUM(ISNULL(II.IssueAmount,0))-SUM(ISNULL(ISD.InventorySalesAmount,0)) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
@@ -376,37 +378,39 @@ namespace Library.MaterialManagement.InventoryManagements
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
 									    WHERE convert(Date,II.IssueDate) < '" + fromDate + @"'  AND II.PlantId='" + plantId + @"'   
 									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
-									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId
+									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId AND II.IsAsset=IRD.IsAsset
                                     -- InventorySales OB 
-								    Left join (select ISD.InventoryMaterialId,ISH.InventoryReceiveDetailId, Ins.MaterialStorageId,sum(ISNULL(ISH.Qty,0)) Qty,sum(ISH.BaseRate) Rate, (sum(ISNULL(ISH.BooksCurrencyBaseAmount,0))) InventorySalesAmount 
+								    Left join (select ISD.InventoryMaterialId,ISD.IsAsset,ISH.InventoryReceiveDetailId, Ins.MaterialStorageId,sum(ISNULL(ISH.Qty,0)) Qty,sum(ISH.BaseRate) Rate, (sum(ISNULL(ISH.BooksCurrencyBaseAmount,0))) InventorySalesAmount 
 					                 from [TRN].[InventorySalesHistory] ISH
 									 Left JOIN [TRN].[InventorySalesDetail] ISD on ISD.Id=ISH.InventorySalesDetailId
 									 Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
 									 --Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
 									 WHERE convert(Date,Ins.SalesDate) < '" + fromDate + @"' AND Ins.PlantId='" + plantId + @"' 
-									 GROUP BY ISD.InventoryMaterialId,ISH.InventoryReceiveDetailId, Ins.MaterialStorageId
-								        )ISD ON ISD.InventoryReceiveDetailId=IRD.Id and ISD.MaterialStorageId=IRD.MaterialStorageId
+									 GROUP BY ISD.InventoryMaterialId,ISH.InventoryReceiveDetailId, Ins.MaterialStorageId,ISD.IsAsset
+								        )ISD ON ISD.InventoryReceiveDetailId=IRD.Id and ISD.MaterialStorageId=IRD.MaterialStorageId AND ISD.IsAsset=IRD.IsAsset
 
 			                        where convert(Date,IR.GRNDate) < '" + fromDate + @"' AND isnull(IR.OpeningBalanceId,NULL) IS NULL  " + assetInvStatus + @"
 									group By IRD.InventoryMaterialId,IRD.MaterialStorageId
-                                    ,IRD.IsAsset
+                                    ,IRD.IsAsset)X
+                                    WHERE X.TransactionQty>0
 			                        
                                     ) AS opbal ON opbal.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' and opbal.MaterialStorageId=IRS.MaterialStorageId
                         LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                         left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id
 						
-						left join(SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+						left join(SELECT IRD.InventoryMaterialId,IRD.IsAsset, Sum(IRD.BaseQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 											,IRD.MaterialStorageId
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 									where convert(Date,IR.GRNDate)	BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL 
-									group By IRD.InventoryMaterialId ,IRD.MaterialStorageId) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId+ @"' and opbal2.MaterialStorageId=IRS.MaterialStorageId
+									group By IRD.InventoryMaterialId ,IRD.MaterialStorageId,IRD.IsAsset) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId+ @"' 
+                            and opbal2.MaterialStorageId=IRS.MaterialStorageId
 
 						left join (select IID.InventoryMaterialId,II.MaterialStorageId, Sum(IH.Qty) IssueQty , Sum(IH.TotalAmount) PolicyAmount
 									FROM TRN.InventoryIssueDetail IID  
 									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-								WHERE convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetInvStatus + @" AND II.PlantId='" + plantId+ @"'  
+								WHERE convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetIssuInvStatus + @" AND II.PlantId='" + plantId+ @"'  
 								GROUP BY IID.InventoryMaterialId,II.MaterialStorageId
 								) IFD1 On IFD1.InventoryMaterialId=IM.Id and IFD1.MaterialStorageId=IRS.MaterialStorageId
 
