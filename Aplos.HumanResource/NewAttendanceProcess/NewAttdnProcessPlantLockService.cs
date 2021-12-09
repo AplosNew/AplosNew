@@ -894,6 +894,40 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                         #endregion
 
+                        #region OTWeek Localization
+                        if (StartDate != "")
+                        {
+                            string strSql = string.Empty;
+                            DataSet dsWeekData;
+                            OTWeekData(StartDate, Today, out dsWeekData, identity.PlantId);
+                            if (dsWeekData.Tables[0].Rows.Count > 0)
+                            {
+                                for (int i = 0; i < dsWeekData.Tables[0].Rows.Count; i++)
+                                {
+                                    string Datex = clsWebLib.RetValidLen(dsWeekData.Tables[0].Rows[i]["WorkDate"]).ToString();
+                                    string Week = clsWebLib.RetValidLen(dsWeekData.Tables[0].Rows[i]["OTWeek"]).ToString();
+
+                                    if (Datex != "" && Week != "")
+                                    {
+                                        if (strSql.Length == 0)
+                                        {
+                                            strSql = @" update AttdnProcessData set OTWeek='" + Week + "' where WorkDate='" + Datex + "' and " +
+                                                "PlantId='" + identity.PlantId + "' and RowId in (" + CreatedEmpIds + ") ;";
+                                        }
+                                        else
+                                        {
+                                            strSql += Environment.NewLine + @" update AttdnProcessData set OTWeek='" + Week + "' where WorkDate='" + Datex + "' and " +
+                                                "PlantId='" + identity.PlantId + "' and RowId in (" + CreatedEmpIds + ") ;";
+                                        }
+                                    }
+                                }
+                                if (strSql.Length > 0)
+                                {
+                                    UpdateStatus(strSql); // OTWeek Updation
+                                }
+                            }
+                        }
+                        #endregion
 
                     }
 
@@ -985,6 +1019,24 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public void OTWeekData(string FromDate, string ToDate, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct Format(WorkDate,'dd-MMM-yyyy')WorkDate,
+				OTWeek from AttdnProcessData where PlantID='" + PlantId + @"'
+				and WorkDate between '" + FromDate + "' and '" + ToDate + @"'
+				and OTWeek is not null";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         void ShiftTime(ref string InTime, ref string OutTime, string WorkDate)
         {
@@ -1155,6 +1207,34 @@ namespace Library.HumanResource.NewAttendanceProcess
             catch (Exception ex)
             {
                 throw (ex);
+            }
+        }
+        private void UpdateStatus(string sql)
+        {
+            bool IsTransactionStarted = false;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                IsTransactionStarted = true;
+                objCon.ExecuteNonQueryWrapper(sql, true, "1");
+                objCon.CommitTransaction();
+                IsTransactionStarted = false;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (IsTransactionStarted)
+                {
+                    objCon.RollBack();
+                }
+                objCon.CloseConnection();
+                objCon = null;
             }
         }
 
