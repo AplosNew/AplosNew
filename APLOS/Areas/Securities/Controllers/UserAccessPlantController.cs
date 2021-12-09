@@ -48,7 +48,6 @@ namespace Aplos.Areas.Securities.Controllers
             var flag = false;
             if (identity.IsControlAdmin || identity.IsSysAdmin)
                 flag = true;
-
             var sql = "";
             if (flag)
                 sql = @"SELECT P.CompanyId, P.Id AS PlantId, P.Code, P.UserName AS PlantName FROM [ORG].[Plant] AS P WHERE P.CompanyGroupId='" + identity.CompanyGroupId + "' AND P.CompanyId='" + identity.CompanyId + "' AND P.Active=1 AND P.Archive=0";

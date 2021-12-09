@@ -27,7 +27,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required tabindex="1" />
+                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence"  required tabindex="1" />
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -109,36 +109,39 @@
         </ul>
     </div>
     <div class="col-md-12" ng-show="ModelNew.Id!=null">
-        <div class="form-group col-md-7">
+
+        <div class="col-md-8">
             <label class="col-md-2 control-label">Title</label>
-            <div class="col-sm-10 show-message">
+            <div class="col-sm-7 show-message">
                 <input type="text" name="Title" ng-model="TitleModel.Title" class="form-control" tabindex="2" maxlength="150">
+
+            </div>
+            <div class="form-group col-md-3 text-right">
+                <div class="common-btn text-right">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="GridTitle();SaveTitle();" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
+                                <i class="glyphicon glyphicon-plus" style="color: greenyellow;"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button ng-click="ClearTitle();" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
+                                <i class="glyphicon glyphicon-refresh"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-        <div class="form-group col-md-1 text-right">
-            <div class="common-btn text-right">
-                <ul class="list-inline text-right">
-                    <li>
-                        <button ng-click="GridTitle();SaveTitle();" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
-                            <i class="glyphicon glyphicon-plus" style="color: greenyellow;"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button ng-click="ClearTitle();" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
-                            <i class="glyphicon glyphicon-refresh"></i>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <div class="col-md-4"></div>
     </div>
     <div class="col-md-12" ng-show="TitleList.length>0">
-        <div class="col-md-8" ng-show="TitleList.length>0">
+        <div class="col-md-8">
             <div id="Grid2" ej-grid e-datasource="TitleList" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="false">
                 <div e-columns>
 
-                    <div e-column e-template="#templateTitle" e-headertext="Title" e-width="78"></div>
-                    <div e-column e-template="#ShowAction" e-headertext="Action" e-width="19"></div>
+                    <div e-column e-template="#templateTitle" e-headertext="Title" e-width="60"></div>
+                    <div e-column e-template="#ShowAction" e-headertext="Action" e-width="20"></div>
                     @*<div e-column e-template="#templateDescription" e-headertext="Description" e-width="15"></div>*@
                     @*<div e-column e-headertext=" Action " e-template="#ActionBTN" e-width="6"></div>*@
                 </div>
@@ -173,7 +176,7 @@
                 <input type="text" ng-model="data.Description" ng-maxlength="150" style="color:black;" class="form-control" />
             </script>
         </div>
-
+        <div class="col-md-4"></div>
     </div>
 </div>
 
