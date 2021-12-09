@@ -16674,7 +16674,7 @@ union ALL
 
                 //}
 
-                var sql = @"SELECT  PDA.Id PurchaseDocAcceptanceId,PDA.AcceptanceNo,format(PDA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo
+                var sql = @"SELECT  PDA.Id PurchaseDocAcceptanceId,PDA.AcceptanceNo,format(PDA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,PDA.VoucherId
                            -- ,Format( V.PostingDate,'dd-MMM-yyyy') as PostingDate
                                ,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
 							,P.UserName PartyName, PP.UserName PartyPlantName,PDA.PartyId,PDA.PartyPlantId
@@ -18158,8 +18158,8 @@ union ALL
         {
             var sql = @"select x.* from (
 
-                         SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
-										,isnull( V.VoucherNo,'')VoucherNo
+                         SELECT   IV.SourceType,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,isnull( V.VoucherNo,'')VoucherNo,VD.VoucherId,IV.InventoryReceiveId GRNNo
                                         , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
 										, C.Code CurrencyCode
@@ -18247,8 +18247,8 @@ union ALL
 										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
 
 								   UNION ALL
-                                    SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
-										,isnull( V.VoucherNo,'')VoucherNo
+                                    SELECT   IV.SourceType,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,isnull( V.VoucherNo,'')VoucherNo,VD.VoucherId,IV.InventoryReceiveId GRNNo
                                         , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
 										,C.Code CurrencyCode
@@ -19948,9 +19948,9 @@ group by Id) O60 ON O60.Id=IV.Id
         {
             string strSql = "";
             strSql = @"select x.* from (
-
-                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
-										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+                        SELECT   IV.SourceType,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,isnull( V.VoucherNo,'')VoucherNo,VD.VoucherId,IV.InventoryReceiveId GRNNo
+                                        , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
 										, C.Code CurrencyCode
 										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
@@ -19984,8 +19984,21 @@ group by Id) O60 ON O60.Id=IV.Id
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
 															end
-										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,IWD.TaxAmount TaxAmount,
-                                         SetOff=ISNULL(IVD.WrittenOffAmount, 0) - (ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)), ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+
+										, ISNULL(IVD.NetAmount,0) AS Gross
+										,0 DebitNoteAmount
+										,isnull( IWD.TaxAmount ,0)TaxAmount
+           --                              ,SetOff=ISNULL(IVD.WrittenOffAmount, 0) - (ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0))
+										 --, ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+										 ,SetOff=ISNULL(IDND.WrittenOffAmount,0)
+										 , ISNULL(IVD.NetAmount-ISNULL(IDND.WrittenOffAmount,0),0) AS Balance
+
+										,CC.CompanyCurrencyRate
+										,ISNULL(IVD.NetAmount*CC.CompanyCurrencyRate,0) AS BooksGross
+								    	,0 DebitNoteBooksAmount
+										,isnull(IWD.TaxAmount* CC.CompanyCurrencyRate,0) BooksTaxAmount
+										,ISNULL((ISNULL(IDND.WrittenOffAmount,0)*CC.CompanyCurrencyRate),0)   AS BooksSetOff
+										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(ISNULL(IDND.WrittenOffAmount,0)*CC.CompanyCurrencyRate),0) AS BooksBalance
 										
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
@@ -20002,9 +20015,10 @@ group by Id) O60 ON O60.Id=IV.Id
 								            group by wd.InvoiceDetailId
 								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
 
-                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) WrittenOffAmount  FROM TRN.InvoiceWriteOffDetail WD 
 								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
-								                where WD.InvoiceDetailId<>''
+								                where WD.InvoiceDetailId<>'' and DNW.PaymentSource<>'Tax'
+												and  DNW.PostingDate <= '" + toDate + @"'
 								                group by wd.InvoiceDetailId
 								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
 										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
@@ -20016,15 +20030,16 @@ group by Id) O60 ON O60.Id=IV.Id
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + CompanyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
-                                        WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+                                        WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable')
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' --AND IV.PlantId='20171'
-                                       
+                                        and IV.PurchaseDocAcceptanceId is null 
                                         and IV.PostingDate <= '" + toDate + @"'
 										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
 
 								   UNION ALL
-                                    SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
-										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+                                    SELECT   IV.SourceType,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,isnull( V.VoucherNo,'')VoucherNo,VD.VoucherId,IV.InventoryReceiveId GRNNo
+                                        , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
 										,C.Code CurrencyCode
 										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
@@ -20056,8 +20071,20 @@ group by Id) O60 ON O60.Id=IV.Id
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onword'
 															end
-										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,IWD.TaxAmount TaxAmount,
-                                        SetOff=ISNULL(IVD.WrittenOffAmount, 0) -(ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)), ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+
+										, ISNULL(IVD.NetAmount,0) AS Gross
+										,0 DebitNoteAmount
+										,isnull( IWD.TaxAmount ,0)TaxAmount 
+										,SetOff=ISNULL(IDND.WrittenOffAmount,0)
+										 , ISNULL(IVD.NetAmount-ISNULL(IDND.WrittenOffAmount,0),0) AS Balance
+
+							            ,CC.CompanyCurrencyRate
+										,ISNULL(IVD.NetAmount*CC.CompanyCurrencyRate,0) AS BooksGross
+									    ,0 DebitNoteBooksAmount
+										,isnull(IWD.TaxAmount* CC.CompanyCurrencyRate,0) BooksTaxAmount
+										,ISNULL((ISNULL(IDND.WrittenOffAmount,0)*CC.CompanyCurrencyRate),0)   AS BooksSetOff
+										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(ISNULL(IDND.WrittenOffAmount,0)*CC.CompanyCurrencyRate),0) AS BooksBalance
+										
 
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
@@ -20073,9 +20100,10 @@ group by Id) O60 ON O60.Id=IV.Id
 								                where w.PaymentSource='Tax'
 								                group by wd.InvoiceDetailId
 								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
-                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+                                         LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) WrittenOffAmount  FROM TRN.InvoiceWriteOffDetail WD 
 								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
-								                where WD.InvoiceDetailId<>''
+								                where WD.InvoiceDetailId<>'' and DNW.PaymentSource<>'Tax'
+												and  DNW.PostingDate <= '" + toDate + @"'
 								                group by wd.InvoiceDetailId
 								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
                                         LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
@@ -20096,6 +20124,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
 
 										) x
+                                        where x.Balance>0
 										order by x.SortDocDate asc";
 
             return _sqlRepository.GetDataTable(strSql);

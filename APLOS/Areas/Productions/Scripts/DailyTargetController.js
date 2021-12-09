@@ -905,6 +905,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.DownloadReport = function (data) {
         try {
+            var Entity = $("#ddlEntity option:selected").text();
+            var Process = $("#ProcessId option:selected").text();
             $http({
                 method: 'POST',
                 url: 'Productions/MachineLayoutReport/Report',
@@ -913,7 +915,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     'ProcessId': $scope.DailyProductionTargetNew.ProcessId,
                     'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate,
                     'WorkCenterMasterId': data.WorkCenterMasterId,
-                    'Data': data
+                    'Data': data, 'EntityName': Entity, 'ProcessName': Process
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
