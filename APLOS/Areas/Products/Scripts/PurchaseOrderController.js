@@ -4562,7 +4562,14 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			// $scope.ShowResultCustom(e, 'failure');
 		}
 	};
+    $scope.calculateRequisitionData = function (data) {
+		$scope.summaryRows();  
+    }
 
+	$scope.summaryRows = [{
+		title: "Total Current Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:N2}" }],
+		showCaptionSummary: true
+	}];
 
 }//End Of main
 
