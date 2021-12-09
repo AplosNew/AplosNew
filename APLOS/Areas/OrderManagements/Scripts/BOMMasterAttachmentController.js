@@ -3,6 +3,8 @@ BOMMasterAttachmentController.$inject = ['commonMessage', '$scope', '$rootScope'
 function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, cboService, $window) {
     $rootScope.title = "BOM Attachment";
 
+    $scope.contextmenutype = ej.MenuType.ContextMenu;
+
     //#region Attachment segment
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.AttachmentAction = 'Save';
