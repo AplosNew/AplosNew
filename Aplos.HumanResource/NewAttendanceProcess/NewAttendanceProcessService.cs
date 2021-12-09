@@ -183,6 +183,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["WrongShift"] = 0;
                                 dr["OTHr"] = "0";
                                 dr["ProcessedOT"] = "0";
+                                dr["CalculatedOT"] = 0;
                                 dr["IsOTComfirm"] = 0;
                                 dr["IsLock"] = 0;
                                 dr["IsOTEntitled"] = 0;
@@ -2800,7 +2801,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 SandwichFlag=NULL,DayTypeOtApplicable=null,SandwichStatus=null,ProcessFinalDayStatus=null,DayStatus=null,
                 DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,DayTypeGoodWorkApplicable=null,IsLock=0,LockedBy=null,
                 LockedDate=null ,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
-                AllowedOTLimit=null,TargetOT=null,AdditionalOT=null
+                AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,CalculatedOT=0
                 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -3934,6 +3935,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result; // For Visiblity
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -3948,7 +3950,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         if (Convert.ToDouble(PastManualOT) >= 0)
                                         {
                                             dr.BeginEdit();
-                                            dr["ProcessedOT"] = PastManualOT;
+                                            dr["ProcessedOT"] = PastManualOT; 
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -3967,7 +3970,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 {
                                                     // If Manual is less than Processed
                                                     dr.BeginEdit();
-                                                    dr["ProcessedOT"] = PastManualOT;
+                                                    dr["ProcessedOT"] = PastManualOT; 
+                                                    dr["CalculatedOT"] = Result;  // For Visiblity
                                                     dr.EndEdit();
                                                 }
                                                 else
@@ -3975,6 +3979,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                     // Otherwise Processed
                                                     dr.BeginEdit();
                                                     dr["ProcessedOT"] = Result;
+                                                    dr["CalculatedOT"] = Result;  // For Visiblity
                                                     dr.EndEdit();
                                                 }
                                             }
@@ -3982,7 +3987,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             {
                                                 // Otherwise Processed
                                                 dr.BeginEdit();
-                                                dr["ProcessedOT"] = Result;
+                                                dr["ProcessedOT"] = Result; 
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr.EndEdit();
                                             }
                                         }
@@ -3991,6 +3997,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             // Otherwise Processed
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -4482,7 +4489,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
                     LockedBy=null,
-                    LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null 
+                    LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null ,CalculatedOT=0
                     where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
                   
@@ -4499,7 +4506,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
-                    LockedBy=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null ,
+                    LockedBy=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,CalculatedOT=0,
                     LockedDate=null
                     where PlantID='" + Plant + @"'
                     and ManualFlag=1";
@@ -5414,6 +5421,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = Result;
+                                        dr["CalculatedOT"] = Result;  // For Visiblity
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5430,6 +5438,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = PastManualOT;
+                                        dr["CalculatedOT"] = Result;  // For Visiblity
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5450,7 +5459,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                             {
                                                 dr.BeginEdit();
-                                                dr["ProcessedOT"] = PastManualOT;
+                                                dr["ProcessedOT"] = PastManualOT; 
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                 dr.EndEdit();
                                                 CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5460,6 +5470,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 // Otherwise Processed
                                                 dr.BeginEdit();
                                                 dr["ProcessedOT"] = Result;
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr.EndEdit();
                                             }
                                         }
@@ -5468,6 +5479,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             // Otherwise Processed
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5479,6 +5491,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         // Otherwise Processed
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = Result;
+                                        dr["CalculatedOT"] = Result;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -6009,6 +6022,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr["WrongShift"] = 0;
                                             dr["OTHr"] = "0";
                                             dr["ProcessedOT"] = "0";
+                                            dr["CalculatedOT"] = 0;
                                             dr["IsOTComfirm"] = 0;
                                             dr["IsLock"] = 0;
                                             dr["IsOTEntitled"] = 0;
