@@ -203,7 +203,6 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
                 $scope.currencyExchangeRate = response.data;
                 $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
                 $scope.rateChangeBankCharge($scope.voucher.CompanyCurrencyRate);
-                $scope.exchangeGainLossCal($scope.voucher.CompanyCurrencyRate);
             });
         }
         else {
@@ -505,7 +504,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
                 }
             }
         });
-       
+
     };
 
     $scope.exchangeGainLossAmount = function (data) {
@@ -534,11 +533,11 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
     $scope.exchangeGainLossCal = function (rate) {
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
             if ($scope.voucherDetailList[i].CompanyCurrencyRate < rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = ($scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate)).toFixed(2);
+                $scope.voucherDetailList[i].ExchangeAmount = $scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate);
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeLoss";
             }
             else if ($scope.voucherDetailList[i].CompanyCurrencyRate > rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = ($scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate)).toFixed(2);
+                $scope.voucherDetailList[i].ExchangeAmount = $scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate);
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeGain";
             }
             else {
