@@ -3948,6 +3948,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result; // For Visiblity
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -3962,7 +3963,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         if (Convert.ToDouble(PastManualOT) >= 0)
                                         {
                                             dr.BeginEdit();
-                                            dr["ProcessedOT"] = PastManualOT;
+                                            dr["ProcessedOT"] = PastManualOT; 
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -3981,7 +3983,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 {
                                                     // If Manual is less than Processed
                                                     dr.BeginEdit();
-                                                    dr["ProcessedOT"] = PastManualOT;
+                                                    dr["ProcessedOT"] = PastManualOT; 
+                                                    dr["CalculatedOT"] = Result;  // For Visiblity
                                                     dr.EndEdit();
                                                 }
                                                 else
@@ -3989,6 +3992,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                     // Otherwise Processed
                                                     dr.BeginEdit();
                                                     dr["ProcessedOT"] = Result;
+                                                    dr["CalculatedOT"] = Result;  // For Visiblity
                                                     dr.EndEdit();
                                                 }
                                             }
@@ -3996,7 +4000,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             {
                                                 // Otherwise Processed
                                                 dr.BeginEdit();
-                                                dr["ProcessedOT"] = Result;
+                                                dr["ProcessedOT"] = Result; 
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr.EndEdit();
                                             }
                                         }
@@ -4005,6 +4010,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             // Otherwise Processed
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -5428,6 +5434,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = Result;
+                                        dr["CalculatedOT"] = Result;  // For Visiblity
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5444,6 +5451,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = PastManualOT;
+                                        dr["CalculatedOT"] = Result;  // For Visiblity
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5464,7 +5472,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                             {
                                                 dr.BeginEdit();
-                                                dr["ProcessedOT"] = PastManualOT;
+                                                dr["ProcessedOT"] = PastManualOT; 
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                 dr.EndEdit();
                                                 CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5474,6 +5483,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 // Otherwise Processed
                                                 dr.BeginEdit();
                                                 dr["ProcessedOT"] = Result;
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr.EndEdit();
                                             }
                                         }
@@ -5482,6 +5492,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             // Otherwise Processed
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5493,6 +5504,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         // Otherwise Processed
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = Result;
+                                        dr["CalculatedOT"] = Result;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
