@@ -4563,8 +4563,13 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}
 	};
     $scope.calculateRequisitionData = function (data) {
-		$scope.totalCurrentQty = $filter('sumByKey')($filter('filter')($scope.GetListForMasterOrder), 'TransactionQty');
+		$scope.summaryRows();
     }
+
+	$scope.summaryRows = [{
+		title: "Total Current Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:N2}" }],
+		showCaptionSummary: true
+	}];
 
 }//End Of main
 
