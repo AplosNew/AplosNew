@@ -630,6 +630,16 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.selectednode.items[0].addInfo.TotalSPT = args.data.TotalSPT;
             //$scope.selectednode.items[0].addInfo.WorkstationTargetPerHour = args.data.WorkstationTargetPerHour;
 
+            $scope.selectednode.items[0].addInfo.FixedAssetRegisterId = null;
+            $scope.selectednode.items[0].addInfo.FixedAssetRegisterDesc = null;
+            $scope.selectednode.items[0].addInfo.EmployeeId = null;
+            $scope.selectednode.items[0].addInfo.EmployeeName = null;
+            $scope.selectednode.items[0].addInfo.EmpPicPath = null;
+            $scope.selectednode.items[0].addInfo.Designation = null;
+            $scope.selectednode.items[0].addInfo.EmployeeCode = null;
+            $scope.selectednode.items[0].addInfo["DayStatus"] = null;
+            $scope.selectednode.items[0].addInfo["DayColor"] = null;
+
             angular.element(document.querySelector("#modalOperationList")).modal("hide");
         } catch (e) {
 
@@ -895,6 +905,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.DownloadReport = function (data) {
         try {
+            var Entity = $("#ddlEntity option:selected").text();
+            var Process = $("#ProcessId option:selected").text();
             $http({
                 method: 'POST',
                 url: 'Productions/MachineLayoutReport/Report',
@@ -903,7 +915,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     'ProcessId': $scope.DailyProductionTargetNew.ProcessId,
                     'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate,
                     'WorkCenterMasterId': data.WorkCenterMasterId,
-                    'Data': data
+                    'Data': data, 'EntityName': Entity, 'ProcessName': Process
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

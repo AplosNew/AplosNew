@@ -3274,4 +3274,14 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
             $scope.SaveProfit();
         }
     }
+
+    $scope.PreCostingTemplete = function (data) {
+        try {
+            
+            var file_src = $scope.path + 'GetPreCostingReport?CostingTempleteId=' + data.Id;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+        }
+    }
 }
