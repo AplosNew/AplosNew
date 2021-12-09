@@ -155,19 +155,14 @@ namespace Library.MaterialManagement.Inventory
                 string NewSoId = string.Empty;
                 DataSet dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'", out dsDetail, false, "1");
+                //con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'", out dsDetail, false, "1");
                 //if (dsDetail.Tables[0].Rows.Count > 0)
                 //{
-                //    if (dsDetail.Tables[0].Rows[0]["Id"].ToString() != TitleId)
+                //    if (dsDetail.Tables[0].Rows[0]["TermsAndConditionsMasterId"].ToString() != TitleId)
                 //    {
-                //        string strSQLDetail = "DELETE FROM TermsAndConditionsPODetails Where TermsAndConditionsPOChildId IN(SELECT ID FROM TermsAndConditionsPOChild WHERE POId='" + POId + "')";
-                //        string strSQLChild = "DELETE FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'";
-                //        con = new ConnectionManager.DAL.ConManager("1");
-                //        con.OpenConnection("1");
-                //        con.BeginTransaction();
-                //        con.ExecuteNonQueryWrapper(strSQLDetail, true, "1");
-                //        con.ExecuteNonQueryWrapper(strSQLChild, true, "1");
-                //        con.CommitTransaction();
+
+                TnCDeleteDetail(POId);
+                      
                 //    }
                 //}
                 con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE 1=2", out dsToSalesOrder, false, "1");
@@ -259,6 +254,18 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        public void TnCDeleteDetail(string POId)
+        {
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            string strSQLDetail = "DELETE FROM TermsAndConditionsPODetails Where TermsAndConditionsPOChildId IN(SELECT ID FROM TermsAndConditionsPOChild WHERE POId='" + POId + "')";
+            string strSQLChild = "DELETE FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'";
+            con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenConnection("1");
+            con.BeginTransaction();
+            con.ExecuteNonQueryWrapper(strSQLDetail, true, "1");
+            con.ExecuteNonQueryWrapper(strSQLChild, true, "1");
+            con.CommitTransaction();
+        }
         public override void Update(PurchaseOrder entity)
         {
             try
@@ -4101,7 +4108,7 @@ namespace Library.MaterialManagement.Inventory
             rightAlign.CharacterFormat.TextColor = Color.Black;
             rightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
 
-            int LasColumnIndex = 2;
+            int LasColumnIndex = 1;
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
             wTable.ResetCells(1, LasColumnIndex);
@@ -4116,13 +4123,29 @@ namespace Library.MaterialManagement.Inventory
             double totalValue = 0;
             int sl = 0;
             int startRow = 0;
-
+            int colHeader = 0;
+            int colDescription = 0;
             for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
             {
-                if (dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString() != CmpTitile)
+                if (dsTermsAndCondition.Rows[i]["TermsAndConditionChildId"].ToString() != CmpTitile)
                 {
                     IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
-                    wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+                    range.ApplyCharacterFormat(FontBold);
+
+
+                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Header");
+                    range.ApplyCharacterFormat(FontBold);
+                     colHeader = COL; COL++;
+                    wTable.Rows[ROW].Cells[colHeader].Width = 100;
+
+
+                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
+                    range.ApplyCharacterFormat(FontBold);
+                     colDescription = COL; COL++;
+                    wTable.Rows[ROW].Cells[colDescription].Width = 100;
+
+
+                   // wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
                     sl = 0;
                 }
                 #endregion column headers
@@ -4140,7 +4163,8 @@ namespace Library.MaterialManagement.Inventory
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
+                TROW.Cells[colHeader].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
+                TROW.Cells[colDescription].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
                 //TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
                 CmpTitile = dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString();
             }
@@ -5178,13 +5202,12 @@ namespace Library.MaterialManagement.Inventory
             string strSQL;
             try
             {
-                strSQL = @"SELECT  ROW_NUMBER() OVER(ORDER BY tac.Sequence) RoWNo, PO.Id POId
-,tac.Id TermsAndConditionMasterId,tacc.Id TermsAndConditionPOChildId,tacd.id TermsAndConditionPODetailId,
-tacc.Title,tacd.HeaderCaption,tacd.[Description]
+                strSQL = @"SELECT  ROW_NUMBER() OVER(ORDER BY tac.Sequence) RoWNo, PO.Id POId,tac.Id TermsAndConditionMasterId,tacc.Id TermsAndConditionChildId,tacd.id TermsAndConditionDetailId,
+tacc.Title,tacd.HeaderCaption
 FROM TRN.PurchaseOrder AS PO
 LEFT OUTER JOIN HKP.TermsAndConditions AS tac ON PO.TermsAndConditionsId=tac.Id
-LEFT OUTER JOIN TermsAndConditionsPOChild AS tacc ON tacc.TermsAndConditionsMasterId=tac.Id
-LEFT OUTER JOIN TermsAndConditionsPODetails AS tacd ON tacd.TermsAndConditionsPOChildId=tacc.Id
+LEFT OUTER JOIN TermsAndConditionsChild AS tacc ON tacc.TermsAndConditionsMasterId=tac.Id
+LEFT OUTER JOIN TermsAndConditionsDetails AS tacd ON tacd.TermsAndConditionsChildId=tacc.Id
 WHERE PO.id='" + purchaseOrderId + @"' Order By tac.Sequence ";
 
                 return _sqlRepository.GetDataTable(strSQL);
