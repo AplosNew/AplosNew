@@ -24512,7 +24512,7 @@ UNION ALL
 								    AND  YEAR(CONVERT(DATE,FYPA.EndDate))=YEAR(CONVERT(DATE,EVD.AddedDate))
 
 									WHERE  CONVERT(DATE, V." + dateType + ") BETWEEN CONVERT(DATE, '" + fromDate + "') AND   CONVERT(DATE, '" + toDate + @"')
-                                    AND EFYP.Id ='" + PostingPeriodId + @"' AND FYPA.EntryPeriodId = '" + EntryPeriodId + @"' AND EVD.IsPark = 0
+                                    AND EFYP.Id ='" + PostingPeriodId + @"' AND FYPA.EntryPeriodId = '" + EntryPeriodId + @"' and AND EVD.IsPark = 0
 
                                   AND EVD.BudgetMasterId = '" + budgetMasterId + @"'";
 

@@ -42,7 +42,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region -- Operations
         [HttpPost, Authorize]
-        public ActionResult Report(string EntityId, string ProcessId, string ProductionDate, string WorkCenterMasterId, Dictionary<string, object> Data)
+        public ActionResult Report(string EntityId, string ProcessId, string ProductionDate, string WorkCenterMasterId, Dictionary<string, object> Data,string EntityName,string ProcessName)
         {
             #region Variable
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -74,6 +74,24 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     throw new Exception("No data found");
                 }
+                double Mc = 0;
+                double McP = 0;
+                double nMc = 0;
+                double nMcP = 0;
+                for (int i = 0; i < dsMasterData.Tables[0].Rows.Count; i++)
+                {
+                    if (dsMasterData.Tables[0].Rows[i]["IsMachineRequired"].ToString() != "H" )
+                    {
+                        Mc = Mc + clsStaticInfo.dbl(dsMasterData.Tables[0].Rows[i]["MachineSPT"].ToString());
+                        McP = McP + clsStaticInfo.dbl(dsMasterData.Tables[0].Rows[i]["MCManpower"].ToString());
+                    }
+                    else
+                    {
+                        nMc = nMc + clsStaticInfo.dbl(dsMasterData.Tables[0].Rows[i]["NONMachineSPT"].ToString());
+                        nMcP = nMcP + clsStaticInfo.dbl(dsMasterData.Tables[0].Rows[i]["NonMCManpower"].ToString());
+                    }
+                }
+
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
 
@@ -100,126 +118,288 @@ namespace Aplos.Areas.Productions.Controllers
                 xlsCol = 1;
                 xlsRow = 6;
                 int HeaderStartRow = xlsRow;
+                sheet1.Range[xlsRow, xlsCol].Text = "Date";
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2].Text = ProductionDate;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 3].Merge();
+
+                xlsCol = 1;
+                xlsRow += 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "PrO";
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["PRNo"].ToString().Trim();
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 3].Merge();
+
+                xlsCol = 1;
+                xlsRow += 1;
                 sheet1.Range[xlsRow, xlsCol].Text = "Buyer";
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
                 sheet1.Range[xlsRow, xlsCol + 2].Text = Data["Buyer"].ToString().Trim();
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 6].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 3].Merge();
 
                 xlsCol = 1;
                 xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Text = "Style";
+                sheet1.Range[xlsRow, xlsCol].Text = "Buyer Item#";
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["BuyerItemNo"].ToString().Trim();
+                sheet1.Range[xlsRow, xlsCol + 2].Text =Data["BuyerOrderRefNo"].ToString().Trim();
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 6].Merge();
-
-                xlsCol = 1;
-                xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol].Text = "Item";
-                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["Article"].ToString().Trim();
-                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 6].Merge();
-
-                xlsCol = 1;
-                xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol].Text = "Colour";
-                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-                sheet1.Range[xlsRow, xlsCol + 2].Text = "" /*+ Data["Colour"].ToString().Trim()*/;
-                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 6].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 3].Merge();
 
                 xlsCol = 1;
                 xlsRow += 1;
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
-                xlsRow += 1;
-                xlsCol = 9;
+                //xlsRow += 1;
+                xlsCol = 5;
                 xlsRow = 6;
 
-                sheet1.Range[xlsRow, xlsCol].Text = "Date";
+                sheet1.Range[xlsRow, xlsCol].Text = "Entity";
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-                sheet1.Range[xlsRow, xlsCol + 2].Text = ProductionDate.ToString().Trim();
+                sheet1.Range[xlsRow, xlsCol + 2].Text = EntityName.Trim();
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 3].Merge();
                 xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol].Text = "Total SMV";
+
+                sheet1.Range[xlsRow, xlsCol].Text = "Material";
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["SMV"].ToString().Trim();
+                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["Material"].ToString().Trim();
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 3].Merge();
 
                 xlsRow += 1;
                 int StartCalRow = xlsRow;
                 int endCalCol = xlsCol + 2;
-                sheet1.Range[xlsRow, xlsCol].Text = "Operators";
+                sheet1.Range[xlsRow, xlsCol].Text = "Article";
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["ManPowerWithMachine"].ToString().Trim();
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["Article"].ToString().Trim();
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 3].Merge();
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol].Text = "Helpers";
+                sheet1.Range[xlsRow, xlsCol].Text = "";
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["ManPowerWithHand"].ToString().Trim();
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                xlsRow += 1;
-                xlsCol = 1;
-                xlsRow += 1;
-
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                xlsRow += 1;
-                xlsCol = 14;
+                sheet1.Range[xlsRow, xlsCol + 2].Text = "";
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 3].Merge();
+                
+                xlsCol = 9;
                 xlsRow = 6;
 
-                sheet1.Range[xlsRow, xlsCol].Text = "M/C-SPT";
-                sheet1.Range[xlsRow, xlsCol + 1].Text = "Manual-SMV";
+                sheet1.Range[xlsRow, xlsCol].Text = "Work Center";
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2].Text = Data["Line"].ToString().Trim();
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                
+
+                xlsRow += 1;
+                int MCRow = xlsRow; int MCCol = xlsCol+2;
+                sheet1.Range[xlsRow, xlsCol].Text = "MC SPT";
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2].Text = Mc.ToString();
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                
+
+                xlsRow += 1;
+                int NMCRow = xlsRow; int NMCCol = xlsCol + 2;
+                sheet1.Range[xlsRow, xlsCol].Text = "Non MC SPT" ;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2].Text = nMc.ToString();
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                xlsRow += 1;
-                int CalRow = xlsRow;int CalCol = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "3.78";
-                sheet1.Range[xlsRow, xlsCol + 1].Text = " 1.27 " /*+ Data["SPT"].ToString().Trim()*/;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol - 2].Text = "Line";
-                sheet1.Range[xlsRow, xlsCol - 1].Text = Data["Line"].ToString().Trim();
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                int rows = xlsRow; int cols = xlsCol - 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "Total SPT";
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                sheet1.Range[xlsRow, xlsCol + 2].Formula = clsStaticInfo.GetxlsCol(MCCol) + MCRow + "+" + clsStaticInfo.GetxlsCol(NMCCol) + (NMCRow);
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                xlsCol = 12;
+                xlsRow = 6;
+
+                sheet1.Range[xlsRow, xlsCol].Text = "Process";
+                sheet1.Range[xlsRow, xlsCol + 1].Text = ProcessName;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 xlsRow += 1;
-                int rows = xlsRow;int cols = xlsCol - 1;
-                sheet1.Range[xlsRow, xlsCol - 2].Text = "TGT 100% :PCs";
-                sheet1.Range[xlsRow, xlsCol - 1].Formula = "(" + 60 +"/"+  clsStaticInfo.GetxlsCol(CalCol) + CalRow + ") * " + clsStaticInfo.GetxlsCol(endCalCol) + (StartCalRow) + "";
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                int MCpRow = xlsRow; int MCpCol = xlsCol + 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "MC MP";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol + 1].Text = McP.ToString();
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                sheet1.Range[xlsRow, xlsCol].Text = "TGT 85% :PCs";
-                sheet1.Range[xlsRow, xlsCol + 1].Text = "333" /*+ Data["Operators"].ToString().Trim()*/;
-                sheet1.Range[xlsRow, xlsCol + 1].Formula = "(" +clsStaticInfo.GetxlsCol(cols) + rows + ") * 0.85";
-                sheet1.Range[xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                xlsRow += 1;
+                int NMCpRow = xlsRow; int NMCpCol = xlsCol + 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "Non MC MP";
+                sheet1.Range[xlsRow, xlsCol + 1].Text = nMcP.ToString();
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                sheet1.Range[HeaderStartRow, 1, xlsRow, xlsCol + 1].BorderAround(ExcelLineStyle.Thin);
-                sheet1.Range[HeaderStartRow, 1, xlsRow, xlsCol + 1].BorderInside(ExcelLineStyle.Thin);
-                sheet1.Range[HeaderStartRow, 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
-                sheet1.Range[HeaderStartRow, 1, xlsRow, xlsCol + 1].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(255, 218, 185);
+                xlsRow += 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "Total MP";
+                sheet1.Range[xlsRow, xlsCol + 1].Formula = clsStaticInfo.GetxlsCol(MCpCol) + MCpRow + "+" + clsStaticInfo.GetxlsCol(NMCpCol) + (NMCpRow);
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                xlsCol = 14;
+                xlsRow = 6;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "TGT 100% Pc";
+                sheet1.Range[xlsRow, xlsCol + 1].Number =clsStaticInfo.dbl(dsMasterData.Tables[0].Rows[0]["RequiredStdTarget"].ToString());
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "TGT 85% Pc";
+                sheet1.Range[xlsRow, xlsCol + 1].Formula = 0.85 + "*" + clsStaticInfo.GetxlsCol(xlsCol + 1) + (xlsRow-1);
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                #region Old
+                //xlsCol = 1;
+                //xlsRow = 6;
+                //int HeaderStartRow = xlsRow;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Buyer";
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                //sheet1.Range[xlsRow, xlsCol + 2].Text = Data["Buyer"].ToString().Trim();
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 6].Merge();
+
+                //xlsCol = 1;
+                //xlsRow += 1;
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Text = "Style";
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                //sheet1.Range[xlsRow, xlsCol + 2].Text = Data["BuyerItemNo"].ToString().Trim();
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 6].Merge();
+
+                //xlsCol = 1;
+                //xlsRow += 1;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Item";
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                //sheet1.Range[xlsRow, xlsCol + 2].Text = Data["Article"].ToString().Trim();
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 6].Merge();
+
+                //xlsCol = 1;
+                //xlsRow += 1;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Colour";
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                //sheet1.Range[xlsRow, xlsCol + 2].Text = "" /*+ Data["Colour"].ToString().Trim()*/;
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 6].Merge();
+
+                //xlsCol = 1;
+                //xlsRow += 1;
+                //sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+                //xlsRow += 1;
+                //xlsCol = 9;
+                //xlsRow = 6;
+
+                //sheet1.Range[xlsRow, xlsCol].Text = "Date";
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                //sheet1.Range[xlsRow, xlsCol + 2].Text = ProductionDate.ToString().Trim();
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+                //xlsRow += 1;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Total SMV";
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                //sheet1.Range[xlsRow, xlsCol + 2].Text = Data["SMV"].ToString().Trim();
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 4].Merge();
+
+                //xlsRow += 1;
+                //int StartCalRow = xlsRow;
+                //int endCalCol = xlsCol + 2;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Operators";
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                //sheet1.Range[xlsRow, xlsCol + 2].Text = Data["ManPowerWithMachine"].ToString().Trim();
+                //sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                //xlsRow += 1;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Helpers";
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                //sheet1.Range[xlsRow, xlsCol + 2].Text = Data["ManPowerWithHand"].ToString().Trim();
+                //sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                //xlsRow += 1;
+                //xlsCol = 1;
+                //xlsRow += 1;
+
+                //sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                //xlsRow += 1;
+                //xlsCol = 14;
+                //xlsRow = 6;
+
+                //sheet1.Range[xlsRow, xlsCol].Text = "M/C-SPT";
+                //sheet1.Range[xlsRow, xlsCol + 1].Text = "Manual-SMV";
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                //xlsRow += 1;
+                //int CalRow = xlsRow;int CalCol = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "3.78";
+                //sheet1.Range[xlsRow, xlsCol + 1].Text = " 1.27 " /*+ Data["SPT"].ToString().Trim()*/;
+                //sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                ////sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
+
+                //xlsRow += 1;
+                //sheet1.Range[xlsRow, xlsCol - 2].Text = "Line";
+                //sheet1.Range[xlsRow, xlsCol - 1].Text = Data["Line"].ToString().Trim();
+                //sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                //xlsRow += 1;
+                //int rows = xlsRow;int cols = xlsCol - 1;
+                //sheet1.Range[xlsRow, xlsCol - 2].Text = "TGT 100% :PCs";
+                //sheet1.Range[xlsRow, xlsCol - 1].Formula = "(" + 60 +"/"+  clsStaticInfo.GetxlsCol(CalCol) + CalRow + ") * " + clsStaticInfo.GetxlsCol(endCalCol) + (StartCalRow) + "";
+                //sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                //sheet1.Range[xlsRow, xlsCol].Text = "TGT 85% :PCs";
+                //sheet1.Range[xlsRow, xlsCol + 1].Text = "333" /*+ Data["Operators"].ToString().Trim()*/;
+                //sheet1.Range[xlsRow, xlsCol + 1].Formula = "(" +clsStaticInfo.GetxlsCol(cols) + rows + ") * 0.85";
+                //sheet1.Range[xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                #endregion
+
+                sheet1.Range[HeaderStartRow, 1, xlsRow + 1, xlsCol + 1].BorderAround(ExcelLineStyle.Thin);
+                sheet1.Range[HeaderStartRow, 1, xlsRow + 1, xlsCol + 1].BorderInside(ExcelLineStyle.Thin);
+                sheet1.Range[HeaderStartRow, 1, xlsRow + 1, xlsCol + 1].CellStyle.Font.Bold = true;
+                sheet1.Range[HeaderStartRow, 1, xlsRow + 1, xlsCol + 1].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(255, 218, 185);
 
                 #endregion ------------------Column Header------------------
 
@@ -246,7 +426,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet1.Range[xlsRow, iOperation, xlsRow, iOperation + 3].Merge();
                 xlsCol = 6;
                 iSMV = xlsCol;
-                sheet1.Range[xlsRow, iSMV].Text = "SMV";
+                sheet1.Range[xlsRow, iSMV].Text = "SPT";
                 //sheet1.Range[xlsRow, iSMV].ColumnWidth = 16;
                 //sheet1.Range[xlsRow, iTGT].RowHeight = 30;
                 sheet1.Range[xlsRow, iSMV].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -281,7 +461,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 xlsCol = 10;
                 iSMV2 = xlsCol;
-                sheet1.Range[xlsRow, iSMV2].Text = "SMV";
+                sheet1.Range[xlsRow, iSMV2].Text = "SPT";
                 //sheet1.Range[xlsRow, iSMV2].ColumnWidth = 16;
                 //sheet1.Range[xlsRow, iTGT].RowHeight = 30;
                 sheet1.Range[xlsRow, iSMV2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -327,7 +507,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                     #region ----------------------Data-----------------------                    
 
-                    sheet1.Range[xlsRow, iTGT].Text = dsMasterData.Tables[0].Rows[i]["WorkstationTargetPerHour"].ToString().Trim();
+                    sheet1.Range[xlsRow, iTGT].Text = dsMasterData.Tables[0].Rows[i]["OperationTargetPerHr"].ToString().Trim();
                     sheet1.Range[xlsRow, iTGT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, iTGT].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iTGT, xlsRow, iTGT].Merge();
@@ -356,7 +536,7 @@ namespace Aplos.Areas.Productions.Controllers
                         sheet1.Range[xlsRow - 1, 1, xlsRow , endXlsCol].WrapText = true;
                         continue;
                     }
-                    sheet1.Range[xlsRow, iTG2].Text = dsMasterData.Tables[0].Rows[i]["WorkstationTargetPerHour"].ToString().Trim();
+                    sheet1.Range[xlsRow, iTG2].Text = dsMasterData.Tables[0].Rows[i]["OperationTargetPerHr"].ToString().Trim();
                     sheet1.Range[xlsRow, iTG2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, iTG2].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iTG2, xlsRow, iTG2].Merge();
@@ -532,20 +712,6 @@ namespace Aplos.Areas.Productions.Controllers
 
                 int TotalCalculation = xlsRow;
 
-              //DataTable dtMachineSummary=  dsMasterData.Tables[0].AsEnumerable().GroupBy(x => new
-              //  {
-              //      SalesOrderId = x["Machine"]
-              //  })
-              //                       .Select(x =>
-              //                       {
-              //                           DataRow row = dsMasterData.Tables[0].NewRow();
-              //                           row["Machine"] = x.Key.SalesOrderId;
-              //                           row["Rcount"] = x.Sum(r => (decimal)r["Rcount"]);
-              //                           return row;
-              //                       }
-              //                       ).CopyToDataTable();
-
-
                 DataTable dtDistinctMachine = dsMasterData.Tables[0].DefaultView.ToTable(true, "Machine");
                 int startFormulaRow = xlsRow;
                 int startFormulaCol = xlsCol+2;
@@ -557,7 +723,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
-
+                    
                     sheet1.Range[xlsRow, xlsCol + 2].Number = dsMasterData.Tables[0].DefaultView.Count;
                     sheet1.Range[xlsRow, xlsCol + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -676,14 +842,19 @@ namespace Aplos.Areas.Productions.Controllers
 
             try
             {
-                strSql = @"SELECT ov.UserName OperationVariationName  ,pbtd.OperationTargetPerHr,o.IsMachineRequired,pbtd.TotalSPT,
-								CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN 'Manual' ELSE ISNULL(mma.StandardName,'Missing Machcine') END AS MACHINE
+                strSql = @"SELECT ov.UserName OperationVariationName  ,pbtd.OperationTargetPerHr,o.IsMachineRequired,pbtd.TotalSPT,pbtm.RequiredStdTarget,
+								CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN ISNULL(mma.StandardName,'Missing Machcine') ELSE 'W/M' END AS MACHINE,
+									CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN pbtd.TotalSPT ELSE 0 END AS MachineSPT,
+									CASE WHEN ISNULL(o.IsMachineRequired,'')<>'M' THEN pbtd.TotalSPT ELSE 0 END AS NONMachineSPT,
+							CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN pbtd.AllotedManpower ELSE 0 END AS MCManpower,
+									CASE WHEN ISNULL(o.IsMachineRequired,'')<>'M' THEN pbtd.AllotedManpower ELSE 0 END AS NonMCManpower
 		                        ,CONVERT(INT,pbtd.OperationTargetPerHr/CASE WHEN pbtd.RequiredManPower>0 THEN pbtd.RequiredManPower ELSE 1 END) WorkstationTargetPerHour
                                 FROM LineLayoutDailyTargetData AS llbpbd
                                 LEFT JOIN LineLayoutDailyTarget AS lldt ON lldt.Id = llbpbd.LineLayoutDailyTargetId
                                 LEFT JOIN MST.OperationVariation AS ov ON ov.Id=llbpbd.OperationVariationId
                                 JOIN TRN.ProductionBulletinTemplateDetail AS pbtd ON pbtd.OperationVariationId =llbpbd.OperationVariationId AND pbtd.ProductionBulletinTemplateMasterId=lldt.ProductionBulletinTemplateMasterId
                                 AND pbtd.OperationVariationId=(SELECT TOP 1 OperationVariationId FROM LineLayoutDailyTargetData Y WHERE y.LineLayoutDailyTargetId=lldt.Id AND y.OperationVariationId=llbpbd.OperationVariationId) 
+                                JOIN trn.ProductionBulletinTemplateMaster AS pbtm on  pbtm.Id = lldt.ProductionBulletinTemplateMasterId                                
                                 LEFT JOIN mst.Operation AS o ON o.Id=ov.OperationId   
                                 LEFT JOIN  trn.FixedAssetRegister AS far ON far.Id=llbpbd.FixedAssetRegisterId  
                                 LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=far.MaterialMasterArticleId       

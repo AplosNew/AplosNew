@@ -1208,7 +1208,7 @@ namespace Library.Service.Invoices
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate)
                     };
-                    voucherDetailCurrencyCr.CrAmount = voucherVM.CompanyCurrencyRate * voucherVM.Amount;
+                    voucherDetailCurrencyCr.CrAmount = voucherVM.Amount;
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
                         voucherDetailCurrencyCr.CrAmount -= (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
 

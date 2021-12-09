@@ -109,7 +109,7 @@ namespace Aplos.Areas.Organizations.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 companyId = identity.CompanyId;
             }
-            return Json(_sqlRepository.GetDataCollection(@"select Id Value,UserName Text from ORG.Entity Where CompanyGroupId='" + companyGroupId + "' AND CompanyId='"+ companyId + "' AND PlantId='"+ plantId + "'"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(@"select Id Value,UserName Text from ORG.Entity Where PlantId='"+ plantId + "'"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -243,7 +243,6 @@ namespace Aplos.Areas.Organizations.Controllers
         {
             return Json(_entityService.Get(companyId, id), JsonRequestBehavior.AllowGet);
         }
-
         #region Allowance
 
         [HttpGet, Authorize]

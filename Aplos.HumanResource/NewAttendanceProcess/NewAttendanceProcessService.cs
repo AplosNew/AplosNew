@@ -183,6 +183,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["WrongShift"] = 0;
                                 dr["OTHr"] = "0";
                                 dr["ProcessedOT"] = "0";
+                                dr["CalculatedOT"] = 0;
                                 dr["IsOTComfirm"] = 0;
                                 dr["IsLock"] = 0;
                                 dr["IsOTEntitled"] = 0;
@@ -437,20 +438,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
-
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-                                string Leave = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"LeaveStatus"]).ToString();
-                                if (Leave == "" || Leave.ToString()!=LeaveStatus.ToString())
-                                {
-                                    // Updations in APD Table
-                                    dr["LeaveDuration"] = LeaveDuration;
-                                    dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
-                                    dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
-                                    dr["UpdatedBy"] = "Schedule";
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-                                }
+                                // Updations in APD Table
+                                dr["LeaveDuration"] = LeaveDuration;
+                                dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
+                                dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
+                                dr["UpdatedBy"] = "Schedule";
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
                             }
                         }
                         SaveDataSets(dsRef);
@@ -486,16 +482,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-                                string Leave = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"LeaveStatus"]).ToString();
-                                if (Leave == "" || Leave.ToString() != LeaveStatus.ToString())
-                                {
-                                    // Updations in APD Table
-                                    dr["LeaveDuration"] = LeaveDuration;
-                                    dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
-                                    dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-                                }
+                                // Updations in APD Table
+                                dr["LeaveDuration"] = LeaveDuration;
+                                dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
+                                dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
+                                dr["UpdatedBy"] = "Schedule";
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
                             }
                         }
                         SaveDataSets(dsRef);
@@ -702,6 +695,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
 
                                 dr["IsOTEntitled"] = clsWebLib.GetBoolData(IsOTEntitled);
+                                dr["UpdatedBy"] = "Schedule";
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -733,15 +727,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-                                string ManualDayStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ManualDayStatus"]).ToString();
-                                if (ManualDayStatus != "OD")
-                                {
-                                    dr["IsOD"] = 1;
-                                    dr["IsManualDayStatus"] = true;
-                                    dr["ManualDayStatus"] = "OD";
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-                                }
+
+                                dr["IsOD"] = 1;
+                                dr["IsManualDayStatus"] = true;
+                                dr["ManualDayStatus"] = "OD";
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
                             }
                         }
                         SaveDataSets(dsRef);
@@ -773,14 +764,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-                                string ManualDayStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ManualDayStatus"]).ToString();
-                                if (ManualDayStatus != "RST")
-                                {
-                                    dr["AttendanceRestDetailId"] = RestId;
-                                    dr["ManualDayStatus"] = "RST";
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-                                }
+
+                                dr["AttendanceRestDetailId"] = RestId;
+                                dr["ManualDayStatus"] = "RST";
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
                             }
                         }
                         SaveDataSets(dsRef);
@@ -2813,7 +2801,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 SandwichFlag=NULL,DayTypeOtApplicable=null,SandwichStatus=null,ProcessFinalDayStatus=null,DayStatus=null,
                 DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,DayTypeGoodWorkApplicable=null,IsLock=0,LockedBy=null,
                 LockedDate=null ,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
-                AllowedOTLimit=null,TargetOT=null,AdditionalOT=null
+                AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,CalculatedOT=0
                 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -3435,7 +3423,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     #endregion
-                 
+
                     #region Previous Day DurationStatus Flagging
                     DataSet PrevDurationStat;
                     PrevDurationStatusCal(PreviousDay, out PrevDurationStat, PlantValue);
@@ -3584,7 +3572,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string EmpId = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                             string Result = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"Result"]).ToString();
                             string SandwichFlag = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"SandwichStatusFlag"]).ToString();
-                                              
+
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -3658,8 +3646,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
-                            }                     
-                                
+                            }
+
                         }
 
                         SaveDataSets(dsRef); // Saving Main DataSet                      
@@ -3798,7 +3786,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                     #region Prev Process Payroll DayStatus 
-                    DataSet PrevPayrollDayStat; 
+                    DataSet PrevPayrollDayStat;
                     PreProcessPayrollDayStatusData(PreviousDay, out PrevPayrollDayStat, PlantValue);
                     if (PrevPayrollDayStat.Tables[0].Rows.Count > 0)
                     {
@@ -3947,6 +3935,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result; // For Visiblity
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -3962,6 +3951,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = PastManualOT;
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -3981,6 +3971,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                     // If Manual is less than Processed
                                                     dr.BeginEdit();
                                                     dr["ProcessedOT"] = PastManualOT;
+                                                    dr["CalculatedOT"] = Result;  // For Visiblity
                                                     dr.EndEdit();
                                                 }
                                                 else
@@ -3988,6 +3979,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                     // Otherwise Processed
                                                     dr.BeginEdit();
                                                     dr["ProcessedOT"] = Result;
+                                                    dr["CalculatedOT"] = Result;  // For Visiblity
                                                     dr.EndEdit();
                                                 }
                                             }
@@ -3996,6 +3988,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 // Otherwise Processed
                                                 dr.BeginEdit();
                                                 dr["ProcessedOT"] = Result;
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr.EndEdit();
                                             }
                                         }
@@ -4004,6 +3997,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             // Otherwise Processed
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -4102,7 +4096,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string RowId = clsWebLib.RetValidLen(OTNotApplicable.Tables[0].Rows[i][@"RowId"]).ToString();
                             RowMaster += ",'" + RowId + "'";
                         }
-                        ConfirmOTFlag(RowMaster);
+                        if (RowMaster != "''")
+                        { 
+                            ConfirmOTFlag(RowMaster);
+                        }
                     }
 
                     #endregion
@@ -4495,7 +4492,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
                     LockedBy=null,
-                    LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null 
+                    LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null ,CalculatedOT=0
                     where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
                   
@@ -4512,7 +4509,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
-                    LockedBy=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null ,
+                    LockedBy=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,CalculatedOT=0,
                     LockedDate=null
                     where PlantID='" + Plant + @"'
                     and ManualFlag=1";
@@ -5427,6 +5424,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = Result;
+                                        dr["CalculatedOT"] = Result;  // For Visiblity
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5443,6 +5441,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = PastManualOT;
+                                        dr["CalculatedOT"] = Result;  // For Visiblity
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5463,7 +5462,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                             {
                                                 dr.BeginEdit();
-                                                dr["ProcessedOT"] = PastManualOT;
+                                                dr["ProcessedOT"] = PastManualOT; 
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                 dr.EndEdit();
                                                 CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5473,6 +5473,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 // Otherwise Processed
                                                 dr.BeginEdit();
                                                 dr["ProcessedOT"] = Result;
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr.EndEdit();
                                             }
                                         }
@@ -5481,6 +5482,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             // Otherwise Processed
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5492,6 +5494,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         // Otherwise Processed
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = Result;
+                                        dr["CalculatedOT"] = Result;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5693,8 +5696,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
-			    else 'false' end , e.SystemId,'"+WkDate+ @"' as WorkDate,Month(WorkDate) as Month,
-				Year(workdate) as Year,
+			    else 'false' end , e.SystemId,'"+WkDate+ @"' as WorkDate,Month('" + WkDate + @"') as Month,
+				Year('" + WkDate + @"') as Year,
                 convert(varchar(30),'" + newformat+ @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,
 				e.GroupID,
                 mb.ShiftDefinationId as BudgetedShift,isnull(stcm.InTime,sdy.InTime) as BudgetShiftIn,
@@ -5978,8 +5981,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                         string HeaderId = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"HeaderId"]).ToString();
                                         string LeavePolicyId = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"LeavePolicyMasterId"]).ToString();
-                                        var Month = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[0][@"Month"]).ToString();
-                                        var Year = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[0][@"Year"]).ToString();
+                                        var Month = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"Month"]).ToString();
+                                        var Year = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"Year"]).ToString();
 
                                         var PlantInPunchStartTime = RowCreationData.Tables[0].Rows[i][@"PlantInPunchStartTime"].ToString();
                                         PlantInTime(ref PlantInPunchStartTime, EmpWkDate);
@@ -6022,6 +6025,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr["WrongShift"] = 0;
                                             dr["OTHr"] = "0";
                                             dr["ProcessedOT"] = "0";
+                                            dr["CalculatedOT"] = 0;
                                             dr["IsOTComfirm"] = 0;
                                             dr["IsLock"] = 0;
                                             dr["IsOTEntitled"] = 0;
