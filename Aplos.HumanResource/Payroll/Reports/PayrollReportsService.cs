@@ -19221,24 +19221,24 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                     sheet[ROW, colGross].Number = clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["DisbusmentAmount"].ToString());
                     sheet[ROW, colLayoffDays].Text = "";
 
-                    dtLeaveInfo.DefaultView.RowFilter = "LeaveType='Earn'";
+                    //dtLeaveInfo.DefaultView.RowFilter = "LeaveType='Earn'";
 
-                    if (dtLeaveInfo.DefaultView.Count > 0)
+                    //if (dtLeaveInfo.DefaultView.Count > 0)
+                    //{
+                    if (clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString()) > 0)
                     {
-                        if (clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString()) > 0)
-                        {
-                            double StructureSalary = 0;
-                            double TotalPL = clsStaticInfo.dbl(dtLeaveTransaction.Compute("SUM(AvailedValue)", "MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "' AND LeaveTypeId='" + dtLeaveInfo.DefaultView[0]["LeaveTypeId"].ToString() + @"'"));
-                            dtEmployeeSalaryPL.DefaultView.RowFilter = "MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "'";
-                            if (dtEmployeeSalaryPL.DefaultView.Count > 0)
-                                StructureSalary = clsStaticInfo.dbl(dtEmployeeSalaryPL.DefaultView[0]["Amount"].ToString());
+                        double StructureSalary = 0;
+                        double TotalPL = clsStaticInfo.dbl(dtLeaveTransaction.Compute("SUM(AvailedValue)", "MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "'"));
+                        dtEmployeeSalaryPL.DefaultView.RowFilter = "MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "'";
+                        if (dtEmployeeSalaryPL.DefaultView.Count > 0)
+                            StructureSalary = clsStaticInfo.dbl(dtEmployeeSalaryPL.DefaultView[0]["Amount"].ToString());
 
 
-                            sheet[ROW, colTotalWagesPaidForEL].Formula = StructureSalary + "/" + clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString()) + "*" + TotalPL;
-
-                        }
+                        sheet[ROW, colTotalWagesPaidForEL].Formula = StructureSalary + "/" + clsStaticInfo.dbl(dtEmployeeSalary.Rows[i]["TotalActualWorkingDays"].ToString()) + "*" + TotalPL;
 
                     }
+
+                    //}
 
                     dtMaternityLeaveTransaction.DefaultView.RowFilter = "MonthDesc='" + dtEmployeeSalary.Rows[i]["MonthDesc"].ToString() + "'";
                     if (dtMaternityLeaveTransaction.DefaultView.Count > 0)
