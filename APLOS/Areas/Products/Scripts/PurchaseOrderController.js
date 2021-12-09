@@ -4563,7 +4563,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}
 	};
     $scope.calculateRequisitionData = function (data) {
-		$scope.summaryRows(); 
+		$scope.summaryRows();  
     }
 
 	$scope.summaryRows = [{
