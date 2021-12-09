@@ -685,12 +685,13 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     //if (_explicitSave)
                         ShowResult(response.data.Message, 'success');
 
-                    //$scope.DailyProductionTargetNew.ManPowerWithMachine = response.data.Data[0].TotalMachine;
-                    //$scope.DailyProductionTargetNew.ManPowerWithHand = response.data.Data[0].TotalHand;
+                    $scope.SelectedLine.ManPowerWithMachine = response.data.Data[0].TotalMachine;
+                    $scope.SelectedLine.ManPowerWithHand = response.data.Data[0].TotalHand;
+                    $scope.SelectedLine.HasLayout = true;
 
                     //var gridObj = $("#GridDailyTargetList").data("ejGrid");
                     //gridObj.refreshContent();
-                    $scope.getDailytarget();
+                    //$scope.getDailytarget();
 
                 }
             }), function errorCallBack(response) {

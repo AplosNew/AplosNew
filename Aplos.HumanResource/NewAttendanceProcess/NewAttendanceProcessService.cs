@@ -5680,8 +5680,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
-			    else 'false' end , e.SystemId,'"+WkDate+@"' as WorkDate,
-                convert(varchar(30),'"+newformat+ @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,
+			    else 'false' end , e.SystemId,'"+WkDate+ @"' as WorkDate,Month(WorkDate) as Month,
+				Year(workdate) as Year,
+                convert(varchar(30),'" + newformat+ @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,
 				e.GroupID,
                 mb.ShiftDefinationId as BudgetedShift,isnull(stcm.InTime,sdy.InTime) as BudgetShiftIn,
 				ISNULL(stcm.OutTime,sdy.OutTime) as BudgetShiftOut,
@@ -5705,8 +5706,19 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				from scs.OffDayMaster od 
 				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id
 				where od.OffDayType='W' 
-				and od.PlantId='" + Plant+"' and odd.OffDayDate='"+WkDate+@"'),'NW') 
+				and od.PlantId='" + Plant+"' and odd.OffDayDate='"+WkDate+ @"'),'NW'),
+                dh.Id as HeaderId,dxc.LeavePolicyMasterId
                 from EmployeeInformation e 
+                left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = 
+		        e.LegalDesignationId
+				left join mst.DesignationMaster 
+				dm on dm.Id = ddm.DesignationMasterId
+				left join scs.DesignationMasterConfiguration dxc on dxc.DesignationMasterId=dm.Id
+				and dxc.PlantId=e.PlantId
+				left join DayStatusPlantChild 
+				dc on dc.EmpTypeId=dm.EmployeeCategoryId
+				and dc.PlantId=e.PlantId
+				left join DayStatusHeader dh on dh.Id=dc.headerId                
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId				  
 				LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WkDate+@"' 
@@ -5721,6 +5733,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				OR E.DOS = '01/01/1901') ";
 
                 // Finds HolidayStatus,BudgetCode as well as Weekly Status if Company WeekOff
+                // HeaderId and Month,Year as well
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -5729,7 +5742,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-
         public void MissingRowsDOJ(out DataSet ds, string Plant,string Date)
         {
             // This DataSet to find all the Entries that are done Today 
@@ -5753,7 +5765,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-
         public void IndividualWeekOffDataSet(out DataSet ds, string FromDate, string ToDate, string EmpMaster)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -5813,7 +5824,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-
         public void OTEligibleEmpDOJ(string FromDate,string ToDate, out DataSet ds, string PlantId, string empMaster)
         {
             string EmpData = clsWebLib.RetValidLen(empMaster).ToString();
@@ -5856,6 +5866,25 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void OTWeekDOJ(string FromDate, string ToDate, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct Format(WorkDate,'dd-MMM-yyyy')WorkDate,
+				OTWeek from AttdnProcessData where PlantID='"+PlantId+@"'
+				and WorkDate between '"+FromDate+"' and '"+ToDate+@"'
+				and OTWeek is not null";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
 
         #endregion
 
@@ -5934,6 +5963,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         var ShortDuration = RowCreationData.Tables[0].Rows[i][@"ShortDuration"].ToString();
                                         var HoursWithoutOT = RowCreationData.Tables[0].Rows[i][@"HoursWithoutOT"].ToString();
 
+                                        string HeaderId = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"HeaderId"]).ToString();
+                                        string LeavePolicyId = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"LeavePolicyMasterId"]).ToString();
+                                        var Month = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[0][@"Month"]).ToString();
+                                        var Year = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[0][@"Year"]).ToString();
+
                                         var PlantInPunchStartTime = RowCreationData.Tables[0].Rows[i][@"PlantInPunchStartTime"].ToString();
                                         PlantInTime(ref PlantInPunchStartTime, EmpWkDate);
 
@@ -5947,6 +5981,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr["WorkDate"] = EmpWkDate; // Localizing Default Values
                                             dr["GroupID"] = GpId;
                                             dr["PlantID"] = PlantId;
+                                            dr["OTMonth"] = Month;
+                                            dr["OTYear"] = Year;
 
                                             dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
                                             dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
@@ -5986,6 +6022,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr["AddedBy"] = "DOJProcess";
                                             dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
 
+                                            #endregion
+
+                                            #region HeaderId Localized
+                                            dr["DayStatusHeaderId"] = HeaderId;
+                                            if (LeavePolicyId != "")
+                                            {
+                                                dr["LeavePolicyMasterId"] = LeavePolicyId;
+                                            }
                                             #endregion
 
                                             if (HoliDay != "false")
@@ -6046,7 +6090,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             #region OTEligibleData Flagging
                             DataSet OTElgbEmp;
-                            OTEligibleEmpDOJ(StartDate,ToDate, out OTElgbEmp, PlantValue, EmpMaster); // OT Eligible DataSet Generation
+                            OTEligibleEmpDOJ(StartDate, ToDate, out OTElgbEmp, PlantValue, EmpMaster); // OT Eligible DataSet Generation
                             if (OTElgbEmp.Tables[0].Rows.Count > 0)
                             {
                                 // Chosen From & ToDate to get RowIds 
@@ -6076,11 +6120,44 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             #endregion
 
-                            #region DayStatusHeaderId Localization
+                            #region OTWeek Localization
+                            if (StartDate != "")
+                            {
+                                string strSql = string.Empty;
+                                DataSet dsWeekData;                               
+                                OTWeekDOJ(StartDate, ToDate, out dsWeekData, PlantValue);
+                                if(dsWeekData.Tables[0].Rows.Count>0)
+                                {
+                                    for (int i = 0; i < dsWeekData.Tables[0].Rows.Count; i++)
+                                    {
+                                        string Datex = clsWebLib.RetValidLen(dsWeekData.Tables[0].Rows[i]["WorkDate"]).ToString();
+                                        string Week = clsWebLib.RetValidLen(dsWeekData.Tables[0].Rows[i]["OTWeek"]).ToString();
 
+                                        if (Datex != "" && Week !="")
+                                        {
+                                            if (strSql.Length == 0)
+                                            {
+                                                strSql = @" update AttdnProcessData set OTWeek='"+Week+"' where WorkDate='"+Datex+"' and " +
+                                                    "PlantId='"+PlantValue+"' and RowId in (" + CreatedEmpIds + ") ;";
+                                            }
+                                            else
+                                            {
+                                                strSql += Environment.NewLine + @" update AttdnProcessData set OTWeek='" + Week + "' where WorkDate='" + Datex + "' and " +
+                                                    "PlantId='" + PlantValue + "' and RowId in (" + CreatedEmpIds + ") ;";
+                                            }
+                                        }
+                                    }
+                                    if (strSql.Length > 0)
+                                    {
+                                        UpdateStatus(strSql); // OTWeek Updation
+                                    }
+                                }
+                            }
                             #endregion
 
                         }
+
+
                     }
                     #endregion
                 }
@@ -6154,8 +6231,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
 
                 }
-                 
-                UpdateEmpStatus(strSql);
+                if (strSql.Length > 0)
+                {
+                    UpdateStatus(strSql);
+                }
             }
             catch (Exception ex)
             {
@@ -6315,8 +6394,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         }
                     }
                 }
-
-                UpdateEmpStatus(strSql);
+                if (strSql.Length > 0)
+                {
+                    UpdateStatus(strSql);
+                }
             }
             catch (Exception ex)
             {
@@ -6409,7 +6490,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     _empids = " and systemid in (" + _empids + ")";
                 }
                 string strSql = @"update EmployeeInformation set EmployeeCurrentStatus=null,EmployeeCurrentStatusEffectiveDate=null where plantid='" + PlantId + "' " + _empids + "";
-                UpdateEmpStatus(strSql);
+                UpdateStatus(strSql);
             }
             catch (Exception ex)
             {
@@ -6495,7 +6576,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 return "0";
             }
         }        
-        private void UpdateEmpStatus(string sql)
+        private void UpdateStatus(string sql)
         {
             bool IsTransactionStarted = false;
             ConnectionManager.DAL.ConManager objCon = null;

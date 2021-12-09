@@ -86,7 +86,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 //Getting all the EmployeeAdditionDeduction Header Ids with every child Details of it Based on Effective Date.
                 string getEmployeeAdditionHeaders = @"Select  eh.Id as HeaderId, eh.Type, eh.AdditionDeductionHeadId, eh.Amount ,MONTH('1' + ep.Month +'00') AS [MONTH_NUMBER] , ep.MonthDay,
                                                     ec.PlantId, isnull(ec.DesignationId,'All') as DesignationId , ec.EmpTypeId,eh.isHeadApplicable,eh.HeadValueId , isnull(dm.LegalDesignationId,'All') LegalDesignationId , sh.SalaryHead,
-													isnull(ec.EmploymentType,'All') as EmploymentType
+													isnull(ec.EmploymentType,'All') as EmploymentType, ec.EmployeeCodeTypeId
                                                     from dbo.EmployeeAdditionDeductionHeader eh
                                                     left join dbo.EmployeeAdditionDeductionPeriod ep on ep.MasterId = eh.Id
                                                     left join dbo.EmployeeAdditionDeductionPlantChild ec on ec.MasterId = eh.Id
@@ -110,6 +110,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                         string EmpType = dtEmpAddDedTab.Rows[i]["EmpTypeId"].ToString();
                         string LDesg = dtEmpAddDedTab.Rows[i]["LegalDesignationId"].ToString();
                         string EmploymentType = dtEmpAddDedTab.Rows[i]["EmploymentType"].ToString();
+                        string EmployeeCodeTypeId  = dtEmpAddDedTab.Rows[i]["EmployeeCodeTypeId"].ToString();
                         string EmployTyStr = ""; 
                         string DesgStr = "";
                         if (LDesg == "All")
@@ -145,10 +146,11 @@ namespace Aplos.Areas.HumanResource.Controllers
 									left JOIN SalaryInfoDefineMaster MST ON ei.SystemId = MST.EmpInfoSystemID 
 									left join  SalaryInfoDefine EmpSlr on EmpSlr.SalaryID = MST.SystemID 
                                     where ei.PlantId = '" + plant + @"' and 
-                                    dm.EmployeeCategoryId = '" + EmpType + @"' and
+                                    dm.EmployeeCategoryId = '" + EmpType + @"' and ei.DOJ <= '"+ Convert.ToDateTime(date).ToString("dd-MMM-yyyy") + @"' and
                                     " + DesgStr + @" and "+EmployTyStr+@" and
 									EmpSlr.SalaryHeadID = '"+dtEmpAddDedTab.Rows[i]["HeadValueId"].ToString()+ @"' and
-                                    ei.EmployeeStatus = 'Active' and ei.EmployeeCodeTypeId <> '213'
+                                    ei.EmployeeCodeTypeId = "+EmployeeCodeTypeId+@" and
+                                    ei.EmployeeStatus = 'Active' 
 									and EmpSlr.DefineAmount is not null and EmpSlr.DefineAmount>0
                                     ";
                         }

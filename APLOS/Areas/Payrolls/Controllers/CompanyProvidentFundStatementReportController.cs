@@ -1739,7 +1739,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                                     left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
                                             where EESHE.SalaryStructureId = spc.SalaryId AND
                                                 EESHE.EmpSystemId = e.SystemId 
-												AND EESHE.SalaryHeadEnum IN('PF','VPF')   AND IsEligible = 1 and ect.IsOutSider =0
+												AND EESHE.SalaryHeadEnum IN('PF','VPF')   AND IsEligible = 1 and ISNULL(ect.IsOutSider,0) =0
 											 )          
                                                 and
                                E.CompanyId ='" + plantId + @"' 
@@ -1813,7 +1813,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                                                 LEFT JOIN CurrencyRuleMaster crm on crm.SystemID = sRM.CurrencyRuleSystemID
                                                                 LEFT JOIN CurrencyRuleChild crc on crc.MstSystemID = CRM.SystemID and crc.SalaryHeadID=spc.SalaryHeadID
                                                         left join [dbo].[EmployeeCodeType] ect on ect.Id=eei.EmployeeCodeTypeId
-														WHERE  EEI.CompanyId = '" + plantId + @"' and ect.IsOutSider =0 order by EEI.SystemId";
+														WHERE  EEI.CompanyId = '" + plantId + @"' and ISNULL(ect.IsOutSider,0) =0 order by EEI.SystemId";
 
                 DataTable dt = _sqlRepository.GetDataTable(strSQL);
                 List<DataRow> _data = new List<DataRow>();
