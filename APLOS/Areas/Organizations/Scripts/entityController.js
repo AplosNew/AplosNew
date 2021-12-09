@@ -186,7 +186,7 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
     $scope.GetAddressMaster = function (id) {
         $http.get('addresses/addressmaster/get/' + id)
             .then(function (response) {
-                if (!baseService.isUndefinedOrNull(response.data)) {
+                if (baseService.arrayLength(response.data)>0) {
                     $scope.addressMaster = response.data;
                     $scope.onContinentChange($scope.addressMaster.ContinentId);
                     $scope.onCountryChange($scope.addressMaster.CountryId);
@@ -281,7 +281,6 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
         $scope.companyStructureSetup = { CompanyId: cId };
         $scope.companyStructureSetup.Active = true;
         $scope.isUsed = false;
-        $scope.addressMaster = {};
     }
 
     $scope.getCompanyStructurerRelation = function (id, data) {
