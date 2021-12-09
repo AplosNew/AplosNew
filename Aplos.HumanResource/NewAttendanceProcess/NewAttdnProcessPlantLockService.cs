@@ -689,7 +689,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     #region Attendance process
 
-
                     if(StartDate!="")
                     {
                         string CreatedEmpIds = "''";
@@ -734,11 +733,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     var ShortDuration = RowCreationData.Tables[0].Rows[i][@"ShortDuration"].ToString();
                                     var HoursWithoutOT = RowCreationData.Tables[0].Rows[i][@"HoursWithoutOT"].ToString();
 
+                                    string HeaderId = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"HeaderId"]).ToString();
+                                    string LeavePolicyId = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"LeavePolicyMasterId"]).ToString();
+                                    var MonthData = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"Month"]).ToString();
+                                    var Year = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"Year"]).ToString();
+
                                     var PlantInPunchStartTime = RowCreationData.Tables[0].Rows[i][@"PlantInPunchStartTime"].ToString();
                                     PlantInTime(ref PlantInPunchStartTime, EmpWkDate);
 
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-
+                                    
                                     if (dsRef.Tables[0].DefaultView.Count == 0 && Convert.ToBoolean(RowCreationData.Tables[0].Rows[i]["TobeAdded"].ToString()) == true)
                                     {
                                         DataRow dr = dsRef.Tables[0].NewRow();
@@ -747,6 +751,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         dr["WorkDate"] = EmpWkDate; // Localizing Default Values
                                         dr["GroupID"] = GpId;
                                         dr["PlantID"] = PlantId;
+                                        dr["OTMonth"] = MonthData;
+                                        dr["OTYear"] = Year;
 
                                         dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
                                         dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
@@ -786,6 +792,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         dr["AddedBy"] = "ReActivationProcess";
                                         dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
 
+                                        #endregion
+
+                                        #region HeaderId Localized
+                                        dr["DayStatusHeaderId"] = HeaderId;
+                                        if (LeavePolicyId != "")
+                                        {
+                                            dr["LeavePolicyMasterId"] = LeavePolicyId;
+                                        }
                                         #endregion
 
                                         if (HoliDay != "false")
@@ -909,7 +923,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
-			    else 'false' end , e.SystemId,'" + WkDate + @"' as WorkDate,
+			    else 'false' end , e.SystemId,'" + WkDate + @"' as WorkDate,Month('" + WkDate + @"') as Month,
+				Year('" + WkDate + @"') as Year,
                 convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,
 				e.GroupID,
                 mb.ShiftDefinationId as BudgetedShift,isnull(stcm.InTime,sdy.InTime) as BudgetShiftIn,
@@ -934,8 +949,19 @@ namespace Library.HumanResource.NewAttendanceProcess
 				from scs.OffDayMaster od 
 				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id
 				where od.OffDayType='W' 
-				and od.PlantId='" + Plant + "' and odd.OffDayDate='" + WkDate + @"'),'NW') 
+				and od.PlantId='" + Plant + "' and odd.OffDayDate='" + WkDate + @"'),'NW'),
+                dh.Id as HeaderId,dxc.LeavePolicyMasterId               
                 from EmployeeInformation e 
+                left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = 
+		        e.LegalDesignationId
+				left join mst.DesignationMaster 
+				dm on dm.Id = ddm.DesignationMasterId
+				left join scs.DesignationMasterConfiguration dxc on dxc.DesignationMasterId=dm.Id
+				and dxc.PlantId=e.PlantId
+				left join DayStatusPlantChild 
+				dc on dc.EmpTypeId=dm.EmployeeCategoryId
+				and dc.PlantId=e.PlantId
+				left join DayStatusHeader dh on dh.Id=dc.headerId        
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId				  
 				LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WkDate + @"' 
