@@ -170,6 +170,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
                 Description: null
             };
 
+            newObj.Id = null;
             newObj.Title = $scope.TitleModel.Title;
             newObj.Header = null;
             newObj.Description = null;
@@ -236,7 +237,10 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
                         TermsAndConditionsMasterId: $scope.ModelNew.Id,
                         Title: null
                     };
+                    $scope.GridTitle();
                 }
+               
+              
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }

@@ -79,7 +79,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 
 
                 var str = @"select a.EmpSystemID,a.RowId,e.EmployeeCode,a.DayStatus,format(a.WorkDate ,'dd-MMM-yyyy') as WorkDate,e.PlantId,p.UserName as Plant,
-                            a.InTime,a.OutTime,a.IsManualOutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
+                            a.InTime,a.OutTime,a.ProcessOutTime,a.IsManualOutTime,a.ProcessedOT,isnull((a.ProcessedOT*dt.OTMultiplingFactor),'0') as TargetOT,
                             isnull(PreallocatedOTHr*60,'0') as PlanOT,isnull(dt.DayLimit,'0')DayLimit,a.IsOTComfirm,
                             isnull(a.StandardOT,'0')StandardOT,isnull(a.AppliedOTLimit,'0')AppliedOTLimit,
                             isnull(a.AllowedOTLimit,'0')AllowedOTLimit,isnull(a.AdditionalOT,'0')AdditionalOT,dt.ApplicableWM,isnull(dt.MonthlyLimit,'0')MonthlyLimit,
@@ -258,7 +258,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             decimal WeekLimit = Convert.ToDecimal(Table.DefaultView[0][@"WeekLimit"].ToString());
                             decimal PlanOT = Convert.ToDecimal(Table.DefaultView[0][@"PlanOT"].ToString());
                             decimal MonthlyLimit = Convert.ToDecimal(Table.DefaultView[0][@"MonthlyLimit"].ToString());
-                            string OutTime = clsWebLib.RetValidLen(Table.DefaultView[0][@"OutTime"]).ToString();
+                            string ProcessOutTime = clsWebLib.RetValidLen(Table.DefaultView[0][@"ProcessOutTime"]).ToString();
 
                             #endregion
 
@@ -349,7 +349,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             #region Outime Adjust
                             
-                            if (OutTime != "")
+                            if (ProcessOutTime != "")
                             {
                                 decimal ProcessOT = Convert.ToDecimal(Table.DefaultView[0][@"ProcessedOT"].ToString());
                                 decimal ReducedMinutes = 0;
@@ -357,7 +357,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 {
                                     ReducedMinutes = Convert.ToDecimal(ProcessOT - StdOT);
 
-                                    DateTime NewOutTime = Convert.ToDateTime(OutTime).AddMinutes(Convert.ToDouble(ReducedMinutes) * -1);
+                                    DateTime NewOutTime = Convert.ToDateTime(ProcessOutTime).AddMinutes(Convert.ToDouble(ReducedMinutes) * -1);
                                     string NewOut = NewOutTime.ToString("dd-MMM-yyyy hh:mm:ss tt");
                                    
                                     dr["IsManualOutTime"] = true;
@@ -390,6 +390,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     for (int i = 0; i < Table.Rows.Count; i++)
                     {
+                        // Manipulated DataSet Variables
                         string RowId = Table.Rows[i][@"RowId"].ToString();
                         decimal TargetOT = Convert.ToDecimal(Table.Rows[i][@"TargetOT"].ToString());
                         decimal StdOT = Convert.ToDecimal(Table.Rows[i][@"StandardOT"].ToString());
@@ -406,17 +407,21 @@ namespace Library.HumanResource.NewAttendanceProcess
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
 
+                            #region Legal & Extra OT Columns
+
                             dr["TargetOT"] = TargetOT;
                             dr["PlanOT"] = PlanOT;
                             dr["AppliedOTLimit"] = AppliedOTLimit;
-                            dr["AllowedOTLimit"] = AllowedOTLimit;
+                            dr["AllowedOTLimit"] = AllowedOTLimit; 
                             dr["StandardOT"] = StdOT;
                             dr["AdditionalOt"] = AdditionalOT;
+
+                            #endregion
 
                             if (IsManual == "True")
                             {
                                 dr["OutTime"] = NewOut;
-                                dr["ManualOutTime"] = NewOut;
+                                dr["ManualOutTime"] = NewOut; // New Out Based on OT Split 
                                 dr["IsManualOutTime"] = IsManual;
                             }
 
