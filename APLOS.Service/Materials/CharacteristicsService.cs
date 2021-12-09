@@ -97,7 +97,7 @@ namespace Library.Service.Materials
                                   "C.Id " +
                            $"FROM HKP.[{DbTable.Characteristics}] AS C LEFT OUTER join " +
                            $"(SELECT * FROM HKP.[{DbTable.CompanyGroupCharacteristics}] WHERE CompanyGroupId='{identity.CompanyGroupId}') cgc " +
-                           $" ON C.Id=cgc.CharacteristicsId  WHERE ISNULL(cgc.Id,'')<>'' C.Active=1 AND AND C.Archive=0 ";
+                           $" ON C.Id=cgc.CharacteristicsId  WHERE ISNULL(cgc.Id,'')<>'' C.Active=1 AND C.Archive=0 ";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
