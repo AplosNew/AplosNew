@@ -126,7 +126,7 @@
             <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
             <div class="col-sm-5 show-message" style="padding-right:0px;">
                 <div class="select-style">
-                    <select id="currencyTransactionId" class="form-control" ng-disabled="true" tabindex="5" name="Currency" required ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();checkBankAmount();">
+                    <select id="currencyTransactionId" class="form-control"  tabindex="5" name="Currency" required ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();checkBankAmount();">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
