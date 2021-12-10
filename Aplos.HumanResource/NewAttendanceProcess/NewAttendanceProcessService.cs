@@ -3656,129 +3656,133 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    #region Sandwich Logic 
-                    DataSet SandwichData;
-                    SandwichLogic(SandwichPrevDay, out SandwichData, PlantValue);
-                    if (SandwichData.Tables[0].Rows.Count > 0)
-                    {
+                    #region Commented Code
+                    
+                    //#region Sandwich Logic 
+                    //DataSet SandwichData;
+                    //SandwichLogic(SandwichPrevDay, out SandwichData, PlantValue);
+                    //if (SandwichData.Tables[0].Rows.Count > 0)
+                    //{
 
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and PlantID='" + PlantValue + "'";
+                    //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    //    var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and PlantID='" + PlantValue + "'";
 
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-                        objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
-                        // DataSet for Changing Previous Days Flags and DayStatuses
-                        string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
+                    //    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                    //    objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
+                    //    // DataSet for Changing Previous Days Flags and DayStatuses
+                    //    string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
 
 
-                        for (int i = 0; i < SandwichData.Tables[0].Rows.Count; i++)
-                        {
+                    //    for (int i = 0; i < SandwichData.Tables[0].Rows.Count; i++)
+                    //    {
 
-                            string EmpId = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                            string PrevDaySandwich = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"SandwichFlag"]).ToString();
+                    //        string EmpId = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                    //        string PrevDaySandwich = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"SandwichFlag"]).ToString();
 
-                            // Updation in AttdnProcessData
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                string ToDaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
-                                string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
+                    //        // Updation in AttdnProcessData
+                    //        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                    //        if (dsRef.Tables[0].DefaultView.Count > 0)
+                    //        {
+                    //            string ToDaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
+                    //            string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
 
-                                if (PrevDaySandwich == "2" || PrevDaySandwich == "4" || PrevDaySandwich == "3")
-                                {
-                                    if (ToDaySandwich == "1")
-                                    {
-                                        if (FinalStatus != "")
-                                        {
-                                            // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
+                    //            if (PrevDaySandwich == "2" || PrevDaySandwich == "4" || PrevDaySandwich == "3")
+                    //            {
+                    //                if (ToDaySandwich == "1")
+                    //                {
+                    //                    if (FinalStatus != "")
+                    //                    {
+                    //                        // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
 
-                                            var sqly = @"SELECT * FROM (
+                    //                        var sqly = @"SELECT * FROM (
 
-                                            select RowId,EmpSystemID,sandwichflag as SandwichMaster,
-                                            CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
-                                            SandwichFlag END SandwichFlag,WorkDate,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,CASE WHEN 
-                                            SandwichFlag IN (2,3) THEN 2 ELSE 
-                                            SandwichFlag END ORDER BY WorkDate DESC,CASE WHEN SandwichFlag IN 
-                                            (2,3) THEN 2 ELSE SandwichFlag END) AS RNKFlag,
-                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) 
-                                            AS RNKEmp
-                                            from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'
-                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
+                    //                        select RowId,EmpSystemID,sandwichflag as SandwichMaster,
+                    //                        CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
+                    //                        SandwichFlag END SandwichFlag,WorkDate,
+                    //                        DENSE_RANK() OVER (PARTITION BY EmpSystemID,CASE WHEN 
+                    //                        SandwichFlag IN (2,3) THEN 2 ELSE 
+                    //                        SandwichFlag END ORDER BY WorkDate DESC,CASE WHEN SandwichFlag IN 
+                    //                        (2,3) THEN 2 ELSE SandwichFlag END) AS RNKFlag,
+                    //                        DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) 
+                    //                        AS RNKEmp
+                    //                        from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'
+                    //                        and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
+                    //                        ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
-                                            var RowData = _sqlRepository.GetDataTable(sqly);
-                                            if (RowData.Rows.Count > 0)
-                                            {
-                                                for (int x = 0; x < RowData.Rows.Count; x++)
-                                                {
-                                                    // Changing DayStatus
-                                                    var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                                    var SandwichMaster = RowData.Rows[x]["SandwichMaster"].ToString();
-                                                    if (SandwichMaster == "3")
-                                                    {
-                                                        DataRow drx = SandwichDataSet.Tables[0].NewRow();
-                                                        drx["DayStatus"] = "W";
-                                                        drx["RowId"] = RowxId;
-                                                        SandwichDataSet.Tables[0].Rows.Add(drx);
-                                                    }
-                                                    else if (SandwichMaster == "2")
-                                                    {
-                                                        if (FinalStatus != "")
-                                                        {
-                                                            DataRow drx = SandwichDataSet.Tables[0].NewRow();
-                                                            drx["DayStatus"] = FinalStatus;
-                                                            drx["RowId"] = RowxId;
-                                                            SandwichDataSet.Tables[0].Rows.Add(drx);
-                                                        }
-                                                    }
-                                                }
+                    //                        var RowData = _sqlRepository.GetDataTable(sqly);
+                    //                        if (RowData.Rows.Count > 0)
+                    //                        {
+                    //                            for (int x = 0; x < RowData.Rows.Count; x++)
+                    //                            {
+                    //                                // Changing DayStatus
+                    //                                var RowxId = RowData.Rows[x]["RowId"].ToString();
+                    //                                var SandwichMaster = RowData.Rows[x]["SandwichMaster"].ToString();
+                    //                                if (SandwichMaster == "3")
+                    //                                {
+                    //                                    DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                    //                                    drx["DayStatus"] = "W";
+                    //                                    drx["RowId"] = RowxId;
+                    //                                    SandwichDataSet.Tables[0].Rows.Add(drx);
+                    //                                }
+                    //                                else if (SandwichMaster == "2")
+                    //                                {
+                    //                                    if (FinalStatus != "")
+                    //                                    {
+                    //                                        DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                    //                                        drx["DayStatus"] = FinalStatus;
+                    //                                        drx["RowId"] = RowxId;
+                    //                                        SandwichDataSet.Tables[0].Rows.Add(drx);
+                    //                                    }
+                    //                                }
+                    //                            }
 
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    //                        }
+                    //                    }
+                    //                }
+                    //            }
+                    //        }
+                    //    }
 
-                        ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
+                    //    ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
 
-                        if (SandwichDataSet.Tables[0].Rows.Count > 0)
-                        {
-                            string RowMaster = "''";
-                            for (int k = 0; k < SandwichDataSet.Tables[0].Rows.Count; k++)
-                            {
-                                string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[k][@"RowId"]).ToString();
-                                RowMaster += ",'" + IndvRow + "'";
-                            }
-                            NewConection.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId IN(" + RowMaster + @")", out DataSet dsMaster, false, false, "", "1");
-                            for (int j = 0; j < SandwichDataSet.Tables[0].Rows.Count; j++)
-                            {
-                                string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"RowId"]).ToString();
-                                string DayType = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"DayStatus"]).ToString();
-                                dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + IndvRow + "'";
+                    //    if (SandwichDataSet.Tables[0].Rows.Count > 0)
+                    //    {
+                    //        string RowMaster = "''";
+                    //        for (int k = 0; k < SandwichDataSet.Tables[0].Rows.Count; k++)
+                    //        {
+                    //            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[k][@"RowId"]).ToString();
+                    //            RowMaster += ",'" + IndvRow + "'";
+                    //        }
+                    //        NewConection.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId IN(" + RowMaster + @")", out DataSet dsMaster, false, false, "", "1");
+                    //        for (int j = 0; j < SandwichDataSet.Tables[0].Rows.Count; j++)
+                    //        {
+                    //            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"RowId"]).ToString();
+                    //            string DayType = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"DayStatus"]).ToString();
+                    //            dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + IndvRow + "'";
 
-                                if (dsMaster.Tables[0].DefaultView.Count > 0)
-                                {
-                                    // DayStatus Change of Range
-                                    DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
-                                    dry.BeginEdit();
-                                    dry["DayStatus"] = DayType;
-                                    dry["Sandwichstatus"] = DayType;
-                                    dry["ManualFlag"] = 1;
-                                    dry["IsLock"] = 0;
-                                    dry["LockedBy"] = DBNull.Value;
-                                    dry["LockedDate"] = DBNull.Value;
-                                    dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dry["UpdatedBy"] = "Sandwich";
-                                    dry.EndEdit();
-                                }
-                            }
-                            SaveDataSets(dsMaster); // Saving If Part of Sandwich Logic     
+                    //            if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    //            {
+                    //                // DayStatus Change of Range
+                    //                DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
+                    //                dry.BeginEdit();
+                    //                dry["DayStatus"] = DayType;
+                    //                dry["Sandwichstatus"] = DayType;
+                    //                dry["ManualFlag"] = 1;
+                    //                dry["IsLock"] = 0;
+                    //                dry["LockedBy"] = DBNull.Value;
+                    //                dry["LockedDate"] = DBNull.Value;
+                    //                dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                    //                dry["UpdatedBy"] = "Sandwich";
+                    //                dry.EndEdit();
+                    //            }
+                    //        }
+                    //        SaveDataSets(dsMaster); // Saving If Part of Sandwich Logic     
 
-                        }
+                    //    }
 
-                    }
+                    //}
+                    //#endregion
+                   
                     #endregion
 
                     #region Previous Payroll DayStatus 
@@ -5118,133 +5122,137 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                #region Sandwich Logic 
-                DataSet ManualSandwichData;
-                ManualsandwichLogic(out ManualSandwichData, PlantValue);
-                if (ManualSandwichData.Tables[0].Rows.Count > 0)
-                {
+                #region Commented Code
 
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = "";
-                    if (empMaster == "")
-                    {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
-                    }
-                    else
-                    {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
-                    }
+                //#region Sandwich Logic 
+                //DataSet ManualSandwichData;
+                //ManualsandwichLogic(out ManualSandwichData, PlantValue);
+                //if (ManualSandwichData.Tables[0].Rows.Count > 0)
+                //{
 
-                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                //    var sqlx = "";
+                //    if (empMaster == "")
+                //    {
+                //        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
+                //    }
+                //    else
+                //    {
+                //        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
+                //    }
 
-                    // DataSet for Changing Previous Days Flags and DayStatuses
-                    objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
+                //    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-
-                    for (int i = 0; i < ManualSandwichData.Tables[0].Rows.Count; i++)
-                    {
-                        var WkDate = ManualSandwichData.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-                        string EmpId = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                        string PrevDaySandwich = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevDayFlag"]).ToString();
-                        var PrevWkDate = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevWorkDate"]).ToString();
-
-                        // Updation in AttdnProcessData
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                        if (dsRef.Tables[0].DefaultView.Count > 0)
-                        {
-                            string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
-                            string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
-
-                            if (PrevDaySandwich == "2" || PrevDaySandwich == "4" || PrevDaySandwich == "3")
-                            {
-                                if (TodaySandwich == "1" && PrevWkDate != "")
-                                {
-
-                                    // RowId Fetching for In Range b/w previous sandwichflags 1 _ _ _ _ _ _ _ 1
-
-                                    var sqly = @"SELECT * FROM (
-                                        select RowId,EmpSystemID,sandwichflag as SandwichMaster,CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
-                                        SandwichFlag END SandwichFlag,WorkDate,
-                                        DENSE_RANK() OVER (PARTITION BY EmpSystemID,CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
-                                        SandwichFlag END ORDER BY WorkDate DESC,CASE WHEN
-                                        SandwichFlag IN (2,3) THEN 2 ELSE SandwichFlag END) AS RNKFlag,
-                                        DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                        from AttdnProcessData where WorkDate <= '"+PrevWkDate+@"'
-                                        and EmpSystemID='"+EmpId+@"' and SandwichFlag !='4'
-                                        ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
-
-                                    var RowData = _sqlRepository.GetDataTable(sqly);
-                                    if (RowData.Rows.Count > 0)
-                                    {
-                                        for (int x = 0; x < RowData.Rows.Count; x++)
-                                        {
-                                            // Changing DayStatus
-                                            var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                            var SandwichMaster = RowData.Rows[x]["SandwichMaster"].ToString();
-                                            if (SandwichMaster == "3")
-                                            {
-                                                DataRow drx = SandwichDataSet.Tables[0].NewRow();
-                                                drx["DayStatus"] = "W";
-                                                drx["RowId"] = RowxId;
-                                                SandwichDataSet.Tables[0].Rows.Add(drx);
-                                            }
-
-                                            else if (SandwichMaster == "2")
-                                            {
-                                                if (FinalStatus != "")
-                                                {
-                                                    DataRow drx = SandwichDataSet.Tables[0].NewRow();
-                                                    drx["DayStatus"] = FinalStatus;
-                                                    drx["RowId"] = RowxId;
-                                                    SandwichDataSet.Tables[0].Rows.Add(drx);
-                                                }
-
-                                            }
-                                        }
-                                    }
+                //    // DataSet for Changing Previous Days Flags and DayStatuses
+                //    objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
 
 
-                                }
-                            }                              
+                //    for (int i = 0; i < ManualSandwichData.Tables[0].Rows.Count; i++)
+                //    {
+                //        var WkDate = ManualSandwichData.Tables[0].Rows[i][@"WorkDate"].ToString();
+                //        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                //        string EmpId = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                //        string PrevDaySandwich = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevDayFlag"]).ToString();
+                //        var PrevWkDate = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevWorkDate"]).ToString();
+
+                //        // Updation in AttdnProcessData
+                //        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                //        if (dsRef.Tables[0].DefaultView.Count > 0)
+                //        {
+                //            string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
+                //            string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
+
+                //            if (PrevDaySandwich == "2" || PrevDaySandwich == "4" || PrevDaySandwich == "3")
+                //            {
+                //                if (TodaySandwich == "1" && PrevWkDate != "")
+                //                {
+
+                //                    // RowId Fetching for In Range b/w previous sandwichflags 1 _ _ _ _ _ _ _ 1
+
+                //                    var sqly = @"SELECT * FROM (
+                //                        select RowId,EmpSystemID,sandwichflag as SandwichMaster,CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
+                //                        SandwichFlag END SandwichFlag,WorkDate,
+                //                        DENSE_RANK() OVER (PARTITION BY EmpSystemID,CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
+                //                        SandwichFlag END ORDER BY WorkDate DESC,CASE WHEN
+                //                        SandwichFlag IN (2,3) THEN 2 ELSE SandwichFlag END) AS RNKFlag,
+                //                        DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
+                //                        from AttdnProcessData where WorkDate <= '"+PrevWkDate+@"'
+                //                        and EmpSystemID='"+EmpId+@"' and SandwichFlag !='4'
+                //                        ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
+
+                //                    var RowData = _sqlRepository.GetDataTable(sqly);
+                //                    if (RowData.Rows.Count > 0)
+                //                    {
+                //                        for (int x = 0; x < RowData.Rows.Count; x++)
+                //                        {
+                //                            // Changing DayStatus
+                //                            var RowxId = RowData.Rows[x]["RowId"].ToString();
+                //                            var SandwichMaster = RowData.Rows[x]["SandwichMaster"].ToString();
+                //                            if (SandwichMaster == "3")
+                //                            {
+                //                                DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                //                                drx["DayStatus"] = "W";
+                //                                drx["RowId"] = RowxId;
+                //                                SandwichDataSet.Tables[0].Rows.Add(drx);
+                //                            }
+
+                //                            else if (SandwichMaster == "2")
+                //                            {
+                //                                if (FinalStatus != "")
+                //                                {
+                //                                    DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                //                                    drx["DayStatus"] = FinalStatus;
+                //                                    drx["RowId"] = RowxId;
+                //                                    SandwichDataSet.Tables[0].Rows.Add(drx);
+                //                                }
+
+                //                            }
+                //                        }
+                //                    }
+
+
+                //                }
+                //            }                              
                            
-                        }
+                //        }
 
-                    }
+                //    }
 
-                    ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
+                //    ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
 
-                    if (SandwichDataSet.Tables[0].Rows.Count > 0)
-                    {
-                        string RowMaster = "''";
-                        for (int k = 0; k < SandwichDataSet.Tables[0].Rows.Count; k++)
-                        {
-                            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[k][@"RowId"]).ToString();
-                            RowMaster += ",'" + IndvRow + "'";
-                        }
-                        NewConection.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId IN(" + RowMaster + @")", out DataSet dsMaster, false, false, "", "1");
-                        for (int j = 0; j < SandwichDataSet.Tables[0].Rows.Count; j++)
-                        {
-                            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"RowId"]).ToString();
-                            string DayType = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"DayStatus"]).ToString();
-                            dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + IndvRow + "'";
+                //    if (SandwichDataSet.Tables[0].Rows.Count > 0)
+                //    {
+                //        string RowMaster = "''";
+                //        for (int k = 0; k < SandwichDataSet.Tables[0].Rows.Count; k++)
+                //        {
+                //            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[k][@"RowId"]).ToString();
+                //            RowMaster += ",'" + IndvRow + "'";
+                //        }
+                //        NewConection.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId IN(" + RowMaster + @")", out DataSet dsMaster, false, false, "", "1");
+                //        for (int j = 0; j < SandwichDataSet.Tables[0].Rows.Count; j++)
+                //        {
+                //            string IndvRow = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"RowId"]).ToString();
+                //            string DayType = clsWebLib.RetValidLen(SandwichDataSet.Tables[0].Rows[j][@"DayStatus"]).ToString();
+                //            dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + IndvRow + "'";
 
-                            if (dsMaster.Tables[0].DefaultView.Count > 0)
-                            {
-                                // DayStatus Change of Range
-                                DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
-                                dry.BeginEdit();
-                                dry["DayStatus"] = DayType;
-                                dry["Sandwichstatus"] = DayType;
-                                dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dry["UpdatedBy"] = "Sandwich";
-                                dry.EndEdit();
-                            }
-                        }
-                        SaveDataSets(dsMaster); // Saving If Part of Sandwich Logic     
+                //            if (dsMaster.Tables[0].DefaultView.Count > 0)
+                //            {
+                //                // DayStatus Change of Range
+                //                DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
+                //                dry.BeginEdit();
+                //                dry["DayStatus"] = DayType;
+                //                dry["Sandwichstatus"] = DayType;
+                //                dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                //                dry["UpdatedBy"] = "Sandwich";
+                //                dry.EndEdit();
+                //            }
+                //        }
+                //        SaveDataSets(dsMaster); // Saving If Part of Sandwich Logic     
 
-                    }                
-                }
+                //    }                
+                //}
+                //#endregion
+
                 #endregion
 
                 SaveLog("Sandwich Logic Ran Successfully ...", PlantValue, false);
