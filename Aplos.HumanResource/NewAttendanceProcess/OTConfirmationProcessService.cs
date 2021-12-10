@@ -92,13 +92,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             a.OTYear,a.OTMonth,a.OTWeek,a.ManualOutTime,
                             d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
-                            left join org.Plant p on p.Id=e.PlantId
-                            left join mst.DesignationMasterLegalDesignation ddm on
-                            ddm.LegalDesignationId = e.LegalDesignationId
-                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-                            left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-                            and dc.PlantId=e.PlantId
-                            left join DayStatusHeader dh on dh.Id=dc.headerId
+                            left join org.Plant p on p.Id=e.PlantId                           
+                            left join DayStatusHeader dh on dh.Id=a.DayStatusHeaderId
                             left join DayTypeWithValues dt on dt.HeaderId=dh.Id
                             left join org.Section s on s.Id=e.SectionId
                             left join ORG.SubSection ss on ss.Id=e.SubSectionId
@@ -572,12 +567,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
                             left join org.Plant p on p.Id=e.PlantId
-                            left join mst.DesignationMasterLegalDesignation ddm on
-                            ddm.LegalDesignationId = e.LegalDesignationId
-                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-                            left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-                            and dc.PlantId=e.PlantId
-                            left join DayStatusHeader dh on dh.Id=dc.headerId
+                            left join DayStatusHeader dh on dh.Id=a.DayStatusHeaderId
                             left join DayTypeWithValues dt on dt.HeaderId=dh.Id
                             left join org.Section s on s.Id=e.SectionId
                             left join ORG.SubSection ss on ss.Id=e.SubSectionId
@@ -654,12 +644,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
                             left join org.Plant p on p.Id=e.PlantId
-                            left join mst.DesignationMasterLegalDesignation ddm on
-                            ddm.LegalDesignationId = e.LegalDesignationId
-                            left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-                            left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-                            and dc.PlantId=e.PlantId
-                            left join DayStatusHeader dh on dh.Id=dc.headerId
+                            left join DayStatusHeader dh on dh.Id=a.DayStatusHeaderId
                             left join DayTypeWithValues dt on dt.HeaderId=dh.Id
                             left join org.Section s on s.Id=e.SectionId
                             left join ORG.SubSection ss on ss.Id=e.SubSectionId
