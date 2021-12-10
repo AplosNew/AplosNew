@@ -4495,7 +4495,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
-                    LockedBy=null,
+                    LockedBy=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
+                    AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,
                     LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null ,CalculatedOT=0
                     where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
@@ -4514,7 +4515,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
                     LockedBy=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,CalculatedOT=0,
-                    LockedDate=null
+                    LockedDate=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
+                    AllowedOTLimit=null,TargetOT=null,AdditionalOT=null
                     where PlantID='" + Plant + @"'
                     and ManualFlag=1";
 
