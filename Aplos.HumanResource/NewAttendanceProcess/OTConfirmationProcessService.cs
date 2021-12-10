@@ -203,9 +203,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     string ApplicableWM = Table.DefaultView[j][@"ApplicableWM"].ToString();
                                     if (ApplicableWM == "W")
                                     {
-                                        // Sum Up the Week Confirmed StandardOT
-                                        decimal StandardOT = Convert.ToDecimal(Table.DefaultView[j][@"StandardOT"].ToString());
-                                        WeekStandardOTMaster += StandardOT;
+                                        // Sum Up the Week Confirmed StandardOT                                    
+                                        WeekStandardOTMaster += Convert.ToDecimal(Table.DefaultView[j][@"StandardOT"].ToString()); 
                                     }
                                 }
                             }
@@ -218,8 +217,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 MonthData.Tables[0].DefaultView.RowFilter = @"EmpId='" + EmpId + "' ";
                                 if (MonthData.Tables[0].DefaultView.Count > 0)
                                 {
-                                    decimal MonthlyConfirmedOT = Convert.ToDecimal(Table.DefaultView[0][@"MonthlyConfirmedOT"].ToString());
-                                    MonthStandardOTMaster += MonthlyConfirmedOT;
+                                    MonthStandardOTMaster += Convert.ToDecimal(Table.DefaultView[0][@"MonthlyConfirmedOT"].ToString());                                   
                                 }
                             }
 
@@ -229,9 +227,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             {
                                 for (int j = 0; j < Table.DefaultView.Count; j++)
                                 {
-                                   // Sum Up the Month Confirmed StandardOT
-                                    decimal StandardOT = Convert.ToDecimal(Table.DefaultView[j][@"StandardOT"].ToString());
-                                    MonthStandardOTMaster += StandardOT;
+                                    // Sum Up the Month Confirmed StandardOT
+                                    MonthStandardOTMaster += Convert.ToDecimal(Table.DefaultView[j][@"StandardOT"].ToString());                    
                                 }
                             }
 
@@ -305,8 +302,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             }
                             else
                             {
-                                 decimal Allowed = Convert.ToDecimal(Table.DefaultView[0][@"AllowedOTLimit"].ToString());
-                                 dr["AppliedOTLimit"] = Allowed;
+                                 dr["AppliedOTLimit"] = Convert.ToDecimal(Table.DefaultView[0][@"AllowedOTLimit"].ToString());
                             }
 
                             #endregion
@@ -315,9 +311,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             if (SelectedOT == "1")
                             {
-                                decimal AppliedChecker = Convert.ToDecimal(Table.DefaultView[0][@"AppliedOTLimit"].ToString());
-                                decimal MinValue = Math.Min(AppliedChecker, TargetOT);
-                                dr["StandardOT"] = MinValue;
+                                dr["StandardOT"] = Math.Min(Convert.ToDecimal(Table.DefaultView[0][@"AppliedOTLimit"].ToString()), TargetOT);
                             }
                             else if (SelectedOT == "2")
                             {
