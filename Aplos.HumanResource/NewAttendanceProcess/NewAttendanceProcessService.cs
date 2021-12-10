@@ -2790,7 +2790,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region DayStatus Source Data
-
         public void DayStatusReprocessing(string PreDay, string Plant)
         {
 
@@ -2873,7 +2872,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 var sql = @"select ap.EmpSystemID,Format(ap.WorkDate,'yyyy-MMM-dd')WorkDate,
                 ap.Duration,ap.ShiftSystemID,
-                (ap.Duration-isnull(ap.ShiftHoursWithoutOT,'0'))OverUnderStay
+                OverUnderStay=case when ap.DayTypeOtApplicable=2 then
+				ap.Duration else
+				(ap.Duration-isnull(ap.ShiftHoursWithoutOT,'0'))
+				end
                 from attdnprocessdata ap
                 where WorkDate='" + PreDay + "' and Duration >0 and ap.PlantID='" + Plant + "'";
 
@@ -3375,61 +3377,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     SaveLog("Duration Logic Ran Successfully ...", PlantValue, false);
 
-                    #region PrevDay OverStay UnderStay 
-                    DataSet PrevDayOT;
-                    OverUnderStayPrevDay(PreviousDay, out PrevDayOT, PlantValue);
-                    if (PrevDayOT.Tables[0].Rows.Count > 0)
-                    {
-                        // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
-                        string WorkDate = PrevDayOT.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and Duration >0 and PlantID='" + PlantValue + "'";
-
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < PrevDayOT.Tables[0].Rows.Count; i++)
-                        {
-                            string EmpId = PrevDayOT.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(PrevDayOT.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                if (OverUnderStay > 0)
-                                {
-                                    // Extra Work After ShiftOTHours
-                                    dr["OverStay"] = OverUnderStay;
-                                    dr["UnderStay"] = 0;
-                                }
-                                else if (OverUnderStay == 0)
-                                {
-                                    dr["OverStay"] = 0;
-                                    dr["UnderStay"] = 0;
-                                }
-                                else
-                                {
-                                    // Less Work than ShiftOTHours
-                                    dr["OverStay"] = 0;
-                                    dr["UnderStay"] = OverUnderStay;
-                                }
-
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-                        }
-                        SaveDataSets(dsRef);
-
-                    }
-
-                    #endregion
-
-                    SaveLog("OverStay Logic Ran Successfully ...", PlantValue, false);
-
                     #region Previous Day DurationStatus Flagging
                     DataSet PrevDurationStat;
                     PrevDurationStatusCal(PreviousDay, out PrevDurationStat, PlantValue);
@@ -3915,6 +3862,61 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     SaveLog("Process Payroll DayStatus Ran Successfully ...", PlantValue, false);
 
+                    #region PrevDay OverStay UnderStay 
+                    DataSet PrevDayOT;
+                    OverUnderStayPrevDay(PreviousDay, out PrevDayOT, PlantValue);
+                    if (PrevDayOT.Tables[0].Rows.Count > 0)
+                    {
+                        // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
+                        string WorkDate = PrevDayOT.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and Duration >0 and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < PrevDayOT.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = PrevDayOT.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(PrevDayOT.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                if (OverUnderStay > 0)
+                                {
+                                    // Extra Work
+                                    dr["OverStay"] = OverUnderStay;
+                                    dr["UnderStay"] = 0;
+                                }
+                                else if (OverUnderStay == 0)
+                                {
+                                    dr["OverStay"] = 0;
+                                    dr["UnderStay"] = 0;
+                                }
+                                else
+                                {
+                                    // Less Work 
+                                    dr["OverStay"] = 0;
+                                    dr["UnderStay"] = OverUnderStay;
+                                }
+
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+
+                    #endregion
+
+                    SaveLog("OverStay Logic Ran Successfully ...", PlantValue, false);
+
                     #region Prev DayOT Calculation 
                     DataSet PrevOTCalculate;
                     PrevDayOTCalculation(PreviousDay, out PrevOTCalculate, PlantValue);
@@ -4106,9 +4108,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                     SaveLog("Processed OT Calculation Ran Successfully ...", PlantValue, false);
-
-                    #region OTConfirmationProcess 
-
+                  
                     #region OTEntitled But OT Not Applicable Employees
                     DataSet OTNotApplicable;
                     AutoConfirmedDataSet(PreviousDay, out OTNotApplicable, PlantValue);
@@ -4138,8 +4138,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                     SaveLog("0 Processed OT Auto Confirm Ran Successfully ...", PlantValue, false);
-
-                    #endregion
 
                     #region Credit Limit Process Commented Code
 
@@ -4243,7 +4241,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 var sql = @"select ap.EmpSystemID,Format(ap.WorkDate,'yyyy-MMM-dd')WorkDate,
                 ap.Duration,ap.ShiftSystemID,
-                (ap.Duration-isnull(ap.ShiftHoursWithoutOT,'0'))OverUnderStay
+                OverUnderStay=case when ap.DayTypeOtApplicable=2 then
+				ap.Duration else
+				(ap.Duration-isnull(ap.ShiftHoursWithoutOT,'0'))
+				end
                 from attdnprocessdata ap
                 where Duration >0 and ap.PlantID='" + Plant + @"'
 				AND ManualFlag=1 order by WorkDate asc";
@@ -4802,72 +4803,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 SaveLog("Manual Duration Logic Ran Successfully ...", PlantValue, false);
 
-                #region Manual OverStay UnderStay 
-                DataSet ManualOverUnderStay;
-                ManualOverUnderStayData(out ManualOverUnderStay, PlantValue);
-                if (ManualOverUnderStay.Tables[0].Rows.Count > 0)
-                {
-                    // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
-                    var sqlx = "";
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    if (empMaster == "")
-                    {
-                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "'";
-                    }
-                    else
-                    {
-                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
-                    }
-
-
-                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                    for (int i = 0; i < ManualOverUnderStay.Tables[0].Rows.Count; i++)
-                    {
-                        string WorkDate = ManualOverUnderStay.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-
-                        string EmpId = ManualOverUnderStay.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                        double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(ManualOverUnderStay.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
-
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                        if (dsRef.Tables[0].DefaultView.Count > 0)
-                        {
-
-                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            if (OverUnderStay > 0)
-                            {
-                                // Extra Work After ShiftOTHours
-                                dr["OverStay"] = OverUnderStay;
-                                dr["UnderStay"] = 0;
-                            }
-                            else if (OverUnderStay == 0)
-                            {
-                                dr["OverStay"] = 0;
-                                dr["UnderStay"] = 0;
-                            }
-                            else
-                            {
-
-                                // Less Work than ShiftOTHours
-                                dr["OverStay"] = 0;
-                                dr["UnderStay"] = OverUnderStay;
-                            }
-
-                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                            dr.EndEdit();
-                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
-                        }
-                    }
-                    SaveDataSets(dsRef);
-
-                }
-
-                #endregion
-
-                SaveLog("Manual OverStay Logic Ran Successfully ...", PlantValue, false);
-
                 #region Manual DurationStatus Flagging
                 DataSet ManualDurationStat;
                 ManualDurationStatusCal(out ManualDurationStat, PlantValue);
@@ -5409,6 +5344,72 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #endregion
 
                 SaveLog("Payroll DayStatus Logic Ran Successfully ...", PlantValue, false);
+
+                #region Manual OverStay UnderStay 
+                DataSet ManualOverUnderStay;
+                ManualOverUnderStayData(out ManualOverUnderStay, PlantValue);
+                if (ManualOverUnderStay.Tables[0].Rows.Count > 0)
+                {
+                    // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
+                    var sqlx = "";
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    if (empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
+                    }
+
+
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                    for (int i = 0; i < ManualOverUnderStay.Tables[0].Rows.Count; i++)
+                    {
+                        string WorkDate = ManualOverUnderStay.Tables[0].Rows[i][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+
+                        string EmpId = ManualOverUnderStay.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                        double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(ManualOverUnderStay.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
+
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            if (OverUnderStay > 0)
+                            {
+                                // Extra Work
+                                dr["OverStay"] = OverUnderStay;
+                                dr["UnderStay"] = 0;
+                            }
+                            else if (OverUnderStay == 0)
+                            {
+                                dr["OverStay"] = 0;
+                                dr["UnderStay"] = 0;
+                            }
+                            else
+                            {
+
+                                // Less Work
+                                dr["OverStay"] = 0;
+                                dr["UnderStay"] = OverUnderStay;
+                            }
+
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            dr.EndEdit();
+                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                        }
+                    }
+                    SaveDataSets(dsRef);
+
+                }
+
+                #endregion
+
+                SaveLog("Manual OverStay Logic Ran Successfully ...", PlantValue, false);
 
                 #region OT Calculation 
                 DataSet ProcessOTCalculate;
