@@ -284,7 +284,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
 
 
     // Report Download Operations  
-
+    $scope.ReportData = [];
 
     $scope.getReportData = function () {
 
@@ -320,8 +320,8 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
                 ShowResult(resp.data.Message, 'failure');
             }
             else {
-                $scope.Data = [];
-                $scope.Data = resp.data;
+                $scope.ReportData = [];
+                $scope.ReportData = resp.data;
                 ProcessChk();
             }
 
