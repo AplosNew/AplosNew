@@ -1394,90 +1394,93 @@
                             </div>
                         </fieldset>
 
-                        <div class="table-responsive modal-table aplos-grid-toggle">
-                            <div class="content-container-fluid" style="color:black;overflow:scroll">
-                                <div style="color:black;" id="GridAcceptanceLiability"
-                                     ej-grid e-datasource="AcceptanceLiabilityList"
-                                     e-recorddoubleclick="getdata"
-                                     @*e-templaterefresh="refreshTemplateCashOutFlow"*@
-                                     e-allowfiltering="true"
-                                     e-allowpaging="true"
-                                     e-gridlines="vertical" e-allowscrolling="true"
-                                     e-filtersettings-filterType="excel"
-                                     e-enabletouch="false"
-                                     e-allowresizing="true"
-                                     e-allowselection="false"
-                                     e-summaryrows="TotalAcceptanceLiability"
-                                     e-allowsorting="true">
+                        <div class="col-md-12">
+                            <div style="color:black;" id="GridAcceptanceLiability"
+                                 ej-grid e-datasource="AcceptanceLiabilityList"
+                                 e-recorddoubleclick="getdata"
+                                 @*e-templaterefresh="refreshTemplateCashOutFlow"*@
+                                 e-allowfiltering="true"
+                                 e-allowpaging="true"
+                                 e-gridlines="vertical" e-allowscrolling="true"
+                                 e-filtersettings-filterType="excel"
+                                 e-enabletouch="false"
+                                 e-allowresizing="true"
+                                 e-allowselection="false"
+                                 e-summaryrows="TotalAcceptanceLiability"
+                                 e-allowsorting="true">
 
-                                    <div e-columns>
-                                        @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>*@
+                                <div e-columns>
+                                    @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>*@
 
-                                        @*<td class="text-right">
-                                  <ul class="list-inline action-list">
-                                      <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
-                                  </ul>
-                                </td>*@
+                                    @*<td class="text-right">
+                  <ul class="list-inline action-list">
+                      <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+                  </ul>
+                </td>*@
 
-                                        <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AccNo" e-width="80"></div>
-                                        <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Date" e-format="{0:dd-MMM-yyyy}" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
-                                        <div e-column e-type="date" e-field="PostingDate" e-headertext="Posting Date" e-format="{0:dd-MMM-yyyy}" e-width="70"></div>
+                                    <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AccNo" e-width="80"></div>
+                                    <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Date" e-format="{0:dd-MMM-yyyy}" e-width="50"></div>
+                                    <div e-column e-template="#templateVoucherNoAcceptanceLiability" e-type="string" e-field="VoucherNo" e-headertext="Voucher No" e-width="100"></div>
+                                    <div e-column e-type="date" e-field="PostingDate" e-headertext="Posting Date" e-format="{0:dd-MMM-yyyy}" e-width="70"></div>
 
-                                        <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="120"></div>
-                                        <div e-column e-type="string" e-field="Tenure" e-headertext="Tenure" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="PaymentType" e-headertext="PaymentType" e-width="90"></div>
-                                        <div e-column e-type="date" e-field="DueDateBaseON" e-headertext="BaseOnDue Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
-                                        <div e-column e-type="date" e-field="ActualDueDate" e-headertext="Actual DueDate" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
-                                        <div e-column e-type="string" e-field="NoOfDays" e-headertext="NoOfDays" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="120"></div>
+                                    <div e-column e-type="string" e-field="Tenure" e-headertext="Tenure" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="PaymentType" e-headertext="PaymentType" e-width="90"></div>
+                                    <div e-column e-type="date" e-field="DueDateBaseON" e-headertext="BaseOnDue Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
+                                    <div e-column e-type="date" e-field="ActualDueDate" e-headertext="Actual DueDate" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="NoOfDays" e-headertext="NoOfDays" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
 
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="AcceptanceAmount" e-headertext="Amount" e-textalign="right" e-width="100"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext="SetOff" e-textalign="right" e-width="100"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-textalign="right" e-width="100"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="AcceptanceAmount" e-headertext="Amount" e-textalign="right" e-width="100"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext="SetOff" e-textalign="right" e-width="100"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-textalign="right" e-width="100"></div>
 
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksAcceptanceAmount" e-headertext="Books Amount" e-textalign="right" e-width="100"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books SetOff" e-textalign="right" e-width="100"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-textalign="right" e-width="100"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksAcceptanceAmount" e-headertext="Books Amount" e-textalign="right" e-width="100"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books SetOff" e-textalign="right" e-width="100"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-textalign="right" e-width="100"></div>
 
-                                        <div e-column @*e-template="#LoanAmountTemp"*@ e-field="Amount" textAlign='right' e-headertext="LoanAmount" e-width="100"></div>
+                                    <div e-column @*e-template="#LoanAmountTemp"*@ e-field="Amount" textAlign='right' e-headertext="LoanAmount" e-width="100"></div>
 
-                                        <div e-column @*e-template="#LoanNoTemp"*@ e-field="LoanNo" textAlign='right' e-headertext="LoanNo" e-width="100"></div>
-                                        <div e-column @*e-template="#LoanDateTemp"*@ e-field="LoanDate" textAlign='right' e-headertext="LoanDate" e-width="100"></div>
+                                    <div e-column @*e-template="#LoanNoTemp"*@ e-field="LoanNo" textAlign='right' e-headertext="LoanNo" e-width="100"></div>
+                                    <div e-column @*e-template="#LoanDateTemp"*@ e-field="LoanDate" textAlign='right' e-headertext="LoanDate" e-width="100"></div>
 
-                                        <div e-column e-type="string" e-field="PurchaseLCNo" e-headertext="LC No" e-width="50"></div>
-                                        <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="LCOpeningDate" e-format="{0:dd-MMM-yyyy}" e-width="60"></div>
-                                        <div e-column e-type="string" e-field="PINo" e-headertext="PINo" e-width="50"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="LCAmount" e-headertext="LCAmount" e-textalign="right" e-width="100"></div>
-                                        <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
-                                        <div e-column e-type="string" e-field="BenificiaryBank" e-headertext="BenificiaryBank" e-width="90"></div>
-
-
-                                        <div e-column e-type="string" e-field="PoNo" e-headertext="PoNo" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="UDNo" e-headertext="UDNo" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="PurchaseLCNo" e-headertext="LC No" e-width="50"></div>
+                                    <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="LCOpeningDate" e-format="{0:dd-MMM-yyyy}" e-width="60"></div>
+                                    <div e-column e-type="string" e-field="PINo" e-headertext="PINo" e-width="50"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="LCAmount" e-headertext="LCAmount" e-textalign="right" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="BenificiaryBank" e-headertext="BenificiaryBank" e-width="90"></div>
 
 
-                                    </div>
+                                    <div e-column e-type="string" e-field="PoNo" e-headertext="PoNo" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="UDNo" e-headertext="UDNo" e-width="80"></div>
+
+
                                 </div>
-
-                                @*<script type="text/template" id="hLink">
-                            <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-                        </script>
-
-                        <script type="text/template" id="checkMasterLC">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                        </script>
-
-                        <script type="text/x-jsrender" id="headerTemplate">
-                            <input type="checkbox" id="headchk" />
-                        </script>*@
-
-
                             </div>
+                            <script type="text/template" id="templateVoucherNoAcceptanceLiability">
+                                <div class="text-left" style="width:100%">
+                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onInvoiceVoucherPrint(data);">{{data.VoucherNo}}</a>
+                                </div>
+                            </script>
+                            @*<script type="text/template" id="hLink">
+            <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+        </script>
+
+        <script type="text/template" id="checkMasterLC">
+            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+        </script>
+
+        <script type="text/x-jsrender" id="headerTemplate">
+            <input type="checkbox" id="headchk" />
+        </script>*@
+
+
+
                         </div>
 
                         @*<div class="form-group">
@@ -1549,65 +1552,68 @@
 
                         </fieldset>
 
-                        <div class="table-responsive modal-table aplos-grid-toggle">
-                            <div class="content-container-fluid" style="color:black;overflow:scroll">
-                                <div style="color:black;" id="GrideOhtersLiability"
-                                     ej-grid e-datasource="OthersLiabilityList"
-                                     e-recorddoubleclick="getdata"
-                                     @*e-templaterefresh="refreshTemplateOthersLiab"*@
-                                     e-allowfiltering="true" e-allowpaging="true"
-                                     e-gridlines="vertical" e-allowscrolling="true"
-                                     e-filtersettings-filterType="excel"
-                                     e-enabletouch="false"
-                                     e-allowresizing="true"
-                                     e-allowselection="false" e-allowsorting="true"
-                                     e-summaryrows="TotalOthersLiabilityAmount">
-                                    <div e-columns>
-                                        @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateOLiab" e-template="#checkOtherLiability" e-textalign="center" e-width="30"></div>*@
+                        <div class="col-md-12">
+                            <div style="color:black;" id="GrideOhtersLiability"
+                                 ej-grid e-datasource="OthersLiabilityList"
+                                 e-recorddoubleclick="getdata"
+                                 @*e-templaterefresh="refreshTemplateOthersLiab"*@
+                                 e-allowfiltering="true" e-allowpaging="true"
+                                 e-gridlines="vertical" e-allowscrolling="true"
+                                 e-filtersettings-filterType="excel"
+                                 e-enabletouch="false"
+                                 e-allowresizing="true"
+                                 e-allowselection="false" e-allowsorting="true"
+                                 e-summaryrows="TotalOthersLiabilityAmount">
+                                <div e-columns>
+                                    @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateOLiab" e-template="#checkOtherLiability" e-textalign="center" e-width="30"></div>*@
 
-                                        @*<div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>*@
-
-
-                                        <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="40"></div>
-                                        <div e-column e-field="PartyName" e-headertext="Party" e-width="80"></div>
-                                        <div e-column e-field="PartyPlantName" e-headertext="Party Plant" e-width="80"></div>
-                                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="40"></div>
-                                        <div e-column e-field="InvoiceNo" e-headertext="Doc Ref No" e-width="30"></div>
-                                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DocDate" e-headertext="Doc Date" e-width="35"></div>
-                                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PostingDate" e-headertext="Posting Date " e-width="35"></div>
-                                        <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="35"></div>
-
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Gross" e-headertext="Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNoteAmount" e-headertext="DebitNote Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TaxAmount" e-headertext="Tax Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext="SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CompanyCurrencyRate" e-headertext="Exchange Rate" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="Advance" e-headertext=" Advance" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGross" e-headertext="Books Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNoteBooksAmount" e-headertext="Books DebitNote Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksTaxAmount" e-headertext="Books TaxAmount " e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    @*<div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>*@
 
 
-                                    </div>
+                                    <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="40"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Party" e-width="80"></div>
+                                    <div e-column e-field="PartyPlantName" e-headertext="Party Plant" e-width="80"></div>
+                                    <div e-column e-template="#templateVoucherNoOhtersLiability" e-field="VoucherNo" e-headertext="Voucher No" e-width="100"></div>
+                                    <div e-column e-field="InvoiceNo" e-headertext="Doc Ref No" e-width="30"></div>
+                                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DocDate" e-headertext="Doc Date" e-width="35"></div>
+                                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PostingDate" e-headertext="Posting Date " e-width="35"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="35"></div>
+
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Gross" e-headertext="Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNoteAmount" e-headertext="DebitNote Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TaxAmount" e-headertext="Tax Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext="SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CompanyCurrencyRate" e-headertext="Exchange Rate" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="Advance" e-headertext=" Advance" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGross" e-headertext="Books Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNoteBooksAmount" e-headertext="Books DebitNote Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksTaxAmount" e-headertext="Books TaxAmount " e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+
+
                                 </div>
-
-                                @*<script type="text/template" id="hLink">
-                            <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-                        </script>*@
-
-                                @*<script type="text/template" id="checkOtherLiability">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                        </script>
-                        <script type="text/x-jsrender" id="headerTemplateOLiab">
-                            <input type="checkbox" id="headchkOLia" />
-                        </script>*@
-
-
                             </div>
+                            <script type="text/template" id="templateVoucherNoOhtersLiability">
+                                <div class="text-left" style="width:100%">
+                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.onInvoiceVoucherPrintSourceTypeWise(data);">{{data.VoucherNo}}</a>
+                                </div>
+                            </script>
+                            @*<script type="text/template" id="hLink">
+            <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+        </script>*@
+
+                            @*<script type="text/template" id="checkOtherLiability">
+            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+        </script>
+        <script type="text/x-jsrender" id="headerTemplateOLiab">
+            <input type="checkbox" id="headchkOLia" />
+        </script>*@
+
+
+
                         </div>
 
 
