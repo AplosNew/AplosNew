@@ -3267,6 +3267,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region Previous Day Status Reprocessing               
                     DayStatusReprocessing(PreviousDay, PlantValue); //Making Localized Columns Null
                     #endregion
+                    
+                    SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
 
                     #region Previous Day Duration EarlyIn Late EarlyOut OverStay
                     DataSet PrevDurn;
@@ -3371,6 +3373,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
 
+                    SaveLog("Duration Logic Ran Successfully ...", PlantValue, false);
+
                     #region PrevDay OverStay UnderStay 
                     DataSet PrevDayOT;
                     OverUnderStayPrevDay(PreviousDay, out PrevDayOT, PlantValue);
@@ -3423,6 +3427,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     #endregion
+
+                    SaveLog("OverStay Logic Ran Successfully ...", PlantValue, false);
 
                     #region Previous Day DurationStatus Flagging
                     DataSet PrevDurationStat;
@@ -3508,11 +3514,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     #endregion
+                   
+                    SaveLog("Duration Status Logic Ran Successfully ...", PlantValue, false);
 
                     #region Previous Day Status Code              
                     PrevDayStatusCodeData(PreviousDay, PlantValue); // DayStausCode Text Join 
-                    //HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
+                                                                    //HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
                     #endregion
+
+                    SaveLog("DayStatus Code Logic Ran Successfully ...", PlantValue, false);
 
                     #region Prev User Day Status 
                     DataSet PrevUserDayStat;
@@ -3550,6 +3560,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     }
                     #endregion
+
+                    SaveLog("User DayStatus Ran Successfully ...", PlantValue, false);
 
                     #region Prev Process FinalDayStatus 
                     DataSet PrevFinalDayStat; // Process DayStatus & Manual DayStatus Comparison
@@ -3589,6 +3601,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     }
                     #endregion
+
+                    SaveLog("Process FinalDayStatus Ran Successfully ...", PlantValue, false);
 
                     #region Sandwich Saving  
                     DataSet SandwichSavingData;
@@ -3657,7 +3671,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                     #region Commented Code
-                    
+
                     //#region Sandwich Logic 
                     //DataSet SandwichData;
                     //SandwichLogic(SandwichPrevDay, out SandwichData, PlantValue);
@@ -3782,12 +3796,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     //}
                     //#endregion
-                   
+
                     #endregion
+
+                    SaveLog("Sandwich Data Entry Ran Successfully ...", PlantValue, false);
 
                     #region Previous Payroll DayStatus 
                     PrePayrollDayStatus(PreviousDay, PlantValue); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
-                    #endregion
+                    #endregion                
 
                     #region Prev Process Payroll DayStatus 
                     DataSet PrevPayrollDayStat;
@@ -3896,6 +3912,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     }
                     #endregion
+
+                    SaveLog("Process Payroll DayStatus Ran Successfully ...", PlantValue, false);
 
                     #region Prev DayOT Calculation 
                     DataSet PrevOTCalculate;
@@ -4087,6 +4105,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
+                    SaveLog("Processed OT Calculation Ran Successfully ...", PlantValue, false);
+
                     #region OTConfirmationProcess 
 
                     #region OTEntitled But OT Not Applicable Employees
@@ -4108,12 +4128,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
 
+                    SaveLog("OT Not Applicable Auto Confirm Ran Successfully ...", PlantValue, false);
+
                     #region OT Entitled Employees whose ProcessedOT is 0
 
                     // Confirming the OT of Employees Whose Processed OT is 0
                     UpdateZeroProcessedOTEmp(PreviousDay, PlantValue);
 
                     #endregion
+
+                    SaveLog("0 Processed OT Auto Confirm Ran Successfully ...", PlantValue, false);
 
                     #endregion
 
