@@ -3744,63 +3744,63 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         var data = obj.data;
         if ($scope.CostingStage == 'PRE') {
             if ($scope.Segment == 'DirectMaterial') {
-                $scope.DirectMaterialList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.DirectMaterialList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.DirectMaterialList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'Operation') {
 
-                $scope.OperationList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.OperationList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.OperationList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'DirectProcess') {
 
-                $scope.DirectProcessList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.DirectProcessList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.DirectProcessList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'SalesExpense') {
 
-                $scope.SalesExpenseList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.SalesExpenseList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.SalesExpenseList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'ValueLoss') {
 
-                $scope.ValueLossList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.ValueLossList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.ValueLossList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'Profit') {
 
-                $scope.ProfitList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.ProfitList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.ProfitList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
         }
         else if ($scope.CostingStage == 'PROCUREMENT') {
             if ($scope.Segment == 'DirectMaterial') {
-                $scope.DirectProcurementCostingMaterialList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.DirectProcurementCostingMaterialList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.DirectProcurementCostingMaterialList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'Operation') {
 
-                $scope.OperationProcurementCostingList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.OperationProcurementCostingList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.OperationProcurementCostingList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'DirectProcess') {
 
-                $scope.DirectProcessProcurementCostingList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.DirectProcessProcurementCostingList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.DirectProcessProcurementCostingList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'SalesExpense') {
 
-                $scope.SalesExpenseProcurementCostingList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.SalesExpenseProcurementCostingList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.SalesExpenseProcurementCostingList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'ValueLoss') {
 
-                $scope.ValueLossProcurementCostingList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.ValueLossProcurementCostingList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.ValueLossProcurementCostingList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
             else if ($scope.Segment == 'Profit') {
 
-                $scope.ProfitProcurementCostingList[$scope.index].ResponsiblePersoinId = data.SystemID;
+                $scope.ProfitProcurementCostingList[$scope.index].ResponsiblePersonId = data.SystemID;
                 $scope.ProfitProcurementCostingList[$scope.index].ResponsiblePersoin = data.EmployeeName;
             }
         }
