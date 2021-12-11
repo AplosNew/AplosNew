@@ -178,7 +178,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     #region DataTable Traversing
 
-                    for (int i = 0; i < Table.Rows.Count; i++)
+                    if (Table.Rows.Count > 0)
+                    {
+
+                        for (int i = 0; i < Table.Rows.Count; i++)
                         {
 
                             #region Distinct Employees
@@ -384,10 +387,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                             #endregion
 
                         }
+                        
+
+                    }
                     #endregion
 
                     SaveLog("OT Confirmation Calculations Done ....", PlantValue, false);
-
+                   
                     #region Save Data in APD
 
                         if (Table.Rows.Count > 0)
@@ -463,6 +469,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
+                SaveLog(ex.Message,"Process Crashed", true);
                 throw ex;
             }
         }
