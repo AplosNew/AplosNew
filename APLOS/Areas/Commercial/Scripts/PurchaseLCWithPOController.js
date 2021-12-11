@@ -513,9 +513,9 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
             $scope.purchaseLCNew.Tenure = 0;
         }
 
-        if ($scope.purchaseLCChargesList.length === 0) {
-            throw "Add Opening Charges.";
-        }
+        //if ($scope.purchaseLCChargesList.length === 0) {
+        //    throw "Add Opening Charges.";
+        //}
         if (baseService.arrayLength($scope.purchaseLCChargesList) > 0) {
             for (var i = 0; i < $scope.purchaseLCChargesList.length; i++) {
                 if ($scope.purchaseLCChargesList[i].ChargesValue < 0 || $scope.purchaseLCChargesList[i].ChargesValue === 0) {
