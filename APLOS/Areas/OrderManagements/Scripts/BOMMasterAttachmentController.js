@@ -470,6 +470,17 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
 
         }
     }
+
+    $scope.BOMReportItemandSalesOrder = function (args) {
+
+        try {
+            var file_src = $scope.Attachmentpath + 'BOMReportItemandSalesOrder?MasterOrderId=' + args.MasterOrderId
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
     $scope.OrderLevelBOMReport = function (args) {
 
         try {
