@@ -197,23 +197,18 @@
                         <button ej-splitbutton e-size="mini" e-showroundedcorner="false" e-text="data.MasterOrderId" e-targetid="{{'m'+data.MasterOrderItemId}}"></button>
                         <ul id="{{'m'+data.MasterOrderItemId}}" style="display:none;">
                             <li>
-                                @*<button ng-click="$parent.MasterOrderBOMReport(data);" class="btn small" style="height: 38px; width: 30px; font-size:20pt; padding: 0px; margin: 0px;">
-                                    <i class="glyphicon glyphicon-circle-arrow-down" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};"></i>
-                                </button>*@
-                                <span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.MasterOrderBOMReport(data);" style="color:{{data.HasBOQ?'black':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">BOM </span>
-                                
+                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">BOM Report (Master Order)</span>
                             </li>
                             <li>
-                                @*<button ng-click="$parent.MasterOrderBOMReportByMaterial(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;background-color:black;">
-                                    <i class="glyphicon glyphicon-th-list" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}}">Detail</i>
-                                </button>*@
-                                <span class="glyphicon glyphicon-th-list text-left" ng-click="$parent.MasterOrderBOMReportByMaterial(data);" style="color:{{data.HasBOQ?'black':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">Summery</span>
+                                <span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.MasterOrderBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">BOM Report(Item and Sales Order) </span>
+                            </li>
+                            <li>
+                                <span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.BOMReportItemandSalesOrder(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">BOM Report(Item and Sales Order) </span>
+                            </li>
+                            <li>
+                                <span class="glyphicon glyphicon-th-list text-left" ng-click="$parent.MasterOrderBOMReportByMaterial(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">Summery</span>
+                            </li>
 
-                            </li>
-                            <li> 
-                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderLevelBOMReport(data);" style="color:{{data.HasBOQ?'black':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">MO</span>
-                            @*<a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.OrderLevelBOMReport(data);">{{data.MasterOrderId}}</a>*@
-                            </li>
                         </ul>
 
                     </script>

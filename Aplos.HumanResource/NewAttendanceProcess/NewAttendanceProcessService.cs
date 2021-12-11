@@ -2816,6 +2816,30 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void OutRestoring(string PreDay, string Plant)
+        {
+
+            try
+            {
+                var sql = @"update AttdnProcessData set OutTime=isnull(ProcessOuttime,OutTime),
+                ManualOutTime=isnull(OriginalManualOutTime,ManualOutTime)
+                where WorkDate='"+PreDay+"' and PlantID='"+Plant+@"'
+                and IsOTEntitled='1'
+                and IsOTComfirm=0";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void PrevDayDuration(string PreDay, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3270,7 +3294,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     DayStatusReprocessing(PreviousDay, PlantValue); //Making Localized Columns Null
                     #endregion
                     
-                    SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
+                    SaveLog("Nullified Columns Logic Ran Successfully for "+PreviousDay+" ...", PlantValue, false);
+
+                    #region Previous Day Out Restoring               
+                    OutRestoring(PreviousDay, PlantValue); //Restoring OutTime
+                    #endregion
+
+                    SaveLog("Outime restored Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Previous Day Duration EarlyIn Late EarlyOut OverStay
                     DataSet PrevDurn;
@@ -3375,7 +3405,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
 
-                    SaveLog("Duration Logic Ran Successfully ...", PlantValue, false);
+                    SaveLog("Duration Logic Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Previous Day DurationStatus Flagging
                     DataSet PrevDurationStat;
@@ -3462,14 +3492,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
                    
-                    SaveLog("Duration Status Logic Ran Successfully ...", PlantValue, false);
+                    SaveLog("Duration Status Logic Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Previous Day Status Code              
                     PrevDayStatusCodeData(PreviousDay, PlantValue); // DayStausCode Text Join 
                                                                     //HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
                     #endregion
 
-                    SaveLog("DayStatus Code Logic Ran Successfully ...", PlantValue, false);
+                    SaveLog("DayStatus Code Logic Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Prev User Day Status 
                     DataSet PrevUserDayStat;
@@ -3508,7 +3538,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    SaveLog("User DayStatus Ran Successfully ...", PlantValue, false);
+                    SaveLog("User DayStatus Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Prev Process FinalDayStatus 
                     DataSet PrevFinalDayStat; // Process DayStatus & Manual DayStatus Comparison
@@ -3549,7 +3579,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    SaveLog("Process FinalDayStatus Ran Successfully ...", PlantValue, false);
+                    SaveLog("Process FinalDayStatus Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Sandwich Saving  
                     DataSet SandwichSavingData;
@@ -3561,8 +3591,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and PlantID='" + PlantValue + "'";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-                        objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
-                        // DataSet for Changing Previous Days Flags and DayStatuses
                         string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
 
 
@@ -3746,7 +3774,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
 
-                    SaveLog("Sandwich Data Entry Ran Successfully ...", PlantValue, false);
+                    SaveLog("Sandwich Data Entry Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Previous Payroll DayStatus 
                     PrePayrollDayStatus(PreviousDay, PlantValue); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
@@ -3860,7 +3888,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    SaveLog("Process Payroll DayStatus Ran Successfully ...", PlantValue, false);
+                    SaveLog("Process Payroll DayStatus Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region PrevDay OverStay UnderStay 
                     DataSet PrevDayOT;
@@ -3915,7 +3943,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
 
-                    SaveLog("OverStay Logic Ran Successfully ...", PlantValue, false);
+                    SaveLog("OverStay Logic Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Prev DayOT Calculation 
                     DataSet PrevOTCalculate;
@@ -4107,7 +4135,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    SaveLog("Processed OT Calculation Ran Successfully ...", PlantValue, false);
+                    SaveLog("Processed OT Calculation Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
                   
                     #region OTEntitled But OT Not Applicable Employees
                     DataSet OTNotApplicable;
@@ -4128,7 +4156,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
 
-                    SaveLog("OT Not Applicable Auto Confirm Ran Successfully ...", PlantValue, false);
+                    SaveLog("OT Not Applicable Auto Confirm Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region OT Entitled Employees whose ProcessedOT is 0
 
@@ -4137,7 +4165,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
 
-                    SaveLog("0 Processed OT Auto Confirm Ran Successfully ...", PlantValue, false);
+                    SaveLog("0 Processed OT Auto Confirm Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Credit Limit Process Commented Code
 
@@ -4182,7 +4210,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region ManualScheduler Source Data
-
         public void ManualInStatusCalculate(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -4560,6 +4587,51 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void ManualOutRestored(string Plant, string empMaster)
+        {
+
+            try
+            {
+                string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
+                if (empMaster1 != "")
+                {               
+                    var sqlx = @"update AttdnProcessData set OutTime=isnull(ProcessOuttime,OutTime),
+                    ManualOutTime=isnull(OriginalManualOutTime,ManualOutTime)
+                    where ManualFlag=1 and PlantID='"+Plant+ @"'
+                    and IsOTEntitled='1'
+                    and IsOTComfirm=0 and RowId IN(" + empMaster + @")";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sqlx, true, "1");
+                    objCone.CommitTransaction();
+                }
+                else
+                {                 
+                    var sqlx = @"update AttdnProcessData set OutTime=isnull(ProcessOuttime,OutTime),
+                    ManualOutTime=isnull(OriginalManualOutTime,ManualOutTime)
+                    where ManualFlag=1 and PlantID='" + Plant + @"'
+                    and IsOTEntitled='1'
+                    and IsOTComfirm=0";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sqlx, true, "1");
+                    objCone.CommitTransaction();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void ManualPayrollDayStatus(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -4603,12 +4675,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string empMaster = clsWebLib.RetValidLen(manualempidfromscreens).ToString();
                 string empList = manualempidfromscreens;
 
-
                 #region Manual Day Status Nullifying Localized Values              
                 ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
                 #endregion
                 
                 SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
+
+                #region Manual Day Status Nullifying Localized Values              
+                ManualOutRestored(PlantValue, empList); // Reprocessing OutTime of Employees
+                #endregion
+
+                SaveLog("Reprocessing OutTime Ran Successfully ...", PlantValue, false);
 
                 #region Manual In Status Logic
                 DataSet ManualInStatus;
@@ -5024,10 +5101,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                    // DataSet for Changing Previous Days Flags and DayStatuses
-                    objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
-
 
                     for (int i = 0; i < ManualSandwichSavingData.Tables[0].Rows.Count; i++)
                     {

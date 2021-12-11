@@ -4536,36 +4536,10 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 	};
 
-	$scope.actionComplete = function (args) {
-		try {
-			if (args.requestType === "refresh") {
-				var gridObj = $("#gridTermsAndCondition").ejGrid("instance");
-				//var scrollerwidth = $("#GridPopUp").width();//Obtain the width of the container
-				//gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 300, width: 1080 } });//pass the obtainer width and height to gridmodel options
-				//gridObj.windowonresize();
-
-				if (args.action == "rowReordering") {
-					gridObj = $("#gridTermsAndCondition").data("ejGrid");
-					// Gets current view data of grid control
-					var data = gridObj.getCurrentViewData();
-					var sorteddata = ej.DataManager(data).executeLocal(ej.Query().select(["Id"]));
-					$http({
-						method: 'POST',
-						url: $scope.path + "UpdateMaterialSequence",
-						data: { data: sorteddata }
-					}).then(function successCallback(response) {
-						//$scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id);
-						//$scope.detailgridTitle();
-					});
-				}
-			}
-		} catch (e) {
-			// $scope.ShowResultCustom(e, 'failure');
-		}
-	};
-    $scope.calculateRequisitionData = function (data) {
-		$scope.totalCurrentQty = $filter('sumByKey')($filter('filter')($scope.GetListForMasterOrder), 'TransactionQty');
-    }
+	$scope.summaryRows = [{
+		title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:N2}" }],
+		showCaptionSummary: true
+	}];
 
 }//End Of main
 

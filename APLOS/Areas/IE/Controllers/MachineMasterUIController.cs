@@ -171,35 +171,35 @@ namespace Aplos.Areas.IE.Controllers
             {
                 _machineMasterUIService.Check(model);
                 // _machineMasterUIService.Check(model);
-            }
-            catch (CustomException)
-            {
-                throw;
-            }
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            model.Id = "MM" + GetPK();
-            model.CompanyGroupId = identity.CompanyGroupId;
-            //if(model.Type=="ACTIVITY")
-            //{
-            //    model.MachineMasterId = null;
-            //    model.Skillid = model.Skillid;
-            //}
-            //else if (model.Type == "OPERATION")
-            //{
-            //    model.MachineMasterId = model.MachineMasterId;
-            //    model.Skillid = null;
-            //}
-            if (model.Active)
-            {
-                model.Active = true;
-            }
-            else if (!model.Active)
-            {
-                model.Active = false;
-            }
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                model.Id = "MM" + GetPK();
+                model.CompanyGroupId = identity.CompanyGroupId;
+                //if(model.Type=="ACTIVITY")
+                //{
+                //    model.MachineMasterId = null;
+                //    model.Skillid = model.Skillid;
+                //}
+                //else if (model.Type == "OPERATION")
+                //{
+                //    model.MachineMasterId = model.MachineMasterId;
+                //    model.Skillid = null;
+                //}
+                if (model.Active)
+                {
+                    model.Active = true;
+                }
+                else if (!model.Active)
+                {
+                    model.Active = false;
+                }
 
-            _machineMasterUIService.Insert(model);
-            return Json(new { OperationMaster = model, model.Id, Sequence = _machineMasterUIService.GetAutoSequence(), Message = AplosMessage.Insert });
+                _machineMasterUIService.Insert(model);
+                return Json(new { OperationMaster = model, model.Id, Sequence = _machineMasterUIService.GetAutoSequence(), Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         [HttpPost]
@@ -208,21 +208,22 @@ namespace Aplos.Areas.IE.Controllers
             try
             {
                 _machineMasterUIService.Check(model);
+                if (model.Active)
+                {
+                    model.Active = true;
+                }
+                else if (!model.Active)
+                {
+                    model.Active = false;
+                }
+                _machineMasterUIService.Update(model);
+                return Json(new { Sequence = _machineMasterUIService.GetAutoSequence(), Message = AplosMessage.Updated });
             }
-            catch (CustomException)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
-            if (model.Active)
-            {
-                model.Active = true;
-            }
-            else if (!model.Active)
-            {
-                model.Active = false;
-            }
-            _machineMasterUIService.Update(model);
-            return Json(new { Sequence = _machineMasterUIService.GetAutoSequence(), Message = AplosMessage.Updated });
+            
         }
 
         [HttpPost]
