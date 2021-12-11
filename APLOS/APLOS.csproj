@@ -3881,6 +3881,7 @@
     <Content Include="Areas\Accounts\Views\_ContractPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeavesChecklistReportNew\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\WasteTransactionReport\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\DailyTarget\LineDesignReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

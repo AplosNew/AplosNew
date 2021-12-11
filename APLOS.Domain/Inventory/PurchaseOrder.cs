@@ -34,6 +34,7 @@ namespace Library.Model.Inventory
         public bool IsTaxApplicable { get; set; }
         public bool IsApproved { get; set; }
         public bool IsPaymentHold { get; set; }
+        public bool IsTradingPO { get; set; }
         public string PartyType { get; set; }
         public string POType { get; set; }
         public string MasterOrderId { get; set; }
