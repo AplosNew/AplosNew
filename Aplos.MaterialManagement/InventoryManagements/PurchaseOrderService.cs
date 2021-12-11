@@ -378,6 +378,18 @@ namespace Library.MaterialManagement.InventoryManagements
                                     ,ISNULL(cpo.PONumber,'') PONumber,uom.UserName BOQUOM
                                     ,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '/' + ISNULL(mo.BuyerReferenceNo,'') +'/'+ ISNULL(moi.OwnReferenceNo,'')+'/'+ISNULL(moi.BuyerReferenceNo,''),C.ContractNo
                                     ,CASE WHEN ISNULL(b.IsMainMaterial,0)=1 THEN BD.MainRawMaterialInhouseDate else BD.OtherRawMaterialInhouseDate END AS DeliveryDate
+                                    ,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
+									 CASE WHEN isnull(moi.Consignment,0)=1 THEN
+        								  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
+									ELSE
+										case when isnull(MOI.JobWorkType,'')<>'' THEN 
+											CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+									   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END
+           
+										 END AS PurchaseAuthority,
+									   case when isnull(MOI.JobWorkType,'')<>'' THEN 
+											CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+									   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority
 
                                     FROM BOQ AS b
                                     LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
@@ -387,6 +399,13 @@ namespace Library.MaterialManagement.InventoryManagements
                                     LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
                                     LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
                                     LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+
+                                    LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+									LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+									LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+									LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+									LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+
                                     left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
 
                                     LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId

@@ -12,6 +12,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.WithEmployee = false;
+    $scope.WithMachine = false;
 
 
     $scope.DailyProductionTarget = {
@@ -275,6 +277,25 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         }
 
     };
+
+    $scope.PopupItem = function (data) {
+        $scope.SelectedLine = data;
+        $scope.ShowDiv = true;
+        var eDialog = $("#dialogLineDesignReport").data("ejDialog");
+        $("#dialogLineDesignReport").ejDialog({ actionButtons: ["close", "minimize", "maximize"] });
+        $("#dialogLineDesignReport").ejDialog("refresh");
+
+        eDialog.open();
+        //if (data.HasLayout == false) {
+        //    $scope.CopyTable(data);
+        //}
+        //else {
+        //    $scope.GetLineLayout(data);
+        //}
+
+    };
+
+
     $scope.CopyTable = function (data) {
         try {
             $scope.SelectedLineForPR = data;
@@ -903,7 +924,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         }
     };
     $scope.downloadgriddataUrl = 'GridReports/Download';
-    $scope.DownloadReport = function (data) {
+    $scope.DownloadReport = function () {
         try {
             var Entity = $("#ddlEntity option:selected").text();
             var Process = $("#ProcessId option:selected").text();
@@ -914,8 +935,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     'EntityId': $scope.DailyProductionTargetNew.EntityId,
                     'ProcessId': $scope.DailyProductionTargetNew.ProcessId,
                     'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate,
-                    'WorkCenterMasterId': data.WorkCenterMasterId,
-                    'Data': data, 'EntityName': Entity, 'ProcessName': Process
+                    'WorkCenterMasterId': $scope.SelectedLine.WorkCenterMasterId,
+                    'Data': $scope.SelectedLine, 'EntityName': Entity, 'ProcessName': Process, 'WithEmp': $scope.WithEmployee, 'WithMachine': $scope.WithMachine
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

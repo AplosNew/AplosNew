@@ -315,6 +315,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		, PODate: null
 		, Tolerance: 0
 		, TermsAndConditionsId: null
+		, IsTradingPO: false
 	};
 	$scope.productNew = Object.assign({}, $scope.product);
 	$scope.productDocMap = {
