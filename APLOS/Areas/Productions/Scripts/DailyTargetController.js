@@ -714,7 +714,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     //if (_explicitSave)
-                        ShowResult(response.data.Message, 'success');
+                    ShowResult(response.data.Message, 'success');
 
                     $scope.SelectedLine.ManPowerWithMachine = response.data.Data[0].TotalMachine;
                     $scope.SelectedLine.ManPowerWithHand = response.data.Data[0].TotalHand;
@@ -950,4 +950,70 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             ShowResult(e, 'failure');
         }
     };
+
+
+    //chart
+    $scope.graphmaxheight = function (list, column) {
+        var _graphmaxheight = 10;
+        _graphmaxheight = 10;
+        for (var i = 0; i < list.length; i++) {
+            if (list[i][column] > _graphmaxheight)
+                _graphmaxheight = list[i][column];
+        }
+
+        return _graphmaxheight + (_graphmaxheight * .30);
+    }
+
+    $scope.graphmaxwidth = function (list, width) {
+        if (baseService.isUndefinedOrNull(width))
+            width = 100;
+
+        return ((list.length * width) + 100) + 'px';
+    }
+    $scope.StripLineSetting = [];
+    $scope.BottleneckData = [];
+    $scope.SaveProductionQuantity = function () {
+
+        $scope.StripLineSetting = [];
+        $scope.BottleneckData = [];
+        try {
+
+            $http({
+                method: "POST",
+                url: $scope.path + 'GetBottleneck',
+                data: {
+                    'ProcessId': '',
+                    'ProductionOrderId': $scope.SelectedLineForPR.PRNo,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate,
+                    'WorkCenterMasterId': $scope.SelectedLineForPR.WorkCenterMasterId
+                },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                var eDialog = $("#dialogBottleneckGraph").data("ejDialog");
+                eDialog.open();
+
+                $scope.BottleneckData = response.data.GraphData;
+                //LowerBoundValue	LowerBoundText	UpperBoundValue	UpperBoundText
+
+                var LowerBoundValue = response.data.StripLine[0].LowerBoundValue;
+                var LowerBoundText = response.data.StripLine[0].LowerBoundText;
+                var UpperBoundValue = response.data.StripLine[0].UpperBoundValue;
+                var UpperBoundText = response.data.StripLine[0].UpperBoundText;
+
+                if (LowerBoundValue > 0) {
+                    $scope.StripLineSetting.push({ start: 0, end: LowerBoundValue, text: LowerBoundText, textAlignment: 'middlecenter', color: '#0D97D4', font: { size: '18px', color: 'white' }, zIndex: 'behind', borderWidth: 0, visible: true });
+                    if (LowerBoundValue < 100)
+                        $scope.StripLineSetting.push({ start: LowerBoundValue, end: UpperBoundValue, text: UpperBoundText, textAlignment: 'middlecenter', color: '#FFFF00', font: { size: '18px', color: 'white' }, zIndex: 'behind', borderWidth: 0, visible: true });
+
+                }
+                if (UpperBoundValue < 100)
+                    $scope.StripLineSetting.push({ start: UpperBoundValue, end: 100, text: 'Above ' + UpperBoundText, textAlignment: 'middlecenter', color: '#0000FF', font: { size: '18px', color: 'white' }, zIndex: 'behind', borderWidth: 0, visible: true });
+
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+   // $scope.SaveProductionQuantity();
 }
