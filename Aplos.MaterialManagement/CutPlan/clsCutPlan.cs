@@ -257,6 +257,7 @@ namespace Library.MaterialManagement.CutPlan
                 ConnectionManager.DAL.ConManager objCon;
                 string CutPlanMasterId = string.Empty;
                 bplib.clsGenID objGenID = new bplib.clsGenID();
+                int count = 0;
 
                 #region Cut Plan M A S T E R save
 
@@ -297,6 +298,8 @@ namespace Library.MaterialManagement.CutPlan
 
                 #region Cut Plan M A R K E R Details
 
+                string cutplantMarkerDetails = string.Empty;
+
                 string sql1 = "SELECT * FROM CutPlanMarkerDetails WHERE CutPlanMasterId='" + CutPlanMasterId + "' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql1, out dsCutPlanMarkerDetails, false, "1");
@@ -309,6 +312,7 @@ namespace Library.MaterialManagement.CutPlan
                     objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanMarkerDetails]", out string CPM);
 
                     dr["Id"] = "D" + CPM;
+                    cutplantMarkerDetails = dr["Id"].ToString();
                     dr["CutPlanMasterId"] = CutPlanMasterId;
                     dr["MarkerId"] = CPMarkerDetails.MarkerId;
                     dr["MarkerCharacteristicsId"] = CPMarkerDetails.MarkerCharacteristicsId;
@@ -324,7 +328,7 @@ namespace Library.MaterialManagement.CutPlan
                 {
                     DataRow dr = dsCutPlanMarkerDetails.Tables[0].DefaultView[0].Row;
                     dr.BeginEdit();
-
+                    cutplantMarkerDetails = dr["Id"].ToString();
                     dr["CutPlanMasterId"] = CutPlanMasterId;
                     dr["MarkerId"] = CPMarkerDetails.MarkerId;
                     dr["MarkerCharacteristicsId"] = CPMarkerDetails.MarkerCharacteristicsId;
@@ -338,9 +342,47 @@ namespace Library.MaterialManagement.CutPlan
 
                 #endregion
 
+                #region Cut Plan C H I L D
+                string CutPlanChildId = string.Empty;
+                string sql3 = "SELECT * FROM CutPlanChild WHERE CutPlanMarkerDetailsId='" + cutplantMarkerDetails + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql3, out dsCutPlanChild, false, "1");
+
+                while (dsCutPlanChild.Tables[0].DefaultView.Count > 0)
+                {
+                    dsCutPlanChild.Tables[0].DefaultView[0].Delete();
+                }
+
+                objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanChild]", out string ChildId);
+                count = 0;
+                for (int j = 0; j < SkuValueList.Count; j++)
+                {
+                    count++;
+                    DataRow dr = dsCutPlanChild.Tables[0].NewRow();
+                    dr["Id"] = "F" + ChildId + count;
+                    CutPlanChildId = dr["Id"].ToString();
+                    dr["CutPlanMarkerDetailsId"] = cutplantMarkerDetails;
+                    dr["CharacteristicsValueId"] = SkuValueList[j]["CharacteristicsId"].ToString();
+                    dr["RoundingPlyValue"] = SkuValueList[j]["MinimumPlyOptionValue"];
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now;
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                    dsCutPlanChild.Tables[0].Rows.Add(dr);
+
+                }
+
+                #endregion
+
                 #region Cut Plan F O R M A T I O N
 
-                string sql2 = "SELECT * FROM CutPlanFormation WHERE CutPlanMasterId='" + CutPlanMasterId + "' ";
+                string CutPlanFormation = string.Empty;
+                string sql2 = "SELECT * FROM CutPlanFormation WHERE CutPlanChildId='" + CutPlanChildId + "' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql2, out dsCutPlanFormation, false, "1");
 
@@ -350,7 +392,7 @@ namespace Library.MaterialManagement.CutPlan
                 }
 
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanFormation]", out string TempId);
-                int count = 0;
+                
                 for (int i = 0; i < FGCharacteristicsValueList.Count; i++)
                 {
                     for (int j = 0; j < SkuValueList.Count; j++)
@@ -358,7 +400,8 @@ namespace Library.MaterialManagement.CutPlan
                         count++;
                         DataRow dr = dsCutPlanFormation.Tables[0].NewRow();
                         dr["Id"] = "F" + TempId + count;
-                        dr["CutPlanMasterId"] = CutPlanMasterId;
+
+                        dr["CutPlanChildId"] = CutPlanChildId;
                         dr["MarkerCharacteristicsValueId"] = FGCharacteristicsValueList[i]["CharacteristicsValueId"].ToString();
                         dr["MarkerRatio"] = FGCharacteristicsValueList[i]["Ratio"];
                         dr["CalculatedQty"] = SkuValueList[j]["MinimumPlyActualValue"];
@@ -378,46 +421,11 @@ namespace Library.MaterialManagement.CutPlan
 
                 #endregion
 
-                #region Cut Plan C H I L D
-
-                string sql3 = "SELECT * FROM CutPlanChild WHERE CutPlanMasterId='" + CutPlanMasterId + "' ";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql3, out dsCutPlanChild, false, "1");
-
-                while (dsCutPlanChild.Tables[0].DefaultView.Count > 0)
-                {
-                    dsCutPlanChild.Tables[0].DefaultView[0].Delete();
-                }
-
-                objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanChild]", out string ChildId);
-                count = 0;
-                for (int j = 0; j < SkuValueList.Count; j++)
-                {
-                    count++;
-                    DataRow dr = dsCutPlanChild.Tables[0].NewRow();
-                    dr["Id"] = "F" + ChildId + count;
-                    dr["CutPlanMasterId"] = CutPlanMasterId;
-                    dr["CharacteristicsValueId"] = SkuValueList[j]["CharacteristicsId"].ToString();
-                    dr["RoundingPlyValue"] = SkuValueList[j]["MinimumPlyOptionValue"];
-
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now;
-                    dr["AddedFromIP"] = identity.IPAddress;
-
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = DateTime.Now;
-                    dr["UpdatedFromIP"] = identity.IPAddress;
-
-                    dsCutPlanChild.Tables[0].Rows.Add(dr);
-
-                }
-
-                #endregion
 
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsCutPlanMaster, dsCutPlanMarkerDetails, dsCutPlanFormation, dsCutPlanChild);
+                _info.SaveDataSets(dsCutPlanMaster, dsCutPlanMarkerDetails, dsCutPlanChild, dsCutPlanFormation);
             }
             catch (Exception ex)
             {
