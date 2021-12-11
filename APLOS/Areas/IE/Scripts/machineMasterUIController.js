@@ -346,7 +346,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getaldataOperationMaster();
-                    //ClearFields();
+                    $scope.Clear();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

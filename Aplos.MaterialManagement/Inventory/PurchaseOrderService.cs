@@ -606,6 +606,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId
 									,isnull(Par.UserName,'') CustomerName 
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.TermsAndConditionsId
+                                    ,IR.IsTradingPO
 						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -675,6 +676,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId
 									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.TermsAndConditionsId
+                                    ,IR.IsTradingPO
 						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -746,6 +748,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId
 									,isnull(Par.UserName,'') CustomerName ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.TermsAndConditionsId
+                                    ,IR.IsTradingPO
 						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -812,7 +815,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId,isnull(Par.UserName,'') CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
-,IR.TermsAndConditionsId
+                                    ,IR.TermsAndConditionsId,IR.IsTradingPO
                         FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -877,7 +880,7 @@ namespace Library.MaterialManagement.Inventory
 									,isnull(IR.ContractId,'') ContractId
 									,isnull(IR.OrderSpecific,'') OrderSpecific
 									,isnull(IR.PurchaseLCId,'') PurchaseLCId,isnull(Par.UserName,'') CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
-,IR.TermsAndConditionsId
+                                    ,IR.TermsAndConditionsId,IR.IsTradingPO
                         FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId

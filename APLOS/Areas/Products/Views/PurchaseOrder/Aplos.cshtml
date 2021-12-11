@@ -406,112 +406,13 @@
             </div>
         </div>
         <div class="clearfix"></div>
-        @*<div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Contract No</label>
-                    <div class="col-sm-6">
-                        <div class="radio">
-                            <label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.ContractNo}}</label>
-                        </div>
-                    </div>
-                </div>
-            </div>*@
-        <div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Master LC Ref No</label>
-                <div class="col-sm-6">
-                    <div class="radio">
-                        <label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.LCRef}}</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="clearfix"></div>
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
-                <div class="col-sm-8">
-                    <div class="input-group">
-                        <input type="text" hidden id="masterId" /> @*<label id="PartyCode"></label>*@
-                        <span class="input-group-addon"> {{productNew.PartyCode}}</span>
-                        <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 pdl3 pdr3">
-            <div class="col-md-8">
-                <div class="form-group" id="div_docNo">
-                    <label class="col-sm-4 control-label">Vendor Doc/PI RefNo<sup>*</sup></label>
-                    <div class="col-sm-8 show-message pdr3">
-                        <input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="100" tabindex="2" autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="div_docDate">
-                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
-                    <div class="col-sm-9 show-message pdl3">
-                        <input type="text" name="Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-        <div class="col-md-6 pdl3 pdr3">
-            <div class="col-md-8">
-                <div class="form-group" id="div_grnNo">
-                    <label class="col-sm-6 control-label">PO No<sup>*</sup></label>
-                    <div class="col-sm-6 show-message pdr3">
-                        <input type="text" name="PO No" ng-model="productNew.Id" class="form-control" maxlength="10" disabled>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="div_PODate">
-                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
-                    <div class="col-sm-9 show-message pdl3">
-                        <input type="text" name="PO Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 ">
-            <div class="col-md-8">
-                <div class="form-group" id="div_currency">
-                    <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="currency" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-                                    ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
-                                <option value=""></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="div_rate">
-                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
-                    <div class="col-sm-9 show-message pdl3">
-                        @*{{currencyPrecision}} ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||inventoryMaterialList.length>0"*@
-                        <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-        <div class="col-sm-6 col-md-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Non Creditable</label>
+                <label class="col-sm-4 control-label">Trading PO</label>
                 <div class="col-sm-1">
                     <div class="checkbox-site">
                         <label>
-                            <input type="checkbox" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.IsNonCreditable">
+                            <input type="checkbox" ng-disabled="productNew.OrderSpecific==='No'" ng-model="productNew.IsTradingPO">
                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                         </label>
                     </div>
@@ -527,6 +428,118 @@
                 </div>
             </div>
         </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12" ng-show="productNew.OrderSpecific==='Yes'">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Master LC Ref No</label>
+                    <div class="col-sm-6">
+                        <div class="radio">
+                            <label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.LCRef}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" hidden id="masterId" /> @*<label id="PartyCode"></label>*@
+                            <span class="input-group-addon"> {{productNew.PartyCode}}</span>
+                            <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 pdl3 pdr3">
+                <div class="col-md-8">
+                    <div class="form-group" id="div_docNo">
+                        <label class="col-sm-4 control-label">Vendor Doc/PI RefNo<sup>*</sup></label>
+                        <div class="col-sm-8 show-message pdr3">
+                            <input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="100" tabindex="2" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group" id="div_docDate">
+                        <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message pdl3">
+                            <input type="text" name="Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-6 pdl3 pdr3">
+                <div class="col-md-8">
+                    <div class="form-group" id="div_grnNo">
+                        <label class="col-sm-6 control-label">PO No<sup>*</sup></label>
+                        <div class="col-sm-6 show-message pdr3">
+                            <input type="text" name="PO No" ng-model="productNew.Id" class="form-control" maxlength="10" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group" id="div_PODate">
+                        <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message pdl3">
+                            <input type="text" name="PO Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 ">
+                <div class="col-md-8">
+                    <div class="form-group" id="div_currency">
+                        <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="currency" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
+                                        ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group" id="div_rate">
+                        <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
+                        <div class="col-sm-9 show-message pdl3">
+                            @*{{currencyPrecision}} ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||inventoryMaterialList.length>0"*@
+                            <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Non Creditable</label>
+                    <div class="col-sm-1">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.IsNonCreditable">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                    <label class="col-sm-2 control-label" ng-show="productNew.TaxApplicable=='Mandatory'">Revers Charge</label>
+                    <div class="col-sm-1" ng-show="productNew.TaxApplicable=='Mandatory'">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-disabled="!productNew.IsTaxApplicableChangeable" ng-model="productNew.IsTaxApplicable">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
     </fieldset>
     <div class="col-md-12">
         <fieldset class="scheduler-border">
@@ -1935,7 +1948,7 @@
                                         <div style="color:black;" id="GridReq" ej-grid e-datasource="GetListForMasterOrder"
                                              @*e-templaterefresh="refreshTemplateMasterOrderOperation"*@ e-templaterefresh="refreshTemplateemployee"
                                              e-recorddoubleclick=""
-                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryRows" 
                                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-gridlines="vertical" e-allowtouch="true" e-allowResizing="true">
 
 
@@ -2225,6 +2238,11 @@
                             <div e-column e-type="string" e-field="DeliveryDate" e-headertext="DeliveryDate" e-width="100"></div>
                             <div e-column e-type="string" e-field="PONumber" e-headertext="PONumber" e-width="100"></div>
                             <div e-column e-type="string" e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
+
+                            <div e-column e-type="boolean" e-field="Consignment" e-headertext="Consignment" e-width="30"></div>
+                            <div e-column e-type="string" e-field="PurchaseAuthority" e-headertext="Purh. Authority" e-width="120"></div>
+                            <div e-column e-type="string" e-field="ProductionAuthority" e-headertext="Prod. Authority" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Type" e-headertext="Type" e-width="70"></div>
                         </div>
                     </div>
                 </div>

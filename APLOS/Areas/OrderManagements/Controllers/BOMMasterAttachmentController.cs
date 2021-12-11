@@ -218,6 +218,39 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             return null;
         }
+        [HttpGet, Authorize]
+        public ActionResult BOMReportItemandSalesOrder(string MasterOrderId)// MasterOrderReport
+        {
+
+            try
+            {
+
+                Library.OrderManagement.BOM.BOMReports attchment = new Library.OrderManagement.BOM.BOMReports();
+
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                IWorkbook workbook = attchment.GetMasterOrderReports(MasterOrderId, Library.OrderManagement.BOM.BOMReports.BOMLevel.SO);
+                IWorkbook workbookItem = attchment.GetMasterOrderReports(MasterOrderId, Library.OrderManagement.BOM.BOMReports.BOMLevel.Item);
+                attchment.GetDrawBOMTemplateDataReports(workbookItem.Worksheets[1], MasterOrderId);
+                attchment.GetDrawBOMTemplateDataSubMaterials(workbookItem.Worksheets[2], MasterOrderId);
+
+                workbook.Worksheets.AddCopy(workbookItem.Worksheets[0]);
+                workbook.Worksheets.AddCopy(workbookItem.Worksheets[1]);
+                workbook.Worksheets.AddCopy(workbookItem.Worksheets[2]);
+
+                string strFileName = "BOM-" + MasterOrderId + ".xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+                workbookItem.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+
+            return null;
+        }
+        
 
         [HttpGet, Authorize]
         public ActionResult OrderLevelBOMReport(string MasterOrderItemId, string MasterOrderId)// MasterOrderReport
