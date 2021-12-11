@@ -223,7 +223,6 @@ namespace Library.OrderManagement.Costing
                 #endregion
 
 
-
                 int endCol = colWCTargetDay + 2;
 
                 sheet.Range[6, 1, 6, endCol].Merge();
