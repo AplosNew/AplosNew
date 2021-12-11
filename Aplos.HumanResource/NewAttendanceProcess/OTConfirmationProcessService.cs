@@ -151,7 +151,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #region List to DataTable
 
-                DataTable Table = ToDataTable(_objects);
+                DataTable MainTable = ToDataTable(_objects);
 
                 #endregion
 
@@ -172,8 +172,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                        
                     var PlantValue = PlantList.Tables[0].Rows[k][@"PlantValue"].ToString();
-                    Table.DefaultView.RowFilter = @"PlantId='" + PlantValue;
-                        
+                    DataTable Table = MainTable.Select("PlantId = '"+PlantValue+"'").CopyToDataTable();
+
                     #region DataTable Traversing
                        
                         for (int i = 0; i < Table.Rows.Count; i++)
