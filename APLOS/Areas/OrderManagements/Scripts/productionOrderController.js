@@ -2246,7 +2246,8 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         ProcessId: null,
         RequiredStdTarget: null,
         MaxNoOfWS: null,
-        PlannedHoursPerDay: null
+        PlannedHoursPerDay: null,
+        BottleNeckPercentage: null
     }
     $scope.bulletinProcessNew = Object.assign({}, $scope.bulletinProcess);
 
