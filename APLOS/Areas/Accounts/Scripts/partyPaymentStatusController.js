@@ -4550,13 +4550,26 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.onVoucherNoDownloadExcel = function (data) {
-        var reportFormat = "Excel";
+        var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(data.VoucherNo)) return ShowResult('No Id found', 'failure');
         $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
     };
     $scope.onInvoiceVoucherPrint = function (data) {
         var reportFormat = "Pdf";
         $window.open('Products/PurchaseDocumentsAcceptance/DocumentAcceptanceVoucher?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+    };
+    $scope.onInvoiceVoucherPrintSourceTypeWise = function (data) {
+        var reportFormat = "Pdf";
+        if (data.SourceType =="VendorInvoice") {
+            $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+        }
+        if (data.SourceType == "EmployeePayable") {
+            $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+        }
+        if (data.SourceType == "InventoryPayable") {
+            $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
+        }
+        
     };
 
 

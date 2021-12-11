@@ -40,7 +40,7 @@ namespace Library.OrderManagement.Costing
             //                           INNER JOIN hkp.CostingItem AS ci ON ci.Id=cm.CostingItemId
             //                           LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=cm.MaterialMasterId
             //                           LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=cm.ArticleId
-            //                           LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=cm.ResponsiblePersoinId
+            //                           LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=cm.ResponsiblePersonId
             //                           LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=ci.UnitOfMeasurementId
             //                           LEFT JOIN CostingBOQItems ITM ON itm.OrderProcurementCostingDirectMaterialId=cm.Id AND isnull(ITM.CostingBOQMasterId,'')='" + CostingBOQMasterId + @"'
             //                           LEFT JOIN CostingBOQItems PRE ON pre.OrderProcurementCostingDirectMaterialId=cm.Id AND isnull(pre.CostingBOQMasterId,'')<>'" + CostingBOQMasterId + @"'
@@ -63,7 +63,7 @@ namespace Library.OrderManagement.Costing
                             INNER JOIN hkp.CostingItem AS ci ON ci.Id=cm.CostingItemId
                             LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=cm.MaterialMasterId
                             LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=cm.ArticleId
-                            LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=cm.ResponsiblePersoinId
+                            LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=cm.ResponsiblePersonId
                             LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=ci.UnitOfMeasurementId
                             LEFT JOIN ( SELECT cb.OrderProcurementCostingDirectMaterialId,COUNT(DISTINCT cb.SalesOrderId) AS SOCount
 									   FROM CostingBOQItems AS cb
@@ -88,7 +88,7 @@ namespace Library.OrderManagement.Costing
                                INNER JOIN hkp.CostingItem AS ci ON ci.Id=cm.CostingItemId
                             LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=cm.MaterialMasterId
                             LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=cm.ArticleId
-                            LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=cm.ResponsiblePersoinId
+                            LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=cm.ResponsiblePersonId
                             LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=ci.UnitOfMeasurementId
                             LEFT JOIN ( SELECT cb.OrderProcurementCostingDirectMaterialId,COUNT(DISTINCT cb.SalesOrderId) AS SOCount
 									   FROM CostingBOQItems AS cb
