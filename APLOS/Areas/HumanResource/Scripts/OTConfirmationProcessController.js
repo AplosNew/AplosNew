@@ -260,7 +260,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
                 'DayLimit': $scope.Data[i].DayLimit, 'StandardOT': $scope.Data[i].StandardOT, 'AppliedOTLimit': $scope.Data[i].AppliedOTLimit,
                 'AllowedOTLimit': $scope.Data[i].AllowedOTLimit, 'AdditionalOT': $scope.Data[i].AdditionalOT, 'WeekLimit': $scope.Data[i].WeekLimit,
                 'TargetOT': $scope.Data[i].TargetOT, 'ApplicableWM': $scope.Data[i].ApplicableWM, 'IsOTComfirm': $scope.Data[i].IsOTComfirm, 'IsManualOutTime': $scope.Data[i].IsManualOutTime,
-                'MonthlyLimit': $scope.Data[i].MonthlyLimit, 'OutTime': $scope.Data[i].OutTime, 'ManualOutTime': $scope.Data[i].ManualOutTime, 'ProcessOuttime': $scope.Data[i].ProcessOuttime,
+                'MonthlyLimit': $scope.Data[i].MonthlyLimit, 'OutTime': $scope.Data[i].OutTime, 'PlantId': $scope.Data[i].PlantId, 'ProcessOutTime': $scope.Data[i].ProcessOutTime,
                 'RowId': $scope.Data[i].RowId
             });
         }
@@ -284,7 +284,7 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
 
 
     // Report Download Operations  
-
+    $scope.ReportData = [];
 
     $scope.getReportData = function () {
 
@@ -320,8 +320,8 @@ function OTConfirmationProcessController(commonMessage, $scope, $rootScope, base
                 ShowResult(resp.data.Message, 'failure');
             }
             else {
-                $scope.Data = [];
-                $scope.Data = resp.data;
+                $scope.ReportData = [];
+                $scope.ReportData = resp.data;
                 ProcessChk();
             }
 

@@ -2425,32 +2425,32 @@ function OrderCostingController_backup(cboService, commonMessage, $scope, $rootS
 
         var data = obj.data;
         if ($scope.Segment == 'DirectMaterial') {
-            $scope.DirectMaterialList[$scope.index].ResponsiblePersoinId = data.SystemID;
+            $scope.DirectMaterialList[$scope.index].ResponsiblePersonId = data.SystemID;
             $scope.DirectMaterialList[$scope.index].ResponsiblePersoin = data.EmployeeName;
         }
         else if ($scope.Segment == 'Operation') {
 
-            $scope.OperationList[$scope.index].ResponsiblePersoinId = data.SystemID;
+            $scope.OperationList[$scope.index].ResponsiblePersonId = data.SystemID;
             $scope.OperationList[$scope.index].ResponsiblePersoin = data.EmployeeName;
         }
         else if ($scope.Segment == 'DirectProcess') {
 
-            $scope.DirectProcessList[$scope.index].ResponsiblePersoinId = data.SystemID;
+            $scope.DirectProcessList[$scope.index].ResponsiblePersonId = data.SystemID;
             $scope.DirectProcessList[$scope.index].ResponsiblePersoin = data.EmployeeName;
         }
         else if ($scope.Segment == 'SalesExpense') {
 
-            $scope.SalesExpenseList[$scope.index].ResponsiblePersoinId = data.SystemID;
+            $scope.SalesExpenseList[$scope.index].ResponsiblePersonId = data.SystemID;
             $scope.SalesExpenseList[$scope.index].ResponsiblePersoin = data.EmployeeName;
         }
         else if ($scope.Segment == 'ValueLoss') {
 
-            $scope.ValueLossList[$scope.index].ResponsiblePersoinId = data.SystemID;
+            $scope.ValueLossList[$scope.index].ResponsiblePersonId = data.SystemID;
             $scope.ValueLossList[$scope.index].ResponsiblePersoin = data.EmployeeName;
         }
         else if ($scope.Segment == 'Profit') {
 
-            $scope.ProfitList[$scope.index].ResponsiblePersoinId = data.SystemID;
+            $scope.ProfitList[$scope.index].ResponsiblePersonId = data.SystemID;
             $scope.ProfitList[$scope.index].ResponsiblePersoin = data.EmployeeName;
         }
 

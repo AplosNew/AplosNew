@@ -269,9 +269,11 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                double calculatePercentage = Math.Round(clsStaticInfo.dbl(Data["QuantityPerHour"].ToString().Trim())*100 / clsStaticInfo.dbl(dsMasterData.Tables[0].Rows[0]["RequiredStdTarget"].ToString()),2);
+
                 xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol].Text = "TGT 85% Pc";
-                sheet1.Range[xlsRow, xlsCol + 1].Formula = 0.85 + "*" + clsStaticInfo.GetxlsCol(xlsCol + 1) + (xlsRow-1);
+                sheet1.Range[xlsRow, xlsCol].Text = "TGT "+ calculatePercentage + "% Pc";
+                sheet1.Range[xlsRow, xlsCol + 1].Formula = Data["QuantityPerHour"].ToString().Trim();
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -734,7 +736,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet1.Range[MachineStartRow , MachineStartCol, xlsRow, MachineStartCol+2].BorderAround(ExcelLineStyle.Thin);
                 sheet1.Range[MachineStartRow , MachineStartCol, xlsRow, MachineStartCol+2].WrapText = true;
 
-                sheet1.Range[xlsRow, xlsCol].Text = "Total ManPower";
+                sheet1.Range[xlsRow, xlsCol].Text = "Total ";
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, xlsCol].RowHeight = 13.2;
@@ -843,7 +845,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 strSql = @"SELECT ov.UserName OperationVariationName  ,pbtd.OperationTargetPerHr,o.IsMachineRequired,pbtd.TotalSPT,pbtm.RequiredStdTarget,
-								CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN ISNULL(mma.StandardName,'Missing Machcine') ELSE 'W/M' END AS MACHINE,
+								CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN ISNULL(mma.ShortName,'Missing Machcine') ELSE 'W/M' END AS MACHINE,
 									CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN pbtd.TotalSPT ELSE 0 END AS MachineSPT,
 									CASE WHEN ISNULL(o.IsMachineRequired,'')<>'M' THEN pbtd.TotalSPT ELSE 0 END AS NONMachineSPT,
 							CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN pbtd.AllotedManpower ELSE 0 END AS MCManpower,
