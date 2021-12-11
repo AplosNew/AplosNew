@@ -3591,8 +3591,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and PlantID='" + PlantValue + "'";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-                        objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
-                        // DataSet for Changing Previous Days Flags and DayStatuses
                         string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
 
 
@@ -5103,10 +5101,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                    // DataSet for Changing Previous Days Flags and DayStatuses
-                    objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
-
 
                     for (int i = 0; i < ManualSandwichSavingData.Tables[0].Rows.Count; i++)
                     {
