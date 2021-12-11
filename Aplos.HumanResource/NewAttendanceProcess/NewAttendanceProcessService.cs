@@ -2816,6 +2816,30 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void OutRestoring(string PreDay, string Plant)
+        {
+
+            try
+            {
+                var sql = @"update AttdnProcessData set OutTime=isnull(ProcessOuttime,OutTime),
+                ManualOutTime=isnull(OriginalManualOutTime,ManualOutTime)
+                where WorkDate='"+PreDay+"' and PlantID='"+Plant+@"'
+                and IsOTEntitled='1'
+                and IsOTComfirm=0";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void PrevDayDuration(string PreDay, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3271,6 +3295,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
                     
                     SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
+
+                    #region Previous Day Out Restoring               
+                    OutRestoring(PreviousDay, PlantValue); //Restoring OutTime
+                    #endregion
+
+                    SaveLog("Outime restored Successfully ...", PlantValue, false);
 
                     #region Previous Day Duration EarlyIn Late EarlyOut OverStay
                     DataSet PrevDurn;
@@ -4182,7 +4212,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region ManualScheduler Source Data
-
         public void ManualInStatusCalculate(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -4560,6 +4589,51 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void ManualOutRestored(string Plant, string empMaster)
+        {
+
+            try
+            {
+                string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
+                if (empMaster1 != "")
+                {               
+                    var sqlx = @"update AttdnProcessData set OutTime=isnull(ProcessOuttime,OutTime),
+                    ManualOutTime=isnull(OriginalManualOutTime,ManualOutTime)
+                    where ManualFlag=1 and PlantID='"+Plant+ @"'
+                    and IsOTEntitled='1'
+                    and IsOTComfirm=0 and RowId IN(" + empMaster + @")";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sqlx, true, "1");
+                    objCone.CommitTransaction();
+                }
+                else
+                {                 
+                    var sqlx = @"update AttdnProcessData set OutTime=isnull(ProcessOuttime,OutTime),
+                    ManualOutTime=isnull(OriginalManualOutTime,ManualOutTime)
+                    where ManualFlag=1 and PlantID='" + Plant + @"'
+                    and IsOTEntitled='1'
+                    and IsOTComfirm=0";
+
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sqlx, true, "1");
+                    objCone.CommitTransaction();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void ManualPayrollDayStatus(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -4603,12 +4677,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string empMaster = clsWebLib.RetValidLen(manualempidfromscreens).ToString();
                 string empList = manualempidfromscreens;
 
-
                 #region Manual Day Status Nullifying Localized Values              
                 ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
                 #endregion
                 
                 SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
+
+                #region Manual Day Status Nullifying Localized Values              
+                ManualOutRestored(PlantValue, empList); // Reprocessing OutTime of Employees
+                #endregion
+
+                SaveLog("Reprocessing OutTime Ran Successfully ...", PlantValue, false);
 
                 #region Manual In Status Logic
                 DataSet ManualInStatus;
