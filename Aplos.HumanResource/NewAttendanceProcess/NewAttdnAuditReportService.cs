@@ -9566,7 +9566,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 strSql += @"
                             ,AP.DayStatus
                             , AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
-                            ,AP.ProcessedOT OverStay
+                            ,AP.OverStay OverStay
                             ,OTF.TotalOTHr
 							,(isnull(AP.ProcessedOT,0) - isnull(OTF.TotalOTHr,0)) OTDifference
                         	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
