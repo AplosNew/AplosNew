@@ -170,13 +170,15 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 for (int k = 0; k < PlantList.Tables[0].Rows.Count; k++)
                 {
-                       
+                  
                     var PlantValue = PlantList.Tables[0].Rows[k][@"PlantValue"].ToString();
                     DataTable Table = MainTable.Select("PlantId = '"+PlantValue+"'").CopyToDataTable();
 
+                    SaveLog("OT Confirmation Process Start ....", PlantValue, false);
+
                     #region DataTable Traversing
-                       
-                        for (int i = 0; i < Table.Rows.Count; i++)
+
+                    for (int i = 0; i < Table.Rows.Count; i++)
                         {
 
                             #region Distinct Employees
