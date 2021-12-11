@@ -223,7 +223,6 @@ namespace Library.OrderManagement.Costing
                 #endregion
 
 
-
                 int endCol = colWCTargetDay + 2;
 
                 sheet.Range[6, 1, 6, endCol].Merge();
@@ -418,6 +417,11 @@ namespace Library.OrderManagement.Costing
                 int colProcCosting = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "C-D";
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDifferencePreProCosting = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Total Buyer Costing(A)";
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -437,6 +441,12 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalProcCosting = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "C-D";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDifferenceTotalPrePro = COL;
 
                 int CostingDetailEndCol = COL;
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Bold = true;
@@ -448,6 +458,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
                 ROW++;
 
+             
                 int CostingDetailStartRow = ROW; //row 20
                 for (int i = 0; i < dtCostingDetailInfo.Rows.Count; i++)
                 {
@@ -459,10 +470,15 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString());
                     sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
 
+                    sheet[ROW, colDifferencePreProCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["DifferencePreProCosting"].ToString());
+
+
                     sheet[ROW, colTotalBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colTotalQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colTotalPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colTotalProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    sheet[ROW, colDifferenceTotalPrePro].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY) -
+                                                            clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
 
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
@@ -470,6 +486,7 @@ namespace Library.OrderManagement.Costing
 
                     ROW++;
 
+                    
                 }
                 sheet[ROW, 1].Text = "Total:";
                 sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
@@ -501,7 +518,7 @@ namespace Library.OrderManagement.Costing
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[CostingDetailStartRow, 1, ROW, CostingDetailEndCol].CellStyle.Font.Size = 8f;
                 sheet.Range[CostingDetailStartRow, colCostingComponent, ROW, CostingDetailEndCol].NumberFormat = clsStaticInfo.NumberFormat(2);
-
+               
                 #endregion
 
                 ROW++;
@@ -616,7 +633,7 @@ namespace Library.OrderManagement.Costing
                 int colConsumption = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Value Loss";
+                sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValueLoss = COL;
@@ -717,7 +734,6 @@ namespace Library.OrderManagement.Costing
 
                 sheet.Range[CostingComponentStartRow, colConsumption, ROW, colConsumption].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colValueLoss, ROW, colValueLoss].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.Range[CostingComponentStartRow, colGrossConsumption, ROW, colGrossConsumption].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colGrossAmount, ROW, colGrossAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
             }
@@ -769,7 +785,7 @@ namespace Library.OrderManagement.Costing
                 int colType = COL;
                 COL += 2;
 
-                sheet[ROW, COL].Text = "Value";
+                sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
@@ -901,7 +917,7 @@ namespace Library.OrderManagement.Costing
                 int colCostingItem = COL;
                 COL += 3;
 
-                sheet[ROW, COL].Text = "Value";
+                sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
@@ -1018,7 +1034,7 @@ namespace Library.OrderManagement.Costing
                 int colType = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Value";
+                sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
@@ -1150,7 +1166,7 @@ namespace Library.OrderManagement.Costing
                 int colType = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Value";
+                sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
@@ -1281,7 +1297,7 @@ namespace Library.OrderManagement.Costing
                 int colType = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Value";
+                sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
@@ -1411,6 +1427,7 @@ namespace Library.OrderManagement.Costing
                         ,cc.CostingSegment
                         ,isnull(itemval.TotalGrossAmount,0) AS TotalGrossAmount 
                         ,isnull(itemvalp.TotalGrossAmount,0) AS TotalProcurementGrossAmount 
+                        ,isnull(itemval.TotalGrossAmount - itemvalp.TotalGrossAmount,0) AS DifferencePreProCosting
                         ,CC.ProcurementCostingSavingsPercentage, CC.PreCostingSavingsPercentage
 						 from hkp.CostingComponent CC
                         left outer join [dbo].[CostingTypeComponent] AS ctc  ON cc.Id = ctc.CostingComponentId and ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = (select ProductMasterId from OrderCostingMasterTemplate  where id='" + OrderCostingId + @"'))
