@@ -12,6 +12,7 @@ namespace Library.Model.IE
         public decimal RequiredStdTarget { get; set; }
         public decimal MaxNoOfWS { get; set; }
         public decimal PlannedHoursPerDay { get; set; }
+        public decimal BottleNeckPercentage { get; set; }
 
         #endregion Scalar Properties
 
