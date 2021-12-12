@@ -3737,7 +3737,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			}
 		}
 		if (aa === 0) {
-			ShowResult('Please select atleast one material', 'failure', 'ListOfPOMaterial');
+			ShowResult('Your selected Material is not Approved.Please see Approved Coulmn!', 'failure', 'ListOfPOMaterial');
 			return false;
 		}
 
