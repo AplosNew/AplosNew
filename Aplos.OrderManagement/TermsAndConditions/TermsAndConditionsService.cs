@@ -217,6 +217,30 @@ namespace Library.OrderManagement.TermsAndConditions
             }
         }
 
+        public string DeletePOTitle(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TermsAndConditionsPODetails where TermsAndConditionsPOChildid='" + id + "'");
+                con.executeQuery("delete from TermsAndConditionsPOChild where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
