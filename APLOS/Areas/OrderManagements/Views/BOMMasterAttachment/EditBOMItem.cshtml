@@ -36,7 +36,7 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane" ng-class="{ 'in':AttachmentEditisSet(1), active: AttachmentEditisSet(1) }">
                 <div class="row">
-                    <div id="GridEditBOQItem" ng-init="chkinit()" ej-grid e-datasource="AttachmentBOMItemData" e-allowsorting="true"
+                    <div id="GridEditBOQItem" ng-init="chkinit()" ej-grid e-datasource="AttachmentBOMItemData" e-allowsorting="true" style="min-height:50px;"
                          e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowresizing="true"
                          e-allowscrolling="true" e-rowdatabound="rowDataBoundRequisition"
                          e-allowselection="true" e-filtersettings-filterType="excel">
@@ -196,10 +196,10 @@
     <div class="common-btn">
         <ul class="list-inline text-left small">
             <li>
-                <button ng-click="$parent.AttachmentApprovalRequiredQty(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                <button ng-click="$parent.AttachmentApprovalRequiredQty(data);" class="btn small" style="height: 30px; width: 30px; padding: 0px; margin: 0px; ">
                     <i class="glyphicon glyphicon-ok-circle" style="color:{{data.RequiredQtyApproved?'#00ff00':'#999999'}}"></i>
                 </button>
-                <button ng-show="data.isChild" ng-click="$parent.AttachmentopenPopup('dialogBOMItemEditChild');$parent.AttachmentLoadBomRequiredQtyChild(data.MasterOrderItemId,data.Id);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                <button ng-show="data.isChild" ng-click="$parent.AttachmentopenPopup('dialogBOMItemEditChild');$parent.AttachmentLoadBomRequiredQtyChild(data.MasterOrderItemId,data.Id);" class="btn small" style="height: 30px; width: 30px; padding: 0px; margin: 0px;">
                     <i class="glyphicon glyphicon-th-list"></i>
                 </button>
             </li>

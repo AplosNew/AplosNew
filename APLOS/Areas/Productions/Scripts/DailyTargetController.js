@@ -12,6 +12,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.WithEmployee = false;
+    $scope.WithMachine = false;
 
 
     $scope.DailyProductionTarget = {
@@ -275,6 +277,25 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         }
 
     };
+
+    $scope.PopupItem = function (data) {
+        $scope.SelectedLine = data;
+        $scope.ShowDiv = true;
+        var eDialog = $("#dialogLineDesignReport").data("ejDialog");
+        $("#dialogLineDesignReport").ejDialog({ actionButtons: ["close", "minimize", "maximize"] });
+        $("#dialogLineDesignReport").ejDialog("refresh");
+
+        eDialog.open();
+        //if (data.HasLayout == false) {
+        //    $scope.CopyTable(data);
+        //}
+        //else {
+        //    $scope.GetLineLayout(data);
+        //}
+
+    };
+
+
     $scope.CopyTable = function (data) {
         try {
             $scope.SelectedLineForPR = data;
@@ -693,7 +714,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     //if (_explicitSave)
-                        ShowResult(response.data.Message, 'success');
+                    ShowResult(response.data.Message, 'success');
 
                     $scope.SelectedLine.ManPowerWithMachine = response.data.Data[0].TotalMachine;
                     $scope.SelectedLine.ManPowerWithHand = response.data.Data[0].TotalHand;
@@ -903,7 +924,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         }
     };
     $scope.downloadgriddataUrl = 'GridReports/Download';
-    $scope.DownloadReport = function (data) {
+    $scope.DownloadReport = function () {
         try {
             var Entity = $("#ddlEntity option:selected").text();
             var Process = $("#ProcessId option:selected").text();
@@ -914,8 +935,8 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                     'EntityId': $scope.DailyProductionTargetNew.EntityId,
                     'ProcessId': $scope.DailyProductionTargetNew.ProcessId,
                     'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate,
-                    'WorkCenterMasterId': data.WorkCenterMasterId,
-                    'Data': data, 'EntityName': Entity, 'ProcessName': Process
+                    'WorkCenterMasterId': $scope.SelectedLine.WorkCenterMasterId,
+                    'Data': $scope.SelectedLine, 'EntityName': Entity, 'ProcessName': Process, 'WithEmp': $scope.WithEmployee, 'WithMachine': $scope.WithMachine
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -929,4 +950,70 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
             ShowResult(e, 'failure');
         }
     };
+
+
+    //chart
+    $scope.graphmaxheight = function (list, column) {
+        var _graphmaxheight = 10;
+        _graphmaxheight = 10;
+        for (var i = 0; i < list.length; i++) {
+            if (list[i][column] > _graphmaxheight)
+                _graphmaxheight = list[i][column];
+        }
+
+        return _graphmaxheight + (_graphmaxheight * .30);
+    }
+
+    $scope.graphmaxwidth = function (list, width) {
+        if (baseService.isUndefinedOrNull(width))
+            width = 100;
+
+        return ((list.length * width) + 100) + 'px';
+    }
+    $scope.StripLineSetting = [];
+    $scope.BottleneckData = [];
+    $scope.SaveProductionQuantity = function () {
+
+        $scope.StripLineSetting = [];
+        $scope.BottleneckData = [];
+        try {
+
+            $http({
+                method: "POST",
+                url: $scope.path + 'GetBottleneck',
+                data: {
+                    'ProcessId': '',
+                    'ProductionOrderId': $scope.SelectedLineForPR.PRNo,
+                    'TargetDate': $scope.DailyProductionTargetNew.ProductionDate,
+                    'WorkCenterMasterId': $scope.SelectedLineForPR.WorkCenterMasterId
+                },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                var eDialog = $("#dialogBottleneckGraph").data("ejDialog");
+                eDialog.open();
+
+                $scope.BottleneckData = response.data.GraphData;
+                //LowerBoundValue	LowerBoundText	UpperBoundValue	UpperBoundText
+
+                var LowerBoundValue = response.data.StripLine[0].LowerBoundValue;
+                var LowerBoundText = response.data.StripLine[0].LowerBoundText;
+                var UpperBoundValue = response.data.StripLine[0].UpperBoundValue;
+                var UpperBoundText = response.data.StripLine[0].UpperBoundText;
+
+                if (LowerBoundValue > 0) {
+                    $scope.StripLineSetting.push({ start: 0, end: LowerBoundValue, text: LowerBoundText, textAlignment: 'middlecenter', color: '#0D97D4', font: { size: '18px', color: 'white' }, zIndex: 'behind', borderWidth: 0, visible: true });
+                    if (LowerBoundValue < 100)
+                        $scope.StripLineSetting.push({ start: LowerBoundValue, end: UpperBoundValue, text: UpperBoundText, textAlignment: 'middlecenter', color: '#FFFF00', font: { size: '18px', color: 'white' }, zIndex: 'behind', borderWidth: 0, visible: true });
+
+                }
+                if (UpperBoundValue < 100)
+                    $scope.StripLineSetting.push({ start: UpperBoundValue, end: 100, text: 'Above ' + UpperBoundText, textAlignment: 'middlecenter', color: '#0000FF', font: { size: '18px', color: 'white' }, zIndex: 'behind', borderWidth: 0, visible: true });
+
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+   // $scope.SaveProductionQuantity();
 }
