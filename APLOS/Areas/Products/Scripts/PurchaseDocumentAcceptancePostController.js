@@ -331,7 +331,6 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         }).then(function successCallback(response) {
             $scope.GridAcceptanceList = response.data;
         });
-
     };
     $scope.gridAcceptanceList();
 
