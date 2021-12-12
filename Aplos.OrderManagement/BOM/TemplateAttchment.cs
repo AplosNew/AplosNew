@@ -367,7 +367,23 @@ namespace Library.OrderManagement.BOM
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
+        public List<Dictionary<string, object>> GetBOMItemListForReportByMasterOrderId(string MasterOrderId)
+        {
 
+            string sql = @"SELECT DISTINCT * FROM (SELECT DENSE_RANK() OVER (PARTITION BY b.MaterialMasterId,b.ArticleId ORDER BY b.Sequence) Sequence, convert(bit,0) AS Checked, b.MaterialMasterId,b.ArticleId, b.MasterOrderItemId,
+                          concat(b.MaterialMasterId,b.ArticleId, b.VendorId) AS Id, b.VendorId,p.UserName AS Vendor,mgm.UserName AS MaterialGroup,
+                                mm.UserName AS Material,mma.StandardName AS Article,b.Rate,b.CurrencyId,c.Code AS Currency
+
+                                FROM BOQ AS b
+                            LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                            LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+                            LEFT OUTER JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=mm.MaterialGroupMasterId
+                            LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+                            LEFT JOIN scs.Currency AS c ON c.Id=b.CurrencyId
+                            WHERE b.MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where MasterOrderId='"+MasterOrderId+@"') and isnull(B.isParent,0)=0
+                             ) AS K WHERE K.Sequence=1";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
 
         public List<Dictionary<string, object>> GetBOMList(string column, string value, string ArticleId, bool loadAll)
         {
