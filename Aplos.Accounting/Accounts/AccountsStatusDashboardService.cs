@@ -18158,7 +18158,7 @@ union ALL
         {
             var sql = @"select x.* from (
 
-                         SELECT   IV.SourceType,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                         SELECT   IV.SourceType,IVD.InvoiceId,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,isnull( V.VoucherNo,'')VoucherNo,VD.VoucherId,IV.InventoryReceiveId GRNNo
                                         , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
@@ -18247,7 +18247,7 @@ union ALL
 										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
 
 								   UNION ALL
-                                    SELECT   IV.SourceType,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                                    SELECT   IV.SourceType,IVD.InvoiceId,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,isnull( V.VoucherNo,'')VoucherNo,VD.VoucherId,IV.InventoryReceiveId GRNNo
                                         , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
@@ -21099,7 +21099,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 var sql = @"select x.* from (
 
                         SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
-										,isnull( V.VoucherNo,'')VoucherNo,VD.VoucherId,isnull( PDA.InvoiceNo,'')InvoiceNo
+										,isnull( V.VoucherNo,'')VoucherNo,IVD.InvoiceId,VD.VoucherId,isnull( PDA.InvoiceNo,'')InvoiceNo
 										 ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -21154,7 +21154,8 @@ group by Id) O60 ON O60.Id=IV.Id
 										,isnull(IWD.TaxAmount* CC.CompanyCurrencyRate,0) BooksTaxAmount
 										,ISNULL (ISNULL(IRD.TotalMaterialTranAmount, 0)*CC.CompanyCurrencyRate,0)   AS BooksSetOff
 										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(ISNULL(IRD.TotalMaterialTranAmount, 0)*CC.CompanyCurrencyRate),0) AS BooksBalance
-										
+										,ISNULL (ISNULL(IDND.WriteOffAmount, 0)*CC.CompanyCurrencyRate,0)   AS BooksWriteOffAmount
+										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(ISNULL(IDND.WriteOffAmount, 0)*CC.CompanyCurrencyRate),0) AS BooksInvoiceBalance
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 										LEFT JOIN TRN.PurchasedocAcceptance AS PDA ON IV.PurchaseDocAcceptanceId=PDA.Id
@@ -21174,9 +21175,9 @@ group by Id) O60 ON O60.Id=IV.Id
 								            group by wd.InvoiceDetailId
 								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
 
-                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+                                         LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) WriteOffAmount  FROM TRN.InvoiceWriteOffDetail WD 
 								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
-								                where WD.InvoiceDetailId<>''
+								                where WD.InvoiceDetailId<>'' and DNW.PaymentSource<>'Tax'
 								                group by wd.InvoiceDetailId
 								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
 										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
