@@ -25,6 +25,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
     $scope.partyType = 'Vendor';
     $scope.isAdvance = false;
     $scope.currentDate = new Date(Date.now());
+
     $scope.grossTotal = 0;
     $scope.chargesList = [];
     $scope.chargesListPO = [];
