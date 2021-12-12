@@ -470,6 +470,17 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
 
         }
     }
+
+    $scope.BOMReportItemandSalesOrder = function (args) {
+
+        try {
+            var file_src = $scope.Attachmentpath + 'BOMReportItemandSalesOrder?MasterOrderId=' + args.MasterOrderId
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
     $scope.OrderLevelBOMReport = function (args) {
 
         try {
@@ -502,6 +513,20 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
             $scope.ItemList = response.data;
         });
     }
+
+    $scope.MasterOrderItemDataList = [];
+    $scope.GetMasterOrderBOMReportByMaterial = function (data) {
+        $scope.AttachmentSelectedBOMRow = data;
+        $rootScope.openPopup('dialogBOMMasterOrderItemSelectionForReport');
+        $http({
+            method: 'POST',
+            data: { 'MasterOrderId': data.MasterOrderId },
+            url: $scope.Attachmentpath + "GetBOMMasterOrderListForReport"
+        }).then(function successCallback(response) {
+            $scope.MasterOrderItemDataList = response.data;
+        });
+    }
+
     $scope.refreshTemplateItem = function (args) {
         if (args.rowIndex == 0) {
             $("#headchkItem").ejCheckBox({ "change": CheckAllItem });
@@ -523,6 +548,30 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
         }
 
     }
+
+    $scope.refreshTemplateMasterOrderItem = function (args) {
+        if (args.rowIndex == 0) {
+            $("#headchkItems").ejCheckBox({ "change": CheckAllItem });
+        }
+    }
+
+    $scope.getBOMMasterOrderReport = function () {
+
+        var MasterOrderId = $scope.AttachmentSelectedBOMRow.MasterOrderId;
+        var _itemIds = ej.DataManager($scope.MasterOrderItemDataList).executeLocal(ej.Query().where("Checked", "equal", true));
+        var itemids = getString(_itemIds, "ArticleId");
+
+
+        try {
+            var file_src = $scope.Attachmentpath + 'GetBOMReport?ItemIds=' + itemids + '&MasterOrderId=' + MasterOrderId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+
+    }
+
     var getString = function (data, column) {
         var string = "''";
         var collection = [];

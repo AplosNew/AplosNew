@@ -1069,6 +1069,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
                         dr["RequiredStdTarget"] = data.RequiredStdTarget;
                         dr["PlannedHoursPerDay"] = data.PlannedHoursPerDay;
                         dr["MaxNoOfWS"] = data.MaxNoOfWS;
+                        dr["BottleNeckPercentage"] = data.BottleNeckPercentage;
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
@@ -1086,7 +1087,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
                         dr["RequiredStdTarget"] = data.RequiredStdTarget;
                         dr["PlannedHoursPerDay"] = data.PlannedHoursPerDay;
                         dr["MaxNoOfWS"] = data.MaxNoOfWS;
-
+                        dr["BottleNeckPercentage"] = data.BottleNeckPercentage;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now;
                         dr["UpdatedFromIP"] = identity.IPAddress;
