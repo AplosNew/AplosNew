@@ -107,7 +107,8 @@
                 </div>
             </div>
         </div>
-        <div class="table-responsive modal-table" ng-show="FGCharacteristicsValueList.length>0">
+        <div class="table-responsive modal-table" ng-show="FGCharacteristicsValueList.length>0 ">
+            @*&& Iteration ==1*@
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -146,7 +147,8 @@
             </div>
             <br />
         </div>
-        <div class="table-responsive modal-table" ng-show="Clicked">
+        <div class="table-responsive modal-table" ng-show="Clicked ">
+            @*&& Iteration == 1*@
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -177,7 +179,37 @@
                 </ul>
             </div>
         </div>
-
+        <div class="table-responsive modal-table" ng-show="Iteration == 2">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{CharacteristicsName}}</th>
+                        <th></th>
+                        <th></th>
+                        <th ng-repeat="x in SecenodIterationHeader">{{x.UserName}}</th>
+                    </tr>
+                    <tr>
+                        <th>Ratio</th>
+                        <th>Min. Ply Value</th>
+                        <th>{{CalculateOn}} Ply Value</th>
+                        <th ng-repeat="x in SecenodIterationHeader">{{x.MarkerRatio}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in SecenodIteration">
+                        <td>{{x.QtyForCalculation}}</td>
+                        <td>{{x.CalculatedQty}}</td>
+                        <td>{{x.CurrentQty}}</td>
+                        @*<td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" value="{{x.MinimumPlyOptionValue * y.Ratio}}" class="form-control"></td>*@
+                    </tr>
+                </tbody>
+            </table>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                </ul>
+            </div>
+        </div>
         @*<div class="table-responsive modal-table" ng-show="Clicked">
             <table class="table table-striped">
                 <thead>

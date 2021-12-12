@@ -6904,8 +6904,8 @@ namespace Library.Service.Invoices
                             ParallelCurrencyId = companyCurrencyId,
                             FromCurrencyId = voucherDetailCr.CurrencyId,
                             ToCurrencyId = companyCurrencyId,
-                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            ToCurrencyRate = item.Rate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, item.Rate),
                             CrAmount = voucherDetailCurrencyCr + totalTaxAmount
                         });
 

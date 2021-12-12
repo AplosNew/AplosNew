@@ -168,12 +168,25 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
                 });
     };
     $scope.getSavedData();
-
+    $scope.validation = function () {
+        for (var j = 0; j < $scope.chargesVoucherRow.length; j++) {
+            if (baseService.isUndefinedOrNull($scope.chargesVoucherRow[j].Rate)) {
+                ShowResult("Rate Can not 0!", "failure");
+                return true;
+            }
+        }
+        
+        for (var i = 0; i < $scope.ChargesList.length; i++) {
+            if (baseService.isUndefinedOrNull($scope.ChargesList[i].Rate)) {
+                ShowResult("Please Input Rate!", "failure");
+                return true;
+            }
+        }
+        return false;
+    };
     $scope.ChargesList = [];
     $scope.Save = function () {
         try {
-
-
             $scope.ChargesList = [];
             for (var i = 0; i < $scope.purchaseLCList.length; i++) {
                 if ($scope.purchaseLCList[i].Active) {
@@ -185,10 +198,6 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
                         }
                     }
                 }
-                
-                //else {
-                //    throw "Select Charges.";
-                //}
             }
             if ($scope.ChargesList.length == 0)
                 throw "Select Charges.";
@@ -199,32 +208,35 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
                 }
 
             }
-            if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveChargesUrl,
-                    data: {
-                        'voucherTypeId': $scope.VoucherTypeId,
-                        'voucherRows': $scope.chargesVoucherRow,
-                        'purchaseLCChargesList': $scope.ChargesList,
-                        'taxDetailVMList': $scope.receiveTaxList,
-                    },
-                    dataType: 'JSON'
-                    , contentType: "application/json charset=utf-8"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
+            if (!$scope.validation()) {
+                if ($scope.Action === 'Save' || $scope.Action === 'Update') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveChargesUrl,
+                        data: {
+                            'voucherTypeId': $scope.VoucherTypeId,
+                            'voucherRows': $scope.chargesVoucherRow,
+                            'purchaseLCChargesList': $scope.ChargesList,
+                            'taxDetailVMList': $scope.receiveTaxList,
+                        },
+                        dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.purchaseLCNew.Id = response.data.Id;
+                            $scope.getSavedData();
+                            $scope.getPurchaseLCChargesData();
+                        }
+                    }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.purchaseLCNew.Id = response.data.Id;
-                        $scope.getSavedData();
-                        $scope.getPurchaseLCChargesData();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
+                    };
+                }
             }
+            
         } catch (e) {
             ShowResult(e, "failure");
         }
