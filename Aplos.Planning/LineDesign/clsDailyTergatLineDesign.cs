@@ -172,7 +172,72 @@ namespace Library.Planning.LineDesign
             }
         }
 
+        public void GetBottleneck(string WorkCenterMasterId, string ProductionOrderId, string TargetDate, string ProcessId, out List<Dictionary<string, object>> StripLine, out List<Dictionary<string, object>> Data)
+        {
 
+            try
+            {
+                string sql = @"SELECT BT.ProductionOrderId--,TG1.HourlyTargetAtHundredPercent,TGD.HourlyTarget
+                                ,100.00 AS hundredPercent
+                                ,CONVERT(DECIMAL(18,2),TGD.HourlyTarget/TG1.HourlyTargetAtHundredPercent*100) AS HourlyTargetPercent
+                                ,tm.BottleNeckPercentage
+                                ,LowerBoundValue=CASE WHEN ISNULL(CONVERT(DECIMAL(18,2),TGD.HourlyTarget/TG1.HourlyTargetAtHundredPercent*100),0)<tm.BottleNeckPercentage THEN
+                                ISNULL(CONVERT(DECIMAL(18,2),TGD.HourlyTarget/TG1.HourlyTargetAtHundredPercent*100),0) ELSE ISNULL(tm.BottleNeckPercentage,0) END
+                                ,LowerBoundText=CASE WHEN ISNULL(CONVERT(DECIMAL(18,2),TGD.HourlyTarget/TG1.HourlyTargetAtHundredPercent*100),0)<tm.BottleNeckPercentage THEN
+                                'Hourly Target' ELSE 'Bottleneck' END
+
+                                ,UpperBoundValue=CASE WHEN ISNULL(CONVERT(DECIMAL(18,2),TGD.HourlyTarget/TG1.HourlyTargetAtHundredPercent*100),0)>tm.BottleNeckPercentage THEN
+                                ISNULL(CONVERT(DECIMAL(18,2),TGD.HourlyTarget/TG1.HourlyTargetAtHundredPercent*100),0) ELSE ISNULL(tm.BottleNeckPercentage,0) END
+                                ,UpperBoundText=CASE WHEN ISNULL(CONVERT(DECIMAL(18,2),TGD.HourlyTarget/TG1.HourlyTargetAtHundredPercent*100),0)>tm.BottleNeckPercentage THEN
+                                'Hourly Target' ELSE 'Bottleneck' END
+
+                                FROM
+
+                            trn.ProductionBulletinTemplateMaster AS TM 
+                            JOIN trn.ProductionBulletinTemplate BT ON bt.Id=tm.ProductionBulletinTemplateId
+
+                            LEFT JOIN (SELECT BTD.ProductionBulletinTemplateMasterId,CONVERT(INT, 60/SUM(BTD.TotalSPT)*SUM(AllotedManpower)) AS HourlyTargetAtHundredPercent 
+                            FROM TRN.ProductionBulletinTemplateDetail BTD
+                            GROUP BY BTD.ProductionBulletinTemplateMasterId) AS TG1 ON  tg1.ProductionBulletinTemplateMasterId=TM.Id
+
+                            LEFT JOIN (SELECT dpt.ProductionOrderId,dpt.QuantityPerHour AS HourlyTarget FROM trn.DailyProductionTarget AS dpt 
+                                       WHERE dpt.ProductionOrderId='" + ProductionOrderId + @"' AND dpt.WorkCenterMasterID='" + WorkCenterMasterId + @"' AND dpt.TargetDate='" + TargetDate + @"'
+                                        )
+                            AS TGD ON tgd.ProductionOrderId=bt.ProductionOrderId
+                            WHERE BT.ProductionOrderId='" + ProductionOrderId + @"' AND tm.ProcessId='" + ProcessId + @"'  ";
+
+                StripLine = _sqlRepository.GetDataCollection(sql);
+
+
+                sql = @"SELECT TG.*,ISNULL(CONVERT(DECIMAL(18,2),(prd.ProductionQuantity/p.Sequence)/tg1.HourlyTargetAtHundredPercent*100),0) AS AverageProduction,p.Sequence
+                              FROM (SELECT DISTINCT  ov.Id,ov.shortName AS Operationvariation,isnull(OV.Color,'#2E86C1') AS Color
+                              FROM LineLayoutDailyTarget AS T
+                            LEFT JOIN LineLayoutDailyTargetData AS D ON d.LineLayoutDailyTargetId=t.Id
+                            LEFT JOIN mst.OperationVariation AS ov ON ov.Id=d.OperationVariationId
+
+                            WHERE t.ProductionOrderId='" + ProductionOrderId + @"' AND t.WorkCenterMasterID='" + WorkCenterMasterId + @"' AND t.TargetDate='" + TargetDate + @"'
+                            ) AS TG
+                            LEFT JOIN 
+
+                            (SELECT t.OperationVariationId,SUM(t.Quantity) AS ProductionQuantity FROM trn.DailyProduction AS T
+                            WHERE t.ProductionOrderId='" + ProductionOrderId + @"' AND t.WorkCenterMasterID='" + WorkCenterMasterId + @"' AND t.ProductionDate='" + TargetDate + @"'
+                            GROUP BY t.OperationVariationId
+                            ) AS PRD ON prd.OperationVariationId=tg.Id
+                            LEFT JOIN hkp.ProductionBookingPeriod AS P ON p.Id=(SELECT TOP 1 Id FROM hkp.ProductionBookingPeriod AS X WHERE CONVERT(DATE,CONCAT(FORMAT(GETDATE(),'dd-MMM-yyyy'),' ', FORMAT(X.EndTime,'hh:mm:ss tt')))<=GETDATE() ORDER BY X.EndTime DESC)
+                            LEFT JOIN (SELECT CONVERT(INT, 60/SUM(BTD.TotalSPT)*SUM(AllotedManpower)) AS HourlyTargetAtHundredPercent 
+                            FROM TRN.ProductionBulletinTemplateDetail BTD
+                            JOIN trn.ProductionBulletinTemplateMaster AS TM ON btd.ProductionBulletinTemplateMasterId=tm.Id
+                            JOIN trn.ProductionBulletinTemplate BT ON bt.Id=tm.ProductionBulletinTemplateId
+                                       WHERE bt.ProductionOrderId='" + ProductionOrderId + @"' AND TM.ProcessId='" + ProcessId + @"' ) AS TG1 ON  1=1";
+
+
+                Data = _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void SaveData(List<Html> Nodes, string Design, string WorkCenterMasterId, string ProductionOrderId, string TargetDate, out DataSet dsData)
         {
             bplib.clsGenID objGenID = null;
@@ -229,7 +294,7 @@ namespace Library.Planning.LineDesign
 
                     dsVaidationChild.Tables[0].DefaultView.RowFilter = "FixedAssetRegisterId='" + HtmlsInfo[j].FixedAssetRegisterId + "'";
                     if (dsVaidationChild.Tables[0].DefaultView.Count > 0)
-                        throw new Exception("Machine has already tagged with other work center for the day [" + dsVaidationChild.Tables[0].DefaultView[0]["FixedAssetRegisterId"].ToString() +"]");
+                        throw new Exception("Machine has already tagged with other work center for the day [" + dsVaidationChild.Tables[0].DefaultView[0]["FixedAssetRegisterId"].ToString() + "]");
 
                     var xy = HtmlsInfo.Where(H => H.FixedAssetRegisterId == HtmlsInfo[j].FixedAssetRegisterId).ToList();
                     if (xy.Count > 1)
@@ -238,7 +303,7 @@ namespace Library.Planning.LineDesign
                     }
                 }
             }
-            
+
 
             DataSet dsMaster, dsChild;
             con = new ConnectionManager.DAL.ConManager("1");
@@ -263,7 +328,7 @@ namespace Library.Planning.LineDesign
             while (dsChild.Tables[0].DefaultView.Count > 0)
                 dsChild.Tables[0].DefaultView[0].Delete();
 
-            
+
 
             string ChildPK = "";
             for (int i = 0; i < HtmlsInfo.Count; i++)

@@ -10,6 +10,7 @@ namespace Library.Model.Configurations.IE
         {
             // Primary Key
             HasKey(t => t.Id);
+            Property(t => t.BottleNeckPercentage).HasPrecision(18, 4);
             // Table & Column Configuration
             ToTable(nameof(ProductionBulletinTemplateMaster), DbSchema.Transaction);
             Ignore(r => r.ModelState);

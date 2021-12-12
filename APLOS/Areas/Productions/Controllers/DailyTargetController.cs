@@ -375,7 +375,7 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName,pbt.Id Pr
                                         WHERE x.ProductionOrderId = po.id                                
                                             AND x.ProcessId = '" + ProcessId + @"'                                
                                             AND x.WorkCenterMasterId = dpt.WorkCenterMasterID                                
-                                            AND x.TargetDate < '"+ ProductionDate + @"'                             
+                                            AND x.TargetDate < '" + ProductionDate + @"'                             
                                         ORDER BY x.TargetDate DESC
                                 		)
                                 	AND LLP.WorkCenterMasterId = dpt.WorkCenterMasterID
@@ -575,6 +575,13 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName,pbt.Id Pr
         {
             return Json(DT.GetDesign(WorkCenterMasterId, ProductionOrderId, TargetDate), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost, Authorize]
+        public JsonResult GetBottleneck(string WorkCenterMasterId, string ProductionOrderId, string TargetDate, string ProcessId)
+        {
+            DT.GetBottleneck(WorkCenterMasterId, ProductionOrderId, TargetDate, ProcessId, out List<Dictionary<string, object>> StripLine, out List<Dictionary<string, object>> Data);
+            return Json(new { StripLine = StripLine, GraphData = Data }, JsonRequestBehavior.AllowGet);
+        }
         [HttpPost, Authorize]
         public JsonResult SaveProductionData(List<Dictionary<string, object>> ProductionData, string WorkCenterMasterId, string ProductionOrderId, string TargetDate)
         {
@@ -603,7 +610,7 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName,pbt.Id Pr
             {
                 return Json(new { Error = true, Message = ex.Message });
             }
-            
+
 
             //return Json(new { data=dsData ,Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }

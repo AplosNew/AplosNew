@@ -17,6 +17,7 @@ namespace Library.OrderManagement.BOM
 
     public class BOMGeneration
     {
+        //this piece of shit has been coded by 
         //tarek talukder
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
@@ -719,8 +720,8 @@ PARENT.IsDestinationSpecific,PARENT.IsPOSpecific, PARENT.SalesOrderSpecificMater
                 //create a dictionary for both data source and db to optimize the search
                 Dictionary<string, DataRow> dicSourceBOQ = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dtSourceBOQ.Rows.Count; i++)
-                    if(dicSourceBOQ.ContainsKey(BOMComparingString(dtSourceBOQ.Rows[i]))==false)
-                    dicSourceBOQ.Add(BOMComparingString(dtSourceBOQ.Rows[i]), dtSourceBOQ.Rows[i]);
+                    if (dicSourceBOQ.ContainsKey(BOMComparingString(dtSourceBOQ.Rows[i])) == false)
+                        dicSourceBOQ.Add(BOMComparingString(dtSourceBOQ.Rows[i]), dtSourceBOQ.Rows[i]);
 
 
                 Dictionary<string, DataRow> dicBOQ = new Dictionary<string, DataRow>();
@@ -731,7 +732,7 @@ PARENT.IsDestinationSpecific,PARENT.IsPOSpecific, PARENT.SalesOrderSpecificMater
 
                 Dictionary<string, DataRow> dicBOQDetail = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsBOQDetail.Tables[0].Rows.Count; i++)
-                    if (dicBOQDetail.ContainsKey(BOMComparingString(dsBOQDetail.Tables[0].Rows[i])) == false)
+                    if (dicBOQDetail.ContainsKey(BOMComparingString(dsBOQDetail.Tables[0].Rows[i], true)) == false)
                         dicBOQDetail.Add(BOMComparingString(dsBOQDetail.Tables[0].Rows[i], true), dsBOQDetail.Tables[0].Rows[i]);
 
                 //later, we will add the PO related to this BOM whether to delete or not
@@ -750,11 +751,6 @@ PARENT.IsDestinationSpecific,PARENT.IsPOSpecific, PARENT.SalesOrderSpecificMater
                         Key = BOMComparingString(dsBOQ.Tables[0].Rows[i]);
                         if (dicSourceBOQ.ContainsKey(Key) == false)
                         {
-
-
-                            //if (bplib.clsWebLib.GetBoolData(dsBOQ.Tables[0].Rows[i]["isParent"].ToString()) == true)
-                            //    continue;
-
 
                             if (BOMReferenceData.Contains(dsBOQ.Tables[0].Rows[i]["Id"].ToString()))
                             {
@@ -839,10 +835,7 @@ PARENT.IsDestinationSpecific,PARENT.IsPOSpecific, PARENT.SalesOrderSpecificMater
                     }
                 }
 
-                //for (int i = 0; i < dsBOQ.Tables[0].Rows.Count; i++)
-                //    dsBOQ.Tables[0].Rows[i]["ParentKey"] = "";
-
-                //implement code for child data deletion if parent is already deleted
+            
 
                 #endregion first delete all unnecessary bom items from DB
                 Dictionary<string, string> dicKeyWisePK = new Dictionary<string, string>();
@@ -983,7 +976,7 @@ PARENT.IsDestinationSpecific,PARENT.IsPOSpecific, PARENT.SalesOrderSpecificMater
 
                             if (dicBOQDetail.ContainsKey(keytemp) == false)
                                 dicBOQDetail.Add(keytemp, dr);
-                           
+
                             if (dicKeyWisePK.ContainsKey(keytemp) == false)
                                 dicKeyWisePK.Add(keytemp, dr["Id"].ToString());
                         }
@@ -1027,27 +1020,7 @@ PARENT.IsDestinationSpecific,PARENT.IsPOSpecific, PARENT.SalesOrderSpecificMater
 
                 }
 
-                //for (int i = 0; i < dtDetailBOQ.Rows.Count; i++)
-                //{
-                //    if (bplib.clsWebLib.GetBoolData(dtDetailBOQ.Rows[i]["isChild"].ToString()) == false)
-                //        continue;
-
-
-                //    Key = dtDetailBOQ.Rows[i]["ParentKey"].ToString();
-
-                //    if (dicBOQ.ContainsKey(Key) == true)
-                //    {
-                //        DataRow dr = dicBOQ[Key];
-
-                //        dsBOQ.Tables[0].DefaultView.RowFilter = "ParentKey='" + Key + "'";
-                //        for (int k = 0; k < dsBOQ.Tables[0].DefaultView.Count; k++)
-                //        {
-                //            dsBOQ.Tables[0].DefaultView[k]["ParentId"] = dr["Id"];
-                //        }
-
-                //    }
-                //}
-
+           
 
                 #endregion BOQDetail
 
