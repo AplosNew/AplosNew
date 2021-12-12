@@ -1064,7 +1064,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //due work
     $scope.printPaymentDetailPopUpVoucherReport = function (obj) {
         var data = obj.data;
-        
         if (data.SourceType == 'VendorAdvance')
             var file_src = 'Accounts/Advance/ReportVendorAdvance?reportFormat=' + 'Excel' + '&voucherId=' + data.VoucherId;
         if (data.SourceType == 'VendorPayment')
@@ -4569,9 +4568,24 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         if (data.SourceType == "InventoryPayable") {
             $window.open('Accounts/InventoryPayable/PabyableJournal?' + '&reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNNo + '&employeeId=' + null + '&isReversCharge=' + false + '&isFoc=' + false);
         }
+        if (data.SourceType == "VendorPayment") {
+            $window.open('Accounts/invoice/VendorInvoicePaymentReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+        }
         
     };
 
+    $scope.invoiceSetOffDetailList = [];
+    $scope.getInvoiceSetOffDetailByInvoice = function (Data) {
+        $scope.invoiceSetOffDetailList = [];
+        $http({
+            method: "get",
+            url: "accounts/invoice/GetInvoiceSetOffDetailByInvoiceId?invoiceId=" + Data.InvoiceId
+        }).then(function successCallback(response) {
+            $scope.invoiceSetOffDetailList = response.data;
+            $rootScope.openPopupAngular('invoicSetOffByInvoiceOtherLiabilityPopUp');
+        });
+    };
+   
 
     $scope.issueQtyList = [];
     $scope.onIssueQtyPopUp = function (Data) {
@@ -4656,27 +4670,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //**********************#endregion Asset WIP Status **************************
 
     $scope.InvoiceWithOutGRNList = [];
-    //$scope.GetNonRegisterAssetData = function () {
-    //    try {
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.path + "GetInvoiceWithOutGRNDataList",
-    //            data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
-    //            dataType: 'JSON'
-
-    //        }).then(function successCallback(response) {
-    //            $scope.InvoiceWithOutGRNList = response.data.DATA;
-
-    //        }),
-    //            function errorCallBack(response) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //    }
-
-    //    catch (e) {
-
-    //    }
-    //}
+    
 
 
     $scope.NonRegisterAssetList = [];

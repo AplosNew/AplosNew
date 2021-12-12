@@ -189,7 +189,13 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsInvoiceService.GetInvoiceSetOffDetailByInvoice(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorPayment, invoiceId), JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize, HttpGet]
+        public JsonResult GetInvoiceSetOffDetailByInvoiceId(string invoiceId)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsInvoiceService.GetInvoiceSetOffDetailByInvoiceId(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, invoiceId), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpGet]
         public JsonResult GetFiscalInvoiceTotalAmountByParty(string partyId, DateTime postingDate)
         {
