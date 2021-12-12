@@ -245,9 +245,9 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
             if (getRowDr.length == 0 && $scope.acceptanceChargesCheckedList[i].OpeningBankMasterId != null) {
                 $scope.PurchaseDocAcceptanceList.push($scope.acceptanceChargesCheckedList[i]);
             }
-
         }
     }
+
     $scope.taxDetailVMList = [];
     $scope.Save1 = function () {
         $scope.PurchaseDocAcceptance.POId = $scope.POId;
@@ -331,7 +331,6 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         }).then(function successCallback(response) {
             $scope.GridAcceptanceList = response.data;
         });
-
     };
     $scope.gridAcceptanceList();
 
