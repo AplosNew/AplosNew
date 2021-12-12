@@ -1193,6 +1193,7 @@ namespace Library.Service.IEnumerable
                     dr["RequiredStdTarget"] = dataSet.Tables[0].Rows[i]["RequiredStdTarget"];
                     dr["MaxNoOfWS"] = dataSet.Tables[0].Rows[i]["MaxNoOfWS"];
                     dr["PlannedHoursPerDay"] = dataSet.Tables[0].Rows[i]["PlannedHoursPerDay"];
+                    dr["BottleNeckPercentage"] = dataSet.Tables[0].Rows[i]["BottleNeckPercentage"];
                     dr["AddedBy"] = dataSet.Tables[0].Rows[i]["AddedBy"];
                     dr["AddedDate"] = dataSet.Tables[0].Rows[i]["AddedDate"];
                     dr["AddedFromIP"] = dataSet.Tables[0].Rows[i]["AddedFromIP"];
