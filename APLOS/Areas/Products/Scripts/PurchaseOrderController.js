@@ -1130,6 +1130,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			, IsTaxApplicableChangeable: false
 			, PartyType: $scope.partyType
 			, PlantId: $window.plantId
+			,IsTradingPO:false
 		};
 
 		$scope.inventoryMaterialList = [];
