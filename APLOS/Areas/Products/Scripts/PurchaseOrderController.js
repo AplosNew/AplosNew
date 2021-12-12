@@ -3737,7 +3737,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			}
 		}
 		if (aa === 0) {
-			ShowResult('Please select atleast one material', 'failure', 'ListOfPOMaterial');
+			ShowResult('Your selected Material is not Approved.Please see Approved Coulmn!', 'failure', 'ListOfPOMaterial');
 			return false;
 		}
 
@@ -4402,6 +4402,33 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		$scope.GetRemarksByMaster($scope.TitleId);
 		angular.element(document.querySelector('#GridPopUp')).modal('show');
 	}
+	$scope.message_detailconfirmation = null;
+	$scope.removeBoMDetail = function (obj) {
+		$scope.TitleModel = obj.data;
+		if (!baseService.isUndefinedOrNull($scope.TitleModel.Id))
+			$scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.TitleModel.Title + ' ]';
+		angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+	}
+
+	$scope.DeleteBomDetail = function () {
+		$http({
+			method: 'POST',
+			url: 'Products/PurchaseOrder/DeleteTitle?id=' + $scope.TitleModel.Id
+		}).then(function successCallback(response) {
+			if (response.data.Error === true) {
+				ShowResult(response.data.Message, 'failure');
+			}
+			else {
+				ShowResult(response.data.Message, 'success');
+				$scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id);
+			}
+		}, function () {
+			ShowResult(commonMessage.NetworkError, 'failure');
+		}).finally(function () {
+		});
+
+	};
+
 	$scope.closeRemarksPopUp = function () {
 
 		angular.element(document.querySelector('#GridPopUp')).modal('hide');
@@ -4535,6 +4562,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}
 
 	};
+
+
 
 	$scope.summaryRows = [{
 		title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:N2}" }],
