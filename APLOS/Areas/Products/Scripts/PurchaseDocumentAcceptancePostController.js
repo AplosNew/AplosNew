@@ -247,6 +247,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
             }
         }
     }
+
     $scope.taxDetailVMList = [];
     $scope.Save1 = function () {
         $scope.PurchaseDocAcceptance.POId = $scope.POId;
