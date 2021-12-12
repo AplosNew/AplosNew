@@ -19,7 +19,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	$scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
 	$scope.saveTitleUrl = $scope.path + 'SaveTitle';
 	$scope.saveTermsDetail = $scope.path + 'SaveTermsDetail';
-	
 	$scope.PurchaseOrderFileLocation = virtualPath.PurchaseOrder;
 	$scope.partyType = 'Vendor';
 	$scope.isAdvance = false;
@@ -1030,7 +1029,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}
 	}
 
-
 	$scope.receiveTaxList = [];
 	//$scope.closeReceiveTaxPopUp = function () {
 
@@ -1130,6 +1128,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			, IsTaxApplicableChangeable: false
 			, PartyType: $scope.partyType
 			, PlantId: $window.plantId
+			,IsTradingPO:false
 		};
 
 		$scope.inventoryMaterialList = [];
