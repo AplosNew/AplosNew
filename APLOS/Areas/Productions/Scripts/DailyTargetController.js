@@ -282,16 +282,10 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.SelectedLine = data;
         $scope.ShowDiv = true;
         var eDialog = $("#dialogLineDesignReport").data("ejDialog");
-        $("#dialogLineDesignReport").ejDialog({ actionButtons: ["close", "minimize", "maximize"] });
         $("#dialogLineDesignReport").ejDialog("refresh");
 
         eDialog.open();
-        //if (data.HasLayout == false) {
-        //    $scope.CopyTable(data);
-        //}
-        //else {
-        //    $scope.GetLineLayout(data);
-        //}
+      
 
     };
 
@@ -972,48 +966,68 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.StripLineSetting = [];
     $scope.BottleneckData = [];
-    $scope.SaveProductionQuantity = function () {
-
+    $scope.BottleneckValue = 0;
+    $scope.GetBottleneck = function (data) {
+        $scope.SelectedLineForPR = data;
         $scope.StripLineSetting = [];
         $scope.BottleneckData = [];
         try {
-
+            var eDialog = $("#dialogBottleneckGraph").data("ejDialog");
+            eDialog.open();
             $http({
                 method: "POST",
                 url: $scope.path + 'GetBottleneck',
                 data: {
-                    'ProcessId': '',
+                    'ProcessId': $scope.DailyProductionTargetNew.ProcessId,
                     'ProductionOrderId': $scope.SelectedLineForPR.PRNo,
                     'TargetDate': $scope.DailyProductionTargetNew.ProductionDate,
                     'WorkCenterMasterId': $scope.SelectedLineForPR.WorkCenterMasterId
                 },
                 dataType: 'JSON',
             }).then(function successCallback(response) {
-                var eDialog = $("#dialogBottleneckGraph").data("ejDialog");
-                eDialog.open();
+
 
                 $scope.BottleneckData = response.data.GraphData;
-                //LowerBoundValue	LowerBoundText	UpperBoundValue	UpperBoundText
 
                 var LowerBoundValue = response.data.StripLine[0].LowerBoundValue;
                 var LowerBoundText = response.data.StripLine[0].LowerBoundText;
                 var UpperBoundValue = response.data.StripLine[0].UpperBoundValue;
                 var UpperBoundText = response.data.StripLine[0].UpperBoundText;
 
+                $scope.BottleneckValue = LowerBoundValue;
+
                 if (LowerBoundValue > 0) {
-                    $scope.StripLineSetting.push({ start: 0, end: LowerBoundValue, text: LowerBoundText, textAlignment: 'middlecenter', color: '#0D97D4', font: { size: '18px', color: 'white' }, zIndex: 'behind', borderWidth: 0, visible: true });
+                    $scope.StripLineSetting.push({ start: 0, end: LowerBoundValue, text: LowerBoundText, textAlignment: 'middlecenter',  color: '#F5B7B1', font: { size: '18px', color: 'blue' }, zIndex: 'behind', borderWidth: 0, visible: true });
                     if (LowerBoundValue < 100)
-                        $scope.StripLineSetting.push({ start: LowerBoundValue, end: UpperBoundValue, text: UpperBoundText, textAlignment: 'middlecenter', color: '#FFFF00', font: { size: '18px', color: 'white' }, zIndex: 'behind', borderWidth: 0, visible: true });
+                        $scope.StripLineSetting.push({ start: LowerBoundValue, end: UpperBoundValue, text: 'Up to ' + UpperBoundText, textAlignment: 'middlecenter', color: '#FCF3CF', font: { size: '18px', color: 'blue' }, zIndex: 'behind', borderWidth: 0, visible: true });
 
                 }
                 if (UpperBoundValue < 100)
-                    $scope.StripLineSetting.push({ start: UpperBoundValue, end: 100, text: 'Above ' + UpperBoundText, textAlignment: 'middlecenter', color: '#0000FF', font: { size: '18px', color: 'white' }, zIndex: 'behind', borderWidth: 0, visible: true });
+                    $scope.StripLineSetting.push({ start: UpperBoundValue, end: 100, text: 'Above ' + UpperBoundText, textAlignment: 'middlecenter', color: '#D5F5E3', font: { size: '18px', color: 'blue' }, zIndex: 'behind', borderWidth: 0, visible: true });
 
+
+
+                var chartObj = $("#ChartBottleneck").data("ejChart");
+                chartObj.redraw();
             });
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
+    $scope.chartBottleneckPreRender = function (args) {
 
-   // $scope.SaveProductionQuantity();
+        try {
+            var points = args.model.series[0].points;//WIP
+
+            for (var i = 0; i < points.length; i++) {
+                points[i].fill = args.model.series[0].dataSource[i].Color;
+                if (points[i].y < $scope.BottleneckValue)
+                    points[i].fill = "#ff0000";
+            }
+        } catch (e) {
+
+        }
+    }
+
+
 }
