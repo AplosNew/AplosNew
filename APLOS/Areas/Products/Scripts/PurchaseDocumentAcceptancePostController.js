@@ -245,7 +245,6 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
             if (getRowDr.length == 0 && $scope.acceptanceChargesCheckedList[i].OpeningBankMasterId != null) {
                 $scope.PurchaseDocAcceptanceList.push($scope.acceptanceChargesCheckedList[i]);
             }
-
         }
     }
     $scope.taxDetailVMList = [];
