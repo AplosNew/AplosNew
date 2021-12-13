@@ -11,7 +11,7 @@ function gratuityReportController(commonMessage, $scope, $rootScope, baseService
     $scope.reportType = null;
 
     $scope.payrollGroupList = [];
-    
+
     cboService.getPayGroupCbo(function (result) {
         $scope.payrollGroupList = result;
     });

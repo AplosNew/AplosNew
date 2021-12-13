@@ -86,6 +86,19 @@ namespace Library.MaterialManagement.InventoryManagements
 						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
 						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
                         ,ISNULL(uom1.UserName,'') POUoM,Round(Round(ISNULL(b.RequiredQtyPO,0),4)-Round(ISNULL(OtherPOData.TransactionQty,0),4),4) TransactionQty,0 Tolerance
+						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
+						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
+        					  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
+						ELSE
+							case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END
+           
+							 END AS PurchaseAuthority,
+						   case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId
+
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -121,6 +134,13 @@ namespace Library.MaterialManagement.InventoryManagements
 									where POM.Id !='" + inveReveiveMasterId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
+
+								LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+
                         --LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						--LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
 						WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
@@ -202,6 +222,19 @@ namespace Library.MaterialManagement.InventoryManagements
 						,TransactionUoMId=CASE WHEN AUOM.AlternativeUOMId IS NULL THEN b.UoMId ELSE AUOM.AlternativeUOMId END
 						,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '/' + ISNULL(mo.BuyerReferenceNo,'') +'/'+ ISNULL(moi.OwnReferenceNo,'')+'/'+ISNULL(moi.BuyerReferenceNo,'')
 
+						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
+						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
+        					  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
+						ELSE
+							case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END
+           
+							 END AS PurchaseAuthority,
+						   case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId
+
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -236,6 +269,12 @@ namespace Library.MaterialManagement.InventoryManagements
 									where POM.Id !='" + inveReveiveMasterId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
+								LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+
 						LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
 						WHERE moi.ContractId='" + ContractId + @"' AND b.VendorId<>'" + VendorId + @"' 
@@ -816,6 +855,20 @@ namespace Library.MaterialManagement.InventoryManagements
 						,POMAP.TransactionRate,POMAP.DeliveryDate,b.POUoMId,mm.BaseUOMId,uom1.UserName POUoM,uom.UserName BOQUOM
 					    ,b.POUoMId FromPoUomId
 					    ,b.POUoMId
+
+						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
+						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
+        					  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
+						ELSE
+							case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END
+           
+							 END AS PurchaseAuthority,
+						   case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId
+
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -850,6 +903,12 @@ namespace Library.MaterialManagement.InventoryManagements
 									GROUP by POBOQMAP1.BOQDetailId--,POBOQMAP1.PODetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
 							left join trn.POBOQMAP MAP ON MAP.BOQDetailId=B.Id and MAP.PODetailId in (select Id from TRN.PurchaseOrderDetail xd where xd.InventoryReceiveId='" + inveReveiveMasterId + @"'  )
+						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+
 						where POMAP.PODetailId='" + inveReveiveId + @"'
 						UNION ALL
 						SELECT Distinct '' SavedPOBOQId,b.Id BOQId,b.Sequence Sequence1
@@ -884,6 +943,20 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.Rate TransactionRate,'' DeliveryDate,b.POUoMId,mm.BaseUOMId,'' POUoM,uom.UserName BOQUOM
 						,b.POUoMId FromPoUomId
 					    ,b.POUoMId
+
+						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
+						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
+        					  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
+						ELSE
+							case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END
+           
+							 END AS PurchaseAuthority,
+						   case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId
+
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -902,6 +975,13 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId	
                         --LEFT JOIN [TRN].[POBOQMAP] a ON a.BOQDetailId=b.Id
+
+						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+
                        LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
 									FROM [TRN].[POBOQMAP] POBOQMAP1
 									LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId

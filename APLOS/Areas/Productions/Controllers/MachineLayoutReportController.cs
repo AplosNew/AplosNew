@@ -964,7 +964,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 strSql = @"SELECT ov.UserName OperationVariationName  ,pbtd.OperationTargetPerHr,o.IsMachineRequired,pbtd.TotalSPT,pbtm.RequiredStdTarget,far.Id MachineId,far.Description MachineName,
-								CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN ISNULL(mma.ShortName,'Missing Machcine') ELSE 'W/M' END AS MACHINE,
+								CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN ISNULL(OV.ArticleId,'Missing Machine') ELSE 'Manual' END AS MACHINE,
 									CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN pbtd.TotalSPT ELSE 0 END AS MachineSPT,
 									CASE WHEN ISNULL(o.IsMachineRequired,'')<>'M' THEN pbtd.TotalSPT ELSE 0 END AS NONMachineSPT,
 							CASE WHEN ISNULL(o.IsMachineRequired,'')='M' THEN pbtd.AllotedManpower ELSE 0 END AS MCManpower,

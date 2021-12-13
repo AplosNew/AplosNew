@@ -41,10 +41,13 @@
         <button ng-click="$parent.PopupItem(data);" ng-show="data.HasLayout" style="height: 28px; width: 28px; padding: 0px; margin: 0px; " title="Report" class="btn">
             <i class="glyphicon glyphicon-download"></i>
         </button>
+        <button ng-click="$parent.GetBottleneck(data);" ng-show="data.HasLayout" style="color:darkorange; height: 28px; width: 28px; padding: 0px; margin: 0px; " title="Report" class="btn">
+            <i class="glyphicon glyphicon-signal"></i>
+        </button>
     </div>
 </script>
 
-<script type="text/template" id="templateManPowerWithMachine" >
+<script type="text/template" id="templateManPowerWithMachine">
     <input type="text" class="form-control" e-enabled="{{data.HasLayout?'false':'true'}}" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.ManPowerWithMachine" e-width="100%" />
 </script>
 <script type="text/template" id="templateManPowerWithHand">

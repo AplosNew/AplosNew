@@ -224,7 +224,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         MarkerCharacteristicsId: null,
         RoundingType: null,
     }
-
+    $scope.Iteration = 1;
     $scope.Save = function () {
 
         //#region CutPlanMarkerDetails Model 
@@ -249,8 +249,8 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetHistory(response.data.Id);
-
+                    $scope.Iteration = 2;
+                    $scope.GetSecIteration(response.data.data.Id, $scope.Iteration);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -260,4 +260,28 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }
     };
 
+    $scope.SecenodIteration = [];
+    $scope.SecenodIterationHeader = [];
+    $scope.GetSecIteration = function (MasterId, iteration) {
+        try {
+            if (iteration == 2) {
+                $http({
+                    method: 'POST',
+                    url: $scope.path + 'GetSeceondIterationData',
+                    data: { 'MasterId': MasterId },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    $scope.SecenodIteration = [];
+                    $scope.SecenodIterationHeader = [];
+                    $scope.SecenodIteration = response.data.MaintData;
+                    $scope.SecenodIterationHeader = response.data.HeaderData;
+                });
+            }
+            else {
+                throw "Save data first..";
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 }

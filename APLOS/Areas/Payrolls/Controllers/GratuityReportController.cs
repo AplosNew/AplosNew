@@ -232,10 +232,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataRow drGratuityPolicy = null;
                 for (int i = 0; i < dtEmpGratuity.Rows.Count; i++)
                 {
-                  
+
                     try
                     {
-                     
+
                         if (i == 158)
                         {
 
@@ -791,7 +791,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         public Dictionary<string, DataRow> GetGratuityPolicy(string plantId)
         {
             Dictionary<string, DataRow> dicGrpolicy = new Dictionary<string, DataRow>();
-           
+
 
             string strSql = @"SELECT IGP.PolicyNo GratuityNo,GIA.AgreementNo PolicyNo,
 						 IGP.EmployeeSystemId  FROM IndividualGratuityPolicy IGP
@@ -801,7 +801,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             DataTable dt = _sqlRepository.GetDataTable(strSql);
             for (int i = 0; i < dt.Rows.Count; i++)
             {
-                if(dicGrpolicy.ContainsKey(dt.Rows[i]["EmployeeSystemId"].ToString()))
+                if (dicGrpolicy.ContainsKey(dt.Rows[i]["EmployeeSystemId"].ToString()))
                 {
                     continue;
                 }
@@ -818,7 +818,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 			                    WHERE GPM.plantId = '" + plantId + @"'";
             DataTable dtGratuity = _sqlRepository.GetDataTable(strsql);
             dtGratuityPolicy = dtGratuity;
-           
+
             List<DataRow> _data = new List<DataRow>();
             // resultString = "";
             resultString = "''";
