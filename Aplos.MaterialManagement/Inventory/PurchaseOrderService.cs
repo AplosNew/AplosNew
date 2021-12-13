@@ -4154,7 +4154,7 @@ namespace Library.MaterialManagement.Inventory
                     //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
                     //range.ApplyCharacterFormat(FontBold);
                      colDescription = COL; COL++;
-                    wTable.Rows[ROW].Cells[colDescription].Width = 500;
+                    wTable.Rows[ROW].Cells[colDescription].Width = 700;
 
 
                    // wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
@@ -4210,7 +4210,7 @@ namespace Library.MaterialManagement.Inventory
             #endregion merging section
 
 
-         wTable.TableFormat.Borders.BorderType = BorderStyle.None;
+       //  wTable.TableFormat.Borders.BorderType = BorderStyle.None;
 
             TextBodyPart textBodyPart = new TextBodyPart(document);
             textBodyPart.BodyItems.Add(wTable);
