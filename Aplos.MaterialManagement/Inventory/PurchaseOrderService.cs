@@ -4170,6 +4170,8 @@ namespace Library.MaterialManagement.Inventory
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 TROW.Cells[colHeader].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
+                //IWTextRange range.ApplyCharacterFormat(FontBold);
+
                 TROW.Cells[colDescription].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["DESCRIPTION"].ToString());
               
                 CmpTitile = dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString();
