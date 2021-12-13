@@ -916,9 +916,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         });
     };
 
-
     $scope.get1RMCharacteristicsList = function (id) {
-
         $http({
             method: 'GET',
             url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
@@ -957,7 +955,6 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
     };
 
     $scope.get2RMCharacteristicsList = function (id) {
-
         $http({
             method: 'GET',
             url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',

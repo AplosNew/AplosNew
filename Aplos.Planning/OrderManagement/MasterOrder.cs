@@ -568,12 +568,14 @@ namespace Library.Planning.OrderManagement
 
                     data["Id"] = "C" + _Id;
                     data["CompanyId"] = identity.CompanyId;
+                    data["PlantId"] = identity.PlantId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
                     data["CompanyId"] = identity.CompanyId;
+                    data["PlantId"] = identity.PlantId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
