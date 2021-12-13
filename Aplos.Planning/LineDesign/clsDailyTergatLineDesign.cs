@@ -172,7 +172,7 @@ namespace Library.Planning.LineDesign
             }
         }
 
-        public void GetBottleneck(string WorkCenterMasterId, string ProductionOrderId, string TargetDate, string ProcessId,out List<Dictionary<string,object>> StripLine, out List<Dictionary<string, object>> Data)
+        public void GetBottleneck(string WorkCenterMasterId, string ProductionOrderId, string TargetDate, string ProcessId, out List<Dictionary<string, object>> StripLine, out List<Dictionary<string, object>> Data)
         {
 
             try
@@ -201,26 +201,26 @@ namespace Library.Planning.LineDesign
                             GROUP BY BTD.ProductionBulletinTemplateMasterId) AS TG1 ON  tg1.ProductionBulletinTemplateMasterId=TM.Id
 
                             LEFT JOIN (SELECT dpt.ProductionOrderId,dpt.QuantityPerHour AS HourlyTarget FROM trn.DailyProductionTarget AS dpt 
-                                       WHERE dpt.ProductionOrderId='21371' AND dpt.WorkCenterMasterID='9' AND dpt.TargetDate='25-Oct-2021'
+                                       WHERE dpt.ProductionOrderId='" + ProductionOrderId + @"' AND dpt.WorkCenterMasterID='" + WorkCenterMasterId + @"' AND dpt.TargetDate='" + TargetDate + @"'
                                         )
                             AS TGD ON tgd.ProductionOrderId=bt.ProductionOrderId
-                            WHERE BT.ProductionOrderId='21371' AND tm.ProcessId='202012'  ";
+                            WHERE BT.ProductionOrderId='" + ProductionOrderId + @"' AND tm.ProcessId='" + ProcessId + @"'  ";
 
                 StripLine = _sqlRepository.GetDataCollection(sql);
 
 
                 sql = @"SELECT TG.*,ISNULL(CONVERT(DECIMAL(18,2),(prd.ProductionQuantity/p.Sequence)/tg1.HourlyTargetAtHundredPercent*100),0) AS AverageProduction,p.Sequence
-                              FROM (SELECT DISTINCT  ov.Id,ov.shortName AS Operationvariation
+                              FROM (SELECT DISTINCT  ov.Id,ov.UserName AS Operationvariation,isnull(OV.Color,'#2E86C1') AS Color
                               FROM LineLayoutDailyTarget AS T
                             LEFT JOIN LineLayoutDailyTargetData AS D ON d.LineLayoutDailyTargetId=t.Id
                             LEFT JOIN mst.OperationVariation AS ov ON ov.Id=d.OperationVariationId
 
-                            WHERE t.ProductionOrderId='21371' AND t.WorkCenterMasterID='9' AND t.TargetDate='25-Oct-2021'
+                            WHERE t.ProductionOrderId='" + ProductionOrderId + @"' AND t.WorkCenterMasterID='" + WorkCenterMasterId + @"' AND t.TargetDate='" + TargetDate + @"'
                             ) AS TG
                             LEFT JOIN 
 
                             (SELECT t.OperationVariationId,SUM(t.Quantity) AS ProductionQuantity FROM trn.DailyProduction AS T
-                            WHERE t.ProductionOrderId='21371' AND t.WorkCenterMasterID='9' AND t.ProductionDate='25-Oct-2021'
+                            WHERE t.ProductionOrderId='" + ProductionOrderId + @"' AND t.WorkCenterMasterID='" + WorkCenterMasterId + @"' AND t.ProductionDate='" + TargetDate + @"'
                             GROUP BY t.OperationVariationId
                             ) AS PRD ON prd.OperationVariationId=tg.Id
                             LEFT JOIN hkp.ProductionBookingPeriod AS P ON p.Id=(SELECT TOP 1 Id FROM hkp.ProductionBookingPeriod AS X WHERE CONVERT(DATE,CONCAT(FORMAT(GETDATE(),'dd-MMM-yyyy'),' ', FORMAT(X.EndTime,'hh:mm:ss tt')))<=GETDATE() ORDER BY X.EndTime DESC)
@@ -228,7 +228,7 @@ namespace Library.Planning.LineDesign
                             FROM TRN.ProductionBulletinTemplateDetail BTD
                             JOIN trn.ProductionBulletinTemplateMaster AS TM ON btd.ProductionBulletinTemplateMasterId=tm.Id
                             JOIN trn.ProductionBulletinTemplate BT ON bt.Id=tm.ProductionBulletinTemplateId
-                                       WHERE bt.ProductionOrderId='21371' AND TM.ProcessId='202012' ) AS TG1 ON  1=1";
+                                       WHERE bt.ProductionOrderId='" + ProductionOrderId + @"' AND TM.ProcessId='" + ProcessId + @"' ) AS TG1 ON  1=1";
 
 
                 Data = _sqlRepository.GetDataCollection(sql);

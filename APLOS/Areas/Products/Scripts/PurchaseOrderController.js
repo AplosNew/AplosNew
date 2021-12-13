@@ -19,7 +19,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	$scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
 	$scope.saveTitleUrl = $scope.path + 'SaveTitle';
 	$scope.saveTermsDetail = $scope.path + 'SaveTermsDetail';
-	
 	$scope.PurchaseOrderFileLocation = virtualPath.PurchaseOrder;
 	$scope.partyType = 'Vendor';
 	$scope.isAdvance = false;
@@ -1030,7 +1029,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}
 	}
 
-
 	$scope.receiveTaxList = [];
 	//$scope.closeReceiveTaxPopUp = function () {
 
@@ -1130,6 +1128,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			, IsTaxApplicableChangeable: false
 			, PartyType: $scope.partyType
 			, PlantId: $window.plantId
+			,IsTradingPO:false
 		};
 
 		$scope.inventoryMaterialList = [];
@@ -3737,7 +3736,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			}
 		}
 		if (aa === 0) {
-			ShowResult('Please select atleast one material', 'failure', 'ListOfPOMaterial');
+			ShowResult('Your selected Material is not Approved.Please see Approved Coulmn!', 'failure', 'ListOfPOMaterial');
 			return false;
 		}
 
