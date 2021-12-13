@@ -2961,7 +2961,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+                string newformat = Convert.ToDateTime(PreDay).ToString("yyyyMMdd");
+
                 var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,
+                convert(varchar(30),'"+newformat+@"' )+convert(varchar(30), p.empsystemid)RowId,
                         format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                      	                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
@@ -2982,8 +2985,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+                string newformat = Convert.ToDateTime(PreDay).ToString("yyyyMMdd");
+
                 var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
-                dt.SandwichStatusFlag                 
+                dt.SandwichStatusFlag, convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), p.empsystemid)RowId                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                      	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
@@ -3508,8 +3513,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
                         var WkDate = PrevUserDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
+                       
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
@@ -3519,10 +3523,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         for (int i = 0; i < PrevUserDayStat.Tables[0].Rows.Count; i++)
                         {
 
-                            string EmpId = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string RowId = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"RowId"]).ToString();
                             string DayStatus = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"DayType"]).ToString();
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 // Updation in AttdnProcessData
@@ -3546,8 +3550,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     if (PrevFinalDayStat.Tables[0].Rows.Count > 0)
                     {
                         var WkDate = PrevFinalDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
+                      
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
@@ -3558,11 +3561,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             // Localizing Processed FinalDayStatus 
 
-                            string EmpId = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string RowId = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"RowId"]).ToString();
                             string Result = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"Result"]).ToString();
                             string SandwichFlag = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"SandwichStatusFlag"]).ToString();
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId+ "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 // Updations in APD Table 

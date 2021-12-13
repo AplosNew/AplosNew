@@ -2,7 +2,7 @@
 gratuityReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$controller', '$window'];
 function gratuityReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
 
-    $rootScope.title = 'Gratuity Statement';
+    $rootScope.title = 'Final Settlement';
     $controller('employeeBaseController', { $scope: $scope, $http: $http });
     $scope.calculationDate = $filter('dateFiltering')(Date.now());
 
@@ -11,7 +11,7 @@ function gratuityReportController(commonMessage, $scope, $rootScope, baseService
     $scope.reportType = null;
 
     $scope.payrollGroupList = [];
-    
+
     cboService.getPayGroupCbo(function (result) {
         $scope.payrollGroupList = result;
     });
@@ -21,8 +21,7 @@ function gratuityReportController(commonMessage, $scope, $rootScope, baseService
 
     $scope.getGratuityReport = function (reportType) {
         try {
-            var DropDownListObj = $("#CWPlant").data("ejDropDownList");
-            var PlantId = DropDownListObj.getSelectedValue();
+
             $http({
                 method: 'POST',
                 url: 'Payrolls/GratuityReport/XlsEmployeeGratuity',
@@ -30,8 +29,7 @@ function gratuityReportController(commonMessage, $scope, $rootScope, baseService
                     'calculationDate': $scope.calculationDate,
                     'payrollGroup': $scope.payrollGroupId,
                     'employeeSystemId': null,
-                    'reportType': reportType,
-                    'PlantId': PlantId
+                    'reportType': reportType
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -51,32 +49,4 @@ function gratuityReportController(commonMessage, $scope, $rootScope, baseService
             ShowResult(e, 'failure');
         }
     };
-
-    $scope.PlantIdFromUI = null;
-    $scope.PlantList = [];
-    $scope.getPlant = function () {
-        $http({
-            method: 'GET',
-            url: "humanresource/payrollReports/GetPlantList",
-        }).then(function successCallback(response) {
-            $scope.PlantList = response.data;
-            var index = 0;
-            for (var i = 0; i < $scope.PlantList.length; i++) {
-                if ($scope.PlantList[i].PlantId == $window.plantId) {
-                    index = i;
-                }
-            }
-
-            $('#CWPlant').ejDropDownList(
-                {
-                    dataSource: $scope.PlantList,
-                    fields: { text: "PlantName", value: "PlantId" },
-                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
-                    , width: 250
-                });
-
-        });
-    }
-    $scope.getPlant();
-
 }
