@@ -4134,8 +4134,6 @@ namespace Library.MaterialManagement.Inventory
             int colHeader = 0;
             int colDescription = 0;
 
-
-
             for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
             {
                 if (dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString() != CmpTitile)
