@@ -41,7 +41,8 @@ function PlantConfigController(cboService, commonMessage, $scope, $rootScope, ba
         , Operation: 'Operation Master'
         , OperationInProductionBookingWillBeCapturebyBulletin: false
         , MachineBudgetLevel: null
-        , IsMachineChangeableinBulletinTemplate:false
+        , IsMachineChangeableinBulletinTemplate: false
+        , ProcurementOnBoM:false
     };
 
     $scope.plantConfigList = [];
