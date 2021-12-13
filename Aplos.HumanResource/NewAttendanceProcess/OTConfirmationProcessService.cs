@@ -160,7 +160,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #region Monthly Confirmed OT
 
                 DataSet MonthData;
-                MonthlyOTData(out MonthData,StringDates.Min(date => date).ToString("dd-MMM-yyyy"),OTWeek);
+                MonthlyOTData(out MonthData, WeekMinDate,OTWeek);
 
                 #endregion
 
