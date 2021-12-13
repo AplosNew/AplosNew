@@ -23,6 +23,10 @@ function GratuityReportCompanyController(commonMessage, $scope, $rootScope, base
         try {
             var DropDownListObj = $("#CWPlant").data("ejDropDownList");
             var PlantId = DropDownListObj.getSelectedValue();
+
+            var DropDownListObj = $("#typeList").data("ejDropDownList");
+            var typeList = DropDownListObj.getSelectedValue();
+
             $http({
                 method: 'POST',
                 url: 'Payrolls/GratuityReportCompany/XlsEmployeeGratuity',
@@ -31,6 +35,7 @@ function GratuityReportCompanyController(commonMessage, $scope, $rootScope, base
                     'payrollGroup': $scope.payrollGroupId,
                     'employeeSystemId': null,
                     'reportType': reportType, 'PlantId': PlantId
+                    , 'typeList': typeList
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -78,4 +83,12 @@ function GratuityReportCompanyController(commonMessage, $scope, $rootScope, base
     }
     $scope.getPlant();
 
+    $scope.EmployeeCodeTypeList = [];
+    $scope.EmployeeCodeTypeCbo = function () {
+        $http.get('employees/EmployeeCodeType/GetCbo')
+            .then(function (response) {
+                $scope.EmployeeCodeTypeList = response.data;
+            });
+    }
+    $scope.EmployeeCodeTypeCbo();
 }
