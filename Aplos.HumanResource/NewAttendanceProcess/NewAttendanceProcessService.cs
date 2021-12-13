@@ -4003,7 +4003,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = PastManualOT;
-                                            dr["CalculatedOT"] = Result;  // For Visiblity
+                                            if (Result != "")
+                                            {
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
+                                            }
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -5549,7 +5552,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = PastManualOT;
-                                        dr["CalculatedOT"] = Result;  // For Visiblity
+                                        if (Result != "")
+                                        {
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
+                                        }
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
