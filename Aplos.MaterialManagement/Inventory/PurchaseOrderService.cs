@@ -4210,7 +4210,7 @@ namespace Library.MaterialManagement.Inventory
             #endregion merging section
 
 
-       //  wTable.TableFormat.Borders.BorderType = BorderStyle.None;
+        wTable.TableFormat.Borders.BorderType = BorderStyle.None;
 
             TextBodyPart textBodyPart = new TextBodyPart(document);
             textBodyPart.BodyItems.Add(wTable);
