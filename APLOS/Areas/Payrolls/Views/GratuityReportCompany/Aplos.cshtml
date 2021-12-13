@@ -31,19 +31,17 @@
                 </div>
             </div>
             <div class="col-xs-3 col-sm-3 col-md-3">
-                <div class="form-group">
-                    <div class="common-btn">
-                        <button ng-click="getGratuityReport('EXCEL');" class="btn"> <i class="glyphicon glyphicon-download"></i>Excel</button>
-                        <button ng-click="getGratuityReport('PDF');" class="btn"> <i class="glyphicon glyphicon-download"></i>PDF</button>
-                    </div>
+                <input id="typeList" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="EmployeeCodeTypeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="common-btn">
+                <div class="common-btn text-right">
+                    <button ng-click="getGratuityReport('EXCEL');" class="btn"> <i class="glyphicon glyphicon-download"></i>Excel</button>
+                    <button ng-click="getGratuityReport('PDF');" class="btn"> <i class="glyphicon glyphicon-download"></i>PDF</button>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="loader" data-loader>
-        Please wait
-        <div class="bounce1"></div>
-        <div class="bounce2"></div>
-        <div class="bounce3"></div>
     </div>
 </div>
