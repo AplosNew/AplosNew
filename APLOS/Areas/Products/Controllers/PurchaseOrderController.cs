@@ -3882,10 +3882,9 @@ where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
 		public ActionResult GetTermsAndConditionsPOList(string TermsAndConditionMasterId,string POId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"select TCM.Id TermsAndConditionMasterId,TC.Id TermsAndConditionPOChildId,TC.Id,TC.Title,TCM.Description ,TCM.Code 
-from TermsAndConditionsPOChild TC 
-left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMasterId 
-where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'AND TC.POId='"+ POId + @"' ";
+			string sql = @"select TC.Id TermsAndConditionPOChildId,TC.Id,TC.Title
+from TermsAndConditionsPOChild TC
+WHERE TC.POId='" + POId + @"' ";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}

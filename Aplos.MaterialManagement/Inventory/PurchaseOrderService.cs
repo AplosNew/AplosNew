@@ -181,7 +181,7 @@ namespace Library.MaterialManagement.Inventory
                     CopyRow(dtFromMaster.Rows[m], ref drSalesOrder);
                     drSalesOrder["Id"] = TitleId + Convert.ToInt32(Id) + SCount;
                     NewSoId = drSalesOrder["Id"].ToString();
-                    drSalesOrder["TermsAndConditionsMasterId"] = TitleId;
+                   // drSalesOrder["TermsAndConditionsMasterId"] = TitleId;
                     drSalesOrder["POId"] = POId;
                     dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
 
@@ -4104,13 +4104,15 @@ namespace Library.MaterialManagement.Inventory
         {
             string replaceString = "{TermsAndCondition}";
 
+            WCharacterFormat FontBoldUnderline = new WCharacterFormat(document);
+            FontBoldUnderline.Bold = true;
+            FontBoldUnderline.UnderlineStyle = UnderlineStyle.Single;
 
             IWParagraphStyle rightAlign = document.AddParagraphStyle("rightAlign");
             //Sets the formatting of the style
             rightAlign.CharacterFormat.FontSize = 8f;
             rightAlign.CharacterFormat.TextColor = Color.Black;
             rightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
-
             int LasColumnIndex = 2;
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -4134,18 +4136,19 @@ namespace Library.MaterialManagement.Inventory
                 {
                     COL = 0;
                     IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
-                    range.ApplyCharacterFormat(FontBold);
+                    range.ApplyCharacterFormat(FontBoldUnderline);
 
                     range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Header");
                     range.ApplyCharacterFormat(FontBold);
-                     colHeader = COL; COL++;
-                    wTable.Rows[ROW].Cells[colHeader].Width = 300;
+                    colHeader = COL; COL++;
+                    wTable.Rows[ROW].Cells[colHeader].Width = 150;
 
 
+                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
                     range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
                     range.ApplyCharacterFormat(FontBold);
                      colDescription = COL; COL++;
-                    wTable.Rows[ROW].Cells[colDescription].Width = 300;
+                    wTable.Rows[ROW].Cells[colDescription].Width = 500;
 
 
                    // wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
@@ -4190,6 +4193,7 @@ namespace Library.MaterialManagement.Inventory
             myStyle.CharacterFormat.TextColor = Color.Black;
             myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
 
+           
             #endregion paragrpath formats
 
             #region merging section
@@ -4198,6 +4202,10 @@ namespace Library.MaterialManagement.Inventory
             ROW = 0;
             ROW++;
             #endregion merging section
+
+
+         wTable.TableFormat.Borders.BorderType = BorderStyle.None;
+
             TextBodyPart textBodyPart = new TextBodyPart(document);
             textBodyPart.BodyItems.Add(wTable);
             document.Replace(replaceString, textBodyPart, true, true);

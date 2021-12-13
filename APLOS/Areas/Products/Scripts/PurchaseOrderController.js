@@ -4432,6 +4432,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	$scope.closeRemarksPopUp = function () {
 
 		angular.element(document.querySelector('#GridPopUp')).modal('hide');
+		$scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id);
 	}
 
 	$scope.POPupList = [];
