@@ -19229,7 +19229,6 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
             ConnectionManager.DAL.ConManager objCon;
             var strSql = string.Empty;
             clsStaticInfo obs = null;
-          string  plantIds = "'" + plantId.Replace(",", "','") + "'";
             try
             {
                 obs = new clsStaticInfo();
@@ -19255,7 +19254,6 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 	                              SH.IsCTCComponent, SH.IsGrossComponent, EmpSlr.EmpInfoSystemID, MW.SalaryHeadValue                                
 	                            ,ISNULL(CRC.IntegerInDisb,1) IntegerInDisb, ISNULL(CRC.DecimalNo,0) DecimalNo, MW.Grade
 				            FROM EmployeeInformation AS E
-                                            INNER JOIN EmployeeFinalSettlement AS fs ON fs.EmpSystemId=e.SystemId AND e.PlantId=fs.PlantId
 											LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
 											LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
 											LEFT JOIN ORG.CompanyGroup AS GC ON E.GroupID = GC.Id
@@ -19319,27 +19317,27 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 																)
 													) EmpSlr ON E.SystemID = EmpSlr.EmpInfoSystemID
 										LEFT JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID
-										--LEFT JOIN (SELECT * FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId in (" + plantIds + @")) PSH ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
+										--LEFT JOIN (SELECT * FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId='" + plantId + @"') PSH ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
 										
 										LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EmpSlr.SalaryRuleMasterSystemID
 										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
                                             left join [dbo].[EmployeeCodeType] eact on eact.Id=e.EmployeeCodeTypeId
-                                                 ) A  WHERE a.IsOutSider=0 and
-                            isnull(EmpInfoSystemID,'')<>''  AND GroupID = '" + companyGroupId + @"' AND  CompanyId ='" + comapnyId + @"' AND PlantId in (" + plantIds + @")
+                                                 ) A  WHERE EmployeeStatus = 'Active' and a.IsOutSider=0 and
+                            isnull(EmpInfoSystemID,'')<>''  AND GroupID = '" + companyGroupId + @"' AND  CompanyId ='" + comapnyId + @"' AND PlantId ='" + plantId + @"'
 	                        AND HeadCategory = 'Basic'	
                     AND Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4)))/12 between 
 							(
 							 SELECT Min(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
                                 left join ORG.Plant pp on pp.Id=GPM.plantId
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE GPD.PlantId in (" + plantIds + @")
+			                    WHERE GPD.PlantId ='" + plantId + @"'
 							)
 							AND
 							(
 							 SELECT Max(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityToYear))) FROM GratuityPolicyMaster GPM
                                 left join ORG.Plant ppp on ppp.Id=GPM.plantId
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE GPD.PlantId in (" + plantIds + @")
+			                    WHERE GPD.PlantId ='" + plantId + @"'
 							)
                             ";
 

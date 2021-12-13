@@ -58,7 +58,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region -- Operations
         [HttpPost, Authorize]
-        public ActionResult XlsEmployeeGratuity(string calculationDate, string payrollGroup, string employeeSystemId, string reportType)
+        public ActionResult XlsEmployeeGratuity(string calculationDate, string payrollGroup, string employeeSystemId, string reportType, string PlantId)
         {
             string fileName = "";
             #region Variable
@@ -131,13 +131,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataTable dtGratuityPolicy = new DataTable();
                 string salaryHeadIDString = "";
                 DataSet dsSlrProc = null;
-                SalaryHeadGratuity(identity.CompanyId, out salaryHeadIDString, out dtGratuityPolicy);
+                SalaryHeadGratuity(identity.CompanyId, PlantId, out salaryHeadIDString, out dtGratuityPolicy);
 
-                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmpSalaryInformationRpt(identity.CompanyId, calculationDate, payrollGroup, salaryHeadIDString, out dsSlrProc);
-                Dictionary<string, DataRow> dicGRTpolicy = GetGratuityPolicy(identity.CompanyId);
+                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmpSalaryInformationRpt(identity.CompanyId, PlantId, calculationDate, payrollGroup, salaryHeadIDString, out dsSlrProc);
+                Dictionary<string, DataRow> dicGRTpolicy = GetGratuityPolicy(identity.CompanyId, PlantId);
                 var _systemAdmin = identity.IsSysAdmin.ToString().Trim();
                 var _controlAdmin = identity.IsControlAdmin.ToString().Trim();
-                GetCompanyEmpGratuityInfo(calculationDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, payrollGroup, employeeSystemId, _systemAdmin, _controlAdmin, out dsEmpGratuity);
+                GetCompanyEmpGratuityInfo(calculationDate, identity.CompanyGroupId, identity.CompanyId, PlantId, payrollGroup, employeeSystemId, _systemAdmin, _controlAdmin, out dsEmpGratuity);
                 double eligibleYear = 0.00;
                 dtEmpGratuity = dsEmpGratuity.Tables[0];
                 dtEmpGratuity.Columns.Add("EligibleYear", typeof(double));
@@ -170,7 +170,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         //if(dtEmpGratuity.Rows[i]["totalYear"].ToString())
 
-                        dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear and plantId = '"+ dtEmpGratuity.Rows[i]["PlantID"].ToString() + "' ";
+                        dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear and plantId = '" + dtEmpGratuity.Rows[i]["PlantID"].ToString() + "' ";
 
                         //dtGratuityPolicy.DefaultView.RowFilter =  "MaturityFromYear>=" + dtEmpGratuity.Rows[i]["totalYear"].ToString() + "	AND MaturityToYear <=" + dtEmpGratuity.Rows[i]["totalYear"].ToString();
 
@@ -525,7 +525,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 #endregion
 
                 workbook.Version = ExcelVersion.Excel2016;
-                
+
                 if (reportType.ToUpper() == "EXCEL")
                 {
                     fileName = "GratuityStatement.xls";
@@ -562,6 +562,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         }//End Function
         public void GetCompanyEmpGratuityInfo(string gratuityCalcDate, string companyGroupId, string comapnyId, string plantId, string payGrp, string employeeId, string SystemAdmin, string ControlAdmin, out DataSet dsRef)
         {
+            string plantIds = "'" + plantId.Replace(",", "','") + "'";
             ConnectionManager.DAL.ConManager objCon;
             var strSql = string.Empty;
             clsStaticInfo obs = null;
@@ -728,6 +729,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     		AND isnull(EmpInfoSystemID, '') <> ''
                                     		AND GroupID = '" + companyGroupId + @"'
                                     		AND CompanyId = '" + comapnyId + @"' 
+                                            And PlantId in ("+ plantIds + @")
                                     		AND HeadCategory = 'Basic'
                                     	) xx
                                     WHERE xx.CompareDate BETWEEN xx.MaturityFromYear
@@ -781,17 +783,19 @@ namespace Aplos.Areas.Payrolls.Controllers
                 objCon = null;
             }
         }//End Function
-        public Dictionary<string, List<DataRow>> GetEmpSalaryInformationRpt(string plantId, string effectiveDate, string payRollGroup, string salaryHeadId, out DataSet dsRef)
+        public Dictionary<string, List<DataRow>> GetEmpSalaryInformationRpt(string CompanyId, string plants, string effectiveDate, string payRollGroup, string salaryHeadId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
-
+            string plantId = "'" + plants.Replace(",", "','") + "'";
             string strSql = string.Empty;
             clsStaticInfo obs = null;
             try
             {
 
                 obs = new clsStaticInfo();
+
+                #region Old query
                 //              strSql = @"SELECT * FROM
                 //                        (
                 //                         SELECT E.SystemID EmpSystemID,  E.EmployeeCode EmployeeCode, E.EmployeeName, REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB,
@@ -943,6 +947,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 //					)
                 //                      ";
                 //              strSql = strSql + @" ORDER BY EmployeeCode";
+                #endregion
 
                 strSql = @"SELECT *
                                 FROM (
@@ -1172,7 +1177,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 		LEFT JOIN [dbo].[EmployeeCodeType] eact ON eact.Id = e.EmployeeCodeTypeId
                                 		) A
                                 	WHERE ISNULL(EmpInfoSystemID, '') <> ''
-                                		AND CompanyId = '" + plantId + @"'
+                                		AND CompanyId = '" + CompanyId + @"'
+                                        AND PlantId in (" + plantId + @")
                                 		AND A.IsOutSider = 0
                                 		AND Convert(DATE, DOJ) <= '" + effectiveDate + @"'
                                 		AND (
@@ -1215,15 +1221,15 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }//End Function  
 
-        public Dictionary<string, DataRow> GetGratuityPolicy(string plantId)
+        public Dictionary<string, DataRow> GetGratuityPolicy(string CompanyId, string plantId)
         {
             Dictionary<string, DataRow> dicGrpolicy = new Dictionary<string, DataRow>();
 
-
+            string plantIds = "'" + plantId.Replace(",", "','") + "'";
             string strSql = @"SELECT IGP.PolicyNo GratuityNo,GIA.AgreementNo PolicyNo,
 						 IGP.EmployeeSystemId  FROM IndividualGratuityPolicy IGP
 						 Inner join EmployeeInformation EEI ON EEI.SystemId = IGP.EmployeeSystemId
-						 inner JOIN GratuityInsuranceAgreement GIA ON GIA.Id = IGP.AgreementId   WHERE EEI.CompanyId = '" + plantId + @"'";
+						 inner JOIN GratuityInsuranceAgreement GIA ON GIA.Id = IGP.AgreementId   WHERE EEI.CompanyId = '" + CompanyId + @"' and EEI.PlantId in (" + plantIds + ")";
 
             DataTable dt = _sqlRepository.GetDataTable(strSql);
             for (int i = 0; i < dt.Rows.Count; i++)
@@ -1236,14 +1242,14 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             return dicGrpolicy;
         }
-        private void SalaryHeadGratuity(string plantId, out string resultString, out DataTable dtGratuityPolicy)
+        private void SalaryHeadGratuity(string plantId, string PlantId, out string resultString, out DataTable dtGratuityPolicy)
         {
             string strsql = "";
-
+            string plantIds = "'" + PlantId.Replace(",", "','") + "'";
             strsql = @"SELECT GPD.*,GPM.IsRoudingSixMonth FROM GratuityPolicyMaster GPM 
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
 			                    LEFT JOIN ORG.Plant p on p.Id=GPD.plantId
-			                    WHERE p.CompanyId = '" + plantId + @"'";
+			                    WHERE p.CompanyId = '" + plantId + @"' and p.Id in (" + plantIds + ")";
             DataTable dtGratuity = _sqlRepository.GetDataTable(strsql);
             dtGratuityPolicy = dtGratuity;
 
