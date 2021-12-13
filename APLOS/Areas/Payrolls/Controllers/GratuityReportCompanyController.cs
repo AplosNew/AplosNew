@@ -222,7 +222,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                 SetHeaderValue("Month", sheet1, xlsRow, ref xlsCol, out colMonth, 6);
                 SetHeaderValue("Days", sheet1, xlsRow, ref xlsCol, out colDays, 5);
                 SetHeaderValue("Salary Eligible for Gratuity", sheet1, xlsRow, ref xlsCol, out colBasic, 13);
-                SetHeaderValue("Gratuity Amount", sheet1, xlsRow, ref xlsCol, out colSalEliGratuity, 15);
+                //SetHeaderValue("Gratuity Amount", sheet1, xlsRow, ref xlsCol, out colSalEliGratuity, 15);
+                //SetHeaderValue("Gratuity Amount", sheet1, xlsRow, ref xlsCol, out colSalEliGratuity, 15);
+                //SetHeaderValue("Gratuity Amount", sheet1, xlsRow, ref xlsCol, out colSalEliGratuity, 15);
+                //SetHeaderValue("Gratuity Amount", sheet1, xlsRow, ref xlsCol, out colSalEliGratuity, 15);
+                //SetHeaderValue("Gratuity Amount", sheet1, xlsRow, ref xlsCol, out colSalEliGratuity, 15);
                 endXlsCol = colSalEliGratuity;
 
                 sheet1.Range[xlsRow, colSr, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
@@ -634,7 +638,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     			,MW.Grade
                                     			,gpd.MaturityFromYear
                                     			,gpd.MaturityToYear
-                                    		FROM EmployeeInformation AS E
+                                    		FROM EmployeeInformation  AS E
+                                            JOIN EmployeeFinalSettlement AS efs ON E.SystemId=efs.EmpSystemId
                                     		LEFT JOIN GratuityPolicyDetails AS gpd ON gpd.plantId = e.PlantId
                                     		LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
                                     		LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
@@ -724,8 +729,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     			AND CRC.SalaryHeadID = SH.SalaryHeadID
                                     		LEFT JOIN [dbo].[EmployeeCodeType] eact ON eact.Id = e.EmployeeCodeTypeId
                                     		) A
-                                    	WHERE EmployeeStatus = 'Active'
-                                    		AND a.IsOutSider = 0
+                                    	WHERE --EmployeeStatus = 'Active' AND
+                                            a.IsOutSider = 0
                                     		AND isnull(EmpInfoSystemID, '') <> ''
                                     		AND GroupID = '" + companyGroupId + @"'
                                     		AND CompanyId = '" + comapnyId + @"' 
@@ -1002,15 +1007,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 			,ISNULL(bb.UserName, '') BankName
                                 			,gpd.MaturityFromYear
                                 			,gpd.MaturityToYear
-                                		FROM (
-                                			SELECT *
-                                			FROM EmployeeInformation
-                                			WHERE (
-                                					EmployeeStatus != 'Separated'
-                                					OR DOS IS NULL
-                                					OR DOS >= '" + effectiveDate + @"'
-                                					)
-                                			) AS E
+                                		FROM EmployeeInformation  AS E
+                                        JOIN EmployeeFinalSettlement AS efs ON E.SystemId=efs.EmpSystemId
                                 		LEFT JOIN GratuityPolicyDetails AS gpd ON gpd.plantId = e.PlantId
                                 		LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
                                 		LEFT JOIN ORG.Line L ON MB.LineID = L.Id
@@ -1181,10 +1179,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                                         AND PlantId in (" + plantId + @")
                                 		AND A.IsOutSider = 0
                                 		AND Convert(DATE, DOJ) <= '" + effectiveDate + @"'
-                                		AND (
-                                			DOS IS NULL
-                                			OR DOS >= '" + effectiveDate + @"'
-                                			)
+                                		--AND (
+                                			--DOS IS NULL
+                                			--OR DOS >= '" + effectiveDate + @"'
+                                			--)
                                 		AND SalaryHeadID IN (" + salaryHeadId + @")
                                 	) xx
                                 WHERE xx.compareDate BETWEEN xx.MaturityFromYear
