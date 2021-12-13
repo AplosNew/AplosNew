@@ -119,7 +119,8 @@ namespace Library.Service.Setups
                         OperationInProductionBookingWillBeCapturebyBulletin = from_ui.OperationInProductionBookingWillBeCapturebyBulletin,
                         MachineBudgetLevel = from_ui.MachineBudgetLevel,
                         IsMachineChangeableinBulletinTemplate = from_ui.IsMachineChangeableinBulletinTemplate,
-                        IsProductionHourOpen = from_ui.IsProductionHourOpen
+                        IsProductionHourOpen = from_ui.IsProductionHourOpen,
+                        ProcurementOnBoM = from_ui.ProcurementOnBoM
                     };
                 }
                 else
@@ -142,6 +143,7 @@ namespace Library.Service.Setups
                     from_db.MachineBudgetLevel = from_ui.MachineBudgetLevel;
                     from_db.IsMachineChangeableinBulletinTemplate = from_ui.IsMachineChangeableinBulletinTemplate;
                     from_db.IsProductionHourOpen = from_ui.IsProductionHourOpen;
+                    from_db.ProcurementOnBoM = from_ui.ProcurementOnBoM;
                 }
                 AuditService.Log(from_db);
                 InsertOrUpdateGraph(from_db);

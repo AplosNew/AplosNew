@@ -57,7 +57,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             try
             {
-                string sql = @"Select * from BOMMasterAttachmentWithItem  where BOMMasterId='"+ Id + "'";
+                string sql = @"Select * from BOMMasterAttachmentWithItem  where BOMMasterId='" + Id + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -249,12 +249,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CopyBomDetailData(string BOMMasterId,string Id)
+        public JsonResult CopyBomDetailData(string BOMMasterId, string Id)
         {
             try
             {
                 Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
-                _attachment.CopyBOMTemplateDetail(BOMMasterId,Id);
+                _attachment.CopyBOMTemplateDetail(BOMMasterId, Id);
 
                 return Json(new { Error = false, Message = "BOM copied successfully" });
             }
@@ -604,25 +604,80 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 }
                 else
                 {
-                    DataSet dsMaster, dsDestination, dsBOMSKUMapping;
+                    DataSet dsMaster, dsDestination, dsBOMSKUMapping, dsCV;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMDetail WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMDestination Where BOMDetailId='" + data["Id"] + "'", out dsDestination, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMSKUMapping Where BOMDetailId='" + data["Id"] + "'", out dsBOMSKUMapping, false, "1");
+                    con.OpenDataSetThroughAdapter("Select * from HKP.CharacteristicsValue Where MaterialMasterId='" + data["RMMaterialMasterId"] + "'", out dsCV, false, "1");
 
                     if (data["IsSKUCommon"].ToString() == "True")
                     {
-                        con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMSKUMapping Where BOMDetailId='" + data["Id"] + "'", out dsBOMSKUMapping, false, "1");
-
                         if (dsBOMSKUMapping.Tables[0].Rows.Count > 0)
                         {
                             DeleteMatrixDataByDetailId(data["Id"].ToString());
                         }
                     }
+                    else
+                    {
+                        if (dsBOMSKUMapping.Tables[0].Rows.Count > 0)
+                        {
+                            //for (int i = 0; i < dsCV.Tables[0].Rows.Count; i++)
+                            //{
+                            //    dsBOMSKUMapping.Tables[0].DefaultView.RowFilter = "RMFirstCharacteristicsValueId='" + dsCV.Tables[0].Rows[i]["Id"].ToString() + "' OR RMSecondCharacteristicsId='" + dsCV.Tables[0].Rows[i]["Id"].ToString() + "'";
+                            //    if (dsBOMSKUMapping.Tables[0].DefaultView.Count == 0)
+                            //    {
+                            //        dsBOMSKUMapping.Tables[0].DefaultView[0].Delete();
+                            //    }
+                            //}
+
+                            //for (int j = 0; j <= dsBOMSKUMapping.Tables[0].Rows.Count; j++)
+                            //{
+                            //    for (int i = 0; i <= dsCV.Tables[0].Rows.Count; i++)
+
+                            //    {
+
+                            //        dsBOMSKUMapping.Tables[0].Rows[j].De = "RMFirstCharacteristicsValueId='" + dsCV.Tables[0].Rows[i]["Id"].ToString() + "' OR RMSecondCharacteristicsId='" + dsCV.Tables[0].Rows[i]["Id"].ToString() + "'";
+                            //        if (dsBOMSKUMapping.Tables[0].DefaultView.Count == 0)
+                            //        {
+                            //            dsBOMSKUMapping.Tables[0].Rows[j].Delete();
+                            //        }
+
+                            //        //if (dsCV.Tables[0].Rows[i]["Id"].ToString() != dsBOMSKUMapping.Tables[0].Rows[j]["RMFirstCharacteristicsValueId"].ToString()
+                            //        //    || dsCV.Tables[0].Rows[i]["Id"].ToString() != dsBOMSKUMapping.Tables[0].Rows[j]["RMSecondCharacteristicsId"].ToString())
+                            //        //{
+                            //        //    dsBOMSKUMapping.Tables[0].Rows[j].Delete();
+                            //        //}
+
+                            //        //if (dsCV.Tables[0].Rows[i]["Id"].ToString() != dsBOMSKUMapping.Tables[0].Rows[j]["RMSecondCharacteristicsId"].ToString())
+                            //        //{
+                            //        //    dsBOMSKUMapping.Tables[0].Rows[j].Delete();
+                            //        //}
+                            //    }
+
+
+                            //}
+                            //for (int i = dsBOMSKUMapping.Tables[0].Rows.Count - 1; i >= 0; i--)
+                            //{
+                            //    DataRow sdr = dsBOMSKUMapping.Tables[0].Rows[i];
+                            //    if (sdr["name"] == "Joe")
+                            //        sdr.Delete();
+                            //}
+
+
+                        
+
+                        
+
+                        }
+
+                    }
 
                     string _Id = "";
 
-                    #region data update
+                    #region data save update
+
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
@@ -668,8 +723,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     }
                     #endregion Destination 
 
-
-                    #endregion data update
+                    #endregion data save update
 
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsMaster, dsDestination);
