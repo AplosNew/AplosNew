@@ -128,7 +128,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var StringDates = new List<DateTime>();
                 StringCollection StrDistinctEmployee = new StringCollection();
 
-                #region To Find Max & Min Date
+                #region To Find Week Max & Min Date
 
                 string WorkDatesMaster = "''";
 
@@ -146,6 +146,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                     }
                 }
+                string WeekMaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
+                string WeekMinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
 
                 #endregion
 
@@ -158,7 +160,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #region Monthly Confirmed OT
 
                 DataSet MonthData;
-                MonthlyOTData(out MonthData,StringDates.Min(date => date).ToString("dd-MMM-yyyy"),OTWeek);
+                MonthlyOTData(out MonthData, WeekMinDate,OTWeek);
 
                 #endregion
 
@@ -203,9 +205,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 #endregion
 
                                 #region Calculations Area
-
-                                string WeekMaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
-                                string WeekMinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
 
                                 DateTime MaxDate = StringDates.Max(date => date);
                                 DateTime MinDate = StringDates.Min(date => date);
@@ -460,12 +459,12 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             clsStaticInfo info = new clsStaticInfo();
                             info.SaveDataSets(dsRef);
-
-                            SaveLog("OT Confirmed ....", PlantValue, false);
+                          
                         }
 
-
                         #endregion
+                       
+                        SaveLog("OT Confirmed ....", PlantValue, false);
                     }       
                 }
 

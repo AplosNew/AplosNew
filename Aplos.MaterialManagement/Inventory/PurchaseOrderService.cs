@@ -5218,7 +5218,7 @@ namespace Library.MaterialManagement.Inventory
 tacc.Title,tacd.HeaderCaption,tacd.DESCRIPTION
 FROM TRN.PurchaseOrder AS PO
 LEFT OUTER JOIN HKP.TermsAndConditions AS tac ON PO.TermsAndConditionsId=tac.Id
-LEFT OUTER JOIN TermsAndConditionsPOChild AS tacc ON tacc.TermsAndConditionsMasterId=tac.Id
+LEFT OUTER JOIN TermsAndConditionsPOChild AS tacc ON tacc.POId=PO.Id
 LEFT OUTER JOIN TermsAndConditionsPODetails AS tacd ON tacd.TermsAndConditionsPOChildId=tacc.Id
 WHERE PO.id='" + purchaseOrderId + @"' Order By tac.Sequence,tacc.Id ";
 
