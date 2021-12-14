@@ -23,6 +23,7 @@ namespace Library.Model.Setups
         public string WeekendforProductionOrder { get; set; }
         public bool IsMachineChangeableinBulletinTemplate { get; set; }
         public bool OperationInProductionBookingWillBeCapturebyBulletin { get; set; }
+        public bool ProcurementOnBoM { get; set; }
         
         public string MachineBudgetLevel { get; set; }
 

@@ -21,6 +21,11 @@ function GratuityReportCompanyController(commonMessage, $scope, $rootScope, base
 
     $scope.getGratuityReport = function (reportType) {
         try {
+            var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+            var PlantId = DropDownListObj.getSelectedValue();
+
+            var DropDownListObj = $("#typeList").data("ejDropDownList");
+            var typeList = DropDownListObj.getSelectedValue();
 
             $http({
                 method: 'POST',
@@ -29,7 +34,8 @@ function GratuityReportCompanyController(commonMessage, $scope, $rootScope, base
                     'calculationDate': $scope.calculationDate,
                     'payrollGroup': $scope.payrollGroupId,
                     'employeeSystemId': null,
-                    'reportType': reportType
+                    'reportType': reportType, 'PlantId': PlantId
+                    , 'typeList': typeList
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -49,4 +55,40 @@ function GratuityReportCompanyController(commonMessage, $scope, $rootScope, base
             ShowResult(e, 'failure');
         }
     };
+
+    $scope.PlantIdFromUI = null;
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: "humanresource/payrollReports/GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#CWPlant').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+
+        });
+    }
+    $scope.getPlant();
+
+    $scope.EmployeeCodeTypeList = [];
+    $scope.EmployeeCodeTypeCbo = function () {
+        $http.get('employees/EmployeeCodeType/GetCbo')
+            .then(function (response) {
+                $scope.EmployeeCodeTypeList = response.data;
+            });
+    }
+    $scope.EmployeeCodeTypeCbo();
 }

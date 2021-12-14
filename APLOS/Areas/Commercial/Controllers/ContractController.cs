@@ -74,7 +74,7 @@ namespace Aplos.Areas.Commercial.Controllers
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
 							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId
 							LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id 
-                            WHERE C.CompanyId='"+identity.CompanyId+"' ORDER BY C.CustomerId";
+                            WHERE C.PlantId='" + identity.PlantId+"' ORDER BY C.CustomerId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -489,7 +489,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     DataRow dr = dsMaster.Tables[0].NewRow();
 
                     dr["Id"] = "C" + GetPK();
-                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = identity.PlantId;
                     dr["CustomerId"] = data.CustomerId;
                     dr["Description"] = data.Description;
                     dr["Remarks"] = data.Remarks;
@@ -537,7 +537,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                     dr.BeginEdit();
 
-                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = identity.PlantId;
                     dr["IsLC"] = data.IsLC;
                     dr["ContractNo"] = data.ContractNo;
                     dr["Description"] = data.Description;
@@ -732,6 +732,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                     dr.BeginEdit();
                     dr["MasterLCId"] = data.MasterLCId;
+                    dr["PlantId"] = identity.PlantId;
                     dr["Description"] = data.Description;
                     dr["IsLC"] = data.IsLC;
                     dr["ContractNo"] = data.ContractNo;
@@ -868,7 +869,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                         dr.BeginEdit();
-
+                        dr["PlantId"] = identity.PlantId;
                         dr["MasterLCId"] = masterLcId;
                         dr["IsLC"] = true;
                         dr["UpdatedBy"] = identity.Name;
@@ -3397,8 +3398,7 @@ namespace Aplos.Areas.Commercial.Controllers
     public class Contract 
     {
         public string Id { get; set; }
-        public string CompanyId { get; set; }
-        
+              
         public string ContractNo { get; set; }
         public string CustomerId { get; set; }
         public string UDNo { get; set; }

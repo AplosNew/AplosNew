@@ -4108,6 +4108,9 @@ namespace Library.MaterialManagement.Inventory
             FontBoldUnderline.Bold = true;
             FontBoldUnderline.UnderlineStyle = UnderlineStyle.Single;
 
+            WCharacterFormat FontBold2 = new WCharacterFormat(document);
+            FontBold2.Bold = true;
+
             IWParagraphStyle rightAlign = document.AddParagraphStyle("rightAlign");
             //Sets the formatting of the style
             rightAlign.CharacterFormat.FontSize = 8f;
@@ -4130,25 +4133,26 @@ namespace Library.MaterialManagement.Inventory
             int startRow = 0;
             int colHeader = 0;
             int colDescription = 0;
+
             for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
             {
                 if (dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString() != CmpTitile)
                 {
                     COL = 0;
-                    IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
+                    IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
                     range.ApplyCharacterFormat(FontBoldUnderline);
 
-                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Header");
-                    range.ApplyCharacterFormat(FontBold);
+                    //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Header");
+                    //range.ApplyCharacterFormat(FontBold);
                     colHeader = COL; COL++;
                     wTable.Rows[ROW].Cells[colHeader].Width = 150;
 
 
                     range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
-                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
-                    range.ApplyCharacterFormat(FontBold);
+                    //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
+                    //range.ApplyCharacterFormat(FontBold);
                      colDescription = COL; COL++;
-                    wTable.Rows[ROW].Cells[colDescription].Width = 500;
+                    wTable.Rows[ROW].Cells[colDescription].Width = 700;
 
 
                    // wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
@@ -4169,9 +4173,9 @@ namespace Library.MaterialManagement.Inventory
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colHeader].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
-                TROW.Cells[colDescription].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["DESCRIPTION"].ToString());
-              
+                IWTextRange A =TROW.Cells[colHeader].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString()+".");
+                A.ApplyCharacterFormat(FontBold2);
+                TROW.Cells[colDescription].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["DESCRIPTION"].ToString()+".");
                 CmpTitile = dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString();
             }
             ROW++;
@@ -4204,7 +4208,7 @@ namespace Library.MaterialManagement.Inventory
             #endregion merging section
 
 
-         wTable.TableFormat.Borders.BorderType = BorderStyle.None;
+        wTable.TableFormat.Borders.BorderType = BorderStyle.None;
 
             TextBodyPart textBodyPart = new TextBodyPart(document);
             textBodyPart.BodyItems.Add(wTable);
