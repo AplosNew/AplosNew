@@ -1871,8 +1871,6 @@ namespace Library.Service.Employees
                     filepath = strPath;
                 }
 
-
-
                 FileInfo DocFile = new FileInfo(filepath);
                 if (DocFile.Exists == false)
                 {
@@ -1882,15 +1880,7 @@ namespace Library.Service.Employees
                 //=====
                 bool IsDefLan = false;
 
-                //var tokens = (fileName.Substring(("Nom" + plantId).Length));
-                //int charLocation = tokens.IndexOf(".", StringComparison.Ordinal);
-                //var TemplateLan = tokens.Substring(0, charLocation);
-
-                //if (tempId != TemplateLan)
-                //{
-                //    IsDefLan = true;
-                //}
-
+               
                 ////A opens input document.
                 WordDocument document = new WordDocument(DocFile.FullName);
 
@@ -1898,37 +1888,7 @@ namespace Library.Service.Employees
                 Dictionary<string, int> replaced = new Dictionary<string, int>();
 
                 string value = "";
-                //foreach (TextSelection item in allresult)
-                //{
-                //    string foundText = item.SelectedText;
-
-                //    if (replaced.ContainsKey(foundText) == false)
-                //        replaced.Add(foundText, 0);
-
-                //    //for fixed info
-                //    string colName = foundText.Trim().Replace("{", "").Replace("}", "");
-                //    if (dtEmp.Columns.Contains(colName))
-                //    {
-                //        ////===== def lan 
-                //        //if (IsDefLan == true)
-                //        //{
-                //        //    if (IsDefLan == true)
-                //        //    {
-                //        //        colName = GetBasicInfoInDefaultLng(colName);
-                //        //    }
-                //        //}
-                //        ///=====
-                //        value = dtEmp.Rows[0][dtEmp.Columns[colName].ColumnName].ToString();
-
-                //        if (bplib.clsWebLib.IsNumeric(value))
-                //            replaced[foundText] = document.Replace(foundText, cnDgt(value, tempId), false, true);
-                //        else if (bplib.clsWebLib.IsDateOK(value))
-                //            replaced[foundText] = document.Replace(foundText, GetFormatedDate(value, tempId), false, true);
-                //        else
-                //            replaced[foundText] = document.Replace(foundText, value, false, true);
-                //    }
-
-                //}
+                
                 for (int i = 0; i < dtEmp.Columns.Count; i++)
                 {
                     string colName = "{" + dtEmp.Columns[i].ColumnName + "}";
@@ -1943,106 +1903,7 @@ namespace Library.Service.Employees
                 }
 
                 document.Replace("{Date}", GetFormatedDate(System.DateTime.Now.ToString("dd-MMM-yyyy"), language), false, true);
-                //foreach (string item in replaced.Keys)
-                //{
-                //    if (replaced[item] == 0)
-                //        document.Replace(item, "", false, true);
-                //}
-                //WSection section = document.Sections[0];
-                //if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeePic"].ToString()))
-                //{
-                //    var pic = dtEmp.Rows[0]["EmployeePic"].ToString();
-                //    string picpath = ResourcesPathReader.GetEmployeeDestinationPicPath() + pic;
-                //    WPicture ImgwPicture = new WPicture(document);
-                //    if (System.IO.File.Exists(picpath))
-                //    {
-                //        try
-                //        {
-                //            Image Img = Image.FromFile(picpath);
-                //            Image newImage = resizeImage(Img, 180, 170);
-                //            ImgwPicture.LoadImage(Image.FromFile(picpath));
-                //            TextBodyPart textBodyPart = new TextBodyPart(document);
-
-                //            //section.Tables[0].Rows[0].Cells[0].Paragraphs[0].AppendPicture(newImage);
-                //            //document.im()
-                //            //document.Replace()
-                //            document.Replace("{EmpPicture}", textBodyPart, true, true);
-
-
-                //            //try
-                //            //{
-                //            //    var pic1 = dtEmp.Rows[0]["EmployeePic"].ToString();
-                //            //    string picpath1 = ResourcesPathReader.GetEmployeeDestinationPicPath() + pic;
-                //            //    string ImagefileLocation = picpath1;
-                //            //    Image img = Image.FromFile(ImagefileLocation);
-                //            //    ConvertPresentationToPdf.SetPicture(presentation.Slides[i], "EmpPicture", img);
-                //            //}
-                //            //catch (Exception ex)
-                //            //{
-
-                //            //}
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            throw (ex);
-                //        }
-                //    }
-                //}
-
-                //if (!string.IsNullOrEmpty(dtEmp.Rows[0]["CardHolderSignature"].ToString()))
-                //{
-                //    var pic = dtEmp.Rows[0]["CardHolderSignature"].ToString();
-                //    string picpath = ResourcesPathReader.GetCardHolderSignaturePath() + pic;
-                //    //WPicture ImgwPicture = new WPicture(document);
-                //    if (System.IO.File.Exists(picpath))
-                //    {
-                //        try
-                //        {
-                //            Image Img = Image.FromFile(picpath);
-                //            Image newImage = resizeImage(Img, 60, 100);
-                //            //wPicture.LoadImage(Image.FromFile(picpath));
-                //            //TextBodyPart textBodyPart = new TextBodyPart(document);
-
-                //            section.Tables[2].Rows[0].Cells[3].Paragraphs[0].AppendPicture(newImage);
-
-                //            //document.Replace()
-                //            //document.Replace("{emppic}", textBodyPart, true, true);
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            throw (ex);
-                //        }
-                //    }
-                //}
-
-                //if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeeFingerPrint"].ToString()))
-                //{
-                //    var pic = dtEmp.Rows[0]["EmployeeFingerPrint"].ToString();
-                //    string picpath = ResourcesPathReader.GetEmployeeFingerPrintForSBPath() + pic;
-                //    //WPicture ImgwPicture = new WPicture(document);
-                //    if (System.IO.File.Exists(picpath))
-                //    {
-                //        try
-                //        {
-                //            Image Img = Image.FromFile(picpath);
-                //            Image newImage = resizeImage(Img, 60, 100);
-                //            //wPicture.LoadImage(Image.FromFile(picpath));
-                //            //TextBodyPart textBodyPart = new TextBodyPart(document);
-
-                //            section.Tables[2].Rows[0].Cells[4].Paragraphs[0].AppendPicture(newImage);
-
-                //            //document.Replace()
-                //            //document.Replace("{emppic}", textBodyPart, true, true);
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            throw (ex);
-                //        }
-                //    }
-                //}
-
-
-
+               
 
                 string fileNames = string.Empty;
                 if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeeCode"].ToString()))
@@ -5033,7 +4894,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 							,ProbationerName, fEm,SectionName, LocalDepartmentName1
                             ,ISNULL(GradeLocal,Grade) Grade
                             ,IssueDate,NomineeName,NomineeAddress,NomineeNID,NomineeDOB
-							,NomineeRelation,CivilStatus,PFAccountNumber
+							,NomineeRelation,CivilStatus,PFAccountNumber,DocDate
                             ,Gender,IdentificationMark,NomineeAge
                             ,ISNULL(PlantLocal,Plant) PlantName    
                             ,ISNULL(LineLocal,Line) Line ,Religion
@@ -5089,7 +4950,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 										,NomineeInfo.NationalID NomineeNID,  FORMAT(NomineeInfo.DOB,'dd-MMM-yyyy') NomineeDOB,isnull(cast((DATEDIFF(m, NomineeInfo.DOB, GETDATE())/12) as varchar),0) NomineeAge
                                         ,Isnull(LNomR.Name, Relationship.UserName) NomineeRelation 
 										,Isnull(CS.Name, CivilStatus.UserName) CivilStatus 
-										,PFDocument.docNumber PFAccountNumber  
+										,PFDocument.docNumber PFAccountNumber,PFDocument.DocDate
                                         ,PL.UserName Plant,PLL.Name PlantLocal,ISNULL(LReligion.Name,Religion.UserName) Religion,S.UserName Salutation
                                         ,efp.FileName EmployeeFingerPrint,PRT.UserName Contractor,AD.ContractorAddress
                                         ,E.EmrCntPer1CellNo,FatherOrSpouse = case when E.FatherName is null then e.SpouseName else E.FatherName  end
@@ -5138,7 +4999,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 
                                    LEFT JOIN HKP.LocalLanguage CS ON CivilStatus.Id=CS.CivilStatusID AND PL.LanguageId='" + languageId + @"'
 								   left join (
-								   select d.docNumber,d.EmpSystemid from EmployeeDocument d
+								   select d.docNumber,d.EmpSystemid,FORMAT(d.DocDate,'dd-MMM-yyyy')DocDate from EmployeeDocument d
 									left join hkp.ComplianceDocument cd on cd.Id=d.ComplianceDocumentid
 									where  cd.profiletype='PF'
 								   
