@@ -4685,13 +4685,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
                 #endregion
                 
-                SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Nullified Columns Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual Day Status Nullifying Localized Values              
                 ManualOutRestored(PlantValue, empList); // Reprocessing OutTime of Employees
                 #endregion
 
-                SaveLog("Reprocessing OutTime Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Reprocessing OutTime Ran Successfully ...", PlantValue, false);
 
                 #region Manual In Status Logic
                 DataSet ManualInStatus;
@@ -5087,7 +5087,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                SaveLog("ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region Sandwich Saving 
                 DataSet ManualSandwichSavingData;
@@ -5295,7 +5295,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
-                SaveLog("Sandwich Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Sandwich Logic Ran Successfully ...", PlantValue, false);
 
                 #region Payroll DayStatus 
                 PayrollDayStatus(PlantValue, empList); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
@@ -5422,7 +5422,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                SaveLog("Payroll DayStatus Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Payroll DayStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual OverStay UnderStay 
                 DataSet ManualOverUnderStay;
@@ -5626,7 +5626,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                SaveLog("Processed OT Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Processed OT Logic Ran Successfully ...", PlantValue, false);
 
                 #region OTEntitled But OT Not Applicable Employees
                 DataSet ManualOTNotApplicable;
@@ -5639,7 +5639,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string RowId = clsWebLib.RetValidLen(ManualOTNotApplicable.Tables[0].Rows[i][@"RowId"]).ToString();
                         RowMaster += ",'" + RowId + "'";
                     }
-                    ConfirmOTFlag(RowMaster);
+                    if (RowMaster != "''")
+                    {
+                        ConfirmOTFlag(RowMaster);
+                    }
                 }
 
                 #endregion
