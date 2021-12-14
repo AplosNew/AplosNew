@@ -36,7 +36,7 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion Constructor
 
         #region -- Pages
-        
+
         public ActionResult Aplos()
         {
             return View();
@@ -63,31 +63,41 @@ namespace Aplos.Areas.Employees.Controllers
             string message = string.Empty;
             //if (identity.IsSysAdmin)
             //    message = ServiceResources.PreRecruitmentSysAdmin;
-            return Json(new
+            var jsondata = Json(new
             {
                 Message = message,
                 Data = _employeeProbationalPeriodService.EmployeeQuery(parameters, identity.IsControlAdmin, identity.IsSysAdmin, identity.CompanyId, identity.EmployeeId, identity.PlantId)
             }, JsonRequestBehavior.AllowGet);
+
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpGet, Authorize]
         public ActionResult GetColorEmployeeList(GridParameter parameters, bool old, bool present, bool future)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_employeeProbationalPeriodService.EmployeeColorQueryByDate(parameters, identity.IsControlAdmin, identity.IsSysAdmin, identity.CompanyId, identity.EmployeeId, old, present, future, identity.PlantId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_employeeProbationalPeriodService.EmployeeColorQueryByDate(parameters, identity.IsControlAdmin, identity.IsSysAdmin, identity.CompanyId, identity.EmployeeId, old, present, future, identity.PlantId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
         }
 
         [HttpGet, Authorize]
         public ActionResult GetConfirmedEmployeeData(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_employeeProbationalPeriodService.GetConfirmedEmployeeData(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_employeeProbationalPeriodService.GetConfirmedEmployeeData(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
         [HttpGet, Authorize]
         public ActionResult GetIactiveEmployeeData(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_employeeProbationalPeriodService.GetInActivemployeeData(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_employeeProbationalPeriodService.GetInActivemployeeData(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
         [HttpGet, Authorize]
         public JsonResult GetCbo()
@@ -126,7 +136,9 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpGet, Authorize]
         public ActionResult GetProbationById(string EmployeeId)
         {
-            return Json(_employeeProbationalPeriodService.ProbationQueryByID(EmployeeId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_employeeProbationalPeriodService.ProbationQueryByID(EmployeeId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpGet, Authorize]
@@ -134,7 +146,9 @@ namespace Aplos.Areas.Employees.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var entity = _preRecruitmentEmployeeService.GetEntityByEmployee("HKP.ApprovalConfiguration", "ProbationRP", identity.EmployeeId);
-            return Json(entity, JsonRequestBehavior.AllowGet);
+            var jsondata = Json(entity, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpPost]
@@ -151,9 +165,9 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost]
-        public JsonResult EmployeeInActive( string EmployeeId)
+        public JsonResult EmployeeInActive(string EmployeeId)
         {
-            
+
             _employeeProbationalPeriodService.UpdateStatus(EmployeeId);
             return Json(new { Message = "Status changed successfull. " });
         }
@@ -190,7 +204,7 @@ namespace Aplos.Areas.Employees.Controllers
             //string strPathBangla = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), "Con20188Bengali.xlsx"); // HttpContext.Server.MapPath("~/POPResources/Templates/CLB.xlsx");
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "Confirmation Letter-" + empId + "" + DateTime.Now.ToString("ddMMMyyyy") + "";
-            var workbook = _employeeProbationalPeriodService.EmployeeConfirmation(identity.CompanyGroupId,identity.CompanyId, identity.PlantId, empId, empType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
+            var workbook = _employeeProbationalPeriodService.EmployeeConfirmation(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, empType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
 
             //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             //var fileName = "Confirmation Letter-"+ empId + "" + DateTime.Now.ToString("ddMMMyyyy") + "";
