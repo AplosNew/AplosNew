@@ -619,61 +619,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             DeleteMatrixDataByDetailId(data["Id"].ToString());
                         }
                     }
-                    else
-                    {
-                        if (dsBOMSKUMapping.Tables[0].Rows.Count > 0)
-                        {
-                            //for (int i = 0; i < dsCV.Tables[0].Rows.Count; i++)
-                            //{
-                            //    dsBOMSKUMapping.Tables[0].DefaultView.RowFilter = "RMFirstCharacteristicsValueId='" + dsCV.Tables[0].Rows[i]["Id"].ToString() + "' OR RMSecondCharacteristicsId='" + dsCV.Tables[0].Rows[i]["Id"].ToString() + "'";
-                            //    if (dsBOMSKUMapping.Tables[0].DefaultView.Count == 0)
-                            //    {
-                            //        dsBOMSKUMapping.Tables[0].DefaultView[0].Delete();
-                            //    }
-                            //}
-
-                            //for (int j = 0; j <= dsBOMSKUMapping.Tables[0].Rows.Count; j++)
-                            //{
-                            //    for (int i = 0; i <= dsCV.Tables[0].Rows.Count; i++)
-
-                            //    {
-
-                            //        dsBOMSKUMapping.Tables[0].Rows[j].De = "RMFirstCharacteristicsValueId='" + dsCV.Tables[0].Rows[i]["Id"].ToString() + "' OR RMSecondCharacteristicsId='" + dsCV.Tables[0].Rows[i]["Id"].ToString() + "'";
-                            //        if (dsBOMSKUMapping.Tables[0].DefaultView.Count == 0)
-                            //        {
-                            //            dsBOMSKUMapping.Tables[0].Rows[j].Delete();
-                            //        }
-
-                            //        //if (dsCV.Tables[0].Rows[i]["Id"].ToString() != dsBOMSKUMapping.Tables[0].Rows[j]["RMFirstCharacteristicsValueId"].ToString()
-                            //        //    || dsCV.Tables[0].Rows[i]["Id"].ToString() != dsBOMSKUMapping.Tables[0].Rows[j]["RMSecondCharacteristicsId"].ToString())
-                            //        //{
-                            //        //    dsBOMSKUMapping.Tables[0].Rows[j].Delete();
-                            //        //}
-
-                            //        //if (dsCV.Tables[0].Rows[i]["Id"].ToString() != dsBOMSKUMapping.Tables[0].Rows[j]["RMSecondCharacteristicsId"].ToString())
-                            //        //{
-                            //        //    dsBOMSKUMapping.Tables[0].Rows[j].Delete();
-                            //        //}
-                            //    }
-
-
-                            //}
-                            //for (int i = dsBOMSKUMapping.Tables[0].Rows.Count - 1; i >= 0; i--)
-                            //{
-                            //    DataRow sdr = dsBOMSKUMapping.Tables[0].Rows[i];
-                            //    if (sdr["name"] == "Joe")
-                            //        sdr.Delete();
-                            //}
-
-
-                        
-
-                        
-
-                        }
-
-                    }
-
+                  
                     string _Id = "";
 
                     #region data save update

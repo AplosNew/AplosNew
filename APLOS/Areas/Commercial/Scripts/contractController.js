@@ -37,7 +37,8 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         DeliveryPartyPlantId: null,
         InvoicingByAddress: null,
         DeliveryByAddress: null,
-        Remarks:null
+        Remarks:null,
+        PlantId: $window.plantId
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 

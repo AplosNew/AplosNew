@@ -185,7 +185,7 @@ namespace Library.Service.Setups
                                   , pc.CompanyId, c.UserName AS CompanyName
                                   ,BlanketDefaultLength,BlanketDefaultWidth,IsBlanketDefaultLengthValuesChangeable,IsBlanketDefaultWidthValuesChangeable
                                   ,IsAfterWashShrinkageOnActual,PC.FabRollPrefix,PC.IsProductionOrderCreatedAfterConfirmationOfSO,PC.WeekendforProductionOrder,PC.Operation,PC.OperationInProductionBookingWillBeCapturebyBulletin,pc.MachineBudgetLevel
-                                  ,PC.IsMachineChangeableinBulletinTemplate,pc.IsProductionHourOpen
+                                  ,PC.IsMachineChangeableinBulletinTemplate,pc.IsProductionHourOpen,PC.ProcurementOnBoM
                             FROM SCS.PlantConfig pc
                             LEFT JOIN ORG.Plant p2 ON pc.PlantId = p2.Id
                             LEFT JOIN ORG.CompanyGroup cg ON pc.CompanyGroupId=cg.Id
