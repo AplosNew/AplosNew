@@ -3177,29 +3177,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-        public void AutoConfirmedManualTriggerData(out DataSet ds, string PlantId)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct p.RowId,p.WorkDate from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                            left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
-									        left join DayStatus ds on ds.headerId=dh.Id
-											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
-									        where p.ManualFlag=1 and dt.DayType=p.DayStatus 
-											and IsOTEntitled=1 and isOTConfirmationAuto=1
-											and DayTypeOtApplicable=0
-									        and ei.PlantId='" + PlantId+ @"' order by WorkDate,RowId asc";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-
-        }
         public void ConfirmOTFlag(string MainRowId)
         {
             try
@@ -4685,13 +4662,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
                 #endregion
                 
-                SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Nullified Columns Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual Day Status Nullifying Localized Values              
                 ManualOutRestored(PlantValue, empList); // Reprocessing OutTime of Employees
                 #endregion
 
-                SaveLog("Reprocessing OutTime Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Reprocessing OutTime Ran Successfully ...", PlantValue, false);
 
                 #region Manual In Status Logic
                 DataSet ManualInStatus;
@@ -5087,7 +5064,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                SaveLog("ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region Sandwich Saving 
                 DataSet ManualSandwichSavingData;
@@ -5295,7 +5272,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
-                SaveLog("Sandwich Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Sandwich Logic Ran Successfully ...", PlantValue, false);
 
                 #region Payroll DayStatus 
                 PayrollDayStatus(PlantValue, empList); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
@@ -5422,7 +5399,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                SaveLog("Payroll DayStatus Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Payroll DayStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual OverStay UnderStay 
                 DataSet ManualOverUnderStay;
@@ -5626,26 +5603,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                SaveLog("Processed OT Logic Ran Successfully ...", PlantValue, false);
-
-                #region OTEntitled But OT Not Applicable Employees
-                DataSet ManualOTNotApplicable;
-                AutoConfirmedManualTriggerData(out ManualOTNotApplicable, PlantValue);
-                if (ManualOTNotApplicable.Tables[0].Rows.Count > 0)
-                {
-                    string RowMaster = "''";
-                    for (int i = 0; i < ManualOTNotApplicable.Tables[0].Rows.Count; i++)
-                    {
-                        string RowId = clsWebLib.RetValidLen(ManualOTNotApplicable.Tables[0].Rows[i][@"RowId"]).ToString();
-                        RowMaster += ",'" + RowId + "'";
-                    }
-                    ConfirmOTFlag(RowMaster);
-                }
-
-                #endregion
-
-                SaveLog("OT Confirming Not Applicable DayStatus Logic Ran Successfully ...", PlantValue, false);
-
+                SaveLog("Manual Processed OT Logic Ran Successfully ...", PlantValue, false);
+                               
                 #region Set Manual Flag ->0              
                 ProcessManualFlag(ManualFlagRowId); // Set ManualFlag to 0
                 #endregion
