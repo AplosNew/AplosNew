@@ -3177,29 +3177,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-        public void AutoConfirmedManualTriggerData(out DataSet ds, string PlantId)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct p.RowId,p.WorkDate from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                            left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
-									        left join DayStatus ds on ds.headerId=dh.Id
-											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
-									        where p.ManualFlag=1 and dt.DayType=p.DayStatus 
-											and IsOTEntitled=1 and isOTConfirmationAuto=1
-											and DayTypeOtApplicable=0
-									        and ei.PlantId='" + PlantId+ @"' order by WorkDate,RowId asc";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-
-        }
         public void ConfirmOTFlag(string MainRowId)
         {
             try
@@ -5627,28 +5604,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #endregion
 
                 SaveLog("Manual Processed OT Logic Ran Successfully ...", PlantValue, false);
-
-                #region OTEntitled But OT Not Applicable Employees
-                DataSet ManualOTNotApplicable;
-                AutoConfirmedManualTriggerData(out ManualOTNotApplicable, PlantValue);
-                if (ManualOTNotApplicable.Tables[0].Rows.Count > 0)
-                {
-                    string RowMaster = "''";
-                    for (int i = 0; i < ManualOTNotApplicable.Tables[0].Rows.Count; i++)
-                    {
-                        string RowId = clsWebLib.RetValidLen(ManualOTNotApplicable.Tables[0].Rows[i][@"RowId"]).ToString();
-                        RowMaster += ",'" + RowId + "'";
-                    }
-                    if (RowMaster != "''")
-                    {
-                        ConfirmOTFlag(RowMaster);
-                    }
-                }
-
-                #endregion
-
-                SaveLog("OT Confirming Not Applicable DayStatus Logic Ran Successfully ...", PlantValue, false);
-
+                               
                 #region Set Manual Flag ->0              
                 ProcessManualFlag(ManualFlagRowId); // Set ManualFlag to 0
                 #endregion
