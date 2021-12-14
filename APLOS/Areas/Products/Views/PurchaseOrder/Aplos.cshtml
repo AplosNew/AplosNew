@@ -379,14 +379,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group">
-                <label class="col-sm-4 control-label" title="Customer Name" ng-hide="productNew.OrderSpecific==='No'">Customer Name</label>
-                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                    <input type="text" name="Customer Name" ng-model="productNew.CustomerName" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
-                </div>
-            </div>
-        </div>
+
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group">
                 <label class="col-sm-4 control-label" title="Contract" ng-hide="productNew.OrderSpecific==='No'">Contract</label>
@@ -402,6 +395,14 @@
                         <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
                         <button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
                     </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Customer Name" ng-hide="productNew.OrderSpecific==='No'">Customer Name</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" name="Customer Name" ng-model="productNew.CustomerName" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
                 </div>
             </div>
         </div>
@@ -569,7 +570,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Terms and Conditions<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Terms and Conditions</label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
                                 <select id="TypeId" class="form-control" name="Terms And Conditions" ng-model="productNew.TermsAndConditionsId" ng-change="LoadTermsAndConditionGrid();" tabindex="12" @*required*@>
@@ -687,8 +688,8 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
             <div ng-form="tabForm1">
                 <ul class="col-md-6 common-btn list-inline text-left">
-                    <li><button ng-click="detailPopUp();" ng-hide="productNew.Id==null || productNew.OrderSpecific==='Yes'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Material</button></li>
-                    <li><button ng-click="GetBOQItemList();" ng-hide="productNew.Id==null || productNew.OrderSpecific==='No'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add BOQ Material</button></li>
+                    <li><button ng-click="detailPopUp();" ng-show="productNew.Id!=null  && (productNew.OrderSpecific=='No' || (productNew.OrderSpecific=='Yes' && isProcurementOnBoM==false))" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Material</button></li>
+                    <li><button ng-click="GetBOQItemList();" ng-show="productNew.Id!=null && (productNew.OrderSpecific=='Yes' && isProcurementOnBoM==true)" class="btn"><i class="glyphicon glyphicon-plus"></i> Add BOQ Material</button></li>
                 </ul>
                 <div class="clearfix"></div>
                 <div class="table-responsive modal-table" ng-show="inventoryMaterialList.length>0">
@@ -1939,36 +1940,26 @@
 
                             <div id="ReqaddIdGridReq">
                                 <div class="col-lg-12">
-                                    @*<div style="color:black;" id="GridReq" ej-grid e-datasource="GetListForMasterOrder" ng-init="chkinit()"
-                                        e-allowResizing="true"
-                                        e-allowfiltering="true"
-                                        e-allowpaging="true"
-                                        e-allowsorting="true"
-                                        e-allowscrolling="true"
-                                        e-filtersettings-filterType="excel"
-                                        e-enabletouch="true"
-                                        e-allowselection="true"
-                                        e-responsive="true">*@
                                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                                         <div style="color:black;" id="GridReq" ej-grid e-datasource="GetListForMasterOrder"
                                              @*e-templaterefresh="refreshTemplateMasterOrderOperation"*@ e-templaterefresh="refreshTemplateemployee"
                                              e-recorddoubleclick=""
-                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryRows"
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryRows" e-showtotalsummary="true"
                                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-gridlines="vertical" e-allowtouch="true" e-allowResizing="true">
 
 
                                             <div e-columns>
                                                 <div e-column e-template="#CheckBoxTemp" e-headertemplateid="#headerTemplate11" @*e-headertext="Chk"*@ e-width="40" textAlign='center'></div>
-                                                <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="80"></div>
-                                                <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="80"></div>
+                                                <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="60"></div>
+                                                <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="60"></div>
 
                                                 <div e-column e-field="UserName" e-headertext="Material" e-width="100"></div>
-                                                <div e-column e-field="StandardName" e-headertext="Article" e-width="200"></div>
-                                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-                                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-                                                <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-                                                <div e-column e-field="BOMQty" e-headertext="BOQ" e-width="80" e-textalign="right"></div>
-                                                <div e-column e-field="BOQUOM" e-headertext="UoM" e-width="70"></div>
+                                                <div e-column e-field="StandardName" e-headertext="Article" e-width="100"></div>
+                                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="60"></div>
+                                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="60"></div>
+                                                <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="40"></div>
+                                                <div e-column e-field="BOMQty" e-headertext="BOQ" e-width="60" e-textalign="right"></div>
+                                                <div e-column e-field="BOQUOM" e-headertext="UoM" e-width="60"></div>
 
                                                 <div e-column e-field="RequiredQtyPO" e-headertext="Booking Qty" e-width="70"></div>
                                                 <div e-column e-field="OtherPOQty" e-headertext="Other PO Qty" e-width="80" e-textalign="right"></div>
@@ -2012,7 +2003,7 @@
                                             <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" e-value="data.CheckedStatus" @*e-change="$parent.getTaxCategoryList1"*@ /> @*e-enabled="{{data.RequiredQtyApproved==='1'}}"*@
                                         </script>
                                         <script type="text/template" id="CurrentTextBOQ">
-                                            <input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-keyup="$parent.calculateRequisitionData(this)" />
+                                            <input type="text" class="input form-control" ng-blur="$parent.refreshQtyTemplete(this)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" @*ng-keyup="$parent.refreshQtyTemplete(this)"*@ />
 
                                         </script>
                                         <script type="text/template" id="BOQQRate">
@@ -2081,7 +2072,7 @@
                                 <div class="col-lg-12">
                                     @*<div class="content-container-fluid" style="color:black;">*@
 
-                                    <div style="color:black;" id="GridReqeee" ej-grid e-datasource="GetListForMasterOrder"
+                                    <div style="color:black;" id="GridReqeee" ej-grid e-datasource="GetListForMasterOrderOtherVendor"
                                          e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                                          e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
@@ -2147,7 +2138,7 @@
                                 <div class="col-lg-12">
                                     <div class="content-container-fluid" style="color:black;">
 
-                                        <div style="color:black;" id="GridReq3" ej-grid e-datasource="GetListForMasterOrder"
+                                        <div style="color:black;" id="GridReq3" ej-grid e-datasource="GetListForMasterOrderParent"
                                              e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
                                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
@@ -2274,9 +2265,9 @@
                         <div class="col-lg-12">
                             <div class="content-container-fluid" style="color:black;">
 
-                                <div style="color:black;" id="PODetailUpdate" ej-grid e-datasource="GetListForMasterOrder" ng-init="chkinit()"
-                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-rowdatabound="rowDataBound">
+                                <div style="color:black;" id="PODetailUpdate" ej-grid e-datasource="GetListForMasterOrderUpdate" ng-init="chkinit()" 
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-templaterefresh="refreshUpdateTemplate"
+                                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-rowdatabound="rowUpdateDataBound">
 
                                     <div e-columns>
                                         <div e-column e-template="#CheckBoxTemp12" e-headertemplateid="#headerTemplate1" @*e-headertext="Chk"*@ e-width="40" textAlign='center'></div>
@@ -2321,14 +2312,14 @@
 
                                 </div>
                                 <script type="text/x-jsrender" id="headerTemplate1">
-                                    <input type="checkbox" ej-checkbox class="rowCheckbox" id="headchk11" />
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox"  id="headchkupdate" />
                                 </script>
                                 <script type="text/template" id="CheckBoxTemp12">
                                     <input type="checkbox" @*e-change="$parent.getTaxCategoryList1"*@ e-value="data.CheckedStatus" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" />
                                 </script>
                                 <script type="text/template" id="CurrentText">
-                                    <input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
-
+                                    <input type="text" class="input form-control" ng-blur="$parent.refreshQtyUpdateTemplete()" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
+                                 
                                 </script>
                                 <script type="text/template" id="CurrentRate">
                                     <input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="80" ng-change="$parent.calculateRequisitionData(this)" />
@@ -2388,13 +2379,13 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="ListOfRequisition" role="dialog" data-backdrop="static">
+<!--<div class="modal fade site-modal in" id="ListOfRequisition" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Requisition List FOR GRN Qty Allocation<button type="button" class="close" ng-click="MasterOrderListHide();">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
+            <div class="modal-body form-elements form-horizontal">-->
                 @*e-recorddoubleclick="Getrecorddoubleclick"*@
-                <div style="padding-left: 900px;color:maroon;font-weight:bolder;"><label id="totalGRN" ng-model="totalGRNVal" class="text-right">Total GRN Qty:{{totalGRNVal}}|| RejectionQty:{{RejectionQty}}</label></div>
+                <!--<div style="padding-left: 900px;color:maroon;font-weight:bolder;"><label id="totalGRN" ng-model="totalGRNVal" class="text-right">Total GRN Qty:{{totalGRNVal}}|| RejectionQty:{{RejectionQty}}</label></div>
 
                 <div class="col-lg-12">
                     <div class="content-container-fluid" style="color:black;">
@@ -2417,20 +2408,20 @@
                                 <div e-column e-field="POTransactionQty" e-headertext="PoRaisedQty" e-width="80"></div>
                                 <div e-column e-field="allowQty" e-headertext="AlreadyAllocate" e-width="80"></div>
                                 <div e-column e-field="TransactionQty" e-template="#CurrentQty" e-headertext="GRNQtyAllocation" e-width="80"></div>
-                                <div e-column e-field="RejectionQty" e-template="#RejectionQty" e-headertext="RejectionQtyAllocation" e-width="80"></div>
+                                <div e-column e-field="RejectionQty" e-template="#RejectionQty" e-headertext="RejectionQtyAllocation" e-width="80"></div>-->
                                 @*<div e-column e-field="BalanceQty" e-headertext="Balance" e-template="#Balance" e-width="60"></div>
                                     <div e-column e-field="TransactionRate" e-template="#Rate" e-headertext="Rate" e-width="60"></div>
                                     <div e-column e-field="TransactionAmount" e-headertext="Amount" e-template="#Amount" e-width="80"></div>*@
-                                <div e-column e-field="RequisitionDetailId" e-headertext="ReqRowId" e-width="70"></div>
+                                <!--<div e-column e-field="RequisitionDetailId" e-headertext="ReqRowId" e-width="70"></div>-->
                                 @*<div e-column e-template="#DelButton" e-width="20"></div>*@
-                            </div>
+                            <!--</div>
 
                         </div>
                         <script type="text/x-jsrender" id="checkboxTemplate">
-                            <input type="checkbox" ng-click="$parent.getTaxCategoryList1(this)" ng-model="{{:RequisitionDetailId}}" class="rowCheckbox" value="{{:RequisitionDetailId}}" />
+                            <input type="checkbox" ng-click="$parent.getTaxCategoryList1(this)" ng-model="{{:RequisitionDetailId}}" class="rowCheckbox" value="{{:RequisitionDetailId}}" />-->
                             @*<input type="checkbox" ng-model="data.CheckStatus" ng-change="$parent.calculateRequisitionData(this)" class="rowCheckbox"  />*@
 
-                        </script>
+                        <!--</script>
 
                         <script type="text/x-jsrender" id="headerTemplate">
                             <input type="checkbox" id="headchk" />
@@ -2474,7 +2465,7 @@
 
 
 
-                <div class="clearfix"></div>
+                <div class="clearfix"></div>-->
                 @*<div class="col-md-12 modal-table table-responsive" style="padding-top: 13px;" ng-show="taxCategoryList.length>0">
                         <table class="table table-striped" ng-show="GetListForMasterOrder.length>0">
 
@@ -2503,18 +2494,18 @@
                             </tbody>
                         </table>
                     </div>*@
-                <div class="clearfix"></div>
+                <!--<div class="clearfix"></div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="GrnRequisitionAllocationSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action1}}</button></li>
+                        <li><button ng-click="GrnRequisitionAllocationSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action1}}</button></li>-->
                         @*<li><button ng-click="valuePassInDelModal(x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
-                        <li><button ng-click="MasterOrderListHide();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        <!--<li><button ng-click="MasterOrderListHide();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
 
                     </ul>
                 </div>
             </div>
         </div>
-    </div>
+    </div>-->
 
     @*<script type="text/template" id="Rate">
             <div class="checkbox-site">
@@ -2526,7 +2517,7 @@
             </div>
 
         </script>*@
-</div>
+<!--</div>-->
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removePopUpForDoc" title="Confirmation" message={{message}} data-ng-click-right-button="DeletePOIgame();"></confirm-archive-generic>

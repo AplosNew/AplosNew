@@ -171,7 +171,7 @@ namespace Library.Service.Setups
 
         public IEnumerable<object> GetPlantConfigByPlant(string PlantId)
         {
-            var _sql = @"SELECT PlantId, BuyerApplicable, FabRollPrefix FROM " + PlantConfigTable + " WHERE PlantId='" + PlantId + "'";
+            var _sql = @"SELECT PlantId, BuyerApplicable, FabRollPrefix,ProcurementOnBoM  FROM " + PlantConfigTable + " WHERE PlantId='" + PlantId + "'";
             return _sqlRepository.GetDataCollection(_sql);
         }
 
