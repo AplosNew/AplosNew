@@ -131,6 +131,28 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetAllCharacteristicsValueByMaterial(string MaterialMasterId)
+        {
+            return Json(_sqlRepository.GetDataCollection(@"SELECT * FROM HKP.CharacteristicsValue WHERE MaterialMasterId='" + MaterialMasterId + "'"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSavedCharacteristicsValueByMaterial(string BOMDetailId)
+        {
+            return Json(_sqlRepository.GetDataCollection(@"Select B.* from BOMSKUMapping B
+                LEFT JOIN hkp.CharacteristicsValue CV1 ON CV1.Id=B.RMFirstCharacteristicsValueId
+                Where B.BOMDetailId='"+ BOMDetailId + @"' AND ISNULL(B.RMFirstCharacteristicsValueId,'')<>''
+                UNION 
+                Select B.* from BOMSKUMapping B
+                LEFT JOIN hkp.CharacteristicsValue CV2 ON CV2.Id=B.RMSecondCharacteristicsValueId
+                Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMSecondCharacteristicsValueId,'')<>''
+                UNION 
+                Select B.* from BOMSKUMapping B
+                LEFT JOIN hkp.CharacteristicsValue CV3 ON CV3.Id=B.RMThirdCharacteristicsValueId
+                Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMThirdCharacteristicsValueId,'')<>''"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetBOMSKUMappingList(string bomDetailId)
         {
             var sql = @"SELECT M.*,FGC1.StandardName FGSKU1, FGC2.StandardName FGSKU2,FGC3.StandardName FGSKU3,FGCV1.UserName FGSKU1Value,FGCV2.UserName FGSKU2Value,FGCV3.UserName FGSKU3Value
@@ -619,7 +641,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             DeleteMatrixDataByDetailId(data["Id"].ToString());
                         }
                     }
-                  
+
                     string _Id = "";
 
                     #region data save update

@@ -52,17 +52,17 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetEmployeeList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if ((!identity.IsControlAdmin && !identity.IsSysAdmin))
-            {
-                if (string.IsNullOrEmpty(identity.EmployeeId))
-                    throw new CustomException(string.Format(ServiceResources.EmployeeNotMap));
-                var entity = _preRecruitmentEmployeeService.GetEntityByEmployee("HKP.ApprovalConfiguration", "ProbationRP", identity.EmployeeId);
-                if (entity == null && !entity.Any())
-                    throw new CustomException(string.Format(ServiceResources.EmployeeNotMapWithEntity));
-            }
+            //if ((!identity.IsControlAdmin && !identity.IsSysAdmin))
+            //{
+            //    if (string.IsNullOrEmpty(identity.EmployeeId))
+            //        throw new CustomException(string.Format(ServiceResources.EmployeeNotMap));
+            //    var entity = _preRecruitmentEmployeeService.GetEntityByEmployee("HKP.ApprovalConfiguration", "ProbationRP", identity.EmployeeId);
+            //    if (entity == null && !entity.Any())
+            //        throw new CustomException(string.Format(ServiceResources.EmployeeNotMapWithEntity));
+            //}
             string message = string.Empty;
-            if (identity.IsSysAdmin)
-                message = ServiceResources.PreRecruitmentSysAdmin;
+            //if (identity.IsSysAdmin)
+            //    message = ServiceResources.PreRecruitmentSysAdmin;
             return Json(new
             {
                 Message = message,
