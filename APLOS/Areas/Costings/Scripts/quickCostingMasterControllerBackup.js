@@ -2426,32 +2426,32 @@ function OrderCostingController_backup(cboService, commonMessage, $scope, $rootS
         var data = obj.data;
         if ($scope.Segment == 'DirectMaterial') {
             $scope.DirectMaterialList[$scope.index].ResponsiblePersonId = data.SystemID;
-            $scope.DirectMaterialList[$scope.index].ResponsiblePersoin = data.EmployeeName;
+            $scope.DirectMaterialList[$scope.index].ResponsiblePerson = data.EmployeeName;
         }
         else if ($scope.Segment == 'Operation') {
 
             $scope.OperationList[$scope.index].ResponsiblePersonId = data.SystemID;
-            $scope.OperationList[$scope.index].ResponsiblePersoin = data.EmployeeName;
+            $scope.OperationList[$scope.index].ResponsiblePerson = data.EmployeeName;
         }
         else if ($scope.Segment == 'DirectProcess') {
 
             $scope.DirectProcessList[$scope.index].ResponsiblePersonId = data.SystemID;
-            $scope.DirectProcessList[$scope.index].ResponsiblePersoin = data.EmployeeName;
+            $scope.DirectProcessList[$scope.index].ResponsiblePerson = data.EmployeeName;
         }
         else if ($scope.Segment == 'SalesExpense') {
 
             $scope.SalesExpenseList[$scope.index].ResponsiblePersonId = data.SystemID;
-            $scope.SalesExpenseList[$scope.index].ResponsiblePersoin = data.EmployeeName;
+            $scope.SalesExpenseList[$scope.index].ResponsiblePerson = data.EmployeeName;
         }
         else if ($scope.Segment == 'ValueLoss') {
 
             $scope.ValueLossList[$scope.index].ResponsiblePersonId = data.SystemID;
-            $scope.ValueLossList[$scope.index].ResponsiblePersoin = data.EmployeeName;
+            $scope.ValueLossList[$scope.index].ResponsiblePerson = data.EmployeeName;
         }
         else if ($scope.Segment == 'Profit') {
 
             $scope.ProfitList[$scope.index].ResponsiblePersonId = data.SystemID;
-            $scope.ProfitList[$scope.index].ResponsiblePersoin = data.EmployeeName;
+            $scope.ProfitList[$scope.index].ResponsiblePerson = data.EmployeeName;
         }
 
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
