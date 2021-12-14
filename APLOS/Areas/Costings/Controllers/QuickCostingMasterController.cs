@@ -1989,7 +1989,7 @@ namespace Aplos.Areas.Costings.Controllers
                         ,isnull(m.ValueLoss,ci.Wastage) AS ValueLoss,M.Remarks,M.ProcurementLevel,M.BOQDays,M.DependentDate,M.BOQCriteria,MGM.UserName AS MaterialGroup
                         ,m.SourcingType, ISNULL(m.IsUDApplicable,0) AS IsUDApplicable, m.Usage, ISNULL(m.IsGeneric,0) AS IsGeneric,ISNULL(m.IsMandatory,0) AS  IsMandatory
 						,m.MaterialMasterId, m.ArticleId, mm.UserName as MaterialMasterName, mma.StandardName as ArticleName
-                        ,e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersonId,um.UserName as UnitOfMeasurement, um.Id as UoMId, ci.UserName,
+                        ,e.EmployeeName as ResponsiblePerson, e.SystemId as ResponsiblePersonId,um.UserName as UnitOfMeasurement, um.Id as UoMId, ci.UserName,
                         ISNULL(m.MinimumOfQuantity,ci.MinimumOfQuantity) AS MinimumOfQuantity,ISNULL(m.POIssueDeadLine,ci.POIssueDeadLine)POIssueDeadLine,
                         ISNULL(m.PurchaseGroupId,ci.PurchaseGroupId) AS PurchaseGroupId,ISNULL(m.Particulars,ci.UserName) AS Particulars
                       
@@ -2064,7 +2064,7 @@ namespace Aplos.Areas.Costings.Controllers
         [HttpGet, Authorize]
         public ActionResult GetOperationWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
-            string sql = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersonId,  ci.UserName, o.Description
+            string sql = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePerson, e.SystemId as ResponsiblePersonId,  ci.UserName, o.Description
                             from hkp.CostingItem ci
 						 join [dbo].[PreCostingOperation] o on o.CostingItemId = ci.Id  and o.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
@@ -2224,7 +2224,7 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetDirectProcessWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
             string sql = @"select ci.CostingComponentId,p.Sequence,ci.UserName,p.Id,CI.Id AS CostingItemId, p.CostingMasterTemplateId, p.ExecutionType,
-       p.[Value], p.Rate, p.Amount, p.[Description],e.SystemId as ResponsiblePersonId, e.EmployeeName as ResponsiblePersoin
+       p.[Value], p.Rate, p.Amount, p.[Description],e.SystemId as ResponsiblePersonId, e.EmployeeName as ResponsiblePerson
                         from hkp.CostingItem ci
                         join [dbo].[PreCostingDirectProcess] p on CostingItemId = ci.Id and p.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
@@ -2394,7 +2394,7 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetSalesExpenseWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
             string sql = @"select ci.CostingComponentId,s.Sequence,s.Id,CI.Id AS CostingItemId, s.CostingMasterTemplateId, s.[Type], s.[Value],
-       s.Amount, s.[Description],e.SystemId as ResponsiblePersonId, e.EmployeeName as ResponsiblePersoin,ci.UserName
+       s.Amount, s.[Description],e.SystemId as ResponsiblePersonId, e.EmployeeName as ResponsiblePerson,ci.UserName
                         from hkp.CostingItem ci
                         join [dbo].[PreCostingSalesExpense] s on CostingItemId = ci.Id  and s.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
@@ -2564,7 +2564,7 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetValueLossWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
             string sql = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId, p.CostingMasterTemplateId, p.[Type], p.[Value],
-                    p.Amount, p.[Description],e.EmployeeName as ResponsiblePersoin,p.ResponsiblePersonId,ci.UserName
+                    p.Amount, p.[Description],e.EmployeeName as ResponsiblePerson,p.ResponsiblePersonId,ci.UserName
                         from hkp.CostingItem ci
                         join [dbo].[PreCostingValueLoss] p on CostingItemId = ci.Id  and p.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
@@ -2576,7 +2576,7 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetProfitWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
             string sql = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId, p.CostingMasterTemplateId, p.[Type], p.[Value],
-                    p.Amount, p.[Description],e.EmployeeName as ResponsiblePersoin,p.ResponsiblePersonId,ci.UserName
+                    p.Amount, p.[Description],e.EmployeeName as ResponsiblePerson,p.ResponsiblePersonId,ci.UserName
                         from hkp.CostingItem ci
                         join [dbo].[PreCostingProfit] p on CostingItemId = ci.Id  and p.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
