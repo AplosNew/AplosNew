@@ -2560,7 +2560,7 @@ namespace Library.HumanResource.Payroll
             }
         }
 
-        public IWorkbook GetEmployeeSalaryProcessedReport(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool sa, bool ca, bool isTopSheet)
+        public IWorkbook GetEmployeeSalaryProcessedReport(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool sa, bool ca, bool isTopSheet,string typeLists)
         {
             #region Variable
             clsReport objRpt = null;
@@ -2626,7 +2626,7 @@ namespace Library.HumanResource.Payroll
                 //Sql Salary Process 
                 DataTable dtSalaryHeadSheet;
                 List<SalarySheetReportUD> listdsSlrProc = new List<SalarySheetReportUD>();
-                GetEmployeeInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, sa, ca, userId, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
+                GetEmployeeInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, sa, ca, userId, typeLists,out dsEmpLoyeeInfo);//Sql Query For Salary  Data
                 Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, out dtSalaryHeadSheet);
 
                 if (dicEmpSalry.First().Value[0].Table.Rows.Count > 0)
@@ -14700,8 +14700,13 @@ INNER JOIN
                 objCon = null;
             }
         }//End Function
-        public void GetEmployeeInfoDetail(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool sa, bool ca, string userId, out DataSet dsRef)
+        public void GetEmployeeInfoDetail(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool sa, bool ca, string userId,string typeLists, out DataSet dsRef)
         {
+            string xx = "";
+            if (!string.IsNullOrEmpty(typeLists))
+            {
+                xx = @" eact.Id IN (" + typeLists + ") And ";
+            }
             plantId = "'" + plantId.Replace(",", "','") + "'";
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -14834,8 +14839,8 @@ INNER JOIN
 												LEFT JOIN org.SubSection SS ON E.SubSectionID = SS.Id
 
 											left join HKP.EmployeeCategory EC ON  EC.Id = spld.EmployeeCategoryId
-												
-                                            Where SPC.SlrProcMstSystemID IN( SELECT SystemID FROM SalaryProcMaster
+												LEFT JOIN [dbo].[EmployeeCodeType] eact ON eact.Id = e.EmployeeCodeTypeId
+                                            Where " + xx + @" SPC.SlrProcMstSystemID IN( SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
                                                         WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')  )   
@@ -16326,7 +16331,11 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             DataSet dsRef = null;
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
             distinctSalaryHead = new DataTable("Tmp");
-
+            string xx = "";
+            //if (string.IsNullOrEmpty(typeLists))
+            //{
+            //    xx = @" EC.Id IN (" + typeLists + ") And ";
+            //}
             plantId = "'" + plantId.Replace(",", "','") + "'";
 
 
