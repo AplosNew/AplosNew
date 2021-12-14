@@ -160,7 +160,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     for (int i = 0; i < dtNotPayRollGrpEmpId.Rows.Count; i++)
                         inPayrollGroup += ",'" + dtNotPayRollGrpEmpId.Rows[i]["SystemId"].ToString() + "'";
 
-                    wcPayrollGroup = @" AND E.SystemId  IN (" + inPayrollGroup + @")";
+                    wcPayrollGroup = @" AND EmpSystemID  IN (" + inPayrollGroup + @")";
                 }
                 #endregion
 

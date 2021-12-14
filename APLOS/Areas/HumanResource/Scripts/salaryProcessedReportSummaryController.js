@@ -301,6 +301,9 @@ function salaryProcessedReportSummaryController(commonMessage, $scope, $rootScop
             var DropDownListObj = $("#CWPlant").data("ejDropDownList");
             var PlantId = DropDownListObj.getSelectedValue();
 
+            var DropDownListObj = $("#typeList").data("ejDropDownList");
+            var typeList = DropDownListObj.getSelectedValue();
+
             $http({
                 method: 'POST',
                 url: 'humanresource/PayrollReports/GetBsrSalarySummaryReport',
@@ -313,7 +316,8 @@ function salaryProcessedReportSummaryController(commonMessage, $scope, $rootScop
                     'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
                     'isMaternity': $scope.isMaternity,
-                    'PlantId': PlantId
+                    'PlantId': PlantId,
+                    'typeList': typeList
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -490,6 +494,14 @@ function salaryProcessedReportSummaryController(commonMessage, $scope, $rootScop
         });
     }
     $scope.getPlant();
+    $scope.EmployeeCodeTypeList = [];
+    $scope.EmployeeCodeTypeCbo = function () {
+        $http.get('employees/EmployeeCodeType/GetCbo')
+            .then(function (response) {
+                $scope.EmployeeCodeTypeList = response.data;
+            });
+    }
+    $scope.EmployeeCodeTypeCbo();
 
 }
 
