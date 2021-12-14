@@ -948,12 +948,13 @@
             <div style="color:black;" id="GridTermsAndConditions" ej-grid e-datasource="TermsAndConditionGridList" @*e-rowdatabound="rowDataBoundOrder"*@
                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                  e-filtersettings-filterType="excel" e-enabletouch="false"
-                 e-allowselection="false" e-detailstemplate="detailTempTitle" e-detailsdatabound="detailgridTitle">
+                 e-allowselection="false" @*e-detailstemplate="detailTempTitle" e-detailsdatabound="detailgridTitle" e-templaterefresh="refreshTemplateMasterOrderOperation"*@>
+                
                 <div e-columns>
                     <div e-column e-field="TermsAndConditionPOChildId" e-headertext="TermsAndConditionsPOChildId" e-visible="false"></div>
-                    <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="190"></div>
-                    <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="120"></div>
-                    <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="190"></div>
+                    <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="420"></div>
+                    @*<div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="120"></div>
+            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="190"></div>*@
                     <div e-column e-template="#ShowDetails" e-headertext="" e-width="70"></div>
                     @*<div e-column e-headertext=" Action " e-template="#LCCloseTemplate" e-width="120"></div>*@
 

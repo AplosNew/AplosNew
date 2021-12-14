@@ -57,7 +57,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             try
             {
-                string sql = @"Select * from BOMMasterAttachmentWithItem  where BOMMasterId='"+ Id + "'";
+                string sql = @"Select * from BOMMasterAttachmentWithItem  where BOMMasterId='" + Id + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -249,12 +249,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CopyBomDetailData(string BOMMasterId,string Id)
+        public JsonResult CopyBomDetailData(string BOMMasterId, string Id)
         {
             try
             {
                 Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
-                _attachment.CopyBOMTemplateDetail(BOMMasterId,Id);
+                _attachment.CopyBOMTemplateDetail(BOMMasterId, Id);
 
                 return Json(new { Error = false, Message = "BOM copied successfully" });
             }
@@ -604,25 +604,26 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 }
                 else
                 {
-                    DataSet dsMaster, dsDestination, dsBOMSKUMapping;
+                    DataSet dsMaster, dsDestination, dsBOMSKUMapping, dsCV;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMDetail WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMDestination Where BOMDetailId='" + data["Id"] + "'", out dsDestination, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMSKUMapping Where BOMDetailId='" + data["Id"] + "'", out dsBOMSKUMapping, false, "1");
+                    con.OpenDataSetThroughAdapter("Select * from HKP.CharacteristicsValue Where MaterialMasterId='" + data["RMMaterialMasterId"] + "'", out dsCV, false, "1");
 
                     if (data["IsSKUCommon"].ToString() == "True")
                     {
-                        con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMSKUMapping Where BOMDetailId='" + data["Id"] + "'", out dsBOMSKUMapping, false, "1");
-
                         if (dsBOMSKUMapping.Tables[0].Rows.Count > 0)
                         {
                             DeleteMatrixDataByDetailId(data["Id"].ToString());
                         }
                     }
-
+                  
                     string _Id = "";
 
-                    #region data update
+                    #region data save update
+
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
@@ -668,8 +669,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     }
                     #endregion Destination 
 
-
-                    #endregion data update
+                    #endregion data save update
 
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsMaster, dsDestination);

@@ -58,7 +58,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region -- Operations
         [HttpPost, Authorize]
-        public ActionResult XlsEmployeeGratuity(string calculationDate, string payrollGroup, string employeeSystemId, string reportType)
+        public ActionResult XlsEmployeeGratuity(string calculationDate, string payrollGroup, string employeeSystemId, string reportType, string PlantId, string typeList)
         {
             string fileName = "";
             #region Variable
@@ -84,8 +84,16 @@ namespace Aplos.Areas.Payrolls.Controllers
 
             try
             {
+                string typeLists = string.Empty;
                 ru = new ReportUtility();
-
+                if (!string.IsNullOrEmpty(typeList))
+                {
+                    typeLists = "'" + typeList.Replace(",", "','") + "'";
+                }
+                else
+                {
+                    throw new Exception("Please Select the Employee Code Type");
+                }
                 objRpt = new clsReport();
 
                 #region Variable
@@ -127,17 +135,45 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var colYear = 0;
                 var colDays = 0;
 
+                #region Payroll Group
+                var _systemAdmin = identity.IsSysAdmin.ToString().Trim();
+                var _controlAdmin = identity.IsControlAdmin.ToString().Trim();
+                var UserId = identity.UserId.ToString().Trim();
+                string wcPayrollGroup = "";
+                if (Convert.ToBoolean(_systemAdmin) == true || Convert.ToBoolean(_controlAdmin) == true)
+                {
+                    wcPayrollGroup = @"";
+                }
+                else
+                {
+                    string plantIds = "'" + PlantId.Replace(",", "','") + "'";
+                    string inPayrollGroup = "''";
+                    DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + UserId + @"') AND PlantID IN (" + plantIds + @")");
+                    DataTable dtNotPayRollGrpEmpId = _sqlRepository.GetDataTable(@"SELECT SystemId FROM EmployeeInformation E 
+                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID in(" + plantIds + @")  AND E.PlantID in(" + plantIds + @"))");
+
+
+                    for (int i = 0; i < dtPayRollGrpEmpId.Rows.Count; i++)
+                        inPayrollGroup += ",'" + dtPayRollGrpEmpId.Rows[i]["employeeid"].ToString() + "'";
+
+
+                    for (int i = 0; i < dtNotPayRollGrpEmpId.Rows.Count; i++)
+                        inPayrollGroup += ",'" + dtNotPayRollGrpEmpId.Rows[i]["SystemId"].ToString() + "'";
+
+                    wcPayrollGroup = @" AND E.SystemId  IN (" + inPayrollGroup + @")";
+                }
+                #endregion
+
                 #region DataSet
                 DataTable dtGratuityPolicy = new DataTable();
                 string salaryHeadIDString = "";
                 DataSet dsSlrProc = null;
-                SalaryHeadGratuity(identity.CompanyId, out salaryHeadIDString, out dtGratuityPolicy);
+                SalaryHeadGratuity(identity.CompanyId, PlantId, out salaryHeadIDString, out dtGratuityPolicy);
 
-                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmpSalaryInformationRpt(identity.CompanyId, calculationDate, payrollGroup, salaryHeadIDString, out dsSlrProc);
-                Dictionary<string, DataRow> dicGRTpolicy = GetGratuityPolicy(identity.CompanyId);
-                var _systemAdmin = identity.IsSysAdmin.ToString().Trim();
-                var _controlAdmin = identity.IsControlAdmin.ToString().Trim();
-                GetCompanyEmpGratuityInfo(calculationDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, payrollGroup, employeeSystemId, _systemAdmin, _controlAdmin, out dsEmpGratuity);
+                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmpSalaryInformationRpt(identity.CompanyId, PlantId, calculationDate, payrollGroup, salaryHeadIDString, typeLists, wcPayrollGroup, out dsSlrProc);
+                Dictionary<string, DataRow> dicGRTpolicy = GetGratuityPolicy(identity.CompanyId, PlantId);
+
+                GetCompanyEmpGratuityInfo(calculationDate, identity.CompanyGroupId, identity.CompanyId, PlantId, payrollGroup, employeeSystemId, _systemAdmin, _controlAdmin, typeLists, wcPayrollGroup, out dsEmpGratuity);
                 double eligibleYear = 0.00;
                 dtEmpGratuity = dsEmpGratuity.Tables[0];
                 dtEmpGratuity.Columns.Add("EligibleYear", typeof(double));
@@ -170,7 +206,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         //if(dtEmpGratuity.Rows[i]["totalYear"].ToString())
 
-                        dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear and plantId = '"+ dtEmpGratuity.Rows[i]["PlantID"].ToString() + "' ";
+                        dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear and plantId = '" + dtEmpGratuity.Rows[i]["PlantID"].ToString() + "' ";
 
                         //dtGratuityPolicy.DefaultView.RowFilter =  "MaturityFromYear>=" + dtEmpGratuity.Rows[i]["totalYear"].ToString() + "	AND MaturityToYear <=" + dtEmpGratuity.Rows[i]["totalYear"].ToString();
 
@@ -222,6 +258,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                 SetHeaderValue("Month", sheet1, xlsRow, ref xlsCol, out colMonth, 6);
                 SetHeaderValue("Days", sheet1, xlsRow, ref xlsCol, out colDays, 5);
                 SetHeaderValue("Salary Eligible for Gratuity", sheet1, xlsRow, ref xlsCol, out colBasic, 13);
+                SetHeaderValue("Gratuity Day Or Year", sheet1, xlsRow, ref xlsCol, out int colGratuityDayOrYear, 15);
+                SetHeaderValue("Gratuity No Of Days Or Year", sheet1, xlsRow, ref xlsCol, out int colGratuityNoOfDaysOrYear, 15);
+                SetHeaderValue("Gratuity Rate", sheet1, xlsRow, ref xlsCol, out int colGratuityRate, 15);
                 SetHeaderValue("Gratuity Amount", sheet1, xlsRow, ref xlsCol, out colSalEliGratuity, 15);
                 endXlsCol = colSalEliGratuity;
 
@@ -328,6 +367,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                         ru.SetText(ref sheet1, xlsRow, colDOB, dtEmpGratuity.Rows[i]["DOB"].ToString());//dtEmpInfo.Tables[0].Rows[i][""].ToString()
                         ru.SetText(ref sheet1, xlsRow, colDOJ, dtEmpGratuity.Rows[i]["DOJ"].ToString());
 
+                        ru.SetText(ref sheet1, xlsRow, colGratuityDayOrYear, dtEmpGratuity.Rows[i]["GratuityDayOrYear"].ToString());
+                        ru.SetText(ref sheet1, xlsRow, colGratuityNoOfDaysOrYear, dtEmpGratuity.Rows[i]["GratuityNoOfDaysOrYear"].ToString());
+                        ru.SetText(ref sheet1, xlsRow, colGratuityRate, dtEmpGratuity.Rows[i]["GratuityRate"].ToString());
+
                         if (dicGRTpolicy.ContainsKey(dtEmpGratuity.Rows[i]["EmpSystemID"].ToString()))
                         {
                             drGratuityPolicy = dicGRTpolicy[dtEmpGratuity.Rows[i]["EmpSystemID"].ToString()];
@@ -389,7 +432,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignRight;
                         sheet1.Range[xlsRow, colBasic].BorderAround(ExcelLineStyle.Hair);
 
-                        ru.SetNumberText(ref sheet1, xlsRow, colSalEliGratuity, Convert.ToDouble(eligibleGratuityAmount).ToString("#,##0.00;"));
+                        //ru.SetNumberText(ref sheet1, xlsRow, colSalEliGratuity, Convert.ToDouble(eligibleGratuityAmount).ToString("#,##0.00;"));
+                        ru.SetNumberText(ref sheet1, xlsRow, colSalEliGratuity, Convert.ToDouble(dtEmpGratuity.Rows[i]["GratuityAmount"]).ToString("#,##0.00;"));
 
                         xlsRow++;
                     }
@@ -525,7 +569,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 #endregion
 
                 workbook.Version = ExcelVersion.Excel2016;
-                
+
                 if (reportType.ToUpper() == "EXCEL")
                 {
                     fileName = "GratuityStatement.xls";
@@ -560,8 +604,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                 sheet1 = null;
             }
         }//End Function
-        public void GetCompanyEmpGratuityInfo(string gratuityCalcDate, string companyGroupId, string comapnyId, string plantId, string payGrp, string employeeId, string SystemAdmin, string ControlAdmin, out DataSet dsRef)
+        public void GetCompanyEmpGratuityInfo(string gratuityCalcDate, string companyGroupId, string comapnyId, string plantId, string payGrp, string employeeId, string SystemAdmin, string ControlAdmin, string typeList, string wcPayrollGroup, out DataSet dsRef)
         {
+            string plantIds = "'" + plantId.Replace(",", "','") + "'";
             ConnectionManager.DAL.ConManager objCon;
             var strSql = string.Empty;
             clsStaticInfo obs = null;
@@ -632,8 +677,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     			,ISNULL(CRC.DecimalNo, 0) DecimalNo
                                     			,MW.Grade
                                     			,gpd.MaturityFromYear
-                                    			,gpd.MaturityToYear
-                                    		FROM EmployeeInformation AS E
+                                    			,gpd.MaturityToYear,efs.GratuityDayOrYear,efs.GratuityNoOfDaysOrYear,efs.GratuityRate,efs.GratuityAmount
+                                    		FROM EmployeeInformation  AS E
+                                            JOIN EmployeeFinalSettlement AS efs ON E.SystemId=efs.EmpSystemId
                                     		LEFT JOIN GratuityPolicyDetails AS gpd ON gpd.plantId = e.PlantId
                                     		LEFT JOIN ORG.Plant AS p ON E.PlantId = p.Id
                                     		LEFT JOIN ORG.Company AS Cm ON E.CompanyID = Cm.Id
@@ -722,50 +768,53 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     		LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID
                                     			AND CRC.SalaryHeadID = SH.SalaryHeadID
                                     		LEFT JOIN [dbo].[EmployeeCodeType] eact ON eact.Id = e.EmployeeCodeTypeId
+                                            where eact.Id in (" + typeList + @")
                                     		) A
-                                    	WHERE EmployeeStatus = 'Active'
-                                    		AND a.IsOutSider = 0
-                                    		AND isnull(EmpInfoSystemID, '') <> ''
+                                    	WHERE --EmployeeStatus = 'Active' AND
+                                                -- a.IsOutSider = 0
+                                    		--AND
+                                            isnull(EmpInfoSystemID, '') <> ''
                                     		AND GroupID = '" + companyGroupId + @"'
                                     		AND CompanyId = '" + comapnyId + @"' 
+                                            And PlantId in (" + plantIds + @")
                                     		AND HeadCategory = 'Basic'
                                     	) xx
                                     WHERE xx.CompareDate BETWEEN xx.MaturityFromYear
-                                    		AND xx.MaturityToYear
+                                    		AND xx.MaturityToYear " + wcPayrollGroup + @"
                                     ";
 
-                if (!string.IsNullOrEmpty(employeeId))
-                {
-                    strSql = strSql + @" AND EmpSystemID IN (" + employeeId + ")";
-                }
-                #region--Pay Group--
+                //  if (!string.IsNullOrEmpty(employeeId))
+                //  {
+                //      strSql = strSql + @" AND EmpSystemID IN (" + employeeId + ")";
+                //  }
+                //  #region--Pay Group--
 
-                if (payGrp.ToUpper() == "ALL".ToUpper())
-                {
+                //  if (payGrp.ToUpper() == "ALL".ToUpper())
+                //  {
 
-                    if (SystemAdmin.ToUpper() == "TRUE" || ControlAdmin.ToUpper() == "TRUE")
-                    {
-                        strSql = strSql + "";
-                    }
-                    else
-                    {
-                        strSql = strSql + @" AND EmpSystemID  =''";
-                        throw new Exception("Please Select a Pay Group");
+                //      if (SystemAdmin.ToUpper() == "TRUE" || ControlAdmin.ToUpper() == "TRUE")
+                //      {
+                //          strSql = strSql + "";
+                //      }
+                //      else
+                //      {
+                //          strSql = strSql + @" AND EmpSystemID  =''";
+                //          throw new Exception("Please Select a Pay Group");
 
-                    }
+                //      }
 
-                }
-                else if (payGrp.ToUpper().Trim() != "NOGROUP")
-                {
-                    strSql = strSql + @" AND EmpSystemID  IN (
-													 select employeeid from MST.PayrollGroupMaster where PayrollGroupId = '" + payGrp + @"')";
-                }
-                if (payGrp.ToUpper().Trim() == "NOGROUP")
-                {
-                    strSql = strSql + @" AND EmpSystemID NOT IN (
-													 select employeeid from MST.PayrollGroupMaster)";
-                }
-                #endregion--Pay Group--
+                //  }
+                //  else if (payGrp.ToUpper().Trim() != "NOGROUP")
+                //  {
+                //      strSql = strSql + @" AND EmpSystemID  IN (
+                //select employeeid from MST.PayrollGroupMaster where PayrollGroupId = '" + payGrp + @"')";
+                //  }
+                //  if (payGrp.ToUpper().Trim() == "NOGROUP")
+                //  {
+                //      strSql = strSql + @" AND EmpSystemID NOT IN (
+                //select employeeid from MST.PayrollGroupMaster)";
+                //  }
+                //#endregion--Pay Group--
                 strSql = strSql + @"
                         ORDER BY EmployeeCodeS";
 
@@ -781,10 +830,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                 objCon = null;
             }
         }//End Function
-        public Dictionary<string, List<DataRow>> GetEmpSalaryInformationRpt(string plantId, string effectiveDate, string payRollGroup, string salaryHeadId, out DataSet dsRef)
+        public Dictionary<string, List<DataRow>> GetEmpSalaryInformationRpt(string CompanyId, string plants, string effectiveDate, string payRollGroup, string salaryHeadId, string typeList, string wcPayrollGroup, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
+            string plantId = "'" + plants.Replace(",", "','") + "'";
 
             string strSql = string.Empty;
             clsStaticInfo obs = null;
@@ -792,6 +842,8 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
 
                 obs = new clsStaticInfo();
+
+                #region Old query
                 //              strSql = @"SELECT * FROM
                 //                        (
                 //                         SELECT E.SystemID EmpSystemID,  E.EmployeeCode EmployeeCode, E.EmployeeName, REPLACE(Convert(VARCHAR(11), E.DOB, 106), ' ', '-') AS DOB,
@@ -943,6 +995,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 //					)
                 //                      ";
                 //              strSql = strSql + @" ORDER BY EmployeeCode";
+                #endregion
 
                 strSql = @"SELECT *
                                 FROM (
@@ -997,15 +1050,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 			,ISNULL(bb.UserName, '') BankName
                                 			,gpd.MaturityFromYear
                                 			,gpd.MaturityToYear
-                                		FROM (
-                                			SELECT *
-                                			FROM EmployeeInformation
-                                			WHERE (
-                                					EmployeeStatus != 'Separated'
-                                					OR DOS IS NULL
-                                					OR DOS >= '" + effectiveDate + @"'
-                                					)
-                                			) AS E
+                                            ,efs.GratuityDayOrYear,efs.GratuityNoOfDaysOrYear,efs.GratuityRate,efs.GratuityAmount
+                                		FROM EmployeeInformation  AS E
+                                        JOIN EmployeeFinalSettlement AS efs ON E.SystemId=efs.EmpSystemId
                                 		LEFT JOIN GratuityPolicyDetails AS gpd ON gpd.plantId = e.PlantId
                                 		LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
                                 		LEFT JOIN ORG.Line L ON MB.LineID = L.Id
@@ -1170,19 +1217,21 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 		LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID
                                 			AND CRC.SalaryHeadID = SH.SalaryHeadID
                                 		LEFT JOIN [dbo].[EmployeeCodeType] eact ON eact.Id = e.EmployeeCodeTypeId
+                                        where eact.Id in (" + typeList + @")
                                 		) A
                                 	WHERE ISNULL(EmpInfoSystemID, '') <> ''
-                                		AND CompanyId = '" + plantId + @"'
-                                		AND A.IsOutSider = 0
+                                		AND CompanyId = '" + CompanyId + @"'
+                                        AND PlantId in (" + plantId + @")
+                                		--AND A.IsOutSider = 0
                                 		AND Convert(DATE, DOJ) <= '" + effectiveDate + @"'
-                                		AND (
-                                			DOS IS NULL
-                                			OR DOS >= '" + effectiveDate + @"'
-                                			)
+                                		--AND (
+                                			--DOS IS NULL
+                                			--OR DOS >= '" + effectiveDate + @"'
+                                			--)
                                 		AND SalaryHeadID IN (" + salaryHeadId + @")
                                 	) xx
                                 WHERE xx.compareDate BETWEEN xx.MaturityFromYear
-                                		AND xx.MaturityToYear
+                                		AND xx.MaturityToYear " + wcPayrollGroup + @"
                                 ORDER BY EmployeeCode";
 
                 ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
@@ -1215,15 +1264,15 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }//End Function  
 
-        public Dictionary<string, DataRow> GetGratuityPolicy(string plantId)
+        public Dictionary<string, DataRow> GetGratuityPolicy(string CompanyId, string plantId)
         {
             Dictionary<string, DataRow> dicGrpolicy = new Dictionary<string, DataRow>();
 
-
+            string plantIds = "'" + plantId.Replace(",", "','") + "'";
             string strSql = @"SELECT IGP.PolicyNo GratuityNo,GIA.AgreementNo PolicyNo,
 						 IGP.EmployeeSystemId  FROM IndividualGratuityPolicy IGP
 						 Inner join EmployeeInformation EEI ON EEI.SystemId = IGP.EmployeeSystemId
-						 inner JOIN GratuityInsuranceAgreement GIA ON GIA.Id = IGP.AgreementId   WHERE EEI.CompanyId = '" + plantId + @"'";
+						 inner JOIN GratuityInsuranceAgreement GIA ON GIA.Id = IGP.AgreementId   WHERE EEI.CompanyId = '" + CompanyId + @"' and EEI.PlantId in (" + plantIds + ")";
 
             DataTable dt = _sqlRepository.GetDataTable(strSql);
             for (int i = 0; i < dt.Rows.Count; i++)
@@ -1236,14 +1285,14 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             return dicGrpolicy;
         }
-        private void SalaryHeadGratuity(string plantId, out string resultString, out DataTable dtGratuityPolicy)
+        private void SalaryHeadGratuity(string plantId, string PlantId, out string resultString, out DataTable dtGratuityPolicy)
         {
             string strsql = "";
-
+            string plantIds = "'" + PlantId.Replace(",", "','") + "'";
             strsql = @"SELECT GPD.*,GPM.IsRoudingSixMonth FROM GratuityPolicyMaster GPM 
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
 			                    LEFT JOIN ORG.Plant p on p.Id=GPD.plantId
-			                    WHERE p.CompanyId = '" + plantId + @"'";
+			                    WHERE p.CompanyId = '" + plantId + @"' and p.Id in (" + plantIds + ")";
             DataTable dtGratuity = _sqlRepository.GetDataTable(strsql);
             dtGratuityPolicy = dtGratuity;
 
