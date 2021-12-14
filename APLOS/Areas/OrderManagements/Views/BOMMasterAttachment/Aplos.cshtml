@@ -197,7 +197,7 @@
                         <button ej-splitbutton e-size="mini" e-showroundedcorner="false" e-text="data.MasterOrderId" e-targetid="{{'m'+data.MasterOrderItemId}}"></button>
                         <ul id="{{'m'+data.MasterOrderItemId}}" style="display:none;">
                             <li>
-                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;"> Detail </span>
+                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI'"> Detail </span>
                             </li>
                            
                             <li>
@@ -214,7 +214,7 @@
                         <button ej-splitbutton e-size="small" e-showroundedcorner="false" e-text="data.MasterOrderItemId" e-targetid="{{'i'+data.MasterOrderItemId}}"></button>
                         <ul id="{{'i'+data.MasterOrderItemId}}" style="display:none;">
                             <li>
-                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderItemLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:10pt; padding: 0px; margin: 0px;"> Detail</span>
+                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderItemLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:10pt; padding: 0px; margin: 0px;font-family:'Segoe UI'"> Detail</span>
                             </li>
                             <li>
                                 <span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.MasterOrderBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"> Summary </span>

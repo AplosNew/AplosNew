@@ -536,25 +536,35 @@ namespace Library.OrderManagement.BOM
                 if (dtOrderMaster.Rows.Count == 0)
                     throw new Exception("No data found");
                 worksheet.Name = "BOM-MO Level";
-                string strsql = @"SELECT K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,k.Article,k.Vendor,k.SKUDesc,k.isParent,k.isChild,k.Process,
+                string strsql = @"SELECT K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
+k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,
 SUM(k.OrderQty) OrderQty,SUM(k.PlanOrderQty) PlanOrderQty,AVG(k.Consumption) Consumption,AVG(k.WastagePer) WastagePer,
 SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) RequiredQtyPO,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
 ,k.RMVendorSpec,SUM(k.POQTY) POQTY,SUM(k.GRNQty) GRNQty,k.MOIIds
  From ( SELECT moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,
                                  mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
-								convert(bit,isnull(b.isParent,0)) AS isParent,
-                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process,
-                               CONVERT(BIT, isnull(b.RequiredQtyApproved,0)) AS RequiredQtyApproved
-                               ,CONVERT(BIT, isnull(b.IncompleteMaterial,0)) AS IncompleteMaterial
+
+                                v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3
+								,convert(bit,isnull(b.isParent,0)) AS isParent,
+                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process
                                ,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
                                 b.BOMQty,b.RequiredQty,b.RequiredQtyPO,uom.UserName AS UOM,uomm.UserName AS ParentUOM,
                                 POUOM.UserName AS POUOM,
                                 b.RMDescription,	b.RMCustomerSpec,	b.RMVendorSpec
 								,ISNULL(po.POQTY,0) POQTY,ISNULL(grn.GRNQty,0) GRNQty,
-	  MOIIds=STUFF((select distinct ','+xMOI.Id
-							              FROM TRN.MasterOrderItem xMOI 
-                                        WHERE MO.Id=xMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                  FROM BOQ AS b
+	                          MOIIds=STUFF((select distinct ','+xMOI.Id
+									       from BOQ QX 
+							              Join TRN.MasterOrderItem xMOI on xmoi.Id=qx.MasterOrderItemId
+                                        WHERE MO.id=xMOI.MasterOrderId and qx.ArticleId=b.ArticleId 
+											and isnull(qx.FirstCharacteristicsValueId,'')=isnull(b.FirstCharacteristicsValueId,'')
+											and isnull(qx.SecondCharacteristicsValueId,'')=isnull(b.SecondCharacteristicsValueId,'')
+											and isnull(qx.ThirdCharacteristicsValueId,'')=isnull(b.ThirdCharacteristicsValueId,'')
+											and isnull(qx.RMDescription,'')=isnull(b.RMDescription,'')
+											and isnull(qx.RMCustomerSpec,'')=isnull(b.RMCustomerSpec,'')
+											and isnull(qx.RMVendorSpec,'')=isnull(b.RMVendorSpec,'')
+										for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								FROM BOQ AS b
                                 LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
                                 LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
                                 LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
@@ -566,6 +576,9 @@ SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) Require
                                 LEFT OUTER JOIN scs.UnitOfMeasurement AS uomm ON uomm.Id=mo.TotalQtyUOMId
                                 LEFT JOIN hkp.Process AS pr ON pr.Id=b.ProcessId
 
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
 								Left outer join (select BOQDetailId,sum(POBOQQty) as POQTY from trn.POBOQMAP  GRoup by BOQDetailId) PO On PO.BOQDetailId = b.Id
 								Left outer join (	
 								SELECT a.BOQDetailId , sum(b.TransactionQty) GRNQty 
@@ -576,9 +589,11 @@ SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) Require
 
                                 WHERE MO.Id='"+MasterOrderId+@"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
 								JOIn TRN.MasterOrderItem MOI ON MOI.Id=BOQ.MasterOrderItemId
-								where isnull(ParentId,'')<>'' AND MO.Id='"+ MasterOrderId + @"'                            
+								where isnull(ParentId,'')<>'' AND MO.Id='"+ MasterOrderId + @"'
+                            
                                 )) AS K 
-GROUP BY k.Material,k.Article,k.Vendor,k.SKUDesc,K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.isParent,k.isChild,k.Process
+								GROUP BY K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
+k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process
 ,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec,k.RMVendorSpec,k.MOIIds";
                 DataTable dtBOMData = new DataTable();
                 dtBOMData = _sqlRepository.GetDataTable(strsql);
@@ -736,50 +751,34 @@ GROUP BY k.Material,k.Article,k.Vendor,k.SKUDesc,K.OwnReferenceNo,k.BuyerReferen
                     throw new Exception("No data found");
                 worksheet.Name = "BOM-MO Level";
                 string strsql = @"SELECT K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
-k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial,
+k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,
 SUM(k.OrderQty) OrderQty,SUM(k.PlanOrderQty) PlanOrderQty,AVG(k.Consumption) Consumption,AVG(k.WastagePer) WastagePer,
 SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) RequiredQtyPO,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
-,k.RMVendorSpec,SUM(k.POQTY) POQTY,SUM(k.GRNQty) GRNQty,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds,k.MOIIds
+,k.RMVendorSpec,SUM(k.POQTY) POQTY,SUM(k.GRNQty) GRNQty,k.MOIIds
  From ( SELECT moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,
                                  mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
 
-                                v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3,convert(bit,isnull(b.isParent,0)) AS isParent,
-                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process,
-                               CONVERT(BIT, isnull(b.RequiredQtyApproved,0)) AS RequiredQtyApproved
-                               ,CONVERT(BIT, isnull(b.IncompleteMaterial,0)) AS IncompleteMaterial
+                                v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3
+								,convert(bit,isnull(b.isParent,0)) AS isParent,
+                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process
                                ,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
                                 b.BOMQty,b.RequiredQty,b.RequiredQtyPO,uom.UserName AS UOM,uomm.UserName AS ParentUOM,
                                 POUOM.UserName AS POUOM,
                                 b.RMDescription,	b.RMCustomerSpec,	b.RMVendorSpec
 								,ISNULL(po.POQTY,0) POQTY,ISNULL(grn.GRNQty,0) GRNQty,
-								
-								 SO1 =STUFF((select distinct ','+xv1.UserName
-								               from BOQFGMapping AS XM	 
-										       JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
-								               JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.FirstCharacteristicsValueId
-								             WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-								SO2 =STUFF((select distinct ','+xv1.UserName
-										from BOQFGMapping AS XM	 
-										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
-										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.SecondCharacteristicsValueId
-										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-								SO3 =STUFF((select distinct ','+xv1.UserName
-										from BOQFGMapping AS XM	 
-										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
-										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.ThirdCharacteristicsValueId
-										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-								POIds =STUFF((select distinct ','+XB2.InventoryReceiveId
-										from trn.POBOQMAP a	 
-										JOIN trn.PurchaseOrderDetail AS XB2 ON xb2.Id=a.PODetailId
-										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
-										from trn.POBOQMAP a	 
-										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
-										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-	  MOIIds=STUFF((select distinct ','+xMOI.Id
-							              FROM TRN.MasterOrderItem xMOI 
-                                        WHERE MO.Id=xMOI.MasterOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                  FROM BOQ AS b
+	                          MOIIds=STUFF((select distinct ','+xMOI.Id
+									       from BOQ QX 
+							              Join TRN.MasterOrderItem xMOI on xmoi.Id=qx.MasterOrderItemId
+                                        WHERE MO.id=xMOI.MasterOrderId and qx.ArticleId=b.ArticleId 
+											and isnull(qx.FirstCharacteristicsValueId,'')=isnull(b.FirstCharacteristicsValueId,'')
+											and isnull(qx.SecondCharacteristicsValueId,'')=isnull(b.SecondCharacteristicsValueId,'')
+											and isnull(qx.ThirdCharacteristicsValueId,'')=isnull(b.ThirdCharacteristicsValueId,'')
+											and isnull(qx.RMDescription,'')=isnull(b.RMDescription,'')
+											and isnull(qx.RMCustomerSpec,'')=isnull(b.RMCustomerSpec,'')
+											and isnull(qx.RMVendorSpec,'')=isnull(b.RMVendorSpec,'')
+										for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								FROM BOQ AS b
                                 LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
                                 LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
                                 LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
@@ -802,14 +801,14 @@ SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) Require
 								
 								) GRN On GRN.BOQDetailId = b.Id
 
-                                WHERE moi.Id='" + MasterOrderItemId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
+                               WHERE moi.Id='"+ MasterOrderItemId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
 								JOIn TRN.MasterOrderItem MOI ON MOI.Id=BOQ.MasterOrderItemId
 								where isnull(ParentId,'')<>'' AND MOI.Id='" + MasterOrderItemId + @"'
                             
-                                )) AS K GROUP BY K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
-k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process,k.RequiredQtyApproved,k.IncompleteMaterial
-,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec
-,k.RMVendorSpec,k.SO1,k.SO2,k.SO3,k.POIds,k.GRNIds,k.MOIIds";
+                                )) AS K 
+								GROUP BY K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
+k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChild,k.Process
+,k.UOM,k.ParentUOM,k.POUOM,k.RMDescription,k.RMCustomerSpec,k.RMVendorSpec,k.MOIIds";
                 DataTable dtBOMData = new DataTable();
                 dtBOMData = _sqlRepository.GetDataTable(strsql);
                 int ROW = 6; int COL = 1;
@@ -822,7 +821,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                 //}
 
                 int MasterOrderDetailsStartRow = ROW;
-                worksheet[ROW, COL].Text = "Master Order:";
+                worksheet[ROW, COL].Text = "Master Order Item:";
                 worksheet[ROW, COL].CellStyle.Font.Bold = true;
                 ROW++;
 
@@ -1588,7 +1587,20 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             sheet[ROW, COL].ColumnWidth = 10;
             int colProcess = COL;
             COL++;
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal2 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal3 = COL;
            
+            COL++;
+
             sheet[ROW, COL].Text = "Customer Spec";
             sheet[ROW, COL].ColumnWidth = 10;
             int colRMCustomerSpec = COL;
@@ -1661,14 +1673,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             sheet[ROW, COL].Text = "Vendor";
             sheet[ROW, COL].ColumnWidth = 10;
             int colVendor = COL;
-            COL++;
-            sheet[ROW, COL].Text = "PO NOs";
-            sheet[ROW, COL].ColumnWidth = 12;
-            int colPOIds = COL;
-            COL++;
-            sheet[ROW, COL].Text = "GRN Nos";
-            sheet[ROW, COL].ColumnWidth = 12;
-            int colGRNIds = COL;
+           
 
 
             sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true; //row 19 of heading 
@@ -1697,8 +1702,10 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                 sheet[ROW, colUOM].Text = dtData.Rows[i]["UOM"].ToString();
                 sheet[ROW, colPOUOM].Text = dtData.Rows[i]["POUOM"].ToString();
                 sheet[ROW, colProcess].Text = dtData.Rows[i]["Process"].ToString();
-              
 
+                sheet[ROW, colCharVal1].Text = dtData.Rows[i]["CharVal1"].ToString();
+                sheet[ROW, colCharVal2].Text = dtData.Rows[i]["CharVal2"].ToString();
+                sheet[ROW, colCharVal3].Text = dtData.Rows[i]["CharVal3"].ToString();
 
                 sheet[ROW, colBOMQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["BOMQty"].ToString());
                 sheet[ROW, colRequiredQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["RequiredQty"].ToString());

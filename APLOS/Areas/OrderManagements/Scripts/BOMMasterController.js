@@ -616,6 +616,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         $scope.rmchar3.MaterialMasterId = $scope.bomDetailNew.RMMaterialMasterId;
 
         $scope.getRMCharacteristicsCboList($scope.bomDetailNew.RMMaterialMasterId);
+        $scope.GetAllCharacteristicsValueByMaterial($scope.bomDetailNew.Id);
 
 
 
@@ -840,8 +841,9 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         $scope.closeRMMaterialMasterbyTypePopUp();
         UomCboByMaterialMaster($scope.bomDetailNew.RMMaterialMasterId);
 
-        $scope.bomDetailNew.Specific = true;
-        $scope.bomDetailNew.SKUMatrix = false;
+        //$scope.bomDetailNew.Specific = true;
+        //$scope.bomDetailNew.SKUMatrix = false;
+        $scope.matrixrad = true;
     };
 
     $scope.rm1characteristicsList = [];
@@ -1056,6 +1058,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             $scope.bomDetailNew.RMMaterialMaster = ob.MaterialMasterName;
             $scope.bomDetailNew.RMArticleId = ob.Id;
             $scope.bomDetailNew.RMArticle = ob.StandardName;
+            $scope.GetAllCharacteristicsValueByNewMaterial($scope.bomDetailNew.RMMaterialMasterId);
             angular.element(document.querySelector('#rarticleSearchPop')).modal('hide');
         } catch (e) {
             ShowResult(e, '', 'rarticleSearchPop');
@@ -1190,9 +1193,35 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
     // #endregion Material Article Search
 
     // #endregion
+    function CheckChacValuesBeforeSave() {
+        if (baseService.arrayLength($scope.CharacteristicsValueByMaterialList) > 0) {
+            for (var i = 0; i < $scope.CharacteristicsValueByMaterialList.length; i++) {
+                if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMFirstCharacteristicsValueId)) {
+                    var a = $scope.CharacteristicsValueByNewMaterialList.includes($scope.CharacteristicsValueByMaterialList[i].RMFirstCharacteristicsValueId);
+                    if (!a) {
+                        throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                    }
+                }
+                if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMSecondCharacteristicsValueId)) {
+                    var a = $scope.CharacteristicsValueByNewMaterialList.includes($scope.CharacteristicsValueByMaterialList[i].RMSecondCharacteristicsValueId);
+                    if (!a) {
+                        throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                    }
+                }
+                if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMThirdCharacteristicsValueId)) {
+                    var a = $scope.CharacteristicsValueByNewMaterialList.includes($scope.CharacteristicsValueByMaterialList[i].RMThirdCharacteristicsValueId);
+                    if (!a) {
+                        throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                    }
+                }
+            }
+        }
+    }
+
 
     $scope.SaveDetail = function () {
         try {
+            CheckChacValuesBeforeSave();
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.detailFormNew.$valid) {
 
@@ -1269,6 +1298,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                     else {
                         ShowResult(response.data.Message, 'success');
                         $scope.getDetailData();
+                        $scope.GetAllCharacteristicsValueByMaterial($scope.bomDetailNew.Id);
                         $scope.bomDetailNew.Id = response.data.Data.Id;
                         if ($scope.bomDetailNew.WithSKU === false) {
                             $scope.ClearDetail();
@@ -1396,6 +1426,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                     $scope.GetBOMSKU1MappingListBySKU($scope.bomDetailNew.Id, $scope.BOMSKUMapping.FGFirstCharacteristicsId);
                     $scope.ClearBOMSKUMapping();
                     $scope.BOMSKUMapping.RMSecondCharacteristicsId = $scope.RMSecondChId;
+                    $scope.GetAllCharacteristicsValueByMaterial($scope.bomDetailNew.Id);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure', 'matrixPopUp');
@@ -1454,6 +1485,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                     $scope.GetBOMSKU2MappingListBySKU($scope.bomDetailNew.Id, $scope.BOMSKUMapping.FGSecondCharacteristicsId);
                     $scope.ClearBOMSKUMapping();
                     $scope.BOMSKUMapping.RMFirstCharacteristicsId = $scope.RMFirstChId;
+                    $scope.GetAllCharacteristicsValueByMaterial($scope.bomDetailNew.Id);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure', 'matrixPopUp');
@@ -1629,6 +1661,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                 $scope.GetBOMSKU1MappingListBySKU($scope.bomDetailNew.Id, $scope.BOMSKUMapping.FGFirstCharacteristicsId);
                 $scope.GetBOMSKU2MappingListBySKU($scope.bomDetailNew.Id, $scope.BOMSKUMapping.FGSecondCharacteristicsId);
                 $scope.ClearBOMSKUMapping();
+                $scope.GetAllCharacteristicsValueByMaterial($scope.bomDetailNew.Id);
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');
@@ -2135,6 +2168,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             ShowResult(e, '');
         }
     };
+
     $scope.closeCMaterialArticlePopUp = function () {
         $scope.searchList = [];
         $scope.dataPlate = [];
@@ -3147,6 +3181,69 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
     };
 
     //#endregion 
+
+    $scope.CharacteristicsValueByMaterialList = [];
+    $scope.GetAllCharacteristicsValueByMaterial = function (Id) {
+        $scope.CharacteristicsValueByMaterialList = [];
+        $http.get('OrderManagements/BOMMaster/GetSavedCharacteristicsValueByMaterial?BOMDetailId=' + Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.CharacteristicsValueByMaterialList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
+    function CheckChacValues() {
+        try {
+            if (baseService.arrayLength($scope.CharacteristicsValueByMaterialList) > 0) {
+                for (var i = 0; i < $scope.CharacteristicsValueByMaterialList.length; i++) {
+                    if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMFirstCharacteristicsValueId)) {
+                        var a = $scope.CharacteristicsValueByNewMaterialList.includes($scope.CharacteristicsValueByMaterialList[i].RMFirstCharacteristicsValueId);
+                        if (!a) {
+                            throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                        }
+                    }
+                    if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMSecondCharacteristicsValueId)) {
+                        var a = $scope.CharacteristicsValueByNewMaterialList.includes($scope.CharacteristicsValueByMaterialList[i].RMSecondCharacteristicsValueId);
+                        if (!a) {
+                            throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                        }
+                    }
+                    if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMThirdCharacteristicsValueId)) {
+                        var a = $scope.CharacteristicsValueByNewMaterialList.includes($scope.CharacteristicsValueByMaterialList[i].RMThirdCharacteristicsValueId);
+                        if (!a) {
+                            throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure', 'detailpopup');
+        }
+    }
+
+    $scope.CharacteristicsValueByNewMaterialList = [];
+    $scope.GetAllCharacteristicsValueByNewMaterial = function (MaterialMasterId) {
+
+        $scope.CharacteristicsValueByNewMaterialList = [];
+        $http.get('OrderManagements/BOMMaster/GetAllCharacteristicsValueByMaterial?MaterialMasterId=' + MaterialMasterId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.CharacteristicsValueByNewMaterialList = response.data;
+
+                        CheckChacValues();
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
 
     $scope.AttahedBoMIList = [];
     $scope.GetAttahedBoMInfo = function (obj) {

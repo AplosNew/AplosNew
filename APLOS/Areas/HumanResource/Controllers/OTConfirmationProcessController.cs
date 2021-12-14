@@ -54,7 +54,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(ot.GetWorkDateRange(Year,Month,Week), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost,Authorize]
+        [HttpPost]
         public ActionResult getGridData(string Week, string FromDate, string ToDate, Dictionary<string , string> Parameters)
         {
             var json = Json(ot.getGridData(Week, FromDate, ToDate,  Parameters), JsonRequestBehavior.AllowGet);
@@ -92,7 +92,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult getOTReportDownload(string Week, string FromDate, string ToDate, string OTConfirmationValue, string OTLimit, string Process, string ProcessValue, string DayStatus
         , string DSApp, Dictionary<string, string> Parameters)
         {

@@ -3585,8 +3585,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 string ToDaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
-                                string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
-
+                           
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
                                 if (PrevDaySandwich == "0" && ToDaySandwich == "2")
@@ -5098,8 +5097,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
                             string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
-                            string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
-
+                        
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             if (PrevDaySandwich == "0" && TodaySandwich == "2")
