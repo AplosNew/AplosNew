@@ -981,6 +981,8 @@ var upanelApp = angular
     .controller('JWReceiptController', JWReceiptController)
     .controller('LeavesChecklistReportNewController', LeavesChecklistReportNewController)
     .controller('WasteTransactionReportController', WasteTransactionReportController)
+    .controller('ProformaInvoiceController', ProformaInvoiceController)
+
 
     .config(AccessControllerConfig)
     .config(accountConfig)

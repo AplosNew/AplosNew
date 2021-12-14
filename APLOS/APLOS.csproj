@@ -472,6 +472,7 @@
     <Compile Include="Areas\Commercial\Controllers\ContractController.cs" />
     <Compile Include="Areas\Commercial\Controllers\OverHeadTypeGLController.cs" />
     <Compile Include="Areas\Commercial\Controllers\OverHeadTypeController.cs" />
+    <Compile Include="Areas\Commercial\Controllers\ProformaInvoiceController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQPurchaseOrderController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQController.cs" />
     <Compile Include="Areas\Costings\Controllers\ItemConsumptionController.cs" />
@@ -1762,6 +1763,7 @@
     <Content Include="Areas\Commercial\Scripts\OverHeadTypeGLController.js" />
     <Content Include="Areas\Commercial\Scripts\OverHeadTypeGLParachasController.js" />
     <Content Include="Areas\Commercial\Scripts\contractFundUtilizationController.js" />
+    <Content Include="Areas\Commercial\Scripts\ProformaInvoiceController.js" />
     <Content Include="Areas\Costings\Scripts\BOQPurchaseOrderController.js" />
     <Content Include="Areas\Costings\Scripts\BOQController.js" />
     <Content Include="Areas\Costings\Scripts\ItemConsumptionController.js" />
@@ -3883,6 +3885,7 @@
     <Content Include="Areas\Productions\Views\WasteTransactionReport\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\DailyTarget\LineDesignReport.cshtml" />
     <Content Include="Areas\Productions\Views\DailyTarget\Graphs.cshtml" />
+    <Content Include="Areas\Commercial\Views\ProformaInvoice\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
