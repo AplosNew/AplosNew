@@ -216,7 +216,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
 
-                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, identity.IsSysAdmin, identity.IsControlAdmin, false);
+                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, identity.IsSysAdmin, identity.IsControlAdmin, false,"");
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 
@@ -521,7 +521,7 @@ WHERE m.MonthNo='" + month + @"' AND m.YearNo='" + year + @"') ";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
 
-                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, true);
+                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, true,"");
                 workbook.Version = ExcelVersion.Excel2013;
                 workbook.SaveAs(fullPath);
 
