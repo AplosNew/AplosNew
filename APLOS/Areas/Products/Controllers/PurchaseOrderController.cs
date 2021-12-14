@@ -3798,6 +3798,39 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 				ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		public ActionResult DeleteTitle(string id)
+		{
+			try
+			{
+
+				string ret = tg.DeletePOTitle(id);
+
+				if (ret == "Success")
+				{
+					return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+				}
+				else
+				{
+					return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+				}
+
+			}
+			catch (Exception ex)
+			{
+
+				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+			}
+		}
+		string TableName = "hkp.TermsAndConditions";
+		private double GetSequence()
+		{
+			DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
+			if (dt.Rows.Count > 0)
+				return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+			return 1;
+		}
 		[Authorize, HttpGet]
 		public JsonResult TermsAndConditions()
 		{
@@ -3846,10 +3879,9 @@ where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
 		public ActionResult GetTermsAndConditionsPOList(string TermsAndConditionMasterId,string POId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"select TCM.Id TermsAndConditionMasterId,TC.Id TermsAndConditionPOChildId,TC.Id,TC.Title,TCM.Description ,TCM.Code 
-from TermsAndConditionsPOChild TC 
-left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMasterId 
-where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'AND TC.POId='"+ POId + @"' ";
+			string sql = @"select TC.Id TermsAndConditionPOChildId,TC.Id,TC.Title
+from TermsAndConditionsPOChild TC
+WHERE TC.POId='" + POId + @"' ";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}

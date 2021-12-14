@@ -2,7 +2,7 @@
 <div class="form-elements form-horizontal" ng-form="modelForm">
     <div class="row">
         <div class="col-md-12 col-lg-12 col-sm-12">
-            <div class="col-xs-4 col-sm-4 col-md-4">
+            <div class="col-xs-3 col-sm-3 col-md-3">
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Calculation Date<sup>*</sup></label>
                     <div class="col-sm-8  show-message">
@@ -11,32 +11,40 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Payroll Group<sup></sup></label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select id="YearId" class="form-control" ng-model="payrollGroupId" name="PayrollGroup" required tabindex="3">
-                                <option ng-repeat="option in payrollGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
+            @*<div class="col-xs-3 col-sm-3 col-md-3">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Payroll Group<sup></sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="YearId" class="form-control" ng-model="payrollGroupId" name="PayrollGroup" required tabindex="3">
+                            <option ng-repeat="option in payrollGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
+        </div>*@
+            <div class="col-xs-3 col-sm-3 col-md-3">
                 <div class="form-group">
-                    <div class="common-btn">
+                    <div class="col-sm-12">
+                        <input id="CWPlant" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-3 col-sm-3 col-md-3">
+                <input id="typeList" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="EmployeeCodeTypeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+            </div>
+            <div class="col-xs-3 col-sm-3 col-md-3">
+                <div class="common-btn">
+                    <div class="common-btn text-right">
                         <button ng-click="getGratuityReport('EXCEL');" class="btn"> <i class="glyphicon glyphicon-download"></i>Excel</button>
                         <button ng-click="getGratuityReport('PDF');" class="btn"> <i class="glyphicon glyphicon-download"></i>PDF</button>
                     </div>
                 </div>
             </div>
+
         </div>
-    </div>
-    <div class="loader" data-loader>
-        Please wait
-        <div class="bounce1"></div>
-        <div class="bounce2"></div>
-        <div class="bounce3"></div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            
+        </div>
     </div>
 </div>

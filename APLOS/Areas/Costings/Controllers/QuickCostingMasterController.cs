@@ -1876,7 +1876,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["GrossConsumption"] = item.GrossConsumption;
                             dr["GrossAmount"] = item.GrossAmount;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["SourcingType"] = item.SourcingType;
                             dr["Sequence"] = item.Sequence;
@@ -1925,7 +1925,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                             dr["GrossAmount"] = item.GrossAmount;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["SourcingType"] = item.SourcingType; 
                             dr["Sequence"] = item.Sequence;
@@ -1985,11 +1985,11 @@ namespace Aplos.Areas.Costings.Controllers
         [HttpGet, Authorize]
         public ActionResult GetDirectCostingMaterialWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
-            string sql = @"select ci.CostingComponentId,m.Sequence,m.Consumption,CI.Id AS CostingItemId,m.CostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersoinId,m.UOM
+            string sql = @"select ci.CostingComponentId,m.Sequence,m.Consumption,CI.Id AS CostingItemId,m.CostingMasterTemplateId,m.GrossAmount,m.GrossConsumption,m.Id,m.Rate,m.ResponsiblePersonId,m.UOM
                         ,isnull(m.ValueLoss,ci.Wastage) AS ValueLoss,M.Remarks,M.ProcurementLevel,M.BOQDays,M.DependentDate,M.BOQCriteria,MGM.UserName AS MaterialGroup
                         ,m.SourcingType, ISNULL(m.IsUDApplicable,0) AS IsUDApplicable, m.Usage, ISNULL(m.IsGeneric,0) AS IsGeneric,ISNULL(m.IsMandatory,0) AS  IsMandatory
 						,m.MaterialMasterId, m.ArticleId, mm.UserName as MaterialMasterName, mma.StandardName as ArticleName
-                        ,e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,um.UserName as UnitOfMeasurement, um.Id as UoMId, ci.UserName,
+                        ,e.EmployeeName as ResponsiblePerson, e.SystemId as ResponsiblePersonId,um.UserName as UnitOfMeasurement, um.Id as UoMId, ci.UserName,
                         ISNULL(m.MinimumOfQuantity,ci.MinimumOfQuantity) AS MinimumOfQuantity,ISNULL(m.POIssueDeadLine,ci.POIssueDeadLine)POIssueDeadLine,
                         ISNULL(m.PurchaseGroupId,ci.PurchaseGroupId) AS PurchaseGroupId,ISNULL(m.Particulars,ci.UserName) AS Particulars
                       
@@ -1998,7 +1998,7 @@ namespace Aplos.Areas.Costings.Controllers
                         left join mst.MaterialGroupMaster MGM on MGM.Id=CI.MaterialGroupMasterId
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
                         left join [SCS].[UnitOfMeasurement] um on um.Id = ci.UnitOfMeasurementId
-						left join dbo.EmployeeInformation e on e.SystemId = m.ResponsiblePersoinId
+						left join dbo.EmployeeInformation e on e.SystemId = m.ResponsiblePersonId
 						left join mst.MaterialMaster mm on mm.Id = m.MaterialMasterId 
 						left join [MST].[MaterialMasterArticle] mma on mma.Id = m.ArticleId 
 						WHERE ci.CostingComponentId='" + costingComponentId + @"' Order By m.Sequence";
@@ -2015,7 +2015,7 @@ namespace Aplos.Areas.Costings.Controllers
                         inner join [dbo].[PreCostingDirectMaterial] m on m.CostingItemId = ci.Id
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
                         left join [SCS].[UnitOfMeasurement] um on um.Id = ci.UnitOfMeasurementId
-						left join EmployeeInformation e on e.SystemId = m.ResponsiblePersoinId
+						left join EmployeeInformation e on e.SystemId = m.ResponsiblePersonId
 						left join mst.MaterialMaster mm on mm.Id = m.MaterialMasterId 
 						left join [MST].[MaterialMasterArticle] mma on mma.Id = m.ArticleId 
                         where m.CostingMasterTemplateId = '" + costingMasterTemplateId + "' and ci.CostingComponentId = '" + costingComponentId + "' ";
@@ -2064,11 +2064,11 @@ namespace Aplos.Areas.Costings.Controllers
         [HttpGet, Authorize]
         public ActionResult GetOperationWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
-            string sql = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePersoin, e.SystemId as ResponsiblePersoinId,  ci.UserName, o.Description
+            string sql = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId, o.[Value], o.[Description],e.EmployeeName as ResponsiblePerson, e.SystemId as ResponsiblePersonId,  ci.UserName, o.Description
                             from hkp.CostingItem ci
 						 join [dbo].[PreCostingOperation] o on o.CostingItemId = ci.Id  and o.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersoinId
+						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersonId
                         where ci.CostingComponentId = '" + costingComponentId + "'  Order By o.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2112,7 +2112,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["Value"] = item.Value;
                             dr["Description"] = item.Description;
@@ -2134,7 +2134,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
                             dr["Value"] = item.Value;
                             dr["Description"] = item.Description;
 
@@ -2212,7 +2212,7 @@ namespace Aplos.Areas.Costings.Controllers
             string sql = @"select o.*,e.EmployeeName as ResponsiblePerson, ci.UserName, o.Description from hkp.CostingItem ci
                         inner join  [dbo].[PreCostingOperation] o on o.CostingItemId = ci.Id
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersoinId 
+						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersonId 
                             where o.CostingMasterTemplateId = '" + costingMasterTemplateId + "' and ci.CostingComponentId = '" + costingComponentId + "' ";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2224,11 +2224,11 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetDirectProcessWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
             string sql = @"select ci.CostingComponentId,p.Sequence,ci.UserName,p.Id,CI.Id AS CostingItemId, p.CostingMasterTemplateId, p.ExecutionType,
-       p.[Value], p.Rate, p.Amount, p.[Description],e.SystemId as ResponsiblePersoinId, e.EmployeeName as ResponsiblePersoin
+       p.[Value], p.Rate, p.Amount, p.[Description],e.SystemId as ResponsiblePersonId, e.EmployeeName as ResponsiblePerson
                         from hkp.CostingItem ci
                         join [dbo].[PreCostingDirectProcess] p on CostingItemId = ci.Id and p.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
+						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersonId
                         where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -2271,7 +2271,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["ExecutionType"] = item.ExecutionType;
                             dr["Value"] = item.Value;
@@ -2295,7 +2295,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["Sequence"] = item.Sequence;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["ExecutionType"] = item.ExecutionType;
                             dr["Value"] = item.Value;
@@ -2382,7 +2382,7 @@ namespace Aplos.Areas.Costings.Controllers
 						from hkp.CostingItem ci
                         inner join [dbo].[PreCostingDirectProcess]  p on p.CostingItemId = ci.Id
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId 
+						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersonId 
                         where p.CostingMasterTemplateId = '" + costingMasterTemplateId + "' and ci.CostingComponentId = '" + costingComponentId + "' ";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2394,11 +2394,11 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetSalesExpenseWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
             string sql = @"select ci.CostingComponentId,s.Sequence,s.Id,CI.Id AS CostingItemId, s.CostingMasterTemplateId, s.[Type], s.[Value],
-       s.Amount, s.[Description],e.SystemId as ResponsiblePersoinId, e.EmployeeName as ResponsiblePersoin,ci.UserName
+       s.Amount, s.[Description],e.SystemId as ResponsiblePersonId, e.EmployeeName as ResponsiblePerson,ci.UserName
                         from hkp.CostingItem ci
                         join [dbo].[PreCostingSalesExpense] s on CostingItemId = ci.Id  and s.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = s.ResponsiblePersoinId
+						left join EmployeeInformation e on e.SystemId = s.ResponsiblePersonId
                         where ci.CostingComponentId = '" + costingComponentId + "'  Order By s.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -2441,7 +2441,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["Type"] = item.Type;
                             dr["Value"] = item.Value;
@@ -2465,7 +2465,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["Sequence"] = item.Sequence;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["Type"] = item.Type;
                             dr["Value"] = item.Value;
@@ -2552,7 +2552,7 @@ namespace Aplos.Areas.Costings.Controllers
 						from hkp.CostingItem ci
                         inner join [dbo].[PreCostingSalesExpense]  s on s.CostingItemId = ci.Id
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = s.ResponsiblePersoinId
+						left join EmployeeInformation e on e.SystemId = s.ResponsiblePersonId
                         where s.CostingMasterTemplateId = '" + costingMasterTemplateId + "' and ci.CostingComponentId = '" + costingComponentId + "' ";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2564,11 +2564,11 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetValueLossWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
             string sql = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId, p.CostingMasterTemplateId, p.[Type], p.[Value],
-                    p.Amount, p.[Description],e.EmployeeName as ResponsiblePersoin,p.ResponsiblePersoinId,ci.UserName
+                    p.Amount, p.[Description],e.EmployeeName as ResponsiblePerson,p.ResponsiblePersonId,ci.UserName
                         from hkp.CostingItem ci
                         join [dbo].[PreCostingValueLoss] p on CostingItemId = ci.Id  and p.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
+						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersonId
                         where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -2576,11 +2576,11 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetProfitWithItemByComponentId(string costingComponentId, string costingMasterTemplateId)
         {
             string sql = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId, p.CostingMasterTemplateId, p.[Type], p.[Value],
-                    p.Amount, p.[Description],e.EmployeeName as ResponsiblePersoin,p.ResponsiblePersoinId,ci.UserName
+                    p.Amount, p.[Description],e.EmployeeName as ResponsiblePerson,p.ResponsiblePersonId,ci.UserName
                         from hkp.CostingItem ci
                         join [dbo].[PreCostingProfit] p on CostingItemId = ci.Id  and p.CostingMasterTemplateId = '" + costingMasterTemplateId + @"' 
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
+						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersonId
                         where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -2623,7 +2623,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["Type"] = item.Type;
                             dr["Value"] = item.Value;
@@ -2647,7 +2647,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["Type"] = item.Type;
                             dr["Value"] = item.Value;
@@ -2726,7 +2726,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["Sequence"] = item.Sequence;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["Type"] = item.Type;
                             dr["Value"] = item.Value;
@@ -2750,7 +2750,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingItemId"] = item.CostingItemId;
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["Sequence"] = item.Sequence;
-                            dr["ResponsiblePersoinId"] = item.ResponsiblePersoinId;
+                            dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
                             dr["Type"] = item.Type;
                             dr["Value"] = item.Value;
@@ -2835,7 +2835,7 @@ namespace Aplos.Areas.Costings.Controllers
 						from hkp.CostingItem ci
                         inner join [dbo].[PreCostingValueLoss]  p on p.CostingItemId = ci.Id
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersoinId
+						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersonId
                         where p.CostingMasterTemplateId = '" + costingMasterTemplateId + "' and ci.CostingComponentId = '" + costingComponentId + "' ";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -3308,7 +3308,7 @@ namespace Aplos.Areas.Costings.Controllers
         public decimal Sequence { get; set; }
 
         public string CostingMasterTemplateId { get; set; }
-        public string ResponsiblePersoinId { get; set; }
+        public string ResponsiblePersonId { get; set; }
 
         public string Type { get; set; }
         public decimal Value { get; set; }
@@ -3329,7 +3329,7 @@ namespace Aplos.Areas.Costings.Controllers
         public decimal Sequence { get; set; }
 
         public string CostingMasterTemplateId { get; set; }
-        public string ResponsiblePersoinId { get; set; }
+        public string ResponsiblePersonId { get; set; }
 
         public string Type { get; set; }
         public decimal Value { get; set; }
@@ -3350,7 +3350,7 @@ namespace Aplos.Areas.Costings.Controllers
         public decimal Sequence { get; set; }
 
         public string CostingMasterTemplateId { get; set; }
-        public string ResponsiblePersoinId { get; set; }
+        public string ResponsiblePersonId { get; set; }
 
         public string Type { get; set; }
         public decimal Value { get; set; }
@@ -3369,7 +3369,7 @@ namespace Aplos.Areas.Costings.Controllers
         public string Id { get; set; }
         public string CostingItemId { get; set; }
         public string CostingMasterTemplateId { get; set; }
-        public string ResponsiblePersoinId { get; set; }
+        public string ResponsiblePersonId { get; set; }
 
         public string ExecutionType { get; set; }
         public decimal Value { get; set; }
@@ -3393,7 +3393,7 @@ namespace Aplos.Areas.Costings.Controllers
         public string CostingItemId { get; set; }
         public decimal Sequence { get; set; }
         public string CostingMasterTemplateId { get; set; }
-        public string ResponsiblePersoinId { get; set; }
+        public string ResponsiblePersonId { get; set; }
 
         public decimal Value { get; set; }
         public string Description { get; set; }
@@ -3525,7 +3525,7 @@ namespace Aplos.Areas.Costings.Controllers
         public decimal GrossConsumption { get; set; }
         public decimal GrossAmount { get; set; }
         public string CostingMasterTemplateId { get; set; }
-        public string ResponsiblePersoinId { get; set; }
+        public string ResponsiblePersonId { get; set; }
 
         public string SourcingType { get; set; }
         public string Usage { get; set; }

@@ -76,13 +76,38 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(cp.GetOtherSkuDetailList(OtherSku, SOId, Sequence), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
+        public ActionResult GetSeceondIterationData(string MasterId)
+        {
+            var _sql = "";
+            var _sql1 = "";
+            _sql = @"SELECT distinct cv.UserName,cv.Sequence,cpf.MarkerRatio
+                            FROM CutPlanFormation AS cpf
+                            JOIN CutPlanChild AS cpc ON cpc.Id = cpf.CutPlanChildId
+                            JOIN CutPlanMarkerDetails AS cpmd ON cpmd.Id = cpc.CutPlanMarkerDetailsId
+                            JOIN hkp.CharacteristicsValue AS cv ON cv.Id = cpf.MarkerCharacteristicsValueId
+                            WHERE cpmd.CutPlanMasterId='" + MasterId + @"' 
+                            ORDER BY cv.Sequence";
+
+            _sql1 = @"SELECT cpf.QtyForCalculation,cpf.CalculatedQty,(cpf.QtyForCalculation-cpf.CalculatedQty) CurrentQty
+                            FROM CutPlanFormation AS cpf
+                            JOIN CutPlanChild AS cpc ON cpc.Id = cpf.CutPlanChildId
+                            JOIN CutPlanMarkerDetails AS cpmd ON cpmd.Id = cpc.CutPlanMarkerDetailsId
+                            JOIN hkp.CharacteristicsValue AS cv ON cv.Id = cpf.MarkerCharacteristicsValueId
+                            WHERE cpmd.CutPlanMasterId='" + MasterId + @"' 
+                            ORDER BY cv.Sequence";
+
+            var jsondata = Json(new { MaintData = _sqlRepository.GetDataCollection(_sql), HeaderData = _sqlRepository.GetDataCollection(_sql1) }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
         [HttpPost]
-        public JsonResult Create( List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails,List<Dictionary<string,object>> SkuValueList)
+        public JsonResult Create( List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails,List<Dictionary<string,object>> SkuValueList)
         {
             try
             {
-                cp.Save( FGCharacteristicsValueList,MasterData, CPMarkerDetails, SkuValueList);
+                cp.Save(CalculatedValueList, FGCharacteristicsValueList,MasterData, CPMarkerDetails, SkuValueList);
                 return Json(new { Error = false, data = MasterData, Message = AplosMessage.Updated });
             }
             catch (Exception ex)

@@ -78,6 +78,9 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/AutoLoan/AutoLoanPost',
             controller: 'autoLoanPostController'
         })
-        ;
+        .when('/proforma-invoice', {
+            templateUrl: 'Commercial/ProformaInvoice/Aplos',
+            controller: 'ProformaInvoiceController'
+        });
 
 }

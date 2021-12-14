@@ -470,16 +470,39 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
 
         }
     }
-    $scope.OrderLevelBOMReport = function (args) {
+
+    $scope.BOMReportItemandSalesOrder = function (args) {
 
         try {
-            var file_src = $scope.Attachmentpath + 'OrderLevelBOMReport?MasterOrderItemId=' + args.MasterOrderItemId + '&MasterOrderId=' + args.MasterOrderId;
+            var file_src = $scope.Attachmentpath + 'BOMReportItemandSalesOrder?MasterOrderId=' + args.MasterOrderId
             $rootScope.report(file_src);
 
         } catch (e) {
 
         }
     }
+    $scope.OrderLevelBOMReport = function (args) {
+
+        try {
+            var file_src = $scope.Attachmentpath + 'OrderLevelBOMReport?MasterOrderId=' + args.MasterOrderId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+    $scope.OrderItemLevelBOMReport = function (args) {
+
+        try {
+            var file_src = $scope.Attachmentpath + 'OrderItemLevelBOMReport?MasterOrderItemId=' + args.MasterOrderItemId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
     $scope.ContractLevelBOMReport = function (args) {
 
         try {
@@ -502,6 +525,20 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
             $scope.ItemList = response.data;
         });
     }
+
+    $scope.MasterOrderItemDataList = [];
+    $scope.GetMasterOrderBOMReportByMaterial = function (data) {
+        $scope.AttachmentSelectedBOMRow = data;
+        $rootScope.openPopup('dialogBOMMasterOrderItemSelectionForReport');
+        $http({
+            method: 'POST',
+            data: { 'MasterOrderId': data.MasterOrderId },
+            url: $scope.Attachmentpath + "GetBOMMasterOrderListForReport"
+        }).then(function successCallback(response) {
+            $scope.MasterOrderItemDataList = response.data;
+        });
+    }
+
     $scope.refreshTemplateItem = function (args) {
         if (args.rowIndex == 0) {
             $("#headchkItem").ejCheckBox({ "change": CheckAllItem });
@@ -523,6 +560,59 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
         }
 
     }
+
+    $scope.refreshTemplateMasterOrderItem = function (args) {
+        if (args.rowIndex == 0) {
+            $("#headchkItems").ejCheckBox({ "change": CheckAllItems });
+        }
+    }
+
+    function CheckAllItems(e) {
+        if (!e.isInteraction)
+            return;
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#BOQItemss").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.MasterOrderItemDataList.length; i++) {
+                $scope.MasterOrderItemDataList[i].Checked = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].Checked = ChkOrUnchk;
+            }
+
+
+        }
+        var gridObj = $("#BOQItemss").data("ejGrid");
+        gridObj.refreshContent();
+    }
+
+    $scope.getBOMMasterOrderReport = function () {
+
+        var MasterOrderId = $scope.AttachmentSelectedBOMRow.MasterOrderId;
+        var _itemIds = ej.DataManager($scope.MasterOrderItemDataList).executeLocal(ej.Query().where("Checked", "equal", true));
+        var itemids = getString(_itemIds, "ArticleId");
+
+
+        try {
+            var file_src = $scope.Attachmentpath + 'GetBOMItemReport?ItemIds=' + itemids + '&MasterOrderId=' + MasterOrderId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+
+    }
+
     var getString = function (data, column) {
         var string = "''";
         var collection = [];

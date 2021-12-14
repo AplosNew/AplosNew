@@ -2,33 +2,33 @@
 EmployeeLeaveApprovalNewController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
 function EmployeeLeaveApprovalNewController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = 'Employee Leave Approval New';
-    $scope.Action = 'Save';   
+    $scope.Action = 'Save';
     $scope.path = 'HumanResource/EmployeeLeaveApprovalNew/';
     $scope.getListUrl = $scope.path + 'GetGrdAvailedLvDetails';
     $scope.getlvBalanceUrl = $scope.path + 'GetEmpLeaveBalance';
     $scope.savelvApprovalUrl = $scope.path + 'SaveLeaveApproval';
     $scope.savelvRejectUrl = $scope.path + 'SaveLeaveReject';
-    
+
 
 
 
     $scope.AvailedLvDetails = [];
     $scope.LeaveBalanceList = [];
-    
+
     $scope.GetGrdAvailedLvDetails = function () {
         $scope.AvailedLvDetails = [];
         $http.get($scope.getListUrl)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
-                        $scope.AvailedLvDetails =  response.data;
+                        $scope.AvailedLvDetails = response.data;
                     }
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
     };
-   $scope.GetGrdAvailedLvDetails();
+    $scope.GetGrdAvailedLvDetails();
 
 
 
@@ -40,17 +40,25 @@ function EmployeeLeaveApprovalNewController(commonMessage, $scope, $rootScope, b
         var gridObj = $("#Grid").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         $scope.LeaveBalanceList = [];
-        $http.get($scope.getlvBalanceUrl + '?EmpsystemId=' + data.EmployeeID)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.LeaveBalanceList  = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-       
+        //$http.get($scope.getlvBalanceUrl + '?EmpsystemId=' + data.EmployeeID)
+        //    .then(
+        //        function successCallback(response) {
+        //            if (baseService.arrayLength(response.data) > 0) {
+        //                $scope.LeaveBalanceList  = response.data;
+        //            }
+        //        },
+        //        function errorCallback(response) {
+        //            ShowResult(response, 'failure');
+        //        });
+
+
+
+        $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalance?EmpsystemId=' + data.EmployeeID + '&calanderYearId=')
+            .then(function (response) {
+                $scope.LeaveBalanceList = response.data;
+            });
+
+
     };
     $scope.refreshTemplateemployee = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
@@ -118,11 +126,11 @@ function EmployeeLeaveApprovalNewController(commonMessage, $scope, $rootScope, b
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                 
+
                     ShowResult(response.data.Message, "success");
                     $scope.GetGrdAvailedLvDetails();
 
-                  
+
                 }
             }, function errorCallback(response) {
                 ShowResult(response.Message, 'failure');
@@ -134,26 +142,26 @@ function EmployeeLeaveApprovalNewController(commonMessage, $scope, $rootScope, b
 
     $scope.GetdialogCancelationReason = function () {
         try {
-        var LvList = [];
-        for (var i = 0; i < $scope.AvailedLvDetails.length; i++) {
+            var LvList = [];
+            for (var i = 0; i < $scope.AvailedLvDetails.length; i++) {
 
-            if ($scope.AvailedLvDetails[i].CheckBoxSelect === true) {
-                LvList.push($scope.AvailedLvDetails[i]);
+                if ($scope.AvailedLvDetails[i].CheckBoxSelect === true) {
+                    LvList.push($scope.AvailedLvDetails[i]);
+                }
+
             }
-
+            if (LvList.length == 0) {
+                throw "Please Select Employees.";
+            }
+            var eDialog = $("#dialogCancelationReason").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-        if (LvList.length == 0) {
-            throw "Please Select Employees.";
-        }
-        var eDialog = $("#dialogCancelationReason").data("ejDialog");
-        eDialog.open();  
-    } catch (e) {
-        ShowResult(e, 'failure');
-    }
 
     };
     $scope.Cancel = function () {
-       
+
         var eDialog = $("#dialogCancelationReason").data("ejDialog");
         eDialog.close();
         $scope.CancelationReason = null;
@@ -182,7 +190,7 @@ function EmployeeLeaveApprovalNewController(commonMessage, $scope, $rootScope, b
             $http({
                 method: "POST",
                 dataType: 'JSON',
-                data: { 'LeaveData': LvList, 'CancelationReason': $scope.CancelationReason},
+                data: { 'LeaveData': LvList, 'CancelationReason': $scope.CancelationReason },
                 url: $scope.savelvRejectUrl
 
             }).then(function successCallback(response) {

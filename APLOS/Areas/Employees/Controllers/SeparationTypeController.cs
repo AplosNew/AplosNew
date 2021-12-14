@@ -109,6 +109,10 @@ namespace Aplos.Areas.Employees.Controllers
                 //{
                 //    throw new Exception("Year No & Days no cannot be null..");
                 //}
+                if (SeparationTypeData.IsGratuityApplicable == false && SeparationTypeData.IsFixedDayAmountApplicable)
+                {
+                    throw new Exception("Gratuity applicable should be checked");
+                }
 
                 //SELECT * FROM [dbo].[ExceptionEmployee] WHERE PlantId='' AND EmpSystemId=''
                 string sql = @"SELECT * FROM [HKP].[SeparationType] WHERE PlantID = '" + identity.PlantId + "'";

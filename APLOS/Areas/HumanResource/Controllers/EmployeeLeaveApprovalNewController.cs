@@ -122,7 +122,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             clsLeaveApproval objLvTrsEmpWise;
             objLvTrsEmpWise = new clsLeaveApproval(_sqlRepository);
             var data = objLvTrsEmpWise.GetEmpBasicInfoInformationForLeave(identity.CompanyGroupId, identity.PlantId, identity.IsControlAdmin, identity.IsSysAdmin, identity.EmployeeId, identity.CompanyId);
-            return Json(data, JsonRequestBehavior.AllowGet);
+
+            var jsondata = Json(data, JsonRequestBehavior.AllowGet); 
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+           
         }
 
 

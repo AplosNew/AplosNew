@@ -9566,7 +9566,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 strSql += @"
                             ,AP.DayStatus
                             , AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
-                            ,AP.ProcessedOT OverStay
+                            ,AP.OverStay OverStay
                             ,OTF.TotalOTHr
 							,(isnull(AP.ProcessedOT,0) - isnull(OTF.TotalOTHr,0)) OTDifference
                         	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
@@ -9617,7 +9617,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 						    and ap.ManualOT is null 
                         	AND isnull(AP.IsOTEntitled,'0') = 1  
                         	AND isnull(AP.IsOTComfirm,'0') = 0 
-                            and ap.ProcessedOT >=0 
+                            and ap.ProcessedOT >=0 and ap.OverStay<>0
                         	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
                               and ei.DOJ<='" + ToDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
@@ -10553,7 +10553,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 AP.DayStatus in (select daytype from daytype where category='Present' OR  category='Late')
                         	AND AP.IsOTEntitled = 1
                         	AND AP.IsOTComfirm = 0 and AP.ManualOT is null 
-                            and ap.ProcessedOT >0
+                            and ap.ProcessedOT >=0 and ap.OverStay<>0
                         	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
                               and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + ToDate + @"')

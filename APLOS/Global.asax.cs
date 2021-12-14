@@ -40,7 +40,7 @@ namespace Aplos
             }
             catch (Exception ex)
             {
-
+                throw ex;
             }
 
         }

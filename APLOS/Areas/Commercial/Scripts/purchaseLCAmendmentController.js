@@ -358,9 +358,9 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
                 if (baseService.isUndefinedOrNull($scope.purchaseLCNew.AmendmentDate)) {
                     throw "Amendment Date is reqiured.";
                 }
-                if ($scope.purchaseLCChargesList.length === 0) {
-                    throw "Add Amendment Charges.";
-                }
+                //if ($scope.purchaseLCChargesList.length === 0) {
+                //    throw "Add Amendment Charges.";
+                //}
                 $scope.purchaseLCNew.flag = $scope.flag;
             }
             if (baseService.arrayLength($scope.purchaseLCChargesList) > 0) {

@@ -1,0 +1,52 @@
+﻿<ej-dialog id="dialogLineDesignReport"
+           title="Report"
+           e-enablemodal="true"
+           e-showoninit="false"
+           e-target="#MainDivId"
+           e-width="600"
+           e-minheight="200">
+
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border" style="color:red">Layout Report</legend>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="col-sm-8 control-label">With Employee</label>
+                        <div class="col-sm-4" style="padding-top: 10px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="WithFatherName" ng-model="WithEmployee" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="col-sm-8 control-label">With Machine</label>
+                        <div class="col-sm-4">
+                            <div class="checkbox-site" style="padding-top: 10px;">
+                                <label>
+                                    <input type="checkbox" name="WithFatherName" ng-model="WithMachine" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="common-btn" >
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="DownloadReport();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </fieldset>
+
+</ej-dialog>
+

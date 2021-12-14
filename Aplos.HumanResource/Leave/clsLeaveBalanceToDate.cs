@@ -904,7 +904,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                 throw ex;
             }
         }//End Function
-        public List<Dictionary<string,object>> GetLeaveBalanceType(string EmployeeSystemId, string calYearId)
+        public List<Dictionary<string, object>> GetLeaveBalanceType(string EmployeeSystemId, string calYearId)
         {
 
             try
@@ -921,7 +921,13 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                 }
                 else
                 {
-                    //throw new Exception("No Year found...");
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    DataTable dtCalendar = _sqlRepository.GetDataTable("select * from YearlyCalendar where YearNo=" + DateTime.Now.Year.ToString() + @" AND PlantId='" + identity.PlantId + "'");
+                    if (dtCalendar.Rows.Count > 0)
+                    {
+                        _FromDate = dtCalendar.Rows[0]["FromDate"].ToString();
+                        _ToDate = dtCalendar.Rows[0]["ToDate"].ToString();
+                    }
                 }
                 string _sql = @"
                                 SELECT ei.SystemId,B.LeaveTypeId, ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
