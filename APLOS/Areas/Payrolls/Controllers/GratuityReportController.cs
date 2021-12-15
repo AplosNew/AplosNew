@@ -60,7 +60,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region -- Operations
         [HttpPost, Authorize]
-        public ActionResult XlsEmployeeGratuity(string calculationDate, string payrollGroup, string employeeSystemId, string reportType,string PlantId)
+        public ActionResult XlsEmployeeGratuity(string calculationDate, string payrollGroup, string employeeSystemId, string reportType)
         {
             string fileName = "";
             #region Variable
@@ -133,13 +133,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataTable dtGratuityPolicy = new DataTable();
                 string salaryHeadIDString = "";
                 DataSet dsSlrProc = null;
-                SalaryHeadGratuity(PlantId, out salaryHeadIDString, out dtGratuityPolicy);
+                SalaryHeadGratuity(identity.PlantId, out salaryHeadIDString, out dtGratuityPolicy);
 
-                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmpSalaryInformationRpt(PlantId, calculationDate, payrollGroup, salaryHeadIDString, out dsSlrProc);
-                Dictionary<string, DataRow> dicGRTpolicy = GetGratuityPolicy(PlantId);
+                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmpSalaryInformationRpt(identity.PlantId, calculationDate, payrollGroup, salaryHeadIDString, out dsSlrProc);
+                Dictionary<string, DataRow> dicGRTpolicy = GetGratuityPolicy(identity.PlantId);
                 var _systemAdmin = identity.IsSysAdmin.ToString().Trim();
                 var _controlAdmin = identity.IsControlAdmin.ToString().Trim();
-                objRpt.GetEmpGratuityInfo(calculationDate, identity.CompanyGroupId, identity.CompanyId, PlantId, payrollGroup, employeeSystemId, _systemAdmin, _controlAdmin, out dsEmpGratuity);
+                objRpt.GetEmpGratuityInfo(calculationDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, payrollGroup, employeeSystemId, _systemAdmin, _controlAdmin, out dsEmpGratuity);
                 double eligibleYear = 0.00;
                 dtEmpGratuity = dsEmpGratuity.Tables[0];
                 dtEmpGratuity.Columns.Add("EligibleYear", typeof(double));
@@ -168,7 +168,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         //if(dtEmpGratuity.Rows[i]["totalYear"].ToString())
 
-                        dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear and PlantId= "+ dtEmpGratuity.Rows[i]["PlantId"] + " ";
+                        dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear";
 
                         //dtGratuityPolicy.DefaultView.RowFilter =  "MaturityFromYear>=" + dtEmpGratuity.Rows[i]["totalYear"].ToString() + "	AND MaturityToYear <=" + dtEmpGratuity.Rows[i]["totalYear"].ToString();
 
@@ -232,10 +232,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataRow drGratuityPolicy = null;
                 for (int i = 0; i < dtEmpGratuity.Rows.Count; i++)
                 {
-                  
+
                     try
                     {
-                     
+
                         if (i == 158)
                         {
 
@@ -261,7 +261,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 totalYear += Convert.ToDouble(dtEmpGratuity.Rows[i]["totalYear"].ToString());
 
 
-                                dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear and PlantId= " + dtEmpGratuity.Rows[i]["PlantId"] + " ";
+                                dtGratuityPolicy.DefaultView.RowFilter = totalYear + ">=MaturityFromYear	AND " + totalYear + "<=MaturityToYear";
 
                                 if (dtGratuityPolicy.DefaultView.Count > 0)
                                 {
@@ -598,7 +598,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             ConnectionManager.DAL.ConManager objCon;
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
-           string plantIds = "'" + plantId.Replace(",", "','") + "'";
+
             string strSql = string.Empty;
             clsStaticInfo obs = null;
             try
@@ -730,26 +730,26 @@ namespace Aplos.Areas.Payrolls.Controllers
 																
 													) EmpSlr ON E.SystemID = EmpSlr.EmpInfoSystemID
 										LEFT JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID
-										LEFT JOIN (SELECT * FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId in (" + plantIds + @")) PSH ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
+										LEFT JOIN (SELECT * FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId='" + plantId + @"') PSH ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
 										
 										LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EmpSlr.SalaryRuleMasterSystemID 
 										--LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID	AND SRG.SalaryHeadID = SH.SalaryHeadID									
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
                                         left join [dbo].[EmployeeCodeType] eact on eact.Id=e.EmployeeCodeTypeId
                                         
-                         ) A  where  ISNULL(EmpInfoSystemID,'')<>'' AND PlantID in (" + plantIds + @") AND A.IsOutSider=0 and
+                         ) A  where  ISNULL(EmpInfoSystemID,'')<>'' AND PlantID = '" + plantId + @"' AND A.IsOutSider=0 and
                             Convert(date ,DOJ) <='" + effectiveDate + @"' AND (DOS IS NULL OR DOS >='" + effectiveDate + @"') AND SalaryHeadID in (" + salaryHeadId + @") 
                             AND  Convert(decimal(18,2),CAST(DATEDIFF(mm, A.DOJ, '" + effectiveDate + @"') AS varchar(4)))/12 between 
 							(
 							 SELECT Min(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityFromYear))) FROM GratuityPolicyMaster GPM 
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE GPM.plantId in (" + plantIds + @")
+			                    WHERE GPM.plantId = '" + plantId + @"'
 							)
 							AND
 							(
 							 SELECT Max(Convert(decimal(18,2),Convert(decimal(18,2),GPD.MaturityToYear))) FROM GratuityPolicyMaster GPM 
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE GPM.plantId in (" + plantIds + @")
+			                    WHERE GPM.plantId = '" + plantId + @"'
 							)
                         ";
 
@@ -791,17 +791,17 @@ namespace Aplos.Areas.Payrolls.Controllers
         public Dictionary<string, DataRow> GetGratuityPolicy(string plantId)
         {
             Dictionary<string, DataRow> dicGrpolicy = new Dictionary<string, DataRow>();
-           string plantIds = "'" + plantId.Replace(",", "','") + "'";
+
 
             string strSql = @"SELECT IGP.PolicyNo GratuityNo,GIA.AgreementNo PolicyNo,
 						 IGP.EmployeeSystemId  FROM IndividualGratuityPolicy IGP
 						 Inner join EmployeeInformation EEI ON EEI.SystemId = IGP.EmployeeSystemId
-						 inner JOIN GratuityInsuranceAgreement GIA ON GIA.Id = IGP.AgreementId   WHERE EEI.PlantId in (" + plantIds + @")";
+						 inner JOIN GratuityInsuranceAgreement GIA ON GIA.Id = IGP.AgreementId   WHERE EEI.PlantId = '" + plantId + @"'";
 
             DataTable dt = _sqlRepository.GetDataTable(strSql);
             for (int i = 0; i < dt.Rows.Count; i++)
             {
-                if(dicGrpolicy.ContainsKey(dt.Rows[i]["EmployeeSystemId"].ToString()))
+                if (dicGrpolicy.ContainsKey(dt.Rows[i]["EmployeeSystemId"].ToString()))
                 {
                     continue;
                 }
@@ -812,13 +812,13 @@ namespace Aplos.Areas.Payrolls.Controllers
         private void SalaryHeadGratuity(string plantId, out string resultString, out DataTable dtGratuityPolicy)
         {
             string strsql = "";
-            string plantIds = "'" + plantId.Replace(",", "','") + "'";
+
             strsql = @"SELECT GPD.*,GPM.IsRoudingSixMonth FROM GratuityPolicyMaster GPM 
 			                    LEFT JOIN GratuityPolicyDetails GPD ON GPM.Id = GPD.GratuityPolicyMasterId
-			                    WHERE GPM.plantId in (" + plantIds + @")";
+			                    WHERE GPM.plantId = '" + plantId + @"'";
             DataTable dtGratuity = _sqlRepository.GetDataTable(strsql);
             dtGratuityPolicy = dtGratuity;
-           
+
             List<DataRow> _data = new List<DataRow>();
             // resultString = "";
             resultString = "''";

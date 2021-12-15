@@ -128,7 +128,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var StringDates = new List<DateTime>();
                 StringCollection StrDistinctEmployee = new StringCollection();
 
-                #region To Find Max & Min Date
+                #region To Find Week Max & Min Date
 
                 string WorkDatesMaster = "''";
 
@@ -146,6 +146,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                     }
                 }
+                string WeekMaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
+                string WeekMinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
 
                 #endregion
 
@@ -158,7 +160,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #region Monthly Confirmed OT
 
                 DataSet MonthData;
-                MonthlyOTData(out MonthData,StringDates.Min(date => date).ToString("dd-MMM-yyyy"),OTWeek);
+                MonthlyOTData(out MonthData, WeekMinDate,OTWeek);
 
                 #endregion
 
@@ -189,6 +191,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             for (int i = 0; i < Table.Rows.Count; i++)
                             {
 
+                                decimal MonthlyConfirmedOT = 0;
                                 #region Distinct Employees
 
                                 string EmpId = Table.Rows[i][@"EmpSystemId"].ToString();
@@ -204,11 +207,18 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                 #region Calculations Area
 
-                                string WeekMaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
-                                string WeekMinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
-
                                 DateTime MaxDate = StringDates.Max(date => date);
                                 DateTime MinDate = StringDates.Min(date => date);
+
+
+                                if (MonthData.Tables[0].Rows.Count > 0)
+                                {
+                                    MonthData.Tables[0].DefaultView.RowFilter = @"EmpId='" + EmpId + "' ";
+                                    if (MonthData.Tables[0].DefaultView.Count > 0)
+                                    {
+                                        MonthlyConfirmedOT = Convert.ToDecimal(MonthData.Tables[0].DefaultView[0][@"MonthlyConfirmedOT"].ToString());
+                                    }
+                                }
 
                                 while (MinDate <= MaxDate)
                                 {
@@ -240,14 +250,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     else if (ApplicablePattern == "M")
                                     {
-                                        if (MonthData.Tables[0].Rows.Count > 0)
-                                        {
-                                            MonthData.Tables[0].DefaultView.RowFilter = @"EmpId='" + EmpId + "' ";
-                                            if (MonthData.Tables[0].DefaultView.Count > 0)
-                                            {
-                                                MonthStandardOTMaster += Convert.ToDecimal(Table.DefaultView[0][@"MonthlyConfirmedOT"].ToString());
-                                            }
-                                        }
+                                        MonthStandardOTMaster += MonthlyConfirmedOT;
 
                                         Table.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND IsOTComfirm=true AND WorkDate <>#" + FormatDate + "# " +
                                         "AND WorkDate >= #" + WeekMinDate + "# and WorkDate<= #" + WeekMaxDate + "# ";
@@ -460,12 +463,12 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             clsStaticInfo info = new clsStaticInfo();
                             info.SaveDataSets(dsRef);
-
-                            SaveLog("OT Confirmed ....", PlantValue, false);
+                          
                         }
 
-
                         #endregion
+                       
+                        SaveLog("OT Confirmed ....", PlantValue, false);
                     }       
                 }
 

@@ -57,7 +57,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             try
             {
-                string sql = @"Select * from BOMMasterAttachmentWithItem  where BOMMasterId='"+ Id + "'";
+                string sql = @"Select * from BOMMasterAttachmentWithItem  where BOMMasterId='" + Id + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -128,6 +128,28 @@ namespace Aplos.Areas.OrderManagements.Controllers
                            FROM [MST].[MaterialMasterCharacteristics] AS A
                             INNER JOIN [HKP].[Characteristics] AS B ON A.CharacteristicsId=B.Id 
 							WHERE  A.MaterialMasterId='" + MaterialMasterId + "'"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAllCharacteristicsValueByMaterial(string MaterialMasterId)
+        {
+            return Json(_sqlRepository.GetDataCollection(@"SELECT * FROM HKP.CharacteristicsValue WHERE MaterialMasterId='" + MaterialMasterId + "'"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSavedCharacteristicsValueByMaterial(string BOMDetailId)
+        {
+            return Json(_sqlRepository.GetDataCollection(@"Select B.* from BOMSKUMapping B
+                LEFT JOIN hkp.CharacteristicsValue CV1 ON CV1.Id=B.RMFirstCharacteristicsValueId
+                Where B.BOMDetailId='"+ BOMDetailId + @"' AND ISNULL(B.RMFirstCharacteristicsValueId,'')<>''
+                UNION 
+                Select B.* from BOMSKUMapping B
+                LEFT JOIN hkp.CharacteristicsValue CV2 ON CV2.Id=B.RMSecondCharacteristicsValueId
+                Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMSecondCharacteristicsValueId,'')<>''
+                UNION 
+                Select B.* from BOMSKUMapping B
+                LEFT JOIN hkp.CharacteristicsValue CV3 ON CV3.Id=B.RMThirdCharacteristicsValueId
+                Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMThirdCharacteristicsValueId,'')<>''"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -249,12 +271,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CopyBomDetailData(string BOMMasterId,string Id)
+        public JsonResult CopyBomDetailData(string BOMMasterId, string Id)
         {
             try
             {
                 Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
-                _attachment.CopyBOMTemplateDetail(BOMMasterId,Id);
+                _attachment.CopyBOMTemplateDetail(BOMMasterId, Id);
 
                 return Json(new { Error = false, Message = "BOM copied successfully" });
             }
@@ -604,16 +626,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 }
                 else
                 {
-                    DataSet dsMaster, dsDestination, dsBOMSKUMapping;
+                    DataSet dsMaster, dsDestination, dsBOMSKUMapping, dsCV;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMDetail WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMDestination Where BOMDetailId='" + data["Id"] + "'", out dsDestination, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMSKUMapping Where BOMDetailId='" + data["Id"] + "'", out dsBOMSKUMapping, false, "1");
+                    con.OpenDataSetThroughAdapter("Select * from HKP.CharacteristicsValue Where MaterialMasterId='" + data["RMMaterialMasterId"] + "'", out dsCV, false, "1");
 
                     if (data["IsSKUCommon"].ToString() == "True")
                     {
-                        con.OpenDataSetThroughAdapter("SELECT * FROM dbo.BOMSKUMapping Where BOMDetailId='" + data["Id"] + "'", out dsBOMSKUMapping, false, "1");
-
                         if (dsBOMSKUMapping.Tables[0].Rows.Count > 0)
                         {
                             DeleteMatrixDataByDetailId(data["Id"].ToString());
@@ -622,7 +644,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                     string _Id = "";
 
-                    #region data update
+                    #region data save update
+
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
@@ -668,8 +691,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     }
                     #endregion Destination 
 
-
-                    #endregion data update
+                    #endregion data save update
 
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsMaster, dsDestination);

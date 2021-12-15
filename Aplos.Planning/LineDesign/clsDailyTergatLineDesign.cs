@@ -210,7 +210,7 @@ namespace Library.Planning.LineDesign
 
 
                 sql = @"SELECT TG.*,ISNULL(CONVERT(DECIMAL(18,2),(prd.ProductionQuantity/p.Sequence)/tg1.HourlyTargetAtHundredPercent*100),0) AS AverageProduction,p.Sequence
-                              FROM (SELECT DISTINCT  ov.Id,ov.shortName AS Operationvariation,isnull(OV.Color,'#2E86C1') AS Color
+                              FROM (SELECT DISTINCT  ov.Id,ov.UserName AS Operationvariation,isnull(OV.Color,'#2E86C1') AS Color
                               FROM LineLayoutDailyTarget AS T
                             LEFT JOIN LineLayoutDailyTargetData AS D ON d.LineLayoutDailyTargetId=t.Id
                             LEFT JOIN mst.OperationVariation AS ov ON ov.Id=d.OperationVariationId

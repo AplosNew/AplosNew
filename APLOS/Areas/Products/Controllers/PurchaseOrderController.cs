@@ -3822,8 +3822,6 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
 
 			}
-
-
 		}
 		string TableName = "hkp.TermsAndConditions";
 		private double GetSequence()
@@ -3831,7 +3829,6 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
 			if (dt.Rows.Count > 0)
 				return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
 			return 1;
 		}
 		[Authorize, HttpGet]
@@ -3882,10 +3879,9 @@ where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
 		public ActionResult GetTermsAndConditionsPOList(string TermsAndConditionMasterId,string POId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"select TCM.Id TermsAndConditionMasterId,TC.Id TermsAndConditionPOChildId,TC.Id,TC.Title,TCM.Description ,TCM.Code 
-from TermsAndConditionsPOChild TC 
-left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMasterId 
-where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'AND TC.POId='"+ POId + @"' ";
+			string sql = @"select TC.Id TermsAndConditionPOChildId,TC.Id,TC.Title
+from TermsAndConditionsPOChild TC
+WHERE TC.POId='" + POId + @"' ";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}

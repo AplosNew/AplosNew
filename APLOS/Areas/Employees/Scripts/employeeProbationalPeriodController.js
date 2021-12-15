@@ -351,7 +351,7 @@ function employeeProbationalPeriodController(cboService, commonMessage, $scope, 
         offset: 0,
         order: 'ASC',
         sort: 'DOCSort',
-        searchBy: "EmployeeName",
+        searchBy: "EmployeeCode",
         pageSize: 10,
         total_count: 0,
         search: "",
@@ -423,8 +423,8 @@ function employeeProbationalPeriodController(cboService, commonMessage, $scope, 
         limit: 10,
         offset: 0,
         order: 'ASC',
-        sort: 'EmployeeName',
-        searchBy: "EmployeeName",
+        sort: 'EmployeeCode',
+        searchBy: "EmployeeCode",
         pageSize: 10,
         total_count: 0,
         search: "",
@@ -433,7 +433,7 @@ function employeeProbationalPeriodController(cboService, commonMessage, $scope, 
 
     $scope.employeeList = [];
     $scope.LoadConfirmedDataList = function () {
-        baseService.init('employees/employeeprobationalperiod/getconfirmedemployeedata', null, 10, null, 'EmployeeName', 'EmployeeName');
+        baseService.init('employees/employeeprobationalperiod/getconfirmedemployeedata', null, 10, null, 'EmployeeCode', 'EmployeeCode');
         $scope.GetListData = function (pageno) {
             baseService.pagination(pageno)
                 .then(function (result) {

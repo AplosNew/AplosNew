@@ -23,7 +23,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         private readonly IHrmsSettingsService _hrmsSettingsService;
         private readonly IOTManagementService _OTManagementService;
         public HrmsSettingsController(
-              IHrmsSettingsService hrmsSettingsService, IOTManagementService OTManagementService,  ISqlRepository sqlRepository
+              IHrmsSettingsService hrmsSettingsService, IOTManagementService OTManagementService, ISqlRepository sqlRepository
             )
         {
             _hrmsSettingsService = hrmsSettingsService;
@@ -174,11 +174,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                 }
 
             }
-           
 
 
 
-                
+
+
 
             OutPunchMissingDataForAlert = _hrmsSettingsService.GetOutPunchMissingDataForAlert(lockDate);
             //var LockEmpList = _hrmsSettingsService.GetLockEmployeeListData(lockDate, identity.PlantId);
@@ -645,12 +645,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             _hrmsSettingsService.CreateLockDataEmpWise(EmpSystemId, EmployeeWiseLockDateList, identity.Name, DateTime.Now.ToString("dd-MMM-yyyy HH:mm:ss"));
             return Json(new { Message = AplosMessage.Success });
 
-        } 
+        }
         #endregion
         #endregion
         #region Individual Attendance Lock 
         [HttpGet]
-        public JsonResult LoadSeparatedEmployeeList(string FromDate,string ToDate)
+        public JsonResult LoadSeparatedEmployeeList(string FromDate, string ToDate)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -698,45 +698,45 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult LoadWorkDateSeparatedEmployee(string FromDate, string ToDate,string EmpSystemId)
+        public JsonResult LoadWorkDateSeparatedEmployee(string FromDate, string ToDate, string EmpSystemId)
         {
 
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsEmp = null; ;
-       
-
-            
 
 
-                string EMPsql = @"select EmployeeStatus from EmployeeInformation where SystemID='" + EmpSystemId + @"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(EMPsql, out dsEmp, false, "1");
 
 
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = string.Empty;
-                if (dsEmp.Tables[0].Rows[0]["EmployeeStatus"].ToString().ToUpper()== "SEPARATED")
-                {
-                    sql = @"Select 0 CheckBoxSelect
+            string EMPsql = @"select EmployeeStatus from EmployeeInformation where SystemID='" + EmpSystemId + @"'";
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter(EMPsql, out dsEmp, false, "1");
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = string.Empty;
+            if (dsEmp.Tables[0].Rows[0]["EmployeeStatus"].ToString().ToUpper() == "SEPARATED")
+            {
+                sql = @"Select 0 CheckBoxSelect
                                 ,apd.EmpSystemId,FORMAT(apd.WorkDate,'dd-MMM-yyyy')   WorkDate,apd.DayStatus
                                 ,LockedStatus=CASE WHEN IAL.WorkDate=apd.WorkDate THEN 'Lock' ELSE 'Un-lock' END
 								FROM AttdnProcessData AS apd
 								LEFT JOIN IndividualEmployeeAttendancelock AS IAL ON  IAL.EmpSystemID = apd.EmpSystemID AND IAL.WorkDate = apd.WorkDate           
 								WHERE apd.EmpSystemId='" + EmpSystemId + @"'   AND apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
                                 AND  apd.PlantId='" + identity.PlantId + @"' ---AND (apd.MaternityStatus !='MLV' or apd.MaternityStatus is NULL)";
-                }
-                else
-                {
-                    sql = @"Select 0 CheckBoxSelect
+            }
+            else
+            {
+                sql = @"Select 0 CheckBoxSelect
                                 ,apd.EmpSystemId,FORMAT(apd.WorkDate,'dd-MMM-yyyy')   WorkDate,apd.DayStatus
                                 ,LockedStatus=CASE WHEN IAL.WorkDate=apd.WorkDate THEN 'Lock' ELSE 'Un-lock' END
 								FROM AttdnProcessData AS apd
 								LEFT JOIN IndividualEmployeeAttendancelock AS IAL ON  IAL.EmpSystemID = apd.EmpSystemID AND IAL.WorkDate = apd.WorkDate           
 								WHERE apd.EmpSystemId='" + EmpSystemId + @"'   AND apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
                                 AND  apd.PlantId='" + identity.PlantId + @"' AND (apd.MaternityStatus !='MLV' or apd.MaternityStatus is NULL)";
-                }
-             
+            }
+
 
             var data = _sqlRepository.GetDataCollection(sql);
 
@@ -749,10 +749,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
 
-      
+
 
         [HttpPost]
-        public JsonResult CreateSeparatedEmployeeAttendanceLock(string  EmployeeSystemId, string[] LockDates)
+        public JsonResult CreateSeparatedEmployeeAttendanceLock(string EmployeeSystemId, string[] LockDates)
         {
             DataSet dsLocalHRMSSetting = null;
             clsStaticInfo objStatic = null;
@@ -760,7 +760,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             bool IsOTConfirmationAuto = false;
             //bool IsOTConfirmationAutoException = false;
             bool IsOutMissingValidationRequired = false;
-            bool IsOTConfirmationAutoForZeroAuto = false;            
+            bool IsOTConfirmationAutoForZeroAuto = false;
             bool IsOTConfirmationAfterLock = false;
             try
             {
@@ -794,18 +794,26 @@ namespace Aplos.Areas.HumanResource.Controllers
                         var MissPunchEmployeeListAuto = _OTManagementService.LoadMissPunchEmployeeDataForGrid(identity.CompanyGroupId, identity.PlantId, LockDate, "");
                         if (MissPunchEmployeeListAuto.Count() > 0)
                         {
+                            //string message = string.Empty;
+                            //foreach (IDictionary<string, object> item in MissPunchEmployeeListAuto)
+                            //{
+                            //    if (message == "")
+                            //        message = "'" + item["EmployeeCode"].ToString() + "'";
+                            //    else
+                            //        message = message + ",'" + item["EmployeeCode"].ToString() + "'";
+                            //}
+
+
+                            //throw new Exception("Can not be locked because OT Confirmation is Auto. Please Confirmed  Out Punch Missing. Employee Code [" + message + "].");
+
                             string message = string.Empty;
                             foreach (IDictionary<string, object> item in MissPunchEmployeeListAuto)
                             {
-                                if (message == "")
-                                    message = "'" + item["EmployeeCode"].ToString() + "'";
-                                else
-                                    message = message + ",'" + item["EmployeeCode"].ToString() + "'";
+
+                                if (item["EmployeeCode"].ToString() == EmployeeSystemId)
+                                    throw new Exception("Can not be locked because OT Confirmation is Auto. Please Confirmed  Out Punch Missing. Employee Code [" + message + "].");
+
                             }
-
-
-                            throw new Exception("Can not be locked because OT Confirmation is Auto. Please Confirmed  Out Punch Missing. Employee Code [" + message + "].");
-
                         }
                     }
                     foreach (var LockDate in LockDates)
@@ -813,7 +821,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                         DataSet employeeOTInformationAuto = _OTManagementService.LoadEmpForOTConfirmationAuto(identity.CompanyGroupId, identity.PlantId, LockDate, "");
                         string EmpCade = "";
-                        
+
                         employeeOTInformationAuto.Tables[0].DefaultView.RowFilter = "SystemID IN (" + EmployeeSystemId + @")";
 
                         DataSet dsTemp = new DataSet();
@@ -852,17 +860,21 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 var MissPunchEmployeeListAuto = _OTManagementService.LoadMissPunchEmployeeDataForGrid(identity.CompanyGroupId, identity.PlantId, LockDate, "");
                                 if (MissPunchEmployeeListAuto.Count() > 0)
                                 {
+                                    //string message = string.Empty;
+                                    //foreach (IDictionary<string, object> item in MissPunchEmployeeListAuto)
+                                    //{
+                                    //    if (message == "")
+                                    //        message = "'" + item["EmployeeCode"].ToString() + "'";
+                                    //    else
+                                    //        message = message + ",'" + item["EmployeeCode"].ToString() + "'";
+                                    //}
                                     string message = string.Empty;
                                     foreach (IDictionary<string, object> item in MissPunchEmployeeListAuto)
                                     {
-                                        if (message == "")
-                                            message = "'" + item["EmployeeCode"].ToString() + "'";
-                                        else
-                                            message = message + ",'" + item["EmployeeCode"].ToString() + "'";
+                                        if (item["EmployeeCode"].ToString() == EmployeeSystemId)
+                                            throw new Exception("Can not be locked because OT Confirmation is Auto. Please Confirmed  Out Punch Missing. Employee Code [" + message + "].");
+
                                     }
-
-
-                                    throw new Exception("Can not be locked because OT Confirmation is Auto. Please Confirmed  Out Punch Missing. Employee Code [" + message + "].");
 
                                 }
                             }
@@ -986,12 +998,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                         }
                     }
 
-                    
+
 
                 }
-                
-                _hrmsSettingsService.CreateEmployeeIndividualAttendanceLock(  EmployeeSystemId, LockDates, "SEPARATED", (CustomIdentity)Thread.CurrentPrincipal.Identity);
-              
+
+                _hrmsSettingsService.CreateEmployeeIndividualAttendanceLock(EmployeeSystemId, LockDates, "SEPARATED", (CustomIdentity)Thread.CurrentPrincipal.Identity);
+
 
 
             }
@@ -1048,7 +1060,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
-       
+
 
 
 
@@ -1198,7 +1210,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                     _OTManagementService.SaveData(LockDate, dsTempPD);
                                 }
                             }
-                            
+
                         }
                     }
                 }
@@ -1275,17 +1287,17 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost]
         public JsonResult CreateIndividualUnLock(string EmployeeSystemId, string[] LockDates)
         {
-          
+
             try
             {
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        
-                        _hrmsSettingsService.CreateEmployeeIndividualAttendanceUnLock(EmployeeSystemId, LockDates, (CustomIdentity)Thread.CurrentPrincipal.Identity);
-                 
-                
-                
+
+                _hrmsSettingsService.CreateEmployeeIndividualAttendanceUnLock(EmployeeSystemId, LockDates, (CustomIdentity)Thread.CurrentPrincipal.Identity);
+
+
+
 
 
 
@@ -1308,7 +1320,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-          string  sql  = @"Select 0 CheckBoxSelect, EI.SystemID,EI.EmployeeCode
+            string sql = @"Select 0 CheckBoxSelect, EI.SystemID,EI.EmployeeCode
                                 ,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')   DOJ, FORMAT(EI.DOS,'dd-MMM-yyyy') DOS   
                                 ,DG.UserName GivenDesignation
                                 ,DP.UserName Department
@@ -1333,7 +1345,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 LEFT JOIN [ORG].[Section] ON Section.Id = PR.SectionId                          
 								WHERE EI.EmployeeStatus='separated'   AND apd.WorkDate='" + lockDate + @"'
                                 AND  EI.PlantId='" + identity.PlantId + @"'
-                                AND EI.SystemId NOT IN (SELECT EmpSystemId FROM IndividualEmployeeAttendancelock WHERE WorkDate ='" + lockDate + @"')"; 
+                                AND EI.SystemId NOT IN (SELECT EmpSystemId FROM IndividualEmployeeAttendancelock WHERE WorkDate ='" + lockDate + @"')";
 
             var data = _sqlRepository.GetDataCollection(sql);
 
@@ -1483,7 +1495,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 }
                 //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-               // _hrmsSettingsService.CreateEmployeeIndividualAttendanceLock(LockDate, EmployeeSystemIds, (CustomIdentity)Thread.CurrentPrincipal.Identity);
+                // _hrmsSettingsService.CreateEmployeeIndividualAttendanceLock(LockDate, EmployeeSystemIds, (CustomIdentity)Thread.CurrentPrincipal.Identity);
                 //_hrmsSettingsService.CreateLockData(lockDate);
 
 
@@ -1500,7 +1512,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         public JsonResult CreateEmployeeIndividualAttendanceUnLock(string LockDate, string[] EmployeeSystemIds)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _hrmsSettingsService.CreateEmployeeIndividualAttendanceUnLock(LockDate, EmployeeSystemIds, (CustomIdentity)Thread.CurrentPrincipal.Identity);           
+            _hrmsSettingsService.CreateEmployeeIndividualAttendanceUnLock(LockDate, EmployeeSystemIds, (CustomIdentity)Thread.CurrentPrincipal.Identity);
             return Json(new { Message = AplosMessage.Success });
 
         }
@@ -1722,10 +1734,10 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Date Range Wise Attendance & UnLock 
         [HttpGet]  //employee wise
-        public JsonResult GetLockEmployeeList(string FromDate,string ToDate)
+        public JsonResult GetLockEmployeeList(string FromDate, string ToDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var LockEmployees = _hrmsSettingsService.GetLockEmployeeList(FromDate,ToDate, identity);
+            var LockEmployees = _hrmsSettingsService.GetLockEmployeeList(FromDate, ToDate, identity);
             var ReLockEmployees = _hrmsSettingsService.GetReLockEmployeeList(FromDate, ToDate, identity);
             JsonResult json = Json(new { LockEmployees, ReLockEmployees }, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
@@ -1733,11 +1745,11 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
         [HttpGet, Authorize]
-        public JsonResult GetReLockEmployeeList(string FromDate,string ToDate)
+        public JsonResult GetReLockEmployeeList(string FromDate, string ToDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var LockEmployees = _hrmsSettingsService.GetLockEmployeeList(FromDate, ToDate, identity);
-            var ReLockEmployees = _hrmsSettingsService.GetReLockEmployeeList(FromDate,ToDate, identity);
+            var ReLockEmployees = _hrmsSettingsService.GetReLockEmployeeList(FromDate, ToDate, identity);
             JsonResult json = Json(new { LockEmployees, ReLockEmployees }, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
@@ -1753,7 +1765,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
         [HttpPost, Authorize]
-        public JsonResult CreateReLockDataEmployeeWise(string FromDate,string ToDate, string[] ReLockEmployeeList)
+        public JsonResult CreateReLockDataEmployeeWise(string FromDate, string ToDate, string[] ReLockEmployeeList)
         {
 
             DataSet dsLocalHRMSSetting = null;
@@ -1765,7 +1777,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             bool IsOTConfirmationAfterLock = false;
             bool IsOutMissingValidationRequired = false;
 
-         
+
             try
             {
 
@@ -1979,7 +1991,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 else
                     EmpCade = EmpCade + ",'" + item.ToString() + "'";
             }
-            JsonResult json = Json(GetOutPunchMissingDataForAlertData( FromDate,  ToDate, EmpCade), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(GetOutPunchMissingDataForAlertData(FromDate, ToDate, EmpCade), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
 
@@ -2037,7 +2049,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
         [HttpPost, Authorize]
-        public JsonResult GetOutPunchMissingDataForAlertEmpWise(string EmployeeSystemId,  string[] LockDates)
+        public JsonResult GetOutPunchMissingDataForAlertEmpWise(string EmployeeSystemId, string[] LockDates)
         {
 
             string Dates = "";
