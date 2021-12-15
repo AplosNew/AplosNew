@@ -136,7 +136,7 @@ namespace Aplos.Areas.Productions.Controllers
             int ColTrnDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "ByWhom", 8, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "ByWhomCode", 8, ExcelHAlign.HAlignLeft);
             int ColByWhom = COL;
             COL++;
 
@@ -271,7 +271,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public List<DUpload> ReadData(string path)
+        public List<object> ReadData(string path)
         {
 
             DataSet dsExcel = null;
@@ -282,46 +282,32 @@ namespace Aplos.Areas.Productions.Controllers
                 ReadFile(path, out dsExcel);
 
                 data = dsExcel.Tables[0].ToList<DUpload>();
-                //List<string> RostersList = rs.getRostersList();
+                
 
-                //DataTable emps = rs.getEmployeesAll();
+                DataTable emps = rs.getEmployeesAll();
 
-                //if (data.Count > 0)
-                //{
-                //    for (int i = 0; i < data.Count; i++)
-                //    {
-                //        if (data[i].WOHeaderId != null)
-                //        {
-                //            if (RostersList.Contains(data[i].WOHeaderId))
-                //            {
-                //                emps.DefaultView.RowFilter = @"EmployeeCode='" + data[i].EmployeeCode + "'";
-                //                if (emps.DefaultView.Count > 0)
-                //                {
-                //                    data[i].EmpSystemId = emps.DefaultView[0]["SystemId"].ToString();
-                //                    data[i].EffectiveDate = Convert.ToDateTime(data[i].EffectiveDate).ToString();
-                //                    ret.Add(data[i]);
-                //                }
-                //                else
-                //                {
-                //                    throw new Exception("This Employee Code doesn't exists - " + data[i].EmployeeCode);
-                //                }
-                //                //ret.Add(data[i]);
-                //            }
-                //            else
-                //            {
-                //                throw new Exception("The Week Off Roster in Employee Code - " + data[i].EmployeeCode + " is not present!!");
-                //            }
+                if (data.Count > 0)
+                {
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                                emps.DefaultView.RowFilter = @"EmployeeCode='" + data[i].ByWhomCode + "'";
+                                if (emps.DefaultView.Count > 0)
+                                {
+                                    data[i].ByWhom = emps.DefaultView[0]["SystemId"].ToString();
+                                    ret.Add(data[i]);
+                                }
+                                else
+                                {
+                                    throw new Exception("This Employee Code doesn't exists - " + data[i].ByWhomCode);
+                                }
+                                //ret.Add(data[i]);
+                           
 
-                //        }
-                //    }
+                    }
 
-                //    //for(int i = 0; i< data.Count; i++)
-                //    //{
+                }
 
-                //    //}
-                //}
-
-                return data;
+                return ret;
             }
             catch (Exception ex)
             {
@@ -341,7 +327,7 @@ namespace Aplos.Areas.Productions.Controllers
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
                 DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                //dt.Columns.Add("EmpSystemId", typeof(String));
+                dt.Columns.Add("ByWhom", typeof(String));
                 dsExcel = new DataSet();
                 dsExcel.Tables.Add(dt);
                 docFile = new FileInfo(path);
@@ -406,6 +392,8 @@ namespace Aplos.Areas.Productions.Controllers
             public string Value { get; set; }
             public string ReferenceNumber { get; set; }
             public string EmpSystemId { get; set; }
+            public string ByWhomCode { get; set; }
+            public string ByWhom { get; set; }
 
         }
     }

@@ -229,6 +229,21 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public DataTable getEmployeesAll()
+        {
+            try
+            {
+                var str = @"Select SystemId, EmployeeCode from dbo.EmployeeInformation
+                           ";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public List<Dictionary<string, object>> SaveFileList(List<Dictionary<string, object>> data)
         {
             try
