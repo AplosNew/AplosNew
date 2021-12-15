@@ -54,7 +54,7 @@ namespace Library.OrderManagement.BOM
             string sql = @"SELECT top 100 * FROM (SELECT  mai.BOMMasterId,BOM.[Description] AS BomDesc,bmm.UserName AS BOMMaterial,bma.StandardName AS BOMArticle,
        moi.Id AS MasterOrderItemId, moi.MasterOrderId, moi.BuyerReferenceNo BuyerItemNo, moi.OwnReferenceNo OwnItemNo,mo.BuyerReferenceNo AS BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo,
        moi.MaterialMasterId, moi.ArticleId,pm.UserName AS Product,pc.UserName AS ProductCategory,mm.UserName AS Material,ma.StandardName AS Article,
-       b.UserName AS Buyer,p.UserName AS Customer,c.ContractNo,ml.LCRef,MOI.AddedBy,Format(MOI.AddedDate,'dd-MMM-yyyy') AS AddedDate,
+       b.UserName AS Buyer,p.UserName AS Customer,ISNULL(c.ContractNo,'')ContractNo,ml.LCRef,MOI.AddedBy,Format(MOI.AddedDate,'dd-MMM-yyyy') AS AddedDate,
        convert(bit,CASE WHEN  ISNULL((SELECT COUNT(*) AS SalesOrderCount FROM trn.SalesOrder WHERE MasterOrderItemId=moi.Id),0)<>ISNULL((SELECT count(DISTINCT SalesOrderId) AS SalesOrderCount FROM BOQDetail WHERE MasterOrderItemId=moi.Id),0) THEN 0 ELSE 1 END) AS HasBOQ
         ,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
          CASE WHEN isnull(moi.Consignment,0)=1 THEN
@@ -1684,7 +1684,7 @@ ORDER BY mm.MaterialGroupMasterId, b.MaterialMasterId,b.ArticleId,b.SKUDesc, v1.
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                string strFileName = "BOM.xlsx";
+                string strFileName = "BOM Item.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
             }
@@ -1695,8 +1695,309 @@ ORDER BY mm.MaterialGroupMasterId, b.MaterialMasterId,b.ArticleId,b.SKUDesc, v1.
             }
         }
 
+        public void GetBOMItemReport(string ItemIds, string MasterOrderId)
+        {
+            try
+            {
+
+                string sql = BOMItemReportSql(ItemIds, MasterOrderId);
+                ExcelEngine excelEngine = new ExcelEngine();
+                //Instantiate the Excel application object
+                IApplication application = excelEngine.Excel;
+
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+
+                sheet.Name = "BOM Report";
+
+                DataTable dtBOMReport = _sqlRepository.GetDataTable(sql);
+
+                if (dtBOMReport.Rows.Count == 0)
+                    throw new Exception("No data found");
 
 
+                IStyle style = workbook.Styles.Add("FontStyle");
+                style.Font.Size = 8f;
+
+                IStyle styleRed = workbook.Styles.Add("FontStyleIncompleteMaterial");
+                style.Font.Size = 8f;
+                styleRed.Interior.ColorIndex = ExcelKnownColors.Red;
+
+
+                int colSlNo = 1;
+                int colMaterial = 1;
+                int colArticle = 1;
+                int colSpecification = 1;
+                int colSKU1 = 1;
+                int colSKU2 = 1;
+                int colSKU3 = 1;
+                int colQty = 1;
+                int colBOMQty = 1;
+                int colRequiredQty = 1;
+                int colPOQty = 1;
+                int colGRNQty = 1;
+                int colUnitPrice = 1;
+                int colTotalPrice = 1;
+                int colRemark = 1;
+                int endCol = 1;
+                int colUOM = 1;
+                int colPOUOM = 1;
+                int colCurrency = 1;
+                int colParentUOM = 1;
+                int COL = 1;
+                int SlNo = 1;
+                int ROW = 6;
+
+                string MaterialGroupId = "";
+                int StartRow = ROW;
+                int GroupRow = ROW;
+                for (int i = 0; i < dtBOMReport.Rows.Count; i++)
+                {
+
+                    if (MaterialGroupId != dtBOMReport.Rows[i]["MaterialGroupMasterId"].ToString())
+                    {
+                        ROW++;
+                        COL = 1;
+
+
+                        sheet[ROW, COL].Text = "Material Group : " + dtBOMReport.Rows[i]["MaterialGroup"].ToString();
+                        SlNo = 0;
+                        ROW++;
+
+                        sheet[ROW, COL].Text = "Sl No.";
+                        sheet[ROW, COL].ColumnWidth = 4;
+                        colSlNo = COL;
+                        COL++;
+
+                        sheet[ROW, COL].Text = "Material";
+                        sheet[ROW, COL].ColumnWidth = 20;
+                        colMaterial = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "Article";
+                        sheet[ROW, COL].ColumnWidth = 20;
+                        colArticle = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "Specification";
+                        sheet[ROW, COL].ColumnWidth = 10;
+                        colSpecification = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "SKU1";
+                        sheet[ROW, COL].ColumnWidth = 8;
+                        colSKU1 = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "SKU2";
+                        sheet[ROW, COL].ColumnWidth = 8;
+                        colSKU2 = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "SKU3";
+                        sheet[ROW, COL].ColumnWidth = 8;
+                        colSKU3 = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "FG Qty";
+                        sheet[ROW, COL].ColumnWidth = 10;
+                        sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        colQty = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "UOM";
+                        sheet[ROW, COL].ColumnWidth = 6;
+                        colParentUOM = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "BOQ";
+                        sheet[ROW, COL].ColumnWidth = 10;
+                        sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        colBOMQty = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "UOM";
+                        sheet[ROW, COL].ColumnWidth = 6;
+                        colUOM = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "Booking Qty";
+                        sheet[ROW, COL].ColumnWidth = 10;
+                        sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        colRequiredQty = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "PO Qty";
+                        sheet[ROW, COL].ColumnWidth = 10;
+                        sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        colPOQty = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "GRN Qty";
+                        sheet[ROW, COL].ColumnWidth = 10;
+                        sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        colGRNQty = COL;
+
+                        COL++;
+                        sheet[ROW, COL].Text = "UOM";
+                        sheet[ROW, COL].ColumnWidth = 6;
+                        colPOUOM = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "Unit Price";
+                        sheet[ROW, COL].ColumnWidth = 10;
+                        sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        colUnitPrice = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "Total Price";
+                        sheet[ROW, COL].ColumnWidth = 10;
+                        sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        colTotalPrice = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "Currency";
+                        sheet[ROW, COL].ColumnWidth = 6;
+                        colCurrency = COL;
+                        COL++;
+                        sheet[ROW, COL].Text = "Remark";
+                        sheet[ROW, COL].ColumnWidth = 14;
+                        colRemark = COL;
+
+
+                        endCol = COL;
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+
+                        sheet.Range[ROW - 1, 1, ROW - 1, endCol].Merge();
+                        sheet.Range[ROW - 1, 1, ROW - 1, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet.Range[ROW - 1, 1, ROW - 1, endCol].CellStyle.Font.Bold = true;
+
+                        sheet.Range[ROW - 1, 1, ROW, endCol].CellStyle.Font.Size = 10;
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9;
+
+                        ROW++;
+                        GroupRow = ROW;
+                    }
+
+                    MaterialGroupId = dtBOMReport.Rows[i]["MaterialGroupMasterId"].ToString();
+
+
+                    sheet[ROW, colSlNo].Number = (SlNo + 1);
+                    SlNo++;
+
+                    sheet[ROW, colMaterial].Text = dtBOMReport.Rows[i]["Material"].ToString();
+                    sheet[ROW, colArticle].Text = dtBOMReport.Rows[i]["Article"].ToString();
+                    sheet[ROW, colSpecification].Text = dtBOMReport.Rows[i]["RMDescription"].ToString();
+                    sheet[ROW, colSKU1].Text = dtBOMReport.Rows[i]["CharVal1"].ToString();
+                    sheet[ROW, colSKU2].Text = dtBOMReport.Rows[i]["CharVal2"].ToString();
+                    sheet[ROW, colSKU3].Text = dtBOMReport.Rows[i]["CharVal3"].ToString();
+                    sheet[ROW, colQty].Number = clsStaticInfo.dbl(dtBOMReport.Rows[i]["OrderQty"].ToString());
+                    sheet[ROW, colBOMQty].Number = clsStaticInfo.dbl(dtBOMReport.Rows[i]["BOMQty"].ToString());
+                    sheet[ROW, colUOM].Text = dtBOMReport.Rows[i]["UOM"].ToString();
+
+                    sheet[ROW, colPOQty].Number = clsStaticInfo.dbl(dtBOMReport.Rows[i]["POQty"].ToString());
+                    sheet[ROW, colGRNQty].Number = clsStaticInfo.dbl(dtBOMReport.Rows[i]["GRNQty"].ToString());
+                    sheet[ROW, colRequiredQty].Number = clsStaticInfo.dbl(dtBOMReport.Rows[i]["RequiredQtyPO"].ToString());
+                    sheet[ROW, colPOUOM].Text = dtBOMReport.Rows[i]["POUOM"].ToString();
+                    sheet[ROW, colParentUOM].Text = dtBOMReport.Rows[i]["ParentUOM"].ToString();
+
+
+
+                    sheet[ROW, colUnitPrice].Number = clsStaticInfo.dbl(dtBOMReport.Rows[i]["Rate"].ToString());
+                    sheet[ROW, colTotalPrice].Number = clsStaticInfo.dbl(dtBOMReport.Rows[i]["Amount"].ToString());
+                    sheet[ROW, colCurrency].Text = dtBOMReport.Rows[i]["Currency"].ToString();
+
+
+                    //  sheet[ROW, colRemark].Text = dtBOMReport.Rows[i]["Amount"].ToString();
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle = style;
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    if (bplib.clsWebLib.GetBoolData(dtBOMReport.Rows[i]["IncompleteMaterial"].ToString()))
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle = styleRed;
+                    ROW++;
+
+                }
+
+                sheet.Range[1, colQty, ROW, colQty].NumberFormat = clsStaticInfo.NumberFormat(0);
+                sheet.Range[1, colRequiredQty, ROW, colRequiredQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[1, colBOMQty, ROW, colBOMQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[1, colPOQty, ROW, colPOQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[1, colGRNQty, ROW, colGRNQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[1, colUnitPrice, ROW, colUnitPrice].NumberFormat = clsStaticInfo.NumberFormat(4);
+                sheet.Range[1, colTotalPrice, ROW, colTotalPrice].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                //sheet.IsGridLinesVisible = false;
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+                //sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+
+                sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "BOM", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                string strFileName = "BOM Item.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private string BOMItemReportSql(string ItemIds, string MasterOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT mm.MaterialGroupMasterId, b.MaterialMasterId,B.isParent,b.ArticleId,
+mm.UserName AS Material,mma.StandardName AS Article,b.SKUDesc,mgm.UserName AS MaterialGroup,b.IncompleteMaterial,
+v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3,
+b.UoMId, b.BaseUoMId, b.POUoMId,
+sum(distinct case when isnull(b.RequiredQtyApproved,0)=1 then isnull(BOQP.OrderQty,b.OrderQty) else 0 end) AS OrderQty,
+sum(distinct case when isnull(b.RequiredQtyApproved,0)=1 then isnull(BOQP.PlanOrderQty,b.PlanOrderQty) else 0 end) AS PlanOrderQty,
+sum(case when isnull(b.RequiredQtyApproved,0)=1 then b.BOMQty else 0 end) AS BOMQty,
+sum(case when isnull(b.RequiredQtyApproved,0)=1 then b.RequiredQty else 0 end) AS RequiredQty,
+sum(case when isnull(b.RequiredQtyApproved,0)=1 then  b.RequiredQtyPO else 0 end) AS RequiredQtyPO
+,uom.UserName AS UOM,uomp.UserName AS POUOM,uomm.UserName AS ParentUOM,SUM(PO.POBOQQty) AS POQty,0 AS GRNQty,
+b.RMDescription, b.RMCustomerSpec, b.RMVendorSpec,b.Rate,
+sum(b.rate*case when isnull(b.RequiredQtyApproved,0)=1 then b.RequiredQtyPO else 0 end) AS Amount, c.Name AS Currency
+
+FROM BOQ AS b
+LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+LEFT JOIN mst.Destination AS d ON d.Id=b.DestinationId
+LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=mm.MaterialGroupMasterId
+LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+LEFT OUTER JOIN scs.UnitOfMeasurement AS uomP ON uomP.Id=b.POUoMId
+LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+LEFT OUTER JOIN trn.masterorder MO ON MO.Id=moi.MasterOrderId
+LEFT OUTER JOIN scs.UnitOfMeasurement AS uomm ON uomm.Id=mo.TotalQtyUOMId
+LEFT OUTER JOIN BOQ AS BOQP ON BOQP.Id=B.ParentId
+LEFT JOIN scs.Currency AS c ON c.Id=b.CurrencyId
+
+LEFT JOIN (SELECT p2.BOQDetailId, sum(p2.POBOQQty) AS POBOQQty FROM trn.POBOQMAP AS p2 GROUP BY  p2.BOQDetailId) AS PO ON po.BOQDetailId=b.Id
+
+
+LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+
+WHERE b.MasterOrderItemId IN (SELECT Id FROM trn.MasterOrderItem Where MasterOrderId='" + MasterOrderId + @"') AND b.ArticleId IN (" + ItemIds + @") and isnull(B.isParent,0)=0
+
+
+GROUP BY B.isParent, mm.MaterialGroupMasterId, b.MaterialMasterId,b.ArticleId,
+mm.UserName,mma.StandardName,b.SKUDesc,mgm.UserName,b.IncompleteMaterial,
+v1.UserName,v2.UserName,v3.UserName,
+b.UoMId, b.BaseUoMId, b.POUoMId,uom.UserName,uomp.UserName,uomm.UserName,
+b.RMDescription, b.RMCustomerSpec, b.RMVendorSpec,b.Rate, c.Name
+
+ORDER BY mm.MaterialGroupMasterId, b.MaterialMasterId,b.ArticleId,b.SKUDesc, v1.UserName,v2.UserName,v3.UserName";
+
+        }
 
     }
 }

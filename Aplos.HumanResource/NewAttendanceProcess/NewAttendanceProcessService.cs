@@ -2961,7 +2961,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+                string newformat = Convert.ToDateTime(PreDay).ToString("yyyyMMdd");
+
                 var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,
+                convert(varchar(30),'"+newformat+@"' )+convert(varchar(30), p.empsystemid)RowId,
                         format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                      	                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
@@ -2982,8 +2985,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+                string newformat = Convert.ToDateTime(PreDay).ToString("yyyyMMdd");
+
                 var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
-                dt.SandwichStatusFlag                 
+                dt.SandwichStatusFlag, convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), p.empsystemid)RowId                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                      	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
@@ -3169,29 +3174,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
             catch (Exception ex)
             {
                  throw (ex);
-            }
-
-        }
-        public void AutoConfirmedManualTriggerData(out DataSet ds, string PlantId)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct p.RowId,p.WorkDate from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                                            left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
-									        left join DayStatus ds on ds.headerId=dh.Id
-											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
-									        where p.ManualFlag=1 and dt.DayType=p.DayStatus 
-											and IsOTEntitled=1 and isOTConfirmationAuto=1
-											and DayTypeOtApplicable=0
-									        and ei.PlantId='" + PlantId+ @"' order by WorkDate,RowId asc";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
             }
 
         }
@@ -3508,8 +3490,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
                         var WkDate = PrevUserDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
+                       
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
@@ -3519,10 +3500,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         for (int i = 0; i < PrevUserDayStat.Tables[0].Rows.Count; i++)
                         {
 
-                            string EmpId = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string RowId = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"RowId"]).ToString();
                             string DayStatus = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"DayType"]).ToString();
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 // Updation in AttdnProcessData
@@ -3546,8 +3527,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     if (PrevFinalDayStat.Tables[0].Rows.Count > 0)
                     {
                         var WkDate = PrevFinalDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
+                      
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
@@ -3558,11 +3538,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             // Localizing Processed FinalDayStatus 
 
-                            string EmpId = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string RowId = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"RowId"]).ToString();
                             string Result = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"Result"]).ToString();
                             string SandwichFlag = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"SandwichStatusFlag"]).ToString();
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId+ "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 // Updations in APD Table 
@@ -3605,8 +3585,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 string ToDaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
-                                string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
-
+                           
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
                                 if (PrevDaySandwich == "0" && ToDaySandwich == "2")
@@ -4003,7 +3982,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = PastManualOT;
-                                            dr["CalculatedOT"] = Result;  // For Visiblity
+                                            if (Result != "")
+                                            {
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
+                                            }
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -4679,13 +4661,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
                 #endregion
                 
-                SaveLog("Nullified Columns Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Nullified Columns Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual Day Status Nullifying Localized Values              
                 ManualOutRestored(PlantValue, empList); // Reprocessing OutTime of Employees
                 #endregion
 
-                SaveLog("Reprocessing OutTime Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Reprocessing OutTime Ran Successfully ...", PlantValue, false);
 
                 #region Manual In Status Logic
                 DataSet ManualInStatus;
@@ -5081,7 +5063,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                SaveLog("ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region Sandwich Saving 
                 DataSet ManualSandwichSavingData;
@@ -5115,8 +5097,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
                             string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
-                            string FinalStatus = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ProcessFinalDayStatus"]).ToString();
-
+                        
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             if (PrevDaySandwich == "0" && TodaySandwich == "2")
@@ -5289,7 +5270,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 #endregion
 
-                SaveLog("Sandwich Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Sandwich Logic Ran Successfully ...", PlantValue, false);
 
                 #region Payroll DayStatus 
                 PayrollDayStatus(PlantValue, empList); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
@@ -5416,7 +5397,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                SaveLog("Payroll DayStatus Logic Ran Successfully ...", PlantValue, false);
+                SaveLog("Manual Payroll DayStatus Logic Ran Successfully ...", PlantValue, false);
 
                 #region Manual OverStay UnderStay 
                 DataSet ManualOverUnderStay;
@@ -5549,7 +5530,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = PastManualOT;
-                                        dr["CalculatedOT"] = Result;  // For Visiblity
+                                        if (Result != "")
+                                        {
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
+                                        }
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5617,26 +5601,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 #endregion
 
-                SaveLog("Processed OT Logic Ran Successfully ...", PlantValue, false);
-
-                #region OTEntitled But OT Not Applicable Employees
-                DataSet ManualOTNotApplicable;
-                AutoConfirmedManualTriggerData(out ManualOTNotApplicable, PlantValue);
-                if (ManualOTNotApplicable.Tables[0].Rows.Count > 0)
-                {
-                    string RowMaster = "''";
-                    for (int i = 0; i < ManualOTNotApplicable.Tables[0].Rows.Count; i++)
-                    {
-                        string RowId = clsWebLib.RetValidLen(ManualOTNotApplicable.Tables[0].Rows[i][@"RowId"]).ToString();
-                        RowMaster += ",'" + RowId + "'";
-                    }
-                    ConfirmOTFlag(RowMaster);
-                }
-
-                #endregion
-
-                SaveLog("OT Confirming Not Applicable DayStatus Logic Ran Successfully ...", PlantValue, false);
-
+                SaveLog("Manual Processed OT Logic Ran Successfully ...", PlantValue, false);
+                               
                 #region Set Manual Flag ->0              
                 ProcessManualFlag(ManualFlagRowId); // Set ManualFlag to 0
                 #endregion

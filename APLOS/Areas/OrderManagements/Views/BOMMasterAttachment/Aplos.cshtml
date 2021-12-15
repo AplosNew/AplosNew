@@ -135,7 +135,7 @@
                             <div e-column e-template="#MasterOrderId" e-field="MasterOrderId" e-headertext="Mst.Order ID" e-width="80"></div>
 
                             @*<div e-column e-type="string" e-field="MasterOrderId" e-headertext="Mst.Order ID" e-width="50"></div>*@
-                            <div e-column e-type="string" e-template="#MasterOrderItemId"  e-field="MasterOrderItemId" e-headertext="Item ID" e-width="90"></div>
+                            <div e-column e-type="string" e-template="#MasterOrderItemId"  e-field="MasterOrderItemId" e-headertext="Item ID" e-width="100"></div>
                             <div e-column e-type="boolean" e-field="Consignment" e-headertext="Consignment" e-width="30"></div>
                             <div e-column e-type="string" e-field="PurchaseAuthority" e-headertext="Purh. Authority" e-width="120"></div>
                             <div e-column e-type="string" e-field="ProductionAuthority" e-headertext="Prod. Authority" e-width="120"></div>
@@ -197,32 +197,31 @@
                         <button ej-splitbutton e-size="mini" e-showroundedcorner="false" e-text="data.MasterOrderId" e-targetid="{{'m'+data.MasterOrderItemId}}"></button>
                         <ul id="{{'m'+data.MasterOrderItemId}}" style="display:none;">
                             <li>
-                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">BOM Report (Master Order)</span>
+                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI'"> Detail </span>
                             </li>
                            
                             <li>
-                                <span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.BOMReportItemandSalesOrder(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">BOM Report(Item and Sales Order) </span>
+                                <span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.BOMReportItemandSalesOrder(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI'"> Summary</span>
                             </li>
                           
                             <li>
-                                <span class="glyphicon glyphicon-th-list text-left" ng-click="$parent.GetMasterOrderBOMReportByMaterial(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">Summery</span>
+                                <span class="glyphicon glyphicon-th-list text-left" ng-click="$parent.GetMasterOrderBOMReportByMaterial(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"> Item</span>
                             </li>
                         </ul>
-
                     </script>
 
                     <script type="text/template" id="MasterOrderItemId">
-                        <button ej-splitbutton e-size="small" e-showroundedcorner="false" e-text="data.MasterOrderItemId" e-targetid="{{'m'+data.MasterOrderItemId}}"></button>
-                        <ul id="{{'m'+data.MasterOrderItemId}}" style="display:none;">
+                        <button ej-splitbutton e-size="small" e-showroundedcorner="false" e-text="data.MasterOrderItemId" e-targetid="{{'i'+data.MasterOrderItemId}}"></button>
+                        <ul id="{{'i'+data.MasterOrderItemId}}" style="display:none;">
                             <li>
-                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">BOM Report (Master Order)</span>
+                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.OrderItemLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:10pt; padding: 0px; margin: 0px;font-family:'Segoe UI'"> Detail</span>
                             </li>
                             <li>
-                                <span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.MasterOrderBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">BOM Report(Item and Sales Order) </span>
+                                <span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.MasterOrderBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"> Summary </span>
                             </li>
                            
                             <li>
-                                <span class="glyphicon glyphicon-th-list text-left" ng-click="$parent.MasterOrderBOMReportByMaterial(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:14pt; padding: 0px; margin: 0px;">Summery</span>
+                                <span class="glyphicon glyphicon-th-list text-left" ng-click="$parent.MasterOrderBOMReportByMaterial(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"> Item</span>
                             </li>
                            
                         </ul>
@@ -230,13 +229,26 @@
                     </script>
 
                     <script type="text/template" id="ContractId">
-                        <div class="text-right" style="width:100%">
-                            <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.ContractLevelBOMReport(data);">{{data.ContractNo}}</a>
-                        </div>
+                        @*<div class="text-right" style="width:100%">
+                            <a style="text-decoration:underline;color:blue; cursor:pointer;font-family:'Segoe UI'" ng-click="$parent.ContractLevelBOMReport(data);">{{data.ContractNo}}</a>
+                        </div>*@
+                        <button ej-splitbutton e-size="medium" e-showroundedcorner="false" e-text="data.ContractNo" e-targetid="{{'c'+data.MasterOrderItemId}}"></button>
+                        <ul id="{{'c'+data.MasterOrderItemId}}" style="display:none;">
+                            @*<li>
+                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.ContractLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:10pt; padding: 0px; margin: 0px;"> Detail</span>
+                            </li>*@
+                            <li>
+                                <span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.ContractLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"> Summary </span>
+                            </li>
+
+                            <li>
+                                <span class="glyphicon glyphicon-th-list text-left" ng-click="$parent.MasterOrderBOMReportByMaterial(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"> Item</span>
+                            </li>
+
+                        </ul>
+
+
                     </script>
-
-                    @*</div>*@
-
 
                 </div>
             </div>
@@ -368,32 +380,15 @@
 <ej-dialog id="dialogBOMMasterOrderItemSelectionForReport" title="BOM Items" e-enablemodal="true" e-position-y="0" e-showoninit="false"
            e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
     <div class="row" style="padding-bottom:10px;">
-        <div class="col-xs-1 small text-nowrap">BOM Id</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMMasterId}}</span></div>
-        <div class="col-xs-1 small text-nowrap">Bom Desc</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BomDesc}}</span></div>
-        <div class="col-xs-1 small text-nowrap">BOM Material</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMMaterial}}</span></div>
-        <div class="col-xs-1 small text-nowrap">BOM Article</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMArticle}}</span></div>
         <div class="col-xs-1 small text-nowrap">Mast.Ord r#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.MasterOrderId}}</span></div>
-        <div class="col-xs-1 small text-nowrap">Mast.Ord Item Id</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.MasterOrderItemId}}</span></div>
-        <div class="col-xs-1 small text-nowrap">Buyer Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BuyerItemNo}}</span></div>
-        <div class="col-xs-1 small text-nowrap">Own Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.OwnItemNo}}</span></div>
         <div class="col-xs-1 small text-nowrap">Buyer Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BuyerOrderNo}}</span></div>
         <div class="col-xs-1 small text-nowrap">Own Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.OwnOrderNo}}</span></div>
-        <div class="col-xs-1 small text-nowrap">Prod. Cat</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.ProductCategory}}</span></div>
-        <div class="col-xs-1 small text-nowrap">Product</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Product}}</span></div>
-        <div class="col-xs-1 small text-nowrap">Material</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Material}}</span></div>
-        <div class="col-xs-1 small text-nowrap">Article</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Article}}</span></div>
         <div class="col-xs-1 small text-nowrap">Buyer</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Buyer}}</span></div>
         <div class="col-xs-1 small text-nowrap">Customer</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Customer}}</span></div>
-        <div class="col-xs-1 small text-nowrap">Contract#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.ContractNo}}</span></div>
-        <div class="col-xs-1 small text-nowrap">LC#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.LCRef}}</span></div>
-        <div class="col-xs-1 small text-nowrap" style="color:blue;">Consignment</div><div class="col-xs-2 small text-nowrap"><span style="color:blue;">:{{AttachmentSelectedBOMRow.Consignment?'YES':'NO'}}</span></div>
-        <div class="col-xs-1 small text-nowrap" style="color:blue;">Pur. Auth</div><div class="col-xs-2 small text-nowrap"><span style="color:blue;">:{{AttachmentSelectedBOMRow.PurchaseAuthority}}</span></div>
-        <div class="col-xs-1 small text-nowrap" style="color:blue;">Prod. Auth</div><div class="col-xs-2 small text-nowrap"><span style="color:blue;">:{{AttachmentSelectedBOMRow.ProductionAuthority}}</span></div>
-        <div class="col-xs-1 small text-nowrap" style="color:blue;">Type</div><div class="col-xs-2 small text-nowrap"><span style="color:blue;">:{{AttachmentSelectedBOMRow.Type}}</span></div>
     </div>
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-sm-12">
-            <div id="BOQItems" ng-init="chkinit()" ej-grid e-datasource="MasterOrderItemDataList" e-allowsorting="true"
+            <div id="BOQItemss" ej-grid e-datasource="MasterOrderItemDataList" e-allowsorting="true"
                  e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowresizing="true"
                  e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-templaterefresh="refreshTemplateMasterOrderItem"
                  e-allowselection="true" e-filtersettings-filterType="excel">

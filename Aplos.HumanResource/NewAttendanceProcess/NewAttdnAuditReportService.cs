@@ -10553,7 +10553,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 AP.DayStatus in (select daytype from daytype where category='Present' OR  category='Late')
                         	AND AP.IsOTEntitled = 1
                         	AND AP.IsOTComfirm = 0 and AP.ManualOT is null 
-                            and ap.ProcessedOT >0
+                            and ap.ProcessedOT >=0 and ap.OverStay<>0
                         	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
                               and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + ToDate + @"')

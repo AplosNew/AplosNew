@@ -285,7 +285,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         $("#dialogLineDesignReport").ejDialog("refresh");
 
         eDialog.open();
-      
+
 
     };
 
@@ -997,13 +997,13 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 $scope.BottleneckValue = LowerBoundValue;
 
                 if (LowerBoundValue > 0) {
-                    $scope.StripLineSetting.push({ start: 0, end: LowerBoundValue, text: LowerBoundText, textAlignment: 'middlecenter',  color: '#F5B7B1', font: { size: '18px', color: 'blue' }, zIndex: 'behind', borderWidth: 0, visible: true });
+                    $scope.StripLineSetting.push({ start: 0, end: LowerBoundValue, text: '', textAlignment: 'middlecenter', color: '#F5B7B1', font: { size: '18px', color: 'blue' }, zIndex: 'behind', borderWidth: 0, visible: true });
                     if (LowerBoundValue < 100)
-                        $scope.StripLineSetting.push({ start: LowerBoundValue, end: UpperBoundValue, text: 'Up to ' + UpperBoundText, textAlignment: 'middlecenter', color: '#FCF3CF', font: { size: '18px', color: 'blue' }, zIndex: 'behind', borderWidth: 0, visible: true });
+                        $scope.StripLineSetting.push({ start: LowerBoundValue, end: UpperBoundValue, text: '', textAlignment: 'middlecenter', color: '#FCF3CF', font: { size: '18px', color: 'blue' }, zIndex: 'behind', borderWidth: 0, visible: true });
 
                 }
                 if (UpperBoundValue < 100)
-                    $scope.StripLineSetting.push({ start: UpperBoundValue, end: 100, text: 'Above ' + UpperBoundText, textAlignment: 'middlecenter', color: '#D5F5E3', font: { size: '18px', color: 'blue' }, zIndex: 'behind', borderWidth: 0, visible: true });
+                    $scope.StripLineSetting.push({ start: UpperBoundValue, end: 100, text: '', textAlignment: 'middlecenter', color: '#D5F5E3', font: { size: '18px', color: 'blue' }, zIndex: 'behind', borderWidth: 0, visible: true });
 
 
 
@@ -1028,6 +1028,5 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
 
         }
     }
-
 
 }
