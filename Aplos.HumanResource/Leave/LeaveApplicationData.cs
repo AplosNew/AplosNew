@@ -1020,10 +1020,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                 List<LeaveData> items = DataToSave.ToList();
 
-
-                AttendanceProcessAplos ob = new AttendanceProcessAplos();
-                ob.LockValidation(items[0].PlantID, items[0].FromDate.ToString("dd-MMM-yyyy"), Convert.ToDateTime(items[0].ToDate).ToString("dd-MMM-yyyy"), items[0].EmpSystemID);
-
+                //AttendanceProcessAplos ob = new AttendanceProcessAplos();
+                //ob.LockValidation(items[0].PlantID, items[0].FromDate.ToString("dd-MMM-yyyy"), Convert.ToDateTime(items[0].ToDate).ToString("dd-MMM-yyyy"), items[0].EmpSystemID);
 
                 if (!string.IsNullOrEmpty(items[0].SystemID))
                 {

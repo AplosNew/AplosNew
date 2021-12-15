@@ -159,8 +159,14 @@
 
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label" style="margin-top:10px">Responsible Person<sup>*</sup></label>
-                    <div class="col-sm-8 show-message" style="margin-top:10px">
+                    <div class="col-sm-6 show-message" style="margin-top:10px">
                         <input type="text" name="Responsible Person" ng-model="RespPerson" ng-click="selectRespPerson()" class="form-control" maxlength="200" tabindex="15" required>
+                        
+                    </div>
+                    <div class="col-sm-2" style="margin-top:10px">
+                        <div class="common-btn">
+                            <button ng-click="selectRespPerson()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -364,9 +370,9 @@
                                     <div e-columns>
 
                                         <div e-column e-field="MasterId" e-headertext="Master Id" e-width="70"></div>
-                                        <div e-column e-field="PlantId" e-headertext="Plant Id" e-width="120"></div>
-                                        <div e-column e-field="EmpTypeId" e-headertext="Emp Type Id" e-width="120"></div>
-                                        <div e-column e-field="DesignationId" e-headertext="Designation Id" e-width="120"></div>
+                                        <div e-column e-field="Plant" e-headertext="Plant" e-width="120"></div>
+                                        <div e-column e-field="EmpType" e-headertext="Emp Type" e-width="120"></div>
+                                        <div e-column e-field="LDesg" e-headertext="Designation" e-width="120"></div>
                                         <div e-column e-field="EmploymentType" e-headertext="Employment Type" e-width="120"></div>
                                         <div e-column e-field="EmployeeCodeType" e-headertext="Employee Code Type" e-width="120"></div>
                                         <div e-column e-template="#DeleteFile" e-headertext="" e-width="30"></div>

@@ -347,7 +347,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
         $scope.contractList = [];
-        $http.get("Products/PurchaseOrder/GetLCContractList")
+        $http.get("Products/PurchaseOrder/GetLCContractList?isProcurementOnBom=" + $scope.isProcurementOnBoM)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -656,7 +656,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                 //    return manualValidation('div_grnDate', true, "PO date can't be less than gate entry date");
                 //else
                 //    manualValidation('div_grnDate', false);
-                if ($scope.productNew.OrderSpecific =='No') {
+                if ($scope.productNew.OrderSpecific == 'No') {
                     $scope.productNew.ContractId = null;
                 }
                 if (new Date($scope.productNew.PODate) < new Date($scope.productNew.DocDate))
@@ -817,6 +817,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     $scope.uom = function () {
         cboService.getUoMCbo(function (response) {
             $scope.uoMList = response;
+            console.log('uoMList', $scope.uoMList);
         });
     }
     $scope.uom();
@@ -1488,6 +1489,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
         cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (result) {
             $scope.uoMList = result;
+            console.log($scope.uoMList)
             //$scope.detailModel.BaseUOMId = $filter("filter")($scope.uoMList, { IsBaseUom: 1 })[0].Value;
         });
 
@@ -1543,18 +1545,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
         try {
             $scope.validation();
-            //if ($scope.detailModel.MaterialMasterId == "" || $scope.detailModel.MaterialMasterId == null || $scope.detailModel.MaterialMasterId == "undefined") {
-            //    $scope.detailModel.InventoryReceiveId = $scope.productNew.Id;
-            //    $scope.detailModel.FirstCharacteristicsId = null
-            //    $scope.detailModel.FirstCharacteristicsValueId = null
-            //    $scope.detailModel.SecondCharacteristicsId = null
-            //    $scope.detailModel.SecondCharacteristicsValueId = null
-            //    $scope.detailModel.ThirdCharacteristicsId = null
-            //    $scope.detailModel.ThirdCharacteristicsValueId = null
-            //    $scope.detailModel.CountryId = null
-            //    $scope.MatDescriptionValidation();
-            //}
-            //else {
+           
             $scope.detailModel.InventoryReceiveId = $scope.productNew.Id;
             if ($scope.char1.CharacteristicsId === undefined) {
                 $scope.char1.CharacteristicsId = null;
@@ -3855,8 +3846,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                     //if ($scope.GetListForMasterOrder[i].CheckedStatus === false && $scope.GetListForMasterOrder[i].TransactionQty > 0) {//(!(baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty) ||
 
                     if ((baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty) || $scope.GetListForMasterOrder[i].TransactionQty === 0) && $scope.GetListForMasterOrder[i].CheckedStatus === true) {
-                            ShowResult('Enter the Selected  Material Qty', 'failure', 'ListOfPOMaterial');
-                            return false;
+                        ShowResult('Enter the Selected  Material Qty', 'failure', 'ListOfPOMaterial');
+                        return false;
                     }
 
                     if ($scope.GetListForMasterOrder[i].CheckedStatus === true && $scope.GetListForMasterOrder[i].RequiredQtyApproved === 'Yes' && $scope.GetListForMasterOrder[i].IncompleteMaterial === 'No') {
@@ -3870,7 +3861,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                                 ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial');
                                 return false;
                             }
-                            if ($scope.GetListForMasterOrder[i].TransactionQty<0) {
+                            if ($scope.GetListForMasterOrder[i].TransactionQty < 0) {
                                 ShowResult('Negative Qty  not allowed', 'failure', 'ListOfPOMaterial');
                                 return false;
                             }
@@ -4710,8 +4701,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         /*,showCaptionSummary: true*/
     }];
 
-    
-       
+
+
 
 }//End Of main
 

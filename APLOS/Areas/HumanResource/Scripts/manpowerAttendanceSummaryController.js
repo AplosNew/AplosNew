@@ -1,6 +1,6 @@
 ﻿'use strict';
-manpowerAttendanceSummaryController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService'];
-function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService) {
+manpowerAttendanceSummaryController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$window'];
+function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $window) {
 
     $scope.path = 'humanresource/PayRegisterBDReport/';
 
@@ -11,6 +11,8 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
     $scope.reportStatus = {
         status: "dayStatus"
     };
+    $scope.WithoutTBS = true;
+    $scope.WithoutLA = true;
 
     $scope.hrStatus = {
         pstatus: 'Default'
@@ -167,8 +169,14 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
     $scope.GetmanpowerAttendanceSummaryrReport = function () {
         try {
 
+            var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+            var PlantId = DropDownListObj.getSelectedValue();
+
+            var DropDownListObj = $("#typeList").data("ejDropDownList");
+            var typeList = DropDownListObj.getSelectedValue();
+
             //string divisionId, string unitId, string sectionId, string subSectionId, string departmentId, string payGroupId
-            $scope.parameters = 'workDate=' + $scope.attdnDate + '&withLine=' + $scope.withLine;
+            $scope.parameters = 'workDate=' + $scope.attdnDate + '&withLine=' + $scope.withLine + '&PlantId=' + PlantId + '&typeList=' + typeList + '&WithoutTBS=' + $scope.WithoutTBS + '&WithoutLA=' + $scope.WithoutLA;
             location.href = 'humanresource/ManpowerAttendanceSummary/GetmanpowerAttendanceSummaryrReportOld?' + $scope.parameters;
         } catch (e) {
             ShowResult(e, 'failure');
@@ -745,4 +753,41 @@ function manpowerAttendanceSummaryController(commonMessage, $scope, $rootScope, 
         $scope.EmpIdPass = [];
 
     }
+
+    $scope.PlantIdFromUI = null;
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: "humanresource/payrollReports/GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#CWPlant').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+
+        });
+    }
+    $scope.getPlant();
+
+    $scope.EmployeeCodeTypeList = [];
+    $scope.EmployeeCodeTypeCbo = function () {
+        $http.get('employees/EmployeeCodeType/GetCbo')
+            .then(function (response) {
+                $scope.EmployeeCodeTypeList = response.data;
+            });
+    }
+    $scope.EmployeeCodeTypeCbo();
+
 }
