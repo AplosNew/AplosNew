@@ -759,6 +759,7 @@ namespace Library.Service.Employees
 
                     _invoiceRepository.Delete(invoice.Id);
                 }
+
                 if (expensesBooking.BeneficiaryType == "Self")
                 {
                     foreach (var item in employeePayableDetail)
