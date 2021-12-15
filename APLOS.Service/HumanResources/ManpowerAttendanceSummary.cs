@@ -1294,11 +1294,12 @@ namespace Library.Service.HumanResources
             }
         }
 
-        public IWorkbook GetSummaryManpowerAttendanceExcel(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine)
+        public IWorkbook GetSummaryManpowerAttendanceExcel(string companyGroupId, string companyId, string workDate, bool withLine, string PlantIds, string typeLists, bool WithoutTBS, bool WithoutLA)
         {
             try
             {
                 #region Variable
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility oRU = new ReportUtility();
                 ExcelEngine excelEngine = null;
                 IApplication application = null;
@@ -1313,7 +1314,7 @@ namespace Library.Service.HumanResources
 
                 #endregion Variable
                 //Create dataset
-                DataTable dtManPBSummary = GetDailyAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantId);
+                DataTable dtManPBSummary = GetDailyAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantIds, typeLists, WithoutTBS, WithoutLA);
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -1561,7 +1562,7 @@ namespace Library.Service.HumanResources
                     #endregion
 
 
-                    objRpt.SelectedPlantWiseCompany(PlantId, "", out dsCmp);
+                    objRpt.SelectedPlantWiseCompany(identity.PlantId, "", out dsCmp);
                     xlsRow = 1;
                     xlsCol = 1;
 
@@ -1650,10 +1651,11 @@ namespace Library.Service.HumanResources
                 throw ex;
             }
         }
-        public IWorkbook GetSummaryManpowerAttendanceExcelWithLine(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine)
+        public IWorkbook GetSummaryManpowerAttendanceExcelWithLine(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine, string typeLists, bool WithoutTBS, bool WithoutLA)
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 #region Variable
                 ReportUtility oRU = new ReportUtility();
                 ExcelEngine excelEngine = null;
@@ -1669,7 +1671,7 @@ namespace Library.Service.HumanResources
 
                 #endregion Variable
                 //Create dataset
-                DataTable dtManPBSummary = GetDailyAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantId);
+                DataTable dtManPBSummary = GetDailyAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantId, typeLists, WithoutTBS, WithoutLA);
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -1956,7 +1958,7 @@ namespace Library.Service.HumanResources
                     #endregion
 
 
-                    objRpt.SelectedPlantWiseCompany(PlantId, "", out dsCmp);
+                    objRpt.SelectedPlantWiseCompany(identity.PlantId, "", out dsCmp);
                     xlsRow = 1;
                     xlsCol = 1;
 
@@ -2692,7 +2694,7 @@ namespace Library.Service.HumanResources
                             dicGroup["SubSectionName"].GroupKey = strGroupSubSectionName;
                         }
 
-                       
+
 
                         sheet1.Range[xlsRow, cEmpCategory].Text = dtManPBSummary.Rows[i]["EmpCategory"].ToString();
 
@@ -2802,7 +2804,7 @@ namespace Library.Service.HumanResources
                     {
                         FactoryAddress = "";
                     }
-                  
+
                     #endregion
                     xlsRow += 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "Manpower Attendance Summary on " + Convert.ToDateTime(workDate).ToString("dd-MMM-yyyy");
@@ -2981,7 +2983,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, cfdOthers].BorderAround(ExcelLineStyle.Hair);
 
                             sheet1.Range[xlsRow, cBudgetedManPower, xlsRow, cfdOthers].CellStyle.Font.Bold = true;
-                           
+
 
                             xlsRow++;
 
@@ -3224,7 +3226,7 @@ namespace Library.Service.HumanResources
 
                 #endregion Variable
                 //Create dataset
-                DataTable dtManPBSummary = GetDailyAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantId);
+                DataTable dtManPBSummary = GetDailyAttendanceSummarySql(workDate, withLine, companyGroupId, companyId, PlantId, "", true, true);
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -3562,12 +3564,16 @@ namespace Library.Service.HumanResources
             }
         }
 
-        public DataTable GetDailyAttendanceSummarySql(string WorkDate, bool withLine, string companyGroupId, string companyId, string plantId)
+        public DataTable GetDailyAttendanceSummarySql(string WorkDate, bool withLine, string companyGroupId, string companyId, string plantId, string typeList, bool WithoutTBS, bool WithoutLA)
         {
             string strSql = string.Empty;
 
             try
             {
+                string includeTBS = "";
+                string includeTBS1 = "";
+                string includeLa = "";
+                string includeLa1 = "";
                 string wc = string.Empty;
                 string selectLine = "";
                 string MselectLine = "";
@@ -3591,203 +3597,452 @@ namespace Library.Service.HumanResources
                     joiningLineShiftNotAssigned = " and ShiftNotAssigned.LineId = M.LineId";
 
                 }
-
-
-                strSql = @"SELECT DivisionName,UnitName,SubSectionName,DesignationName" + selectLine + @", ISNULL(SUM(TotalNumber),0) ProposedManpowerBudget, ISNULL(SUM(TotalManpower),0) TotalManpower,ISNULL(SUM(SUM_PRESENT),0) SUM_PRESENT
-					,ISNULL(SUM(SUM_Leave),0) SUM_Leave,ISNULL(SUM(SUM_Absent),0) SUM_Absent,ISNULL(SUM(SUM_Late),0) SUM_Late ,ISNULL(SUM(Others),0) SUM_Others
-                                 FROM
-                                 (
-                                     SELECT m.DesignationName,M.DivisionName,M.SubSectionName,M.UnitName" + MselectLine + @",TotalNumber ,EmpAttdn.SUM_PRESENT,EmpAttdn.SUM_Absent,EmpAttdn.SUM_Leave,EmpAttdn.SUM_Late
-                                     ,EmpInfo.TotalManpower,ISNULL(ShiftNotAssigned.TotalEmployee,0) + ISNULL(AttdnNotProcessedToday.TotalEmployee,0) + ISNULL(EmpAttdn.SUM_Off,0) Others
-                                      FROM
-                                          --------------------1 budgetCode from [MST].[ManpowerBudget]--------------------------------------
-                                            (SELECT MB.Code,MB.Id,Cg.Id as CgId,Cg.UserName as GroupName, c.Id as CompanyId, c.UserName as CName,
-											Division.UserName DivisionName,Division.Id DivisionId, SubSection.UserName SubSectionName,SubSection.Id SubSectionId,Designation.UserName DesignationName,Designation.Id DesignationId
-                        ,Division.Sequence DivisionSequence,SubSection.Sequence SubSectionSequence, Designation.Sequence DesignationSequence,Unit.UserName UnitName,Unit.Id UnitId, Unit.Sequence UnitSequence
-                        ,Line.UserName LineName,ISNULL(Line.Id,'') LineId, Line.Sequence LineSequence
-											 FROM [MST].[ManpowerBudget]  MB
-                                              LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-                                               LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
-                                             LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-
-                                             LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-										 LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
-									            LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
-                                                LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
-									            LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
-									            LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
-									            LEFT JOIN [ORG].[Subsection] ON Subsection.Id = Po.SubsectionId
-									            LEFT JOIN [HKP].Designation Designation ON Designation.Id = PO.DesignationId
-                                               WHERE Cg.Id = '" + companyGroupId + @"' and C.Id = '" + companyId + @"' and E.PlantId = '" + plantId + @"' and MB.Active = 1
-                                            )  M
-                                           -----------------------2. EmployeeInformation from [dbo].[EmployeeInformation]--------------------------------
-                                            LEFT OUTER JOIN
-                                             (SELECT COUNT(em.SystemId) TotalManpower,Em.BudgetCode,--MB.CompanyGroupId,MB.CompanyId,
-											 Division.UserName DivisionName,Division.Id DivisionId, SubSection.UserName SubSectionName,SubSection.Id SubSectionId,Designation.UserName DesignationName,Designation.Id DesignationId
-                        ,Division.Sequence DivisionSequence,SubSection.Sequence SubSectionSequence, Designation.Sequence DesignationSequence,Unit.UserName UnitName,Unit.Id UnitId, Unit.Sequence UnitSequence
-                                                 ,Line.UserName LineName,ISNULL(Line.Id,'') LineId FROM [dbo].[EmployeeInformation]  EM
-								                LEFT outer join [MST].[ManpowerBudget] AS MB  ON  MB.Id = em.BudgetCode
-                                                 LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = em.GroupId
-                                              LEFT outer JOIN [ORG].[Company] AS C ON C.Id = em.CompanyId
-                                              LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                              LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                                                 LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
-									            LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
-									            LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
-									            LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
-									            LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
-									            LEFT JOIN [ORG].[Subsection] ON Subsection.Id = Po.SubsectionId
-                                                    LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
-									            LEFT JOIN [HKP].Designation Designation ON Designation.Id = PO.DesignationId
-								                LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
-								                LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-
-                                               WHERE  (EM.DOJ<='" + WorkDate + @"' AND (EM.DOS is null or EM.DOS >= '" + WorkDate + @"'))
-                                               AND EM.GroupID = '" + companyGroupId + @"' AND EM.CompanyId = '" + companyId + @"' AND  Plant.Id = '" + plantId + @"' and MB.Active = 1
-                                                group by Em.BudgetCode ,Division.UserName ,Division.Id , SubSection.UserName ,SubSection.Id ,Designation.UserName ,Designation.Id, Unit.UserName ,Unit.Id , Unit.Sequence
-                        ,Division.Sequence ,SubSection.Sequence , Designation.Sequence,Line.UserName ,Line.Id 
-                                            ) EmpInfo on m.Id = EmpInfo.BudgetCode and  EmpInfo.DesignationId = m.DesignationId and EmpInfo.DivisionId = m.DivisionId and EmpInfo.SubSectionId = M.SubSectionId and EmpInfo.UnitId = M.UnitId " + joiningLineEmp + @"
-                                           Left outer join 
-										   (SELECT E.BudgetCode, Division.UserName DivisionName,Division.Id DivisionId, SubSection.UserName SubSectionName,SubSection.Id SubSectionId,Designation.UserName DesignationName,Designation.Id DesignationId
-                        ,Division.Sequence DivisionSequence,SubSection.Sequence SubSectionSequence, Designation.Sequence DesignationSequence,Unit.UserName UnitName,Unit.Id UnitId, Unit.Sequence UnitSequence
-                 ,Line.UserName LineName,ISNULL(Line.Id,'') LineId           
-,COUNT(E.SystemId) TotalManpower,SUM (case when dt.Category IN ('Present') then 1 else 0 end ) SUM_PRESENT 
-                            ,SUM (case when dt.Category='Late'then 1 else 0  end ) SUM_Late 
-                            ,SUM (case when dt.Category='Absent'then 1 else 0  end ) SUM_Absent
-                            ,SUM (case when dt.Category IN ('Leave')then 1 else 0  end ) SUM_Leave
-                            ,SUM (case when dt.Category IN ('Holiday','Weekend') then 1 else 0  end ) SUM_Off
-                         
-                            FROM EmployeeInformation e  
-                            left join MST.ManpowerBudget MB on MB.Id= E.BudgetCode        
-                            left join AttdnProcessData apd on e.SystemId=apd.EmpSystemID  and APD.WorkDate='" + WorkDate + @"'
-							       LEFT outer JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
-                                              LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                            left join [ORG].[Division] Division on Division.Id=ENT.DivisionId
-                            left join [ORG].[SubSection] SubSection on SubSection.Id=PO.SubSectionId
-                            left join [HKP].[Designation] Designation on Designation.Id=PO.DesignationId
-									            LEFT JOIN [ORG].[Unit] ON Unit.Id = ENT.UnitId
-LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
-                            jOIN DayType Dt ON Dt.DayType=apd.DayStatus
-                            WHERE  E.GroupID = '" + companyGroupId + @"' AND E.CompanyId = '" + companyId + @"' and E.PlantId = '" + plantId + @"' and MB.Active = 1
-                            GROUP BY  Division.UserName ,Division.Id , SubSection.UserName ,SubSection.Id ,Designation.UserName ,Designation.Id , Unit.UserName ,Unit.Id , Unit.Sequence
-                        ,Division.Sequence ,SubSection.Sequence , Designation.Sequence ,E.BudgetCode  ,Line.UserName ,Line.Id )
-			EmpAttdn ON m.Id = EmpAttdn.BudgetCode and EmpAttdn.DivisionId = M.DivisionId	and EmpAttdn.SubSectionId = M.SubSectionId and EmpAttdn.DesignationId = M.DesignationId	and EmpAttdn.UnitId = M.UnitId	" + joiningLineEmpAttdn + @"				   
-										    
-								              -------------------------3. Manpower Budget Detail from [MST].[ManpowerBudgetDetail]--------------------------------------------------------
-                                              LEFT OUTER JOIN
-                                            (
-                                            SELECT MBD.TotalNumber ,MBD.ManpowerBudgetId
-											,Division.UserName DivisionName,Division.Id DivisionId, SubSection.UserName SubSectionName,SubSection.Id SubSectionId,Designation.UserName DesignationName,Designation.Id DesignationId
-                        ,Division.Sequence DivisionSequence,SubSection.Sequence SubSectionSequence, Designation.Sequence DesignationSequence,Unit.UserName UnitName,Unit.Id UnitId, Unit.Sequence UnitSequence
-											,Line.UserName LineName,ISNULL(Line.Id,'') LineId FROM
-                                            (SELECT TOP 1 WITH TIES TotalNumber,ManpowerBudgetId,EffectiveDate
-									            FROM [MST].[ManpowerBudgetDetail]
-									            WHERE CONVERT(DATE,EffectiveDate) <= CONVERT(DATE,'" + WorkDate + @"')
-									            ORDER BY ROW_NUMBER() OVER(PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC)
-                                             ) MBD
-
-                                              LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  Mb.Id = MBD.ManpowerBudgetId
-
-                                              LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-
-                                              LEFT outer JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= c.Id
-                                              LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                              LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                                               LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
-								              left join [ORG].[Division] Division on Division.Id=E.DivisionId
-                            left join [ORG].[SubSection] SubSection on SubSection.Id=PO.SubSectionId
-                            left join [HKP].[Designation] Designation on Designation.Id=PO.DesignationId
-								               LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
-                                    LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
-                                             WHERE Cg.Id = '" + companyGroupId + @"' AND C.Id = '" + companyId + @"' AND Plant.Id = '" + plantId + @"' and MB.Active = 1 AND TotalNumber > 0 
-                                             ) B
-
-                                             ON M.id = b.ManpowerBudgetId and B.DivisionId = M.DivisionId AND B.DesignationId = M.DesignationId and B.SubSectionId = M.SubSectionId and B.UnitId = M.UnitId " + joiningLineBudget + @"
-											LEFT JOIN
-									(
-								 SELECT count(E.SystemID) TotalEmployee, E.BudgetCode,--MB.CompanyGroupId,MB.CompanyId,
-											 Division.UserName DivisionName,Division.Id DivisionId, SubSection.UserName SubSectionName,SubSection.Id SubSectionId,Designation.UserName DesignationName,Designation.Id DesignationId
-                        ,Division.Sequence DivisionSequence,SubSection.Sequence SubSectionSequence, Designation.Sequence DesignationSequence,Unit.UserName UnitName,Unit.Id UnitId, Unit.Sequence UnitSequence
-                                          ,Line.UserName LineName,ISNULL(Line.Id,'') LineId    
-										FROM  ORG.CompanyGroup CG
-											LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
-											INNER JOIN EmployeeInformation E ON E.GroupID = CG.Id   and c.Id = E.CompanyId
-											Inner JOIN(--*
-															   SELECT TOP 1 WITH TIES *
-																FROM EmployeeShiftAssign
-																WHERE EffectiveDate <= '" + WorkDate + @"' and
-																EmpSystemID NOT IN(--**
-																							SELECT DISTINCT EmpSystemID FROM AttdnProcessData
-																							WHERE  CONVERT(DATE, WorkDate) =  CONVERT(DATE, '" + WorkDate + @"')
-																					)
-																ORDER BY ROW_NUMBER() OVER(PARTITION BY EmpSystemID ORDER BY EffectiveDate DESC)
-															  )-- *
-														ESA
-											ON E.SystemId = ESA.EmpSystemID
-
-										LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
-								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
-								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-
-									LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
-									LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
-									LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
-                                    LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
-
-									LEFT JOIN [ORG].[Plant] ON Plant.Id = ENT.PlantId
-LEFT JOIN [ORG].[Division] ON Division.Id = ENT.DivisionId
-LEFT JOIN [ORG].[Unit] ON Unit.Id = ENT.UnitId
-LEFT JOIN [ORG].[Department] ON Department.Id = POS.DepartmentId
-LEFT JOIN [ORG].[Section] ON Section.Id = POS.SectionId
-LEFT JOIN [ORG].[SubSection] ON SubSection.Id = POS.SubSectionId
-                            left join [HKP].[Designation] Designation on Designation.Id=POS.DesignationId
-									WHERE  Cg.Id = '" + companyGroupId + @"' AND C.Id = '" + companyId + @"' AND
-									    E.PlantId = '" + plantId + @"'  and MB.Active = 1
-                                        AND  (E.DOJ<='" + WorkDate + @"' AND (E.DOS is null or E.DOS >= '" + WorkDate + @"'))
-									GROUP BY Division.UserName ,Division.Id , SubSection.UserName ,SubSection.Id ,Designation.UserName ,Designation.Id 
-                        ,Division.Sequence ,SubSection.Sequence , Designation.Sequence ,E.BudgetCode, Unit.UserName ,Unit.Id , Unit.Sequence,Line.UserName ,Line.Id 
-								) AttdnNotProcessedToday  
-									ON AttdnNotProcessedToday.BudgetCode = M.Id and  AttdnNotProcessedToday.DivisionId = M.DivisionId AND AttdnNotProcessedToday.DesignationId = M.DesignationId and AttdnNotProcessedToday.SubSectionId = M.SubSectionId and AttdnNotProcessedToday.UnitId = M.UnitId " + joiningAttdnNotProcessed + @"
-									LEFT JOIN
-											(
-									SELECT COUNT(E.SystemId) TotalEmployee, E.BudgetCode,--MB.CompanyGroupId,MB.CompanyId,
-											 Division.UserName DivisionName,Division.Id DivisionId, SubSection.UserName SubSectionName,SubSection.Id SubSectionId,Designation.UserName DesignationName,Designation.Id DesignationId
-                        ,Division.Sequence DivisionSequence,SubSection.Sequence SubSectionSequence, Designation.Sequence DesignationSequence,Unit.UserName UnitName,Unit.Id UnitId, Unit.Sequence UnitSequence
-                                          ,Line.UserName LineName,ISNULL(Line.Id,'') LineId    
-                                              
-								FROM  ORG.CompanyGroup CG
-								LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
-								LEFT OUTER JOIN  (--*
-								SELECT * FROM EmployeeInformation
-								WHERE SystemId NOT IN (--**
-								SELECT DISTINCT EmpSystemID FROM EmployeeShiftAssign
-								)--**
-								)--*
-								E ON e.GroupID = CG.Id and c.Id=E.CompanyId
-
-								LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
-								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
-								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-
-								LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = E.BudgetCode
-								LEFT OUTER JOIN  ORG.Entity AS ENT ON ENT.Id = MB.EntityId
-								LEFT OUTER JOIN  ORG.Position AS POS ON POS.Id = MB.PositionId
-										LEFT JOIN [ORG].[Plant] ON Plant.Id = ENT.PlantId
-LEFT JOIN [ORG].[Division] ON Division.Id = ENT.DivisionId
-LEFT JOIN [ORG].[Unit] ON Unit.Id = ENT.UnitId
-LEFT JOIN [ORG].[Department] ON Department.Id = POS.DepartmentId
-LEFT JOIN [ORG].[Section] ON Section.Id = POS.SectionId
-LEFT JOIN [ORG].[SubSection] ON SubSection.Id = POS.SubSectionId
-LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
-LEFT JOIN [HKP].[Designation] ON Designation.Id = POS.DesignationId
-                                    
-
-								WHERE Cg.Id = '" + companyGroupId + @"' AND C.Id = '" + companyId + @"' AND
-							        E.PlantId = '" + plantId + @"' and MB.Active = 1 AND (E.DOJ<='" + WorkDate + @"' AND (E.DOS is null or E.DOS >= '" + WorkDate + @"'))
-							    GROUP BY Division.UserName ,Division.Id , SubSection.UserName ,SubSection.Id ,Designation.UserName ,Designation.Id 
-                        ,Division.Sequence ,SubSection.Sequence , Designation.Sequence ,E.BudgetCode, Unit.UserName ,Unit.Id , Unit.Sequence,Line.UserName ,Line.Id  ) ShiftNotAssigned  
-									ON ShiftNotAssigned.BudgetCode = M.Id and  ShiftNotAssigned.DivisionId = M.DivisionId AND ShiftNotAssigned.DesignationId = M.DesignationId and ShiftNotAssigned.SubSectionId = M.SubSectionId and ShiftNotAssigned.UnitId = M.UnitId " + joiningLineShiftNotAssigned + @"
-                                 ) EDE GROUP BY DesignationName,DivisionName,SubSectionName,UnitName" + selectLine + @"  ORDER BY DivisionName,UnitName,SubSectionName" + selectLine + @", DesignationName";
+                if (WithoutTBS)
+                {
+                    includeTBS = " And  ISNULL(Em.EmployeeCurrentStatus,'') <>  'LONG ABSENTEEISM'";
+                    includeTBS1 = " And  ISNULL(E.EmployeeCurrentStatus,'') <>  'LONG ABSENTEEISM'";
+                }
+                if (WithoutLA)
+                {
+                    includeLa = " And  ISNULL(Em.EmployeeCurrentStatus,'') <>  'TBS'";
+                    includeLa1 = " And  ISNULL(E.EmployeeCurrentStatus,'') <>  'TBS'";
+                }
+                strSql = @"SELECT DivisionName
+                            	,UnitName
+                            	,SubSectionName
+                            	,DesignationName " + selectLine + @"
+                            	,ISNULL(SUM(TotalNumber), 0) ProposedManpowerBudget
+                            	,ISNULL(SUM(TotalManpower), 0) TotalManpower
+                            	,ISNULL(SUM(SUM_PRESENT), 0) SUM_PRESENT
+                            	,ISNULL(SUM(SUM_Leave), 0) SUM_Leave
+                            	,ISNULL(SUM(SUM_Absent), 0) SUM_Absent
+                            	,ISNULL(SUM(SUM_Late), 0) SUM_Late
+                            	,ISNULL(SUM(Others), 0) SUM_Others
+                            FROM (
+                            	SELECT m.DesignationName
+                            		,M.DivisionName
+                            		,M.SubSectionName
+                            		,M.UnitName " + MselectLine + @"
+                            		,TotalNumber
+                            		,EmpAttdn.SUM_PRESENT
+                            		,EmpAttdn.SUM_Absent
+                            		,EmpAttdn.SUM_Leave
+                            		,EmpAttdn.SUM_Late
+                            		,EmpInfo.TotalManpower
+                            		,ISNULL(ShiftNotAssigned.TotalEmployee, 0) + ISNULL(AttdnNotProcessedToday.TotalEmployee, 0) + ISNULL(EmpAttdn.SUM_Off, 0) Others
+                            	FROM
+                            		--------------------1 budgetCode from [MST].[ManpowerBudget]--------------------------------------
+                            		(
+                            		SELECT MB.Code
+                            			,MB.Id
+                            			,Cg.Id AS CgId
+                            			,Cg.UserName AS GroupName
+                            			,c.Id AS CompanyId
+                            			,c.UserName AS CName
+                            			,Division.UserName DivisionName
+                            			,Division.Id DivisionId
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,Division.Sequence DivisionSequence
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Unit.UserName UnitName
+                            			,Unit.Id UnitId
+                            			,Unit.Sequence UnitSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            			,Line.Sequence LineSequence
+                            		FROM [MST].[ManpowerBudget] MB
+                            		LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+                            		LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
+                            		LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                            		LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
+                            		LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
+                            		LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
+                            		LEFT JOIN [ORG].[Subsection] ON Subsection.Id = Po.SubsectionId
+                            		LEFT JOIN [HKP].Designation Designation ON Designation.Id = PO.DesignationId
+                            		WHERE Cg.Id = '" + companyGroupId + @"'
+                            			AND C.Id = '" + companyId + @"'
+                            			AND E.PlantId IN (" + plantId + @")
+                            			AND MB.Active = 1
+                            		) M
+                            	-----------------------2. EmployeeInformation from [dbo].[EmployeeInformation]--------------------------------
+                            	LEFT OUTER JOIN (
+                            		SELECT COUNT(em.SystemId) TotalManpower
+                            			,Em.BudgetCode
+                            			,--MB.CompanyGroupId,MB.CompanyId,
+                            			Division.UserName DivisionName
+                            			,Division.Id DivisionId
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,Division.Sequence DivisionSequence
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Unit.UserName UnitName
+                            			,Unit.Id UnitId
+                            			,Unit.Sequence UnitSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            		FROM [dbo].[EmployeeInformation] EM
+                            		LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = em.BudgetCode
+                            		LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = em.GroupId
+                            		LEFT OUTER JOIN [ORG].[Company] AS C ON C.Id = em.CompanyId
+                            		LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                            		LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+                            		LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
+                            		LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
+                            		LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
+                            		LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
+                            		LEFT JOIN [ORG].[Subsection] ON Subsection.Id = Po.SubsectionId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		LEFT JOIN [HKP].Designation Designation ON Designation.Id = PO.DesignationId
+                            		LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
+                            		LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                                    LEFT JOIN  EmployeeCodeType ect ON  ect.Id = EM.EmployeeCodeTypeId
+                            		WHERE (
+                            				EM.DOJ <= '" + WorkDate + @"'
+                            				AND (
+                            					EM.DOS IS NULL
+                            					OR EM.DOS >= '" + WorkDate + @"'
+                            					)
+                            				)
+                            			AND EM.GroupID = '" + companyGroupId + @"'
+                            			AND EM.CompanyId = '" + companyId + @"'
+                            			AND Plant.Id IN (" + plantId + @")
+                            			AND MB.Active = 1 AND Ect.Id IN (" + typeList + @") "+ includeTBS + @" "+ includeLa + @"
+                            		GROUP BY Em.BudgetCode
+                            			,Division.UserName
+                            			,Division.Id
+                            			,SubSection.UserName
+                            			,SubSection.Id
+                            			,Designation.UserName
+                            			,Designation.Id
+                            			,Unit.UserName
+                            			,Unit.Id
+                            			,Unit.Sequence
+                            			,Division.Sequence
+                            			,SubSection.Sequence
+                            			,Designation.Sequence
+                            			,Line.UserName
+                            			,Line.Id
+                            		) EmpInfo ON m.Id = EmpInfo.BudgetCode
+                            		AND EmpInfo.DesignationId = m.DesignationId
+                            		AND EmpInfo.DivisionId = m.DivisionId
+                            		AND EmpInfo.SubSectionId = M.SubSectionId
+                            		AND EmpInfo.UnitId = M.UnitId " + joiningLineEmp + @"
+                            	LEFT OUTER JOIN (
+                            		SELECT E.BudgetCode
+                            			,Division.UserName DivisionName
+                            			,Division.Id DivisionId
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,Division.Sequence DivisionSequence
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Unit.UserName UnitName
+                            			,Unit.Id UnitId
+                            			,Unit.Sequence UnitSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            			,COUNT(E.SystemId) TotalManpower
+                            			,SUM(CASE 
+                            					WHEN dt.Category IN ('Present')
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_PRESENT
+                            			,SUM(CASE 
+                            					WHEN dt.Category = 'Late'
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_Late
+                            			,SUM(CASE 
+                            					WHEN dt.Category = 'Absent'
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_Absent
+                            			,SUM(CASE 
+                            					WHEN dt.Category IN ('Leave')
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_Leave
+                            			,SUM(CASE 
+                            					WHEN dt.Category IN (
+                            							'Holiday'
+                            							,'Weekend'
+                            							)
+                            						THEN 1
+                            					ELSE 0
+                            					END) SUM_Off
+                            		FROM EmployeeInformation e
+                            		LEFT JOIN MST.ManpowerBudget MB ON MB.Id = E.BudgetCode
+                            		LEFT JOIN AttdnProcessData apd ON e.SystemId = apd.EmpSystemID
+                            			AND APD.WorkDate = '" + WorkDate + @"'
+                            		LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+                            		LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Division] Division ON Division.Id = ENT.DivisionId
+                            		LEFT JOIN [ORG].[SubSection] SubSection ON SubSection.Id = PO.SubSectionId
+                            		LEFT JOIN [HKP].[Designation] Designation ON Designation.Id = PO.DesignationId
+                            		LEFT JOIN [ORG].[Unit] ON Unit.Id = ENT.UnitId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		JOIN DayType Dt ON Dt.DayType = apd.DayStatus
+                                    LEFT JOIN  EmployeeCodeType ect ON  ect.Id = E.EmployeeCodeTypeId
+                            		WHERE E.GroupID = '" + companyGroupId + @"'
+                            			AND E.CompanyId = '" + companyId + @"'
+                            			AND E.PlantId IN (" + plantId + @")
+                            			AND MB.Active = 1 AND Ect.Id IN (" + typeList + @") " + includeTBS1 + @" " + includeLa1 + @"
+                            		GROUP BY Division.UserName
+                            			,Division.Id
+                            			,SubSection.UserName
+                            			,SubSection.Id
+                            			,Designation.UserName
+                            			,Designation.Id
+                            			,Unit.UserName
+                            			,Unit.Id
+                            			,Unit.Sequence
+                            			,Division.Sequence
+                            			,SubSection.Sequence
+                            			,Designation.Sequence
+                            			,E.BudgetCode
+                            			,Line.UserName
+                            			,Line.Id
+                            		) EmpAttdn ON m.Id = EmpAttdn.BudgetCode
+                            		AND EmpAttdn.DivisionId = M.DivisionId
+                            		AND EmpAttdn.SubSectionId = M.SubSectionId
+                            		AND EmpAttdn.DesignationId = M.DesignationId
+                            		AND EmpAttdn.UnitId = M.UnitId " + joiningLineEmpAttdn + @"
+                            	-------------------------3. Manpower Budget Detail from [MST].[ManpowerBudgetDetail]--------------------------------------------------------
+                            	LEFT OUTER JOIN (
+                            		SELECT MBD.TotalNumber
+                            			,MBD.ManpowerBudgetId
+                            			,Division.UserName DivisionName
+                            			,Division.Id DivisionId
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,Division.Sequence DivisionSequence
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Unit.UserName UnitName
+                            			,Unit.Id UnitId
+                            			,Unit.Sequence UnitSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            		FROM (
+                            			SELECT TOP 1
+                            			WITH TIES TotalNumber
+                            				,ManpowerBudgetId
+                            				,EffectiveDate
+                            			FROM [MST].[ManpowerBudgetDetail]
+                            			WHERE CONVERT(DATE, EffectiveDate) <= CONVERT(DATE, '" + WorkDate + @"')
+                            			ORDER BY ROW_NUMBER() OVER (
+                            					PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC
+                            					)
+                            			) MBD
+                            		LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB ON Mb.Id = MBD.ManpowerBudgetId
+                            		LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+                            		LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
+                            			AND mb.CompanyId = c.Id
+                            		LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                            		LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+                            		LEFT JOIN [ORG].[Division] Division ON Division.Id = E.DivisionId
+                            		LEFT JOIN [ORG].[SubSection] SubSection ON SubSection.Id = PO.SubSectionId
+                            		LEFT JOIN [HKP].[Designation] Designation ON Designation.Id = PO.DesignationId
+                            		LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		WHERE Cg.Id = '" + companyGroupId + @"'
+                            			AND C.Id = '" + companyId + @"'
+                            			AND Plant.Id IN (" + plantId + @")
+                            			AND MB.Active = 1
+                            			AND TotalNumber > 0
+                            		) B ON M.id = b.ManpowerBudgetId
+                            		AND B.DivisionId = M.DivisionId
+                            		AND B.DesignationId = M.DesignationId
+                            		AND B.SubSectionId = M.SubSectionId
+                            		AND B.UnitId = M.UnitId " + joiningLineBudget + @"
+                            	LEFT JOIN (
+                            		SELECT count(E.SystemID) TotalEmployee
+                            			,E.BudgetCode
+                            			,--MB.CompanyGroupId,MB.CompanyId,
+                            			Division.UserName DivisionName
+                            			,Division.Id DivisionId
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,Division.Sequence DivisionSequence
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Unit.UserName UnitName
+                            			,Unit.Id UnitId
+                            			,Unit.Sequence UnitSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            		FROM ORG.CompanyGroup CG
+                            		LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+                            		INNER JOIN EmployeeInformation E ON E.GroupID = CG.Id
+                            			AND c.Id = E.CompanyId
+                            		INNER JOIN (
+                            			--*
+                            			SELECT TOP 1
+                            			WITH TIES *
+                            			FROM EmployeeShiftAssign
+                            			WHERE EffectiveDate <= '" + WorkDate + @"'
+                            				AND EmpSystemID NOT IN (
+                            					--**
+                            					SELECT DISTINCT EmpSystemID
+                            					FROM AttdnProcessData
+                            					WHERE CONVERT(DATE, WorkDate) = CONVERT(DATE, '" + WorkDate + @"')
+                            					)
+                            			ORDER BY ROW_NUMBER() OVER (
+                            					PARTITION BY EmpSystemID ORDER BY EffectiveDate DESC
+                            					)
+                            			) -- *
+                            			ESA ON E.SystemId = ESA.EmpSystemID
+                            		LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
+                            		LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                            		LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                            		LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
+                            		LEFT OUTER JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+                            		LEFT OUTER JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		LEFT JOIN [ORG].[Plant] ON Plant.Id = ENT.PlantId
+                            		LEFT JOIN [ORG].[Division] ON Division.Id = ENT.DivisionId
+                            		LEFT JOIN [ORG].[Unit] ON Unit.Id = ENT.UnitId
+                            		LEFT JOIN [ORG].[Department] ON Department.Id = POS.DepartmentId
+                            		LEFT JOIN [ORG].[Section] ON Section.Id = POS.SectionId
+                            		LEFT JOIN [ORG].[SubSection] ON SubSection.Id = POS.SubSectionId
+                            		LEFT JOIN [HKP].[Designation] Designation ON Designation.Id = POS.DesignationId
+                                    LEFT JOIN  EmployeeCodeType ect ON  ect.Id = E.EmployeeCodeTypeId
+                            		WHERE Cg.Id = '" + companyGroupId + @"'
+                            			AND C.Id = '" + companyId + @"'
+                            			AND E.PlantId IN (" + plantId + @")
+                            			AND MB.Active = 1
+                            			AND (
+                            				E.DOJ <= '" + WorkDate + @"'
+                            				AND (
+                            					E.DOS IS NULL
+                            					OR E.DOS >= '" + WorkDate + @"'
+                            					)
+                            				) AND Ect.Id IN (" + typeList + @") " + includeTBS1 + @" " + includeLa1 + @"
+                            		GROUP BY Division.UserName
+                            			,Division.Id
+                            			,SubSection.UserName
+                            			,SubSection.Id
+                            			,Designation.UserName
+                            			,Designation.Id
+                            			,Division.Sequence
+                            			,SubSection.Sequence
+                            			,Designation.Sequence
+                            			,E.BudgetCode
+                            			,Unit.UserName
+                            			,Unit.Id
+                            			,Unit.Sequence
+                            			,Line.UserName
+                            			,Line.Id
+                            		) AttdnNotProcessedToday ON AttdnNotProcessedToday.BudgetCode = M.Id
+                            		AND AttdnNotProcessedToday.DivisionId = M.DivisionId
+                            		AND AttdnNotProcessedToday.DesignationId = M.DesignationId
+                            		AND AttdnNotProcessedToday.SubSectionId = M.SubSectionId
+                            		AND AttdnNotProcessedToday.UnitId = M.UnitId " + joiningAttdnNotProcessed + @"
+                            	LEFT JOIN (
+                            		SELECT COUNT(E.SystemId) TotalEmployee
+                            			,E.BudgetCode
+                            			,--MB.CompanyGroupId,MB.CompanyId,
+                            			Division.UserName DivisionName
+                            			,Division.Id DivisionId
+                            			,SubSection.UserName SubSectionName
+                            			,SubSection.Id SubSectionId
+                            			,Designation.UserName DesignationName
+                            			,Designation.Id DesignationId
+                            			,Division.Sequence DivisionSequence
+                            			,SubSection.Sequence SubSectionSequence
+                            			,Designation.Sequence DesignationSequence
+                            			,Unit.UserName UnitName
+                            			,Unit.Id UnitId
+                            			,Unit.Sequence UnitSequence
+                            			,Line.UserName LineName
+                            			,ISNULL(Line.Id, '') LineId
+                            		FROM ORG.CompanyGroup CG
+                            		LEFT OUTER JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
+                            		LEFT OUTER JOIN (
+                            			--*
+                            			SELECT *
+                            			FROM EmployeeInformation
+                            			WHERE SystemId NOT IN (
+                            					--**
+                            					SELECT DISTINCT EmpSystemID
+                            					FROM EmployeeShiftAssign
+                            					) --**
+                            			) --*
+                            			E ON e.GroupID = CG.Id
+                            			AND c.Id = E.CompanyId
+                            		LEFT JOIN [HKP].Designation GDes ON GDes.Id = E.GivenDesignationId
+                            		LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                            		LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                            		LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = E.BudgetCode
+                            		LEFT OUTER JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
+                            		LEFT OUTER JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
+                            		LEFT JOIN [ORG].[Plant] ON Plant.Id = ENT.PlantId
+                            		LEFT JOIN [ORG].[Division] ON Division.Id = ENT.DivisionId
+                            		LEFT JOIN [ORG].[Unit] ON Unit.Id = ENT.UnitId
+                            		LEFT JOIN [ORG].[Department] ON Department.Id = POS.DepartmentId
+                            		LEFT JOIN [ORG].[Section] ON Section.Id = POS.SectionId
+                            		LEFT JOIN [ORG].[SubSection] ON SubSection.Id = POS.SubSectionId
+                            		LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
+                            		LEFT JOIN [HKP].[Designation] ON Designation.Id = POS.DesignationId
+                                    LEFT JOIN  EmployeeCodeType ect ON  ect.Id = E.EmployeeCodeTypeId
+                            		WHERE Cg.Id = '" + companyGroupId + @"'
+                            			AND C.Id = '" + companyId + @"'
+                            			AND E.PlantId IN (" + plantId + @")
+                            			AND MB.Active = 1
+                            			AND (
+                            				E.DOJ <= '" + WorkDate + @"'
+                            				AND (
+                            					E.DOS IS NULL
+                            					OR E.DOS >= '" + WorkDate + @"'
+                            					)
+                            				) AND Ect.Id IN (" + typeList + @") " + includeTBS1 + @" " + includeLa1 + @"
+                            		GROUP BY Division.UserName
+                            			,Division.Id
+                            			,SubSection.UserName
+                            			,SubSection.Id
+                            			,Designation.UserName
+                            			,Designation.Id
+                            			,Division.Sequence
+                            			,SubSection.Sequence
+                            			,Designation.Sequence
+                            			,E.BudgetCode
+                            			,Unit.UserName
+                            			,Unit.Id
+                            			,Unit.Sequence
+                            			,Line.UserName
+                            			,Line.Id
+                            		) ShiftNotAssigned ON ShiftNotAssigned.BudgetCode = M.Id
+                            		AND ShiftNotAssigned.DivisionId = M.DivisionId
+                            		AND ShiftNotAssigned.DesignationId = M.DesignationId
+                            		AND ShiftNotAssigned.SubSectionId = M.SubSectionId
+                            		AND ShiftNotAssigned.UnitId = M.UnitId " + joiningLineShiftNotAssigned + @"
+                            	) EDE
+                            GROUP BY DesignationName
+                            	,DivisionName
+                            	,SubSectionName
+                            	,UnitName " + selectLine + @"
+                            ORDER BY DivisionName
+                            	,UnitName
+                            	,SubSectionName " + selectLine + @"
+                            	,DesignationName";
 
                 return _sqlRepository.GetDataTable(strSql);
             }
