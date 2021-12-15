@@ -61,14 +61,33 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
         #endregion -- Pages
         [HttpGet, Authorize]
-        public ActionResult GetmanpowerAttendanceSummaryrViewReportOld(string workDate, bool withLine)
+        public ActionResult GetmanpowerAttendanceSummaryrViewReportOld(string workDate, bool withLine, string PlantId, string typeList, bool WithoutTBS, bool WithoutLA)
         {
-
+            string PlantIds = string.Empty;
+            string typeLists = string.Empty;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "ManpowerSummary";
+            #region Validation
+            if (!string.IsNullOrEmpty(typeList))
+            {
+                typeLists = "'" + typeList.Replace(",", "','") + "'";
+            }
+            else
+            {
+                throw new Exception("Please Select the Employee Code Type");
+            }
+            if (!string.IsNullOrEmpty(PlantId))
+            {
+                PlantIds = "'" + PlantId.Replace(",", "','") + "'";
+            }
+            else
+            {
+                throw new Exception("Please Select Plant");
+            }
+            #endregion
             if (!withLine)
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId,workDate, withLine, PlantIds, typeLists, WithoutTBS, WithoutLA);
 
                 workbook.Version = ExcelVersion.Excel97to2003;
                 //workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
@@ -76,7 +95,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             else
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, PlantIds, workDate, withLine, typeLists, WithoutTBS, WithoutLA);
                
                 workbook.Version = ExcelVersion.Excel97to2003;
                 return RenderReportAsPdf(workbook, fileName);
@@ -86,21 +105,40 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetmanpowerAttendanceSummaryrReportOld(string workDate, bool withLine)
+        public ActionResult GetmanpowerAttendanceSummaryrReportOld(string workDate, bool withLine,string PlantId,string typeList,bool WithoutTBS,bool WithoutLA)
         {
-
+            string typeLists = string.Empty;
+            string PlantIds = string.Empty;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "ManpowerSummary" + DateTime.Now.ToString("yyMMdd") + ".xls";
+            #region Validation
+            if (!string.IsNullOrEmpty(typeList))
+            {
+                typeLists = "'" + typeList.Replace(",", "','") + "'";
+            }
+            else
+            {
+                throw new Exception("Please Select the Employee Code Type");
+            }
+            if (!string.IsNullOrEmpty(PlantId))
+            {
+                PlantIds = "'" + PlantId.Replace(",", "','") + "'";
+            }
+            else
+            {
+                throw new Exception("Please Select Plant");
+            }
+            #endregion
             if (!withLine)
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, workDate, withLine, PlantIds, typeLists, WithoutTBS,WithoutLA);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
 
             }
             else
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, workDate, withLine);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, PlantIds, workDate, withLine, typeLists, WithoutTBS, WithoutLA);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
             }
