@@ -119,7 +119,8 @@ namespace Library.Service.Setups
                         OperationInProductionBookingWillBeCapturebyBulletin = from_ui.OperationInProductionBookingWillBeCapturebyBulletin,
                         MachineBudgetLevel = from_ui.MachineBudgetLevel,
                         IsMachineChangeableinBulletinTemplate = from_ui.IsMachineChangeableinBulletinTemplate,
-                        IsProductionHourOpen = from_ui.IsProductionHourOpen
+                        IsProductionHourOpen = from_ui.IsProductionHourOpen,
+                        ProcurementOnBoM = from_ui.ProcurementOnBoM
                     };
                 }
                 else
@@ -142,6 +143,7 @@ namespace Library.Service.Setups
                     from_db.MachineBudgetLevel = from_ui.MachineBudgetLevel;
                     from_db.IsMachineChangeableinBulletinTemplate = from_ui.IsMachineChangeableinBulletinTemplate;
                     from_db.IsProductionHourOpen = from_ui.IsProductionHourOpen;
+                    from_db.ProcurementOnBoM = from_ui.ProcurementOnBoM;
                 }
                 AuditService.Log(from_db);
                 InsertOrUpdateGraph(from_db);
@@ -171,7 +173,7 @@ namespace Library.Service.Setups
 
         public IEnumerable<object> GetPlantConfigByPlant(string PlantId)
         {
-            var _sql = @"SELECT PlantId, BuyerApplicable, FabRollPrefix FROM " + PlantConfigTable + " WHERE PlantId='" + PlantId + "'";
+            var _sql = @"SELECT PlantId, BuyerApplicable, FabRollPrefix,ProcurementOnBoM  FROM " + PlantConfigTable + " WHERE PlantId='" + PlantId + "'";
             return _sqlRepository.GetDataCollection(_sql);
         }
 
@@ -183,7 +185,7 @@ namespace Library.Service.Setups
                                   , pc.CompanyId, c.UserName AS CompanyName
                                   ,BlanketDefaultLength,BlanketDefaultWidth,IsBlanketDefaultLengthValuesChangeable,IsBlanketDefaultWidthValuesChangeable
                                   ,IsAfterWashShrinkageOnActual,PC.FabRollPrefix,PC.IsProductionOrderCreatedAfterConfirmationOfSO,PC.WeekendforProductionOrder,PC.Operation,PC.OperationInProductionBookingWillBeCapturebyBulletin,pc.MachineBudgetLevel
-                                  ,PC.IsMachineChangeableinBulletinTemplate,pc.IsProductionHourOpen
+                                  ,PC.IsMachineChangeableinBulletinTemplate,pc.IsProductionHourOpen,PC.ProcurementOnBoM
                             FROM SCS.PlantConfig pc
                             LEFT JOIN ORG.Plant p2 ON pc.PlantId = p2.Id
                             LEFT JOIN ORG.CompanyGroup cg ON pc.CompanyGroupId=cg.Id

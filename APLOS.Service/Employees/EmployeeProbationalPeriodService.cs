@@ -310,7 +310,7 @@ namespace Library.Service.Employees
 		                                        LEFT OUTER JOIN [HKP].[Designation] D ON PR.DesignationId=D.Id
                                                 LEFT OUTER JOIN [HKP].[EmployeeCategory] c ON c.id=EMP.EmployeeCategorySystemID
                                                 LEFT OUTER JOIN [ORG].[Company] co ON Emp.CompanyId = co.Id
-                                                where EMP.IsConfirmed = 0 AND EMP.EmployeeStatus='Active' AND EMP.PlantId='" + plantId + @"'" + str;
+                                                where EMP.IsConfirmed = 0 AND EMP.EmployeeStatus='Active' AND EMP.PlantId='" + plantId + @"'" ;
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -385,8 +385,8 @@ namespace Library.Service.Employees
 													ISNULL(emp.DOCMonth, 0) * 30 end)) < CONVERT(DATE, GETDATE()+hr.ProbationPeriodAlertBeforeDays)
 													 then 'Future'
 										            end AS [Status]
-                                                ,hr.IsPastDOCAllowed
-                                                ,hr.pastDOCdaysAllowed
+                                                --,hr.IsPastDOCAllowed
+                                                --,hr.pastDOCdaysAllowed
                                                 FROM dbo.EmployeeInformation AS EMP
                                                 LEFT OUTER JOIN PlantWiseHRMSSetting hr on hr.PlantID = emp.PlantId
                                                 LEFT OUTER JOIN [MST].[ManpowerBudget] PMB ON EMP.BudgetCode=PMB.Id
@@ -397,7 +397,6 @@ namespace Library.Service.Employees
                                                 LEFT OUTER JOIN [HKP].[EmployeeCategory] c ON c.id=EMP.EmployeeCategorySystemID
                                                 LEFT OUTER JOIN [ORG].[Company] co ON Emp.CompanyId = co.Id
                                                 where emp.IsConfirmed = 0 AND EMP.EmployeeStatus = 'Active' AND EMP.PlantId='" + plantId + @"'
-												" + str + @"
 												)X " + wc + "";
 
                 return _sqlRepository.GetGridData(parameters);

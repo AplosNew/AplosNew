@@ -1,0 +1,114 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  General Data Operation
+</h3>
+<div class="form-horizontal form-elements" id="mainContainer">
+
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="DayTypeWithValues" role="tab" data-toggle="tab">General Data Upload</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="DayStatus" role="tab" data-toggle="tab">General Data Download</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row">
+                    <div class="form-elements">
+
+                        <div class="col-md-10">
+
+                            <div class="inputBtnSection common-btn">
+                                <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
+                                    <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                                </label>
+                                <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
+                                <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Sample Report File </button>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="common-btn" style="margin-top:10px;">
+                    <ul class="list-inline text-right">
+                        @*<li> <button ng-click="getCurrentFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-search"></i> View </button></li>*@
+                        <li> <button ng-click="saveFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                        @*<li> <button ng-click="clearFileList();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>*@
+
+                    </ul>
+                </div>
+
+                <div id="GeneralDataGrid" ej-grid e-datasource="ExcelUploadData" 
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                    <div e-columns>
+                        <div e-column e-field="MasterId" e-type="string" e-headertext="Master Id" e-width="80"></div>
+                        <div e-column e-field="TransactionDate" e-type="string" e-headertext="Transaction Date" e-width="80"></div>
+                        <div e-column e-field="Remark" e-type="string" e-headertext="Remark" e-width="80"></div>
+                        <div e-column e-field="Value" e-type="string" e-headertext="Value" e-width="80"></div>
+                        <div e-column e-field="ReferenceNumber" e-type="string" e-headertext="Reference No" e-width="80"></div>
+                        <div e-column e-field="EmpSystemId" e-type="string" e-headertext="Emp System ID" e-width="80"></div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
+                    @*<div class="col-sm-6 col-md-6 col-lg-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Entity</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="EntityId" name="entity"
+                                            ng-options="item.Value as item.Text for item in EntityList">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="getData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View </button></li>
+                            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                        </ul>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>
+
+

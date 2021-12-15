@@ -33,8 +33,8 @@ namespace Aplos.Areas.Products.Controllers
 		Library.General.Conversions.UOMConversion conversion = new Library.General.Conversions.UOMConversion();
 		#region Constructor
 
-		private readonly IPurchaseOrderService _inventoryReveiveService;
-		private readonly IPurchaseOrderDetailService _inventoryDetailService;
+		private readonly IPurchaseOrderService _purchaseOrderService;
+		private readonly IPurchaseOrderDetailService _purchseOrderDetailService;
 		private readonly IPOMaterialService _inventoryMaterialService;
 		private readonly IPurchaseOrderServiceService _inventoryService;
 		private readonly IInventoryReceiveReportService _inventoryReportService;
@@ -43,16 +43,16 @@ namespace Aplos.Areas.Products.Controllers
 
 
 		public PurchaseOrderController(
-			IPurchaseOrderService inventoryReveiveService
-			, IPurchaseOrderDetailService inventoryDetailService
+			IPurchaseOrderService purchaseOrderService
+			, IPurchaseOrderDetailService purchaseOrderDetailService
 			, IPOMaterialService inventoryMaterialService
 			, IInventoryReceiveReportService inventoryReportService
 			, IPurchaseOrderServiceService inventoryService
 			, IServiceRequsitionMasterService serviceRequsitionMasterService
 			, ISqlRepository sqlRepository)
 		{
-			_inventoryReveiveService = inventoryReveiveService;
-			_inventoryDetailService = inventoryDetailService;
+			_purchaseOrderService = purchaseOrderService;
+			_purchseOrderDetailService = purchaseOrderDetailService;
 			_inventoryMaterialService = inventoryMaterialService;
 			_inventoryService = inventoryService;
 			_inventoryReportService = inventoryReportService;
@@ -225,7 +225,7 @@ namespace Aplos.Areas.Products.Controllers
 				entity.AddedBy = null;
 				entity.EmployeeId = identity.EmployeeId;
 				//entity.AuthorizedBy = null;               
-				_inventoryReveiveService.Insert(entity);
+				_purchaseOrderService.Insert(entity);
 				return Json(new { entity, Message = AplosMessage.Success + " PO no <b>" + entity.Id + "</b>" });
 			}
 			catch (Exception ex)
@@ -261,14 +261,14 @@ namespace Aplos.Areas.Products.Controllers
 				}
 
 			}
-			_inventoryDetailService.InsertOrUpdateGraph(entity, taxCategoryList);
+			_purchseOrderDetailService.InsertOrUpdateGraph(entity, taxCategoryList);
 			return Json(new { entity.Id, Message = AplosMessage.Success });
 		}
 
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
 		public JsonResult DetailDelete(string receiveDetailId, string OrderSpecific)
 		{
-			_inventoryDetailService.Delete(receiveDetailId, OrderSpecific);
+			_purchseOrderDetailService.Delete(receiveDetailId, OrderSpecific);
 			return Json(new { Message = AplosMessage.Deleted });
 		}
 		[Authorize, HttpPost]
@@ -278,7 +278,7 @@ namespace Aplos.Areas.Products.Controllers
 			var ip = identity.IPAddress;
 			var updatedDate = Convert.ToDateTime(DateTime.Now).ToString();
 			var UpdatedBy = identity.Name;
-			_inventoryDetailService.UpdateMaterial(entity, receiveTaxList);
+			_purchseOrderDetailService.UpdateMaterial(entity, receiveTaxList);
 			return Json(new { Message = AplosMessage.Updated });
 		}
 
@@ -341,7 +341,7 @@ namespace Aplos.Areas.Products.Controllers
 				//entity.CheckedBy = "";
 				entity.AddedBy = null;
 				entity.EmployeeId = identity.EmployeeId;
-				_inventoryReveiveService.Insert(entity);
+				_purchaseOrderService.Insert(entity);
 				return Json(new { entity, Message = AplosMessage.Success + " PO no <b>" + entity.Id + "</b>" });
 			}
 			catch (Exception ex)
@@ -355,7 +355,7 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			if (!string.IsNullOrEmpty(id))
 			{
-				_inventoryReveiveService.Delete(id);
+				_purchaseOrderService.Delete(id);
 				return Json(new { Message = AplosMessage.Success });
 			}
 			else
@@ -367,7 +367,7 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			if (!string.IsNullOrEmpty(id))
 			{
-				_inventoryReveiveService.Delete(id);
+				_purchaseOrderService.Delete(id);
 				return Json(new { Message = AplosMessage.Success });
 			}
 			else
@@ -384,7 +384,7 @@ namespace Aplos.Areas.Products.Controllers
 			}
 			else
 			{
-				_inventoryDetailService.InsertOrUpdateGraphPoByReq(entity, groupList, taxCategoryList, PoId);
+				_purchseOrderDetailService.InsertOrUpdateGraphPoByReq(entity, groupList, taxCategoryList, PoId);
 			}
 			return Json(new { entity, Message = AplosMessage.Success });
 		}
@@ -392,7 +392,7 @@ namespace Aplos.Areas.Products.Controllers
 		[HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
 		public JsonResult DetailDeletePOByReq(string receiveDetailId)
 		{
-			_inventoryDetailService.DeletePOByReq(receiveDetailId);
+			_purchseOrderDetailService.DeletePOByReq(receiveDetailId);
 			return Json(new { Message = AplosMessage.Deleted });
 		}
 		#endregion Purchase-Order-By-Requisition Action function
@@ -403,14 +403,14 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetList(GridParameter parameters)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.Query(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.Query(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
 		public JsonResult GetPostingList(GridParameter parameters)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetPostingList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetPostingList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 
 		/// <summary>
@@ -422,7 +422,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetListForInvPayable(GridParameter parameters)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForInvPayable(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForInvPayable(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 
 		[HttpPost, Authorize]
@@ -443,7 +443,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult DetailCreateFGMasterOrder(PurchaseOrder entity, IEnumerable<InventoryMaterialViewModel> Materialentity, IEnumerable<PurchaseOrderTax> taxCategoryList, IEnumerable<InventoryMaterialViewModel> ServiceEntity, IEnumerable<PurchaseOrderTax> ServicetaxCategoryList)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryDetailService.InsertOrUpdateGraphFGForMasterOrder(entity, Materialentity, taxCategoryList, ServiceEntity, ServicetaxCategoryList);
+			_purchseOrderDetailService.InsertOrUpdateGraphFGForMasterOrder(entity, Materialentity, taxCategoryList, ServiceEntity, ServicetaxCategoryList);
 			ServiceChargesCreateFG(ServiceEntity, ServicetaxCategoryList);
 			return Json(new { entity.Id, Message = AplosMessage.Success });
 		}
@@ -473,7 +473,7 @@ namespace Aplos.Areas.Products.Controllers
 				}
 			}
 
-			_inventoryDetailService.UpdateServiceAndTax(entity, receiveTaxList);
+			_purchseOrderDetailService.UpdateServiceAndTax(entity, receiveTaxList);
 			return Json(new { Message = AplosMessage.Success });
 		}
 
@@ -529,7 +529,7 @@ namespace Aplos.Areas.Products.Controllers
 			entity.EmployeeId = identity.EmployeeId;
 			//entity.AuthorizedBy = null;
 
-			_inventoryReveiveService.Update(entity);
+			_purchaseOrderService.Update(entity);
 			return Json(new { Message = AplosMessage.Updated });
 		}
 		#region Inventory Detail
@@ -538,7 +538,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetToCurrencyRate(string currencyId, string baseCurrencyId, string docDate)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetToCurrencyRate(currencyId, baseCurrencyId, Convert.ToDateTime(docDate), identity.CompanyId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetToCurrencyRate(currencyId, baseCurrencyId, Convert.ToDateTime(docDate), identity.CompanyId), JsonRequestBehavior.AllowGet);
 		}
 
 
@@ -549,7 +549,7 @@ namespace Aplos.Areas.Products.Controllers
 			entity.CompanyGroupId = identity.CompanyGroupId;
 			entity.CompanyId = identity.CompanyId;
 			entity.PlantId = identity.PlantId;
-			_inventoryDetailService.InsertExtraTax(entity, taxCategoryList);
+			_purchseOrderDetailService.InsertExtraTax(entity, taxCategoryList);
 			return Json(new { entity.Id, Message = AplosMessage.Success });
 		}
 
@@ -560,7 +560,7 @@ namespace Aplos.Areas.Products.Controllers
 			entity.CompanyGroupId = identity.CompanyGroupId;
 			entity.CompanyId = identity.CompanyId;
 			entity.PlantId = identity.PlantId;
-			_inventoryDetailService.InsertserviceTax(entity, taxCategoryList, ServiceId);
+			_purchseOrderDetailService.InsertserviceTax(entity, taxCategoryList, ServiceId);
 			return Json(new { entity.Id, Message = AplosMessage.Updated });
 		}
 
@@ -571,13 +571,13 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetMaterialDetails(string MaretialDetailsId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetMaterialDetails(MaretialDetailsId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetMaterialDetails(MaretialDetailsId), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetStateByInvoicingPartyPlantId(string InvoicingPartyPlantId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetStateByInvoicingPartyPlantId(InvoicingPartyPlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetStateByInvoicingPartyPlantId(InvoicingPartyPlantId), JsonRequestBehavior.AllowGet);
 		}
 		#endregion
 
@@ -587,37 +587,37 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetTaxCategoryList(string receiveId, string hsnCodeId, string PODate)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult getserviceTaxByTaxCategoryList(string receiveId, string hsnCodeId, string PODate)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.getserviceTaxByTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.getserviceTaxByTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetTaxCategoryListForSalesService(string receiveId, string hsnCodeId, string InventorySalesDate)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetTaxCategoryListForSalesService(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, InventorySalesDate), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetTaxCategoryListForSalesService(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, InventorySalesDate), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
 		public JsonResult GetReceiveTaxList(string receiveDetailId)
 		{
-			return Json(_inventoryReveiveService.GetReceiveTaxList(receiveDetailId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetReceiveTaxList(receiveDetailId), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
 		public JsonResult GetTotalReceiveTaxList(string receiveId)
 		{
-			return Json(_inventoryReveiveService.GetTotalReceiveTaxList(receiveId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetTotalReceiveTaxList(receiveId), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
 		public JsonResult GetServiceTaxList(string serviceId)
 		{
-			return Json(_inventoryReveiveService.GetServiceTaxList(serviceId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetServiceTaxList(serviceId), JsonRequestBehavior.AllowGet);
 		}
 
 		#endregion Inventory Receive Tax
@@ -693,7 +693,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetEmployeePurchaseList(GridParameter parameters)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetEmployeePurchaseList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetEmployeePurchaseList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 
 		#endregion Employee Purchase
@@ -703,7 +703,7 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpPost, ChaildAction(ParentActionName = "Edit")]
 		public JsonResult Approved(IEnumerable<PurchaseOrder> entities)
 		{
-			_inventoryReveiveService.GRNApproved(entities);
+			_purchaseOrderService.GRNApproved(entities);
 			return Json(new { Message = AplosMessage.Insert });
 		}
 
@@ -718,14 +718,14 @@ namespace Aplos.Areas.Products.Controllers
 		{
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetPOTypeList(identity.PlantId, POTypeStatus), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetPOTypeList(identity.PlantId, POTypeStatus), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
 		public JsonResult GetListForHold11(string ApproveRejectHold)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForHold11(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForHold11(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
 		}
 
 
@@ -734,13 +734,13 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetPOMasterById(string id)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetPOMasterById(identity.PlantId, id), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetPOMasterById(identity.PlantId, id), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpPost, ChaildAction(ParentActionName = "Edit")]
 		public JsonResult PaymentHold(IEnumerable<PurchaseOrder> entities)
 		{
-			_inventoryReveiveService.PaymentHold(entities);
+			_purchaseOrderService.PaymentHold(entities);
 			return Json(new { Message = AplosMessage.Insert });
 		}
 		[HttpGet, Authorize]
@@ -749,13 +749,13 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-			return Json(_inventoryReveiveService.GetListByParty(identity.CompanyId, PartyType.Vendor.ToString()), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListByParty(identity.CompanyId, PartyType.Vendor.ToString()), JsonRequestBehavior.AllowGet);
 			//return Json(POList.GetListByParty(), JsonRequestBehavior.AllowGet);
 		}
 		[HttpGet, Authorize]
 		public JsonResult GetPartyPlantCbo(string partyId, string Id)
 		{
-			return Json(_inventoryReveiveService.GetPartyPlantCbo(partyId, Id), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetPartyPlantCbo(partyId, Id), JsonRequestBehavior.AllowGet);
 		}
 
 		[HttpPost, Authorize]
@@ -763,7 +763,7 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			if (!string.IsNullOrEmpty(id))
 			{
-				_inventoryReveiveService.DeleteMaterialTax(id);
+				_purchaseOrderService.DeleteMaterialTax(id);
 				return Json(new { Message = AplosMessage.Success });
 			}
 			else
@@ -780,7 +780,7 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-			_inventoryReveiveService.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId);
+			_purchaseOrderService.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId);
 
 			return null;
 
@@ -793,7 +793,7 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-			_inventoryReveiveService.GetPurchaseAcceptanceReport(identity.CompanyGroupId, identity.PlantId, PDACId);
+			_purchaseOrderService.GetPurchaseAcceptanceReport(identity.CompanyGroupId, identity.PlantId, PDACId);
 
 			return null;
 
@@ -807,13 +807,13 @@ namespace Aplos.Areas.Products.Controllers
 			{
 				throw new CustomException("Please Select Checked By Status!");
 			}
-			_inventoryReveiveService.PoApproved(PoId, PoValue, CheckedStataus, AuthorizedBy, CheckedRejectReason);
+			_purchaseOrderService.PoApproved(PoId, PoValue, CheckedStataus, AuthorizedBy, CheckedRejectReason);
 			return Json(new { Message = "PO Approved" + AplosMessage.Success });
 		}
 		[HttpPost, Authorize]
 		public JsonResult PoUnApproved(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy)
 		{
-			_inventoryReveiveService.PoUnApproved(PoId, PoValue, CheckedStataus, AuthorizedBy);
+			_purchaseOrderService.PoUnApproved(PoId, PoValue, CheckedStataus, AuthorizedBy);
 			return Json(new { Message = "PO Approved" + AplosMessage.Success });
 		}
 
@@ -824,7 +824,7 @@ namespace Aplos.Areas.Products.Controllers
 			{
 				throw new CustomException("Please Select Checked By Status!");
 			}
-			_inventoryReveiveService.PoApprovedAuth(PoId, PoValue, CheckedStataus, AuthorizedBy, ApproveRejectReason);
+			_purchaseOrderService.PoApprovedAuth(PoId, PoValue, CheckedStataus, AuthorizedBy, ApproveRejectReason);
 			return Json(new { Message = "PO Approved" + AplosMessage.Success });
 		}
 		#endregion
@@ -833,13 +833,13 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetListForPOApproval1UnApproved()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForPOApproval1UnApproved(identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForPOApproval1UnApproved(identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 
 		[HttpPost, Authorize]
 		public JsonResult PoApproved1Auth(string PoId, string PoValue)
 		{
-			_inventoryReveiveService.PoApproved1(PoId, PoValue);
+			_purchaseOrderService.PoApproved1(PoId, PoValue);
 			return Json(new { Message = "PO UN Approved" + AplosMessage.Success });
 		}
 		#endregion
@@ -849,12 +849,12 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetListForPOClose()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForPOClose(identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForPOClose(identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult POClose(string PoId, string PoValue)
 		{
-			_inventoryReveiveService.POClose(PoId, PoValue);
+			_purchaseOrderService.POClose(PoId, PoValue);
 			return Json(new { Message = AplosMessage.Success + " PO Closed " });
 		}
 		#endregion
@@ -864,12 +864,12 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetListForPOUnClose()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForPOUnClose(identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForPOUnClose(identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult POUnClose(string PoId, string PoValue)
 		{
-			_inventoryReveiveService.POUnClose(PoId, PoValue);
+			_purchaseOrderService.POUnClose(PoId, PoValue);
 			return Json(new { Message = AplosMessage.Success + " PO Closed " });
 		}
 		#endregion
@@ -879,7 +879,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetListForAllPOList()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForAllPOList(identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForAllPOList(identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 		//[HttpPost] 
 
@@ -890,19 +890,19 @@ namespace Aplos.Areas.Products.Controllers
 		public ActionResult GetListForMasterOrder()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForMasterOrder(identity.CompanyId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForMasterOrder(identity.CompanyId), JsonRequestBehavior.AllowGet);
 		}
 
 		[HttpGet, Authorize]
 		public JsonResult GetMasterItemList(string masterOrderId)
 		{
-			return Json(_inventoryReveiveService.GetMasterItemList(masterOrderId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetMasterItemList(masterOrderId), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetTaxCategoryListForFGService(string partyPlantId, string hsnCodeId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.getTaxCategoryListForFGService(identity.CompanyGroupId, identity.PlantId, hsnCodeId, partyPlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.getTaxCategoryListForFGService(identity.CompanyGroupId, identity.PlantId, hsnCodeId, partyPlantId), JsonRequestBehavior.AllowGet);
 		}
 		#endregion
 
@@ -910,19 +910,19 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetSupervisorCbo()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetSupervisorCbo(), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetSupervisorCbo(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetSupervisorCboApproved()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetSupervisorCboApproved(), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetSupervisorCboApproved(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetSupervisorCboApproved1()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetSupervisorCboApproved1(), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetSupervisorCboApproved1(), JsonRequestBehavior.AllowGet);
 		}
 
 		#region Purchase Order By Requisition
@@ -931,31 +931,31 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetListForPOBYReq(string POTypeStatus)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForPOBYReq(identity.PlantId, POTypeStatus), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForPOBYReq(identity.PlantId, POTypeStatus), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetListForPOBYReq1(string ApproveRejectHold)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForPOBYReq1(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForPOBYReq1(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
 		public ActionResult GetListForRequisition()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForRequisition(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForRequisition(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public ActionResult GetListForRequisition1()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForRequisition1(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForRequisition1(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
 		}
 		[HttpGet, Authorize]
 		public JsonResult GetRequisitionList(string RequisitionId)
 		{
-			return Json(_inventoryReveiveService.GetRequisitionList(RequisitionId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetRequisitionList(RequisitionId), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpPost]
 		public JsonResult EditPOByReq(PurchaseOrder entity, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
@@ -1008,7 +1008,7 @@ namespace Aplos.Areas.Products.Controllers
 				//entity.CheckedBy = "";
 				entity.AddedBy = null;
 				entity.EmployeeId = identity.EmployeeId;
-				_inventoryReveiveService.Update(entity);
+				_purchaseOrderService.Update(entity);
 			}
 			catch (Exception)
 			{
@@ -1027,7 +1027,7 @@ namespace Aplos.Areas.Products.Controllers
 			}
 			else
 			{
-				_inventoryDetailService.InsertOrUpdateGraphPoUpdateByReq(entity, groupList, taxCategoryList, PoId);
+				_purchseOrderDetailService.InsertOrUpdateGraphPoUpdateByReq(entity, groupList, taxCategoryList, PoId);
 			}
 			return Json(new { entity, Message = AplosMessage.Success });
 		}
@@ -1078,7 +1078,7 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpGet]
 		public JsonResult GetTaxCategoryListPO(string receiveDetailId)
 		{
-			return Json(_inventoryReveiveService.GetTaxCategoryListPOBYReq(receiveDetailId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetTaxCategoryListPOBYReq(receiveDetailId), JsonRequestBehavior.AllowGet);
 		}
 
 		[HttpGet, Authorize]
@@ -1086,7 +1086,7 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-			_inventoryReveiveService.GePurchaseOrderReportByReq(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId);
+			_purchaseOrderService.GePurchaseOrderReportByReq(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId);
 
 			return null;
 
@@ -1096,10 +1096,10 @@ namespace Aplos.Areas.Products.Controllers
 		#region Purchaser LC Intregrated to PurchaseOrder
 
 		[Authorize, HttpGet]
-		public JsonResult GetLCContractList()
+		public JsonResult GetLCContractList(bool isProcurementOnBom)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetLCContractList(), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetLCContractList(isProcurementOnBom, identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 
 
@@ -1107,7 +1107,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetalldataPOWithLCMap()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetalldataPOWithLCMap(identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetalldataPOWithLCMap(identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 
 
@@ -1116,13 +1116,13 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetalldataPOWithoutLCMap()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetalldataPOWithoutLCMap(identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetalldataPOWithoutLCMap(identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetLCListByContract(string ContractId, string VendorId, string CurrencyId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetLCListByContract(ContractId, VendorId, CurrencyId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetLCListByContract(ContractId, VendorId, CurrencyId), JsonRequestBehavior.AllowGet);
 		}
 
 
@@ -1131,7 +1131,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult UpdatePOforLC(string POId, string PurchaseLCId, string flag)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryReveiveService.UpdatePOforLC(POId, PurchaseLCId, flag);
+			_purchaseOrderService.UpdatePOforLC(POId, PurchaseLCId, flag);
 			return Json(new { Message = AplosMessage.Updated });
 		}
 		#endregion
@@ -1197,7 +1197,7 @@ namespace Aplos.Areas.Products.Controllers
 				}
 
 
-				_inventoryReveiveService.InsertServicePOByReq(entity);
+				_purchaseOrderService.InsertServicePOByReq(entity);
 				return Json(new { entity, Message = AplosMessage.Success + " Requisition No <b>" + entity.Id + "</b>" });
 
 			}
@@ -1263,7 +1263,7 @@ namespace Aplos.Areas.Products.Controllers
 					entity.ApprovedByStatus = null;
 
 				}
-				_inventoryReveiveService.Update(entity);
+				_purchaseOrderService.Update(entity);
 				return Json(new { Message = AplosMessage.Updated });
 			}
 			catch (Exception)
@@ -1279,7 +1279,7 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			if (!string.IsNullOrEmpty(id))
 			{
-				_inventoryReveiveService.DeleteServicePOReq(id);
+				_purchaseOrderService.DeleteServicePOReq(id);
 				return Json(new { Message = AplosMessage.Success });
 			}
 			else
@@ -1291,14 +1291,14 @@ namespace Aplos.Areas.Products.Controllers
 
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForServicePOBYReq(identity.PlantId, POTypeStatus, POType), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForServicePOBYReq(identity.PlantId, POTypeStatus, POType), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
 		public JsonResult GetListForServicePOBYReqHR(string ApproveRejectHold, string POType)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForServicePOBYReqHR(identity.PlantId, ApproveRejectHold, POType), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetListForServicePOBYReqHR(identity.PlantId, ApproveRejectHold, POType), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
@@ -1328,7 +1328,7 @@ namespace Aplos.Areas.Products.Controllers
 			}
 			else
 			{
-				_inventoryDetailService.InsertServicePODetailByReq(entity, ServicePoMasterId, taxCategoryList);
+				_purchseOrderDetailService.InsertServicePODetailByReq(entity, ServicePoMasterId, taxCategoryList);
 			}
 			return Json(new { entity, Message = AplosMessage.Success });
 		}
@@ -1342,7 +1342,7 @@ namespace Aplos.Areas.Products.Controllers
 			}
 			else
 			{
-				_inventoryDetailService.InsertServicePODetail(entity, ServicePoMasterId, taxCategoryList);
+				_purchseOrderDetailService.InsertServicePODetail(entity, ServicePoMasterId, taxCategoryList);
 			}
 			return Json(new { entity, Message = AplosMessage.Success });
 		}
@@ -1403,7 +1403,7 @@ namespace Aplos.Areas.Products.Controllers
 		public ActionResult ServicePurchaseOrderReport(string purchaseOrderId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryReveiveService.ServicePurchaseOrderReport(identity.CompanyGroupId, identity.PlantId, purchaseOrderId);
+			_purchaseOrderService.ServicePurchaseOrderReport(identity.CompanyGroupId, identity.PlantId, purchaseOrderId);
 
 			return null;
 
@@ -1426,7 +1426,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetServicePOByReqSupervisorCbo()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetServicePOByReqSupervisorCbo(), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetServicePOByReqSupervisorCbo(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpPost]
 
@@ -1439,7 +1439,7 @@ namespace Aplos.Areas.Products.Controllers
 			}
 			else
 			{
-				_inventoryDetailService.GetUpdateServicePOTax(receiveTaxList, ServicePODetailId, servicePOid);
+				_purchseOrderDetailService.GetUpdateServicePOTax(receiveTaxList, ServicePODetailId, servicePOid);
 			}
 			return Json(new { receiveTaxList, Message = AplosMessage.Success });
 		}
@@ -2148,7 +2148,7 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
 					entity.ApprovedBy = null;
 					entity.ApprovedByStatus = null;
 				}
-				_inventoryReveiveService.InsertServiceAck(entity, DetailList, ServicePOAndAckTax);
+				_purchaseOrderService.InsertServiceAck(entity, DetailList, ServicePOAndAckTax);
 				return Json(new { entity, Message = AplosMessage.Success + " PO no <b>" + entity.Id + "</b>" });
 			}
 			catch (Exception ex)
@@ -2162,7 +2162,7 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
 		{
 			if (!string.IsNullOrEmpty(id))
 			{
-				_inventoryReveiveService.DeleteServiceAck(id);
+				_purchaseOrderService.DeleteServiceAck(id);
 				return Json(new { Message = AplosMessage.Success });
 			}
 			else
@@ -3023,7 +3023,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-			_inventoryReveiveService.ServiceAcknowledgementReport(identity.CompanyGroupId, identity.PlantId, SurviceAckId);
+			_purchaseOrderService.ServiceAcknowledgementReport(identity.CompanyGroupId, identity.PlantId, SurviceAckId);
 
 			return null;
 
@@ -3822,8 +3822,6 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
 
 			}
-
-
 		}
 		string TableName = "hkp.TermsAndConditions";
 		private double GetSequence()
@@ -3831,7 +3829,6 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
 			if (dt.Rows.Count > 0)
 				return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
 			return 1;
 		}
 		[Authorize, HttpGet]
@@ -3882,10 +3879,9 @@ where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'";
 		public ActionResult GetTermsAndConditionsPOList(string TermsAndConditionMasterId,string POId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"select TCM.Id TermsAndConditionMasterId,TC.Id TermsAndConditionPOChildId,TC.Id,TC.Title,TCM.Description ,TCM.Code 
-from TermsAndConditionsPOChild TC 
-left outer join HKP.TermsAndConditions TCM on TCM.Id=TC.TermsAndConditionsMasterId 
-where TC.TermsAndConditionsMasterId='" + TermsAndConditionMasterId + @"'AND TC.POId='"+ POId + @"' ";
+			string sql = @"select TC.Id TermsAndConditionPOChildId,TC.Id,TC.Title
+from TermsAndConditionsPOChild TC
+WHERE TC.POId='" + POId + @"' ";
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}
@@ -4256,13 +4252,13 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		public JsonResult GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetCheckedByAndApprovedBY(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetCheckedByAndApprovedBY(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetCheckedByAndApprovedBYForOurSource(string CheckedBy, string ApprovedBy)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetCheckedByAndApprovedBYOutSource(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetCheckedByAndApprovedBYOutSource(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
 		}
 
 		#region Notification Seting for Service Requisition  PO
@@ -4285,7 +4281,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		public JsonResult GetCheckedByAndApprovedBYServicePORequisition(string CheckedBy, string ApprovedBy)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetCheckedByAndApprovedBYServicePORequisition(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetCheckedByAndApprovedBYServicePORequisition(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
 		}
 		#endregion  Controller
 		#region Notification Seting for service po acknowledgement
@@ -4307,7 +4303,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		public JsonResult GetCheckedByAndApprovedBYServicePOAcknowledgement(string CheckedBy, string ApprovedBy)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetCheckedByAndApprovedBYServicePOAcknowledgement(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetCheckedByAndApprovedBYServicePOAcknowledgement(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
 		}
 		#endregion  Controller
 
@@ -4326,7 +4322,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		public JsonResult getCheckedHoldReject()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.getCheckedHoldReject(identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.getCheckedHoldReject(identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult getCheckedList()
@@ -4353,7 +4349,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		[HttpPost, Authorize]
 		public JsonResult PoApproved1(string PoId, string PoValue)
 		{
-			_inventoryReveiveService.PoApproved1(PoId, PoValue);
+			_purchaseOrderService.PoApproved1(PoId, PoValue);
 			return Json(new { Message = "PO UN Approved" + AplosMessage.Success });
 		}
 		#endregion
@@ -4363,13 +4359,13 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		public JsonResult getUNApprovalList(string POTypeApprovalStatus)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.getUNApprovalList(identity.PlantId, POTypeApprovalStatus), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.getUNApprovalList(identity.PlantId, POTypeApprovalStatus), JsonRequestBehavior.AllowGet);
 		}
 		[HttpGet, Authorize]
 		public JsonResult getApprovedHoldReject()
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.getApprovedHoldReject(identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.getApprovedHoldReject(identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 		#endregion
 
@@ -4441,7 +4437,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 				//}
 				List<InventoryMaterialViewModel> entityDetailVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entity);
 				List<InventoryMaterialViewModel> groupListDetailVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(groupList);
-				_inventoryDetailService.InsertOrUpdateGraphPoForBOQItem(entityDetailVM, groupListDetailVM, taxCategoryList, PoId);
+				_purchseOrderDetailService.InsertOrUpdateGraphPoForBOQItem(entityDetailVM, groupListDetailVM, taxCategoryList, PoId);
 			}
 			return Json(new { entity, Message = AplosMessage.Success });
 		}
@@ -4482,7 +4478,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 				List<InventoryMaterialViewModel> groupListDetailVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(groupList);
 				//_inventoryDetailService.InsertOrUpdateGraphPoForBOQItem(entityDetailVM, groupListDetailVM, taxCategoryList, PoId);
 
-				_inventoryDetailService.InsertOrUpdateGraphPoForBOQItemUpdate(entityDetailVM, groupListDetailVM, taxCategoryList, PoId);
+				_purchseOrderDetailService.InsertOrUpdateGraphPoForBOQItemUpdate(entityDetailVM, groupListDetailVM, taxCategoryList, PoId);
 			}
 			return Json(new { entity, Message = AplosMessage.Success });
 		}
@@ -4550,7 +4546,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			PODocumentMap.CompanyGroupId = identity.CompanyGroupId;
 
 
-			_inventoryReveiveService.InsertPODocMap(PODocumentMap, POId, out string Id);
+			_purchaseOrderService.InsertPODocMap(PODocumentMap, POId, out string Id);
 
 			var file = Request.Files["file"];
 
@@ -4659,7 +4655,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			ServicePODocumentMap.CompanyGroupId = identity.CompanyGroupId;
 
 
-			_inventoryReveiveService.InsertServicePODocMap(ServicePODocumentMap, POId, out string Id);
+			_purchaseOrderService.InsertServicePODocMap(ServicePODocumentMap, POId, out string Id);
 
 			var file = Request.Files["file"];
 
@@ -4772,7 +4768,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			ServicePOAckDocumentMap.CompanyGroupId = identity.CompanyGroupId;
 
 
-			_inventoryReveiveService.InsertServicePOAckDocMap(ServicePOAckDocumentMap, POId, out string Id);
+			_purchaseOrderService.InsertServicePOAckDocMap(ServicePOAckDocumentMap, POId, out string Id);
 
 			var file = Request.Files["file"];
 
@@ -5053,7 +5049,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		{
 			string POTypeStatus = "Checked";
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.POCheckedRollBack(identity.PlantId, POTypeStatus), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.POCheckedRollBack(identity.PlantId, POTypeStatus), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetPORollBackAproved()
@@ -5061,7 +5057,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			string ApproveRejectHold = "Approved";
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-			var res = _inventoryReveiveService.PORollBackApproved(identity.PlantId, ApproveRejectHold);
+			var res = _purchaseOrderService.PORollBackApproved(identity.PlantId, ApproveRejectHold);
 			var jsondata = Json(res, JsonRequestBehavior.AllowGet);
 			jsondata.MaxJsonLength = int.MaxValue;
 			return jsondata;

@@ -21949,7 +21949,7 @@ namespace Library.Service.HumanResources
                 foreach (TextSelection item in allresult)
                 {
                     string foundText = item.SelectedText;
-                    if (foundText == "LastPayDate")
+                    if (foundText == "Gratuity")
                     {
 
                     }

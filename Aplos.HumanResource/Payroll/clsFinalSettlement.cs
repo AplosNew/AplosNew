@@ -60,7 +60,7 @@ namespace OTSBD
                 GetSeparationTypeByEmpId(sEmpSystemId, out dsSeparationType);
                 if (string.IsNullOrEmpty(dsSeparationType.Tables[0].Rows[0]["FormulaDesID"].ToString()))
                 {
-                    throw new Exception("Formula is not define for this ["+ dsSeparationType.Tables[0].Rows[0]["UserName"].ToString() + "] separation type");
+                    throw new Exception("Formula is not define for this [" + dsSeparationType.Tables[0].Rows[0]["UserName"].ToString() + "] separation type");
                 }
                 if (dsSeparationType.Tables[0].Rows.Count > 0)
                 {
@@ -472,13 +472,16 @@ namespace OTSBD
                 obj.LvYearEndLapse = cc.YearEndLapse;
                 obj.LvEncashedInbetween = cc.EncashedInbetween;
                 DOS = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy");
-                if (obj.GratuityDaysOrYear == "Day")
+                if (isGratuityApplicable)
                 {
-                    obj.GratuityEligibleYearOrDays = obj.TenureYearNo * NoOfDays;
-                }
-                else
-                {
-                    obj.GratuityEligibleYearOrDays = obj.TenureYearNo;
+                    if (obj.GratuityDaysOrYear == "Day")
+                    {
+                        obj.GratuityEligibleYearOrDays = obj.TenureYearNo * NoOfDays;
+                    }
+                    else
+                    {
+                        obj.GratuityEligibleYearOrDays = obj.TenureYearNo;
+                    }
                 }
                 obj.GratuityAmount = (Convert.ToDecimal(string.Format("{0:F2}", ((Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult))) * obj.GratuityEligibleYearOrDays))));
                 return obj;

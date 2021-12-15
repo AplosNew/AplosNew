@@ -181,7 +181,7 @@ namespace Library.MaterialManagement.Inventory
                     CopyRow(dtFromMaster.Rows[m], ref drSalesOrder);
                     drSalesOrder["Id"] = TitleId + Convert.ToInt32(Id) + SCount;
                     NewSoId = drSalesOrder["Id"].ToString();
-                    drSalesOrder["TermsAndConditionsMasterId"] = TitleId;
+                   // drSalesOrder["TermsAndConditionsMasterId"] = TitleId;
                     drSalesOrder["POId"] = POId;
                     dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
 
@@ -4104,13 +4104,18 @@ namespace Library.MaterialManagement.Inventory
         {
             string replaceString = "{TermsAndCondition}";
 
+            WCharacterFormat FontBoldUnderline = new WCharacterFormat(document);
+            FontBoldUnderline.Bold = true;
+            FontBoldUnderline.UnderlineStyle = UnderlineStyle.Single;
+
+            WCharacterFormat FontBold2 = new WCharacterFormat(document);
+            FontBold2.Bold = true;
 
             IWParagraphStyle rightAlign = document.AddParagraphStyle("rightAlign");
             //Sets the formatting of the style
             rightAlign.CharacterFormat.FontSize = 8f;
             rightAlign.CharacterFormat.TextColor = Color.Black;
             rightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
-
             int LasColumnIndex = 2;
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -4128,24 +4133,26 @@ namespace Library.MaterialManagement.Inventory
             int startRow = 0;
             int colHeader = 0;
             int colDescription = 0;
+
             for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
             {
                 if (dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString() != CmpTitile)
                 {
                     COL = 0;
-                    IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Title :" + dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
-                    range.ApplyCharacterFormat(FontBold);
+                    IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["Title"].ToString() + ".");
+                    range.ApplyCharacterFormat(FontBoldUnderline);
 
-                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Header");
-                    range.ApplyCharacterFormat(FontBold);
-                     colHeader = COL; COL++;
-                    wTable.Rows[ROW].Cells[colHeader].Width = 300;
+                    //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Header");
+                    //range.ApplyCharacterFormat(FontBold);
+                    colHeader = COL; COL++;
+                    wTable.Rows[ROW].Cells[colHeader].Width = 150;
 
 
-                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
-                    range.ApplyCharacterFormat(FontBold);
+                    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+                    //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
+                    //range.ApplyCharacterFormat(FontBold);
                      colDescription = COL; COL++;
-                    wTable.Rows[ROW].Cells[colDescription].Width = 300;
+                    wTable.Rows[ROW].Cells[colDescription].Width = 700;
 
 
                    // wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
@@ -4166,9 +4173,9 @@ namespace Library.MaterialManagement.Inventory
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colHeader].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString());
-                TROW.Cells[colDescription].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["DESCRIPTION"].ToString());
-              
+                IWTextRange A =TROW.Cells[colHeader].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString()+".");
+                A.ApplyCharacterFormat(FontBold2);
+                TROW.Cells[colDescription].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["DESCRIPTION"].ToString()+".");
                 CmpTitile = dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString();
             }
             ROW++;
@@ -4190,6 +4197,7 @@ namespace Library.MaterialManagement.Inventory
             myStyle.CharacterFormat.TextColor = Color.Black;
             myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
 
+           
             #endregion paragrpath formats
 
             #region merging section
@@ -4198,6 +4206,10 @@ namespace Library.MaterialManagement.Inventory
             ROW = 0;
             ROW++;
             #endregion merging section
+
+
+        wTable.TableFormat.Borders.BorderType = BorderStyle.None;
+
             TextBodyPart textBodyPart = new TextBodyPart(document);
             textBodyPart.BodyItems.Add(wTable);
             document.Replace(replaceString, textBodyPart, true, true);
@@ -5210,7 +5222,7 @@ namespace Library.MaterialManagement.Inventory
 tacc.Title,tacd.HeaderCaption,tacd.DESCRIPTION
 FROM TRN.PurchaseOrder AS PO
 LEFT OUTER JOIN HKP.TermsAndConditions AS tac ON PO.TermsAndConditionsId=tac.Id
-LEFT OUTER JOIN TermsAndConditionsPOChild AS tacc ON tacc.TermsAndConditionsMasterId=tac.Id
+LEFT OUTER JOIN TermsAndConditionsPOChild AS tacc ON tacc.POId=PO.Id
 LEFT OUTER JOIN TermsAndConditionsPODetails AS tacd ON tacd.TermsAndConditionsPOChildId=tacc.Id
 WHERE PO.id='" + purchaseOrderId + @"' Order By tac.Sequence,tacc.Id ";
 
@@ -8237,12 +8249,58 @@ ORDER BY IR.ID DESC";
 
             }
         }
-        public IEnumerable<object> GetLCContractList()
+        public IEnumerable<object> GetLCContractList(bool isProcurementOnBom,string plantId)
         {
             try
             {
-                //if()
-                var sql = @"SELECT C.Id ContractId
+                if (isProcurementOnBom) {
+
+                    var sql = @"SELECT C.Id ContractId
+                            , c.CustomerId
+							,c.IsLC
+							,c.AddedBy
+							,c.AddedDate
+							,c.AddedFromIP
+							,C.UpdatedBy
+							,C.UpdatedDate
+							,C.UpdatedFromIP
+							, P.UserName AS CustomerName
+							, MLC.Id MasterLCNo
+                            , MLC.LCRef
+							,C.ContractNo
+							,[Buyer]= STUFF((select distinct ',' + B.UserName from
+                                       trn.MasterOrder XMOI
+   
+                                       LEFT JOIN[HKP].[Buyer] AS B ON B.Id = XMOI.BuyerId
+
+                                    LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId = XMOI.Id
+
+                                    where I.ContractId = C.Id for xml path('') ), 1, 1, ''
+									)
+                            ,C.UDNo,MLC.OpeningBank
+                            FROM[dbo].[Contract] C
+                           JOIN[HKP].[Party] AS P ON C.CustomerId = P.Id
+
+                            LEFT JOIN[dbo].[MasterLC] MLC ON MLC.Id = C.MasterLCId--MLC ON MLC.ContractId = C.Id
+
+                            where C.Id IN(
+
+
+                            select distinct moi.ContractId from BOQ
+                            join trn.MasterOrderItem MOI on moi.id= BOQ.MasterOrderItemId
+
+                            join hkp.PartyPlant P on p.PartyId= boq.VendorId
+
+                            where C.PlantId= '" + plantId + @"'
+                            )
+
+                            ORDER BY C.CustomerId";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+                else
+                {
+                    var sql = @"SELECT C.Id ContractId
 							,c.CustomerId
 							,c.IsLC
 							,c.AddedBy
@@ -8265,8 +8323,12 @@ ORDER BY IR.ID DESC";
 							FROM [dbo].[Contract] C
 							JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id
 							LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=C.MasterLCId--MLC ON MLC.ContractId=C.Id
-							ORDER BY C.CustomerId";
+							where C.PlantId='" + plantId + @"'
+
+                            ORDER BY C.CustomerId";
                 return _sqlRepository.GetDataCollection(sql);
+                }
+                
             }
             catch (Exception ex)
             {
@@ -10257,7 +10319,7 @@ ORDER BY IR.ID DESC";
             {
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var plantId = _ServicePOMaster.SqlQuery<string>($"SELECT FilePrefix from org.plant WHERE Id ='{identity.PlantId}'").FirstOrDefault();
+                var plantId = _inventoryReceiveRepository.SqlQuery<string>($"SELECT FilePrefix from org.plant WHERE Id ='{identity.PlantId}'").FirstOrDefault();
                 if (plantId == null)
                 {
                     throw new CustomException("No Prefix Available for this Plant");
