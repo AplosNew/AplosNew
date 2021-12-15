@@ -6921,7 +6921,7 @@ where h.HeadCategory='GROSS'
                     throw (ex);
                 }
 
-
+                
                 ru = new ReportUtility();
                 objRpt = new clsReport(_sqlRepository);
                 objSalary = new clsSalaryUtility();
@@ -6950,7 +6950,20 @@ where h.HeadCategory='GROSS'
                     empModulasFactor = EarningWithAttendance;
                 }
 
-
+                object totalPresentDays;
+                object totalAbsentDays;
+                object totalLateDays;
+                object totalLeaveDays;
+                object totalWeekOFFDays;
+                object totalHolidays;
+                object totalODD;
+                object totalDays;
+                object totalHalfDays;
+                object totalHalfDaysLeave;
+                object totalLeaveAbsentDays;
+                object totalAbsentLeaveDays;
+                object totalExtraAbsent;
+                object toTotalLWP;
 
 
                 #region Variable             
@@ -6996,7 +7009,9 @@ where h.HeadCategory='GROSS'
                 DateTime dtEndDate = DateTime.Now;
                 double totalNetPayDisbusmentAmount = 0.00;
                 double subTotalNetPayDisbusmentAmount = 0.00;
-
+                DataTable dtMonthlySummary = null;
+                DataSet dsMonthlySummary = null;
+                DataView dvSummary = null;
                 bool ExcludeFatherName = false;
                 bool ExcludeNonpayable_Notional = false;
                 bool ExcludeTotalGross = false;
@@ -7016,6 +7031,11 @@ where h.HeadCategory='GROSS'
 
                 GetEmployeeInfoDetailCom(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, languageId, stringSalaryRegSorting, parameters, isActive, isSeperated, isMaternity, sa, ca, userId, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
                 Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, languageId, parameters, isActive, isSeperated, isMaternity, out dtSalaryHead);
+
+                GetEmpJobCardMonthlySummary(parameters["EmpSystemId"], fromDate, toDate, out dsMonthlySummary);
+                dtMonthlySummary = dsMonthlySummary.Tables[0];
+                dvSummary = new DataView();
+                dvSummary.Table = dtMonthlySummary;
 
                 var dtEmployees = dsEmpLoyeeInfo.Tables[0];
                 if (dtEmployees.Rows.Count == 0)
@@ -7627,13 +7647,19 @@ where h.HeadCategory='GROSS'
                         string lateBangla = ru.cnDgt(Convert.ToDouble(dtEmployees.Rows[i]["TotalLate"]).ToString(), localLanguage);
                         string lwpBangla = ru.cnDgt(Convert.ToDouble(dtEmployees.Rows[i]["TotalLWP"]).ToString(), localLanguage);
                         double presentLate = clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalPresent"].ToString()) + clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLate"].ToString());
-                        string presentBangla = ru.cnDgt(Convert.ToString(presentLate), localLanguage);
                         string absentBangla = ru.cnDgt((Convert.ToDouble(dtEmployees.Rows[i]["TotalAbsent"]) - Convert.ToDouble(dtEmployees.Rows[i]["TotalLWP"])).ToString(), localLanguage);
                         double weekOffHoliday = clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOffHoliDay"].ToString()) + clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString());
 
-                        string weekOff = ru.cnDgt(weekOffHoliday.ToString(), localLanguage);
-                        string holiDay = ru.cnDgt(Convert.ToDouble(dtEmployees.Rows[i]["TotalHoliDay"]).ToString(), localLanguage);
-                        string leave = ru.cnDgt(Convert.ToDouble(dtEmployees.Rows[i]["TotalLv"]).ToString(), localLanguage);
+                        dvSummary.RowFilter = "EmpSystemID = '" + dtEmployees.Rows[i]["EmpSystemId"].ToString() + "'";
+                        totalWeekOFFDays = dvSummary.ToTable().Compute(@"SUM(TotalWeekOff)", null);
+                        totalHolidays = dvSummary.ToTable().Compute(@"SUM(TotalHoliDay)", null);
+                        totalLeaveDays = dvSummary.ToTable().Compute(@"SUM(TotalLv)", null);
+                        totalPresentDays = dvSummary.ToTable().Compute(@"Sum(TotalPresent)", null);
+
+                        string presentBangla = ru.cnDgt(Convert.ToString(totalPresentDays), localLanguage);
+                        string weekOff = ru.cnDgt(totalWeekOFFDays.ToString(), localLanguage);
+                        string holiDay = ru.cnDgt(Convert.ToDouble(totalHolidays).ToString(), localLanguage);
+                        string leave = ru.cnDgt(Convert.ToDouble(totalLeaveDays).ToString(), localLanguage);
                         string totalOTHr = "";//ru.cnDgt((Math.Round((Convert.ToDouble(dtEmpAttdnInfo.Rows[0]["TotalOTHr"]) + Convert.ToDouble(dtEmpAttdnInfo.Rows[0]["TotalNormalOTHr"]) + Convert.ToDouble(dtEmpAttdnInfo.Rows[0]["TotalExtraOTHr"])) / 60, 2).ToString()), localLanguage);
                         var _availedLeave = ru.GetLabelname(labelList, LabelNameInLocalLanguage.AvailedLeave.ToString(), "Availed Leave");
                         var _late = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Late.ToString(), "Late");
@@ -8155,43 +8181,54 @@ where h.HeadCategory='GROSS'
                                     {
                                         try
                                         {
-                                            if (item["DayStatus"].ToString().Trim() == "L")
+                                            if (item["PDate"].ToString() == "A")
                                             {
-                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "P";
-                                            }
-                                            else
-                                            {
-                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString();
-                                            }
 
-                                        
+                                            }
+                                            //if (item["DayStatus"].ToString().Trim() == "L")
+                                            //{
+                                            //    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "P";
+                                            //}
+                                            //else
+                                            //{
+                                            //    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString();
+                                            //}
+
+
                                             #region -- OUT TIME NCE JOB CARD--
 
                                             if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
+                                                
                                             }
                                             else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
+                                                
                                             }
                                             else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
                                             }
                                             else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
                                             }
 
                                             else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W")
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
                                             }
                                             else
                                             {
@@ -8242,10 +8279,11 @@ where h.HeadCategory='GROSS'
                                                     sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].NumberFormat = "hh:mm AM/PM";
                                                     sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].DateTime = NewRealOutTime;
                                                     sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["InTime"].ToString();
+
                                                     //sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                                     //sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                                 }
-
+                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString();
                                                 //if (bplib.clsWebLib.GetBoolData(item["IsManualOutTime"].ToString().Trim()))
                                                 //{
                                                 //    sheet1.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Dark_blue;
@@ -8883,7 +8921,76 @@ where h.HeadCategory='GROSS'
             }
         }
 
+        private void GetEmpJobCardMonthlySummary(string EmpIdLoop, string FromDate, string ToDate, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
 
+            try
+            {
+                strSql = @" SELECT EmpSystemID,EmployeeCode, WorkDate ,EmployeeCode, ISNULL(TotalPresent, 0) TotalPresent, ISNULL(TotalLv, 0) TotalLv,ISNULL(TotalHoliDay,0)TotalHoliDay,ISNULL(TotalWeekOff, 0)TotalWeekOff
+                                ,ISNULL(TotalLWP, 0) TotalLWP,ISNULL(TotalMLv, 0) TotalMLv,ISNULL(TotalMLv, 0) TotalMLv,isnull(TotalAbsent,0)TotalAbsent,ISNULL(TotalLate,0)TotalLate
+                                , DayValue = ISNULL(TotalPresent, 0) + ISNULL(TotalLate, 0) + ISNULL(TotalLv, 0) + ISNULL(TotalMLv, 0) + ISNULL(TotalWeekOff, 0)
+                                + ISNULL(TotalCompAssignLv, 0) + ISNULL(TotalHoliDay, 0) + ISNULL(TotalWeekOffHoliDay, 0),Category,DayStatus
+                                FROM(SELECT EmpSystemID, WorkDate, EmployeeCode,Category,DayStatus,
+                                TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1
+                                WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN Category = 'Leave' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
+                                WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+                                ELSE 0 END,
+    
+                                TotalLate = CASE WHEN Category = 'Late' and LTSystemID is null THEN 1
+                                WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration=1 THEN 1
+                                ELSE 0 END,
+                                
+                                TotalAbsent = CASE WHEN Category = 'Absent' and LTSystemID is null THEN 1
+                                WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration=1 THEN 1
+                                WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+                                ELSE 0 END,
+                                
+                                TotalLv = CASE WHEN LTSystemID is not null and Category<>'Leave' and LeaveDuration<1 and IsLWP=0 THEN LeaveDuration
+                                WHEN LTSystemID is not null and Category='Leave' and IsLWP=0 THEN LeaveDuration
+                                ELSE 0 END,
+                                
+                                TotalLWP = CASE WHEN LTSystemID is not null and Category<>'Leave' and LeaveDuration<1 and IsLWP=1 THEN LeaveDuration
+                                WHEN LTSystemID is not null and Category='Leave' and IsLWP=1 THEN LeaveDuration
+                                ELSE 0 END,
+                                
+                                TotalMLv = 0,
+                                TotalCompAssignLv = 0,
+
+                                TotalWeekOff = CASE WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
+								                       WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+                                ELSE 0 END,
+                                
+                                TotalHoliDay = CASE WHEN p.OriginalDayType = 'H' AND C.IsNoPunchOnHolidayForOTEntitle=1 AND A.IsOTEntitled=0 THEN 1
+														WHEN p.OriginalDayType = 'H' AND C.IsNoPunchOnHolidayForOTNotEntitle=1 AND A.IsOTEntitled=1 THEN 1
+                                ELSE 0 END,
+                                
+                                TotalWeekOffHoliDay = 0,
+                                OTHr
+                                FROM dbo.AttdnProcessData a
+                                left join daytype p on a.DayStatus=p.DayType
+                                left join employeeInformation ei on ei.SystemId =a.EmpSystemID
+	                            left join ComplianceAttendanceSetting c on c.CompanyGroupId=ei.GroupID and c.PlantId = ei.PlantId
+                                WHERE  ei.SystemId in( " + EmpIdLoop + @")
+                                and WorkDate between '" + FromDate + @"' AND '" + ToDate + @"'
+                                ) A  ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
         public IWorkbook ContractorEmployeeSalaryRegisterWithStructure(string companyGroupId, string companyId, string plantId, string year, string month, string languageId, string paymentDate, string printDate, string fromDate, string toDate, string groupBy, Dictionary<string, string> parameters, string salaryProcessId, string sheetBasedOn, bool withAttendance, string paperSize, string docGrouping, bool sa, bool ca, string userId, bool isActive, bool isSeperated, bool isMaternity, bool onlyEarning, string ContractorId)
         {
             #region Variable
