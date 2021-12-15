@@ -436,7 +436,10 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
                         Archive: false,
                         ActivityId: item.Id,
                         Active: true,
-                        IsSpecific: item.IsSpecific
+                        IsSpecific: item.IsSpecific,
+                        Sequence: item.Sequence,
+                        IsOrderSpecific: item.IsOrderSpecific,
+                        ActivityOrderType: item.ActivityOrderType
                     }
                 );
             }
@@ -475,7 +478,13 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.addActivity = function () {
-        if ($scope.activityAction === "Add") {
+        if ($scope.activity.Sequence === undefined) {
+            return ShowResult("Please input Sequence.", "failure");
+        }
+        else if ($scope.activity.IsOrderSpecific == true && ($scope.activity.ActivityOrderType === null || $scope.activity.ActivityOrderType === undefined)) {
+            return ShowResult("Please select Activity Order Type.", "failure");
+        }
+        else if ($scope.activityAction === "Add") {
             $scope.activity.IsSpecific = true;
             $scope.activity.BudgetMasterActivityFixedAssetViewModel = [];
             $scope.budgetActivityList.push($scope.activity);

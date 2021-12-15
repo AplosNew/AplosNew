@@ -229,7 +229,7 @@
                     </td>
                     <td id="td_CrAmount_{{$index}}">
                         <div class="show-message">
-                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index);calDistributedAmount();calOutBoundDistributedAmount();calMasterOrderDistributedAmount();calContractDistributedAmount();">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculatebackTax($index);calculateTax(x.Id,$index);checkRowValidation(x, $index);calReDistributedAmount($index,x);">
                         </div>
                     </td>
                     <td>

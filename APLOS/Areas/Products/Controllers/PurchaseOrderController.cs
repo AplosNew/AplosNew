@@ -3206,8 +3206,12 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"delete from trn. ServiceAcknowledgementDetail where id='" + Id + @"'";
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+				var rdBuilder = new System.Text.StringBuilder();
+				var voucherSql = @"delete from trn.ServicePOAckTax where ServiceAcknowledgementDetailId='" + Id + "'";
+				var bankJournalSql = @"delete from trn.ServiceAcknowledgementDetail where id='" + Id + "'";
+				rdBuilder.Append(voucherSql);
+				rdBuilder.Append(bankJournalSql);
+				return Json(_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString()), JsonRequestBehavior.AllowGet);
 
 			}
 			catch (Exception ex)
