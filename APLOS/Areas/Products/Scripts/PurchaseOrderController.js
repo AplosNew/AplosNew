@@ -817,6 +817,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     $scope.uom = function () {
         cboService.getUoMCbo(function (response) {
             $scope.uoMList = response;
+            console.log('uoMList', $scope.uoMList);
         });
     }
     $scope.uom();
@@ -1488,6 +1489,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
         cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (result) {
             $scope.uoMList = result;
+            console.log($scope.uoMList)
             //$scope.detailModel.BaseUOMId = $filter("filter")($scope.uoMList, { IsBaseUom: 1 })[0].Value;
         });
 
@@ -1543,18 +1545,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
         try {
             $scope.validation();
-            //if ($scope.detailModel.MaterialMasterId == "" || $scope.detailModel.MaterialMasterId == null || $scope.detailModel.MaterialMasterId == "undefined") {
-            //    $scope.detailModel.InventoryReceiveId = $scope.productNew.Id;
-            //    $scope.detailModel.FirstCharacteristicsId = null
-            //    $scope.detailModel.FirstCharacteristicsValueId = null
-            //    $scope.detailModel.SecondCharacteristicsId = null
-            //    $scope.detailModel.SecondCharacteristicsValueId = null
-            //    $scope.detailModel.ThirdCharacteristicsId = null
-            //    $scope.detailModel.ThirdCharacteristicsValueId = null
-            //    $scope.detailModel.CountryId = null
-            //    $scope.MatDescriptionValidation();
-            //}
-            //else {
+           
             $scope.detailModel.InventoryReceiveId = $scope.productNew.Id;
             if ($scope.char1.CharacteristicsId === undefined) {
                 $scope.char1.CharacteristicsId = null;
