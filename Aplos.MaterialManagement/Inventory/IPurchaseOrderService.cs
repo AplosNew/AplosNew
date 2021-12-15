@@ -118,7 +118,7 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-		IEnumerable<object> GetLCContractList();
+		IEnumerable<object> GetLCContractList(bool isProcurementOnBom, string plantId);
 
 
 		IEnumerable<object> GetalldataPOWithLCMap(string plantId);
