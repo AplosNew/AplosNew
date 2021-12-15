@@ -8241,6 +8241,7 @@ ORDER BY IR.ID DESC";
         {
             try
             {
+                //if()
                 var sql = @"SELECT C.Id ContractId
 							,c.CustomerId
 							,c.IsLC

@@ -14437,7 +14437,7 @@ ORDER BY tg.[Sequence]";
             try
             {
                 var sql = @"Select MGM.UserName MaterialMasterGroupName,IRD.InventoryMaterialId
-						,MT.UserName MaterialType
+						,MT.UserName MaterialType,NULL AS uoMList
 						,mm.Id MaterialMasterId
 						,mm.UserName MaterialMasterName
 						,MRD.ArticleId		
@@ -14498,9 +14498,34 @@ ORDER BY tg.[Sequence]";
 						,MRD.ThirdCharacteristicsValueId
 						,TCV.UserName,TUoM.UserName,TUoM.Id,IRD.InventoryMaterialId,Isnull(C.UserName,'') ,C.Id";
 
+                List<Dictionary<string,object>> Data = _sqlRepository.GetDataCollection(sql);
+
+                StringCollection strCol = new StringCollection();
+                string MaterialMasterList = "''";
+                for (int i = 0; i < Data.Count; i++)
+                {
+                    if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+                        continue;
+                    strCol.Add(Data[i]["MaterialMasterId"].ToString());
+                    MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+
+                }
+
+                var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+																	union
+																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+																	) AS M
+																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
+																	 where m.Id in (" + MaterialMasterList + @")");
+
+                for (int i = 0; i < Data.Count; i++)
+                {
+                    var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+                    Data[i]["uoMList"] = temp;
+                }
 
 
-                return _sqlRepository.GetDataCollection(sql);
+                return Data;
             }
             catch (Exception ex)
             {
