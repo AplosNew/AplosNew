@@ -152,8 +152,13 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"Select ep.Id, ep.MasterId,ep.PlantId, ep.EmpTypeId, isnull(ep.DesignationId, 'All') as DesignationId, et.UserName as EmployeeCodeType ,ep.EmployeeCodeTypeId , isnull(ep.EmploymentType,'ALL') as EmploymentType from dbo.EmployeeAdditionDeductionPlantChild ep 
+                var sql = @"Select ep.Id, ep.MasterId,ep.PlantId, ep.EmpTypeId, isnull(ep.DesignationId, 'All') as DesignationId, et.UserName as EmployeeCodeType ,ep.EmployeeCodeTypeId , isnull(ep.EmploymentType,'ALL') as EmploymentType,
+                            ec.UserName as EmpType, p.UserName as Plant, isnull(ld.UserName,'All') as LDesg
+                            from dbo.EmployeeAdditionDeductionPlantChild ep 
                             left join dbo.EmployeeCodeType et on et.Id = ep.EmployeeCodeTypeId
+                            left join org.plant p on p.id = ep.PlantId
+							left join hkp.EmployeeCategory ec on ec.Id = ep.EmpTypeId
+							left join hkp.LegalDesignation ld on ld.Id = ep.DesignationId
                              where MasterId ='" + MasterId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }

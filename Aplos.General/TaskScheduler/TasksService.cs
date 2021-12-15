@@ -852,11 +852,11 @@ namespace Library.General.TaskScheduler
                         dr["TaskManagerMasterId"] = MId;
                         dr["CommentText"] = item.CommentText;
                         dr["CreatedById"] = item.CreatedById;
-                        dr["CreatedTime"] = System.DateTime.Now.ToString();
+                        dr["CreatedTime"] = DateTime.Now.ToString();
                         dr["TaskAthorizationType"] = item.TaskAthorizationType;
                         dr["AddedFromIP"] = item.AddedFromIP;
                         dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedDate"] = DateTime.Now.ToString();
                         dsMaster.Tables[0].Rows.Add(dr);
 
                         clsStaticInfo _info = new clsStaticInfo();
@@ -901,7 +901,7 @@ namespace Library.General.TaskScheduler
                         dr["CommitmentDate"] = DBNull.Value;
                         dr["AddedFromIP"] = item.AddedFromIP;
                         dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedDate"] = DateTime.Now.ToString();
                         dr["DueDate"] = item.DueDate;
                         dr["RevisedCommitmentDate"] = DBNull.Value;
                         dr["isDone"] = item.isDone;
@@ -923,12 +923,9 @@ namespace Library.General.TaskScheduler
                         dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
                         dr["Remarks"] = DBNull.Value;
                         dr["CommitmentDate"] = DBNull.Value;
-                        dr["AddedFromIP"] = item.AddedFromIP;
-                        dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = item.UpdatedFromIP;
                         dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["DueDate"] = item.DueDate;
                         dr["RevisedCommitmentDate"] = DBNull.Value;
                         dr["isDone"] = item.isDone;
@@ -1049,7 +1046,7 @@ namespace Library.General.TaskScheduler
                         dr["IssueTransactionId"] = item.IssueTransactionId;
                         dr["AddedFromIP"] = item.AddedFromIP;
                         dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedDate"] = DateTime.Now.ToString();
                         dr["ClosingDate"] = DBNull.Value;
                         dr["LastExecutionDate"] = DBNull.Value;
                         dr["NextExecutionDate"] = DBNull.Value;
@@ -1079,12 +1076,9 @@ namespace Library.General.TaskScheduler
                         dr["TaskSubCategoryId"] = item.TaskSubCategoryId;
                         dr["TaskSchedulerMasterId"] = item.TaskSchedulerMasterId;
                         dr["IssueTransactionId"] = item.IssueTransactionId;
-                        dr["AddedFromIP"] = item.AddedFromIP;
-                        dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = item.UpdatedFromIP;
                         dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["ClosingDate"] = DBNull.Value;
                         dr["LastExecutionDate"] = DBNull.Value;
                         dr["NextExecutionDate"] = DBNull.Value;
