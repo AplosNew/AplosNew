@@ -1280,21 +1280,13 @@ namespace Library.General.TaskScheduler
                 string Ip = items[0].Ip;
                 string authorizationtype = items[0].authorizationtype;
 
-
-
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from TaskManagerMaster  where Id='" + TaskManagerMasterId + "'", out dsMaster, false, "1");
 
-
-
                 DataSet a, dsAuthorization;
                 con.OpenDataSetThroughAdapter("select * from TaskAudit  where TaskManagerMasterId='" + TaskManagerMasterId + "' AND AuthorizationType='" + AuthorizationTypeEnum.CreatedBy.ToString() + "'", out a, false, "1");
                 con.OpenDataSetThroughAdapter("select * from TaskAudit  where TaskManagerMasterId='" + TaskManagerMasterId + "' AND AuthorizationType='" + authorizationtype + "'", out dsAuthorization, false, "1");
-
-
-
-
 
                 DataRow dr = dsMaster.Tables[0].Rows[0];
 
@@ -1303,14 +1295,11 @@ namespace Library.General.TaskScheduler
                     dr.BeginEdit();
                     if (closed == true)
                     {
-
                         if (authorizationtype == AuthorizationTypeEnum.CreatedBy.ToString())
                         {
                             dr["CurrentStatus"] = CurrentStatusEnum.Closed.ToString();
-                            dr["ClosingDate"] = System.DateTime.Now.ToString();
+                            dr["ClosingDate"] = DateTime.Now.ToString();
                             dr["ClosedBy"] = EmpId;
-
-
 
                         }
                         else if (authorizationtype == AuthorizationTypeEnum.AssignTo.ToString())
@@ -1318,46 +1307,32 @@ namespace Library.General.TaskScheduler
                             if (a.Tables[0].Rows[0]["ResponsiblePersonId"].ToString() == EmpId)
                             {
                                 dr["CurrentStatus"] = CurrentStatusEnum.Closed.ToString();
-                                dr["ClosingDate"] = System.DateTime.Now.ToString();
+                                dr["ClosingDate"] = DateTime.Now.ToString();
                                 dr["ClosedBy"] = EmpId;
-
-
-
                             }
                             else
                             {
                                 dr["CurrentStatus"] = CurrentStatusEnum.ToClose.ToString();
-
-
-
                                 DataRow drAuth = dsAuthorization.Tables[0].Rows[0];
                                 drAuth.BeginEdit();
                                 drAuth["isDone"] = true;
-                                drAuth["UpdatedDate"] = System.DateTime.Now.ToString();
+                                drAuth["UpdatedDate"] = DateTime.Now.ToString();
                                 drAuth.EndEdit();
                             }
                         }
                         else
                         {
 
-
-
                             DataRow drAuth = dsAuthorization.Tables[0].Rows[0];
                             drAuth.BeginEdit();
                             drAuth["isDone"] = true;
-                            drAuth["UpdatedDate"] = System.DateTime.Now.ToString();
+                            drAuth["UpdatedDate"] = DateTime.Now.ToString();
                             drAuth.EndEdit();
                         }
-
-
-
 
                     }
                     else
                     {
-
-
-
 
                         if (authorizationtype == AuthorizationTypeEnum.CreatedBy.ToString())
                         {
@@ -1368,53 +1343,29 @@ namespace Library.General.TaskScheduler
                             dr["CurrentStatus"] = CurrentStatusEnum.InProgress.ToString();
                         }
 
-
-
-
                         DataRow drAuth = dsAuthorization.Tables[0].Rows[0];
                         drAuth.BeginEdit();
                         drAuth["isDone"] = false;
-                        drAuth["UpdatedDate"] = System.DateTime.Now.ToString();
+                        drAuth["UpdatedDate"] = DateTime.Now.ToString();
                         drAuth.EndEdit();
-
-
-
-
-
                     }
 
-
-
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = Ip;
                     dr.EndEdit();
                 }
                 catch (Exception)
                 {
-
-
-
-
                 }
-
-
-
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsAuthorization);
-
-
-
+                
                 return "true";
-
-
 
             }
             catch (Exception ex)
             {
-
-
-
                 return ex.ToString();
             }
 
@@ -1444,12 +1395,7 @@ namespace Library.General.TaskScheduler
                 con.OpenDataSetThroughAdapter("select * from TaskAudit  where TaskManagerMasterId='" + TaskManagerMasterId + "' AND AuthorizationType='" + authorizationtype + "'", out dsAuthorization, false, "1");
 
 
-
-
-
                 DataRow dr = dsMaster.Tables[0].Rows[0];
-
-
 
                 try
                 {
@@ -1461,11 +1407,8 @@ namespace Library.General.TaskScheduler
                             if (authorizationtype == AuthorizationTypeEnum.ApproveBy.ToString())
                             {
                                 dr["CurrentStatus"] = CurrentStatusEnum.Closed.ToString();
-                                dr["ClosingDate"] = System.DateTime.Now.ToString();
+                                dr["ClosingDate"] = DateTime.Now.ToString();
                                 dr["ClosedBy"] = EmpId;
-
-
-
                             }
                             else
                             {
@@ -1473,10 +1416,8 @@ namespace Library.General.TaskScheduler
                                 if (authorizationtype == AuthorizationTypeEnum.CreatedBy.ToString())
                                 {
                                     dr["CurrentStatus"] = CurrentStatusEnum.Closed.ToString();
-                                    dr["ClosingDate"] = System.DateTime.Now.ToString();
+                                    dr["ClosingDate"] = DateTime.Now.ToString();
                                     dr["ClosedBy"] = EmpId;
-
-
 
                                 }
                                 else if (authorizationtype == AuthorizationTypeEnum.AssignTo.ToString())
@@ -1484,72 +1425,47 @@ namespace Library.General.TaskScheduler
                                     if (dsCreatedBy.Tables[0].Rows[0]["ResponsiblePersonId"].ToString() == EmpId)
                                     {
                                         dr["CurrentStatus"] = CurrentStatusEnum.Closed.ToString();
-                                        dr["ClosingDate"] = System.DateTime.Now.ToString();
+                                        dr["ClosingDate"] = DateTime.Now.ToString();
                                         dr["ClosedBy"] = EmpId;
-
-
-
                                     }
                                     else
                                     {
                                         dr["CurrentStatus"] = CurrentStatusEnum.ToClose.ToString();
 
-
-
                                         DataRow drAuth = dsAuthorization.Tables[0].Rows[0];
                                         drAuth.BeginEdit();
                                         drAuth["isDone"] = true;
-                                        drAuth["UpdatedDate"] = System.DateTime.Now.ToString();
+                                        drAuth["UpdatedDate"] = DateTime.Now.ToString();
                                         drAuth.EndEdit();
                                     }
                                 }
                                 else
                                 {
-
-
-
                                     DataRow drAuth = dsAuthorization.Tables[0].Rows[0];
                                     drAuth.BeginEdit();
                                     drAuth["isDone"] = true;
-                                    drAuth["UpdatedDate"] = System.DateTime.Now.ToString();
+                                    drAuth["UpdatedDate"] = DateTime.Now.ToString();
                                     drAuth.EndEdit();
                                 }
 
-
-
                             }
-
-
-
                         }
                         else
                         {
-
-
-
                             if (authorizationtype == AuthorizationTypeEnum.CreatedBy.ToString() || authorizationtype == AuthorizationTypeEnum.AssignTo.ToString())
                             {
                                 dr["CurrentStatus"] = CurrentStatusEnum.Closed.ToString();
-                                dr["ClosingDate"] = System.DateTime.Now.ToString();
+                                dr["ClosingDate"] = DateTime.Now.ToString();
                                 dr["ClosedBy"] = EmpId;
-
-
-
                             }
                             else
                             {
-
-
-
                                 DataRow drAuth = dsAuthorization.Tables[0].Rows[0];
                                 drAuth.BeginEdit();
                                 drAuth["isDone"] = true;
-                                drAuth["UpdatedDate"] = System.DateTime.Now.ToString();
+                                drAuth["UpdatedDate"] = DateTime.Now.ToString();
                                 drAuth.EndEdit();
                             }
-
-
-
                         }
                     }
                     else
