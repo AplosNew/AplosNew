@@ -19,8 +19,8 @@ namespace Library.Service.HumanResources
         IWorkbook ExcelDailyDayStatus(string PlantId, string PrevWorkDate, string companyId, string TextFromDate, string sDepID, string sSecID, string sSubSecID, string sLineID, string dayStatus, string Dep, string Sec, string employeeCategory, string shift, string entity);
         IWorkbook ExcelDailyDayStatusReport(string PlantId, string PrevWorkDate, string companyId, string TextFromDate);
         //IWorkbook ExcelDailyDayStatus(string PlantId, string PrevWorkDate, string companyId, string TextFromDate, string sDepID, string sSecID, string sSubSecID, string sLineID, string dayStatus, string Dep, string Sec,string  employeeCategory,string shift,string entity);
-        IWorkbook GetSummaryManpowerAttendanceExcel(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine);
-        IWorkbook GetSummaryManpowerAttendanceExcelWithLine(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine);
+        IWorkbook GetSummaryManpowerAttendanceExcel(string companyGroupId, string companyId, string workDate, bool withLine, string PlantIds, string typeLists,bool WithoutTBS,bool WithoutLA);
+        IWorkbook GetSummaryManpowerAttendanceExcelWithLine(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine,string typeLists,bool WithoutTBS,bool WithoutLA);
         IWorkbook GetSummaryManpowerAttendanceExcelWithLineNew(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine);
         IWorkbook GetSummaryManpowerAttendanceExcelNew(string companyGroupId, string companyId, string PlantId, string workDate, bool withLine);
         IWorkbook GetSummaryManpowerAttendanceGroupWiseExcel(string PlantId, string companyId, string workDate, string sUnitID, string sDivID, string sDepID, string sSecID, string sSubSecID);

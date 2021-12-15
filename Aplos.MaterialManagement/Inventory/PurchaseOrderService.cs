@@ -8249,11 +8249,58 @@ ORDER BY IR.ID DESC";
 
             }
         }
-        public IEnumerable<object> GetLCContractList()
+        public IEnumerable<object> GetLCContractList(bool isProcurementOnBom,string plantId)
         {
             try
             {
-                var sql = @"SELECT C.Id ContractId
+                if (isProcurementOnBom) {
+
+                    var sql = @"SELECT C.Id ContractId
+                            , c.CustomerId
+							,c.IsLC
+							,c.AddedBy
+							,c.AddedDate
+							,c.AddedFromIP
+							,C.UpdatedBy
+							,C.UpdatedDate
+							,C.UpdatedFromIP
+							, P.UserName AS CustomerName
+							, MLC.Id MasterLCNo
+                            , MLC.LCRef
+							,C.ContractNo
+							,[Buyer]= STUFF((select distinct ',' + B.UserName from
+                                       trn.MasterOrder XMOI
+   
+                                       LEFT JOIN[HKP].[Buyer] AS B ON B.Id = XMOI.BuyerId
+
+                                    LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId = XMOI.Id
+
+                                    where I.ContractId = C.Id for xml path('') ), 1, 1, ''
+									)
+                            ,C.UDNo,MLC.OpeningBank
+                            FROM[dbo].[Contract] C
+                           JOIN[HKP].[Party] AS P ON C.CustomerId = P.Id
+
+                            LEFT JOIN[dbo].[MasterLC] MLC ON MLC.Id = C.MasterLCId--MLC ON MLC.ContractId = C.Id
+
+                            where C.Id IN(
+
+
+                            select distinct moi.ContractId from BOQ
+                            join trn.MasterOrderItem MOI on moi.id= BOQ.MasterOrderItemId
+
+                            join hkp.PartyPlant P on p.PartyId= boq.VendorId
+
+                            where C.PlantId= '" + plantId + @"'
+                            )
+
+                            ORDER BY C.CustomerId";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+                else
+                {
+                    var sql = @"SELECT C.Id ContractId
 							,c.CustomerId
 							,c.IsLC
 							,c.AddedBy
@@ -8276,8 +8323,12 @@ ORDER BY IR.ID DESC";
 							FROM [dbo].[Contract] C
 							JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id
 							LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=C.MasterLCId--MLC ON MLC.ContractId=C.Id
-							ORDER BY C.CustomerId";
+							where C.PlantId='" + plantId + @"'
+
+                            ORDER BY C.CustomerId";
                 return _sqlRepository.GetDataCollection(sql);
+                }
+                
             }
             catch (Exception ex)
             {
@@ -10268,7 +10319,7 @@ ORDER BY IR.ID DESC";
             {
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var plantId = _ServicePOMaster.SqlQuery<string>($"SELECT FilePrefix from org.plant WHERE Id ='{identity.PlantId}'").FirstOrDefault();
+                var plantId = _inventoryReceiveRepository.SqlQuery<string>($"SELECT FilePrefix from org.plant WHERE Id ='{identity.PlantId}'").FirstOrDefault();
                 if (plantId == null)
                 {
                     throw new CustomException("No Prefix Available for this Plant");

@@ -3,9 +3,11 @@ using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
+using Library.Model.Accounts;
 using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Model.Expenses;
+using Library.Model.Invoices;
 using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Vouchers;
@@ -48,6 +50,10 @@ namespace Library.Service.Employees
         private readonly IFinancingTypeGLService _financingTypeGLService;
         private readonly IInvoiceTaxService _invoiceTaxService;
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
+        private readonly IRepositoryAsync<Invoice> _invoiceRepository;
+        private readonly IRepositoryAsync<InvoiceDetail> _invoiceDetailRepository;
+        private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
+        private readonly IRepositoryAsync<AdditionalTax> _additionalTaxRepository;
 
         public EmployeePayableWriteOffService(
               IRepositoryAsync<EmployeePayableWriteOff> employeePayableWriteOffRepository
@@ -66,7 +72,11 @@ namespace Library.Service.Employees
             , IRepositoryAsync<ExpenseBookingDetail> expenseBookingDetailRepository
            , IRepositoryAsync<ExpenseBookingApprovalHistory> expenseBookingApprovalHistoryRepository
             , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
-            , IInvoiceTaxService invoiceTaxService)
+            , IInvoiceTaxService invoiceTaxService
+            , IRepositoryAsync<Invoice> invoiceRepository
+            , IRepositoryAsync<InvoiceDetail> invoiceDetailRepository
+            , IRepositoryAsync<InvoiceTax> invoiceTaxRepository
+            , IRepositoryAsync<AdditionalTax> additionalTaxRepository)
         {
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
@@ -85,6 +95,10 @@ namespace Library.Service.Employees
             _expenseBookingDetailRepository = expenseBookingDetailRepository;
             _expenseBookingApprovalHistoryRepository = expenseBookingApprovalHistoryRepository;
             _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
+            _invoiceRepository = invoiceRepository;
+            _invoiceDetailRepository = invoiceDetailRepository;
+            _invoiceTaxRepository = invoiceTaxRepository;
+            _additionalTaxRepository = additionalTaxRepository;
         }
 
         #endregion Constructor
@@ -645,14 +659,35 @@ namespace Library.Service.Employees
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
+                var employeePayable = new EmployeePayable();
+                var employeePayableDetail = new List<EmployeePayableDetail>();
+
+                var invoice = new Invoice();
+                var invoiceDetail = new List<InvoiceDetail>();
+                var invoiceTax = new List<InvoiceTax>();
+                var invoiceTDS = new List<AdditionalTax>();
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
-                var employeePayable = _employeePayableRepository.Query(r=>r.VoucherId == voucherId).Select().FirstOrDefault();
-                var employeePayableDetail = _employeePayableDetailRepository.Query(r => r.EmployeePayableId == employeePayable.Id).Select().ToList();
+
                 var expensesBooking = _expenseBookingRepository.Query(r => r.Id == employeeBookingId).Select().FirstOrDefault();
                 var expensesBookingDetail = _expenseBookingDetailRepository.Query(r => r.ExpenseBookingId == employeeBookingId).Select().ToList();
                 var expenseBookingApprovalHistoryRepository = _expenseBookingApprovalHistoryRepository.Query(r => r.ExpenseBookingId == employeeBookingId).Select().ToList();
+
+                if (expensesBooking.BeneficiaryType == "Vendor")
+                {
+                     invoice = _invoiceRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                     invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoice.Id).Select().ToList();
+                     invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoice.Id).Select().ToList();
+                     invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoice.Id).Select().ToList();
+                }
+                if (expensesBooking.BeneficiaryType == "Self")
+                {
+                     employeePayable = _employeePayableRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                     employeePayableDetail = _employeePayableDetailRepository.Query(r => r.EmployeePayableId == employeePayable.Id).Select().ToList();
+                }
+                    
+               
                 foreach (var item in voucherdetailcurrnecy)
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);
@@ -680,11 +715,60 @@ namespace Library.Service.Employees
                 {
                     _expenseBookingDetailRepository.Delete(item.Id);
                 }
-                foreach (var item in employeePayableDetail)
+                if (expensesBooking.BeneficiaryType == "Vendor")
                 {
-                    _employeePayableDetailRepository.Delete(item.Id);
+                    if (invoiceTax != null)
+                    {
+                        foreach (var item in invoiceTax)
+                        {
+                            
+                            var builderSqlInvoiceTax = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
+                            rdBuilder.Append(builderSqlInvoiceTax);
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        }
+                    }
+                    if (invoiceTDS.Count > 0)
+                    {
+                        foreach (var item in invoiceTDS)
+                        {
+                           
+                            var builderSqlAdditionalTaxDetail = @"DELETE [TRN].AdditionalTaxDetail  WHERE AdditionalTaxId='" + item.Id + "'";
+                            rdBuilder.Append(builderSqlAdditionalTaxDetail);
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                            _additionalTaxRepository.Delete(item.Id);
+                        }
+                    }
+                    if (invoiceTax != null)
+                    {
+                        foreach (var item in invoiceTax)
+                        {
+                            var builderSqlAdditionalTaxDetail = @"DELETE [TRN].InvoiceTaxDetail  WHERE InvoiceTaxId='" + item.Id + "'";
+                            rdBuilder.Append(builderSqlAdditionalTaxDetail);
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                            _invoiceTaxRepository.Delete(item.Id);
+                        }
+                    }
+                    foreach (var item in invoiceDetail)
+                    {
+                        _invoiceDetailRepository.Delete(item.Id);
+                    }
+
+                    var builderSqlInvoice = @"UPDATE [TRN].Invoice SET ExpenseBookingId=NULL WHERE Id='" + invoice.Id + "'";
+                    rdBuilder.Append(builderSqlInvoice);
+                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+                    _invoiceRepository.Delete(invoice.Id);
                 }
-                _employeePayableRepository.Delete(employeePayable.Id);
+
+                if (expensesBooking.BeneficiaryType == "Self")
+                {
+                    foreach (var item in employeePayableDetail)
+                    {
+                        _employeePayableDetailRepository.Delete(item.Id);
+                    }
+                    _employeePayableRepository.Delete(employeePayable.Id);
+                }
+                
                 _expenseBookingRepository.Delete(expensesBooking.Id);
                 _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
