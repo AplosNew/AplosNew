@@ -746,11 +746,15 @@ namespace Library.Service.EmployeeServices
             try
             {
                 var sql = @"select distinct p.ShiftSystemID as ShiftId,p.InTime,p.DayStatus,e.EmployeeName,p.RowId,
-                p.OutTime,d.UserName as Shift,ProcessedOT as OTHour,t.Category from dbo.AttdnProcessData p
+                p.OutTime,d.UserName as Shift,OverStay,AllotedOT as OTHour,
+				t.Category from 
+				dbo.AttdnProcessData p
                 left join dbo.ShiftDefination d on d.SystemID=p.ShiftSystemID
 				left join DayType t on t.DayType=p.DayStatus
 				left join dbo.EmployeeInformation e on e.SystemId=p.EmpSystemID
-                where EmpSystemID='"+EmpId+"' and WorkDate='"+Date+"'";
+				left join OTPerMinutePolicy ot on ot.PlantId=e.PlantId
+                where WorkDate='"+Date+"' and EmpSystemID='"+EmpId+@"'
+				and ot.OverstayOrEarlyOut=p.OverStay";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
