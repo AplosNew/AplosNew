@@ -382,6 +382,16 @@ namespace Library.Service.EmployeeServices
                     ManualOTData.Tables[0].Rows[0]["OTComfirmBy"] = DBNull.Value;
                     ManualOTData.Tables[0].Rows[0]["DateOTComfirm"] = DBNull.Value;
                     ManualOTData.Tables[0].Rows[0]["IsOTComfirm"] = false;
+
+                    #region OT Columns 
+                    ManualOTData.Tables[0].Rows[0]["TargetOT"] = DBNull.Value;
+                    ManualOTData.Tables[0].Rows[0]["PlanOT"] = DBNull.Value;
+                    ManualOTData.Tables[0].Rows[0]["AppliedOTLimit"] = DBNull.Value;
+                    ManualOTData.Tables[0].Rows[0]["AllowedOTLimit"] = DBNull.Value;
+                    ManualOTData.Tables[0].Rows[0]["StandardOT"] = DBNull.Value;
+                    ManualOTData.Tables[0].Rows[0]["AdditionalOt"] = DBNull.Value;
+                    #region
+
                     ManualOTData.Tables[0].Rows[0].EndEdit();
                     i = 1;
 
