@@ -5675,7 +5675,7 @@ namespace Library.HumanResource.Report.OT
 									
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
 
-                                    WHERE Month(ap.WorkDate) = " + MonthNo + @" and Year(ap.WorkDate) = " + YearNo + @" " + DayCategory + @"  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
+                                    WHERE ap.AdditionalOT is not null and Month(ap.WorkDate) = " + MonthNo + @" and Year(ap.WorkDate) = " + YearNo + @" " + DayCategory + @"  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
                                         --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
 									,d.UserName,ei.GenderID,ap.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
