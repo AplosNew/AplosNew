@@ -89,15 +89,46 @@
                         </div>
 
                     </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">General Data Name</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="GDMasterId"
+                                            ng-options="item.Value as item.Text for item in MastersList" tabindex="8">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="getData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View </button></li>
+                            <li> <button ng-click="getTheReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View </button></li>
+                            <li> <button ng-click="downloadTheReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Download </button></li>
                             @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                         </ul>
                     </div>
                 </div>
 
+                <div class="row">
+                    <div id="ViewGrid" ej-grid e-datasource="dataView"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                        <div e-columns>
+                            <div e-column e-field="TransactionId" e-type="string" e-headertext="Transaction Id" e-width="80"></div>
+                            <div e-column e-field="MasterName" e-type="string" e-headertext="Master Name" e-width="80"></div>
+                            <div e-column e-field="TransactionDate" e-type="string" e-headertext="Transaction Date" e-width="80"></div>
+                            <div e-column e-field="Remark" e-type="string" e-headertext="Remark" e-width="80"></div>
+                            <div e-column e-field="Value" e-type="string" e-headertext="Value" e-width="80"></div>
+                            <div e-column e-field="ValueType" e-type="string" e-headertext="Value Type" e-width="80"></div>
+                            <div e-column e-field="ByWhom" e-type="string" e-headertext="By Whom" e-width="80"></div>
+                            <div e-column e-field="ReferenceNumber" e-type="string" e-headertext="Reference No" e-width="80"></div>
+                            <div e-column e-field="EmpSystemId" e-type="string" e-headertext="Emp System ID" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
