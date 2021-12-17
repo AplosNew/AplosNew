@@ -3975,19 +3975,27 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 else if (OTModeValue == "1")
                                 {
-                                    // Manual Mode
-                                    if (PastManualOT != "")
+                                    if (Result != "")
                                     {
-                                        if (Convert.ToDouble(PastManualOT) >= 0)
+                                        // Manual Mode
+                                        if (PastManualOT != "")
                                         {
-                                            dr.BeginEdit();
-                                            dr["ProcessedOT"] = PastManualOT;
-                                            if (Result != "")
+                                            if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                             {
+                                                // If Manual is less than Processed
+                                                dr.BeginEdit();
+                                                dr["ProcessedOT"] = PastManualOT;
                                                 dr["CalculatedOT"] = Result;  // For Visiblity
+                                                dr.EndEdit();
                                             }
-                                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                            dr.EndEdit();
+                                            else
+                                            {
+                                                // Otherwise Processed
+                                                dr.BeginEdit();
+                                                dr["ProcessedOT"] = Result;
+                                                dr["CalculatedOT"] = Result;  // For Visiblity
+                                                dr.EndEdit();
+                                            }
                                         }
                                     }
                                 }
@@ -5053,6 +5061,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dr.BeginEdit();                       
                             dr["ProcessFinalDayStatus"] = Result;
                             dr["SandwichFlag"] = SandwichFlag;
+                            //if(SandwichFlag!="0")
+                            //{
+                            //    dr["SandwichReprocess"] = true;
+                            //}
                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                             dr.EndEdit();
                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5097,7 +5109,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
                             string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
-                        
+
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             if (PrevDaySandwich == "0" && TodaySandwich == "2")
@@ -5130,8 +5142,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dr.EndEdit();
                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
                         }
-                    }                          
-                    
+                    }
+
                     SaveDataSets(dsRef); // Saving Main DataSet 
 
                 }
@@ -5228,7 +5240,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 //                }
                 //            }                              
-                           
+
                 //        }
 
                 //    }
@@ -5524,24 +5536,33 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             else if (OTModeValue == "1")
                             {
                                 // Manual Mode
-                                if (PastManualOT != "")
+                                if (Result != "")
                                 {
-                                    if (Convert.ToDouble(PastManualOT) >= 0)
+                                    if (PastManualOT != "")
                                     {
-                                        dr.BeginEdit();
-                                        dr["ProcessedOT"] = PastManualOT;
-                                        if (Result != "")
+                                        if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                         {
+                                            // If Manual is less than Processed
+                                            dr.BeginEdit();
+                                            dr["ProcessedOT"] = PastManualOT;
                                             dr["CalculatedOT"] = Result;  // For Visiblity
+                                            dr.EndEdit();
+                                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
                                         }
-                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                        dr.EndEdit();
-                                        CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                                        else
+                                        {
+                                            // Otherwise Processed
+                                            dr.BeginEdit();
+                                            dr["ProcessedOT"] = Result;
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
+                                            dr.EndEdit();
+                                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                                        }                                       
                                     }
                                 }
                             }
 
-                            else 
+                            else
                             {
                                 // Mixed Mode
                                 if (Result != "")
@@ -5554,7 +5575,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                             {
                                                 dr.BeginEdit();
-                                                dr["ProcessedOT"] = PastManualOT; 
+                                                dr["ProcessedOT"] = PastManualOT;
                                                 dr["CalculatedOT"] = Result;  // For Visiblity
                                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                 dr.EndEdit();
@@ -5579,7 +5600,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr.EndEdit();
                                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
                                         }
-                                        
+
                                     }
                                     else
                                     {
@@ -7058,4 +7079,4 @@ namespace Library.HumanResource.NewAttendanceProcess {
     }
 
 }
- 
+  
