@@ -5628,7 +5628,7 @@ namespace Library.HumanResource.Report.OT
                     {
                         if (parameters.Keys.ElementAt(0) != "")
                         {
-                            wcEmpSystemId += @"and HO.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+                            wcEmpSystemId += @"and ap.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
                         }
                     }
                 }
@@ -5638,8 +5638,8 @@ namespace Library.HumanResource.Report.OT
                 }
 
                 strSql = @"SELECT ei.SystemId,ei.EmployeeName,ei.EmployeeCode,format(ei.DOJ,'dd-MMM-yyyy') DOJ,format(ei.DOS,'dd-MMM-yyyy') DOS,s.UserName as Section,sb.UserName as SubSection,lg.UserName Designation
-                                ,d.UserName Department,ei.GenderID,HO.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
-                                      ,sum(ho.Duration) AS Duration,SUM(CAST(ho.Duration AS decimal)/60) AS DurationH
+                                ,d.UserName Department,ei.GenderID,ap.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
+                                      ,sum(ap.AdditionalOT) AS Duration,SUM(CAST(ap.AdditionalOT AS decimal)/60) AS DurationH
 
                                     ,AD.IsAllDesignation--1
                                     ,ISNULL(ad.IsFixed,0) AS IsFixed---1--rate--0-farmula
@@ -5653,9 +5653,9 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
-                                      FROM HourlyOT  HO 
-                                      LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
-                                      LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
+                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
+                                     -- LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
                                       LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
                                       LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
@@ -5675,10 +5675,10 @@ namespace Library.HumanResource.Report.OT
 									
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
 
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" " + DayCategory + @"  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
+                                    WHERE Month(ap.WorkDate) = " + MonthNo + @" and Year(ap.WorkDate) = " + YearNo + @" " + DayCategory + @"  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
                                         --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
-									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
+									,d.UserName,ei.GenderID,ap.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
                                     ,ad.IsAllDesignation
                                     ,ad.IsFixed
                                     ,ad.FormulaDesID
@@ -7154,7 +7154,10 @@ namespace Library.HumanResource.Report.OT
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory, p.UserName as Plant,ECT.UserName EmployeeCodeType
                                       FROM EmployeeInformation ei   
-                                      INNER JOIN (Select distinct EmpsystemId From HourlyOT HO where  HO.Duration !=0  and Month(HO.WorkDate) = " + monthNo + @" and Year(HO.WorkDate) = " + yearNo + @" ) HO ON ei.SystemId = HO.EmpSystemId
+                                      INNER JOIN (
+                            Select distinct EmpsystemId From attdnprocessdata p 
+									  where p.additionalot is not null and p.AdditionalOT<>0
+                        and Month(HO.WorkDate) = " + monthNo + @" and Year(HO.WorkDate) = " + yearNo + @") HO ON ei.SystemId = HO.EmpSystemId
 									  LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = ei.BudgetCode
 								      LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
                                       LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
