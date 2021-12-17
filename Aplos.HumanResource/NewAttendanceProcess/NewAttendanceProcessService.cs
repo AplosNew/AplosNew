@@ -3980,22 +3980,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         // Manual Mode
                                         if (PastManualOT != "")
                                         {
-                                            if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
-                                            {
-                                                // If Manual is less than Processed
-                                                dr.BeginEdit();
-                                                dr["ProcessedOT"] = PastManualOT;
-                                                dr["CalculatedOT"] = Result;  // For Visiblity
-                                                dr.EndEdit();
-                                            }
-                                            else
-                                            {
-                                                // Otherwise Processed
-                                                dr.BeginEdit();
-                                                dr["ProcessedOT"] = Result;
-                                                dr["CalculatedOT"] = Result;  // For Visiblity
-                                                dr.EndEdit();
-                                            }
+                                            double SmallerValue = Math.Min(Convert.ToDouble(PastManualOT), Convert.ToDouble(Result));
+                                            dr.BeginEdit();
+                                            dr["ProcessedOT"] = SmallerValue;
+                                            dr["CalculatedOT"] = Result;  // For Visiblity
+                                           dr.EndEdit();                                            
                                         }
                                     }
                                 }
@@ -5477,7 +5466,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 SaveLog("Manual OverStay Logic Ran Successfully ...", PlantValue, false);
 
-                #region OT Calculation 
+                #region Manual OT Calculation 
                 DataSet ProcessOTCalculate;
                 ProcessedOTCalculation(out ProcessOTCalculate, PlantValue);
                 if (ProcessOTCalculate.Tables[0].Rows.Count > 0)
@@ -5540,24 +5529,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     if (PastManualOT != "")
                                     {
-                                        if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
-                                        {
-                                            // If Manual is less than Processed
-                                            dr.BeginEdit();
-                                            dr["ProcessedOT"] = PastManualOT;
-                                            dr["CalculatedOT"] = Result;  // For Visiblity
-                                            dr.EndEdit();
-                                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
-                                        }
-                                        else
-                                        {
-                                            // Otherwise Processed
-                                            dr.BeginEdit();
-                                            dr["ProcessedOT"] = Result;
-                                            dr["CalculatedOT"] = Result;  // For Visiblity
-                                            dr.EndEdit();
-                                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
-                                        }                                       
+                                        double SmallerValue = Math.Min(Convert.ToDouble(PastManualOT), Convert.ToDouble(Result));
+                                        dr.BeginEdit();
+                                        dr["ProcessedOT"] = SmallerValue;
+                                        dr["CalculatedOT"] = Result;  // For Visiblity
+                                        dr.EndEdit();
+                                        CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                                                                    
                                     }
                                 }
                             }
