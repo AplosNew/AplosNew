@@ -5861,7 +5861,7 @@ namespace Library.HumanResource.Report.OT
                 }
 
                 strSql = @"SELECT Plant.UserName PlantName,ei.SystemId,ei.EmployeeName,ei.EmployeeCode,format(ei.DOJ,'dd-MMM-yyyy') DOJ,format(ei.DOS,'dd-MMM-yyyy') DOS,s.UserName as Section,sb.UserName as SubSection,lg.UserName Designation
-                                ,d.UserName Department,ei.GenderID,HO.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
+                                ,d.UserName Department,ei.GenderID,ap.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
                                       ,sum(ap.AdditionalOT) AS Duration,SUM(CAST(ap.AdditionalOT AS decimal)/60) AS DurationH
 
                                     ,AD.IsAllDesignation--1
