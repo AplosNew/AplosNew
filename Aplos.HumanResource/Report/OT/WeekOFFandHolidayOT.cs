@@ -7229,7 +7229,7 @@ namespace Library.HumanResource.Report.OT
                     {
                         if (parameters.Keys.ElementAt(0) != "")
                         {
-                            wcEmpSystemId += @"and HO.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+                            wcEmpSystemId += @"and ap.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
                         }
                     }
                 }
@@ -7239,8 +7239,8 @@ namespace Library.HumanResource.Report.OT
                 }
 
                 strSql = @"SELECT ei.SystemId,ei.EmployeeName,ei.EmployeeCode,format(ei.DOJ,'dd-MMM-yyyy') DOJ,format(ei.DOS,'dd-MMM-yyyy') DOS,s.UserName as Section,sb.UserName as SubSection,lg.UserName Designation
-                                ,d.UserName Department,ei.GenderID,HO.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
-                                      ,sum(ho.Duration)as Duration,sum(CAST(ho.Duration AS decimal)/60)as DurationH
+                                ,d.UserName Department,ei.GenderID,ap.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
+                                      ,sum(ap.AdditionalOT)as Duration,sum(CAST(ap.AdditionalOT AS decimal)/60)as DurationH
                                     ,ad.IsAllDesignation--1
                                     ,ISNULL(ad.IsFixed,0)as IsFixed---1--rate--0-farmula
                                     ,ISNULL(ad.Rate,0) as Rate
@@ -7253,9 +7253,9 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory , p.UserName as Plant
-                                      FROM HourlyOT  HO 
-                                      LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
-                                      LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
+                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
+                                      --LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
                                       LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
                                       LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
@@ -7274,11 +7274,11 @@ namespace Library.HumanResource.Report.OT
                                         LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
                                         left join org.Plant p on p.Id = ei.PlantId
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ei.PlantId AND dar.DesignationId=DM.DesignationId
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"
+                                    WHERE  ap.AdditionalOT is not null and Month(ap.WorkDate) = " + MonthNo + @" and Year(ap.WorkDate) = " + YearNo + @"
                                    AND (ISNULL(ap.HoliDayValue,0)=0 AND ISNULL(ap.WeekOffValue,0)=0)
                                     " + wcDos + @" AND ei.plantid in (" + plantId + @") AND ei.EmployeeCodeTypeId in (" + TypeId + @") " + wcEmpSystemId + @"                             
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ
-									,s.UserName,sb.UserName,lg.UserName,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn ,ad.IsAllDesignation 
+									,s.UserName,sb.UserName,lg.UserName,d.UserName,ei.GenderID,ap.EmpSystemId,l.UserName,hr.OTConsiderOn ,ad.IsAllDesignation 
                                     ,ad.IsFixed,ad.FormulaDesID,dar.IsFixed,dar.FormulaDesID,ad.Rate ,dar.rate,ei.DOS	,bb.UserName,PG.UserName
                                     ,ebi.IFSCCode,ebi.BankAccNo ,ec.UserName,p.UserName
                                    ORDER BY ei.EmployeeCode
