@@ -765,11 +765,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 if (Column == "INVM")
                 {
-                    whereCol = " and  pv.InTime is null ";
+                    whereCol = " and  apd.InTime is not null and pv.InTime is null ";
                 }
                 if (Column == "OVM")
                 {
-                    whereCol = " and  pv.OutTime is null and apd.PunchOutTime is not null";
+                    whereCol = " and  apd.OutTime is not null and pv.OutTime is null";
                 }
                 #endregion settingTheColumnStat
 
