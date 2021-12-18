@@ -2178,10 +2178,11 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	};
 
 
-
+	$scope.IssueSlipListPopup = [];
 	// #region Material Wise Issue Slip
 	$scope.GetIssueSlipFilterData = function () {
 		//debugger;
+		//tarek
 		$.ajax({
 			type: "GET",
 			contentType: "application/json; charset=utf-8",
@@ -2190,83 +2191,39 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			async: false,
 			dataType: "json",
 			success: function (data) {
-				//$scope.FilterList = data;
-				$("#Grid22").ejGrid({
-
-					dataSource: data, // data must be array of json
-					allowPaging: true,
-					//allowSorting: true,
-					allowFiltering: true,
-					isResponsive: true,
-					enableResponsiveRow: true,
-					allowTextWrap: true,
-					textWrapSettings: { wrapMode: "header" },
-					cssClass: "filtered",
-					filterSettings: {
-						filterType: "excel"
-					},
-					// pageSize: 1,
-					allowScrolling: true,
-					scrollSettings: { width: "auto", height: "2" },
-
-					columns: [
-						//{ headerText: "Entity Name", field: "EntityName", width: 100 },
-						//{ headerText: "ActivityName", field: "UserName", width: 100 },
-						{ headerText: "Material Type", field: "MaterialType", width: 100 },
-						{ headerText: "Group Name", field: "MaterialMasterGroupName", width: 100 },
-						//{ headerText: "Group Name2", field: "MaterialMasterGroupName", width: 90 },
-						{ headerText: "Material Name", field: "MaterialMasterName", width: 100 },
-						{ headerText: "Article", field: "StandardName", width: 100 },
-						{ headerText: "Sku1", field: "FirstCharacteristicsValue", width: 60 },
-						{ headerText: "Sku2", field: "SecondCharacteristicsValue", width: 60 },
-						{ headerText: "Sku3", field: "ThirdCharacteristicsValue", width: 60 },
-						{ headerText: "Country Name", field: "CountryName", width: 60 }
-
-						//{ headerText: "RequisitionBy", field: "AddedBy", width: 85 },
-						//{ headerText: "RequisitionNo", field: "RequisitionNo", width: 95 },
-						//{ headerText: "Department Name", field: "DepartmentName", width: 100 }
-
-
-					]
-				});
-
-				$("#Grid22").children('.e-pager.e-js.e-pager').hide();
-				$("#Grid22").children('.e-gridcontent.e-droppable.e-js').hide();
-				$("#Grid22").children('.e-gridcontent').hide();
-				//$("#Grid2").children('.e-grid .e-headercell {background - color: chocolate;}').add();
-
-				$("#Grid22").children('.e-grid.e-headercell').css('background-color', 'red'); //{background - color: chocolate;}').add();
+				$scope.IssueSlipListPopup = data;
+				
 			}
 
 		});
 	}
-	$scope.uoMList = [];
-	$scope.uom = function () {
-		cboService.getUoMCbo(function (response) {
-			$scope.uoMList = response;
-		});
-	}
-	$scope.uom();
+	
 	$scope.GetIssueSlipFilterData();
 	$scope.FilterList123 = [];
 	$scope.getDataMaterialWise = function () {
+	
 		$scope.IssueSlipType = 'InventorySlip';
-		//$scope.uom();
-		//debugger;
-		//alert('gg');
-		var obj1 = $("#Grid22").ejGrid("instance");
-		var sd1 = obj1.getFilteredRecords();
-		if (sd1.length == 0) {
-			sd1 = obj1.model.dataSource;
-			//alert('1' +1);
-		}
-		for (var i = 0; i < sd1.length; i++) {
-			$scope.FilterList123.push(sd1[i]);
+		$scope.GetIssueSlipFilterData();
+		//tarek
+		////$scope.uom();
+		////debugger;
+		////alert('gg');
+		//var obj1 = $("#Grid22").ejGrid("instance");
+		//var sd1 = obj1.getFilteredRecords();
+		//if (sd1.length == 0) {
+		//	sd1 = obj1.model.dataSource;
+		//	//alert('1' +1);
+		//}
+		//for (var i = 0; i < sd1.length; i++) {
+		//	$scope.FilterList123.push(sd1[i]);
 
 
-		}
+		//}
+		angular.element(document.querySelector('#ListIssueSlipPopup')).modal('show');
 	}
-
+	$scope.IssueSlipTypeHide = function () {
+		angular.element(document.querySelector('#ListIssueSlipPopup')).modal('hide');
+	};
 
 	$scope.IssueStatus = 'ForChecked';
 	$scope.Status = 'InventorySlip';
@@ -2749,4 +2706,46 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 	};
 
+	$scope.refreshIssueSlip = function (args) {
+		$("#headchk10").ejCheckBox({ "change": CheckBoxSelectInventoryIssueWise });
+	};
+
+	function CheckBoxSelectInventoryIssueWise(e) {
+		var ChkOrUnchk = false;
+		if (e.model.checkState === "check") {
+			ChkOrUnchk = true;
+		}
+		var filtered = $("#GridPopup").data("ejGrid").getFilteredRecords();
+		if (baseService.isUndefinedOrNull(filtered) || filtered.length == 0) {
+			for (var i = 0; i < $scope.IssueSlipListPopup.length; i++) {
+				$scope.IssueSlipListPopup[i].check = ChkOrUnchk;
+			}
+		}
+		else {
+			for (var j = 0; j < filtered.length; j++) {
+				filtered[j].CheckBoxSelect = ChkOrUnchk;
+			}
+		}
+		var gridObj = $("#GridPopup").data("ejGrid");
+		gridObj.refreshContent();
+	};
+
+	$scope.AddRow = function () {
+		$scope.FilterList123 = [];
+		for (var i = 0; i < $scope.IssueSlipListPopup.length; i++) {
+			if ($scope.IssueSlipListPopup[i].check == true) {
+				$scope.FilterList123.push($scope.IssueSlipListPopup[i])
+            }
+		}
+		angular.element(document.querySelector('#ListIssueSlipPopup')).modal('hide');
+	}
+
+	$scope.gridUoMList = [];
+	$scope.uom = function () {
+		cboService.getUoMCbo(function (response) {
+			$scope.gridUoMList = response;
+		});
+	}
+	$scope.uom();
 }
+

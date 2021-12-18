@@ -20,6 +20,7 @@ using Library.HumanResource.Attendance.Manual;
 using Library.Service.Helpers;
 using System.Data;
 using Library.OrderManagement.FabricRollClass;
+using System.Linq;
 
 #endregion using
 
@@ -126,8 +127,6 @@ namespace Aplos.Areas.Commercial.Controllers
 		#endregion -- Operations
 
 
-
-
 		[HttpPost, Authorize]
 		public ActionResult PIList(string column, string value)
 		{
@@ -148,117 +147,73 @@ LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 		}
 
-		[HttpPost, Authorize]
-		public ActionResult MaterialList(string inventoryReceiveId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"SELECT 
-DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount
-,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
-,P.UserName PartyName,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId
-,IM.FirstCharacteristicsId SKUId,MM.UserName MaterialMasterName,MMA.StandardName ArticleName
-,C.UserName SKU1,C2.UserName SKU2,C3.UserName SKU3,CV.UserName SKUValue,CV2.UserName SKUValue2,CV3.UserName SKUValue3, C.UserName +':'+CV.UserName SKUInfo,CU.Code
-,MGM.UserName MaterialGroup
-FROM [TRN].[InventoryReceiveDetail] IRD
-                                        LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
-                                        LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
-                                        LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
-										--LEFT JOIN ORG.Plant PL ON IM.PlantId= PL.Id
-                                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-										LEFT JOIN scs.PlantConfig PL ON  PL.PlantId=IM.PlantId
-                                        LEFT JOIN SCS.UnitOfMeasurement UOM ON IRD.TransactionUoMId=UOM.Id
-                                        LEFT JOIN SCS.UnitOfMeasurement BUoM ON IRD.BaseUOMId=BUoM.Id
-                                        LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
-
-                                        LEFT JOIN MST.MaterialGroupMaster MGM ON MM.MaterialGroupMasterId=MGM.Id
-                                        LEFT JOIN MST.MaterialMasterArticle MMA ON IM.ArticleId=MMA.Id
-
-                                        LEFT JOIN HKP.Characteristics C ON IM.FirstCharacteristicsId=C.Id
-                                        LEFT JOIN HKP.Characteristics C2 ON IM.SecondCharacteristicsId=C2.Id
-                                        LEFT JOIN HKP.Characteristics C3 ON IM.ThirdCharacteristicsId=C3.Id
-
-                                        LEFT JOIN [HKP].[CharacteristicsValue] CV ON IM.FirstCharacteristicsValueId=CV.Id
-                                        LEFT JOIN [HKP].[CharacteristicsValue] CV2 ON IM.SecondCharacteristicsValueId=CV2.Id
-                                        LEFT JOIN [HKP].[CharacteristicsValue] CV3 ON IM.ThirdCharacteristicsValueId=CV3.Id
-                                        LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
-                                        LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
-										LEFT JOIN (SELECT COUNT(Id) SplitCount,Sum(VendorQty) TotalDistributeQty
-										,InventoryReceiveDetailId FROM TRN.FabricRollMaster 
-										GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
-WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
-
-			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-
-		}
-
-		[HttpPost, Authorize]
-		public ActionResult FabricRollList(string inventoryReceiveDetailId)
-		{
-
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + inventoryReceiveDetailId + @"'";
-
-			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-
-		}
 		[HttpGet, Authorize]
-		public ActionResult DownloadRollReport(string inventoryReceiveDetailId)
+		public ActionResult GetAllData(string PIMasterId,string VersionId)
 		{
-			try
-			{
-				Library.OrderManagement.FabricRollClass.FabricRollClass RollReport = new Library.OrderManagement.FabricRollClass.FabricRollClass();
-				RollReport.DownloadReport(inventoryReceiveDetailId);
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			string sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
+							,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
+							,C.Code Currency,B.UserName Buyer,P.UserName Customer
+							 FROM PIMaster PM 
+							LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
+							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
+							LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
+						WHERE PM.Id='"+ PIMasterId + @"'";
 
-				return null;
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
+			var PIMasterData = _sqlRepository.GetDataCollection(sql, null);
 
+			sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,NULL AS MaterialGroupUOMList,
+							   p.[Description], p.DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
+						  FROM PIMaterial AS p
+						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
+						WHERE p.PIMasterId='"+ PIMasterId + @"' AND p.PIVersionId='"+ VersionId + @"'";
+
+			var PIMaterial = _sqlRepository.GetDataCollection(sql, null);
+
+			sql = @"SELECT U.MaterialGroupMasterId,UOM.Code,UOM.Id FROM (
+					SELECT mgm.Id MaterialGroupMasterId, mgm.BaseUoMId AS UOMId FROM mst.MaterialGroupMaster AS mgm
+					UNION ALL
+					SELECT m.MaterialGroupMasterId, m.AlternativeUoMId
+					  FROM mst.MaterialGroupAlternativeUoM AS M
+					) U
+					JOIN scs.UnitOfMeasurement AS uom ON uom.Id=U.UOMId
+					WHERE U.MaterialGroupMasterId IN (
+						SELECT P.MaterialGroupMasterId FROM PIMaterial P WHERE p.PIMasterId='"+ PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'
+					)";
+			var UOMList=_sqlRepository.GetDataCollection(sql, null);
+            for (int i = 0; i < PIMaterial.Count; i++)
+            {
+				var U = UOMList.Where(w => w["MaterialGroupMasterId"] == PIMaterial[i]["MaterialGroupMasterId"].ToString()).ToList();
+				PIMaterial[i]["MaterialGroupUOMList"] = U;
+			}
+			sql = @" SELECT * FROM PIVersion AS pv WHERE pv.PIMasterId='" + PIMasterId + @"'";
+			var VersisonList= _sqlRepository.GetDataCollection(sql, null);
+
+			return Json(new{PIMaster= PIMasterData,VarsionData= VersisonList,ItemData= PIMaterial }, JsonRequestBehavior.AllowGet);
 		}
+
+
+		[HttpGet, Authorize]
+		public ActionResult GetUoMList(string MaterialGroupMasterId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			string sql = @"SELECT U.MaterialGroupMasterId,UOM.Code,UOM.Id FROM (
+SELECT mgm.Id MaterialGroupMasterId, mgm.BaseUoMId AS UOMId FROM mst.MaterialGroupMaster AS mgm
+UNION ALL
+SELECT m.MaterialGroupMasterId, m.AlternativeUoMId
+  FROM mst.MaterialGroupAlternativeUoM AS M
+) U
+JOIN scs.UnitOfMeasurement AS uom ON uom.Id=U.UOMId
+WHERE U.MaterialGroupMasterId='"+ MaterialGroupMasterId + @"'";
+
+			var PIMasterData = _sqlRepository.GetDataCollection(sql, null);		
+
+			return Json(new { PIMaster = PIMasterData}, JsonRequestBehavior.AllowGet);
+		}
+
 
 
 		#region Upload Roll Data
-
-		[HttpPost]
-		public JsonResult CreateRollFile(FormCollection form)
-		{
-			var pre = form["FabricRollFile"];
-			var settings = new JsonSerializerSettings
-			{
-				NullValueHandling = NullValueHandling.Ignore,
-				MissingMemberHandling = MissingMemberHandling.Ignore
-			};
-			var FabricRollFile = JsonConvert.DeserializeObject<FabricRollFile>(pre, settings);
-			var file = Request.Files["file"];
-			if (file != null)
-			{
-				var extension = Path.GetExtension(file.FileName);
-				if (extension.ToLower() != ".xls" && extension.ToLower() != ".xlsx")
-				{
-					throw new CustomException(Resources.ImageUploadError);
-				}
-
-
-				FabricRollClass Clsss = new FabricRollClass();
-				//clsManualAttendanceFileUpload p = new clsManualAttendanceFileUpload();
-				Clsss.Save(file.FileName, extension, FabricRollFile, out DataSet dsMaster);
-				var path = Path.Combine(ResourcesPathReader.GetFabricRollFilePath(), dsMaster.Tables[0].Rows[0]["FileId"].ToString());
-
-				if (System.IO.File.Exists(path))
-				{
-					System.IO.File.Delete(path);
-					file.SaveAs(path);
-				}
-				else
-				{
-					file.SaveAs(path);
-				}
-			}
-			return Json(new { Message = AplosMessage.Success });
-		}
-
 		[HttpGet, Authorize]
 		public ActionResult GetMaster()
 		{
@@ -274,41 +229,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 			}
 		}
 		#endregion
-		public void SaveFile(out string path)
-		{
-			path = "";
-			try
-			{
-				var file = Request.Files["file"];
-				if (file != null)
-				{
-					var extension = Path.GetExtension(file.FileName);
-					if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
-					{
-					}
-					else
-						throw new CustomException(Resources.ExcelUploadError);
-				}
-				if (file != null)
-				{
-					path = Path.Combine(ResourcesPathReader.GetFabricRollData(), file.FileName);
-					if (System.IO.File.Exists(path))
-					{
-						System.IO.File.Delete(path);
-						file.SaveAs(path);
-					}
-					else
-					{
-						file.SaveAs(path);
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
 
 	}
 }

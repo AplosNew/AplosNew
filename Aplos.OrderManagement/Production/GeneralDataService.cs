@@ -229,6 +229,74 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public DataTable getEmployeesAll()
+        {
+            try
+            {
+                var str = @"Select SystemId, EmployeeCode from dbo.EmployeeInformation
+                           ";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getMasters()
+        {
+            try
+            {
+                var str = @"Select Id as Value , UserName as Text from dbo.GeneralDataMaster";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getReport(string ToDate, string FromDate, string MasterId)
+        {
+            try
+            {
+                var str = @"Select gu.TransactionId , gm.UserName as MasterName , format(gu.TransactionDate,'dd-MMM-yyyy') as TransactionDate , gu.Remark , gu.Value , gm.ValueType , ei.EmployeeName as ByWhom , gm.Category , gm.SubCategory , gu.ReferenceNumber , e.EmployeeName as EmpName
+                            from dbo.GeneralDataUpload gu
+                            left join dbo.GeneralDataMaster gm on gm.Id = gu.MasterId
+                            left join SCS.UnitOfMeasurement uom on uom.Id = gm.UOMId
+                            left join dbo.EmployeeInformation ei on ei.SystemId = gu.ByWhom
+                            left join dbo.EmployeeInformation e on e.SystemId = gu.EmpSystemId
+                            where gu.MasterId = '" + MasterId+"' and gu.TransactionDate between '"+FromDate+"' and '"+ToDate+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getReportDownload(string ToDate, string FromDate, string MasterId)
+        {
+            try
+            {
+                var str = @"Select gu.TransactionId , gm.UserName as MasterName , format(gu.TransactionDate,'dd-MMM-yyyy') as TransactionDate , gu.Remark , gu.Value , gm.ValueType , ei.EmployeeName as ByWhom , gm.Category , gm.SubCategory , gu.ReferenceNumber , e.EmployeeName as EmpName
+                            from dbo.GeneralDataUpload gu
+                            left join dbo.GeneralDataMaster gm on gm.Id = gu.MasterId
+                            left join SCS.UnitOfMeasurement uom on uom.Id = gm.UOMId
+                            left join dbo.EmployeeInformation ei on ei.SystemId = gu.ByWhom
+                            left join dbo.EmployeeInformation e on e.SystemId = gu.EmpSystemId
+                            where gu.MasterId = '" + MasterId + "' and gu.TransactionDate between '" + FromDate + "' and '" + ToDate + "'";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         public List<Dictionary<string, object>> SaveFileList(List<Dictionary<string, object>> data)
         {
             try
@@ -309,6 +377,8 @@ namespace Library.OrderManagement.Production
 
             dt.Rows.Add(dr);
         }
+
+
     }
 
 
