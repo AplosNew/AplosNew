@@ -140,5 +140,66 @@ $scope.ModelNew = {
         }
     });
     }
-   
+
+    // 2nd Tab for the Downloading of the report
+    $scope.MastersList = [];
+    $scope.dataView = [];
+    $scope.ToDate = null;
+    $scope.FromDate = null;
+    $scope.GDMasterId = null;
+    $scope.getMasters = function () {
+        $http({
+            method: 'POST',
+            url: url + 'getMasters',
+        }).then(function successCallback(response) {
+            $scope.MastersList = [];
+            $scope.MastersList = response.data;
+        });
+    }
+
+    $scope.getMasters();
+
+    $scope.getTheReport = function () {
+
+        if (angular.isUndefinedOrNull($scope.GDMasterId)) {
+            ShowResult("Please Select the User Name!", 'failure');
+            throw ('Invalid Request!');
+        }
+
+        if (angular.isUndefinedOrNull($scope.ToDate) || angular.isUndefinedOrNull($scope.FromDate)) {
+            ShowResult("Please Select the Dates!", 'failure');
+            throw ('Invalid Request!');
+        }
+
+        $http({
+            method: 'POST',
+            url: url + 'getReport',
+            data: { 'ToDate': $scope.ToDate , 'FromDate':$scope.FromDate , 'MasterId':$scope.GDMasterId }
+        }).then(function successCallback(response) {
+            $scope.dataView = [];
+            $scope.dataView = response.data;
+        });
+    }
+
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.downloadTheReport = function () {
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'downloadTheReport',
+            data: { 'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate, 'MasterId': $scope.GDMasterId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
 }
