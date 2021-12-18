@@ -34,6 +34,10 @@ function leaveConfig($routeProvider) {
             templateUrl: 'Leave/HourlyOT/HourlyOtReport',
             controller: "hourlyOTController"
         })
+        .when('/hourly-ot-report-new', {
+            templateUrl: 'Leave/HourlyOTNew/HourlyOtReport',
+            controller: "hourlyOTNewController"
+        })
         .when('/hourly-leave-report', {
             templateUrl: 'Leave/OffDutyHours/OffDutyHoursReport',
             controller: "offDutyHoursController"

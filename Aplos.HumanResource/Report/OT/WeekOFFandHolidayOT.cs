@@ -5462,7 +5462,7 @@ namespace Library.HumanResource.Report.OT
                     {
                         if (parameters.Keys.ElementAt(0) != "")
                         {
-                            wcEmpSystemId += @"and HO.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+                            wcEmpSystemId += @"and ap.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
                         }
                     }
                 }
@@ -5471,17 +5471,16 @@ namespace Library.HumanResource.Report.OT
 
                 }
 
-                strSql = @"SELECT ei.SystemId,ei.EmployeeCode,sum(ho.Duration)as Duration,sum(CAST(ho.Duration AS decimal)/60)as DurationH
-                                      FROM HourlyOT  HO 
-                                       LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
-                                     LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+                strSql = @"SELECT ei.SystemId,ei.EmployeeCode,sum(ap.AdditionalOT)as Duration,sum(CAST(ap.AdditionalOT AS decimal)/60)as DurationH
+                                      FROM AttdnProcessData ap 
+                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
                                        left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=EI.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=EI.PlantId
 							            LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = EI.PlantId AND dar.DesignationId=DM.DesignationId
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"
-                                   AND ISNULL(ap.HoliDayValue,0)=0 AND ISNULL(ap.WeekOffValue,0)=0
+                                    WHERE Month(ap.WorkDate) = " + MonthNo + @" and Year(ap.WorkDate) = " + YearNo + @"
+                                   AND ap.AdditionalOT is not null and ISNULL(ap.HoliDayValue,0)=0 AND ISNULL(ap.WeekOffValue,0)=0
                                     " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @"                             
                                     GROUP BY ei.SystemId,ei.EmployeeCode
                                    ORDER BY ei.EmployeeCode
@@ -5763,7 +5762,7 @@ namespace Library.HumanResource.Report.OT
                     {
                         if (parameters.Keys.ElementAt(0) != "")
                         {
-                            wcEmpSystemId += @"and HO.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+                            wcEmpSystemId += @"and ap.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
                         }
                     }
                 }
@@ -5772,19 +5771,17 @@ namespace Library.HumanResource.Report.OT
 
                 }
 
-                strSql = @"SELECT ei.SystemId,ei.EmployeeCode,sum(ho.Duration)as Duration,sum(CAST(ho.Duration AS decimal)/60)as DurationH
-                                      FROM HourlyOT  HO 
-                                       LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
-                                     LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+                strSql = @"SELECT ei.SystemId,ei.EmployeeCode,sum(ap.AdditionalOT)as Duration,sum(CAST(ap.AdditionalOT AS decimal)/60)as DurationH
+                                      FROM AttdnProcessData ap
+                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
                                        left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=ei.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ei.PlantId
 							            LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ei.PlantId AND dar.DesignationId=dm.DesignationId
 
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" " + DayCategory + @"  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
-                                        --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
-                                    GROUP BY  EI.SystemId,EI.EmployeeCode
+                                    WHERE Month(ap.WorkDate) = " + MonthNo + @" and ap.AdditionalOT is not null and Year(ap.WorkDate) = " + YearNo + @" " + DayCategory + @"  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
+                                   GROUP BY  EI.SystemId,EI.EmployeeCode
                                    ORDER BY ei.EmployeeCode
                                     ";
 
