@@ -88,6 +88,8 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
             $scope.currencyList = [];
             $scope.currencyList = result;
             $scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+            $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+
         });
 
         $scope.purchaseLC = obj.data;
@@ -182,6 +184,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
         $scope.currencyList = [];
         $scope.currencyList = result;
         $scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+        $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
     });
 
     $scope.portList = [];

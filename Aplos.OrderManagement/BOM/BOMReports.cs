@@ -3758,5 +3758,477 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
 
         #endregion
 
+        #region BOMReportByContractLevelItemandSalesOrder
+        public IWorkbook GetMasterOrderByContractReports(string ContractId, BOMLevel Level, bool isMatrix = true)
+        {
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+            IWorkbook workbook = application.Workbooks.Create(1);
+            //Load the existing Excel workbook into IWorkbook
+            if (Level == BOMLevel.Item)
+                workbook = application.Workbooks.Create(3);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+            try
+            {
+                DataTable dtOrderMaster = _sqlRepository.GetDataTable(@"select mo.Id, mo.type, b.UserName as Buyer, p.UserName as Customer
+                    , mo.OrderYear as Year, mo.TotalQty as TotalQuantity
+                    , uom.UserName as UnitOfMeasurement, mo.NoOfLineItem, mo.OrderWastagePercentage
+                    , mo.ExtraOrderPercentage, mo.BuyerReferenceNo, mo.OwnReferenceNo, BDept.UserName as BuyerDepartment
+                    , BDev.UserName as BuyerDevision, MoCur.Code MasterOrderCurrency from trn.MasterOrder MO 
+                    LEFT JOIN SCS.Currency MoCur on MoCur.id = mo.CurrencyId 
+                    LEFT JOIN SCS.UnitOfMeasurement UOM on uom.id = mo.TotalQtyUOMId 
+                    LEFT JOIN HKP.Buyer B on b.id = mo.buyerid 
+                    LEFT JOIN HKP.Party p on p.id = mo.partyid 
+                    LEFT JOIN HKP.BuyerDepartment BDept on BDept.id = mo.buyerDepartmentid 
+                    LEFT JOIN HKP.BuyerDivision BDev on BDev.id = mo.BuyerDivisionId 
+                    LEFT JOIN TRN.MasterOrderItem MOI  on MOI.MasterOrderId=MO.Id
+					WHERE MOI.ContractId='" + ContractId + "'");
+                if (dtOrderMaster.Rows.Count == 0)
+                    throw new Exception("No data found");
+
+                DataTable dtMasterOrderItem = _sqlRepository.GetDataTable(@"select moi.id as MasterOrderItemNo,moi.BuyerReferenceNo
+                 ,moi.OwnReferenceNo,moi.TotalQty as TotalMOIQuantity, moi.MasterOrderId,c.ContractNo,ml.LCRef
+                 ,moi.OrderWastagePercentage, moi.ExtraOrderPercentage ,mm.UserName as Material ,mma.StandardName as Article, moi.Type
+                 from trn.MasterOrderItem MOI
+                 left join TRN.MasterOrder mo  on mo.id=moi.MasterOrderId
+                 left join MST.MaterialMaster MM on mm.id = moi.MaterialMasterId
+                 left join MST.MaterialMasterArticle mma on mma.id= moi.ArticleId
+                 left join scs.TestingStandard ts on ts.id=moi.TestingStandardId
+
+                 LEFT JOIN [Contract] AS c ON c.Id=moi.ContractId
+                 LEFT JOIN MasterLC AS ml ON ml.Id=c.MasterLCId
+				 WHERE MOI.ContractId='" + ContractId + "'");
+
+                DataTable dtSalesOrderItem = _sqlRepository.GetDataTable(@"select so.MasterOrderItemId, so.id as SalesOrderNo,cpo.PONumber,os.UserName as OrderStatus,d.UserName as Destination
+                ,so.Qty as Quantity, so.UpCharge, so.MainRawMaterialInhouseDate, so.Description
+                ,so.SOType, oc.username as OrderCategory
+                ,so.DeliveryDate, sm.UserName as ShipmentMode
+                ,so.Rate, so.Discount,so.CM,so.LSD, so.OtherRawMaterialInhouseDate , so.Reason , so.CommitmentDate
+
+                ,c1.username as FirstCharacteristics, isnull(fcs.ValueFreeText,CV1.UserName) as FirstCharacteristicsValue
+                ,c2.username as SecondCharacteristics ,isnull(SCS.ValueFreeText, CV2.UserName) as SecondCharacteristicsValue
+                ,c3.username as ThirdCharacteristics , isnull(ThirdCS.ValueFreeText,CV3.UserName) as ThirdCharacteristicsValue
+                ,case when isnull(thirdCs.Id,'')<>'' THEN ThirdCs.Qty
+                ELSE case when isnull(scs.id,'')<>'' THEN scs.Qty
+                ELSE case when isnull(fcs.Id,'')<>'' THEN fcs.Qty
+                ELSE 0 END END END AS Qty
+                from trn.SalesOrder SO
+                LEFT JOIN TRN.masterorderitem moi on moi.id= so.masterorderitemid
+                LEFT JOIN HKP.OrderCategory OC on oc.id = so.OrderCategoryId
+                LEFT JOIN HKP.OrderStatus OS on os.id = so.OrderStatusId
+                LEFT JOIN MST.shipMode SM on sm.id = so.shipmentModeId
+                LEFT JOIN MST.Destination d on d.id =so.DestinationId
+                LEFT JOIN TRN.CustomerPO CPO on cpo.id =so.CustomerPOId
+
+                LEFT JOIN TRN.FirstCharacteristics FCS on fcs.SalesOrderId = so.id
+                LEFT JOIN HKP.Characteristics C1 on c1.id = fcs.CharacteristicsId
+                LEFT JOIN HKP.CharacteristicsValue CV1 on cv1.id= fcs.CharacteristicsValueId
+
+                LEFT JOIN TRN.SecondCharacteristics SCS on scs.SalesOrderId=so.id and scs.FirstCharacteristicsId=fcs.Id
+                LEFT JOIN HKP.Characteristics C2 on c2.id = scs.CharacteristicsId
+                LEFT JOIN HKP.CharacteristicsValue CV2 on cv2.id= scs.CharacteristicsValueId
+
+                LEFT JOIN TRN.ThirdCharacteristics ThirdCS on ThirdCS.SalesOrderId=so.id and scs.id=ThirdCS.SecondCharacteristicsId
+                LEFT JOIN HKP.Characteristics C3 on c3.id = ThirdCS.CharacteristicsId
+                LEFT JOIN HKP.CharacteristicsValue CV3 on CV3.id= ThirdCS.CharacteristicsValueId
+                WHERE MOI.ContractId='" + ContractId + "'");
+
+                DataTable dtBOMData = new DataTable();
+                if (Level == BOMLevel.SO)
+                {
+                    //worksheet.Name = "DetailBOM-SO Level";
+                    worksheet.Name = "Detail";
+                    string strsql = @"SELECT b.Id, b.MasterOrderItemId,moi.MasterOrderId,moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,b.SalesOrderId,
+                                 mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
+
+                                v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3,convert(bit,isnull(b.isParent,0)) AS isParent,
+                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process,
+                               CONVERT(BIT, isnull(b.RequiredQtyApproved,0)) AS RequiredQtyApproved,CONVERT(BIT, isnull(b.IncompleteMaterial,0)) AS IncompleteMaterial,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+                                b.BOMQty,b.RequiredQty,b.RequiredQtyPO,uom.UserName AS UOM,uomm.UserName AS ParentUOM,
+                                POUOM.UserName AS POUOM,
+                                b.RMDescription,	b.RMCustomerSpec,	b.RMVendorSpec
+								,ISNULL(po.POQTY,0) POQTY,ISNULL(grn.GRNQty,0) GRNQty,
+								
+								 SO1 =STUFF((select distinct ','+xv1.UserName
+								               from BOQFGMapping AS XM	 
+										       JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+								               JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.FirstCharacteristicsValueId
+								             WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO2 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.SecondCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO3 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.ThirdCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								POIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.PurchaseOrderDetail AS XB2 ON xb2.Id=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                  FROM BOQ AS b
+                                LEFT OUTER JOIN MST.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                                LEFT OUTER JOIN MST.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+                                LEFT OUTER JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+                                LEFT OUTER JOIN SCS.UnitOfMeasurement AS POuom ON POuom.Id=b.POUoMId
+                                LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+                                LEFT OUTER JOIN TRN.SalesOrder AS so ON so.Id=b.SalesOrderId
+                                LEFT OUTER JOIN TRN.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+                                LEFT OUTER JOIN TRN.masterorder MO ON MO.Id=moi.MasterOrderId
+                                LEFT OUTER JOIN SCS.UnitOfMeasurement AS uomm ON uomm.Id=mo.TotalQtyUOMId
+                                LEFT JOIN HKP.Process AS pr ON pr.Id=b.ProcessId
+
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+								Left outer join (	select BOQDetailId,sum(POBOQQty) as POQTY from trn.POBOQMAP  GRoup by BOQDetailId) PO On PO.BOQDetailId = b.Id
+								Left outer join (	
+								SELECT a.BOQDetailId , sum(b.TransactionQty) GRNQty 
+				FROM trn.POBOQMAP a
+				INNER JOIN trn.InventoryReceiveDetail b ON a.PODetailId=b.PODetailsId GRoup by BOQDetailId
+								
+								) GRN On GRN.BOQDetailId = b.Id
+
+                                WHERE moi.ContractId='" + ContractId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"'))
+                                ORDER BY isnull(b.Sequence,0),b.SalesOrderId";
+                    dtBOMData = _sqlRepository.GetDataTable(strsql);
+                }
+                else if (Level == BOMLevel.Item)
+                {
+                    //worksheet.Name = "BOM-Item Level";
+                    worksheet.Name = "Summary";
+                    string strsql = @"select B.Sequence, B.MasterOrderItemId, B.MasterOrderId, B.OwnReferenceNo,
+       B.BuyerReferenceNo, B.VendorId, B.Material, B.Article, B.Vendor, B.SKUDesc,B.POIds, B.GRNIds,
+       B.CharVal1, B.CharVal2, B.CharVal3, B.isParent, B.isChild, B.Process,
+       B.Consumption, B.WastagePer, B.UOM, B.ParentUOM, B.POUOM, B.RMDescription,
+       B.RMCustomerSpec, B.RMVendorSpec, B.SO1, B.SO2, B.SO3,
+       sum(b.BOMQty) AS BOMQty,sum(b.RequiredQty) AS RequiredQty, SUM(b.RequiredQtyPO) AS RequiredQtyPO, sum(b.OrderQty) AS OrderQty,sum(b.PlanOrderQty) AS PlanOrderQty
+       ,SUM(ISNULL(b.POQTY,0)) POQTY,SUM(ISNULL(b.GRNQty,0)) GRNQty
+  from (SELECT  b.Sequence,b.MasterOrderItemId,moi.MasterOrderId,moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,
+                                 mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
+                                v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3,convert(bit,isnull(b.isParent,0)) AS isParent,
+                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process,
+                               b.Consumption,b.WastagePer,
+                                uom.UserName AS UOM,uomm.UserName AS ParentUOM, POUOM.UserName AS POUOM,
+                                b.RMDescription,	b.RMCustomerSpec,	b.RMVendorSpec,
+								b.BOMQty,b.RequiredQty,b.RequiredQtyPO, b.OrderQty,PlanOrderQty,
+                                ISNULL(po.POQTY,0) POQTY,ISNULL(grn.GRNQty,0) GRNQty,
+								 SO1 =STUFF((select distinct ','+xv1.UserName
+								          from BOQFGMapping AS XM	
+										  JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+								          JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.FirstCharacteristicsValueId
+								          WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO2 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.SecondCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO3 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.ThirdCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								POIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.PurchaseOrderDetail AS XB2 ON xb2.Id=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                  FROM BOQ AS b
+                                LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                                LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+                                LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+                                LEFT OUTER JOIN scs.UnitOfMeasurement AS POuom ON POuom.Id=b.POUoMId
+
+                                LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+                                LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+                                LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+                                LEFT OUTER JOIN trn.masterorder MO ON MO.Id=moi.MasterOrderId
+                                LEFT OUTER JOIN scs.UnitOfMeasurement AS uomm ON uomm.Id=mo.TotalQtyUOMId
+                                LEFT JOIN hkp.Process AS pr ON pr.Id=b.ProcessId
+
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+                                LEFT OUTER JOIN (	select BOQDetailId,sum(POBOQQty) as POQTY from trn.POBOQMAP  GRoup by BOQDetailId) PO On PO.BOQDetailId = b.Id
+								LEFT OUTER JOIN (	
+								SELECT a.BOQDetailId , sum(b.TransactionQty) GRNQty 
+				                    FROM trn.POBOQMAP a
+				                    INNER JOIN trn.InventoryReceiveDetail b ON a.PODetailId=b.PODetailsId GRoup by BOQDetailId
+								
+								) GRN On GRN.BOQDetailId = b.Id
+
+                                WHERE moi.ContractId='" + ContractId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"'))
+                        ) AS B
+                                GROUP BY B.Sequence,B.POIds, B.GRNIds, B.MasterOrderItemId, B.MasterOrderId, B.OwnReferenceNo,
+       B.BuyerReferenceNo, B.VendorId, B.Material, B.Article, B.Vendor, B.SKUDesc,
+       B.CharVal1, B.CharVal2, B.CharVal3, B.isParent, B.isChild, B.Process,
+       B.Consumption, B.WastagePer, B.UOM, B.ParentUOM, B.POUOM, B.RMDescription,
+       B.RMCustomerSpec, B.RMVendorSpec, B.SO1, B.SO2, B.SO3
+                                
+                                ORDER BY isnull(b.Sequence,0)";
+                    dtBOMData = _sqlRepository.GetDataTable(strsql);
+
+
+                }
+                int ROW = 6; int COL = 1;
+
+                //foreach (ExcelKnownColors val in Enum.GetValues(typeof(ExcelKnownColors)))
+                //{
+                //    worksheet[ROW, 1].CellStyle.Interior.ColorIndex = val;
+                //    worksheet[ROW, 1].Text = val.ToString();
+                //    ROW++;
+                //}
+
+                int MasterOrderDetailsStartRow = ROW;
+                worksheet[ROW, COL].Text = "Master Order Details:";
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                ROW++;
+
+                int leftColumnCaption = COL;
+                int leftColumnValue = leftColumnCaption + 1;
+
+                int MiddleColumnCaption = leftColumnValue + 2;
+                int MiddleColumnValue = MiddleColumnCaption + 1;
+
+                int RightColumnCaption = MiddleColumnValue + 2;
+                int RightColumnValue = RightColumnCaption + 1;
+
+                //Master Order.............................................................
+                //worksheet[ROW, leftColumnCaption].Text = "Master Order No";
+                //worksheet[ROW, leftColumnValue].Text = "MasterOrderNo";
+
+                worksheet[ROW, leftColumnCaption].Text = "Order#";
+                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["Id"].ToString();
+                // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.Range[ROW, leftColumnValue, ROW, leftColumnValue].CellStyle.Font.Color = ExcelKnownColors.Blue;
+                worksheet.Range[ROW, leftColumnCaption, ROW, leftColumnValue].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, MiddleColumnCaption].Text = "Buyer.Ref";
+                worksheet[ROW, MiddleColumnValue].Text = dtOrderMaster.Rows[0]["BuyerReferenceNo"].ToString();
+                worksheet.Range[ROW, MiddleColumnCaption, ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, RightColumnCaption].Text = "Own.Ref";
+                worksheet[ROW, RightColumnValue].Text = dtOrderMaster.Rows[0]["OwnReferenceNo"].ToString();
+                worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
+                ROW++;
+
+                worksheet[ROW, leftColumnCaption].Text = "Buyer";
+                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["Buyer"].ToString();
+                worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, MiddleColumnCaption].Text = "Buyer Dep.";
+                worksheet[ROW, MiddleColumnValue].Text = dtOrderMaster.Rows[0]["BuyerDepartment"].ToString();
+                worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, RightColumnCaption].Text = "Buyer Div";
+                worksheet[ROW, RightColumnValue].Text = dtOrderMaster.Rows[0]["BuyerDevision"].ToString();
+                worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
+
+                ROW++;
+
+                worksheet[ROW, leftColumnCaption].Text = "Customer";
+                worksheet[ROW, leftColumnValue].Text = dtOrderMaster.Rows[0]["Customer"].ToString();
+                worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet[ROW, MiddleColumnCaption].Text = "Currency";
+                worksheet[ROW, MiddleColumnValue].Text = dtOrderMaster.Rows[0]["MasterOrderCurrency"].ToString();
+                worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+                ROW++;
+
+
+                worksheet[ROW, leftColumnCaption].Text = "Total Order Quantity";
+                worksheet[ROW, leftColumnValue].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[0]["TotalQuantity"].ToString());
+                worksheet[ROW, leftColumnValue].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+                // worksheet[ROW, leftColumnValue, ROW , leftColumnValue].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, leftColumnValue, ROW, leftColumnValue].NumberFormat = clsStaticInfo.NumberFormat();
+                //worksheet.Range[ROW, leftColumnValue, ROW, leftColumnValue].CellStyle.Font.Bold = true;
+                worksheet[ROW, leftColumnValue].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, leftColumnValue + 1].Text = dtOrderMaster.Rows[0]["UnitOfMeasurement"].ToString();
+                //worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                worksheet.Range[MasterOrderDetailsStartRow, leftColumnCaption, ROW, RightColumnValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Custom44;
+
+
+
+                ROW += 2;
+
+
+                //Master Order Item....................................................................................................
+                StringCollection strColSO = new StringCollection();
+
+                for (int i = 0; i < dtMasterOrderItem.Rows.Count; i++)
+                {
+                    int MasterItemsStartRow = ROW; // row 12
+                    worksheet[ROW, COL].Text = "Item Id:"; //col 1
+                    worksheet[ROW, leftColumnValue].Text = dtMasterOrderItem.Rows[i]["MasterOrderItemNo"].ToString();
+                    worksheet[ROW, leftColumnValue].CellStyle.Font.Color = ExcelKnownColors.Blue;
+                    worksheet.Range[ROW, COL, ROW, leftColumnValue].CellStyle.Font.Bold = true;
+                    ROW++;
+
+
+                    // int MasterItemsStartRow = ROW;
+                    strColSO = new StringCollection();
+                    // worksheet[ROW, leftColumnCaption].Text = "Items Details";
+
+
+
+                    worksheet[ROW, leftColumnCaption].Text = "Material";
+                    worksheet[ROW, leftColumnValue].Text = dtMasterOrderItem.Rows[i]["Material"].ToString();
+                    worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+                    ROW++;
+
+                    worksheet[ROW, leftColumnCaption].Text = "Article";
+                    worksheet[ROW, leftColumnValue].Text = dtMasterOrderItem.Rows[i]["Article"].ToString();
+                    worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+                    ROW++;
+
+                    worksheet[ROW, leftColumnCaption].Text = "Contract#";
+                    worksheet[ROW, leftColumnValue].Text = dtMasterOrderItem.Rows[i]["ContractNo"].ToString();
+                    worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+
+                    worksheet[ROW, MiddleColumnCaption].Text = "LC Ref";
+                    worksheet[ROW, MiddleColumnValue].Text = dtMasterOrderItem.Rows[i]["LCRef"].ToString();
+                    worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                    ROW++;
+
+                    worksheet[ROW, leftColumnCaption].Text = "Buyer Ref";
+                    worksheet[ROW, leftColumnValue].Text = dtMasterOrderItem.Rows[i]["BuyerReferenceNo"].ToString();
+                    worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+
+                    worksheet[ROW, MiddleColumnCaption].Text = "Own Ref";
+                    worksheet[ROW, MiddleColumnValue].Text = dtMasterOrderItem.Rows[i]["OwnReferenceNo"].ToString();
+                    worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                    worksheet[ROW, RightColumnCaption].Text = "Qty";
+                    worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
+                    worksheet[ROW, RightColumnValue].Number = clsStaticInfo.dbl(dtMasterOrderItem.Rows[i]["TotalMOIQuantity"].ToString());
+                    //worksheet.Range[ROW, RightColumnValue, ROW, RightColumnValue].CellStyle.Font.Bold = true;
+                    // worksheet[ROW, RightColumnValue].CellStyle.Font.Bold = true;
+                    worksheet[ROW, RightColumnValue, ROW, RightColumnValue].NumberFormat = clsStaticInfo.NumberFormat();
+                    worksheet.Range[MasterItemsStartRow, leftColumnCaption, ROW, RightColumnValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Custom18;
+                    ROW++;
+
+                    if (Level == BOMLevel.SO)
+                    {
+                        dtSalesOrderItem.DefaultView.RowFilter = "MasterOrderItemId='" + dtMasterOrderItem.Rows[i]["MasterOrderItemNo"].ToString() + "'";
+                        DataTable dtSalesOrderFilteredByItem = dtSalesOrderItem.DefaultView.ToTable();
+                        for (int KK = 0; KK < dtSalesOrderItem.DefaultView.Count; KK++)
+                        {
+
+
+                            if (strColSO.Contains(dtSalesOrderItem.DefaultView[KK]["SalesOrderNo"].ToString()))
+                                continue;
+                            int SOStartRow = ROW;  //row 16
+                            worksheet[ROW, COL].Text = "Sales Order Details & Breakdown:";
+                            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                            ROW++;
+
+                            // int SOStartRow = ROW;
+
+                            strColSO.Add(dtSalesOrderItem.DefaultView[KK]["SalesOrderNo"].ToString());
+
+                            worksheet[ROW, leftColumnCaption].Text = "SO No";
+                            worksheet[ROW, leftColumnValue].Text = dtSalesOrderItem.DefaultView[KK]["SalesOrderNo"].ToString();
+                            worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+                            worksheet[ROW, leftColumnValue].CellStyle.Font.Color = ExcelKnownColors.Blue;
+                            worksheet[ROW, leftColumnValue].CellStyle.Font.Bold = true;
+
+
+                            worksheet[ROW, MiddleColumnCaption].Text = "Del. Date";
+                            worksheet[ROW, MiddleColumnValue].Text = Convert.ToDateTime(dtSalesOrderItem.DefaultView[KK]["DeliveryDate"].ToString()).ToString("dd-MMM-yyyy");
+                            worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                            worksheet[ROW, RightColumnCaption].Text = "Qty";
+                            worksheet[ROW, RightColumnValue].Number = clsStaticInfo.dbl(dtSalesOrderItem.DefaultView[KK]["Quantity"].ToString());
+                            worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
+
+                            worksheet[ROW, RightColumnValue, ROW, RightColumnValue].NumberFormat = clsStaticInfo.NumberFormat();
+                            // worksheet[ROW, RightColumnValue].CellStyle.Font.Bold = true;
+                            ROW++;
+
+                            worksheet[ROW, leftColumnCaption].Text = "Dest.";
+                            worksheet[ROW, leftColumnValue].Text = dtSalesOrderItem.DefaultView[KK]["Destination"].ToString();
+                            worksheet[ROW, leftColumnCaption].CellStyle.Font.Bold = true;
+
+
+                            worksheet[ROW, MiddleColumnCaption].Text = "Ship Mode";
+                            worksheet[ROW, MiddleColumnValue].Text = dtSalesOrderItem.DefaultView[KK]["ShipmentMode"].ToString();
+                            worksheet[ROW, MiddleColumnCaption].CellStyle.Font.Bold = true;
+
+                            worksheet[ROW, RightColumnCaption].Text = "Ord. Status";
+                            worksheet[ROW, RightColumnValue].Text = dtSalesOrderItem.DefaultView[KK]["OrderStatus"].ToString();
+                            worksheet[ROW, RightColumnCaption].CellStyle.Font.Bold = true;
+
+                            worksheet.Range[SOStartRow, leftColumnCaption, ROW, RightColumnValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Custom19;
+
+                            ROW++;
+
+                            dtSalesOrderFilteredByItem.DefaultView.RowFilter = "SalesOrderNo='" + dtSalesOrderItem.DefaultView[KK]["SalesOrderNo"].ToString() + "'"; //????
+                            DataTable dtBreakdownData = dtSalesOrderFilteredByItem.DefaultView.ToTable();
+                            DrawSOBreakdownData(dtBreakdownData, worksheet, ref ROW, isMatrix);
+
+                            ROW++;
+                            //BOM Data here
+                            dtBOMData.DefaultView.RowFilter = "SalesOrderId='" + dtSalesOrderItem.DefaultView[KK]["SalesOrderNo"].ToString() + "'";
+                            DrawBOMData(dtBOMData.DefaultView.ToTable(), worksheet, ref ROW);
+
+                            ROW++;
+                        }
+                    }
+                    else
+                    {
+                        DrawBOMData(dtBOMData, worksheet, ref ROW);
+                    }
+
+                    ROW += 2; // Gap for Material
+                }
+
+                int endCol = RightColumnValue;
+
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.CellStyle.Font.Size = 8f;
+                worksheet.UsedRange.WrapText = true;
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref worksheet, endCol, "Master Order#" + dtOrderMaster.Rows[0]["Id"].ToString(), identity.PlantId);
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                worksheet.IsGridLinesVisible = false;
+                return workbook;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+
+            }
+        }
+        #endregion
+
     }
 }
