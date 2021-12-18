@@ -549,6 +549,7 @@ var upanelApp = angular
 
     .controller('hourlyOffDutyTagController', hourlyOffDutyTagController)
     .controller('hourlyOTController', hourlyOTController)
+    .controller('hourlyOTNewController', hourlyOTNewController)
     .controller('ICSMasterController', ICSMasterController)
     .controller('incrementGroupController', incrementGroupController)
     .controller('independentOrderController', independentOrderController)

@@ -933,7 +933,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                 SELECT ei.SystemId,B.LeaveTypeId, ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
                                 DEPT.UserName AS Department,ct.UserName AS EmployeeCategory,LT.UserName AS LeaveName,
                                 B.CurrentYearAllocation, B.BroughtForward, B.CarryForwardOpeningBalance, B.DaysCanBeSanctioned, B.AppliedDays,
-                                B.AvailedDays, B.YearEndEncash,APL.LeaveDuration AS AppliedLeave,
+                                B.AvailedDays, B.YearEndEncash,APL.LeaveDuration AS AppliedLeave,APP.LeaveDuration AS AllFutureAppliedLeave,
                                 isnull(B.CarryForwardOpeningBalance,0)+isnull(B.BroughtForward,0)+isnull(B.CurrentYearAllocation,0)-isnull(B.AvailedDays,0) AS ClosingBalance
                             FROM (		SELECT BAL.EmployeeId, BAL.LeaveTypeId,
 								       SUM(BAL.CurrentYearAllocation) AS CurrentYearAllocation,
@@ -993,6 +993,12 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                 WHERE D.WorkDate>GETDATE() AND D.WorkDate<='" + _ToDate + @"'
                                 AND T.IsApproved=1 GROUP BY  T.EmpSystemID,T.LTSystemID
                     ) APL ON apl.EmpSystemID=B.EmployeeId AND apl.LTSystemID=B.LeaveTypeId
+                    LEFT JOIN (
+                                SELECT T.EmpSystemID,T.LTSystemID,SUM(D.LeaveDuration) AS LeaveDuration FROM LeaveTransaction AS T
+                                JOIN LeaveTransactionDetails AS D ON d.LvTrnsSystemID=t.SystemID
+                                WHERE D.WorkDate>GETDATE()
+                                GROUP BY  T.EmpSystemID,T.LTSystemID
+                    ) APP ON APP.EmpSystemID=B.EmployeeId AND APP.LTSystemID=B.LeaveTypeId
                     where LT.UserName NOT LIKE '%Maternity%'
                     order by ei.EmployeeCode";
 
