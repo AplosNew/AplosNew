@@ -1333,24 +1333,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     throw new CustomException("Year end process has been done, So leave apply is not allowed on this year.");
                 }
 
-                if (!string.IsNullOrEmpty(leaveTransaction.SystemID))
-                {
-                    var approved = base.Query(t => t.SystemID == leaveTransaction.SystemID).Select(t => t.IsApproved).FirstOrDefault();
-                    if (approved == false)
-                    {
-                        _leaveTransactionDetailsService.ExecuteSqlCommand(@"DELETE FROM [dbo].LeaveTransactionDetails WHERE LvTrnsSystemID ='" + leaveTransaction.SystemID + "'");
-                    }
-                    else
-                    {
-                        throw new CustomException("Approved data can not be updated.");
-                    }
-
-                    var cancel = base.Query(t => t.SystemID == leaveTransaction.SystemID).Select(t => t.IsCancel).FirstOrDefault();
-                    if (cancel)
-                    {
-                        throw new CustomException("Reject leave cannot be modify...");
-                    }
-                }
+               
 
                 var restEmployee = GetRestEmployee(leaveTransaction.EmpSystemID, leaveTransaction.FromDate.ToString("dd-MMM-yyyy"), leaveTransaction.ToDate.ToString());
 
@@ -1432,7 +1415,26 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
 
 
+                if (!string.IsNullOrEmpty(leaveTransaction.SystemID))
+                {
+                    var cancel = base.Query(t => t.SystemID == leaveTransaction.SystemID).Select(t => t.IsCancel).FirstOrDefault();
+                    if (cancel)
+                    {
+                        throw new CustomException("Reject leave cannot be modify...");
+                    }
 
+                    var approved = base.Query(t => t.SystemID == leaveTransaction.SystemID).Select(t => t.IsApproved).FirstOrDefault();
+                    if (approved == false)
+                    {
+                        _leaveTransactionDetailsService.ExecuteSqlCommand(@"DELETE FROM [dbo].LeaveTransactionDetails WHERE LvTrnsSystemID ='" + leaveTransaction.SystemID + "'");
+                    }
+                    else
+                    {
+                        throw new CustomException("Approved data can not be updated.");
+                    }
+
+                    
+                }
                 if (string.IsNullOrEmpty(leaveTransaction.SystemID))
                 {
 
@@ -1882,10 +1884,10 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                                 {
                                     if (string.IsNullOrEmpty(leaveTransaction.SystemID) == false)//edit
                                     {
-                                        item["ClosingBalance"] = (decimal)clsStaticInfo.dbl(item["ClosingBalance"].ToString()) + leaveTransaction.LeaveDays;
+                                        item["ClosingBalance"] = (decimal)(clsStaticInfo.dbl(item["ClosingBalance"].ToString()) - clsStaticInfo.dbl(item["AllFutureAppliedLeave"].ToString())) + leaveTransaction.LeaveDays;
                                     }
 
-                                    if ((decimal)clsStaticInfo.dbl(item["ClosingBalance"].ToString()) < leaveDays)
+                                    if ((decimal)(clsStaticInfo.dbl(item["ClosingBalance"].ToString())) < leaveDays)
                                     {
                                         throw new Exception("Can't apply more than Balance...");
                                     }
