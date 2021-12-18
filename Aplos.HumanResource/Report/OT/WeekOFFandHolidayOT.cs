@@ -5462,7 +5462,7 @@ namespace Library.HumanResource.Report.OT
                     {
                         if (parameters.Keys.ElementAt(0) != "")
                         {
-                            wcEmpSystemId += @"and HO.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+                            wcEmpSystemId += @"and ap.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
                         }
                     }
                 }
@@ -5471,17 +5471,16 @@ namespace Library.HumanResource.Report.OT
 
                 }
 
-                strSql = @"SELECT ei.SystemId,ei.EmployeeCode,sum(ho.Duration)as Duration,sum(CAST(ho.Duration AS decimal)/60)as DurationH
-                                      FROM HourlyOT  HO 
-                                       LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
-                                     LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+                strSql = @"SELECT ei.SystemId,ei.EmployeeCode,sum(ap.AdditionalOT)as Duration,sum(CAST(ap.AdditionalOT AS decimal)/60)as DurationH
+                                      FROM AttdnProcessData ap 
+                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
                                        left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=EI.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=EI.PlantId
 							            LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = EI.PlantId AND dar.DesignationId=DM.DesignationId
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"
-                                   AND ISNULL(ap.HoliDayValue,0)=0 AND ISNULL(ap.WeekOffValue,0)=0
+                                    WHERE Month(ap.WorkDate) = " + MonthNo + @" and Year(ap.WorkDate) = " + YearNo + @"
+                                   AND ap.AdditionalOT is not null and ISNULL(ap.HoliDayValue,0)=0 AND ISNULL(ap.WeekOffValue,0)=0
                                     " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @"                             
                                     GROUP BY ei.SystemId,ei.EmployeeCode
                                    ORDER BY ei.EmployeeCode
@@ -5549,7 +5548,8 @@ namespace Library.HumanResource.Report.OT
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM EmployeeInformation ei   
-                                      INNER JOIN (Select distinct EmpsystemId From HourlyOT HO where  HO.Duration !=0  and Month(HO.WorkDate) = " + monthNo + @" and Year(HO.WorkDate) = " + yearNo + @" ) HO ON ei.SystemId = HO.EmpSystemId
+                                      INNER JOIN (Select distinct EmpsystemId From From attdnprocessdata HO 
+									  where  HO.AdditionalOT is not null  and ho.AdditionalOT<>0 and Month(HO.WorkDate) = " + monthNo + @" and Year(HO.WorkDate) = " + yearNo + @" ) HO ON ei.SystemId = HO.EmpSystemId
 									  LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = ei.BudgetCode
 								      LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
                                       LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
@@ -5653,7 +5653,7 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
-                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
                                      -- LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
@@ -5762,7 +5762,7 @@ namespace Library.HumanResource.Report.OT
                     {
                         if (parameters.Keys.ElementAt(0) != "")
                         {
-                            wcEmpSystemId += @"and HO.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+                            wcEmpSystemId += @"and ap.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
                         }
                     }
                 }
@@ -5771,19 +5771,17 @@ namespace Library.HumanResource.Report.OT
 
                 }
 
-                strSql = @"SELECT ei.SystemId,ei.EmployeeCode,sum(ho.Duration)as Duration,sum(CAST(ho.Duration AS decimal)/60)as DurationH
-                                      FROM HourlyOT  HO 
-                                       LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
-                                     LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+                strSql = @"SELECT ei.SystemId,ei.EmployeeCode,sum(ap.AdditionalOT)as Duration,sum(CAST(ap.AdditionalOT AS decimal)/60)as DurationH
+                                      FROM AttdnProcessData ap
+                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
                                        left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
                                         left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                       LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=ei.PlantId   
                                       LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ei.PlantId
 							            LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ei.PlantId AND dar.DesignationId=dm.DesignationId
 
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" " + DayCategory + @"  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
-                                        --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
-                                    GROUP BY  EI.SystemId,EI.EmployeeCode
+                                    WHERE Month(ap.WorkDate) = " + MonthNo + @" and ap.AdditionalOT is not null and Year(ap.WorkDate) = " + YearNo + @" " + DayCategory + @"  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
+                                   GROUP BY  EI.SystemId,EI.EmployeeCode
                                    ORDER BY ei.EmployeeCode
                                     ";
 
@@ -5876,10 +5874,9 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
-                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
                                     LEFT JOIN ORG.Plant  on Plant.Id=ei.PlantId
-                                    --  LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
                                       LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
                                       LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
@@ -7256,9 +7253,8 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory , p.UserName as Plant
-                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
-                                      --LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
                                       LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
                                       LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
@@ -7372,9 +7368,8 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
-                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
-                                     -- LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
                                       LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
                                       LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId

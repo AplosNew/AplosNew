@@ -137,6 +137,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceProcessUI/OTFinalInformation',
             controller: 'otFinalInformationController'
         })
+        .when('/ot-final-information-new', {
+            templateUrl: 'Attendances/OTFinalInformationNew/Aplos',
+            controller: 'otFinalInformationNewController'
+        })
         .when('/attendance-entry', {
             templateUrl: 'Attendances/AttendanceEntry/Aplos',
             controller: 'attendanceEntryController'

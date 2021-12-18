@@ -88,6 +88,8 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
             $scope.currencyList = [];
             $scope.currencyList = result;
             $scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+            $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+
         });
 
         $scope.purchaseLC = obj.data;
@@ -182,6 +184,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
         $scope.currencyList = [];
         $scope.currencyList = result;
         $scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+        $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
     });
 
     $scope.portList = [];
@@ -533,6 +536,21 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
 
     // #region Charges
 
+    $scope.GetCurrencyExchangeChargesRateList = function (currencyId, index) {
+        if (!baseService.isUndefinedOrNull(currencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + currencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.purchaseLCChargesList[index].Rate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
     $scope.LCChargesList = [];
     $scope.GetPurchaseLCCharges = function () {
         $scope.LCChargesList = [];
@@ -550,6 +568,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
                                 }
                             }
                         }
+                        GetCompanyCurrencyExchangeRateCharges();
                     }
                 },
                 function errorCallback(response) {
@@ -561,7 +580,19 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
     $scope.CloseLCPopUp = function () {
         angular.element(document.querySelector('#LCChargesPopUp')).modal('hide');
     }
+    function GetCompanyCurrencyExchangeRateCharges() {
+        if (!baseService.isUndefinedOrNull($scope.purchaseLCNew.BankCurrency)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.purchaseLCNew.BankCurrency
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.Rate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+    }
 
+    $scope.Rate = null;
     $scope.purchaseLCChargesList = [];
     $scope.SelectedLC = function () {
         if (baseService.arrayLength($scope.LCChargesList) > 0) {
@@ -579,6 +610,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
                             , Activity: a.Activity
                             , Remarks: null
                             , ChargesValue: null
+                            , Rate: $scope.Rate
                             , BankAmount: null
                             , Version: $scope.purchaseLCNew.Version
                             , OverHeadType: a.OverHeadType
