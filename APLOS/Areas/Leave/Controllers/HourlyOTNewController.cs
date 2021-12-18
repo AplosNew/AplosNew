@@ -4,6 +4,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.HumanResource.NewOTProcess;
 using Library.Model.Enums;
 using Library.Model.HumanResources;
 using Library.Service.Enums;
@@ -136,15 +137,16 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }
 
-        #region Hourly ot Report
+        #region Hourly OT Report
 
         [HttpGet]
         public ActionResult GetHourlyOT(ReportFormat reportFormat, string FromDate, string ToDate)
         {
             try
             {
+                HourlyOTReportService ot = new HourlyOTReportService();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = _AttendanceManagementService.GetHourlyOT(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, FromDate, ToDate);
+                IWorkbook workbook = ot.GetHourlyOT(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, FromDate, ToDate);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Hourly Ot";
                 switch (reportFormat)
                 {
@@ -164,6 +166,7 @@ namespace Aplos.Areas.Leave.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
+        
         #endregion
 
         #region Hourly ot Report Monthly 
