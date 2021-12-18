@@ -76,14 +76,17 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpPost, Authorize]
         public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId, string TypeId)
         {
-           
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string Type = string.Empty;
+             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if(PlantId == "" || PlantId == null)
             {
                 PlantId = identity.PlantId;
             }
             string Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
-            string Type = "'" + TypeId.Replace(",", "','") + "'";//replaced with ""
+            if (!string.IsNullOrEmpty(TypeId))
+            {
+                Type = "'" + TypeId.Replace(",", "','") + "'";//replaced with "" 
+            }
             var month = Convert.ToDateTime(effectiveDate).AddMonths(1);
             var Ld = month.AddDays(-1);
             var wcPayrollGroup = "";
@@ -94,6 +97,13 @@ namespace Aplos.Areas.Attendances.Controllers
             string param = "";
             string salaryProcessFlag = "";
             string wcEmpStatus = "";
+            string wcType = "";
+
+            if (!string.IsNullOrEmpty(Type))
+            {
+                wcType = "AND E.EmployeeCodeTypeId IN (" + Type + ")";//replaced with "" 
+            }
+
             wcEmpStatus = " Where (1=0 ";
 
             if (isActive == true && isSeperated == true && isMaternity == true)
@@ -114,7 +124,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
             wcEmpStatus += ")";
 
-            param = "E.GroupID='" + identity.CompanyGroupId + "' AND E.CompanyId='" + identity.CompanyId + "' AND E.PlantId in (" + Plant + ") AND E.EmployeeCodeTypeId IN ("+Type+")";
+            param = "E.GroupID='" + identity.CompanyGroupId + "' AND E.CompanyId='" + identity.CompanyId + "' AND E.PlantId in (" + Plant + ") "+ wcType + "";
 
             var cmdText = @"SELECT * FROM (  SELECT   DISTINCT        [CheckBoxSelect] = Convert(bit, 'False'),
                                      isnull(e.SystemId,'') EmpSystemId

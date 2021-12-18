@@ -136,7 +136,7 @@ namespace Aplos.Areas.Productions.Controllers
             int ColTrnDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "ByWhom", 8, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "ByWhomCode", 8, ExcelHAlign.HAlignLeft);
             int ColByWhom = COL;
             COL++;
 
@@ -271,7 +271,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public List<DUpload> ReadData(string path)
+        public List<object> ReadData(string path)
         {
 
             DataSet dsExcel = null;
@@ -282,46 +282,32 @@ namespace Aplos.Areas.Productions.Controllers
                 ReadFile(path, out dsExcel);
 
                 data = dsExcel.Tables[0].ToList<DUpload>();
-                //List<string> RostersList = rs.getRostersList();
+                
 
-                //DataTable emps = rs.getEmployeesAll();
+                DataTable emps = rs.getEmployeesAll();
 
-                //if (data.Count > 0)
-                //{
-                //    for (int i = 0; i < data.Count; i++)
-                //    {
-                //        if (data[i].WOHeaderId != null)
-                //        {
-                //            if (RostersList.Contains(data[i].WOHeaderId))
-                //            {
-                //                emps.DefaultView.RowFilter = @"EmployeeCode='" + data[i].EmployeeCode + "'";
-                //                if (emps.DefaultView.Count > 0)
-                //                {
-                //                    data[i].EmpSystemId = emps.DefaultView[0]["SystemId"].ToString();
-                //                    data[i].EffectiveDate = Convert.ToDateTime(data[i].EffectiveDate).ToString();
-                //                    ret.Add(data[i]);
-                //                }
-                //                else
-                //                {
-                //                    throw new Exception("This Employee Code doesn't exists - " + data[i].EmployeeCode);
-                //                }
-                //                //ret.Add(data[i]);
-                //            }
-                //            else
-                //            {
-                //                throw new Exception("The Week Off Roster in Employee Code - " + data[i].EmployeeCode + " is not present!!");
-                //            }
+                if (data.Count > 0)
+                {
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                                emps.DefaultView.RowFilter = @"EmployeeCode='" + data[i].ByWhomCode + "'";
+                                if (emps.DefaultView.Count > 0)
+                                {
+                                    data[i].ByWhom = emps.DefaultView[0]["SystemId"].ToString();
+                                    ret.Add(data[i]);
+                                }
+                                else
+                                {
+                                    throw new Exception("This Employee Code doesn't exists - " + data[i].ByWhomCode);
+                                }
+                                //ret.Add(data[i]);
+                           
 
-                //        }
-                //    }
+                    }
 
-                //    //for(int i = 0; i< data.Count; i++)
-                //    //{
+                }
 
-                //    //}
-                //}
-
-                return data;
+                return ret;
             }
             catch (Exception ex)
             {
@@ -341,7 +327,7 @@ namespace Aplos.Areas.Productions.Controllers
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
                 DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                //dt.Columns.Add("EmpSystemId", typeof(String));
+                dt.Columns.Add("ByWhom", typeof(String));
                 dsExcel = new DataSet();
                 dsExcel.Tables.Add(dt);
                 docFile = new FileInfo(path);
@@ -398,6 +384,152 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
+        // The 2nd Tab Downloading Operations
+        [HttpPost , Authorize]
+        public ActionResult getMasters()
+        {
+            return Json(rs.getMasters(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize , HttpPost]
+        public ActionResult getReport(string ToDate, string FromDate, string MasterId)
+        {
+            return Json(rs.getReport(ToDate, FromDate, MasterId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult downloadTheReport(string ToDate, string FromDate, string MasterId)
+        {
+
+            try
+            {
+                var workbook = GetFilterData(ToDate,FromDate , MasterId);
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + "-" + "GDReport.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private IWorkbook GetFilterData(string ToDate, string FromDate, string MasterId)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "General Data Report";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+            DataTable dtData = rs.getReportDownload( ToDate,  FromDate,  MasterId);
+
+
+            #region Grid Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Transaction ID", 13, ExcelHAlign.HAlignCenter);
+            int ColTrId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Master Name", 13, ExcelHAlign.HAlignCenter);
+            int ColMsName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Transaction Date", 13, ExcelHAlign.HAlignCenter);
+            int ColTrDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Remark", 13, ExcelHAlign.HAlignCenter);
+            int ColRemarks = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Value", 13, ExcelHAlign.HAlignCenter);
+            int ColVal = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Value Type", 13, ExcelHAlign.HAlignCenter);
+            int ColValType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "By Whom", 13, ExcelHAlign.HAlignCenter);
+            int ColByWhom = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Category", 13, ExcelHAlign.HAlignCenter);
+            int ColCat = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Sub Category", 15, ExcelHAlign.HAlignCenter);
+            int ColSCat = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Reference Number", 13, ExcelHAlign.HAlignCenter);
+            int ColRefNo = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 13, ExcelHAlign.HAlignCenter);
+            int ColEmName = COL;
+            COL++;
+
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            for (int i = 0; i < dtData.Rows.Count; i++)
+            {
+                sheet[ROW, ColTrId].Text = dtData.Rows[i]["TransactionId"].ToString();
+                sheet[ROW, ColMsName].Text = dtData.Rows[i]["MasterName"].ToString();
+                sheet[ROW, ColTrDate].Text = dtData.Rows[i]["TransactionDate"].ToString();
+                sheet[ROW, ColRemarks].Text = dtData.Rows[i]["Remark"].ToString();
+                sheet[ROW, ColVal].Text = dtData.Rows[i]["Value"].ToString();
+                sheet[ROW, ColValType].Text = dtData.Rows[i]["ValueType"].ToString();
+                sheet[ROW, ColByWhom].Text = dtData.Rows[i]["ByWhom"].ToString();
+                sheet[ROW, ColCat].Text = dtData.Rows[i]["Category"].ToString();
+                sheet[ROW, ColSCat].Text = dtData.Rows[i]["SubCategory"].ToString();
+                sheet[ROW, ColRefNo].Text = dtData.Rows[i]["ReferenceNumber"].ToString();
+                sheet[ROW, ColEmName].Text = dtData.Rows[i]["EmpName"].ToString();
+                
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            ROW++;
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "General Data Report", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+
+
+
         public class DUpload
         {
             public string MasterId { get; set; }
@@ -406,6 +538,8 @@ namespace Aplos.Areas.Productions.Controllers
             public string Value { get; set; }
             public string ReferenceNumber { get; set; }
             public string EmpSystemId { get; set; }
+            public string ByWhomCode { get; set; }
+            public string ByWhom { get; set; }
 
         }
     }
