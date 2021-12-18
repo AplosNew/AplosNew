@@ -59,6 +59,10 @@ namespace Library.OrderManagement.Costing
                 }
 
                 DataTable dtOrderCostingProductInfo = _sqlRepository.GetDataTable(sql);
+                
+                if (dtOrderCostingProductInfo.Rows.Count == 0)
+                    throw new Exception("Selected master order item is not tagged with any order costing");
+
                 DataTable dtMOICostingInfo = _sqlRepository.GetDataTable(CostingMOIsql);
                 string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
@@ -587,6 +591,9 @@ namespace Library.OrderManagement.Costing
 
             DataTable dtOrderCostingDirectMaterial = _sqlRepository.GetDataTable(CostingDirectMaterialSQL);
 
+            if (dtOrderCostingDirectMaterial.Rows.Count == 0)
+                return;
+
             //dataset for material sorted with costing component,Sequence
             DataTable dvDistinctCostingComponent = dtOrderCostingDirectMaterial.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
@@ -750,6 +757,9 @@ namespace Library.OrderManagement.Costing
             String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingDirectProcess = _sqlRepository.GetDataTable(CostingDirectProcessSQL);
 
+            if (dtOrderCostingDirectProcess.Rows.Count == 0)
+                return;
+
             DataTable dvDistinctCostingComponent = dtOrderCostingDirectProcess.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
@@ -888,6 +898,9 @@ namespace Library.OrderManagement.Costing
             String CostingOperationSQL = OrderPreCostingOperationSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingOperation = _sqlRepository.GetDataTable(CostingOperationSQL);
 
+            if (dtOrderCostingOperation.Rows.Count == 0)
+                return;
+
             DataTable dvDistinctCostingComponent = dtOrderCostingOperation.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
@@ -1001,6 +1014,8 @@ namespace Library.OrderManagement.Costing
 
             String CostingValueLossSQL = OrderPreCostingValueLossSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingValueLoss = _sqlRepository.GetDataTable(CostingValueLossSQL);
+            if (dtOrderCostingValueLoss.Rows.Count == 0)
+                return;
 
             DataTable dvDistinctCostingComponent = dtOrderCostingValueLoss.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
@@ -1131,6 +1146,9 @@ namespace Library.OrderManagement.Costing
             String CostingProfitSQL = OrderPreCostingProfitSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingProfit = _sqlRepository.GetDataTable(CostingProfitSQL);
 
+            if (dtOrderCostingProfit.Rows.Count == 0)
+                return;
+
             DataTable dvDistinctCostingComponent = dtOrderCostingProfit.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
@@ -1259,6 +1277,9 @@ namespace Library.OrderManagement.Costing
             //dataset for material sorted with costing component,Sequence
             String CostingSalesExpenseSQL = OrderPreCostingSalesExpenseSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingSalesExpense = _sqlRepository.GetDataTable(CostingSalesExpenseSQL);
+
+            if (dtOrderCostingSalesExpense.Rows.Count == 0)
+                return;
 
             DataTable dvDistinctCostingComponent = dtOrderCostingSalesExpense.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
@@ -1477,63 +1498,7 @@ namespace Library.OrderManagement.Costing
 
         }
 
-        //        private string OrderCostingComponentSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
-        //        {
-        //            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-        //            if (preCosting == "1")
-        //            {
-        //                return @" SELECT  ci.Id,CC.CalculationMethod, ctc.Sequence AS ComponentSequence,ci.Sequence AS ItemSequnce, ci.CostingCategoryId, ci.CostingComponentId,ci.UserName CostingItem
-        //,cc.CostingSegment,upper(isnull(itemval.ValueType,'FIXED')) AS ValueType,
-        //                        isnull(itemval.TotalGrossAmount,0) AS TotalGrossAmount,isnull(itemval.Value,0) AS Value,isnull(itemval.Rate,0) AS Rate
-        //						  from  OrderCostingDetailTemplate D 
-        //						 INNER JOIN OrderCostingMasterTemplate AS cmt ON cmt.Id=d.OrderCostingMasterTemplateId
-        //						 inner join hkp.CostingComponent CC on cc.id=d.CostingComponentId
-        //						 INNER JOIN hkp.CostingItem AS ci ON ci.CostingComponentId=cc.Id
-        //                         left outer join [dbo].[CostingTypeComponent] AS ctc  
-        //                         ON cc.Id = ctc.CostingComponentId and ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster 
-        //                                                                                  WHERE Id = cmt.ProductMasterId)
-
-        //                         inner JOIN (SELECT 'FIXED' AS ValueType, 0 AS Value,0 AS Rate, i.Id,pc.GrossAmount AS TotalGrossAmount FROM OrderPreCostingDirectMaterial AS pc  INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"' 
-        //                                            UNION ALL SELECT 'PERCENTAGE' AS ValueType, PC.Value,PC.Rate, i.Id,pc.Amount AS TotalGrossAmount FROM OrderPreCostingDirectProcess AS pc   INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	
-        //                                            UNION ALL SELECT 'FIXED' AS ValueType, 0 AS Value,0 AS Rate, i.Id,pc.[Value]  AS TotalGrossAmount FROM OrderPreCostingOperation AS pc       INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'	
-        //                                            UNION ALL SELECT pc.[Type],            PC.Value,0 AS Rate,           i.Id,          pc.Amount AS TotalGrossAmount FROM OrderPreCostingSalesExpense AS pc    INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	
-        //                                            UNION ALL SELECT pc.[Type],            PC.Value,0 AS Rate,           i.Id,           pc.Amount AS TotalGrossAmount FROM OrderPreCostingValueLoss AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	
-        //                                            UNION ALL SELECT pc.[Type],            PC.Value,0 AS Rate,           i.Id,           pc.Amount AS TotalGrossAmount FROM OrderPreCostingProfit AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	
-        //                                  )AS ITEMVAL ON  itemval.Id=ci.Id
-        //                         WHERE d.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
-        //                          order by ctc.Sequence,ci.Sequence";
-        //            }
-        //           else
-        //            {
-        //                return @"  SELECT ci.Id,CC.CalculationMethod, ctc.Sequence AS ComponentSequence,ci.Sequence AS ItemSequnce, ci.CostingCategoryId, ci.CostingComponentId,ci.UserName CostingItem
-        //, cc.CostingSegment,upper(isnull(itemval.ValueType, 'FIXED')) AS ValueType,
-        //                        isnull(itemval.TotalGrossAmount, 0) AS TotalGrossAmount, isnull(itemval.Value, 0) AS Value, isnull(itemval.Rate, 0) AS Rate
-
-        //                          from OrderCostingDetailTemplate D
-
-        //                         INNER JOIN OrderCostingMasterTemplate AS cmt ON cmt.Id = d.OrderCostingMasterTemplateId
-
-        //                         inner join hkp.CostingComponent CC on cc.id = d.CostingComponentId
-
-        //                         INNER JOIN hkp.CostingItem AS ci ON ci.CostingComponentId = cc.Id
-        //                         left outer join[dbo].[CostingTypeComponent] AS ctc
-        //                         ON cc.Id = ctc.CostingComponentId and ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster
-        //                                                                                  WHERE Id = cmt.ProductMasterId)
-
-        //                         inner JOIN(SELECT 'FIXED' AS ValueType, 0 AS Value,0 AS Rate, i.Id,pc.GrossAmount AS TotalGrossAmount FROM OrderProcurementCostingDirectMaterial AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
-        //                                            UNION ALL SELECT 'PERCENTAGE' AS ValueType, PC.Value,PC.Rate, i.Id,pc.Amount AS TotalGrossAmount FROM OrderProcurementCostingDirectProcess AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
-        //                                            UNION ALL SELECT 'FIXED' AS ValueType, 0 AS Value,0 AS Rate, i.Id,pc.[Value]  AS TotalGrossAmount FROM OrderProcurementCostingOperation AS pc       INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
-        //                                            UNION ALL SELECT pc.[Type],            PC.Value,0 AS Rate, i.Id,          pc.Amount AS TotalGrossAmount FROM OrderProcurementCostingSalesExpense AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
-        //                                            UNION ALL SELECT pc.[Type],            PC.Value,0 AS Rate, i.Id,           pc.Amount AS TotalGrossAmount FROM OrderProcurementCostingValueLoss AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
-        //                                            UNION ALL SELECT pc.[Type],            PC.Value,0 AS Rate, i.Id,           pc.Amount AS TotalGrossAmount FROM OrderProcurementCostingProfit AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
-        //                                  )AS ITEMVAL ON itemval.Id = ci.Id
-        //                         WHERE d.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
-        //                          order by ctc.Sequence,ci.Sequence";
-        //            }
-
-
-        //        }
+       
 
         private string OrderPreCostingDirectMaterialSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
         {
@@ -1762,7 +1727,9 @@ namespace Library.OrderManagement.Costing
 
 
                 DataTable dtOrderCostingProductInfo = _sqlRepository.GetDataTable(sql);
-                
+
+                if (dtOrderCostingProductInfo.Rows.Count == 0)
+                    throw new Exception("No Data Found");
 
                 int ROW = 6;
                 int COL = 1;
@@ -2211,6 +2178,8 @@ namespace Library.OrderManagement.Costing
 
 
             DataTable dtPreCostingDirectMaterial = _sqlRepository.GetDataTable(CostingDirectMaterialSQL);
+            if (dtPreCostingDirectMaterial.Rows.Count == 0)
+                return;
 
             //dataset for material sorted with costing component,Sequence
             DataTable dvDistinctCostingComponent = dtPreCostingDirectMaterial.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
@@ -2365,6 +2334,9 @@ namespace Library.OrderManagement.Costing
             String CostingDirectProcessSQL = PreCostingDirectProcessSQL(CostingTempleteId);
             DataTable dtOrderCostingDirectProcess = _sqlRepository.GetDataTable(CostingDirectProcessSQL);
 
+            if (dtOrderCostingDirectProcess.Rows.Count == 0)
+                return;
+
             DataTable dvDistinctCostingComponent = dtOrderCostingDirectProcess.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             //string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
@@ -2495,6 +2467,9 @@ namespace Library.OrderManagement.Costing
             String CostingOperationSQL = PreCostingOperationSQL(CostingTempleteId);
             DataTable dtOrderCostingOperation = _sqlRepository.GetDataTable(CostingOperationSQL);
 
+            if (dtOrderCostingOperation.Rows.Count == 0)
+                return;
+
             DataTable dvDistinctCostingComponent = dtOrderCostingOperation.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             //string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
@@ -2596,6 +2571,9 @@ namespace Library.OrderManagement.Costing
 
             String CostingValueLossSQL = PreCostingValueLossSQL(CostingTempleteId);
             DataTable dtOrderCostingValueLoss = _sqlRepository.GetDataTable(CostingValueLossSQL);
+
+            if (dtOrderCostingValueLoss.Rows.Count == 0)
+                return;
 
             DataTable dvDistinctCostingComponent = dtOrderCostingValueLoss.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             //string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
@@ -2714,6 +2692,9 @@ namespace Library.OrderManagement.Costing
             String CostingProfitSQL = PreCostingProfitSQL(CostingTempleteId);
             DataTable dtOrderCostingProfit = _sqlRepository.GetDataTable(CostingProfitSQL);
 
+            if (dtOrderCostingProfit.Rows.Count == 0)
+                return;
+
             DataTable dvDistinctCostingComponent = dtOrderCostingProfit.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             //string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
@@ -2831,6 +2812,9 @@ namespace Library.OrderManagement.Costing
             //dataset for material sorted with costing component,Sequence
             String CostingSalesExpenseSQL = PreCostingSalesExpenseSQL(CostingTempleteId);
             DataTable dtOrderCostingSalesExpense = _sqlRepository.GetDataTable(CostingSalesExpenseSQL);
+
+            if (dtOrderCostingSalesExpense.Rows.Count == 0)
+                return;
 
             DataTable dvDistinctCostingComponent = dtOrderCostingSalesExpense.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             //string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
