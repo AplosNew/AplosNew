@@ -5549,7 +5549,8 @@ namespace Library.HumanResource.Report.OT
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
                                       FROM EmployeeInformation ei   
-                                      INNER JOIN (Select distinct EmpsystemId From HourlyOT HO where  HO.Duration !=0  and Month(HO.WorkDate) = " + monthNo + @" and Year(HO.WorkDate) = " + yearNo + @" ) HO ON ei.SystemId = HO.EmpSystemId
+                                      INNER JOIN (Select distinct EmpsystemId From From attdnprocessdata HO 
+									  where  HO.AdditionalOT is not null  and ho.AdditionalOT<>0 and Month(HO.WorkDate) = " + monthNo + @" and Year(HO.WorkDate) = " + yearNo + @" ) HO ON ei.SystemId = HO.EmpSystemId
 									  LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = ei.BudgetCode
 								      LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
                                       LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
@@ -5653,7 +5654,7 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
-                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
                                      -- LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
@@ -5876,10 +5877,9 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
-                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
                                     LEFT JOIN ORG.Plant  on Plant.Id=ei.PlantId
-                                    --  LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
                                       LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
                                       LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
@@ -7256,9 +7256,8 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory , p.UserName as Plant
-                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
-                                      --LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
                                       LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
                                       LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
@@ -7372,9 +7371,8 @@ namespace Library.HumanResource.Report.OT
                                     ,ISNULL(ebi.IFSCCode,'') IFSCCode
 									,ISNULL(ebi.BankAccNo,'') BankAccNo
                                     ,ISNULL(ec.UserName,'') EmployeeCategory
-                                      FROM AttdnProcessData ap --HourlyOT  HO 
+                                      FROM AttdnProcessData ap 
                                       LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
-                                     -- LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
                                         LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
                                       LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
                                       LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
