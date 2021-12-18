@@ -761,6 +761,33 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
 
     // #region Charges
 
+    $scope.GetCurrencyExchangeChargesRateList = function (currencyId, index) {
+        if (!baseService.isUndefinedOrNull(currencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + currencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.purchaseLCChargesList[index].Rate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
+    function GetCompanyCurrencyExchangeRateCharges() {
+        if (!baseService.isUndefinedOrNull($scope.purchaseLCNew.BankCurrency)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.purchaseLCNew.BankCurrency
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.Rate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+    }
+
     $scope.LCChargesList = [];
     $scope.GetPurchaseLCCharges = function () {
         try {
@@ -782,6 +809,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                                     }
                                 }
                             }
+                            GetCompanyCurrencyExchangeRateCharges();
                         }
                     },
                     function errorCallback(response) {
@@ -798,8 +826,8 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
     }
 
     $scope.purchaseLCChargesList = [];
+    $scope.Rate = null;
     $scope.SelectedLC = function () {
-
         if (baseService.arrayLength($scope.LCChargesList) > 0) {
             angular.forEach($scope.LCChargesList, function (a) {
                 if (checkLCExist($scope.purchaseLCChargesList, a.Id) === false) {
@@ -815,7 +843,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                             , Activity: a.Activity
                             , Remarks: null
                             , ChargesValue: null
-                            , Rate: 0
+                            , Rate: $scope.Rate
                             , BankAmount: null
                             , Version: $scope.purchaseLCNew.Version
                             , OverHeadType: a.OverHeadType
@@ -825,7 +853,6 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                             , BankAmountFlag: $scope.BankAmountFlag
                             , Type: a.Type
                         });
-
                     }
                 }
 

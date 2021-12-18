@@ -128,6 +128,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
 
         });
     };
+
     $scope.PlantCountryId = null;
     $scope.getPantCountry= function () {
         $http({
@@ -141,6 +142,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         });
     };
     $scope.getPantCountry();
+
     $scope.IsAccepptanceFirst = false;
     $scope.PartyCountryId = null;
     $scope.getVendorCountry = function () {
@@ -191,7 +193,6 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
             }
         });
     };
-
 
     $scope.voucherId = null;
     function getPurchaseLCChargesBackData(purchaseLCId) {
@@ -262,7 +263,6 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         $scope.purchaseLCNew.CustomerName = null;
     }
 
-
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.purchaseLCNew.CurrencyId)) {
             $http({
@@ -277,6 +277,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
             $scope.currencyExchangeRate = [];
         }
     };
+
     $scope.bankMasterList = [];
     bankService.getBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
@@ -290,19 +291,6 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         $scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
         $scope.GetCurrencyExchangeRateList();
     });
-
-   
-
-    //$scope.destinationList = [];
-    //$scope.getDestination = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'OrderManagements/destination/GetCbo/'
-    //    }).then(function successCallback(response) {
-    //        $scope.destinationList = response.data;
-    //    });
-    //};
-    //$scope.getDestination();
 
     $scope.purchaseLCList = [];
     $scope.getSavedData = function () {
@@ -395,7 +383,6 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         document.getElementById("uploadFile4").value = res;
     };
 
-
     $scope.Save = function () {
         try {
             Validation();
@@ -480,18 +467,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         }
     }
 
-    $scope.BankAmountFlag = false;
-    $scope.ChargesIndex = -1;
-    $scope.ChangeChargesBank = function (currencyId, index) {
-        $scope.ChargesIndex = index;
-        if (currencyId === $scope.purchaseLCNew.BankCurrency) {
-            $scope.purchaseLCChargesList[$scope.ChargesIndex].BankAmount = $scope.purchaseLCChargesList[$scope.ChargesIndex].ChargesValue;
-            $scope.purchaseLCChargesList[$scope.ChargesIndex].BankAmountFlag = true;
-        } else {
-            $scope.purchaseLCChargesList[$scope.ChargesIndex].BankAmountFlag = false;
-            $scope.purchaseLCChargesList[$scope.ChargesIndex].BankAmount = 0;
-        }
-    }
+ 
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.purchaseLCNew.Id)) {
@@ -569,6 +545,46 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
 
     // #region Charges
 
+    $scope.BankAmountFlag = false;
+    $scope.ChargesIndex = -1;
+    $scope.ChangeChargesBank = function (currencyId, index) {
+        $scope.ChargesIndex = index;
+        if (currencyId === $scope.purchaseLCNew.BankCurrency) {
+            $scope.purchaseLCChargesList[$scope.ChargesIndex].BankAmount = $scope.purchaseLCChargesList[$scope.ChargesIndex].ChargesValue;
+            $scope.purchaseLCChargesList[$scope.ChargesIndex].BankAmountFlag = true;
+        } else {
+            $scope.purchaseLCChargesList[$scope.ChargesIndex].BankAmountFlag = false;
+            $scope.purchaseLCChargesList[$scope.ChargesIndex].BankAmount = 0;
+        }
+    }
+
+    $scope.GetCurrencyExchangeChargesRateList = function (currencyId, index) {
+        if (!baseService.isUndefinedOrNull(currencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + currencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.purchaseLCChargesList[index].Rate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
+    function GetCompanyCurrencyExchangeRateCharges() {
+        if (!baseService.isUndefinedOrNull($scope.purchaseLCNew.BankCurrency)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.purchaseLCNew.BankCurrency
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.Rate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+    }
+
     $scope.LCChargesList = [];
     $scope.GetPurchaseLCCharges = function () {
         try {
@@ -590,6 +606,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
                                     }
                                 }
                             }
+                            GetCompanyCurrencyExchangeRateCharges();
                         }
                     },
                     function errorCallback(response) {
@@ -606,8 +623,8 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
     }
 
     $scope.purchaseLCChargesList = [];
+    $scope.Rate = null;
     $scope.SelectedLC = function () {
-
         if (baseService.arrayLength($scope.LCChargesList) > 0) {
             angular.forEach($scope.LCChargesList, function (a) {
                 if (checkLCExist($scope.purchaseLCChargesList, a.Id) === false) {
@@ -623,7 +640,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
                             , Activity: a.Activity
                             , Remarks: null
                             , ChargesValue: null
-                            , Rate: 0
+                            , Rate: $scope.Rate
                             , BankAmount: null
                             , Version: $scope.purchaseLCNew.Version
                             , OverHeadType: a.OverHeadType
