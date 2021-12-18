@@ -2715,7 +2715,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		if (e.model.checkState === "check") {
 			ChkOrUnchk = true;
 		}
-		var filtered = $("#ListIssueSlipPopup").data("ejGrid").getFilteredRecords();
+		var filtered = $("#GridPopup").data("ejGrid").getFilteredRecords();
 		if (baseService.isUndefinedOrNull(filtered) || filtered.length == 0) {
 			for (var i = 0; i < $scope.IssueSlipListPopup.length; i++) {
 				$scope.IssueSlipListPopup[i].check = ChkOrUnchk;
