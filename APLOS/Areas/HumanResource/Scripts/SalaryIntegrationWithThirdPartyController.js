@@ -78,7 +78,16 @@ function SalaryIntegrationWithThirdPartyController(commonMessage, $scope, $rootS
     $scope.year = new Date().getFullYear().toString();
     $scope.month = new Date().getMonth().toString();
 
-
+    // Setting the Filter
+    $scope.EmployeeCodeTypeList = [];
+    $scope.EmployeeCodeTypeCbo = function () {
+        $http.get('employees/EmployeeCodeType/GetCbo')
+            .then(function (response) {
+                $scope.EmployeeCodeTypeList = response.data;
+            });
+    }
+    $scope.EmployeeCodeTypeCbo();
+    // and  e.EmployeeCodeTypeId in ( " + typeId + @")
     $scope.yearList = [];
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
@@ -175,7 +184,10 @@ function SalaryIntegrationWithThirdPartyController(commonMessage, $scope, $rootS
 
         var DropDownListObj = $("#plantList").data("ejDropDownList");
         $scope.PlantIdList = DropDownListObj.getSelectedValue();
-       
+
+        //New Type Id
+        var TypeDropDownListObj = $("#typeList").data("ejDropDownList");
+        $scope.EmployeeCodeTypeIdList = TypeDropDownListObj.getSelectedValue();
 
         if (angular.isUndefinedOrNull($scope.month)) {
             ShowResult('Please select month', 'failure');
@@ -186,7 +198,7 @@ function SalaryIntegrationWithThirdPartyController(commonMessage, $scope, $rootS
             return;
         }
 
-        var url = 'humanresource/PayrollReports/SalaryIntegrationWithThirdpartyXls?plantId=' + $scope.PlantIdList + '&month=' + $scope.month + '&year=' + $scope.year;
+        var url = 'humanresource/PayrollReports/SalaryIntegrationWithThirdpartyXls?plantId=' + $scope.PlantIdList + '&month=' + $scope.month + '&year=' + $scope.year + '&TypeId=' + $scope.EmployeeCodeTypeIdList;
         $rootScope.report(url);
 
        
