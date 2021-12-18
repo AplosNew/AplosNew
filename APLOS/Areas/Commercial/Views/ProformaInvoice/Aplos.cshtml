@@ -7,7 +7,6 @@
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PI No :</span></label>
-                        @*<label class="col-sm-8 control-label">{{PImodelNew.PINo}}</label>*@                       
                         <div class="col-sm-8 show-message">
                             <input type="text" name="PI No." ng-model="PImodelNew.PINo" class="form-control" maxlength="15" required tabindex="5">
                         </div>
@@ -15,14 +14,12 @@
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PI REF # :</span></label>
-                        @*<label class="col-sm-8 control-label">{{PImodelNew.RefNo}}</label>*@
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Ref No." ng-model="PImodelNew.RefNo" class="form-control" maxlength="15" required tabindex="5">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">Address :</span></label>
-                        @*<label class="col-sm-8 control-label">{{PImodelNew.InvoicingByAddress}}</label>*@
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Invoicing by address" ng-model="PImodelNew.InvoicingByAddress" class="form-control" maxlength="15" required tabindex="5">
                         </div>
@@ -31,9 +28,8 @@
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PI Date :</span></label>
-                        @*<label class="col-sm-8 control-label">{{PImodelNew.PIDate}}</label>*@
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="PI Date" ng-model="PImodelNew.PIDate" class="form-control" maxlength="15" required tabindex="5">
+                            <input type="text" name="PI Date" ng-model="PImodelNew.PIDate" datepicker class="form-control" maxlength="15" required tabindex="5">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -56,7 +52,7 @@
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">Version :</span></label>
                         <div class="col-sm-8 ">
                             <div class="select-style show-message">
-                                <select ng-model="PImodelNew.VersionList">
+                                <select ng-model="PIVersionModel.VersionList">
                                     <option ng-repeat="option in VersionList" value="{{option.Id}}">{{option.VersionNo}}</option>
                                 </select>
                             </div>
@@ -75,7 +71,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <div class="col-sm-12">                
+                <div class="col-sm-12">
                     <div class="row">
                         <div class="col-sm-12 table-responsive modal-table">
                             <table class="table table-striped">
@@ -85,6 +81,7 @@
                                         <th>Material Group</th>
                                         <th>Description</th>
                                         <th>Quantity</th>
+                                        <th>Rate</th>
                                         <th style="width:100px;">UoM</th>
                                         <th>Delivery date</th>
                                         <th>Currency</th>
@@ -98,20 +95,21 @@
                                         <th>{{$index>0?'':''}}</th>
                                         <td>
                                             <div class="col-sm-12 show-message">
-                                                <input ej-dropdownlist e-datasource="MaterialGroupList" e-enablefiltersearch="true" e-value="item.MaterialGroupMasterId" e-fields-value="Id" e-fields-text="MaterialGroup" e-width="100%" />
+                                                <input id="{{'MG'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupList" e-change="OnUOMChange" e-enablefiltersearch="true" e-value="item.MaterialGroupMasterId" e-fields-value="Id" e-fields-text="MaterialGroup" e-width="100%" />
                                             </div>
                                         </td>
 
                                         <td><input type="text" ng-model="item.Description" class="form-control" @*ng-disabled="DataList.length>1"*@ /></td>
-                                        <td><input type="text" ng-model="item.Quantity" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                        <td><input type="number" ng-model="item.Quantity" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                        <td><input type="number" ng-model="item.Rate" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
                                         <td style="width:100px;">
                                             <div class="select-style">
                                                 <select ng-model="item.UoMId">
-                                                    <option ng-change="OnUOMChange(item)" ng-repeat="option in item.MaterialGroupUOMList" value="{{option.Id}}">{{option.Code}}</option>
+                                                    <option ng-repeat="option in item.MaterialGroupUOMList" value="{{option.Id}}">{{option.Code}}</option>
                                                 </select>
                                             </div>
                                         </td>
-                                        <td><input type="text" ng-model="item.DeliveryDate" class="form-control" /></td>
+                                        <td><input type="text" ng-model="item.DeliveryDate" datepicker class="form-control" /></td>
                                         <td><input type="text" ng-model="item.Currency" class="form-control" /></td>
                                         <td><input type="number" ng-model="item.Amount" class="form-control" /></td>
 
@@ -125,11 +123,15 @@
                                 </tbody>
 
                             </table>
-                            @*<div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                                </ul>
-                            </div>*@
+
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                                <li> <button ng-click="Clear();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+
+                            </ul>
+
                         </div>
                     </div>
                 </div>
@@ -179,7 +181,7 @@
                 <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="120"></div>
                 <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
                 <div e-column e-type="string" e-field="InvoicingByAddress" e-headertext="InvoicingByAddress" e-width="100"></div>
-                <div e-column e-type="string" e-field="DeliveryByAddress" e-headertext="DeliveryByAddress" e-width="100"></div>                
+                <div e-column e-type="string" e-field="DeliveryByAddress" e-headertext="DeliveryByAddress" e-width="100"></div>
             </div>
         </div>
     </div>

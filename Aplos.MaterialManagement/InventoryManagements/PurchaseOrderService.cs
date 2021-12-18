@@ -384,11 +384,11 @@ namespace Library.MaterialManagement.InventoryManagements
         public IEnumerable<object> GetBOQItemsDetailsData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
-                try
-                {
-                    var sql = "";
-                    sql = @"SELECT  b.Id BOQId,b.Sequence Sequence1,b.MasterOrderItemId,moi.MasterOrderId
+
+            try
+            {
+                var sql = "";
+                sql = @"SELECT  b.Id BOQId,b.Sequence Sequence1,b.MasterOrderItemId,moi.MasterOrderId
                                     ,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
                                     ,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
 
@@ -471,15 +471,15 @@ namespace Library.MaterialManagement.InventoryManagements
 
                                     WHERE (b.RequiredQtyPO-Isnull(POMAP.TransactionQty,0))>0
                                     ORDER BY b.MaterialMasterId,b.SalesOrderId";
-                    return _sqlRepository.GetDataCollection(sql);
-                }
-                catch (Exception ex)
-                {
-                    throw new CustomException(ex.Message, ex,
-                        Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                        ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-                }
-            
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+
 
         }
 

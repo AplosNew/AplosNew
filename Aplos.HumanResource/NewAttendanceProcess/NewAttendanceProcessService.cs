@@ -3984,7 +3984,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = SmallerValue;
                                             dr["CalculatedOT"] = Result;  // For Visiblity
-                                           dr.EndEdit();                                            
+                                            dr.EndEdit();                                            
                                         }
                                     }
                                 }

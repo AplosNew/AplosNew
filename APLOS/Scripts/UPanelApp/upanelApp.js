@@ -289,6 +289,7 @@ var upanelApp = angular
     .controller("OTAdjustmentController", OTAdjustmentController)
     .controller("otFinalController", otFinalController)
     .controller("otFinalInformationController", otFinalInformationController)
+    .controller("otFinalInformationNewController", otFinalInformationNewController)
     .controller("OTManagementController", OTManagementController)
     .controller("ourStyleController", OurStyleController)
     .controller("packingListMasterController", packingListMasterController)
@@ -549,6 +550,7 @@ var upanelApp = angular
 
     .controller('hourlyOffDutyTagController', hourlyOffDutyTagController)
     .controller('hourlyOTController', hourlyOTController)
+    .controller('hourlyOTNewController', hourlyOTNewController)
     .controller('ICSMasterController', ICSMasterController)
     .controller('incrementGroupController', incrementGroupController)
     .controller('independentOrderController', independentOrderController)

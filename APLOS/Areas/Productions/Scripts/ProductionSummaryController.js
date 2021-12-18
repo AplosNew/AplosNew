@@ -1016,7 +1016,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.SaveMaster = function () {
         try {
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
-                $scope.productionSummaryNew.SalesOrderId = null;
                 $scope.productionSummaryNew.MasterOrderItemId = null;
                 $scope.productionSummaryNew.ProductLibraryId = null;
             }
@@ -1031,7 +1030,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             }
             else {
                 $scope.productionSummaryNew.SalesOrderId = null;
-                $scope.productionSummaryNew.MasterOrderItemId = null;
             }
 
             if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
