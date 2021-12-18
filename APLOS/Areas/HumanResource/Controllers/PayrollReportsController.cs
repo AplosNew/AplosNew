@@ -795,16 +795,27 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpGet, Authorize]
-        public ActionResult SalaryIntegrationWithThirdpartyXls(string plantId, string month, string year)
+        public ActionResult SalaryIntegrationWithThirdpartyXls(string plantId, string month, string year,string TypeId)
         {
             try
             {
+                string typeId = string.Empty;
+
                 plantId = "'" + plantId.Replace(",", "','") + "'";
+                if (!string.IsNullOrEmpty(TypeId))
+                {
+                    typeId = "'" + TypeId.Replace(",", "','") + "'";//replaced with ""
+                }
+                else
+                {
+                    throw new Exception("Please Select the Employee Code Type");
+                }
+
 
                 ExcelEngine excelEngine = new ExcelEngine();
 
                 Library.HumanResource.Payroll.PayrollReportsService service = new Library.HumanResource.Payroll.PayrollReportsService();
-                IWorkbook workbook = service.SalaryIntegrationWithThirdparty(plantId, year, month, excelEngine);
+                IWorkbook workbook = service.SalaryIntegrationWithThirdparty(plantId, year, month, typeId, excelEngine);
 
                 string strFileName = "SalaryIntegrationWithThirdparty.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);

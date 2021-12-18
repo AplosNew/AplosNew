@@ -210,26 +210,7 @@ namespace Library.MaterialManagement.Products
 				flag = true;
 			foreach (var itemDetail in entityGroupData)
 			{
-				//if (itemDetail.CostCenterId == "" || itemDetail.CostCenterId == null)
-				//{
-				//	throw new CustomException("Select Cost Center !");
-				//}
-				//else if (itemDetail.RequestedQty == 0)
-				//{
-				//	throw new CustomException("Input Requested Qty !");
-				//}
-				////else if (itemDetail.RejectedQty == 0)
-				////{
-				////    throw new CustomException("Input Rejected Qty !");
-				////}
-				//else if (itemDetail.ExpenseActivityId == "" || itemDetail.ExpenseActivityId == null)
-				//{
-				//	throw new CustomException("Select Expense Activity !");
-				//}
-
-				//else
-				//{
-					// Insert in receive detail
+				
 					if (string.IsNullOrEmpty(itemDetail.Id))
 					{
 						var NewId = Issentry.Id + "-";

@@ -19343,15 +19343,15 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
 
         #region Salary Integration With Third party
-        private void GetSalaryIntegrationWithThirdparty(string plantId, string Year, string Month, out DataTable dtData)
+        private void GetSalaryIntegrationWithThirdparty(string plantId, string Year, string Month, string typeId, out DataTable dtData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select AccountsGroupSequence,ISNULL(AccountsGroupId,'')AccountsGroupId,ISNULL(AccountGroup,'')AccountGroup,ISNULL(GL,'') GL,ISNULL(GLName,'') GLName,Sum(IsNull(DrAmt,0)) Debit, Sum(IsNull(CrAmt,0)) Credit--,SalHeadId SalaryHeadId,SalHeadName SalaryHead
+            string sql = @"Select AccountsGroupSequence,EmployeeCodeType,ISNULL(AccountsGroupId,'')AccountsGroupId,ISNULL(AccountGroup,'')AccountGroup,ISNULL(GL,'') GL,ISNULL(GLName,'') GLName,Sum(IsNull(DrAmt,0)) Debit, Sum(IsNull(CrAmt,0)) Credit--,SalHeadId SalaryHeadId,SalHeadName SalaryHead
                         from                                                 
                         (
                         Select C.UserName as Company,P.UserName Plant,ENT.ThirdPartyBusinessArea,ENT.ThirdPartyProfitCenter,ENT.UserName Entity,
                         MB.AccountsGroupId,AGRP.Sequence AS AccountsGroupSequence,AGRP.UserName AccountGroup,POS.Code PostionCode,MB.Code BudgetCode,
-                        E.SystemId EmpId,E.EmployeeCode EmpCode,E.EmployeeName EmpName,SH.SalaryHead SalHeadName,TransactionType,TransactionTypeNew
+                        E.SystemId EmpId,E.EmployeeCode EmpCode,E.EmployeeName EmpName,ECT.UserName AS EmployeeCodeType,SH.SalaryHead SalHeadName,TransactionType,TransactionTypeNew
                         ,CC.UserName CostCenter
                         ,GL=CASE WHEN POS.DirectManpowerCost=1 and SH.TransactionTypeNew= 'Dr.' THEN SHGL.DrDirectOtherGLCode
                         		WHEN POS.DirectManpowerCost=0 and SH.TransactionTypeNew = 'Dr.' THEN SHGL.DrInDirectOtherGLCode
@@ -19373,6 +19373,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                         Inner Join SalaryProcMaster SPM on SPC.SlrProcMstSystemID=SPM.SystemID and SPM.MonthNo='" + Month + "' and SPM.YearNo='" + Year + @"' AND SPC.PlantId IN (" + plantId + @" )
                         Inner Join SalaryProcessLogDetail SPLD on SPM.SystemID=SPLD.SalaryProcessId and SPLD.EmpSystemId=SPC.EmpInfoSystemID
                         Left Join EmployeeInformation E on SPLD.EmpSystemId=E.SystemId
+                        LEFT JOIN EmployeeCodeType ECT ON ect.Id=e.EmployeeCodeTypeId
                         Left Join ORG.Plant P on SPLD.PlantId=P.Id
                         Left Join ORG.Company C on P.CompanyId=C.Id
                         Left Join MST.ManpowerBudget MB on SPLD.BudgetCode=MB.Id
@@ -19391,13 +19392,14 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                             FROM SalaryHead AS sh WHERE  ISNULL(sh.TransactionType,'') IN ('Cr.','Both') 
                         ) SH on SPC.SalaryHeadID=SH.SalaryHeadID
                         Where SPM.MonthNo='" + Month + "' and SPM.YearNo='" + Year + @"'  AND SPC.PlantId IN (" + plantId + @" )
+                        and  e.EmployeeCodeTypeId in ( " + typeId + @")
                         ) TempTbl
-                        group by AccountsGroupSequence,AccountsGroupId,AccountGroup,GL,GLName--,SalHeadId,SalHeadName
+                        group by EmployeeCodeType,AccountsGroupSequence,AccountsGroupId,AccountGroup,GL,GLName--,SalHeadId,SalHeadName
                         order by AccountsGroupSequence";
             dtData = _sqlRepository.GetDataTable(sql);
         }
 
-        public IWorkbook SalaryIntegrationWithThirdparty(string plantId, string Year, string Month, ExcelEngine excelEngine)
+        public IWorkbook SalaryIntegrationWithThirdparty(string plantId, string Year, string Month,string typeId, ExcelEngine excelEngine)
         {
 
             IApplication application = null;
@@ -19411,7 +19413,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                     throw new Exception("Select plant");
 
 
-                GetSalaryIntegrationWithThirdparty(plantId, Year, Month, out DataTable dtData);
+                GetSalaryIntegrationWithThirdparty(plantId, Year, Month, typeId, out DataTable dtData);
 
                 if (dtData.Rows.Count == 0)
                     throw new Exception("No data found");
@@ -19430,6 +19432,10 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 sheet[ROW, COL].Text = "Accounts Group";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colAccountsGroup = COL; COL++;
+
+                sheet[ROW, COL].Text = "Emp Code Type";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colEmployeeCodeType = COL; COL++;
 
                 sheet[ROW, COL].Text = "GL Code";
                 sheet[ROW, COL].ColumnWidth = 15;
@@ -19472,6 +19478,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 {
 
                     sheet[ROW, colAccountsGroup].Text = dtData.Rows[i]["AccountGroup"].ToString();
+                    sheet[ROW, colEmployeeCodeType].Text = dtData.Rows[i]["EmployeeCodeType"].ToString();
                     sheet[ROW, colGLCode].Text = dtData.Rows[i]["GL"].ToString();
                     sheet[ROW, colGLName].Text = dtData.Rows[i]["GLName"].ToString();
 

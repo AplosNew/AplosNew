@@ -513,6 +513,18 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
 
         }
     }
+
+    $scope.BOMReportByContractWithMOItemandSalesOrder = function (args) {
+        try {
+            var file_src = $scope.Attachmentpath + 'BOMReportByContractWithMOItemandSalesOrder?ContractId=' + args.ContractId
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+
     $scope.ItemList = [];
     $scope.MasterOrderBOMReportByMaterial = function (data) {
         $scope.AttachmentSelectedBOMRow = data;
