@@ -4,6 +4,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Expenses;
 using Library.Model.Parties;
@@ -241,6 +242,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var expenseBooking = new JavaScriptSerializer().Deserialize<ExpenseBooking>(form["expenseBooking"]);
             var expenseBookingDetails = new JavaScriptSerializer().Deserialize<IEnumerable<ExpenseBookingDetail>>(form["expenseBookingDetails"]);
             var expActdetails = new JavaScriptSerializer().Deserialize<IEnumerable<ExpenseActivity>>(form["expActdetails"]);
+            var invoiceDetailChargesList = new JavaScriptSerializer().Deserialize<IEnumerable<InvoiceDetailCharges>>(form["invoiceDetailChargesList"]);
 
             var directory = ResourcesPathReader.GetExpensesImagePath();
             var path = Path.Combine(directory);
@@ -280,7 +282,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (advanceDetailVM.Amount == 0 || advanceDetailVM.Amount.ToString() == null)
                     throw new CustomException("Amount should more than 0.");
             }
-            _expenseBookingService.Insert(expenseBooking, expenseBookingDetails, expActdetails);
+            _expenseBookingService.Insert(expenseBooking, expenseBookingDetails, expActdetails, invoiceDetailChargesList);
             var file = Request.Files["file"];
 
             if (expenseBooking.FileName.IsNotNull())
@@ -301,6 +303,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var expenseBooking = new JavaScriptSerializer().Deserialize<ExpenseBooking>(form["expenseBooking"]);
             var expenseBookingDetails = new JavaScriptSerializer().Deserialize<IEnumerable<ExpenseBookingDetail>>(form["expenseBookingDetails"]);
             var expActdetails = new JavaScriptSerializer().Deserialize<IEnumerable<ExpenseActivity>>(form["expActdetails"]);
+            var invoiceDetailChargesList = new JavaScriptSerializer().Deserialize<IEnumerable<InvoiceDetailCharges>>(form["invoiceDetailChargesList"]);
 
             var directory = ResourcesPathReader.GetExpensesImagePath();
             var path = Path.Combine(directory);
@@ -342,7 +345,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Amount should more than 0.");
             }
             var file = Request.Files["file"];
-            _expenseBookingService.Insert(expenseBooking, expenseBookingDetails, expActdetails);
+            _expenseBookingService.Insert(expenseBooking, expenseBookingDetails, expActdetails, invoiceDetailChargesList);
             if (expenseBooking.FileName.IsNotNull())
             {
               
@@ -359,8 +362,9 @@ namespace Aplos.Areas.Accounts.Controllers
             var expenseBooking = new JavaScriptSerializer().Deserialize<ExpenseBooking>(form["expenseBooking"]);
             var expenseBookingDetails = new JavaScriptSerializer().Deserialize<IEnumerable<ExpenseBookingDetail>>(form["expenseBookingDetails"]);
             var expActdetails = new JavaScriptSerializer().Deserialize<IEnumerable<ExpenseActivity>>(form["expActdetails"]);
+            var invoiceDetailChargesList = new JavaScriptSerializer().Deserialize<IEnumerable<InvoiceDetailCharges>>(form["invoiceDetailChargesList"]);
 
-            if(expenseBooking.ApprovalStatus== ApprovalStatus.ToBeApproved.ToString())
+            if (expenseBooking.ApprovalStatus== ApprovalStatus.ToBeApproved.ToString())
                 throw new CustomException("Update is not allowed after Checked.");
             if (expenseBooking.ApprovalStatus == ApprovalStatus.CheckedHolded.ToString())
                 throw new CustomException("Update is not allowed after Checked Holded.");
@@ -405,7 +409,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             var file = Request.Files["file"];
             
-            _expenseBookingService.Update(expenseBooking, expenseBookingDetails, expActdetails);
+            _expenseBookingService.Update(expenseBooking, expenseBookingDetails, expActdetails, invoiceDetailChargesList);
             if (expenseBooking.FileName.IsNotNull())
             {
                 if (System.IO.File.Exists(path))

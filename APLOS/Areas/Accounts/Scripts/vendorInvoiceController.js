@@ -354,7 +354,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                             return true;
                         }
                         else if (vdetailDr[j].IsOrderSpecific === true && $scope.invoiceDetailChargesList.length === 0) {
-                            ShowResult(" Please Distribute Expense!", "failure");
+                            ShowResult(vdetailDr[j].GLGeneralInfoName + ", Please Distribute Expense!", "failure");
                             return true;
                         }
                     }
