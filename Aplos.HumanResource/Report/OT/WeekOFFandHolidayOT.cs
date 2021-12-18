@@ -7157,7 +7157,7 @@ namespace Library.HumanResource.Report.OT
                                       INNER JOIN (
                             Select distinct EmpsystemId From attdnprocessdata p 
 									  where p.additionalot is not null and p.AdditionalOT<>0
-                        and Month(HO.WorkDate) = " + monthNo + @" and Year(HO.WorkDate) = " + yearNo + @") HO ON ei.SystemId = HO.EmpSystemId
+                        and Month(p.WorkDate) = " + monthNo + @" and Year(p.WorkDate) = " + yearNo + @") HO ON ei.SystemId = HO.EmpSystemId
 									  LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = ei.BudgetCode
 								      LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
                                       LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
