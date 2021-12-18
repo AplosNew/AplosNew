@@ -3427,9 +3427,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.CostingItemList = [];
     $scope.GetCostingItemCbo = function () {
         try {
-            $http.get("
-
-                / MasterOrder / GetCostingItemCbo")
+            $http.get("/ MasterOrder / GetCostingItemCbo")
                 .then(
                     function successCallback(response) {
                         if (response.data.Error === true) {
