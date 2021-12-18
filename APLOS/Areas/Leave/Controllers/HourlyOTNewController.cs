@@ -137,7 +137,7 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }
 
-        #region Hourly ot Report
+        #region Hourly OT Report
 
         [HttpGet]
         public ActionResult GetHourlyOT(ReportFormat reportFormat, string FromDate, string ToDate)
@@ -166,6 +166,7 @@ namespace Aplos.Areas.Leave.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
+        
         #endregion
 
         #region Hourly ot Report Monthly 

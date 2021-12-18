@@ -360,6 +360,55 @@ namespace Library.HumanResource.NewOTProcess
             }
         }//End Function
 
+        /// OT Final Information Report DataSet
+
+        public void GetOTFinalRpt(string sPlantID, string frmDate, string toDate, string sUnit, string sDevi, string sDept, string sSect, string sSbSe, string sLine, string sEmpC, string sDeGr, string sDesi, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT A.* FROM
+                                    (SELECT E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
+                                            D.UserName Designation,ISNULL( LG.UserName, '') LegalDG, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
+                                            S.UserName Section, SB.UserName SubSection, L.UserName Line
+                                            ,ARIN.WorkDate,ARIN.StandardOT as TotalOTHr,DD.UserName GivenDesignation,hr.OTConsiderOn,E.EmployeeCodeNumeric
+                                    FROM dbo.EmployeeInformation E
+                                                LEFT JOIN dbo.AttdnProcessData ARIN ON E.SystemId = ARIN.EmpSystemID
+                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
+                                                LEFT JOIN HKP.LegalDesignation D ON E.LegalDesignationId = D.Id
+                                                LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
+                                                LEFT join PlantWiseHRMSSetting hr on hr.PlantID=e.PlantId
+                                                LEFT JOIN HKP.LegalDesignation LG ON LG.Id = E.LegalDesignationId
+                                    WHERE E.PlantID = '" + sPlantID + @"' AND ARIN.WorkDate BETWEEN '" + frmDate + 
+                                    @"' AND '" + toDate + @"' AND ARIN.StandardOT > 0
+AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
+";
+
+             
+                strSql = strSql + @") A
+                        GROUP BY A.EmployeeCode, A.EmployeeName, A.DOJ, A.Designation,A.LegalDG, A.Unit, A.Division, A.Department,
+		                            A.Section, A.SubSection, A.Line, A.WorkDate, A.TotalOTHr, A.GivenDesignation,OTConsiderOn,A.EmployeeCodeNumeric
+                        ORDER BY A.Unit, A.EmployeeCodeNumeric, A.Section, A.SubSection";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Fu
 
 
     }
