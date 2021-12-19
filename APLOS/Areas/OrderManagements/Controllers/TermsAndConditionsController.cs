@@ -29,7 +29,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
         //authentication for
         //GetList Create Delete
 
-
         #region Constructor
         TermsAndConditionsService tg = new TermsAndConditionsService();
         private readonly ISqlRepository _sqlRepository;
