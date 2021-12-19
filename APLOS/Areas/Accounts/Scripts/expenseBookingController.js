@@ -83,6 +83,12 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
             $scope.activityList = result;
             if ($scope.activityList.length === 1) {
                 $scope.budgetTransactionDetail.ActivityId = $scope.activityList[0].ActivityId;
+
+                $scope.IsOrderSpecific = "";
+                $scope.ActivityOrderType = "";
+
+                $scope.IsOrderSpecific = $scope.activityList[0].IsOrderSpecific;
+                $scope.ActivityOrderType = $scope.activityList[0].ActivityOrderType;
             }
         });
     };
@@ -94,13 +100,15 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
         });
     };
 
-    $scope.IsOrderSpecific = null;
-    $scope.ActivityOrderType = null;
+    $scope.IsOrderSpecific = "";
+    $scope.ActivityOrderType = "";
     $scope.getCboFALinkedList = function (activityId) {
         var activity = $.grep($scope.activityList, function (item) {
             return item.ActivityId === activityId;
         })[0];
         $scope.FALinked = activity.FALinked;
+        $scope.IsOrderSpecific = "";
+        $scope.ActivityOrderType = "";
         $scope.ActivityType = activity.ActivityType;
         $scope.IsOrderSpecific = activity.IsOrderSpecific;
         $scope.ActivityOrderType = activity.ActivityOrderType;
@@ -780,6 +788,12 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
         $scope.budgetTransactionMaster.Status = $scope.approvalStatusList[0].Value;
         $scope.GetCboParallelCurrency();
         $scope.getBeneficiaryType();
+        $scope.invoiceDetailChargesList = [];
+        $scope.checkedInvoiceList = [];
+        $scope.checkedOutBoundInvoiceList = [];
+        $scope.CustomerAvailableInvoiceList = [];
+        $scope.checkedMasterOrderList = [];
+        $scope.checkedContractList = [];
     }
 
     $scope.invalidRow = false;
@@ -1278,7 +1292,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
 
     }
     $scope.calReDistributedAmount = function myfunction(index, item) {
-        $scope.TotalChargesAmount = parseFloat($scope.voucherDetailList[index].Amount);
+        $scope.TotalChargesAmount = parseFloat($scope.budgetTransactionDetailList[index].Amount);
         $scope.activityOrderType = "";
         $scope.activityOrderType = item.ActivityOrderType;
         if ($scope.activityOrderType == "InboundInvoice") {
@@ -1496,8 +1510,8 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
         if (baseService.arrayLength($scope.masterOrderList) > 0) {
             $scope.checkedMasterOrderList = [];
             $scope.checkedMasterOrderList.push({
-                InvoiceId: ""
-                , InvoiceDetailId: ""
+                InvoiceId: null
+                , InvoiceDetailId: null
                 , Amount: 0
                 , BooksAmount: 0
                 , DistributedAmount: 0
@@ -1533,8 +1547,8 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
         if (baseService.arrayLength($scope.contractList) > 0) {
             $scope.checkedContractList = [];
             $scope.checkedContractList.push({
-                InvoiceId: ""
-                , InvoiceDetailId: ""
+                InvoiceId: null
+                , InvoiceDetailId: null
                 , Amount: 0
                 , BooksAmount: 0
                 , DistributedAmount: 0

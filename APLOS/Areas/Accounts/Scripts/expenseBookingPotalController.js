@@ -886,7 +886,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         document.getElementById("uploadFile").value = res;
     };
 
-
+    $scope.invoiceDetailChargesList = [];
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
         angular.forEach($scope.budgetTransactionDetailList, function (item, i) {
@@ -921,6 +921,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
                             formData.append("expenseBooking", angular.toJson($scope.budgetTransactionMaster));
                             formData.append("expenseBookingDetails", angular.toJson($scope.budgetTransactionDetailList));
                             formData.append("expActdetails", angular.toJson($scope.expActivityList));
+                            formData.append("invoiceDetailChargesList", angular.toJson($scope.invoiceDetailChargesList));
                             if (baseService.isUndefinedOrNull($scope.filedata) === false) {
                                 formData.append('file', data.file);
                             }
@@ -956,6 +957,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
                             formData.append("expenseBooking", angular.toJson($scope.budgetTransactionMaster));
                             formData.append("expenseBookingDetails", angular.toJson($scope.budgetTransactionDetailList));
                             formData.append("expActdetails", angular.toJson($scope.expActivityList));
+                            formData.append("invoiceDetailChargesList", angular.toJson($scope.invoiceDetailChargesList));
                             if (baseService.isUndefinedOrNull($scope.filedata) === false) {
                                 formData.append('file', data.file);
                             }
