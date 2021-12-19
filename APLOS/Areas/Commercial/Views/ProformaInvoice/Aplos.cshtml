@@ -52,8 +52,8 @@
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">Version :</span></label>
                         <div class="col-sm-8 ">
                             <div class="select-style show-message">
-                                <select ng-model="PIVersionModel.VersionList">
-                                    <option ng-repeat="option in VersionList" value="{{option.Id}}">{{option.VersionNo}}</option>
+                                <select ng-model="PIVersionModel.VersionNo">
+                                    <option ng-repeat="option in ddlVersionList" value="{{option.value}}">{{option.name}}</option>
                                 </select>
                             </div>
                         </div>

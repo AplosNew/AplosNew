@@ -64,6 +64,11 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             try
             {
+                if (clsStaticInfo.nullrecorder(VersionData["VersionNo"]) == "")
+                    throw new Exception("Select version.");
+
+                String _PMVersionId = "";
+                string _PMMasterId = "";
                 ConnectionManager.DAL.ConManager conPIMaster = new ConnectionManager.DAL.ConManager("1");
                 conPIMaster.OpenDataSetThroughAdapter("select * from dbo.PIMaster where Id='" + HeaderData["Id"] + "'", out DataSet dsPIMaster, false, "1");
                 string _Id = "";
@@ -76,6 +81,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     genid.GenID("dbo.PIMaster", out _Id);
                     _Id = "PI" + _Id;
                     HeaderData["Id"] = _Id;
+                     _PMMasterId = HeaderData["Id"].ToString();
                     AddNewRow(dsPIMaster.Tables[0], HeaderData);
 
 
@@ -87,6 +93,9 @@ namespace Aplos.Areas.Commercial.Controllers
                         genid.GenID("dbo.PIVersion", out _Id);
                         _Id = "PV" + _Id;
                         VersionData["Id"] = _Id;
+                        VersionData["Id"] = _Id;
+                        VersionData["PIMasterId"] = _PMMasterId;
+                         _PMVersionId = VersionData["Id"].ToString();
                         AddNewRow(dsPIVersion.Tables[0], VersionData);
                     }
                 }
@@ -131,11 +140,15 @@ namespace Aplos.Areas.Commercial.Controllers
                     {
 
                         dsPIMaterial.Tables[0].DefaultView.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
-                        if (dsPIMaterial.Tables[0].DefaultView.Count > 0)
+
+                        DataView dv = new DataView(dsPIMaterial.Tables[0]);
+                        dv.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
+                        if (dv.Count > 0)
                         {
                             //edit
                             _Id = VersionData["Id"].ToString();
-                            EditRow(dsPIMaterial.Tables[0].Rows[0], MaterialData[0]);
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
                         }
                         else
                         {
@@ -143,8 +156,10 @@ namespace Aplos.Areas.Commercial.Controllers
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID("dbo.PIMaterial", out _Id);
                             _Id = "PM" + _Id;
-                            MaterialData[0]["Id"] = _Id;
-                            AddNewRow(dsPIMaterial.Tables[0], MaterialData[0]);
+                            item["Id"] = _Id;
+                            item["PIMasterId"] = _PMMasterId;
+                            item["PIVersionId"] = _PMVersionId;
+                            AddNewRow(dsPIMaterial.Tables[0], item);
                         }
 
                     }
@@ -164,8 +179,6 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
-
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -219,12 +232,14 @@ namespace Aplos.Areas.Commercial.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select top 100 * from (SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 ,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-,C.Code Currency,B.UserName Buyer,P.UserName Customer
+,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId
  FROM PIMaster PM 
 LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
 LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
-) AS TEMP WHERE " + strkey;
+LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId
+--ORDER BY PM.PIDate DESC
+) AS TEMP WHERE " + strkey + "ORDER BY TEMP.PIDate DESC";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
