@@ -260,7 +260,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
 
         }
-        [Authorize]
+        [HttpPost,Authorize]
         public ActionResult DeleteDetail(string id, string OrderSpecific)
         {
 

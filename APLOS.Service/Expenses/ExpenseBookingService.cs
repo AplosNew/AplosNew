@@ -12,6 +12,7 @@ using Library.Model.Invoices;
 using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Vouchers;
+using Library.Model.Commercial;
 using Library.Service.Banks;
 using Library.Service.Core;
 using Library.Service.Employees;
@@ -46,6 +47,7 @@ namespace Library.Service.Expenses
         private readonly IRepositoryAsync<ExpenseActivity> _expenseActivityRepository;
         private readonly IBankJournalService _bankJournalService;
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
+        private readonly IRepositoryAsync<InvoiceDetailCharges> _invoiceDetailChargesRepository;
 
         public ExpenseBookingService(
               IRepositoryAsync<ExpenseBooking> expenseBookingRepository
@@ -62,6 +64,7 @@ namespace Library.Service.Expenses
         , IBankJournalService bankJournalService
 
             , IInvoiceService invoiceService
+            , IRepositoryAsync<InvoiceDetailCharges> invoiceDetailChargesRepository
             ) : base(expenseBookingRepository, unitOfWork, pkGeneratorService)
         {
             _expenseBookingRepository = expenseBookingRepository;
@@ -76,6 +79,7 @@ namespace Library.Service.Expenses
             _invoiceService = invoiceService;
             _expenseActivityRepository = expenseActivityRepository;
             _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
+            _invoiceDetailChargesRepository = invoiceDetailChargesRepository;
         }
 
         private static string MakePKExpenseBookingDetail(string masterId, int currentId)
@@ -88,7 +92,7 @@ namespace Library.Service.Expenses
             return MakePK(masterId, currentId, 2);
         }
 
-        public void InsertOrUpdateGraph(IEnumerable<ExpenseBookingDetail> entities, IEnumerable<ExpenseActivity> expActdetails, ExpenseBooking expenseBooking)
+        public void InsertOrUpdateGraph(IEnumerable<ExpenseBookingDetail> entities, IEnumerable<ExpenseActivity> expActdetails, ExpenseBooking expenseBooking, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
         {
             AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
             if (entities != null)
@@ -130,7 +134,44 @@ namespace Library.Service.Expenses
                                 _expenseActivityRepository.Update(expActivity);
                             }
                         }
-                       
+                        if (null != invoiceDetailChargesList && invoiceDetailChargesList.Count() > 0)
+                        {
+
+                            foreach (var item in invoiceDetailChargesList.Where(r => r.GLGeneralInfoId == entity.GLGeneralInfoId && r.BudgetMasterId == entity.BudgetMasterId && r.ActivityId == entity.ActivityId))
+                            {
+                                var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
+                                var invoiceChargesId = 0;
+                                if (item.Id == null)
+                                {
+                                    invoiceChargesId++;
+                                    var invoiceCharges = new InvoiceDetailCharges
+                                    {
+                                        Id = MakePK(invoiceDetailChargesId, invoiceChargesId, 2),
+                                        InvoiceDetailId = item.InvoiceDetailId,
+                                        InvoiceId = item.InvoiceId,
+                                        DistributedAmount = item.DistributedAmount,
+                                        InvoiceServiceMasterChargesId = null,
+                                        VoucherDetailId = null,
+                                        Amount = item.Amount,
+                                        InvoiceType = item.InvoiceType,
+                                        MasterOrderId = item.MasterOrderId,
+                                        ContractId = item.ContractId,
+                                        ExpenseBookingDetailId = entity.Id,
+                                        EmployeePayableId = null
+                                    };
+                                    AuditService.AddedLog(invoiceCharges);
+                                    _invoiceDetailChargesRepository.Insert(invoiceCharges);
+                                }
+                                else
+                                {
+                                    var invoiceCharges = _invoiceDetailChargesRepository.Find(item.Id);
+                                    invoiceCharges.DistributedAmount = item.DistributedAmount;
+                                    AuditService.UpdatedLog(invoiceCharges);
+                                    _invoiceDetailChargesRepository.Update(invoiceCharges);
+                                }
+                            }
+                        }
+
                     }
                     else
                     {
@@ -164,7 +205,44 @@ namespace Library.Service.Expenses
                                 _expenseActivityRepository.Insert(expActivity);
                             }
                         }
-                        
+                        if (null != invoiceDetailChargesList && invoiceDetailChargesList.Count() > 0 )
+                        {
+
+                            foreach (var item in invoiceDetailChargesList.Where(r => r.GLGeneralInfoId == entity.GLGeneralInfoId && r.BudgetMasterId == entity.BudgetMasterId && r.ActivityId == entity.ActivityId))
+                            {
+                                var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
+                                var invoiceChargesId = 0;
+                                if (item.Id == null)
+                                {
+                                    invoiceChargesId++;
+                                    var invoiceCharges = new InvoiceDetailCharges
+                                    {
+                                        Id = MakePK(invoiceDetailChargesId, invoiceChargesId, 2),
+                                        InvoiceDetailId = item.InvoiceDetailId,
+                                        InvoiceId = item.InvoiceId,
+                                        DistributedAmount = item.DistributedAmount,
+                                        InvoiceServiceMasterChargesId = null,
+                                        VoucherDetailId = null,
+                                        Amount = item.Amount,
+                                        InvoiceType = item.InvoiceType,
+                                        MasterOrderId = item.MasterOrderId,
+                                        ContractId = item.ContractId,
+                                        ExpenseBookingDetailId = entity.Id,
+                                        EmployeePayableId = null
+                                    };
+                                    AuditService.AddedLog(invoiceCharges);
+                                    _invoiceDetailChargesRepository.Insert(invoiceCharges);
+                                }
+                                else
+                                {
+                                    var invoiceCharges = _invoiceDetailChargesRepository.Find(item.Id);
+                                    invoiceCharges.DistributedAmount = item.DistributedAmount;
+                                    AuditService.UpdatedLog(invoiceCharges);
+                                    _invoiceDetailChargesRepository.Update(invoiceCharges);
+                                }
+                            }
+                        }
+
                     }
                 }
             }
@@ -521,7 +599,7 @@ namespace Library.Service.Expenses
             }
         }
 
-        public void Insert(ExpenseBooking entity, IEnumerable<ExpenseBookingDetail> details,IEnumerable<ExpenseActivity> expActdetails)
+        public void Insert(ExpenseBooking entity, IEnumerable<ExpenseBookingDetail> details,IEnumerable<ExpenseActivity> expActdetails, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
         {
             var flag = false;
             try
@@ -541,7 +619,7 @@ namespace Library.Service.Expenses
                     entity.AddedBy = identity.EmployeeId;
                 else
                     entity.AddedBy = identity.UserId;
-                InsertOrUpdateGraph(details, expActdetails, entity);
+                InsertOrUpdateGraph(details, expActdetails, entity, invoiceDetailChargesList);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -563,7 +641,7 @@ namespace Library.Service.Expenses
             }
         }
 
-        public void Update(ExpenseBooking entity, IEnumerable<ExpenseBookingDetail> expenseBookingDetails, IEnumerable<ExpenseActivity> expActdetails)
+        public void Update(ExpenseBooking entity, IEnumerable<ExpenseBookingDetail> expenseBookingDetails, IEnumerable<ExpenseActivity> expActdetails, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
         {
             var flag = false;
             try
@@ -574,7 +652,7 @@ namespace Library.Service.Expenses
                 flag = true;
                 AuditService.UpdatedLog(entity);
                 entity.ApprovalStatus = ApprovalStatus.ToBeChecked.ToString();
-                InsertOrUpdateGraph(expenseBookingDetails, expActdetails, entity);
+                InsertOrUpdateGraph(expenseBookingDetails, expActdetails, entity, invoiceDetailChargesList);
                 UpdateGraph(entity);
                 _unitOfWork.SaveChanges();
                 flag = false;

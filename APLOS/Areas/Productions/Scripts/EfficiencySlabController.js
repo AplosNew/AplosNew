@@ -82,7 +82,6 @@ function EfficiencySlabController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.Save = function () {
 
-
         try {
             for (var i = 0; i < $scope.DataList.length; i++) {
 
@@ -91,7 +90,6 @@ function EfficiencySlabController(cboService, commonMessage, $scope, $rootScope,
 
                 if ($scope.DataList[i]['Maximum'] < 0)
                     throw 'Maximum value cannot be negative';
-
 
                 if ($scope.DataList[i]['Minimum'] >= $scope.DataList[i]['Maximum'])
                     throw 'Maximum value should be greater than minimum value';
