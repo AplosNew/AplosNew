@@ -1,5 +1,6 @@
 ﻿#region Using
 
+using bplib;
 using clsAttendance;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -20123,9 +20124,9 @@ namespace Library.Service.HumanResources
                     string EmployeeCode = dv[0]["EmployeeCode"].ToString();
 
                     string formula = string.Empty;
-                    if (Convert.ToBoolean(AllDesignation.ToString()) == true)
+                    if (clsWebLib.GetBoolData(AllDesignation.ToString()) == true)
                     {
-                        if (Convert.ToBoolean(IsFixed) == true)
+                        if (clsWebLib.GetBoolData(IsFixed) == true)
                         {
                             nwRate = clsStaticInfo.dbl(Rate);
                         }
@@ -20137,7 +20138,7 @@ namespace Library.Service.HumanResources
 
                     else
                     {
-                        if (Convert.ToBoolean(IsFixedFromRate.ToString()) == true)
+                        if (clsWebLib.GetBoolData(IsFixedFromRate.ToString()) == true)
                         {
                             nwRate = clsStaticInfo.dbl(ratear);
                         }
@@ -20147,7 +20148,7 @@ namespace Library.Service.HumanResources
                         }
                     }
 
-                    if (Convert.ToBoolean(IsFixed) == false && Convert.ToBoolean(IsFixedFromRate) == false)
+                    if (clsWebLib.GetBoolData(IsFixed) == false && clsWebLib.GetBoolData(IsFixedFromRate) == false)
                     {
                         if (string.IsNullOrEmpty(formula))
                         {

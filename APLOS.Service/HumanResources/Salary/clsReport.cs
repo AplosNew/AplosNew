@@ -5357,9 +5357,10 @@ namespace OTSBD
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
 
-
-                    dicStrSal.Add(dt.Rows[i]["EmpInfoSystemID"].ToString(), dt.Rows[i]["EntryAmount"].ToString());
-
+                    if (dicStrSal.ContainsKey(dt.Rows[i]["EmpInfoSystemID"].ToString()) == false)
+                    {
+                        dicStrSal.Add(dt.Rows[i]["EmpInfoSystemID"].ToString(), dt.Rows[i]["EntryAmount"].ToString());
+                    }
 
                 }
 
