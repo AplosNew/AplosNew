@@ -3901,6 +3901,7 @@
     <Content Include="Areas\Productions\Views\GeneralDataOperations\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\HourlyOTNew\HourlyOtReport.cshtml" />
     <Content Include="Areas\Attendances\Views\otFinalInformationNew\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\HourlyOTNew\HourlyOtReportMonth.cshtml" />
     <Content Include="Areas\Commercial\Views\InvoiceTaggedWithLC\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
