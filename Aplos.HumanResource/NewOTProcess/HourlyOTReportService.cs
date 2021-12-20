@@ -16,6 +16,8 @@ using Library.Data;
 using Library.Service.Payrolls.OT;
 using Library.Crosscutting.Security;
 using System.Threading;
+using System.Web.Hosting;
+using System.Globalization;
 
 namespace Library.HumanResource.NewOTProcess
 {
@@ -947,7 +949,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                     {
                         if (clsWebLib.GetBoolData(AllDesignation.ToString()) == true)
                         {
-                            if (Convert.ToBoolean(IsFixed) == true)
+                            if (clsWebLib.GetBoolData(IsFixed) == true)
                             {
                                 nwRate = clsStaticInfo.dbl(Rate);
                             }
@@ -1031,7 +1033,9 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
 
         #endregion
 
+        // Individual Report
 
+     
     }
 }
 

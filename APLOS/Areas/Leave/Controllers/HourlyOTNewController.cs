@@ -131,17 +131,6 @@ namespace Aplos.Areas.Leave.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = _AttendanceManagementService.GetIndividualDailyOT(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, FromDate, ToDate, OTDuration, CheckBox, OTfinal, "");
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Hourly Ot Monthly";
-                //switch (reportFormat)
-                //{
-                //    case ReportFormat.Pdf:
-                //        return RenderReportAsPdf(workbook, reportFileName);
-
-                //    case ReportFormat.Excel:
-                //        return RenderReportAsExcel(workbook, reportFileName);
-
-                //    default:
-                //        return RenderReportAsExcel(workbook, reportFileName);
-                //}
                 workbook.SaveAs(reportFileName + ".xlsx", HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
                 return null;
             }
