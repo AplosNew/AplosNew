@@ -261,7 +261,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
 
         }
-        [Authorize]
+        [HttpPost,Authorize]
         public ActionResult DeleteDetail(string id, string OrderSpecific)
         {
 

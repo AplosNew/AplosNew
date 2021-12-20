@@ -289,6 +289,7 @@ var upanelApp = angular
     .controller("OTAdjustmentController", OTAdjustmentController)
     .controller("otFinalController", otFinalController)
     .controller("otFinalInformationController", otFinalInformationController)
+    .controller("otFinalInformationNewController", otFinalInformationNewController)
     .controller("OTManagementController", OTManagementController)
     .controller("ourStyleController", OurStyleController)
     .controller("packingListMasterController", packingListMasterController)
@@ -986,6 +987,7 @@ var upanelApp = angular
 
     .controller('GeneralDataMasterController', GeneralDataMasterController)
     .controller('GeneralDataOperationsController', GeneralDataOperationsController)
+    .controller('InvoiceTaggedWithLCController', InvoiceTaggedWithLCController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)
