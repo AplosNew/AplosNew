@@ -64,15 +64,15 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             try
             {
-                if (clsStaticInfo.nullrecorder(VersionData["VersionNo"]) == "")
-                    throw new Exception("Select version.");
+                //if (string.IsNullOrEmpty(VersionData["Id"].ToString()) && string.IsNullOrEmpty(HeaderData["Id"].ToString()))
+                //    throw new Exception("Select version.");
 
                 String _PMVersionId = "";
                 string _PMMasterId = "";
                 ConnectionManager.DAL.ConManager conPIMaster = new ConnectionManager.DAL.ConManager("1");
                 conPIMaster.OpenDataSetThroughAdapter("select * from dbo.PIMaster where Id='" + HeaderData["Id"] + "'", out DataSet dsPIMaster, false, "1");
                 string _Id = "";
-                DataSet dsPIVersion = new DataSet() ;
+                DataSet dsPIVersion = new DataSet();
                 ConnectionManager.DAL.ConManager conPIVersion = new ConnectionManager.DAL.ConManager("1");
                 #region data update
                 if (dsPIMaster.Tables[0].Rows.Count == 0)
@@ -81,21 +81,21 @@ namespace Aplos.Areas.Commercial.Controllers
                     genid.GenID("dbo.PIMaster", out _Id);
                     _Id = "PI" + _Id;
                     HeaderData["Id"] = _Id;
-                     _PMMasterId = HeaderData["Id"].ToString();
+                    _PMMasterId = HeaderData["Id"].ToString();
                     AddNewRow(dsPIMaster.Tables[0], HeaderData);
 
 
-                     conPIVersion = new ConnectionManager.DAL.ConManager("1");
+                    conPIVersion = new ConnectionManager.DAL.ConManager("1");
                     conPIVersion.OpenDataSetThroughAdapter("select * from dbo.PIVersion where PIMasterId='" + HeaderData["Id"] + "' AND Id='" + VersionData["Id"] + "'", out dsPIVersion, false, "1");
                     if (dsPIVersion.Tables[0].Rows.Count == 0)
                     {
-                         genid = new bplib.clsGenID();
+                        genid = new bplib.clsGenID();
                         genid.GenID("dbo.PIVersion", out _Id);
                         _Id = "PV" + _Id;
                         VersionData["Id"] = _Id;
-                        VersionData["Id"] = _Id;
+                        VersionData["VersionNo"] = 1;
                         VersionData["PIMasterId"] = _PMMasterId;
-                         _PMVersionId = VersionData["Id"].ToString();
+                        _PMVersionId = VersionData["Id"].ToString();
                         AddNewRow(dsPIVersion.Tables[0], VersionData);
                     }
                 }
@@ -105,10 +105,9 @@ namespace Aplos.Areas.Commercial.Controllers
                     EditRow(dsPIMaster.Tables[0].Rows[0], HeaderData);
 
                     conPIVersion = new ConnectionManager.DAL.ConManager("1");
-                    conPIVersion.OpenDataSetThroughAdapter("select * from dbo.PIVersion where MasterId='" + HeaderData["Id"] + "' AND Id='" + VersionData["Id"] + "' ", out dsPIVersion, false, "1");
+                    conPIVersion.OpenDataSetThroughAdapter("select * from dbo.PIVersion where PIMasterId='" + HeaderData["Id"] + "' AND Id='" + VersionData["Id"] + "' ", out dsPIVersion, false, "1");
                     if (dsPIMaster.Tables[0].Rows.Count > 0)
                     {
-                        _Id = VersionData["Id"].ToString();
                         EditRow(dsPIVersion.Tables[0].Rows[0], VersionData);
                     }
                 }
@@ -307,5 +306,89 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId
 
             return Json(new { UOMList = _UOMList }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost, Authorize]
+        public JsonResult NewVersion(string PIMasterId, string PIVersionId)
+        {
+            try
+            {
+
+                DataTable dtVersion, dtMaterial;
+                DataRow drVersion, drMaterial;
+                String _PMVersionId = "";
+                string _PIMaterialId = "";
+                ConnectionManager.DAL.ConManager conPIVersion = new ConnectionManager.DAL.ConManager("1");
+                conPIVersion.OpenDataSetThroughAdapter("select * from dbo.PIVersion where Id='" + PIVersionId + @"'AND PIMasterId='" + PIMasterId + @"'  ", out DataSet dsPIVersion, false, "1");
+                ConnectionManager.DAL.ConManager conPINewVersion = new ConnectionManager.DAL.ConManager("1");
+                conPINewVersion.OpenDataSetThroughAdapter("select * from dbo.PIVersion where 1=2 ", out DataSet dsPINewVersion, false, "1");
+
+                ConnectionManager.DAL.ConManager conPIMaterial = new ConnectionManager.DAL.ConManager("1");
+                conPIVersion.OpenDataSetThroughAdapter("select * from dbo.PIMaterial where PIMasterId='" + PIMasterId + @"'AND PIVersionId='" + PIVersionId + @"'  ", out DataSet dsPIMaterial, false, "1");
+                ConnectionManager.DAL.ConManager conPINewMaterial = new ConnectionManager.DAL.ConManager("1");
+                conPINewVersion.OpenDataSetThroughAdapter("select * from dbo.PIMaterial where 1=2 ", out DataSet dsPINewMaterial, false, "1");
+
+                dtMaterial = dsPINewMaterial.Tables[0];
+                dtVersion = dsPINewVersion.Tables[0];
+                string _Id = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (dsPIVersion.Tables[0].Rows.Count > 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("dbo.PIVersion", out _Id);
+                    _Id = "PV" + _Id;
+                    int count = 0;
+                    for (int i = 0; i < dsPIVersion.Tables[0].Rows.Count; i++)
+                    {
+                        drVersion = dtVersion.NewRow();
+                        count++;
+                        drVersion["Id"] = _Id + count;
+                        drVersion["PIMasterId"] = dsPIVersion.Tables[0].Rows[i]["PIMasterId"];
+                        drVersion["VersionNo"] = dsPIVersion.Tables[0].Rows[i]["VersionNo"];
+                        drVersion["VersionRefNo"] = dsPIVersion.Tables[0].Rows[i]["VersionRefNo"];
+                        drVersion["VersionDate"] = dsPIVersion.Tables[0].Rows[i]["VersionDate"];
+                        drVersion["AddedBy"] = identity.Name;
+                        drVersion["AddedDate"] = System.DateTime.Now.ToString();
+                        drVersion["AddedFromIP"] = identity.IPAddress;
+                        dtVersion.Rows.Add(drVersion);
+
+                    }
+
+
+                    if (dsPIMaterial.Tables[0].Rows.Count > 0)
+                    {
+                        genid = new bplib.clsGenID();
+                        genid.GenID("dbo.PIMaterial", out _PIMaterialId);
+                        _PIMaterialId = "PM" + _Id;
+                        int Mcount = 0;
+                        for (int i = 0; i < dsPIMaterial.Tables[0].Rows.Count; i++)
+                        {
+                            drMaterial = dtMaterial.NewRow();
+                            Mcount++;
+                            drMaterial["Id"] = _Id + Mcount;
+                            drMaterial["PIMasterId"] = dsPIMaterial.Tables[0].Rows[i]["PIMasterId"];
+                            drMaterial["VersionNo"] = dsPIMaterial.Tables[0].Rows[i]["VersionNo"];
+                            drMaterial["VersionRefNo"] = dsPIMaterial.Tables[0].Rows[i]["VersionRefNo"];
+                            drMaterial["VersionDate"] = dsPIMaterial.Tables[0].Rows[i]["VersionDate"];
+                            drMaterial["AddedBy"] = identity.Name;
+                            drMaterial["AddedDate"] = System.DateTime.Now.ToString();
+                            drMaterial["AddedFromIP"] = identity.IPAddress;
+                            dtMaterial.Rows.Add(drMaterial);
+                        }
+                        return null;
+                    }
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsPINewVersion, dsPINewMaterial);
+
+                    return Json(new { Error = false, Message = AplosMessage.Insert });
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
     }
 }

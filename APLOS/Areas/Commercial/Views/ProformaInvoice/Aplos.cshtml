@@ -3,14 +3,12 @@
     <div class="modal-body">
         <div class="row">
             <div class="form-elements form-horizontal">
-
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PI No :</span></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="PI No." ng-model="PImodelNew.PINo" class="form-control" maxlength="15" required tabindex="5">
                         </div>
-
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PI REF # :</span></label>
@@ -39,24 +37,34 @@
                                 <input type="text" name="Customer" ng-model="PImodelNew.Customer" class="form-control" readonly required>
                                 <span class="input-group-btn">
                                     <button ng-click="ShowCustomerPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
-                                    @*<button ng-click="showPartyPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>*@
                                     <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                 </span>
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="form-group ">
+                    <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">Version :</span></label>
-                        <div class="col-sm-8 ">
-                            <div class="select-style show-message">
-                                <select ng-model="PIVersionModel.VersionNo">
-                                    <option ng-repeat="option in ddlVersionList" value="{{option.value}}">{{option.name}}</option>
-                                </select>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <div class="select-style">
+                                    <select name="Version" class="form-control" ng-model="PIVersionModel.Id" ng-options="item.Id as item.VersionNo for item in VersionList">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                                <span class="input-group-btn">
+                                    <button ng-click="NewVersion();" class="btn single-small-btn"><i class="glyphicon glyphicon-plane"></i></button>
+                                </span>
                             </div>
                         </div>
+                        @*<div class="col-sm-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li></li>
+                                    </ul>
+                                </div>
+                            </div>*@
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">Buyer :</span><sup>*</sup></label>
@@ -90,7 +98,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-
                                     <tr ng-repeat="item in DataList">
                                         <th>{{$index>0?'':''}}</th>
                                         <td>
@@ -98,7 +105,6 @@
                                                 <input id="{{'MG'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupList" e-change="OnUOMChange" e-enablefiltersearch="true" e-value="item.MaterialGroupMasterId" e-fields-value="Id" e-fields-text="MaterialGroup" e-width="100%" />
                                             </div>
                                         </td>
-
                                         <td><input type="text" ng-model="item.Description" class="form-control" @*ng-disabled="DataList.length>1"*@ /></td>
                                         <td><input type="number" ng-model="item.Quantity" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
                                         <td><input type="number" ng-model="item.Rate" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
@@ -110,10 +116,15 @@
                                             </div>
                                         </td>
                                         <td><input type="text" ng-model="item.DeliveryDate" datepicker class="form-control" /></td>
-                                        <td><input type="text" ng-model="item.Currency" class="form-control" /></td>
+                                        <td style="width:100px;">
+                                            <div class="select-style">
+                                                <select name="Currency" class="form-control" ng-model="item.CurrencyId" ng-options="item.Value as item.Text for item in currencyList">
+                                                    <option value="">--Select--</option>
+                                                </select>
+                                            </div>
+                                        </td>
                                         <td><input type="number" ng-model="item.Amount" class="form-control" /></td>
-
-                                        <td class="text-right" ng-hide="$index<DataList.length-1">
+                                        <td class="text-right" @*ng-hide="$index<DataList.length==1"*@>
                                             <ul class="list-inline">
                                                 <li><button ng-click="SubmitH(item);ClearGrid();" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
                                                 <li><button ng-hide="DataList.length<2" ng-click="Remove($index);ClearGrid();" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
