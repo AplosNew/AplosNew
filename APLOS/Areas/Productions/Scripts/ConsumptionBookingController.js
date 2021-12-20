@@ -390,7 +390,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         var filtered = $("#GridLineItems").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.LineItemsList.length; i++) {
-                $scope.LineItemsList[i].Active = ChkOrUnchk;
+                $scope.LineItemsList[i].Flag = ChkOrUnchk;
             }
         }
         else {
@@ -501,6 +501,22 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     //$scope.CloseFGInventoryRegister = function () {
     //    angular.element(document.querySelector('#FGInventoryRegisterPopup')).modal('hide');
     //}
+
+    $scope.ItemDetailList = [];
+    $scope.GetItemDetailListData = function (obj) {
+        $scope.ItemDetailList = [];
+        $http.get("Productions/FinishGoodsBooking/GetItemDetailListData?productionOrderId=" + obj.ProductionOrderId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.ItemDetailList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#ItemDetailPopup')).modal('show');
+    };
 
 }
 
