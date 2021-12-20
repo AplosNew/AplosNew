@@ -1332,11 +1332,13 @@ namespace Library.Service.HumanResources
 
                 #region ColumnHeaderVariables              
                 int cUnit = 0; int cSubSection = 0; int cAttendancGroup = 0; int cOnRollManpower; int cBudgetedManPower; int cFdPresent = 0; int cfdAbsent = 0;
-                int cfdLeave = 0; int cfdLate = 0; int cfdOthers = 0; var cfdRemarks = 0; int cDivision = 0;
+                int cfdLeave = 0; int cfdLate = 0; int cfdOthers = 0; var cfdRemarks = 0; int cDivision = 0;int cEmpCategory = 0;int cSection = 0;
                 #endregion
                 #region ColumnHeaders
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Division", ExcelHAlign.HAlignCenter); cDivision = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Unit", ExcelHAlign.HAlignCenter); cUnit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Category", ExcelHAlign.HAlignCenter); cEmpCategory = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section", ExcelHAlign.HAlignCenter); cSection = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budgeted", 8, ExcelHAlign.HAlignCenter); cBudgetedManPower = xlsCol; xlsCol++;
@@ -1358,6 +1360,8 @@ namespace Library.Service.HumanResources
                     string _grp2 = string.Empty;
                     string _grp3 = string.Empty;
                     string _grp4 = string.Empty;
+                    string _grp5 = string.Empty;
+                    string _grp6 = string.Empty;
 
 
                     #endregion
@@ -1365,6 +1369,8 @@ namespace Library.Service.HumanResources
                     var catGrp2FRow = xlsRow;
                     var catGrp3FRow = xlsRow;
                     var catGrp4FRow = xlsRow;
+                    var catGrp5FRow = xlsRow;
+                    var catGrp6FRow = xlsRow;
 
                     ArrayList rowList = new ArrayList();
                     var lastMPGroup = string.Empty;
@@ -1415,6 +1421,14 @@ namespace Library.Service.HumanResources
 
                             _grp2 = dtManPBSummary.Rows[i]["UnitName"].ToString();
                             SetCellText(sheet1, xlsRow, cUnit, _grp2);
+
+                            _grp5 = dtManPBSummary.Rows[i]["EmpCategory"].ToString();
+                            SetCellText(sheet1, xlsRow, cEmpCategory, _grp5);
+
+                            _grp6 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSection, _grp6);
+
+
                             _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
                             SetCellText(sheet1, xlsRow, cSubSection, _grp3);
                             _grp4 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
@@ -1425,6 +1439,8 @@ namespace Library.Service.HumanResources
                                 catFRow = xlsRow;
                                 catGrp2FRow = xlsRow;
                                 catGrp3FRow = xlsRow;
+                                catGrp5FRow = xlsRow;
+                                catGrp6FRow = xlsRow;
 
                             }
                         }
@@ -1445,9 +1461,60 @@ namespace Library.Service.HumanResources
                             {
                                 catGrp2FRow = xlsRow;
                                 catGrp3FRow = xlsRow;
+                                catGrp5FRow = xlsRow;
+                                catGrp6FRow = xlsRow;
 
                             }
                         }
+
+                        else if (_grp5 != dtManPBSummary.Rows[i]["EmpCategory"].ToString())
+                        {
+                            _grp5 = dtManPBSummary.Rows[i]["EmpCategory"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cEmpCategory].Text = _grp5;
+                            sheet1.Range[xlsRow, cEmpCategory, xlsRow, cEmpCategory].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cEmpCategory].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cEmpCategory].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                            _grp6 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSection, _grp6);
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _grp4 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp4);
+                            if (catGrp5FRow < xlsRow)
+                            {
+                                catGrp5FRow = xlsRow;
+                                catGrp6FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                            }
+                        }
+
+                        else if (_grp6 != dtManPBSummary.Rows[i]["SectionName"].ToString())
+                        {
+                            _grp6 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSubSection, _grp2);
+                            sheet1.Range[xlsRow, cSection].Text = _grp6;
+                            sheet1.Range[xlsRow, cSection, xlsRow, cSection].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cSection].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                            sheet1.Range[xlsRow, cSection].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                            //_grp6 = dtManPBSummary.Rows[i]["SectionName"].ToString();
+                            //SetCellText(sheet1, xlsRow, cSection, _grp6);
+                            _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
+                            SetCellText(sheet1, xlsRow, cSubSection, _grp3);
+                            _grp4 = dtManPBSummary.Rows[i]["DesignationName"].ToString();
+                            SetCellText(sheet1, xlsRow, cAttendancGroup, _grp4);
+                            if (catGrp6FRow < xlsRow)
+                            {
+                                //catGrp6FRow = xlsRow;
+                                catGrp6FRow = xlsRow;
+                                catGrp3FRow = xlsRow;
+                            }
+                        }
+
                         else if (_grp3 != dtManPBSummary.Rows[i]["SubSectionName"].ToString())
                         {
                             _grp3 = dtManPBSummary.Rows[i]["SubSectionName"].ToString();
@@ -1474,8 +1541,14 @@ namespace Library.Service.HumanResources
                             sheet1.Range[catFRow, cDivision, xlsRow, cDivision].BorderAround(ExcelLineStyle.Hair);
                             sheet1.Range[catGrp2FRow, cUnit, xlsRow, cUnit].Merge();
                             sheet1.Range[catGrp2FRow, cUnit, xlsRow, cUnit].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[catGrp5FRow, cEmpCategory, xlsRow, cEmpCategory].Merge();
+                            sheet1.Range[catGrp5FRow, cEmpCategory, xlsRow, cEmpCategory].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[catGrp6FRow, cSection, xlsRow, cSection].Merge();
+                            sheet1.Range[catGrp6FRow, cSection, xlsRow, cSection].BorderAround(ExcelLineStyle.Hair);
                             sheet1.Range[catGrp3FRow, cSubSection, xlsRow, cSubSection].Merge();
                             sheet1.Range[catGrp3FRow, cSubSection, xlsRow, cSubSection].BorderAround(ExcelLineStyle.Hair);
+
+                            
 
                         }
                         oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, Convert.ToInt32(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
@@ -3608,7 +3681,7 @@ namespace Library.Service.HumanResources
                     includeLa1 = " And  ISNULL(E.EmployeeCurrentStatus,'') <>  'TBS'";
                 }
                 strSql = @"SELECT DivisionName
-                            	,UnitName
+                            	,UnitName,EDE.EmpCategory,EDE.SectionName
                             	,SubSectionName
                             	,DesignationName " + selectLine + @"
                             	,ISNULL(SUM(TotalNumber), 0) ProposedManpowerBudget
@@ -3620,7 +3693,8 @@ namespace Library.Service.HumanResources
                             	,ISNULL(SUM(Others), 0) SUM_Others
                             FROM (
                             	SELECT m.DesignationName
-                            		,M.DivisionName
+                            		,M.DivisionName,M.EmpCategory
+                            		,M.SectionName
                             		,M.SubSectionName
                             		,M.UnitName " + MselectLine + @"
                             		,TotalNumber
@@ -3653,7 +3727,8 @@ namespace Library.Service.HumanResources
                             			,Unit.Sequence UnitSequence
                             			,Line.UserName LineName
                             			,ISNULL(Line.Id, '') LineId
-                            			,Line.Sequence LineSequence
+                            			,Line.Sequence LineSequence,Section.UserName SectionName
+                            			,EC.UserName EmpCategory
                             		FROM [MST].[ManpowerBudget] MB
                             		LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
                             		LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
@@ -3666,6 +3741,8 @@ namespace Library.Service.HumanResources
                             		LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
                             		LEFT JOIN [ORG].[Subsection] ON Subsection.Id = Po.SubsectionId
                             		LEFT JOIN [HKP].Designation Designation ON Designation.Id = PO.DesignationId
+									left join [MST].[DesignationMaster] dm on dm.DesignationId=po.DesignationId
+                            		left join HKP.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
                             		WHERE Cg.Id = '" + companyGroupId + @"'
                             			AND C.Id = '" + companyId + @"'
                             			AND E.PlantId IN (" + plantId + @")
@@ -4036,11 +4113,11 @@ namespace Library.Service.HumanResources
                             		AND ShiftNotAssigned.UnitId = M.UnitId " + joiningLineShiftNotAssigned + @"
                             	) EDE
                             GROUP BY DesignationName
-                            	,DivisionName
+                            	,DivisionName,EDE.EmpCategory,EDE.SectionName
                             	,SubSectionName
                             	,UnitName " + selectLine + @"
                             ORDER BY DivisionName
-                            	,UnitName
+                            	,UnitName,EDE.EmpCategory,EDE.SectionName
                             	,SubSectionName " + selectLine + @"
                             	,DesignationName";
 
