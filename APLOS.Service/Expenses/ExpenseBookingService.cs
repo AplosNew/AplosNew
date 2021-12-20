@@ -1184,7 +1184,18 @@ namespace Library.Service.Expenses
                             ToCurrencyId = voucherVM.CurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate
                         });
-                    }
+                        
+                       var invoiceDetailChargesData = _invoiceDetailChargesRepository.Query(x=> x.ExpenseBookingDetailId==voucherDetailVM.ExpenseBookingDetailId).Select().ToList();
+                       if(invoiceDetailChargesData !=null)
+                        {
+                            foreach (var invoiceDetailCharges in invoiceDetailChargesData)
+                            {
+                                invoiceDetailCharges.VoucherDetailId = voucherDr.Id;
+                                _invoiceDetailChargesRepository.Update(invoiceDetailCharges);
+                            }
+                        }
+                        
+                     }
                 }
                 if (voucherVM.BeneficiaryType == BeneficiaryType.Vendor.ToString())
                 {

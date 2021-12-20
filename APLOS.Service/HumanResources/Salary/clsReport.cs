@@ -1540,9 +1540,9 @@ namespace OTSBD
 									when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then 'W'
 									else AR.DayStatus end
 									,InTimeShow = case when hr.NoPunchOnHoliday = 1 and dt.OriginalDayType = 'H' then null
-									 when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then null else FORMAT( AR.InTime,'HH:mm') end
+									 when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then null else AR.InTime end
 									,OutTimeShow = case when hr.NoPunchOnHoliday = 1 and dt.OriginalDayType = 'H' then Null
-								 when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then Null	else FORMAT( AR.OutTime,'HH:mm') end
+								 when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then Null	else AR.OutTime end
                             ,ShiftInTimeLate=CASE
 							 WHEN cs.InTime IS NULL
 							 THEN CONVERT(varchar(15),CAST(SD.InTime AS TIME),108)

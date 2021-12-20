@@ -846,7 +846,7 @@ namespace Library.General.TaskScheduler
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
+                        genid.GenID("TO DO COMMENT", out _Id);
 
                         dr["Id"] = "TC" + _Id;
                         dr["TaskManagerMasterId"] = MId;
@@ -891,7 +891,7 @@ namespace Library.General.TaskScheduler
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out string _Id);
+                        genid.GenID("TO DO AUTH", out string _Id);
 
                         dr["Id"] = "AU" + _Id;
                         dr["TaskManagerMasterId"] = MId;
@@ -1032,7 +1032,7 @@ namespace Library.General.TaskScheduler
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
+                        genid.GenID("TO DO", out _Id);
 
                         dr["Id"] = "TD" + _Id;
                         dr["TaskType"] = item.TaskType;
@@ -1136,7 +1136,7 @@ namespace Library.General.TaskScheduler
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
+                        genid.GenID("TO DO SubTask", out _Id);
 
                         dr["Id"] = "TC" + _Id;
                         dr["TaskManagerMasterId"] = MId;
@@ -1482,7 +1482,7 @@ namespace Library.General.TaskScheduler
                         DataRow drAuth = dsAuthorization.Tables[0].Rows[0];
                         drAuth.BeginEdit();
                         drAuth["isDone"] = false;
-                        drAuth["UpdatedDate"] = System.DateTime.Now.ToString();
+                        drAuth["UpdatedDate"] = DateTime.Now.ToString();
                         drAuth.EndEdit();
 
                     }
