@@ -1619,5 +1619,81 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 
 
 	}
+	$scope.serviceChargePopUp = function () {
+		$scope.taxCategoryList = null;
+		$scope.serviceModel = {
+			Id: null
+			, ServiceMasterId: null
+			, InventoryReceiveId: $scope.productNew.Id
+			, CurrencyName: angular.element("#currency :selected").text()
+			, CurrencyId: $scope.productNew.CurrencyId
+			, BaseCurrencyId: $scope.baseCurrencyId
+			, DocDate: $scope.productNew.DocDate
+			, TransactionAmount: 0
+			, BaseAmount: 0
+			, TotalTaxAmount: 0
+			, ToCurrencyRate: $scope.productNew.ToCurrencyRate
+			, IsNonCreditable: $scope.productNew.IsNonCreditable
+		};
+		angular.element(document.querySelector('#serviceChargePopUp')).modal('show');
+	};
 
+	$http.get('Setups/CompanyServiceMaster/GetCboList')
+		.then(function (response) {
+			$scope.serviceList = response.data;
+			console.log('serviceList', $scope.serviceList);
+		});
+	$scope.closeServiceChargePopUp = function () {
+		$scope.serviceModel = {};
+		angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
+	};
+
+	$scope.taxCategoryList = [];
+	function getTaxCategoryList(hsnCodeId, HSNCode) {
+		$scope.taxCategoryList = [];
+		$http({
+			method: 'GET'
+			, url: 'Products/PurchaseOrder/getserviceTaxByTaxCategoryList?receiveId=' + $scope.GriddataSelected[0].id + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.productNew.AcknowledgementDate
+		}).then(function (response) {
+			$scope.taxCategoryList = response.data;
+			for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+				if (baseService.isUndefinedOrNull($scope.taxCategoryList[i].hsnCodeId)) {
+					$scope.taxCategoryList[i].HSNCode = HSNCode;
+					$scope.taxCategoryList[i].HSNCodeId = hsnCodeId;
+				}
+			}
+		});
+	}
+	$scope.changeService = function () {
+		if (baseService.isUndefinedOrNull($scope.serviceModel.ServiceMasterId))
+			return getTaxCategoryList(hsnCodeId);//$scope.taxCategoryList = [];
+		var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === $scope.serviceModel.ServiceMasterId; })[0].HSNCodeId;
+		var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === $scope.serviceModel.ServiceMasterId; })[0].HSNCode;
+		getTaxCategoryList(hsnCodeId, HSNCode);
+	};
+
+	$scope.calculateSvcTaxCategory = function () {
+		$scope.serviceModel.TotalTaxAmount = 0;
+		for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
+			$scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.serviceModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
+			$scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+		}
+		if (isNaN($scope.serviceModel.TotalTaxAmount)) $scope.serviceModel.TotalTaxAmount = 0;
+	};
+
+	$scope.sumSvcTaxAmount = function () {
+		$scope.serviceModel.TotalTaxAmount = 0;
+		for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
+			$scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+		}
+	};
+
+	$scope.AddCharges = function () {
+		$scope.chargesListPO.push($scope.serviceModel)
+		for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+			$scope.receiveTaxList.push($scope.taxCategoryList[i]);
+        }
+		$scope.serviceModel = {};
+		angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
+	};
 }

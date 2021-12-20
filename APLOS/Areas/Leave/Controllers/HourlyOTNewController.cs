@@ -49,93 +49,13 @@ namespace Aplos.Areas.Leave.Controllers
         {
             return View();
         }
-       
+        public ActionResult HourlyOtReportMonth()
+        {
+            return View();
+        }
         #endregion -- Pages
 
         #region -- Operations
-
-        [HttpPost]
-        public ActionResult Save(HourlyOt HourlyOt)
-        {
-            try
-            {
-                DateTime NewWorkDate;
-                string ot = Convert.ToDateTime(HourlyOt.FromDate).ToString("dd-MMM-yyyy");
-                NewWorkDate = Convert.ToDateTime(ot).AddDays(-1);
-
-                if (Convert.ToDateTime(NewWorkDate) > Convert.ToDateTime(HourlyOt.WorkDate))
-                {
-                    throw new Exception("Only Previous Day Allow From From Date");
-                }
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                clsHourlyOt obj = new clsHourlyOt();
-                HourlyOt.AddedBy = identity.Name;
-                HourlyOt.AddedDate = DateTime.Now;
-                HourlyOt.PlantId = identity.PlantId;
-                HourlyOt.UpdatedDate = DateTime.Now;
-                HourlyOt.UpdatedBy = identity.Name;
-                HourlyOt.AddedFromIP = identity.IPAddress;
-                HourlyOt.UpdatedFromIP = identity.IPAddress;
-
-                obj.SaveDutyHour(HourlyOt);
-                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        [HttpGet]
-        public ActionResult GetOffDuty(string empId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"	 select  Id,EmpSystemId,
-                Format(FromDate,'dd-MMM-yyyy hh:mm tt')FromDate,Format(ToDate,'dd-MMM-yyyy hh:mm tt')ToDate,Duration,Format(WorkDate,'dd-MMM-yyyy')WorkDate
-                              from HourlyOT where EmpSystemId='" + empId + "' and OTType='DiscreteOT' ORDER BY  FromDate DESC ";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-        [HttpGet]
-        public ActionResult Delete(string Id)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsExceptionEmployeeList;
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"Delete FROM HourlyOT WHERE Id='" + Id + @"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsExceptionEmployeeList, false, "1");
-
-            }
-            catch (Exception ex)
-            {
-
-                throw (ex);
-            }
-
-            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetShiftInfo(string EmpSystemID, string WorkDate)
-        {
-            string sql = string.Empty;
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                clsOffDDutyHours ob = new clsOffDDutyHours(_sqlRepository);
-                var data = ob.GetShiftInfo(EmpSystemID, WorkDate);
-
-                return Json(new { ShiftInfo = data }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
 
         #region Hourly OT Report
 
@@ -176,8 +96,9 @@ namespace Aplos.Areas.Leave.Controllers
         {
             try
             {
+                HourlyOTReportService ot = new HourlyOTReportService();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = _AttendanceManagementService.GetHourlyOTMonthly(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, YearNo, MonthNo, isActive, isSeperated);
+                IWorkbook workbook = ot.GetHourlyOTMonthly(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, YearNo, MonthNo, isActive, isSeperated);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Hourly Ot Monthly";
                 switch (reportFormat)
                 {
@@ -210,17 +131,6 @@ namespace Aplos.Areas.Leave.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = _AttendanceManagementService.GetIndividualDailyOT(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, FromDate, ToDate, OTDuration, CheckBox, OTfinal, "");
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Hourly Ot Monthly";
-                //switch (reportFormat)
-                //{
-                //    case ReportFormat.Pdf:
-                //        return RenderReportAsPdf(workbook, reportFileName);
-
-                //    case ReportFormat.Excel:
-                //        return RenderReportAsExcel(workbook, reportFileName);
-
-                //    default:
-                //        return RenderReportAsExcel(workbook, reportFileName);
-                //}
                 workbook.SaveAs(reportFileName + ".xlsx", HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
                 return null;
             }
