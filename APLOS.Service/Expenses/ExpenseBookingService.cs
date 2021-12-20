@@ -156,8 +156,7 @@ namespace Library.Service.Expenses
                                         InvoiceType = item.InvoiceType,
                                         MasterOrderId = item.MasterOrderId,
                                         ContractId = item.ContractId,
-                                        ExpenseBookingDetailId = entity.Id,
-                                        EmployeePayableId = null
+                                        ExpenseBookingDetailId = entity.Id
                                     };
                                     AuditService.AddedLog(invoiceCharges);
                                     _invoiceDetailChargesRepository.Insert(invoiceCharges);
@@ -227,8 +226,7 @@ namespace Library.Service.Expenses
                                         InvoiceType = item.InvoiceType,
                                         MasterOrderId = item.MasterOrderId,
                                         ContractId = item.ContractId,
-                                        ExpenseBookingDetailId = entity.Id,
-                                        EmployeePayableId = null
+                                        ExpenseBookingDetailId = entity.Id
                                     };
                                     AuditService.AddedLog(invoiceCharges);
                                     _invoiceDetailChargesRepository.Insert(invoiceCharges);
@@ -1186,7 +1184,7 @@ namespace Library.Service.Expenses
                         });
                         
                        var invoiceDetailChargesData = _invoiceDetailChargesRepository.Query(x=> x.ExpenseBookingDetailId==voucherDetailVM.ExpenseBookingDetailId).Select().ToList();
-                       if(invoiceDetailChargesData !=null)
+                       if(invoiceDetailChargesData !=null && invoiceDetailChargesData.Count() > 0)
                         {
                             foreach (var invoiceDetailCharges in invoiceDetailChargesData)
                             {
