@@ -239,7 +239,7 @@ namespace Library.MaterialManagement.Inventory
                         if (im.IsNotNull())
                         {
 
-                            if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
+                            //if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
                             item.InventoryIssueId = _pk;
                             item.InventoryMaterialId = im.Id;
                             item.CompanyGroupId = im.CompanyGroupId;
@@ -721,6 +721,7 @@ namespace Library.MaterialManagement.Inventory
 
                                 foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                 {
+                                    if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
                                     decimal IssueTransactionQty = item.RequisitionQty;
                                     decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(x.ISHTotalBaseAmount),0)+isnull(sum(x.PRTotalMaterialTranAmount),0)+isnull(sum(x.PSAHTotalAmount),0)+isnull(sum(x.IIHTotalAmount),0) +isnull(sum(x.InvSTotalAmount),0) +isnull(sum(x.ITHTotalAmount),0)) -isnull(sum(x.IIRTotalAmount),0))  
 																														FROM (
