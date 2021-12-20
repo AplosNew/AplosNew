@@ -1032,7 +1032,7 @@ namespace Library.General.TaskScheduler
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
+                        genid.GenID("TO DO", out _Id);
 
                         dr["Id"] = "TD" + _Id;
                         dr["TaskType"] = item.TaskType;
