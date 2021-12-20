@@ -1563,13 +1563,12 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
                 , GLGeneralInfoId: $scope.GLGeneralInfoId
                 , BudgetMasterId: $scope.BudgetMasterId
                 , ActivityId: $scope.ActivityId
-                , MasterOrderId: a.MasterOrderId
+                , MasterOrderId: null
                 , ContractId: a.Id
                 , ContractNo: a.ContractNo
                 , UDNo: a.UDNo
                 , CustomerName: a.CustomerName
                 , Buyer: a.Buyer
-                , MasterOrderId: a.MasterOrderId
                 , Remarks: a.Remarks
             });
         }
