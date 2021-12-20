@@ -100,7 +100,7 @@ namespace Aplos.Controllers
             var objects = JsonConvert.DeserializeObject<Dictionary<string, object>>(readData);
             var expenseBookinOb = GetData<ExpenseBooking>("expenseBookinOb", objects);
             var expenseBookinList = GetListData<ExpenseBookingDetail>("expenseBookingList", objects);
-            _expenseBookingService.Insert(expenseBookinOb, expenseBookinList,null);
+            _expenseBookingService.Insert(expenseBookinOb, expenseBookinList,null, null);
             Request.CreateResponse(HttpStatusCode.OK);
         }
 

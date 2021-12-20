@@ -755,30 +755,34 @@
 	</div>
 
 	<div class="tab-content">
-		<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-			<div class="table-responsive modal-table">
-				<table class="table table-striped">
-					<thead>
-						<tr ng-show="chargesListPO.length">
-							<th>Chk</th>
-							<th>RowId</th>
-							<th>Service</th>
-							<th>POQty</th>
-							<th>UoM</th>
-							<th>Other Received</th>
-							<th>Current Received</th>
-							<th>Balance</th>
-							<th>Rate</th>
-							<th class="text-center">PO Service Amount</th>
-							@*<th>Received Service Amount (TRN)</th>
-								<th>Current Amount (TRN)</th>*@
-							<th>Total Tax Amount</th>
-							<th>Total Amount</th>
-							<th class="col-sm-1">Action</th>
-						</tr>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
-					</thead>
-					<tbody>
+            @*<ul class="common-btn list-inline text-left">
+                <li><button ng-click="serviceChargePopUp();" ng-show="GriddataSelected.length>0"  class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
+            </ul>*@
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr ng-show="chargesListPO.length">
+                            <th>Chk</th>
+                            <th>RowId</th>
+                            <th>Service</th>
+                            <th>POQty</th>
+                            <th>UoM</th>
+                            <th>Other Received</th>
+                            <th>Current Received</th>
+                            <th>Balance</th>
+                            <th>Rate</th>
+                            <th class="text-center">PO Service Amount</th>
+                            @*<th>Received Service Amount (TRN)</th>
+                        <th>Current Amount (TRN)</th>*@
+                            <th>Total Tax Amount</th>
+                            <th>Total Amount</th>
+                            <th class="col-sm-1">Action</th>
+                        </tr>
+
+                    </thead>
+                    <tbody>
 
                         <tr ng-repeat="x in chargesListPO" ng-show="chargesListPO.length">
                             <td>
@@ -813,124 +817,124 @@
                             </td>
                         </tr>
 
-						<tr ng-show="chargesListPO.length">
-							<td></td>
-							<td colspan="1" class="text-right"><strong>Total : </strong></td>
-							<td></td>
-							<td class="text-right"><strong>{{chargesListPO | sumByKey : 'Qty'| setDecimal:2| number }}</strong></td>
-							<td class="text-right"><strong>{{UoM}}</strong></td>
+                        <tr ng-show="chargesListPO.length">
+                            <td></td>
+                            <td colspan="1" class="text-right"><strong>Total : </strong></td>
+                            <td></td>
+                            <td class="text-right"><strong>{{chargesListPO | sumByKey : 'Qty'| setDecimal:2| number }}</strong></td>
+                            <td class="text-right"><strong>{{UoM}}</strong></td>
 
-							<td class="text-right"><strong>{{chargesListPO | sumByKey : 'OtherReceived'| setDecimal:2| number }}</strong></td>
-							<td class="text-right"><strong>{{chargesListPO | sumByKey : 'CurrentQty'| setDecimal:2| number }}</strong></td>
+                            <td class="text-right"><strong>{{chargesListPO | sumByKey : 'OtherReceived'| setDecimal:2| number }}</strong></td>
+                            <td class="text-right"><strong>{{chargesListPO | sumByKey : 'CurrentQty'| setDecimal:2| number }}</strong></td>
 
-							<td class="text-right"><strong>{{chargesListPO | sumByKey : 'Balance'| setDecimal:2| number }}</strong></td>
-							<td class="text-right"><strong></strong></td>
-							<td class="text-right"><strong>{{chargesListPO | sumByKey : 'Amount'| setDecimal:2| number }}</strong></td>
+                            <td class="text-right"><strong>{{chargesListPO | sumByKey : 'Balance'| setDecimal:2| number }}</strong></td>
+                            <td class="text-right"><strong></strong></td>
+                            <td class="text-right"><strong>{{chargesListPO | sumByKey : 'Amount'| setDecimal:2| number }}</strong></td>
 
-							<td class="text-right"><strong>{{chargesListPO | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision| number }}</strong></td>
-							<td class="text-right"><strong>{{chargesListPO | sumByKey : 'TotalAmount'| setDecimal:currencyPrecision| number }}</strong></td>
-							@*<td class="text-right"></td>*@
-							<td></td>
-						</tr>
-					</tbody>
-				</table>
-				<div class="col-xs-12 col-sm-6 col-md-6" ng-hide="productId === null || Action==='Save'">
-					@*<fieldset class="scheduler-border" ng-show="inventoryMaterialList.length>0">*@
-					<fieldset class="scheduler-border" ng-hide="productId === null">
-						<legend class="scheduler-border">Additional Tax</legend>
-						<div class="col-xs-12 col-sm-6 col-md-6">
-							<div class="form-group">
-								<label class="col-sm-6 control-label">If Percentage Applicable</label>
-								<div class="col-sm-6">
-									<div class="radio">
-										<label>
-											<input type="radio" name="TaxOptionAddiTax" ng-model="productNew.TaxOptionAddiTax" value="Yes" ng-click="TaxOptionAdditax('Yes');"> @*ng-hide="HSNCode !=null"*@
-											<span class="cr"><i class="cr-icon"></i></span>Yes
-										</label>
-										<label>
-											<input type="radio" name="TaxOptionAddiTax" ng-model="productNew.TaxOptionAddiTax" value="No" ng-click="TaxOptionAdditax('No');">@*ng-hide="HSNCode !=null"*@
-											<span class="cr"><i class="cr-icon"></i></span>No
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="clearfix"></div>
-						<div class="table-responsive modal-table">
-							<table class="table table-responsive table-striped">
-								<thead>
-									<tr>
-										<th>Input Tax</th>
-										<th>Percentage</th>
-										<th>Amount</th>
-										<th class="text-right">Action</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td id="td_TaxCode">
-											<div class="select-style show-message">
-												<select name="TaxCodeId" ng-model="advanceTax.TaxCodeId" ng-change="selectadditionalTax(advanceTax.TaxCodeId)" class="col-sm-3 form-control"
-														ng-options="item.Id as item.UserName for item in taxCodCboListWithhold">
-													<option></option>
-												</select>
-												@*<select ng-model="advanceTax.TaxCodeId" >
-														<option ng-repeat="option in taxCodCboListWithhold" value="{{option.Id}}">{{option.Text}}</option>
-													</select>*@
-											</div>
-										</td>
-										<td>
-											<div>
-												<input type="text" n-decimals="4" class="form-control text-right" ng-disabled="productNew.TaxOptionAddiTax==='No'" ng-model="advanceTax.ValueOfFixed" ng-keyup="calculateTaxAmountForAdditionalTax(advanceTax.ValueOfFixed);">
-											</div>
-										</td>
-										<td id="td_TaxCodeAmount">
-											<div class="show-message">
-												<input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();checkRowValidationSdditionalTax(advanceTax.TaxAmount);" ng-disabled="productNew.TaxOptionAddiTax==='Yes'">
-											</div>
-										</td>
-										<td class="text-right">
-											<a ng-click="additionalTax();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
-										</td>
-									</tr>
-									<tr ng-repeat="x in advanceTaxesList">
-										<td>{{x.TaxName}}</td>
-										<td>{{x.ValueOfFixed}}</td>
-										<td class="text-right">{{x.TaxAmount | number:2 }}</td>
-										<td class="text-right">
-											<button ng-click="removeTaxesRow(x.Id,$index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-										</td>
-									</tr>
-								</tbody>
-								<tfoot ng-show="advanceTaxesList.length">
-									<tr>
-										<td colspan="2"><b>Sub Total</b></td>
-										<td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'TaxAmount' }}</b></td>
-										<td></td>
-									</tr>
-									<tr>
-										<td colspan="2"><b>Total Amount</b></td>
-										<td class="text-right"><b>{{advanceTax.TotalSumAfterTCSVal}}</b></td>
-										<td></td>
-									</tr>
-								</tfoot>
-							</table>
-						</div>
-						<div class="common-btn">
-							<ul class="list-inline text-right">
-								<li><button ng-click="SaveAdditinalTaxInGRNList();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
+                            <td class="text-right"><strong>{{chargesListPO | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision| number }}</strong></td>
+                            <td class="text-right"><strong>{{chargesListPO | sumByKey : 'TotalAmount'| setDecimal:currencyPrecision| number }}</strong></td>
+                            @*<td class="text-right"></td>*@
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="productId === null || Action==='Save'">
+                    @*<fieldset class="scheduler-border" ng-show="inventoryMaterialList.length>0">*@
+                    <fieldset class="scheduler-border" ng-hide="productId === null">
+                        <legend class="scheduler-border">Additional Tax</legend>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">If Percentage Applicable</label>
+                                <div class="col-sm-6">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="TaxOptionAddiTax" ng-model="productNew.TaxOptionAddiTax" value="Yes" ng-click="TaxOptionAdditax('Yes');"> @*ng-hide="HSNCode !=null"*@
+                                            <span class="cr"><i class="cr-icon"></i></span>Yes
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="TaxOptionAddiTax" ng-model="productNew.TaxOptionAddiTax" value="No" ng-click="TaxOptionAdditax('No');">@*ng-hide="HSNCode !=null"*@
+                                            <span class="cr"><i class="cr-icon"></i></span>No
+                                        </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="table-responsive modal-table">
+                            <table class="table table-responsive table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Input Tax</th>
+                                        <th>Percentage</th>
+                                        <th>Amount</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td id="td_TaxCode">
+                                            <div class="select-style show-message">
+                                                <select name="TaxCodeId" ng-model="advanceTax.TaxCodeId" ng-change="selectadditionalTax(advanceTax.TaxCodeId)" class="col-sm-3 form-control"
+                                                        ng-options="item.Id as item.UserName for item in taxCodCboListWithhold">
+                                                    <option></option>
+                                                </select>
+                                                @*<select ng-model="advanceTax.TaxCodeId" >
+                                                <option ng-repeat="option in taxCodCboListWithhold" value="{{option.Id}}">{{option.Text}}</option>
+                                            </select>*@
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="productNew.TaxOptionAddiTax==='No'" ng-model="advanceTax.ValueOfFixed" ng-keyup="calculateTaxAmountForAdditionalTax(advanceTax.ValueOfFixed);">
+                                            </div>
+                                        </td>
+                                        <td id="td_TaxCodeAmount">
+                                            <div class="show-message">
+                                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();checkRowValidationSdditionalTax(advanceTax.TaxAmount);" ng-disabled="productNew.TaxOptionAddiTax==='Yes'">
+                                            </div>
+                                        </td>
+                                        <td class="text-right">
+                                            <a ng-click="additionalTax();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                        </td>
+                                    </tr>
+                                    <tr ng-repeat="x in advanceTaxesList">
+                                        <td>{{x.TaxName}}</td>
+                                        <td>{{x.ValueOfFixed}}</td>
+                                        <td class="text-right">{{x.TaxAmount | number:2 }}</td>
+                                        <td class="text-right">
+                                            <button ng-click="removeTaxesRow(x.Id,$index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot ng-show="advanceTaxesList.length">
+                                    <tr>
+                                        <td colspan="2"><b>Sub Total</b></td>
+                                        <td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'TaxAmount' }}</b></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"><b>Total Amount</b></td>
+                                        <td class="text-right"><b>{{advanceTax.TotalSumAfterTCSVal}}</b></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="SaveAdditinalTaxInGRNList();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
 
-							</ul>
-						</div>
-					</fieldset>
-				</div>
-			</div>
-
-
+                            </ul>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
 
 
 
-		</div>
+
+
+        </div>
 
 
 
@@ -2758,7 +2762,7 @@
 				<div class="clearfix"></div>
 				<div class="common-btn">
 					<ul class="list-inline text-right">
-						<li><button ng-click="serviceSave()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{detailModel.Id.length>0?'Update':'Save'}}</button></li>
+						<li><button ng-click="AddCharges()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Add</button></li>
 						<li><button ng-click="closeServiceChargePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
 					</ul>
 				</div>
