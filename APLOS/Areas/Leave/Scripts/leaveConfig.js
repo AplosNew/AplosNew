@@ -54,6 +54,10 @@ function leaveConfig($routeProvider) {
             templateUrl: 'Leave/HourlyOT/IndividualDailyOt',
             controller: "hourlyOTController"
         })
+        .when('/individual-daily-ot-new', {
+            templateUrl: 'Leave/HourlyOTNew/IndividualDailyOt',
+            controller: "hourlyOTNewController"
+        })
         .when('/on-duty-transaction', {
             templateUrl: 'Leave/OnDutyTransaction/Aplos',
             controller: "onDutyTransactionController"
