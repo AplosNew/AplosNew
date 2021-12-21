@@ -1154,37 +1154,31 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
 
         public DataTable GetIndividualDailyOT(string FromDate, string ToDate, string OTDuration, string OTfinal, string plantId, string companyId, string companyGroupId)
         {
-            string strSql = string.Empty;//789
+            string strSql = string.Empty;
             try
             {
                 if (OTfinal == "ConfirmOT")
                 {
                     strSql = @"SELECT ei.EmployeeName,ei.systemid
                             ,ei.EmployeeCode
-                            ,FORMAT(ot.WorkDate,'dd-MMM-yyyy') WorkDate
+                            ,FORMAT(apd.WorkDate,'dd-MMM-yyyy') WorkDate
                             ,FORMAT(ei.DOJ,'dd-MMM-yyyy') DOJ
-                            --,s.UserName as Section,S.Sequence SectionSequence,S.ID SectionId,sb.UserName as SubSection,ld.UserName Designation,d.UserName Department,d.Id DepartmentId,d.Sequence DepartmentSequence
-                                                        ---,s.UserName as Section,S.Sequence SectionSequence,S.ID SectionId,sb.UserName as SubSection,ld.UserName Designation,d.UserName Department,d.Id DepartmentId,d.Sequence DepartmentSequence
-                            ,Section.UserName as Section,Section.Sequence SectionSequence,Section.ID SectionId,SubSection.UserName as SubSection,ld.UserName Designation,Department.UserName Department,Department.Id DepartmentId,Department.Sequence DepartmentSequence
-                            
-,sum(ot.TotalOTHr) AS TotalOT
-                            ,sum(ot.TotalOTHr)/60 AS TotalOTH
+                            ,Section.UserName as Section,Section.Sequence SectionSequence,
+							Section.ID SectionId,SubSection.UserName as SubSection,
+							ld.UserName Designation,Department.UserName Department,
+							Department.Id DepartmentId,Department.Sequence DepartmentSequence
+                             
+	,sum(apd.StandardOT) AS TotalOT, sum(apd.StandardOT)/60 AS TotalOTH
                             ,pwhr.OTConsiderOn
                             ,l.UserName Line
-                            --,DayType=case when dt.Category ='Holiday' then 'H'
-							--when dt.Category ='Weekend' then 'W'
-							--else 'NW' end
                             ,dt.OriginalDayType DayType
-                        ,ssd.InTime,ssd.OutTime
-                            ,HOT.Duration RealOt
-                             FROM FinalOT ot 
-                            left join AttdnProcessData ssd on ssd.EmpSystemID=ot.EmpSystemID and ot.WorkDate=ssd.WorkDate and ssd.IsOTComfirm=1 and ssd.IsOTEntitled=1
-							 left join DayType dt on dt.DayType=ssd.DayStatus
-                             left join EmployeeInformation ei on ei.SystemId=ot.EmpSystemID
+                        ,apd.InTime,apd.OutTime,apd.AdditionalOT as RealOt
+                             FROM AttdnProcessData apd
+                            left join DayType dt on dt.DayType=apd.DayStatus
+                             left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID
                              LEFT JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = ei.BudgetCode
 								                LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
-												LEFT JOIN HourlyOT HOT ON HOT.EmpSystemId = ei.SystemId and  ssd.WorkDate = hot.WorkDate
-  
+												
 									LEFT OUTER JOIN ORG.Position PO ON MB.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
@@ -1195,43 +1189,42 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
                                     Left join org.Line L on L.Id = MB.LineId
                             LEFT JOIN [HKP].[LegalDesignation] ld ON ld.Id=ei.LegalDesignationId
-                            LEFT JOIN [dbo].[PlantWiseHRMSSetting] pwhr ON pwhr.PlantID=ot.PlantID
-                            WHERE ot.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND ot.plantid='" + plantId + @"'
-                            AND ssd.IsOTComfirm=1 AND ssd.IsOTEntitled=1
-                            GROUP BY EI.EmployeeName,EI.EmployeeCode,ot.WorkDate,ei.DOJ,Section.UserName,Section.ID,SubSection.UserName
+                            LEFT JOIN [dbo].[PlantWiseHRMSSetting] pwhr ON pwhr.PlantID=ei.PlantID
+                            WHERE apd.WorkDate BETWEEN '"+FromDate+"' AND '"+ToDate+@"'  AND 
+							apd.plantid='"+plantId+@"' 
+                            AND apd.IsOTComfirm=1 AND apd.IsOTEntitled=1
+                            GROUP BY EI.EmployeeName,EI.EmployeeCode,apd.WorkDate,ei.DOJ,
+							Section.UserName,Section.ID,SubSection.UserName
 							,Department.Sequence,Section.Sequence
-                            ,ld.UserName ,Department.UserName,Department.Id,pwhr.OTConsiderOn,l.UserName ,EmployeeCodePreFix,ei.systemid
-							 ,EmployeeCodeNumeric,dt.OriginalDayType,ssd.InTime,ssd.OutTime,HOT.Duration 
-                            HAVING  SUM(ISNULL(ot.TotalOTHr,0))/60 > '" + OTDuration + @"'
-                            ORDER BY ISNULL(EmployeeCodePreFix,'') ASC, ISNULL(EmployeeCodeNumeric,0) ASC";
-
+                            ,ld.UserName ,Department.UserName,Department.Id,pwhr.OTConsiderOn,
+							l.UserName ,EmployeeCodePreFix,ei.systemid
+							 ,EmployeeCodeNumeric,dt.OriginalDayType,apd.InTime,apd.OutTime,
+							 apd.AdditionalOT
+				            HAVING  SUM(ISNULL(apd.StandardOT,0))/60 > '"+OTDuration+@"'
+                            ORDER BY ISNULL(EmployeeCodePreFix,'') ASC, 
+							ISNULL(EmployeeCodeNumeric,0) ASC";
                 }
                 else
                 {
                     strSql = @" SELECT ei.EmployeeName,ei.systemid
                             ,ei.EmployeeCode
-                            ,FORMAT(ssd.WorkDate,'dd-MMM-yyyy') WorkDate
+                            ,FORMAT(apd.WorkDate,'dd-MMM-yyyy') WorkDate
                             ,format(ei.DOJ,'dd-MMM-yyyy')DOJ
  ,Section.UserName as Section,Section.Sequence SectionSequence,Section.ID SectionId,SubSection.UserName as SubSection,ld.UserName Designation,Department.UserName Department,Department.Id DepartmentId,Department.Sequence DepartmentSequence
-                            ,sum(ssd.OTHr) AS TotalOT
-                            ,sum(ssd.OTHr)/60 AS TotalOTH
+                            ,sum(apd.StandardOT) AS TotalOT
+                            ,sum(apd.StandardOT)/60 AS TotalOTH
                             ,pwhr.OTConsiderOn
                             ,l.UserName Line
-                            ,ssd.InTime
-							,ssd.OutTime
-                            --,DayType=case when dt.Category ='Holiday' then 'H'
-							--when dt.Category ='Weekend' then 'W'
-							--else 'NW' end
+                            ,apd.InTime
+							,apd.OutTime
                             ,dt.OriginalDayType DayType
-							,HOT.Duration RealOt
-
-                             FROM AttdnProcessData ssd 
-                            left join DayType dt on dt.DayType=ssd.DayStatus
-                             left join EmployeeInformation ei on ei.SystemId=ssd.EmpSystemID
+							,apd.AdditionalOT RealOt
+                             FROM AttdnProcessData apd 
+                            left join DayType dt on dt.DayType=apd.DayStatus
+                             left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID
                              LEFT JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = ei.BudgetCode
 								                LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
-												LEFT JOIN HourlyOT HOT ON HOT.EmpSystemId = ei.SystemId and  ssd.WorkDate = hot.WorkDate
-  
+											
 									LEFT OUTER JOIN ORG.Position PO ON MB.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON MB.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
@@ -1243,14 +1236,16 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                                     Left join org.Line L on L.Id = MB.LineId
                                     LEFT JOIN HKP.LegalDesignation Ld on LD.Id = ei.LegalDesignationId									
 
-                            LEFT join [dbo].[PlantWiseHRMSSetting] pwhr ON pwhr.PlantID=ssd.PlantID
-                            WHERE ssd.WorkDate BETWEEN '" + FromDate + @"' and '" + ToDate + @"' and ssd.IsOTEntitled=1 and ssd.plantid='" + plantId + @"'
+                            LEFT join [dbo].[PlantWiseHRMSSetting] pwhr ON pwhr.PlantID=apd.PlantID
+                            WHERE apd.WorkDate BETWEEN '"+FromDate+"' and '"+ToDate+@"' 
+							and apd.IsOTEntitled=1 and apd.plantid='"+plantId+@"'
                              GROUP BY EI.EmployeeName,EI.EmployeeCode,ei.DOJ,Section.UserName,Section.ID,SubSection.UserName
-							,Department.Sequence,Section.Sequence,ssd.WorkDate,ssd.InTime,ssd.OutTime
+							,Department.Sequence,Section.Sequence,apd.WorkDate,apd.InTime,apd.OutTime
                             ,ld.UserName ,Department.UserName,Department.Id,pwhr.OTConsiderOn,l.UserName ,EmployeeCodePreFix,ei.systemid
-							,HOT.Duration ,EmployeeCodeNumeric,dt.OriginalDayType
-                            having  sum(isnull(ssd.OTHr,0))/60 > " + OTDuration + @"
-                            ORDER BY ISNULL(EmployeeCodePreFix,'') ASC, ISNULL(EmployeeCodeNumeric,0) ASC";
+							,apd.AdditionalOT ,EmployeeCodeNumeric,dt.OriginalDayType
+                            having  sum(isnull(apd.StandardOT,0))/60 > '"+OTDuration+@"'
+                            ORDER BY ISNULL(EmployeeCodePreFix,'') ASC, 
+							ISNULL(EmployeeCodeNumeric,0) ASC";
                 }
                 return _sqlRepository.GetDataTable(strSql);
             }
