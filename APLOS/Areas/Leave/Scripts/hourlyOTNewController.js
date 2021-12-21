@@ -207,7 +207,7 @@ function hourlyOTNewController(commonMessage, $scope, $rootScope, baseService, $
 
             }
             else {
-                var url = 'Leave/HourlyOT/GetIndividualDailyOT?reportFormat=Excel' + ' &FromDate=' + $scope.IndividualDailyOT.FromDate + ' &ToDate=' + $scope.IndividualDailyOT.ToDate + ' &OTDuration=' + $scope.IndividualDailyOT.OTDuration + '&OTfinal=' + $scope.IndividualDailyOT.OTfinal + '&CheckBox=' + $scope.IndividualDailyOT.CheckBox;
+                var url = $scope.path+ '/GetIndividualDailyOT?reportFormat=Excel' + ' &FromDate=' + $scope.IndividualDailyOT.FromDate + ' &ToDate=' + $scope.IndividualDailyOT.ToDate + ' &OTDuration=' + $scope.IndividualDailyOT.OTDuration + '&OTfinal=' + $scope.IndividualDailyOT.OTfinal + '&CheckBox=' + $scope.IndividualDailyOT.CheckBox;
                 $rootScope.report(url);
             }
         } catch (e) {

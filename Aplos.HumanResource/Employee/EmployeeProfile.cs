@@ -1320,6 +1320,7 @@ namespace Aplos.HumanResource
                 drLocal["ProfileShiftId"] = data.FixSystemID;
                 drLocal["ResidenceGroupId"] = data.ResidenceGroupId;
                 drLocal["TransportGroupId"] = data.TransportGroupId;
+                drLocal["EmploymentType"] = data.EmploymentType;
                 drLocal["ExcludeOT"] = false;
                 
                 if (!string.IsNullOrEmpty(data.RelativeSystemId))
