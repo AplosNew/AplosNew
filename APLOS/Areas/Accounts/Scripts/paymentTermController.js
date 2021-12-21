@@ -132,7 +132,7 @@ function PaymentTermController(commonMessage, $window, $scope, $rootScope, baseS
                 throw 'Please give data in 1st row !!!!';
             }
             if ($scope.paymentTermDetails[1].Percentage !== null && $scope.paymentTermDetails[1].NoOfDay !== null
-                && $scope.paymentTermDetails[1].NoOfDay !== '' && $scope.paymentTermDetails[0].Percentage !== null && $scope.paymentTermDetails[0].NoOfDay !== null) {
+                && $scope.paymentTermDetails[1].NoOfDay !== '' && $scope.paymentTermDetails[1].NoOfDay > 0 && $scope.paymentTermDetails[0].Percentage !== null && $scope.paymentTermDetails[0].NoOfDay !== null && $scope.paymentTermDetails[0].NoOfDay > 0) {
                 if ($scope.paymentTermDetails[0].NoOfDay >= $scope.paymentTermDetails[1].NoOfDay) {
                     throw '2nd No Of Day must bigger than 1st No Of Day !!!!!';
                 }
@@ -167,7 +167,7 @@ function PaymentTermController(commonMessage, $window, $scope, $rootScope, baseS
         if (($scope.paymentTermDetails[1].NoOfDay === null || $scope.paymentTermDetails[1].NoOfDay === '') && ($scope.paymentTermDetails[1].Percentage === null || $scope.paymentTermDetails[1].Percentage === '')) {
         }
         else
-            if (($scope.paymentTermDetails[1].NoOfDay !== null || $scope.paymentTermDetails[1].NoOfDay !== '') && ($scope.paymentTermDetails[1].Percentage === null || $scope.paymentTermDetails[1].Percentage === '')) {
+            if (($scope.paymentTermDetails[1].NoOfDay !== null || $scope.paymentTermDetails[1].NoOfDay !== '') && $scope.paymentTermDetails[1].NoOfDay >0 && ($scope.paymentTermDetails[1].Percentage === null || $scope.paymentTermDetails[1].Percentage === '')) {
                 throw 'Please give data in 2nd row !!!!';
             }
         if (($scope.paymentTermDetails[1].NoOfDay == null || $scope.paymentTermDetails[1].NoOfDay === '') && ($scope.paymentTermDetails[1].Percentage === null || $scope.paymentTermDetails[1].Percentage === '')) {
@@ -180,7 +180,7 @@ function PaymentTermController(commonMessage, $window, $scope, $rootScope, baseS
         if (($scope.paymentTermDetails[0].NoOfDay === null || $scope.paymentTermDetails[0].NoOfDay === '') && ($scope.paymentTermDetails[0].Percentage === null || $scope.paymentTermDetails[0].Percentage === '')) {
         }
         else
-            if (($scope.paymentTermDetails[0].NoOfDay !== null || $scope.paymentTermDetails[0].NoOfDay !== '') && ($scope.paymentTermDetails[0].Percentage === null || $scope.paymentTermDetails[0].Percentage === '')) {
+            if (($scope.paymentTermDetails[0].NoOfDay !== null || $scope.paymentTermDetails[0].NoOfDay !== '') && $scope.paymentTermDetails[0].NoOfDay > 0  && ($scope.paymentTermDetails[0].Percentage === null || $scope.paymentTermDetails[0].Percentage === '')) {
                 throw 'Please give data in 1st row !!!!';
             }
 
