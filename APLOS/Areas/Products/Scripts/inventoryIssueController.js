@@ -362,6 +362,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.clearCharNames();
 		$scope.detailList = [];
 		$scope.specificStockList = [];
+		$scope.materialStockList = [];
 		$scope.IssueType = 'Revenue';
 		$scope.productNew.OrderSpecific = 'No';
 		$scope.ispostDisable = false;
@@ -476,6 +477,17 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.detailModel.FirstCharacteristicsValueId = null;
 		$scope.detailModel.SecondCharacteristicsValueId = null;
 		$scope.detailModel.ThirdCharacteristicsValueId = null;
+		$scope.detailModel.FirstCharacteristicsId = null;
+		$scope.detailModel.SecondCharacteristicsId = null;
+		$scope.detailModel.ThirdCharacteristicsId = null;
+		$scope.char1.FreeText = null;
+		$scope.char2.FreeText = null;
+		$scope.char1.CharacteristicsId = null;
+		$scope.char1.FirstCharacteristicsValueId = null;
+		$scope.char2.CharacteristicsId = null;
+		$scope.char2.ThirdCharacteristicsValueId = null;
+		
+
 		$scope.detailModel.IsOriginApplicable = ob.IsOriginApplicable;
 
 		$scope.hasArticle = ob.HasAttribute;
@@ -883,6 +895,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	$scope.materialStockList = [];
 	$scope.specificStockList = [];
 	$scope.getSpecificMaterialStock = function (data, index) {
+		$scope.materialStockList = [];
 		//debugger;
 		$scope.index = index;
 		$scope.selectedRowQty = data.TransactionQty;

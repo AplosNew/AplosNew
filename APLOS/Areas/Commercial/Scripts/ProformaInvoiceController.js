@@ -5,6 +5,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.Action = 'Save';
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
+    $scope.VersionList = [];
     $scope.path = 'Commercial/ProformaInvoice/';
     $scope.CostingPath = 'Costings/costingItem/';
     $scope.getListUrl = $scope.path + 'getlist';
@@ -104,7 +105,12 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         , Amount: 0
 
     };
-
+    $scope.ddlVersionList = [
+        {
+            name: '1',
+            value: '1'
+        }
+    ];
     $scope.PIVersionModel = {
         Id: null,
         PIMasterId: null,
@@ -189,24 +195,36 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.LoadPISearchList();
 
     $scope.Get = function (args) {
-        $scope.getHeader(args.data.Id, $scope.PIVersionModel.Id);
-        $scope.PIGridModel = Object.assign({}, args.data);
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-        $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
-    };
-    $scope.VersionList = [];
-    $scope.getHeader = function (PIMasterId, VersionId) {
+        //$scope.getHeader(args.data.Id, args.data.PIVersionId);
         $http({
             method: 'GET',
-            url: $scope.path + "GetAllData?PIMasterId=" + PIMasterId + '&VersionId=' + VersionId,
+            url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId,
         }).then(function successCallback(response) {
-            $scope.PImodelNew = response.data.PIMaster;
-            $scope.VersionList = response.data.VarsionData;
-            $scope.PIGridModel = response.data.ItemData;
+            if (!baseService.isUndefinedOrNull(response.data)) {
+                $scope.PImodelNew = response.data.PIMaster[0];
+                $scope.VersionList = response.data.VarsionData;
+                $scope.DataList = response.data.ItemData;
+
+                if (!$rootScope.isCollapsed) {
+                    $rootScope.toggle();
+                }
+              //  $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
+            }
+
         });
-    }
+
+    };
+
+    //$scope.getHeader = function (PIMasterId, VersionId) {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + "GetAllData?PIMasterId=" + PIMasterId + '&VersionId=' + VersionId,
+    //    }).then(function successCallback(response) {
+    //        $scope.PImodelNew = response.data.PIMaster[0];
+    //        $scope.VersionList = response.data.VarsionData;
+    //        $scope.PIGridModel = response.data.ItemData;
+    //    });
+    //}
     // $scope.getHeader();
 
     $scope.selectedDataIndex = -1;
@@ -228,12 +246,14 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
 
     $scope.Clear = function () {
         ClearFields();
-        DataList = [];
+       $scope.DataList = [];
+    $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
+        $scope.ddlVersionList = [];
         return true;
     };
     function ClearFields() {
         $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
-    
+
     }
 
     $rootScope.title = 'Proforma Invoice';
@@ -297,7 +317,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
 
     function getPartyPlantList() {
         $scope.partyPlantList = [];
-        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.PImodelNew.PartyId).then(function (response) {
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.PImodelNew.BuyerId).then(function (response) {
             angular.forEach(response.data, function (item) {
                 $scope.partyPlantList.push(item);
                 if (item.IsDefault) {

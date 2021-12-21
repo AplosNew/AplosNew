@@ -234,7 +234,8 @@ namespace Library.Accounting.Accounts
                                     WHERE glcg.CompanyGroupId='" + companyGroupId + @"' AND GLCI.CompanyId='" + companyId + @"' AND GLGI.IsPostingAutomaticOnly=0 AND ACT.Id in ('" + AccountType + @"','Asset','Liability') AND GLGI.Active = 1 AND GLGI.Archive = 0
                                     AND GLGI.Id NOT IN(SELECT BM.GLGeneralInfoId FROM [MST].[BankMaster] AS BM  WHERE BM.GLGeneralInfoId <> '')
                                     AND GLGI.Id NOT IN(SELECT CM.GLGeneralInfoId FROM [MST].[CashMaster] AS CM  WHERE CM.GLGeneralInfoId <> '') 
-                                    AND  GLGI.Id NOT IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'')";
+                                    --AND  GLGI.Id NOT IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'')
+                                    ";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

@@ -7,71 +7,10 @@ function hourlyOTNewController(commonMessage, $scope, $rootScope, baseService, $
     $scope.maternityLeaveTransactions = [];
     $scope.path = 'Leave/HourlyOTNew/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'Save';
-    $scope.updateUrl = $scope.path + 'Save';
-    $scope.deleteUrl = $scope.path + 'delete/';
 
     $scope.isActive = true;
     $scope.isSeperated = false;
-
-    $scope.dataList = [];
-    $scope.GetEmployeeDeleteInfo = function () {
-        $scope.employeeInfo = {};
-        $scope.dataList = [];
-        $http({
-            method: 'GET',
-            url: 'employees/EmployeeDelete/getemployeeDelete'
-        }).then(function successCallback(response) {
-            $scope.dataList = response.data;
-        });
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
-    };
-
-    $scope.OffDutyHoursModelOriginal = {
-        Id: null,
-        EmpSystemId: null,
-        FromDate: null,
-        ToDate: null,
-        Duration: 0,
-        WorkDate: null,
-        OTType: 'DiscreteOT'
-    }
-    $scope.OffDutyHoursModel = Object.assign({}, $scope.OffDutyHoursModelOriginal);
-
-    $scope.ChangeWorkDate = function (args) {
-        if (args.isInteraction == true) {
-            if (!baseService.isUndefinedOrNull($scope.OffDutyHoursModel.FromDate)) {
-                $scope.OffDutyHoursModel.WorkDate = $filter('dateFiltering')($scope.OffDutyHoursModel.FromDate, 'dd-MM-yyyy');
-            }
-        }
-
-        if (!baseService.isUndefinedOrNull($scope.OffDutyHoursModel.WorkDate)) {
-            $scope.GetShiftData($scope.employeeInfo.EmpSystemID, $scope.OffDutyHoursModel.WorkDate);
-        }
-
-    }
-
-    $scope.changeshiftInfo = function (args) {
-        if (args.isInteraction == true) {
-            if (!baseService.isUndefinedOrNull($scope.OffDutyHoursModel.WorkDate)) {
-                $scope.GetShiftData($scope.employeeInfo.EmpSystemID, $scope.OffDutyHoursModel.WorkDate);
-
-            }
-        }
-    }
-
-    $scope.doubleFunction = function (args) {
-        $scope.ChangeWorkDate(args);
-        $scope.ChangeDuration();
-    }
-
-    $scope.ChangeDuration = function () {
-        //TWO DATE SELECT GET MINITE//
-        var diff = Math.abs(new Date($scope.OffDutyHoursModel.FromDate) - new Date($scope.OffDutyHoursModel.ToDate));
-        var minutes = Math.floor((diff / 1000) / 60);
-        $scope.OffDutyHoursModel.Duration = minutes;
-             
-    }
+     
 
     $scope.employeeInfo = {};
     $scope.SetData = function (obj) {
@@ -99,161 +38,6 @@ function hourlyOTNewController(commonMessage, $scope, $rootScope, baseService, $
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     }
-
-    $scope.GetOffDutyList = [];
-    $scope.GetPreData = function (empId) {
-        $scope.OffDutyHoursModel = Object.assign({}, $scope.OffDutyHoursModelOriginal);
-        $scope.GetOffDutyList = [];
-        $http.get('Leave/HourlyOT/GetOffDuty?empId=' + empId)
-            .then(function (response) {
-                $scope.GetOffDutyList = response.data;
-
-            });
-    };
-
-    $scope.GetShiftList = {};
-    $scope.GetShiftData = function (EmpSystemID, WorkDate) {
-        $scope.GetShiftList = {};
-        $http.get('Leave/HourlyOT/GetShiftInfo?EmpSystemID=' + EmpSystemID + '&WorkDate=' + WorkDate)
-            .then(function (response) {
-                if (!baseService.isUndefinedOrNull(response.data)) {
-                    $scope.GetShiftList = response.data.ShiftInfo[0];
-                }
-            });
-    };
-
-    function CheckField(fieldname, field) {
-        try {
-            if (baseService.isUndefinedOrNull(field)) {
-                throw "[" + fieldname + "] can not be blank...";
-            }
-
-        } catch (ex) {
-            throw ex;
-        }
-    }
-
-    function ValidationMaster() {
-        try {
-            CheckField("From Date", $scope.OffDutyHoursModel.FromDate);
-            CheckField("To Date", $scope.OffDutyHoursModel.ToDate);
-
-        } catch (ex) {
-            throw ex;
-        }
-    }
-
-    $scope.recorddoubleclick = function (args) {
-        //var gridObj = $("#Grid").data("ejGrid");
-        $scope.OffDutyHoursModel = Object.assign({}, args.data); // gridObj.getSelectedRecords()[0];
-        $scope.Action = 'Update';
-    };
-
-    $scope.Save = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.OffDutyHoursModel.FromDate)) {
-                throw ("From Date is required.");
-            }
-            else if (baseService.isUndefinedOrNull($scope.OffDutyHoursModel.ToDate)) {
-                throw ("To Date is required.");
-            }
-            else if (new Date($scope.OffDutyHoursModel.FromDate) > new Date($scope.OffDutyHoursModel.ToDate)) {
-                throw ("From date must be below or equal to To Date");
-            }
-            else if (new Date($scope.OffDutyHoursModel.ToDate) < new Date($scope.OffDutyHoursModel.FromDate)) {
-                throw ("To date must be above or equal to From Date.");
-            }
-            else if (new Date($scope.OffDutyHoursModel.FromDate) < new Date($scope.OffDutyHoursModel.WorkDate)) {
-
-                throw ("Work Date must be above or equal to From Date.");
-            }
-            $scope.OffDutyHoursModel.EmpSystemId = $scope.employeeInfo.EmpSystemID
-            ValidationMaster();
-            if ($scope.Action === 'Save') {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: $scope.OffDutyHoursModel,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        $scope.GetPreData($scope.employeeInfo.EmpSystemID);
-                        $scope.OffDutyHoursModel = {};
-                        $scope.OffDutyHoursModelOriginal = {};
-                        $scope.GetShiftList = {};
-                        ShowResult(response.data.Message, 'success');
-                        $scope.Action = 'Save';
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
-
-            }
-
-            else if ($scope.Action === 'Update') {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: $scope.OffDutyHoursModel,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.Action = 'Save';
-                        $scope.GetPreData($scope.employeeInfo.EmpSystemID);
-                        $scope.OffDutyHoursModel = {};
-                        $scope.OffDutyHoursModelOriginal = {};
-                        $scope.GetShiftList = {};
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
-            }
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.Clear = function () {
-        ClearFields();
-    };
-    function ClearFields() {
-        $scope.employeeInfo = {};
-        $scope.OffDutyHoursModel = Object.assign({}, $scope.OffDutyHoursModelOriginal);
-        $scope.Action = 'Save';
-        $scope.GetOffDutyList = [];
-
-    }
-
-    $scope.Delete = function () {
-        $scope.OffDutyHoursModel.EmpSystemId = $scope.employeeInfo.EmpSystemID
-        if (!baseService.isUndefinedOrNull($scope.OffDutyHoursModel.Id)) {
-            $http.get('Leave/HourlyOT/Delete?Id=' + $scope.OffDutyHoursModel.Id)
-                .then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.GetPreData($scope.employeeInfo.EmpSystemID);
-                        $scope.OffDutyHoursModel = Object.assign({}, $scope.OffDutyHoursModelOriginal);
-                        $scope.GetShiftList = {};
-                        $scope.Action = 'Save';
-                    }
-                    function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                });
-        }
-    };
 
     $scope.yearlist = [];
     $scope.GetCbo = function () {
@@ -373,11 +157,13 @@ function hourlyOTNewController(commonMessage, $scope, $rootScope, baseService, $
             }
                 
             else {
-                try {
-                    var url = 'Leave/HourlyOT/GetHourlyOTMonthly?reportFormat=Excel' + ' &YearNo=' + $scope.year + ' &MonthNo=' + $scope.month + ' &isActive=' + $scope.isActive + ' &isSeperated=' + $scope.isSeperated;
+                try
+                {
+                    var url = $scope.path+ '/GetHourlyOTMonthly?reportFormat=Excel' + ' &YearNo=' + $scope.year + ' &MonthNo=' + $scope.month + ' &isActive=' + $scope.isActive + ' &isSeperated=' + $scope.isSeperated;
                     $rootScope.report(url);
                     //ShowResult(response.data.Message, 'failure');                    
-                } catch (e) {
+                }
+                catch (e) {
                     ShowResult(e, 'failure');
                 }
             }
@@ -421,7 +207,7 @@ function hourlyOTNewController(commonMessage, $scope, $rootScope, baseService, $
 
             }
             else {
-                var url = 'Leave/HourlyOT/GetIndividualDailyOT?reportFormat=Excel' + ' &FromDate=' + $scope.IndividualDailyOT.FromDate + ' &ToDate=' + $scope.IndividualDailyOT.ToDate + ' &OTDuration=' + $scope.IndividualDailyOT.OTDuration + '&OTfinal=' + $scope.IndividualDailyOT.OTfinal + '&CheckBox=' + $scope.IndividualDailyOT.CheckBox;
+                var url = $scope.path+ '/GetIndividualDailyOT?reportFormat=Excel' + ' &FromDate=' + $scope.IndividualDailyOT.FromDate + ' &ToDate=' + $scope.IndividualDailyOT.ToDate + ' &OTDuration=' + $scope.IndividualDailyOT.OTDuration + '&OTfinal=' + $scope.IndividualDailyOT.OTfinal + '&CheckBox=' + $scope.IndividualDailyOT.CheckBox;
                 $rootScope.report(url);
             }
         } catch (e) {

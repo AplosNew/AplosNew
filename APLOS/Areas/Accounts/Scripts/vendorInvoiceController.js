@@ -2065,8 +2065,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         if (baseService.arrayLength($scope.masterOrderList) > 0) {
             $scope.checkedMasterOrderList = [];
                     $scope.checkedMasterOrderList.push({
-                        InvoiceId: ""
-                        , InvoiceDetailId: ""
+                        InvoiceId: null
+                        , InvoiceDetailId: null
                         , Amount: 0
                         , BooksAmount: 0
                         , DistributedAmount: 0
@@ -2102,8 +2102,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         if (baseService.arrayLength($scope.contractList) > 0) {
             $scope.checkedContractList = [];
             $scope.checkedContractList.push({
-                InvoiceId: ""
-                , InvoiceDetailId: ""
+                InvoiceId: null
+                , InvoiceDetailId: null
                 , Amount: 0
                 , BooksAmount: 0
                 , DistributedAmount: 0
@@ -2118,13 +2118,12 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                 , GLGeneralInfoId: $scope.GLGeneralInfoId
                 , BudgetMasterId: $scope.BudgetMasterId
                 , ActivityId: $scope.ActivityId
-                , MasterOrderId: a.MasterOrderId
+                , MasterOrderId: null
                 , ContractId: a.Id
                 , ContractNo: a.ContractNo
                 , UDNo: a.UDNo
                 , CustomerName: a.CustomerName
                 , Buyer: a.Buyer
-                , MasterOrderId: a.MasterOrderId
                 , Remarks: a.Remarks
             });
         }

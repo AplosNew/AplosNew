@@ -462,6 +462,7 @@
     <Compile Include="Areas\Biometric\BiometricAreaRegistration.cs" />
     <Compile Include="Areas\Biometric\Controllers\AttendanceDeviceZoneController.cs" />
     <Compile Include="Areas\Commercial\CommercialAreaRegistration.cs" />
+    <Compile Include="Areas\Commercial\Controllers\InvoiceTaggedWithLCController.cs" />
     <Compile Include="Areas\Commercial\Controllers\LcNavigationController.cs" />
     <Compile Include="Areas\Commercial\Controllers\LCReportsController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PostSalesInvoiceController.cs" />
@@ -1750,6 +1751,7 @@
     <Content Include="Areas\Banks\Scripts\rePrintNonCashCheckController.js" />
     <Content Include="Areas\Biometric\Scripts\attendanceDeviceZoneController.js" />
     <Content Include="Areas\Biometric\Scripts\BiometricConfig.js" />
+    <Content Include="Areas\Commercial\Scripts\InvoiceTaggedWithLCController.js" />
     <Content Include="Areas\Commercial\Scripts\CommercialConfig.js" />
     <Content Include="Areas\Commercial\Scripts\CNFExpenseBockingController.js" />
     <Content Include="Areas\Commercial\Scripts\LcNavigationController.js" />
@@ -3899,6 +3901,9 @@
     <Content Include="Areas\Productions\Views\GeneralDataOperations\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\HourlyOTNew\HourlyOtReport.cshtml" />
     <Content Include="Areas\Attendances\Views\otFinalInformationNew\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\HourlyOTNew\HourlyOtReportMonth.cshtml" />
+    <Content Include="Areas\Commercial\Views\InvoiceTaggedWithLC\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\HourlyOTNew\IndividualDailyOt.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
