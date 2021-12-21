@@ -224,6 +224,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
                             ShowResult(response.data.Message, "success");
                             $scope.getSavedData();
                             $scope.Clear();
+                            $scope.GetProductionBookFromToDate();
                         }
                     }, function errorCallback(response) {
                         ShowResult(response.status.Message, "failure");

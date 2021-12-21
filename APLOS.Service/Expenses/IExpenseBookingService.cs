@@ -6,14 +6,15 @@ using Library.ViewModel.Accounts;
 using Library.ViewModel.Vouchers;
 using System.Collections.Generic;
 using System.Data;
+using Library.Model.Commercial;
 
 namespace Library.Service.Expenses
 {
     public interface IExpenseBookingService : IService<ExpenseBooking>
     {
-        void Insert(ExpenseBooking entity, IEnumerable<ExpenseBookingDetail> details, IEnumerable<ExpenseActivity> expActdetails);
+        void Insert(ExpenseBooking entity, IEnumerable<ExpenseBookingDetail> details, IEnumerable<ExpenseActivity> expActdetails, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);
 
-        void Update(ExpenseBooking entity, IEnumerable<ExpenseBookingDetail> details, IEnumerable<ExpenseActivity> expActdetails);
+        void Update(ExpenseBooking entity, IEnumerable<ExpenseBookingDetail> details, IEnumerable<ExpenseActivity> expActdetails, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);
 
         void EntityExpenseBookingSubmit(ExpenseBooking entity, IEnumerable<ExpenseBookingDetail> details);
 

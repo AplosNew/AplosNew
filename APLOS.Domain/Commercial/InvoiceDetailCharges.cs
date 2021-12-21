@@ -23,6 +23,8 @@ namespace Library.Model.Commercial
         public string VoucherDetailId { get; set; }
         public string MasterOrderId { get; set; }
         public string ContractId { get; set; }
+        public string ExpenseBookingDetailId { get; set; }
+        
 
         public string GLGeneralInfoId { get; set; }
         public string BudgetMasterId { get; set; }

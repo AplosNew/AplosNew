@@ -476,6 +476,17 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.detailModel.FirstCharacteristicsValueId = null;
 		$scope.detailModel.SecondCharacteristicsValueId = null;
 		$scope.detailModel.ThirdCharacteristicsValueId = null;
+		$scope.detailModel.FirstCharacteristicsId = null;
+		$scope.detailModel.SecondCharacteristicsId = null;
+		$scope.detailModel.ThirdCharacteristicsId = null;
+		$scope.char1.FreeText = null;
+		$scope.char2.FreeText = null;
+		$scope.char1.CharacteristicsId = null;
+		$scope.char1.FirstCharacteristicsValueId = null;
+		$scope.char2.CharacteristicsId = null;
+		$scope.char2.ThirdCharacteristicsValueId = null;
+		
+
 		$scope.detailModel.IsOriginApplicable = ob.IsOriginApplicable;
 
 		$scope.hasArticle = ob.HasAttribute;

@@ -41,17 +41,17 @@
             </div>
         </div>
         @*<div class="form-group">
-            <label class="col-sm-4 control-label">Approving Authority (additional)</label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <input type="text" name="EmployeeName" ng-model="budgetTransactionMaster.ResponsiblePersonName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="showResponsiblePersonListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                    </span>
+                <label class="col-sm-4 control-label">Approving Authority (additional)</label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="EmployeeName" ng-model="budgetTransactionMaster.ResponsiblePersonName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="showResponsiblePersonListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
+                    </div>
                 </div>
-            </div>
-        </div>*@
+            </div>*@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -266,10 +266,13 @@
                         </td>
                         <td id="td_Amount_{{$index}}">
                             <div class="show-message">
-                                <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" ng-model="x.Amount" class="form-control text-right" ng-keyup="checkRowValidation(x, $index)">
+                                <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" ng-model="x.Amount" class="form-control text-right" ng-keyup="checkRowValidation(x, $index);calReDistributedAmount($index,x);">
                             </div>
                         </td>
                         <td class="text-right">
+                            <button ng-click="getExpenseDistribute($index,x)" ng-show="x.IsOrderSpecific" ng-disabled="x.Amount == 0 || TotalChargesAmount == 0 " class="btn btn-action tooltip-here" data-placement="top" title="Expense Distribute">
+                                <i>Distribute</i>
+                            </button>
                             <button ng-click="confirmRemoveRow($index,x)" ng-disabled="x.Id" class="btn-action tooltip-here" data-placement="top" title="Remove">
                                 <i class="glyphicon glyphicon-remove"></i>
                             </button>
@@ -278,7 +281,7 @@
                 </tbody>
                 <tfoot ng-show="budgetTransactionDetailList.length">
                     <tr>
-                        <td class="text-right" colspan="7"><b>Sub Total</b></td>
+                        <td class="text-right" colspan="8"><b>Sub Total</b></td>
                         <td class="text-right"><b>{{ budgetTransactionDetailList | sumByKey : 'Amount' }}</b></td>
                         <td></td>
                     </tr>
@@ -361,6 +364,10 @@
 </div>
 <confirm-archive-generic modalid="confirmSavePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="clearDataOnEmployeeChange()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmgenericPopUp" title="Confirmation" message="Are you sure to delete?" data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveInvoice()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteOutBoundConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveOutBoundInvoice()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteMasterOrderConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveMasterOrderInvoice()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteContractConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveContractInvoice()"></confirm-archive-generic>
 <confirm-modal></confirm-modal>
 @Html.Partial("~/Areas/Employees/Views/Shared/_ResponsiblePersonPopUp.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
@@ -371,3 +378,8 @@
 
 @*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
 @Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetRegisterExpensesBookingPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_ExpenseDistributePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_InboundInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_OutBoundInvoicePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_MasterOrderPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_ContractPopUp.cshtml")

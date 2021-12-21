@@ -5,6 +5,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.Action = 'Save';
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
+    $scope.VersionList = [];
     $scope.path = 'Commercial/ProformaInvoice/';
     $scope.CostingPath = 'Costings/costingItem/';
     $scope.getListUrl = $scope.path + 'getlist';
@@ -91,15 +92,33 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
 
     $scope.PIGridModel = {
         Id: null
+        , PIMasterId: null
+        , PIVersionId: null
         , MaterialGroupMasterId: null
         , Description: null
         , Quantity: 0
+        , Rate: 0
         , UoMId: null
         , UoM: null
         , DeliveryDate: null
         , Currency: null
         , Amount: 0
+
     };
+    $scope.ddlVersionList = [
+        {
+            name: '1',
+            value: '1'
+        }
+    ];
+    $scope.PIVersionModel = {
+        Id: null,
+        PIMasterId: null,
+        VersionNo: null,
+        VersionRefNo: null,
+        VersionDate: null
+    };
+
 
 
     $scope.DataList = [];
@@ -112,9 +131,12 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             if (data != null) {
                 newObj = {
                     Id: null
+                    , PIMasterId: null
+                    , PIVersionId: null
                     , MaterialGroupMasterId: null
                     , Description: null
                     , Quantity: 0
+                    , Rate: 0
                     , UoMId: null
                     , UoM: null
                     , DeliveryDate: null
@@ -135,9 +157,12 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.ClearGrid = function () {
         $scope.PIGridModel = {
             Id: null
+            , PIMasterId: null
+            , PIVersionId: null
             , MaterialGroupMasterId: null
             , Description: null
             , Quantity: 0
+            , Rate: 0
             , UoMId: null
             , UoM: null
             , DeliveryDate: null
@@ -170,146 +195,72 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.LoadPISearchList();
 
     $scope.Get = function (args) {
-        $scope.getHeader(args.Id);
-        $scope.PIModel = Object.assign({}, args.data);
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-        // $scope.DataList.push(Object.assign({}, $scope.PImodelNew));
-    };
-    $scope.VersionList = [];
-    $scope.getHeader = function (PIMasterId, VersionId) {
+        //$scope.getHeader(args.data.Id, args.data.PIVersionId);
         $http({
             method: 'GET',
-            url: $scope.path + "GetAllData?PIMasterId=" + PIMasterId + '&VersionId=' + VersionId,
+            url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId,
         }).then(function successCallback(response) {
-            $scope.PImodelNew = response.data.PIMaster;
-            $scope.VersionList = response.data.VarsionData;
-        });
-    }
-    $scope.getHeader();
+            if (!baseService.isUndefinedOrNull(response.data)) {
+                $scope.PImodelNew = response.data.PIMaster[0];
+                $scope.VersionList = response.data.VarsionData;
+                $scope.DataList = response.data.ItemData;
 
-    $scope.selectedData = {};
+                if (!$rootScope.isCollapsed) {
+                    $rootScope.toggle();
+                }
+              //  $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
+            }
+
+        });
+
+    };
+
+    //$scope.getHeader = function (PIMasterId, VersionId) {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + "GetAllData?PIMasterId=" + PIMasterId + '&VersionId=' + VersionId,
+    //    }).then(function successCallback(response) {
+    //        $scope.PImodelNew = response.data.PIMaster[0];
+    //        $scope.VersionList = response.data.VarsionData;
+    //        $scope.PIGridModel = response.data.ItemData;
+    //    });
+    //}
+    // $scope.getHeader();
+
+    $scope.selectedDataIndex = -1;
     $scope.OnUOMChange = function (data) {
-        $scope.selectedData = data;
+        $scope.selectedDataIndex = data.model.ModelFieldsId;
         $scope.getUoM();
     }
+    // $scope.OnUOMChange();
 
     $scope.getUoM = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GetUoMList?MaterialGroupMasterId=" + $scope.selectedData.MaterialGroupMasterId,
+            url: $scope.path + "GetUoMList?MaterialGroupMasterId=" + $scope.DataList[$scope.selectedDataIndex].MaterialGroupMasterId
         }).then(function successCallback(response) {
-            $scope.selectedData.MaterialGroupUOMList = response.data;
+            $scope.DataList[$scope.selectedDataIndex].MaterialGroupUOMList = response.data.UOMList;
+
         });
     }
+
     $scope.Clear = function () {
         ClearFields();
-    }
-    function ClearFields(seq) {
-        $scope.fabricRollMaster = {};
-        $scope.fabricRollMasterNew = {};
-        $scope.fabricRollMasterHeadList = [];
-        $scope.popUpList = [];
-        $scope.valueData = [];
-    }
+       $scope.DataList = [];
+    $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
+        $scope.ddlVersionList = [];
+        return true;
+    };
+    function ClearFields() {
+        $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
 
+    }
 
     $rootScope.title = 'Proforma Invoice';
-
-    $scope.getMaster = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetMaster",
-        }).then(function successCallback(response) {
-            $scope.MasterList = response.data;
-            //for (var i = 0; i < response.data.length; i++) {
-            //}
-            //$scope.MasterList = $filter('dateFiltering')(response.data.AddedDate, 'dd-MMM-yyyy');
-        });
-    }
-    $scope.getMaster();
-    //EndFile Upload
-
-    //Import File
-
-
-    function GetShortList(list) {
-        var list2 = [];
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].EmployeeCode === null || list[i].EmployeeCode === '' || list[i].EmployeeCode === 'undefined') {
-
-            }
-            else {
-                list2.push(list[i]);
-            }
-        }
-        return list2;
-    }
-    $scope.buyerNew = {
-        FileName: null
-    }
-    $scope.ImportData = function () {
-        try {
-            $scope.msg = "";
-            //$scope.btnProcess = true;
-            $scope.$broadcast('show-errors-check-validity');
-
-            if ($scope.buyerNewForm.$valid) {
-                var RollData = new FormData();
-                if (!baseService.isUndefinedOrNull($scope.RollData)) {
-                    $scope.buyerNew.FileName = $scope.RollData.name;
-                }
-                $http({
-                    method: 'POST',
-                    url: 'Materials/FabricRoll/ImportData',
-                    headers: { 'Content-Type': undefined },
-                    transformRequest: function (data) {
-                        RollData.append("buyerNew", angular.toJson(data.buyerNew));
-                        if (baseService.isUndefinedOrNull($scope.RollData) === false) {
-                            RollData.append('file', data.file);
-                        }
-                        return RollData;
-                    },
-                    data: { 'buyerNew': $scope.buyerNew, 'file': $scope.RollData }
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-
-                    }
-                    else {
-                        //$scope.AttdnManualData = response.data;
-
-                        $scope.A = [];
-                        var x = GetShortList(response.data);
-                        $scope.A = x;
-                    }
-                }, function errorCallback(response) {
-
-                });
-                return true;
-
-            }
-        } catch (e) {
-
-            ShowResult(e, "failure");
-        }
-    };
-    //End Import File
-    //CustomerPOPup
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.ShowCustomerPopUpNew = function () {
         $scope.partyType = "Customer";
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
-        //if (baseService.isUndefinedOrNull($window.CompanyId)) {
-        //    ShowResult('Select Company', 'failure');
-        //    return false;
-        //}
-        //if (baseService.isUndefinedOrNull($scope.fileNew.PlantId)) {
-        //    ShowResult('Select Plant', 'failure');
-        //    return false;
-        //}
-
 
         $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
 
@@ -366,7 +317,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
 
     function getPartyPlantList() {
         $scope.partyPlantList = [];
-        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.PImodelNew.PartyId).then(function (response) {
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.PImodelNew.BuyerId).then(function (response) {
             angular.forEach(response.data, function (item) {
                 $scope.partyPlantList.push(item);
                 if (item.IsDefault) {
@@ -388,20 +339,6 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             .then(function (response) {
                 $scope.brandList = response.data;
             });
-        //cboService.getBuyerDivisionCboByBuyer($scope.PImodelNew.BuyerId, function (result) {
-        //    $scope.divisionList = result;
-        //    if ($scope.divisionList.length == 1) {
-        //        $scope.PImodelNew.BuyerDivisionId = $scope.divisionList[0].Value;
-        //    }
-
-        //});
-        //cboService.getBuyerDepartmentCboByBuyer($scope.PImodelNew.BuyerId, function (result) {
-        //    $scope.departmentList = result;
-        //    if ($scope.departmentList.length == 1) {
-        //        $scope.PImodelNew.BuyerDepartmentId = $scope.departmentList[0].Value;
-        //    }
-
-        //});
     };
 
     cboService.getCboWithBuyer(null, function (result) {
@@ -437,4 +374,29 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         });
     }
     $scope.GetMaterialGroupList();
+
+    $scope.Save = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'HeaderData': $scope.PImodelNew, 'MaterialData': $scope.DataList, 'VersionData': $scope.PIVersionModel },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadPISearchList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure')
+        }
+
+    };
 }

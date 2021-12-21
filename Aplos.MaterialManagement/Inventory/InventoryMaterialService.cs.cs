@@ -1731,12 +1731,13 @@ namespace Library.MaterialManagement.Inventory
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BaseCurrencyRate
 						, IRD.TransactionQty, IRD.BaseQty
 						,ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0) StockQty
-						, ISNULL(IRD.IssueQty,0) IssueQty, ISNULL(II.IssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
+						, ISNULL(II.IssueQty,0) IssueQty, ISNULL(II.IssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
 						 ,((((((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS BalanceStock
                         ,ISNULL(IRD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
 						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
+                        ,round(ISNULL(II.IssueAmount,0),4) TotalIssueAmount
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
                         ,0 SalesRate
@@ -1765,7 +1766,7 @@ namespace Library.MaterialManagement.Inventory
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
 					LEFT JOIN (
 									    select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, II.MaterialStorageId
-                                        , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalAmount,0)) IssueAmount,IID.IsAsset
+                                        , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,IID.IsAsset
 									    FROM TRN.InventoryIssueDetail IID  
 									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -1797,6 +1798,7 @@ namespace Library.MaterialManagement.Inventory
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
 						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
+                         ,0 TotalIssueAmount
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
                         ,0 SalesRate
@@ -1849,6 +1851,7 @@ namespace Library.MaterialManagement.Inventory
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
 						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
+                         ,0 TotalIssueAmount
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
                         ,0 SalesRate
