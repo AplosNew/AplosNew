@@ -3903,6 +3903,7 @@
     <Content Include="Areas\Attendances\Views\otFinalInformationNew\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\HourlyOTNew\HourlyOtReportMonth.cshtml" />
     <Content Include="Areas\Commercial\Views\InvoiceTaggedWithLC\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\HourlyOTNew\IndividualDailyOt.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
