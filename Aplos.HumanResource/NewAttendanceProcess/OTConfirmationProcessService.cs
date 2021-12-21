@@ -92,7 +92,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             a.OTYear,a.OTMonth,a.OTWeek,a.ManualOutTime,
                             d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
-                            left join org.Plant p on p.Id=e.PlantId                           
+                            left join org.Plant p on p.Id=e.PlantId     
+                            left join mst.ManpowerBudget mb on mb.id=e.BudgetCode
+							left join org.Entity ent on ent.id=mb.EntityId                            
                             left join DayStatusHeader dh on dh.Id=a.DayStatusHeaderId
                             left join DayTypeWithValues dt on dt.HeaderId=dh.Id
                             left join org.Section s on s.Id=e.SectionId
@@ -628,6 +630,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
                             left join org.Plant p on p.Id=e.PlantId
+                            left join mst.ManpowerBudget mb on mb.id=e.BudgetCode
+							left join org.Entity ent on ent.id=mb.EntityId                            
                             left join DayStatusHeader dh on dh.Id=a.DayStatusHeaderId
                             left join DayTypeWithValues dt on dt.HeaderId=dh.Id
                             left join org.Section s on s.Id=e.SectionId
