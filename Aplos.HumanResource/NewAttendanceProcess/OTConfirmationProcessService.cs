@@ -103,11 +103,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.Department d on d.Id=e.DepartmentId
                             left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '" + FromDate+@"'
                             and '"+ToDate+@"') and ISNULL(ExtendTheDayLimit,'')! =''
-                            where  IsOTEntitled=1
+                            where  a.IsOTEntitled=1
                             and dt.DayType=a.DayStatus 
                             and OTWeek="+Week+@"
                             and a.WorkDate between '"+FromDate+@"' and '"+ToDate+@"'
-                            and p.Id in ("+ Parameters["PlantId"] + ") order by WorkDate asc";
+                            and p.Id in ("+ Parameters["PlantId"] + ")  and ent.Id in (" + Parameters["EntityId"] + ") order by WorkDate asc";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -640,13 +640,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.Department d on d.Id=e.DepartmentId
                             left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '" + FromDate + @"'
                             and '" + ToDate + @"') and ISNULL(ExtendTheDayLimit,'')! =''
-                            where  IsOTEntitled=1
+                            where  a.IsOTEntitled=1
                             and dt.DayType=a.DayStatus 
                             " + OTConfirm + @" " + isDayStatus + @"
                             " + ProcessFil + @" " + DaySt + @"
                             and OTWeek=" + Week + @"
                             and a.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
-                            and p.Id in (" + Parameters["PlantId"] + ") order by WorkDate asc";
+                            and p.Id in (" + Parameters["PlantId"] + ") and ent.Id in ("+ Parameters["EntityId"]+") order by WorkDate asc";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -709,6 +709,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             d.UserName as Department,s.UserName as Section,ss.UserName AS SubSection,l.UserName as Designation 
                             from AttdnProcessData a left join employeeinformation e on a.EmpSystemID=e.SystemId
                             left join org.Plant p on p.Id=e.PlantId
+                            left join mst.ManpowerBudget mb on mb.id=e.BudgetCode
+							left join org.Entity ent on ent.id=mb.EntityId
                             left join DayStatusHeader dh on dh.Id=a.DayStatusHeaderId
                             left join DayTypeWithValues dt on dt.HeaderId=dh.Id
                             left join org.Section s on s.Id=e.SectionId
@@ -717,13 +719,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.Department d on d.Id=e.DepartmentId
                             left join PreallocatedOT pot on (pot.PlantID=e.PlantId and pot.WorkDate between '" + FromDate + @"'
                             and '" + ToDate + @"') and ISNULL(ExtendTheDayLimit,'')! =''
-                            where  IsOTEntitled=1
+                            where  a.IsOTEntitled=1
                             and dt.DayType=a.DayStatus 
                             " + OTConfirm + @" " + isDayStatus + @"
                             " + ProcessFil + @" " + DaySt + @"
                             and OTWeek=" + Week + @"
                             and a.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
-                            and p.Id in (" + Parameters["PlantId"] + ") order by WorkDate asc";
+                            and p.Id in (" + Parameters["PlantId"] + ") and ent.Id in (" + Parameters["EntityId"] + ") order by WorkDate asc";
 
                 return _sqlRepository.GetDataTable(str);
             }
