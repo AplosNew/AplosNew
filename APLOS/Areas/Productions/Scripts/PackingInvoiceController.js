@@ -7,7 +7,8 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     $scope.searchBy = "Customer"; $scope.search = "";
     $scope.searchByList = [{ value: 'PO', name: "PO" }, { value: 'Customer', name: "Customer" }, { value: 'Productcode', name: "Product Code" }];
     $scope.Action = 'Save';
-
+    $scope.partyType = "Customer";
+    $controller("partyBaseController", { $scope: $scope, $http: $http });
     $scope.tab2 = 1;
     $scope.setTab2 = function (newTab) {
         $scope.tab2 = newTab;

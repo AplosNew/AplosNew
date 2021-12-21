@@ -53,6 +53,11 @@ namespace Aplos.Areas.Leave.Controllers
         {
             return View();
         }
+        public ActionResult IndividualDailyOt()
+        {
+            return View();
+        }
+
         #endregion -- Pages
 
         #region -- Operations
@@ -128,15 +133,15 @@ namespace Aplos.Areas.Leave.Controllers
         {
             try
             {
+                IndividualOTReportService ot = new IndividualOTReportService();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = _AttendanceManagementService.GetIndividualDailyOT(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, FromDate, ToDate, OTDuration, CheckBox, OTfinal, "");
+                IWorkbook workbook = ot.GetIndividualDailyOT(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, FromDate, ToDate, OTDuration, CheckBox, OTfinal, "");
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Hourly Ot Monthly";
                 workbook.SaveAs(reportFileName + ".xlsx", HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
                 return null;
             }
             catch (Exception ex)
             {
-
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
 
