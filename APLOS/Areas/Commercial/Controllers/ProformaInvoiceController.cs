@@ -358,31 +358,36 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId
                     {
                         genid = new bplib.clsGenID();
                         genid.GenID("dbo.PIMaterial", out _PIMaterialId);
-                        _PIMaterialId = "PM" + _Id;
+                        _PIMaterialId = "PM" + _PIMaterialId;
                         int Mcount = 0;
                         for (int i = 0; i < dsPIMaterial.Tables[0].Rows.Count; i++)
                         {
                             drMaterial = dtMaterial.NewRow();
                             Mcount++;
-                            drMaterial["Id"] = _Id + Mcount;
+                            drMaterial["Id"] = _PIMaterialId + Mcount;
                             drMaterial["PIMasterId"] = dsPIMaterial.Tables[0].Rows[i]["PIMasterId"];
-                            drMaterial["VersionNo"] = dsPIMaterial.Tables[0].Rows[i]["VersionNo"];
-                            drMaterial["VersionRefNo"] = dsPIMaterial.Tables[0].Rows[i]["VersionRefNo"];
-                            drMaterial["VersionDate"] = dsPIMaterial.Tables[0].Rows[i]["VersionDate"];
+                            drMaterial["PIVersionId"] = dsPIMaterial.Tables[0].Rows[i]["PIVersionId"];
+                            drMaterial["Rate"] = dsPIMaterial.Tables[0].Rows[i]["Rate"];
+                            drMaterial["Quantity"] = dsPIMaterial.Tables[0].Rows[i]["Quantity"];
+                            drMaterial["Amount"] = dsPIMaterial.Tables[0].Rows[i]["Amount"];
+                            drMaterial["UoMId"] = dsPIMaterial.Tables[0].Rows[i]["UoMId"];
+                            drMaterial["Description"] = dsPIMaterial.Tables[0].Rows[i]["Description"];
+                            drMaterial["DeliveryDate"] = dsPIMaterial.Tables[0].Rows[i]["DeliveryDate"];
+                            drMaterial["MaterialGroupMasterId"] = dsPIMaterial.Tables[0].Rows[i]["MaterialGroupMasterId"];
                             drMaterial["AddedBy"] = identity.Name;
                             drMaterial["AddedDate"] = System.DateTime.Now.ToString();
                             drMaterial["AddedFromIP"] = identity.IPAddress;
                             dtMaterial.Rows.Add(drMaterial);
                         }
-                        return null;
+
                     }
 
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsPINewVersion, dsPINewMaterial);
 
-                    return Json(new { Error = false, Message = AplosMessage.Insert });
                     
                 }
+                    return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
