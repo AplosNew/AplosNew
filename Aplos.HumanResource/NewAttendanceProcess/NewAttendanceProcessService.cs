@@ -2956,24 +2956,28 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void PrevDayStatus(string PreDay, out DataSet ds, string Plant)
+        public void PrevProcessDayStatusUpdate(string PreDay, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
             try
             {
-                string newformat = Convert.ToDateTime(PreDay).ToString("yyyyMMdd");
-
-                var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,
-                convert(varchar(30),'"+newformat+@"' )+convert(varchar(30), p.empsystemid)RowId,
+                var sql = @"update AttdnProcessData set ProcessDayStatus=x.DayType from
+                    (select distinct p.EmpSystemID,p.rowid as RowIdx,dt.DayType,
                         format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                      	                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 									        left join DayStatus ds on ds.headerId=dh.Id
 											left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId
-									        where WorkDate='" + PreDay + @"' and ds.Code=p.DayStatusCode
-									        and ei.PlantId='" + Plant + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+									        where WorkDate='"+PreDay+@"' and ds.Code=p.DayStatusCode
+									        and ei.PlantId='"+Plant+@"') as x
+			            where x.RowIdx=Rowid";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
             }
             catch (Exception ex)
             {
@@ -3484,39 +3488,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SaveLog("DayStatus Code Logic Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Prev User Day Status 
-                    DataSet PrevUserDayStat;
-                    PrevDayStatus(PreviousDay, out PrevUserDayStat, PlantValue);
-                    if (PrevUserDayStat.Tables[0].Rows.Count > 0)
-                    {
-                        // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
-                        var WkDate = PrevUserDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
-                       
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                    PrevProcessDayStatusUpdate(PreviousDay, PlantValue);
 
-
-                        for (int i = 0; i < PrevUserDayStat.Tables[0].Rows.Count; i++)
-                        {
-
-                            string RowId = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"RowId"]).ToString();
-                            string DayStatus = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"DayType"]).ToString();
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                // Updation in AttdnProcessData
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["ProcessDayStatus"] = DayStatus;
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-                        }
-                        SaveDataSets(dsRef);
-
-                    }
                     #endregion
 
                     SaveLog("User DayStatus Ran Successfully for " + PreviousDay + " ...", PlantValue, false);

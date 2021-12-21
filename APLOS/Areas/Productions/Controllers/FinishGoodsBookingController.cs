@@ -76,6 +76,13 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(clsFinishGoodsBooking.GetCostingItemDetailData(costingId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetItemDetailListData(string productionOrderId)
+        {
+            return Json(clsFinishGoodsBooking.GetItemDetailListData(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetCostingItemData(string productionOrderId)
         {

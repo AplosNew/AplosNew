@@ -987,6 +987,7 @@ var upanelApp = angular
 
     .controller('GeneralDataMasterController', GeneralDataMasterController)
     .controller('GeneralDataOperationsController', GeneralDataOperationsController)
+    .controller('InvoiceTaggedWithLCController', InvoiceTaggedWithLCController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)
