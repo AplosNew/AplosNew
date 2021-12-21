@@ -1156,7 +1156,7 @@ order by  Assigned, ProductCode , PO
             }
         }
 
-        public DataTable getAllFinishedStocksReport(string Loc)
+        public DataTable getAllFinishedStocksReport(string Loc , string ToDate , string FromDate)
         {
             try
             {
@@ -1175,7 +1175,7 @@ order by  Assigned, ProductCode , PO
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
                             WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING'  " + loc + @"
-                                                        ";
+                            AND S.AddedDate between '"+FromDate+@"' and '"+ToDate+@"'";
                 return _sqlRepository.GetDataTable(str);
             }
             catch (Exception e)
