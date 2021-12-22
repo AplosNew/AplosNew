@@ -855,7 +855,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					//,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId,Isnull(MMAU.BaseUOMFactor,0)";
 				////return _sqlRepository.GetDataCollection(sql);
 				sql = @"select 
-						 Convert(bit, 'False') 'check'
+						 Convert(bit, 'False') 'check',Null as uoMList
 						,x.MaterialMasterGroupName
 						,x.MaterialType
 						,x.MaterialMasterId

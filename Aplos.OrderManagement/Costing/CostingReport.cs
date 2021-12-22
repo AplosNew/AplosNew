@@ -61,7 +61,7 @@ namespace Library.OrderManagement.Costing
                 DataTable dtOrderCostingProductInfo = _sqlRepository.GetDataTable(sql);
                 
                 if (dtOrderCostingProductInfo.Rows.Count == 0)
-                    throw new Exception("Selected master order item is not tagged with any order costing");
+                    throw new Exception("Selected master order item is not tagged with any order costing.");
 
                 DataTable dtMOICostingInfo = _sqlRepository.GetDataTable(CostingMOIsql);
                 string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
