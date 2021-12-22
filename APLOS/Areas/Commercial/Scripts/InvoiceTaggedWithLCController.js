@@ -8,7 +8,54 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveChargesUrl = $scope.path + 'CreateCharge';
     $scope.deleteUrl = $scope.path + 'delete/';
-    
+
+    //#region Page Loading ...
+    $scope.AutoLoanAvailableDataList = [];
+    $scope.fromDateTitle = "As On Date";
+    $scope.toDateShow = false;
+    $scope.AutoLoan = {
+        Id: null,
+        FromDate: $filter('dateFiltering')(Date.now()),
+        ToDate: $filter('dateFiltering')(Date.now()),
+        DateRange: "false",
+    };
+    $scope.AutoLoanNew = Object.assign({}, $scope.AutoLoan);
+    $scope.viewChange = function () {
+        if ($scope.AutoLoanNew.DateRange === "true") {
+            $scope.fromDateTitle = "From Date";
+            $scope.toDateShow = true;
+            $scope.AutoLoanNew.FromDate = $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1));
+            $scope.AutoLoanNew.ToDate = $filter('dateFiltering')(Date.now());
+        }
+        else {
+            $scope.fromDateTitle = "As On Date";
+            $scope.toDateShow = false;
+            $scope.AutoLoanNew.FromDate = $filter('dateFiltering')(Date.now());
+            $scope.AutoLoanNew.ToDate = $filter('dateFiltering')(Date.now())
+        }
+    };
+
+    $scope.getAutoLoanAvailableList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetVendorAvailableInvoiceList?date=" + $scope.AutoLoanNew.FromDate,
+        }).then(function successCallback(response) {
+            $scope.AutoLoanAvailableDataList = response.data;
+        });
+    }
+
+    //#endregion
+
+    $scope.Clear = function () {
+        $scope.AutoLoan = {
+            Id: null,
+            FromDate: $filter('dateFiltering')(Date.now()),
+            ToDate: $filter('dateFiltering')(Date.now()),
+            DateRange: "false",
+        };
+        $scope.AutoLoanAvailableDataList = [];
+        $scope.fromDateTitle = "As On Date";
+    }
 }
 
 

@@ -487,8 +487,8 @@ namespace Library.Service.OrderManagements
 							 , ISNULL(HART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
                              , ISNULL((select sum(SO.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as SOQty,MOI.Type,MOI.IsRepeat, PM.UserName AS ProductMaster
                              ,CNT.ContractNo,MLC.LCRef,MOI.BuyerItemDescription,MOI.MainRawMaterialDescription,MOI.PartyId,MOI.EntityIdWithinGroup,MOI.EntityIdWithinCompany,MOI.JobWorkType
-                             , EntityOrVendorName= CASE WHEN MOI.EntityIdWithinCompany<>'' THEN EWC.UserName 
-					                        WHEN MOI.EntityIdWithinGroup<>'' THEN EWG.UserName
+                             , EntityOrVendorName= CASE WHEN MOI.EntityIdWithinCompany<>'' THEN EWCC.UserName +' - '+EWC.UserName 
+					                        WHEN MOI.EntityIdWithinGroup<>'' THEN EWGC.UserName+' - '+EWG.UserName
 					                        WHEN MOI.PartyId<>'' THEN PRT.UserName
 					                        ELSE PRT.UserName END
                             ,enableJobOrOutSource=CASE WHEN MOI.[Type]='JobWork' OR MOI.[Type]='OutSource' THEN 'false' ELSE 'true' END
@@ -507,7 +507,9 @@ namespace Library.Service.OrderManagements
                         LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
 						LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
 						LEFT JOIN ORG.Entity AS EWC ON MOI.EntityIdWithinCompany=EWC.Id
+						LEFT JOIN ORG.Company AS EWCC ON EWC.CompanyId=EWCC.Id
                         LEFT JOIN ORG.Entity AS EWG ON MOI.EntityIdWithinGroup=EWG.Id
+						LEFT JOIN ORG.CompanyGroup AS EWGC ON EWG.CompanyGroupId=EWGC.Id
                         LEFT JOIN HKP.Party AS PRT ON MOI.PartyId=PRT.Id
                         LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                         WHERE MOI.MasterOrderId='" + masterOrderId + "'";

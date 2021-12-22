@@ -883,7 +883,7 @@ namespace Aplos.Areas.IE.Controllers
     LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 	) PD ON PD.ProductionOrderId=PO.Id
 	LEFT JOIN [TRN].[ProductionBulletinTemplate] PB ON PB.ProductionOrderId=PD.ProductionOrderId
-	where PB.BulletinTemplateId='"+Id+"'"), JsonRequestBehavior.AllowGet);
+	where PB.BulletinTemplateId='" + Id + "'"), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -2489,11 +2489,12 @@ namespace Aplos.Areas.IE.Controllers
                 var endRow = 0;
                 int RowIndex = ROW;
                 startRow = ROW;
-
+                int srNo = 0;
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-
-                    sheet[ROW, ColSequence].Number = clsStaticInfo.dbl(data.Rows[i]["Sequence"].ToString());
+                    srNo++;
+                    //sheet[ROW, ColSequence].Number = clsStaticInfo.dbl(data.Rows[i]["Sequence"].ToString());
+                    sheet[ROW, ColSequence].Number = srNo;
                     sheet[ROW, ColOperationCode].Text = data.Rows[i]["OperationCode"].ToString();
                     sheet[ROW, ColMachineVarient].Text = data.Rows[i]["OperationVariation"].ToString();
                     sheet[ROW, ColMachineCode].Text = data.Rows[i]["ShortName"].ToString();
@@ -2907,7 +2908,7 @@ namespace Aplos.Areas.IE.Controllers
                 #region Image
                 try
                 {
-                    string strPath = Path.Combine(ResourcesPathReader.GetBulletinImagePath(), IdImage+ ImageExt);
+                    string strPath = Path.Combine(ResourcesPathReader.GetBulletinImagePath(), IdImage + ImageExt);
                     Image companyLogo = Image.FromFile(strPath);
                     if (companyLogo != null)
                     {
@@ -3345,7 +3346,7 @@ namespace Aplos.Areas.IE.Controllers
                 COL++;
                 COL++;
 
-                sheet[ROW, COL].Text="Target On Org. Efficiency";
+                sheet[ROW, COL].Text = "Target On Org. Efficiency";
                 sheet[ROW, COL].ColumnWidth = 0.05f;
                 int ColTargetOnOrgEff = COL;
                 COL++;
@@ -3374,11 +3375,12 @@ namespace Aplos.Areas.IE.Controllers
                 var endRow = 0;
                 int RowIndex = ROW;
                 startRow = ROW;
-
+                int srNo = 0;
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-
-                    sheet[ROW, ColSequence].Number = clsStaticInfo.dbl(data.Rows[i]["Sequence"].ToString());
+                    srNo++;
+                    //sheet[ROW, ColSequence].Number = clsStaticInfo.dbl(data.Rows[i]["Sequence"].ToString());
+                    sheet[ROW, ColSequence].Number = srNo;
                     sheet.Range[ROW, ColSequence, ROW, ColSequence].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet.Range[ROW, ColSequence, ROW, ColSequence].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -4618,11 +4620,13 @@ namespace Aplos.Areas.IE.Controllers
                 var endRow = 0;
                 int RowIndex = ROW;
                 startRow = ROW;
-
+                int srNo = 0;
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
+                    srNo++;
 
-                    sheet[ROW, ColSequence].Number = clsStaticInfo.dbl(data.Rows[i]["Sequence"].ToString());
+                    sheet[ROW, ColSequence].Number = srNo;
+                    //sheet[ROW, ColSequence].Number = clsStaticInfo.dbl(data.Rows[i]["Sequence"].ToString());
                     sheet.Range[ROW, ColSequence, ROW, ColSequence].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet.Range[ROW, ColSequence, ROW, ColSequence].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -5228,7 +5232,7 @@ namespace Aplos.Areas.IE.Controllers
 
             return _sqlRepository.GetDataTable(sql);
         }
-               
+
 
 
         [HttpGet, Authorize]

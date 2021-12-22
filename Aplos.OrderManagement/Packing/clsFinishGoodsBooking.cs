@@ -34,7 +34,7 @@ namespace Library.OrderManagement.Packing
         {
             try
             {
-                string sql = @"SELECT PO.Id ProductionOrderId,MOI.Id ItemId,MOI.MasterOrderId,P.UserName Customer,PL.Code ProductCode
+                string sql = @"SELECT PO.Id ProductionOrderId,MOI.Id ItemId,MOI.MasterOrderId,P.UserName Customer,PL.Code ProductCode,SUM(SO.Qty) SOQty
                                     ,SONo = STUFF((SELECT DISTINCT ',' + XSO.Id
 							                                    FROM trn.SalesOrder XSO
 							                                    WHERE XSO.MasterOrderItemId = MOI.Id
@@ -46,7 +46,7 @@ namespace Library.OrderManagement.Packing
                                     LEFT JOIN TRN.MasterOrder MO ON mo.Id = MOI.MasterOrderId
                                     LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                                     LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
-                                    WHERE PO.Id='"+ productionOrderId + "'";
+                                    WHERE PO.Id='" + productionOrderId + "'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -104,7 +104,6 @@ namespace Library.OrderManagement.Packing
                 throw ex;
             }
         }
-
 
         public IEnumerable<object> GetDetailList(string masterId, string entityId, string processId, string productionOrderId)
         {
@@ -208,8 +207,6 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-
-
         public void GetConsumptionByCostingData(string costingId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -235,8 +232,7 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-
-        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
+        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList, List<Dictionary<string, object>> FGList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -249,25 +245,30 @@ namespace Library.OrderManagement.Packing
 
                 bplib.clsGenID objGenID = new bplib.clsGenID();
 
-                foreach (var item in FinishGoodsBookingDetailList)
+                //foreach (var item in FinishGoodsBookingDetailList)
+                foreach (var item in FGList)
                 {
-                    if (pOId == null)
+                    if (Convert.ToBoolean(item["Flag"].ToString()) == true)
                     {
-                        pOId = "'" + item["ProductionOrderId"].ToString() + "'";
-                    }
-                    else
-                    {
-                        pOId += ",'" + item["ProductionOrderId"].ToString() + "'";
-                    }
+                        if (pOId == null)
+                        {
+                            pOId = "'" + item["ProductionOrderId"].ToString() + "'";
+                        }
+                        else
+                        {
+                            pOId += ",'" + item["ProductionOrderId"].ToString() + "'";
+                        }
 
-                    if (productCode == null)
-                    {
-                        productCode = "'" + item["ProductCode"].ToString() + "'";
+                        if (productCode == null)
+                        {
+                            productCode = "'" + item["ProductCode"].ToString() + "'";
 
-                    }
-                    else
-                    {
-                        productCode += ",'" + item["ProductCode"].ToString() + "'";
+                        }
+                        else
+                        {
+                            productCode += ",'" + item["ProductCode"].ToString() + "'";
+                        }
+
                     }
                     if (MaterialMasterId == null)
                     {
@@ -1368,10 +1369,16 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							,Qty=CONVERT(decimal(18,2),ISNULL(A.Qty,0.00)),Rate=CONVERT(decimal(18,4),ISNULL(PD.Rate,0.0000))
 							,Amount=CONVERT(decimal(18,2),(ISNULL(A.Qty,0.00)*ISNULL(PD.Rate,0.0000)))
 							,PD.IsAsset,PD.UOM,PD.Buyer,PD.BuyerReferenceNo,PD.TotalQty ItemQty, 
-Balance=CONVERT(decimal(18,2),ISNULL(A.Qty,0.00))-ISNULL((SELECT Qty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END)
+BookedQty=ISNULL((SELECT Qty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END)
 		FROM dbo.ItemScanChild ISC 
 		LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-		WHERE ISM.WorkDate between '" + fromDate + @"' AND '"+ toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')<>'' AND ISNULL(ISC.PackingId,'')<>'' 
+		WHERE ISNULL(ISC.InventoryReceiveDetailId,'')<>'' AND ISNULL(ISC.PackingId,'')<>'' 
+		AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='"+ entityId + @"')
+		GROUP BY ISC.PoId,ISC.ProductCode),0)
+,Balance=CONVERT(decimal(18,2),ISNULL(A.Qty,0.00))-ISNULL((SELECT Qty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END)
+		FROM dbo.ItemScanChild ISC 
+		LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
+		WHERE ISNULL(ISC.InventoryReceiveDetailId,'')<>'' AND ISNULL(ISC.PackingId,'')<>'' 
 		AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='"+ entityId + @"')
 		GROUP BY ISC.PoId,ISC.ProductCode),0)
 FROM dbo.ItemScanChild SC 						
@@ -1434,7 +1441,7 @@ WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(
 GROUP BY PD.ProductionOrderId,PD.ProductCode,PD.OrderCostingMasterTemplateId,PD.Rate,PD.MaterialMaster,PD.MaterialMasterId,PD.Article,PD.ArticleId,PD.IsAsset,PD.UOM,PD.TotalQty,PD.Buyer,PD.MasterOrderItemId,A.Qty,PD.BuyerReferenceNo
 UNION ALL
 SELECT CAST(0 AS bit) Flag, ProductionOrderId,ProductCode,''MasterOrderItemId,''SONo,''MaterialMasterId,''ArticleId,'' MaterialMaster,''Article,'' OrderCostingMasterTemplateId,Qty=CONVERT(decimal(18,2),Qty),Rate=CONVERT(decimal(18,4),0), Amount=CONVERT(decimal(18,2),0)
-,0 IsAsset,''UOM,''Buyer,'' BuyerReferenceNo,0 ItemQty,0 Balance from 
+,0 IsAsset,''UOM,''Buyer,'' BuyerReferenceNo,0 ItemQty,0 BookedQty,0 Balance from 
 (
 	Select Qty=SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END),ISC.POId ProductionOrderId,ISC.ProductCode 
 		from dbo.ItemScanChild ISC 
