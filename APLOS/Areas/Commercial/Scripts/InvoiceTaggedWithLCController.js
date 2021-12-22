@@ -9,6 +9,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.saveChargesUrl = $scope.path + 'CreateCharge';
     $scope.deleteUrl = $scope.path + 'delete/';
 
+    //#region Page Loading ...
     $scope.AutoLoanAvailableDataList = [];
     $scope.fromDateTitle = "As On Date";
     $scope.toDateShow = false;
@@ -34,7 +35,17 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         }
     };
 
+    $scope.getMaster = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetVendorAvailableInvoiceList",
+        }).then(function successCallback(response) {
+            $scope.AutoLoanAvailableDataList = response.data;
+        });
+    }
+    $scope.getMaster();
 
+    //#endregion
 }
 
 
