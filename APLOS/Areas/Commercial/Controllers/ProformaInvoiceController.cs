@@ -387,32 +387,32 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
             }
         }
 
-        public ActionResult DeleteMaterial(string id)
-        {
-            try
-            {
+        //public ActionResult DeleteMaterial(string id)
+        //{
+        //    try
+        //    {
 
-                string ret = tg.DeletePIMaterial(id);
+        //        string ret = tg.DeletePIMaterial(id);
 
-                if (ret == "Success")
-                {
-                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-                }
-                else
-                {
-                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
-                }
+        //        if (ret == "Success")
+        //        {
+        //            return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        //        }
+        //        else
+        //        {
+        //            return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+        //        }
 
-            }
-            catch (Exception ex)
-            {
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
 
-            }
+        //    }
 
 
-        }
+        //}
         [HttpPost, Authorize]
         public JsonResult NewVersion(string PIMasterId, string PIVersionId)
         {
