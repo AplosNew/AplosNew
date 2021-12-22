@@ -11158,10 +11158,10 @@ ORDER BY IR.ID DESC";
 	                                          ,TUoM.UserName AS TransactionUoM
                                                ,MRMD.MaterialDetail MaterialDetail
 
-											   ,CheckedBy=CASE WHEN SPO.CheckedByStatus='Checked' Then eI.EmployeeName else '' END 
+											   ,CheckedBy=eI.EmployeeName 
                                                 ,AuthorizedBy=CASE When SPO.ApprovedByStatus='Approval'then eI1.EmployeeName else '' END
                                                 ,AddedBy=CASE When SPO.CheckedByStatus='For Checking' OR SPO.CheckedByStatus='Hold' OR SPO.CheckedByStatus='Reject' OR SPO.CheckedByStatus='Checked'then eI3.EmployeeName else ''  END 
-                                             	                ,PurOrCheckedStatus= CASE when SPO.CheckedByStatus='ForChecked' Then 'To be checked'
+                                             	,PurOrCheckedStatus= CASE when SPO.CheckedByStatus='For Checking' Then 'To be checked'
                                            when SPO.CheckedByStatus='Hold' Then 'Hold'
 						                   when SPO.CheckedByStatus='Reject' Then 'Reject'
 						                   when SPO.CheckedByStatus='Checked' Then 'Checked'

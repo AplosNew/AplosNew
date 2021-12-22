@@ -13,6 +13,8 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.AutoLoanAvailableDataList = [];
     $scope.fromDateTitle = "As On Date";
     $scope.toDateShow = false;
+    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    var firstDay = new Date(y, m, 1);
     $scope.AutoLoan = {
         Id: null,
         FromDate: $filter('dateFiltering')(Date.now()),
@@ -38,7 +40,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.getAutoLoanAvailableList = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GetVendorAvailableInvoiceList?date=" + $scope.AutoLoanNew.FromDate,
+            url: $scope.path + "GetVendorAvailableInvoiceList?FromDate=" + $scope.AutoLoanNew.FromDate + '&ToDate=' + $scope.AutoLoanNew.ToDate + '&DateRange=' + $scope.AutoLoanNew.DateRange,
         }).then(function successCallback(response) {
             $scope.AutoLoanAvailableDataList = response.data;
         });
@@ -46,6 +48,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
 
     //#endregion
 
+    //#region Clear
     $scope.Clear = function () {
         $scope.AutoLoan = {
             Id: null,
@@ -56,6 +59,32 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         $scope.AutoLoanAvailableDataList = [];
         $scope.fromDateTitle = "As On Date";
     }
+    //#endregion
+
+    //#region Pop Up
+    $scope.purchaseLCList = [];
+    $scope.getSavedData = function () {
+        $scope.purchaseLCList = [];
+        $http.get("Commercial/PurchaseLC/getlist")
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        angular.element(document.querySelector("#PurchaseLCPopUp")).modal("show");
+                        $scope.purchaseLCList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+    $scope.LcModel = [];
+    $scope.SetDetails = function (args) {
+        $scope.LcModel = [];
+        angular.element(document.querySelector("#PurchaseLCPopUp")).modal("hide");
+        $scope.LcModel.push(args.data);
+    }
+
+    //#endregion
 }
 
 
