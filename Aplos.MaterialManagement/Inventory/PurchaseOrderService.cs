@@ -8291,7 +8291,7 @@ ORDER BY IR.ID DESC";
 
                             join hkp.PartyPlant P on p.PartyId= boq.VendorId
 
-                            where C.PlantId= '" + plantId + @"'
+                            where P.PlantId= '" + plantId + @"'
 
                             union
 
@@ -8329,7 +8329,11 @@ ORDER BY IR.ID DESC";
 							FROM [dbo].[Contract] C
 							JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id
 							LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=C.MasterLCId--MLC ON MLC.ContractId=C.Id
-							where C.PlantId='" + plantId + @"'
+							 where  C.PlantId='" + plantId + @"' OR C.Id IN(
+						   select MOI.ContractId from trn.MasterOrderItem MOI
+						   join org.Entity E on e.id=isnull(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+						   where Type='OutSource' and isnull(consignment,0)=0 and E.plantId='" + plantId + @"'
+                            )
 
                             ORDER BY C.CustomerId";
                 return _sqlRepository.GetDataCollection(sql);
