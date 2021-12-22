@@ -153,6 +153,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                             "data": $scope.modelNew
                             , "WorkDayList": $scope.WorkDayList
                             , "FinishGoodsBookingDetailList": $scope.DatewiseList
+                            , 'FGList': $scope.LineItemsList
                         },
                         dataType: "JSON"
                     }).then(function successCallback(response) {
