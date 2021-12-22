@@ -2203,7 +2203,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	$scope.getDataMaterialWise = function () {
 	
 		$scope.IssueSlipType = 'InventorySlip';
-		$scope.GetIssueSlipFilterData();
+		//$scope.GetIssueSlipFilterData();
 		//tarek
 		////$scope.uom();
 		////debugger;
@@ -2752,11 +2752,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	}
 	$scope.uom();
 
-	//$scope.selectedDataIndex = -1;
-	//$scope.OnUOMChange = function (data) {
-	//	$scope.selectedDataIndex = data.model.ModelFieldsId;
-	//	$scope.getUoM();
-	//}
+	
 	$scope.getUoM = function (Id) {
 		$http({
 			method: 'GET',

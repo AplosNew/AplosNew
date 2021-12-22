@@ -34,7 +34,7 @@ namespace Library.OrderManagement.Packing
         {
             try
             {
-                string sql = @"SELECT PO.Id ProductionOrderId,MOI.Id ItemId,MOI.MasterOrderId,P.UserName Customer,PL.Code ProductCode,MOI.TotalQty ItemQty
+                string sql = @"SELECT PO.Id ProductionOrderId,MOI.Id ItemId,MOI.MasterOrderId,P.UserName Customer,PL.Code ProductCode,SUM(SO.Qty) SOQty
                                     ,SONo = STUFF((SELECT DISTINCT ',' + XSO.Id
 							                                    FROM trn.SalesOrder XSO
 							                                    WHERE XSO.MasterOrderItemId = MOI.Id
@@ -232,7 +232,7 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
+        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList, List<Dictionary<string, object>> FGList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -245,25 +245,30 @@ namespace Library.OrderManagement.Packing
 
                 bplib.clsGenID objGenID = new bplib.clsGenID();
 
-                foreach (var item in FinishGoodsBookingDetailList)
+                //foreach (var item in FinishGoodsBookingDetailList)
+                foreach (var item in FGList)
                 {
-                    if (pOId == null)
+                    if (Convert.ToBoolean(item["Flag"].ToString()) == true)
                     {
-                        pOId = "'" + item["ProductionOrderId"].ToString() + "'";
-                    }
-                    else
-                    {
-                        pOId += ",'" + item["ProductionOrderId"].ToString() + "'";
-                    }
+                        if (pOId == null)
+                        {
+                            pOId = "'" + item["ProductionOrderId"].ToString() + "'";
+                        }
+                        else
+                        {
+                            pOId += ",'" + item["ProductionOrderId"].ToString() + "'";
+                        }
 
-                    if (productCode == null)
-                    {
-                        productCode = "'" + item["ProductCode"].ToString() + "'";
+                        if (productCode == null)
+                        {
+                            productCode = "'" + item["ProductCode"].ToString() + "'";
 
-                    }
-                    else
-                    {
-                        productCode += ",'" + item["ProductCode"].ToString() + "'";
+                        }
+                        else
+                        {
+                            productCode += ",'" + item["ProductCode"].ToString() + "'";
+                        }
+
                     }
                     if (MaterialMasterId == null)
                     {

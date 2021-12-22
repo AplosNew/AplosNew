@@ -895,7 +895,6 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	$scope.materialStockList = [];
 	$scope.specificStockList = [];
 	$scope.getSpecificMaterialStock = function (data, index) {
-		$scope.materialStockList = [];
 		//debugger;
 		$scope.index = index;
 		$scope.selectedRowQty = data.TransactionQty;
