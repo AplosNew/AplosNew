@@ -1167,8 +1167,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     , CONVERT(VARCHAR(5), AR.OutTime, 108) OutTimelate
                                     , AROUT.DeviceID OutDeviceID
                                     , AR.IsManualInTime IsManual
-                                    --, AR.OTHr 
-                                    ,OT.TotalOTHr
+                                    ,ar.StandardOT as TotalOTHr
                                     , LT.UserName LvShortName
                                     , LT.Description LvDescrip
                                     , LT.LeaveType
@@ -1202,7 +1201,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 			                         ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
 			                         END
 
-                                    , AR.IsManualDayStatus, AR.IsManualInTime, AR.IsManualOutTime, ar.CountedShortLeave ShortLeave,AR.IsOTEntitled,AR.IsOTComfirm,OT.WorkDate,dt.Category DayCategory
+                                    , AR.IsManualDayStatus, AR.IsManualInTime, AR.IsManualOutTime, ar.CountedShortLeave ShortLeave,AR.IsOTEntitled,AR.IsOTComfirm,AR.WorkDate,dt.Category DayCategory
                                 FROM dbo.EmployeeInformation E
 
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
@@ -1242,7 +1241,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                          ) CS on cs.ShiftDefinationID = AR.ShiftSystemID and cs.ShiftDate = ar.WorkDate
                                 left join[ShiftDefination] sd on sd.SystemID = AR.ShiftSystemID
                                 LEFT JOIN HKP.Designation D ON E.GivenDesignationId = D.Id
-                                LEFT JOIN FinalOT OT ON E.SystemId = OT.EmpSystemID and ot.WorkDate=ar.WorkDate
                                 LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
                                 LEFT JOIN DayType dt on dt.Daytype=AR.DayStatus
                             
