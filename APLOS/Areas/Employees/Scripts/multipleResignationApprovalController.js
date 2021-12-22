@@ -533,30 +533,7 @@ function multipleResignationApprovalController(fileReader, cboService, commonMes
         }
     };
 
-    //$scope.showEntityPopUp = function () {
-    //    $http.get('employees/resignationapprovalmultiple/GetEntityByEmployee')
-    //        .then(function (response) {
-    //            $scope.entityList = response.data;
-    //        });
-    //    angular.element(document.querySelector('#entityPopUp')).modal('show');
-    //}
-    //$scope.EntityList = function () {
-    //    $http.get('employees/resignationapprovalmultiple/getEntity')
-    //        .then(function successCallback(response) {
-    //            if (!baseService.isUndefinedOrNull(response.data.Message)) {
-    //                $scope.message = response.data.Message;
-    //            }
-    //            else {
-    //                $scope.message = response.data;
-    //            }
-
-    //        }
-    //        ), function errorCallBack(response) {
-    //            showResult(response.Message, 'failure');
-    //        }
-    //}
-    //$scope.EntityList();
-
+    
     function CheckField(fieldValue, fieldName) {
         try {
             if (fieldValue === null || fieldValue === '') {

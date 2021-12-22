@@ -239,7 +239,7 @@ namespace Library.MaterialManagement.Inventory
                         if (im.IsNotNull())
                         {
 
-                            if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
+                            //if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
                             item.InventoryIssueId = _pk;
                             item.InventoryMaterialId = im.Id;
                             item.CompanyGroupId = im.CompanyGroupId;
@@ -705,7 +705,7 @@ namespace Library.MaterialManagement.Inventory
                         if (specificStockList.IsNotNull())
                         {
 
-                          
+
                             foreach (var invMaterialId in specificInvaterialIds)
                             {
                                 var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
@@ -721,6 +721,7 @@ namespace Library.MaterialManagement.Inventory
 
                                 foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                 {
+                                    if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
                                     decimal IssueTransactionQty = item.RequisitionQty;
                                     decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(x.ISHTotalBaseAmount),0)+isnull(sum(x.PRTotalMaterialTranAmount),0)+isnull(sum(x.PSAHTotalAmount),0)+isnull(sum(x.IIHTotalAmount),0) +isnull(sum(x.InvSTotalAmount),0) +isnull(sum(x.ITHTotalAmount),0)) -isnull(sum(x.IIRTotalAmount),0))  
 																														FROM (
@@ -736,7 +737,7 @@ namespace Library.MaterialManagement.Inventory
 																																FROM TRN.InventoryReceiveDetail IRD	
 																																LEFT JOIN trn.PhysicalStockAdjustmentHistory PSAH ON PSAH.InventoryReceiveDetailId=IRD.Id	
 																																UNION All
-																																SELECT IRD.Id,0 ,0,0,0,isnull(IIH.TotalAmount,0) IIHTotalAmount,0,0		
+																																SELECT IRD.Id,0 ,0,0,0,isnull(IIH.TotalMaterialBooksCurrencyAmount,0) IIHTotalAmount,0,0		
 																																FROM TRN.InventoryReceiveDetail IRD	
 																																LEFT join [TRN].[InventoryIssueHistory] IIH ON IIH.InventoryReceiveDetailId=IRD.Id
 																																UNION All
@@ -773,8 +774,15 @@ namespace Library.MaterialManagement.Inventory
 
                                     if (item.TransactionUoMId == item.BaseUOMId) //entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BaseUOMId).FirstOrDefault())
                                     {
-                                       // detailtrnAmount += Convert.ToDecimal((item.TotalMaterialBooksCurrencyAmount - totalIssuedAmount) - (((item.BaseQty - (item.BaseIssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty + item.InventoryTransferQty) + item.IssueReturnQty) - IssueDeduactionQty) * (item.TotalMaterialBooksCurrencyAmount / item.BaseQty)));
-                                        detailtrnAmount += Convert.ToDecimal(item.RequisitionQty*item.BooksCurrencyBaseRate);
+                                        // detailtrnAmount += Convert.ToDecimal((item.TotalMaterialBooksCurrencyAmount - totalIssuedAmount) - (((item.BaseQty - (item.BaseIssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty + item.InventoryTransferQty) + item.IssueReturnQty) - IssueDeduactionQty) * (item.TotalMaterialBooksCurrencyAmount / item.BaseQty)));
+                                        if (RemainingGRNQty == IssueTransactionQty)
+                                        {
+                                            detailtrnAmount += Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - totalIssuedAmount);
+                                        }
+                                        else
+                                        {
+                                            detailtrnAmount += Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate);
+                                        }
                                         var newgrn = new InventoryIssueHistory
                                         {
                                             TotalAmount = Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate),
@@ -789,7 +797,14 @@ namespace Library.MaterialManagement.Inventory
                                     else
                                     {
                                         //detailtrnAmount += Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty + item.InventoryTransferQty) + item.IssueReturnQty) * item.BaseUoMFactor) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
-                                        detailtrnAmount += Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate);
+                                        if (RemainingGRNQty == IssueTransactionQty)
+                                        {
+                                            detailtrnAmount += Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - totalIssuedAmount);
+                                        }
+                                        else
+                                        {
+                                            detailtrnAmount += Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate);
+                                        }
                                         var newgrn = new InventoryIssueHistory
                                         {
                                             //TotalAmount = Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty + item.InventoryTransferQty) + item.IssueReturnQty) * item.BaseUoMFactor) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty))),
@@ -849,11 +864,11 @@ namespace Library.MaterialManagement.Inventory
                                         Qty = Math.Round(totalReqQty, 4), //item.RequisitionQty,
                                                                           //Rate = Convert.ToDecimal(item.BaseRate),
                                         Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
-                                        TotalAmount = Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2),//Convert.ToDecimal(detailtrnAmount),
+                                        TotalAmount = (item.StockQty==item.IssueQty)? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount-item.TotalIssueAmount), 2) : Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2),//Convert.ToDecimal(detailtrnAmount),
                                         IssueRequestDetailId = item.IssueRequest,
                                         IssueReturnQty = 0,
                                         BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
-                                        TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2)//totalReqQty item.RequisitionQty
+                                        TotalMaterialBooksCurrencyAmount = (item.StockQty == item.IssueQty) ? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - item.TotalIssueAmount), 2) : Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2)//totalReqQty item.RequisitionQty
                                     };
                                     //policyAmmount += history.Qty * history.Rate;
 
@@ -2111,7 +2126,7 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
-                
+
                 var sql = @"SELECT * FROM (
                             SELECT II.Id,II.IssueDate IssueDate1,E.UserName AS Entity 
 							,isnull(II.IssueType,'') issuetype
@@ -2140,7 +2155,7 @@ namespace Library.MaterialManagement.Inventory
 							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
 							left JOIN SCS.Country c ON C.Id=IR.CountryId
 							left join dbo.Contract Con On Con.Id=II.ContractId
-						WHERE II.PlantId= '"+ plantId + @"'
+						WHERE II.PlantId= '" + plantId + @"'
 						AND IIH.IsAsset= 0)X
 						Order BY 2 DESC";
                 return _sqlRepository.GetDataCollection(sql);
@@ -2825,7 +2840,7 @@ namespace Library.MaterialManagement.Inventory
                 var sql = "";
                 if (Type == "Posted")
                 {
-                    
+
                     sql = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
                             ,OSPOType=case when ospo.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
@@ -2925,7 +2940,7 @@ namespace Library.MaterialManagement.Inventory
                 }
                 else
                 {
-                    
+
 
                     sql = @"SELECT II.Id AS IssueId,IID.Id as IssueDetailId
                             ,OSPOType=case when ospo.POType='OSValueAddedPO' then 'ValueAdded' else 'Transformation' End
@@ -12652,7 +12667,7 @@ namespace Library.MaterialManagement.Inventory
 
                                         }
                                         issueDetail.PolicyAmount = tempPolicyAmount;
-                                        issueDetail.PolicyRate = Math.Round(tempPolicyAmount / issueDetail.TransactionQty,4);
+                                        issueDetail.PolicyRate = Math.Round(tempPolicyAmount / issueDetail.TransactionQty, 4);
                                         AuditService.AddedLog(issueDetail);
                                         _issueDetailService.InsertGraph(issueDetail);
                                         tempPolicyAmount = 0;
@@ -13543,7 +13558,7 @@ namespace Library.MaterialManagement.Inventory
                                         //AuditService.AddedLog(issueDetail);
                                         //_issueDetailService.InsertGraph(issueDetail);
                                         issueDetail.PolicyAmount = tempPolicyAmount;
-                                        issueDetail.PolicyRate = Math.Round(tempPolicyAmount / issueDetail.TransactionQty,4);
+                                        issueDetail.PolicyRate = Math.Round(tempPolicyAmount / issueDetail.TransactionQty, 4);
                                         AuditService.UpdatedLog(issueDetail);
                                         _issueDetailService.UpdateGraph(issueDetail);
 
@@ -13633,7 +13648,7 @@ namespace Library.MaterialManagement.Inventory
                     if (empitem.ArticleId.IsNull())
                     {
                         JWItemId += ",'" + empitem.JWInputItemId + "' ";
-                //        OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
+                        //        OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
                         OtMatId += ",'" + empitem.OSTransformationPODetailId + "' ";
                     }
 
@@ -13752,7 +13767,7 @@ namespace Library.MaterialManagement.Inventory
                         if (empitem.JWOrderWiseId.IsNotNull())
                         {
                             JWOrderWiseId += ",'" + empitem.JWOrderWiseId + "' ";
-                     //       OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
+                            //       OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
                             OtMatId += ",'" + empitem.OSTransformationPODetailId + "' ";
                         }
                         else
@@ -13962,7 +13977,7 @@ namespace Library.MaterialManagement.Inventory
                         inventoryIssue.ContractId = inventoryIssue.ContractId;
                         inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
 
-                  //      inventoryIssue.JWContractId = inventoryIssue.JWContractId;
+                        //      inventoryIssue.JWContractId = inventoryIssue.JWContractId;
                         inventoryIssue.JobWorkContractId = inventoryIssue.JobWorkContractId;
                         inventoryIssue.ContractType = inventoryIssue.ContractType;
                         inventoryIssue.Types = inventoryIssue.Types;
@@ -14525,7 +14540,7 @@ namespace Library.MaterialManagement.Inventory
                                             CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
                                             Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
                                             // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
-                                         //   OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                            //   OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
                                             JWTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.JWTransformationPODetailId).FirstOrDefault(),
                                             //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
@@ -15360,7 +15375,7 @@ namespace Library.MaterialManagement.Inventory
                                             CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
                                             Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
                                             // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
-                                       //     OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                            //     OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
                                             JWTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.JWTransformationPODetailId).FirstOrDefault(),
                                             //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),

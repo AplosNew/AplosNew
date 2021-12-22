@@ -1275,12 +1275,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetFinishedStocksReport(string Loc)
+        public ActionResult GetFinishedStocksReport(string Loc , string ToDate , string FromDate)
         {
 
             try
             {
-                var workbook = GetFinishedStocksReportForm(Loc);
+                var workbook = GetFinishedStocksReportForm(Loc , ToDate , FromDate);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "FinishedStockReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -1296,7 +1296,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook GetFinishedStocksReportForm(string Loc)
+        private IWorkbook GetFinishedStocksReportForm(string Loc, string ToDate, string FromDate)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -1305,7 +1305,7 @@ namespace Aplos.Areas.Productions.Controllers
 
             var data = det.getGroupFinishedStocksReport(Loc);
 
-            var data1 = det.getAllFinishedStocksReport(Loc);
+            var data1 = det.getAllFinishedStocksReport(Loc, ToDate , FromDate);
 
             var sheet = workbook.Worksheets[0];
             var sheet1 = workbook.Worksheets[1];

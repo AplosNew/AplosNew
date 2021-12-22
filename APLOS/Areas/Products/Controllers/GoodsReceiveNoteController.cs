@@ -706,6 +706,7 @@ namespace Aplos.Areas.Products.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryReveiveService.Query(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+
         [Authorize, HttpGet]
         public JsonResult GetListForGRNBYPO(string GRNbyPOCheckStatus)
         {

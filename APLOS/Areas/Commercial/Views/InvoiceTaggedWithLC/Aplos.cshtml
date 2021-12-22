@@ -1,0 +1,159 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
+<div class="form-elements form-horizontal" ng-form name="AutoLoanForm">
+
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group">
+            <div class="col-sm-12 radio">
+                <label>
+                    <input type="radio" name="source2" ng-model="AutoLoanNew.DateRange" value=false ng-change="viewChange()">
+                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span>As On Date
+                </label>
+                <label>
+                    <input type="radio" name="source2" ng-model="AutoLoanNew.DateRange" value=true ng-change="viewChange()">
+                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span>For the Period
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group" show-errors id="div_FromDate">
+            <label class="col-sm-4 control-label">{{fromDateTitle}}</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Date" ng-model="AutoLoanNew.FromDate" datepicker class="form-control" tabindex="3">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors id="div_WDToDate">
+            <div ng-show="toDateShow">
+                <label class="col-sm-4 control-label">To Date</label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Date" ng-model="AutoLoanNew.ToDate" datepicker class="form-control" tabindex="4">
+                </div>
+            </div>
+
+
+            <div class="col-sm-2 show-message" style="padding-left:0px;">
+                <div class="common-btn">
+                    <button ng-click="getAutoLoanAvailableList();" class="btn"><i class="glyphicon glyphicon-circle-arrow-down"></i>Go</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row">
+        <div class="container-fluid" style="color:black;">
+            <div style="color:black;" id="GridAcceptanceList" ej-grid e-datasource="AutoLoanAvailableDataList"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-allowselection="true"
+                 e-gridlines="vertical" e-allowresizing="true"
+                 
+                 e-filtersettings-filterType="excel"
+                 e-enabletouch="true">
+                <div e-columns>
+                    <div e-column e-headertext="Select" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>
+
+                    <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
+                    <div e-column e-type="date" e-field="PostingDate" e-headertext="Posting Date" e-format="{0:dd-MMM-yyyy}" e-width="70"></div>
+                    <div e-column e-type="string" e-field="DocRefNo" e-headertext="DocRefNo" e-width="80"></div>
+                    <div e-column e-type="string" e-field="PartyPlantName" e-headertext="Vendor" e-width="120"></div>
+                    <div e-column e-type="date" e-field="BaseOnDueDate" e-headertext="DueDate BaseOn" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
+                    <div e-column e-type="date" e-field="ActualDueDate" e-headertext="DueDate" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
+                    <div e-column e-type="string" e-field="BaseNoOfDays" e-headertext="NoOfDays" e-width="80"></div>
+                    <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Receivable" e-headertext="Amount" e-textalign="right" e-width="80"></div>
+                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Received" e-headertext="SetOff" e-textalign="right" e-width="80"></div>
+                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-textalign="right" e-width="80"></div>
+                    <div e-column e-type="string" e-field="SourceType" e-headertext="Source Type" e-width="100"></div>
+                </div>
+            </div>
+            <script type="text/template" id="checkMasterLC">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-change="$parent.rowChecked" e-checked="data.isSelected" />
+            </script>
+        </div>
+
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Purchase LC</label>
+                <div class="col-sm-8">
+                    <div class="common-btn">
+                        <button ng-click="getSavedData();" class="btn"> <i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-md-12">
+            <div style="color:black;" id="GridPurchaseLCss" ej-grid e-datasource="LcModel"
+                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
+                    <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="60"></div>
+                    <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
+                    <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                    <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="40" e-textalign="right"></div>
+                    <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                    <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="40" e-textalign="right"></div>
+                    <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                    <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="60"></div>
+                    <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="60"></div>
+                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
+                    <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="60"></div>
+                    <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
+                    <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ContractRemarks" e-headertext="Contract Remarks" e-width="100"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="modal fade site-modal in" id="PurchaseLCPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Purchase LC <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div style="color:black;" id="GridPurchaseLC" ej-grid e-datasource="purchaseLCList" e-recorddoubleclick="SetDetails"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
+                        <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="60"></div>
+                        <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
+                        <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                        <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="40" e-textalign="right"></div>
+                        <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                        <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="40" e-textalign="right"></div>
+                        <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                        <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="60"></div>
+                        <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="60"></div>
+                        <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
+                        <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="60"></div>
+                        <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
+                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ContractRemarks" e-headertext="Contract Remarks" e-width="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

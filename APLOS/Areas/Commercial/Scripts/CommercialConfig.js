@@ -81,6 +81,12 @@ function CommercialConfig($routeProvider) {
         .when('/proforma-invoice', {
             templateUrl: 'Commercial/ProformaInvoice/Aplos',
             controller: 'ProformaInvoiceController'
-        });
+        })
+        .when('/invoice-tagged-with-lc', {
+            templateUrl: 'Commercial/InvoiceTaggedWithLC/Aplos',
+            controller: 'InvoiceTaggedWithLCController'
+        })
 
+
+        ;
 }

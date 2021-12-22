@@ -440,7 +440,7 @@
                                         <td>{{x.SampleNo}}</td>
                                         <td>
                                             <div class="input-group">
-                                                <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 80px;">
+                                                <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
                                                 <span class="input-group-btn">
                                                     <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                                 </span>
@@ -449,7 +449,7 @@
                                         <td>
 
                                             <div class="input-group">
-                                                <input type="text" name="Customer" ng-model="x.ArticleName" class="form-control" readonly style="width: 80px;">
+                                                <input type="text" name="Customer" ng-model="x.ArticleName" class="form-control" readonly style="width: 200px;">
                                                 <span class="input-group-btn">
                                                     <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                                     <button ng-click="clearArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
@@ -488,14 +488,12 @@
                                             <div class="select-style">
                                                 @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
 
-                     <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
-                    <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
-                </select>*@
+                                                         <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
+                                                        <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
+                                                    </select>*@
                                                 <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
                                                         ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
                                                         ng-selected="x.ByDefault == item.ByDefault"></select>
-
-
                                             </div>
                                         </td>
                                         <td>
@@ -513,17 +511,16 @@
                                             </div>
                                         </td>
                                         @*<td>
-                                            <div class="select-style">
-                                                <select class="form-control" ng-model="x.ProductLibraryId"
-                                                        ng-options="item.Value as item.Text for item in ProductLibraryList" style="width: 180px;">
-                                                    <option value="">--Select--</option>
-                                                </select>
-                                            </div>
-                                        </td>*@
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="x.ProductLibraryId"
+                                                            ng-options="item.Value as item.Text for item in ProductLibraryList" style="width: 180px;">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </td>*@
                                         <td>
-
                                             <div class="input-group">
-                                                <input type="text" name="ProductLibrary" ng-model="x.ProductLibrary" class="form-control" readonly style="width: 80px;">
+                                                <input type="text" name="ProductLibrary" ng-model="x.ProductLibrary" class="form-control" readonly style="width: 200px;">
                                                 <span class="input-group-btn">
                                                     <button ng-click="GetProductLibraryList($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                                     <button ng-click="clearProductLibrary($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
@@ -533,9 +530,7 @@
                                         <td>{{x.ProductMaster}}</td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
-                                                @*
-                <li>
-                <button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
+                                                @*<li><button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
                                                 <li>
                                                     <button ng-click="AddDescription(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Description"><i class="glyphicon glyphicon-th-list"></i></button>
                                                 </li>
@@ -568,7 +563,7 @@
                                         <td>
                                             <div class="select-style">
                                                 <select name="Type" class="form-control" ng-model="x.Type" ng-change="ChangeJobType($index);"
-                                                        ng-options="item.Value as item.Text for item in linetypeList" style="width: 80px;">
+                                                        ng-options="item.Value as item.Text for item in linetypeList" style="width: 100px;">
                                                     <option value="">--Select--</option>
                                                 </select>
                                             </div>
@@ -576,7 +571,7 @@
                                         <td>
                                             <div class="select-style">
                                                 <select class="form-control" ng-model="x.JobWorkType" ng-disabled="x.Type!=='OutSource'" ng-change="clearEntityOrVendor(itemList, $index);"
-                                                        ng-options="item.Value as item.Text for item in jobWorkTypeList" style="width: 100px;">
+                                                        ng-options="item.Value as item.Text for item in jobWorkTypeList" style="width: 130px;">
                                                     <option value=""></option>
                                                 </select>
                                             </div>
@@ -587,7 +582,7 @@
                                             <input type="hidden" ng-model="x.PartyId">
 
                                             <div class="input-group">
-                                                <input type="text" name="EntityOrVendorName" ng-model="x.EntityOrVendorName" class="form-control" readonly style="width: 80px;">
+                                                <input type="text" name="EntityOrVendorName" ng-model="x.EntityOrVendorName" class="form-control" readonly style="width: 200px;">
                                                 <span class="input-group-btn">
                                                     <button ng-click="popUp($index);" class="btn single-small-btn" ng-disabled="x.Type!=='OutSource'"><i class="glyphicon glyphicon-search"></i></button>
                                                     <button ng-click="clearEntityOrVendor(itemList,$index);" class="btn single-small-btn" ng-disabled="x.Type!=='OutSource'"><i class="glyphicon glyphicon-refresh"></i></button>
@@ -622,7 +617,6 @@
                                                 </select>
                                             </div>
                                         </td>
-
                                         <td class="text-center">
                                             <button ng-click="ReportPopUp(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Costing Report">Costing</button>
                                         </td>
@@ -649,7 +643,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                     <div class="form-elements form-horizontal" ng-form="modelNewForm">
                         <div class="row" id="mainGrid">
@@ -1205,7 +1198,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- #region modal tbl -->
 <div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">

@@ -347,7 +347,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
         $scope.contractList = [];
-        $http.get("Products/PurchaseOrder/GetLCContractList?isProcurementOnBom=" + $scope.isProcurementOnBoM)
+        $http.get("Products/PurchaseOrder/GetLCContractList?isProcurementOnBom=" + $scope.productNew.IsTradingPO)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {

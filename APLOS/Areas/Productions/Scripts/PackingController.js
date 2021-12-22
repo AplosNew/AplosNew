@@ -1123,6 +1123,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             data: {
                 //'ToDate': $scope.selectedValues.ToDate, 'FromDate': $scope.selectedValues.FromDate,
                 //'type': $rootScope.typeVal, 'group': $rootScope.groupVal, 'value': $scope.search, 'column': $scope.searchBy,
+                'ToDate': $scope.selectedValues.ToDate, 'FromDate': $scope.selectedValues.FromDate,
                 'Loc': $scope.LocId
             },
             dataType: 'JSON'
