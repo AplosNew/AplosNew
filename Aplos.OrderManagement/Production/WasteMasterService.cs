@@ -153,7 +153,7 @@ namespace Library.OrderManagement.Production
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), TableName, out _Id);
+                    genid.GenID(TableName, out _Id);
 
                     data["Id"] = "WM" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
