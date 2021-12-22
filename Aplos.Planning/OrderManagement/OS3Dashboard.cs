@@ -257,12 +257,13 @@ namespace Library.Planning.OrderManagement
                 DataRow dr = null;
                 int roww = 0;
                 string ch = "";
+                string ch1 = "";
                 for (int i = 0; i<tr.Rows.Count; i++)
                 {
                     if(tr.Rows[i][0].ToString() != "")
                     {
                         
-                        if(tr.Rows[i][0].ToString() != ch)
+                        if(tr.Rows[i][0].ToString() != ch || tr.Rows[i][1].ToString() != ch1)
                         {
                             dr = tt.NewRow();
                             dr[columnNames[0]] = tr.Rows[i][0].ToString();
@@ -283,6 +284,7 @@ namespace Library.Planning.OrderManagement
                         }
 
                         ch = tr.Rows[i][0].ToString();
+                        ch1 = tr.Rows[i][1].ToString();
                     }
                 }
 
