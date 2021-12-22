@@ -35,17 +35,27 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         }
     };
 
-    $scope.getMaster = function () {
+    $scope.getAutoLoanAvailableList = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GetVendorAvailableInvoiceList",
+            url: $scope.path + "GetVendorAvailableInvoiceList?date=" + $scope.AutoLoanNew.FromDate,
         }).then(function successCallback(response) {
             $scope.AutoLoanAvailableDataList = response.data;
         });
     }
-    $scope.getMaster();
 
     //#endregion
+
+    $scope.Clear = function () {
+        $scope.AutoLoan = {
+            Id: null,
+            FromDate: $filter('dateFiltering')(Date.now()),
+            ToDate: $filter('dateFiltering')(Date.now()),
+            DateRange: "false",
+        };
+        $scope.AutoLoanAvailableDataList = [];
+        $scope.fromDateTitle = "As On Date";
+    }
 }
 
 
