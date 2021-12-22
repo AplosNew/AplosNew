@@ -46,8 +46,7 @@ namespace Aplos.Areas.Products.Controllers
         private readonly IIssueRequestService _issueRequestService;
         private readonly IIssueRequestMasterService _issueRequestMasterService;
         private readonly ISqlRepository _sqlRepository;
-   
-        // private readonly IRepositoryAsync<InventoryReceiveDetail> _receiveDetailRepository;
+       // private readonly IRepositoryAsync<InventoryReceiveDetail> _receiveDetailRepository;
         private readonly IRepositoryAsync<PurchaseReturnDetail> _PurchaseReturnDetailRepository;
 
         public GoodsReceiveNoteController(IInventoryReceiveService inventoryReveiveService
@@ -707,6 +706,7 @@ namespace Aplos.Areas.Products.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryReveiveService.Query(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+
         [Authorize, HttpGet]
         public JsonResult GetListForGRNBYPO(string GRNbyPOCheckStatus)
         {
@@ -4453,22 +4453,6 @@ UNION ALL
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetUoMList(string MaterialMasterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
-																	union
-																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
-																	) AS M
-																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
-																	 where m.Id IN ( "+ MaterialMasterId + ")";
-
-            var _UOMList = _sqlRepository.GetDataCollection(sql, null);
-
-            return Json(new { UOMList = _UOMList }, JsonRequestBehavior.AllowGet);
         }
     }//
 
