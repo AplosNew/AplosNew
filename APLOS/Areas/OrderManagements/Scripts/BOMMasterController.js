@@ -3296,6 +3296,8 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             }
         });
     }
+
+
 }
 
 
