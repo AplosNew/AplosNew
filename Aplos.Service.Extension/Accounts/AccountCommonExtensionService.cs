@@ -357,7 +357,8 @@ namespace Library.Service.Extension.Accounts
 
         public Dictionary<string, object> GetTaxCode(string id)
         {
-            var sql = @"SELECT TOP(1) TCGL.* FROM [MST].[TaxCode] AS TCGL
+            var sql = @"SELECT TOP(1) TCGL.*,TC.TaxCategoryType  FROM [MST].[TaxCode] AS TCGL 
+						JOIN mst.TaxCategory TC ON TC.Id=TCGL.TaxCategoryId
                         WHERE TCGL.Id='" + id + "' ";
             var glTemp = _sqlRepository.GetData(sql);
 
