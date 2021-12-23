@@ -14,6 +14,7 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
     $scope.getListUrl = $scope.path + 'getpartylist';
     $scope.getPlantContactListUrl = 'addresses/ContactMasterParty/GetListByParty/';
     $scope.getSeqUrl = 'Parties/Party/GetAutoSequence';
+    $scope.IsDefault = false;
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -403,13 +404,17 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
                             Code: ob.Code,
                             UserName: ob.UserName,
                             ShortName: ob.ShortName,
-                            StandardName: ob.StandardName
+                            StandardName: ob.StandardName,
+                            LanguageId: ob.LanguageId,
+                            AddressMasterId: ob.AddressMasterId,
+                            IsDefault: $scope.IsDefault
                         }
                     );
                 }
             }
         }
         angular.element(document.querySelector('#PlantPopUp')).modal('hide');
+        $scope.IsDefault = false;
     };
 
     $scope.confirmPartyPlantDelete = function (data) {
@@ -425,7 +430,7 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
         else {
             $http({
                 method: 'POST',
-                url: 'parties/party/deletepartyplant',
+                url: 'parties/party/DeleteInterCompanyPartyPlant',
                 dataType: 'JSON',
                 data: { 'Id': $scope.deleteId }
             }).then(function successCallback(response) {
@@ -1634,7 +1639,7 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
                         url: $scope.saveUrl,
                         data: {
                             'party': $scope.party, 'companyPartyDataList': $scope.companyPartyList,
-                            'partyPartnerFunction': $scope.partyPartnerFunctionList, 'partyPlantList': $scope.partyPlantList
+                            'partyPartnerFunction': $scope.partyPartnerFunctionList, 'partyPlantList': $scope.partyPlantList, 'IsDefault':$scope.IsDefault
                         },
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
@@ -1663,7 +1668,7 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
                         data: {
                             'party': $scope.party,
                             'companyPartyDataList': $scope.companyPartyList, 'companyPartyGLDataList': $scope.companyPartyGLList,
-                            'partyPartnerFunction': $scope.partyPartnerFunctionList, 'plantList': $scope.partyPlantList
+                            'partyPartnerFunction': $scope.partyPartnerFunctionList, 'plantList': $scope.partyPlantList, 'IsDefault': $scope.IsDefault
                         },
                         dataType: 'JSON'
                     }).then(function successCallBack(response) {
