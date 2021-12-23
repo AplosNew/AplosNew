@@ -589,7 +589,7 @@ namespace Library.MaterialManagement.Inventory
 									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
-									,ROUND(IRD.BaseAmount, 2) BaseAmount, IR.ToCurrencyRate
+									,ROUND(IRD.BaseAmount, 2)+ROUND(PS.Amount,2) BaseAmount, IR.ToCurrencyRate
 									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 									,isnull(pgl.CtnId,0) CtnId
@@ -634,7 +634,8 @@ namespace Library.MaterialManagement.Inventory
 									JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
 									WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (SELECT PS.InventoryReceiveId,SUM(ISNULL(PS.Amount,0)) Amount FROM TRN.POService PS GROUP BY PS.InventoryReceiveId) PS ON PS.InventoryReceiveId=IR.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						WHERE  IR.PlantId='" + identity.PlantId + @"' AND IR.POType='PO'  --IR.AddedBy='" + identity.Name + @"' And
                         AND IR.CheckedBy IS NOT NULL 
@@ -896,7 +897,6 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
                         LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-                        LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
                         LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                         LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
@@ -8283,10 +8283,10 @@ ORDER BY IR.ID DESC";
 
                             LEFT JOIN[dbo].[MasterLC] MLC ON MLC.Id = C.MasterLCId--MLC ON MLC.ContractId = C.Id
 
-                            where  C.PlantId='" + plantId + @"' OR C.Id IN(
+                            where  (C.PlantId='" + plantId + @"' OR isnull(C.Id,'') IN(
 
 
-                            select distinct moi.ContractId from BOQ
+                            select distinct isnull(moi.ContractId,'') AS ContractId from BOQ
                             join trn.MasterOrderItem MOI on moi.id= BOQ.MasterOrderItemId
 
                             join hkp.PartyPlant P on p.PartyId= boq.VendorId
@@ -8295,9 +8295,13 @@ ORDER BY IR.ID DESC";
 
                             union
 
-						   select MOI.ContractId from trn.MasterOrderItem MOI
+						   select isnull(MOI.ContractId,'') from trn.MasterOrderItem MOI
 						   join org.Entity E on e.id=isnull(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
 						   where Type='OutSource' and isnull(consignment,0)=0 and E.plantId='" + plantId + @"'
+                            )) AND isnull(C.Id,'') NOT IN (
+                                select isnull(MOI.ContractId,'') from trn.MasterOrderItem MOI
+                                join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
+                                WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + plantId + @"'
                             )
 
                             ORDER BY C.CustomerId";
@@ -8329,10 +8333,14 @@ ORDER BY IR.ID DESC";
 							FROM [dbo].[Contract] C
 							JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id
 							LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=C.MasterLCId--MLC ON MLC.ContractId=C.Id
-							 where  C.PlantId='" + plantId + @"' OR C.Id IN(
-						   select MOI.ContractId from trn.MasterOrderItem MOI
+							 where  (C.PlantId='" + plantId + @"' OR isnull(C.Id,'') IN(
+						   select isnull(MOI.ContractId,'') from trn.MasterOrderItem MOI
 						   join org.Entity E on e.id=isnull(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
 						   where Type='OutSource' and isnull(consignment,0)=0 and E.plantId='" + plantId + @"'
+                            )) AND isnull(C.Id,'') NOT IN (
+                                select isnull(MOI.ContractId,'') from trn.MasterOrderItem MOI
+                                join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
+                                WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + plantId + @"'
                             )
 
                             ORDER BY C.CustomerId";
