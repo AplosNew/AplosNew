@@ -548,7 +548,7 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-        public IEnumerable<object> GetROEmp(string BudgetId,string Date)
+        public IEnumerable<object> GetROEmp(string BudgetId,string FromDate,string ToDate)
         {
             try
             {
@@ -569,7 +569,8 @@ namespace Library.Service.EmployeeServices
                 left join org.section ss on ss.Id=emp.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
 				where ROBudgetCode='" + BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
-				p.WorkDate='"+Date+"' order by p.DayStatus";
+				p.WorkDate between '"+FromDate+@"' and '"+ToDate+@"'
+                order by emp.SystemId,WorkDate";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -597,7 +598,7 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-        public IEnumerable<object> GetPREmp(string BudgetId, string Date)
+        public IEnumerable<object> GetPREmp(string BudgetId, string FromDate,string ToDate)
         {
             try
             {
@@ -617,8 +618,8 @@ namespace Library.Service.EmployeeServices
                 left join Org.SubSection s on s.Id=emp.SubSectionId
                 left join org.section ss on ss.Id=emp.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
-				where PRBudgetCode='" + BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
-				p.WorkDate='"+Date+"' order by p.DayStatus";
+				where PRBudgetCode='" + BudgetId+ @"' and ISNULL(p.DayStatus,'')!='' and
+				p.WorkDate between '"+FromDate+"' and '"+ToDate+"' order by emp.SystemId,WorkDate";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

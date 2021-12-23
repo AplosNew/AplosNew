@@ -198,7 +198,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                 objCon = null;
             }
         }//End Function
-        public void GetEarnLeavePolicy(string PlantId,string EmpSystemId, out System.Data.DataSet dsRef)
+        public void GetEarnLeavePolicy(string PlantId, string EmpSystemId, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -312,7 +312,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                 //}
 
 
-                ob.Days = ob.Balance ;
+                ob.Days = ob.Balance;
 
 
 
@@ -457,14 +457,14 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                 //{
                 //    ob.Balance = Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["YearEndEncash"].ToString());
                 //}
-                if (Convert.ToDateTime( dsLvEncashment.Tables[0].Rows[0]["DOJorDOC"].ToString())<=Convert.ToDateTime(LeaveEncashmentDate))
+                if (Convert.ToDateTime(dsLvEncashment.Tables[0].Rows[0]["DOJorDOC"].ToString()) <= Convert.ToDateTime(LeaveEncashmentDate))
                 {
                     if (!string.IsNullOrEmpty(dsLvEncashment.Tables[0].Rows[0]["Balance"].ToString()))
                     {
                         ob.Days = Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["Balance"].ToString());
                     }
                 }
-               
+
 
                 //if (dsAvailedEncashmentBalance.Tables[0].Rows.Count > 0)
                 //{
@@ -986,14 +986,29 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                 objCon = null;
             }
         }//End Function
-        public void GetSpecificDateEmployeeLeaveBalance(string PlantId,  out System.Data.DataSet dsRef)
+        public void GetSpecificDateEmployeeLeaveBalance(string PlantId, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                
-                    strSQL = @" SELECT  [CheckBoxSelect] = Convert(bit, 'False'), 
+
+                strSQL = @" SELECT  [CheckBoxSelect] = Convert(bit, 'False'), 
+
+                         FORMAT(CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
+   														 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  e.DOJ )
+																  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  e.DOJ )
+																  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ ) END
+								   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
+	 														 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	e.DOC  )
+																  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	e.DOC  )
+																  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	e.DOC  )
+	 													END
+							    END,'dd-MMM-yyyy') AS MaturityDate,
+							    FORMAT(DATEFROMPARTS( YEAR(getdate()),CONVERT(INT,ltd.EncashmentSpecificMonth),CONVERT(INT,ltd.EncashmentSpecificDay)),'dd-MMM-yyyy') AS EncashmentDate,
+   
+
+
                              E.SystemId, e.EmployeeCode,e.EmployeeName,t.UserName LeaveType ,FORMAT(e.DOJ,'dd-MMM-yyyy') DOJ
                             ,EC.UserName EmpCategoryName  
                             ,ld.UserName Designation
@@ -1048,7 +1063,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                                     select SUM(LeaveDuration) LeaveDuration, LvTrnsSystemID from LeaveTransactionDetails 
                                     where IsAvailed=1
                                     and WorkDate between
-                                    (select FromDate from YearlyCalendar where  '" + DateTime.Now.ToString("dd-MMM-yyyy")+@"' BETWEEN FromDate AND ToDate and PlantId='" + PlantId + @"')
+                                    (select FromDate from YearlyCalendar where  '" + DateTime.Now.ToString("dd-MMM-yyyy") + @"' BETWEEN FromDate AND ToDate and PlantId='" + PlantId + @"')
                                     and (select ToDate from YearlyCalendar where '" + DateTime.Now.ToString("dd-MMM-yyyy") + @"' BETWEEN FromDate AND ToDate and PlantId='" + PlantId + @"')
                                     group by LvTrnsSystemID
                                     )--detail 
@@ -1090,21 +1105,22 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 							LEFT JOIN EmployeeBankInfo  AS BI ON BI.EmpSystemID=e.SystemId
                             where s.CalanderYearId=(select id from YearlyCalendar where DATEFROMPARTS( YEAR(GETDATE()),CONVERT(INT,ltd.EncashmentSpecificMonth),CONVERT(INT,ltd.EncashmentSpecificDay)) BETWEEN FromDate AND ToDate and PlantId='" + PlantId + @"')  --AND s.IsYearlyProcessed=1 
                             AND s.EmployeeId IN (SELECT SystemId FROM EmployeeInformation WHERE EmployeeStatus='Active' and PlantId='" + PlantId + @"'  )
-                            AND   ltd.EncashmentBasis='EncashmentDate' AND (CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
-                            																	 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ ) END
-																	   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
-										   														 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	e.DOC  )
-										   													END
-																    END)<=DATEFROMPARTS( YEAR(GETDATE()),CONVERT(INT,ltd.EncashmentSpecificMonth),CONVERT(INT,ltd.EncashmentSpecificDay))
+                            AND   ltd.EncashmentBasis='EncashmentDate' 
+                        --                          AND (CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
+                        --    																	 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  e.DOJ )
+						--																			  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  e.DOJ )
+						--																			  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ ) END
+						--											   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
+						--				   														 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	e.DOC  )
+						--																			  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	e.DOC  )
+						--																			  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	e.DOC  )
+						--				   													END
+						--										    END)<=DATEFROMPARTS( YEAR(GETDATE()),CONVERT(INT,ltd.EncashmentSpecificMonth),CONVERT(INT,ltd.EncashmentSpecificDay))
                                                                     AND DATEFROMPARTS( YEAR(GETDATE()),CONVERT(INT,ltd.EncashmentSpecificMonth),CONVERT(INT,ltd.EncashmentSpecificDay))<=GETDATE() 
                             AND s.EmployeeId NOT IN (SELECT EmpSystemId  FROM LeaveEncashmentTransaction WHERE YearlyCalendarId=yc.Id AND LeaveEncashmentType='Specific Date Leave Encashment' and PlantId='" + PlantId + @"' )
                             ORDER BY  e.EmployeeCodePreFix,e.EmployeeCodeNumeric ";
-              
-                
+
+
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1427,15 +1443,15 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 
 
 
-            foreach (string key in  DicLvEncashment.Keys)
+            foreach (string key in DicLvEncashment.Keys)
             {
                 List<SPvalueHeadWise> dtValue = null;
                 DataRow dr = DicLvEncashment[key];
                 IsEarnLeavePolicyCount = false;
-                if (DicEarnLeavePolicy.ContainsKey(key)==true)
+                if (DicEarnLeavePolicy.ContainsKey(key) == true)
                 {
                     DataRow drDicEarnLeavePolicy = DicEarnLeavePolicy[key];
-                    if (drDicEarnLeavePolicy["EncashmentBasis"].ToString()== "CalanderYear" && !string.IsNullOrEmpty(drDicEarnLeavePolicy["LvEncashmentFormulaDesID"].ToString()))
+                    if (drDicEarnLeavePolicy["EncashmentBasis"].ToString() == "CalanderYear" && !string.IsNullOrEmpty(drDicEarnLeavePolicy["LvEncashmentFormulaDesID"].ToString()))
                     {
                         IsEarnLeavePolicyCount = true;
 
@@ -1585,13 +1601,13 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 
                     }
 
-                   
+
                 }
-               
 
 
 
-               
+
+
 
             }
 
@@ -1602,7 +1618,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
         }
 
 
-        public List<MultipleLeaveEncashmentViewModel> GetWithInYearLeaveEncashmentData( string FromDate, string PlantId)
+        public List<MultipleLeaveEncashmentViewModel> GetWithInYearLeaveEncashmentData(string FromDate, string PlantId)
         {
             DataSet dsLvEncashment = null;
             DataSet dsEarnLeavePolicy = null;
@@ -1702,7 +1718,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 
             foreach (string key in DicLvEncashment.Keys)
             {
-                if (key== "1800085")
+                if (key == "1800085")
                 {
 
                 }
@@ -1776,7 +1792,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                         o.BroughtForward = o.BroughtForward + o.CarryForwardOpeningBalance;
                         if (!string.IsNullOrEmpty(dr["Balance"].ToString()))
                         {
-                            o.Balance = Convert.ToDecimal(dr["Balance"].ToString())+ o.BroughtForward;
+                            o.Balance = Convert.ToDecimal(dr["Balance"].ToString()) + o.BroughtForward;
                         }
 
                         if (!string.IsNullOrEmpty(dr["EncashedInbetween"].ToString()))
@@ -1825,7 +1841,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 
                         if (!string.IsNullOrEmpty(dr["PolicyName"].ToString()))
                         {
-                            o.PolicyName =dr["PolicyName"].ToString();
+                            o.PolicyName = dr["PolicyName"].ToString();
 
                         }
 
@@ -1880,16 +1896,16 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
             return ob;
         }
 
-        public List<MultipleLeaveEncashmentViewModel> GetSpecificDateLeaveEncashmentData( string PlantId)
+        public List<MultipleLeaveEncashmentViewModel> GetSpecificDateLeaveEncashmentData(string PlantId)
         {
             DataSet dsLvEncashment = null;
             DataSet dsEarnLeavePolicy = null;
             DataSet dsSalaryDataEmpWise = null;
-            
+            DataTable dtSlrHd = null;
             bool IsEarnLeavePolicyCount = false;
-           
+
             DataSet dsSalHd = null;
-            
+
             string _formulaValue = string.Empty;
             string sFormulaResult = string.Empty;
             clsSalaryUtility obSSrecal = new global::clsSalaryUtility();
@@ -1938,7 +1954,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
             //    FromDate = DateTime.Now.ToString("dd-MMM-yyyy");
             //}
 
-           GetMultipleEmployeeSalaryData(PlantId, DateTime.Now.ToString("dd-MMM-yyyy"), out dsSalaryDataEmpWise);
+            GetMultipleEmployeeSalaryData(PlantId, DateTime.Now.ToString("dd-MMM-yyyy"), out dsSalaryDataEmpWise);
             Dictionary<string, List<DataRow>> DicAllEmpSalaryInfo = new Dictionary<string, List<DataRow>>();
 
             string _empId = "";
@@ -1977,7 +1993,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 
                         MultipleLeaveEncashmentViewModel o = new MultipleLeaveEncashmentViewModel();
                         o.EmpSystemId = dr["SystemID"].ToString();
-                        o.EncashmentDate = DateTime.Now.ToString("dd-MMM-yyyy"); 
+                        o.EncashmentDate = DateTime.Now.ToString("dd-MMM-yyyy");
                         o.EmployeeCode = dr["EmployeeCode"].ToString();
                         o.EmployeeName = dr["EmployeeName"].ToString();
                         o.LeaveType = dr["LeaveType"].ToString();
@@ -2005,7 +2021,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                         o.LegalDesignationId = dr["LegalDesignationId"].ToString();
                         //o.BudgetCode = dr["BudgetCode"].ToString();
                         //o.EmployeeCategoryId = dr["EmployeeCategoryId"].ToString();
-                       
+
 
                         if (!string.IsNullOrEmpty(dr["BroughtForward"].ToString()))
                         {
@@ -2070,12 +2086,27 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                         }
                         CarryForword objCarryForword = CheckLeavePolicyDetails(PlantId, dr["SystemID"].ToString(), EarnleaveID, o.Balance);
                         //leaveResult = CalculateLeave(EmpSystemId, LeaveTypeId, sdsLeaveTranInfo);
+                        o.FixedEncashmentDate = dr["EncashmentDate"].ToString();
+                        o.MaturityDate = dr["MaturityDate"].ToString();
                         if (objCarryForword != null)
                         {
-                            o.Days = objCarryForword.CarryForwordEncash;
-                            o.NewBroughtForward = objCarryForword.CarryForward;
-                            o.NewYearEndEncash = objCarryForword.CarryForwordEncash;
-                            o.NewYearEndLapse = objCarryForword.CarryForwordLapse;
+
+
+
+                            if (Convert.ToDateTime(dr["EncashmentDate"].ToString()) < Convert.ToDateTime(dr["MaturityDate"].ToString()))
+                            {
+                                o.Days = 0;
+                                o.NewBroughtForward = objCarryForword.CarryForwordEncash + objCarryForword.CarryForward;
+                                o.NewYearEndEncash = 0;
+                                o.NewYearEndLapse = 0;
+                            }
+                            else
+                            {
+                                o.Days = objCarryForword.CarryForwordEncash;
+                                o.NewBroughtForward = objCarryForword.CarryForward;
+                                o.NewYearEndEncash = objCarryForword.CarryForwordEncash;
+                                o.NewYearEndLapse = objCarryForword.CarryForwordLapse;
+                            }
                         }
 
 
@@ -2106,9 +2137,9 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                                 sp.EntryCurrencyID = salaryStructure[j]["EntryCurrencyID"].ToString().Trim();
                                 sp.EntryAmount = salaryStructure[j]["EntryAmount"].ToString().Trim();
                                 dtValue.Add(sp);
-                                if (salaryStructure[j]["HeadCategory"].ToString().ToUpper().Trim()=="BASIC")
+                                if (salaryStructure[j]["HeadCategory"].ToString().ToUpper().Trim() == "BASIC")
                                 {
-                                    o.BasicAmmount= salaryStructure[j]["EntryAmount"].ToString().Trim();
+                                    o.BasicAmmount = salaryStructure[j]["EntryAmount"].ToString().Trim();
                                 }
                                 if (salaryStructure[j]["HeadCategory"].ToString().ToUpper().Trim() == "GROSS")
                                 {
@@ -2117,10 +2148,21 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                             }
                             try
                             {
+                                //o.FixedEncashmentDate = dr["EncashmentDate"].ToString();
+                                //o.MaturityDate = dr["MaturityDate"].ToString();
+
+
+                                //if (Convert.ToDateTime(dr["EncashmentDate"].ToString()) < Convert.ToDateTime(dr["MaturityDate"].ToString()))
+                                //    o.Rate = 0;
+                                //else
+                                //{
                                 ReLoadFormulaWithGrossValueNew(drDicEarnLeavePolicy["LvEncashmentFormulaDesID"].ToString(), salaryStructure[0]["EntryCurrencyID"].ToString().Trim(), "0", out _formulaValue, dtValue, dicSalaryHead);
-                                //obSSrecal.ReLoadFormulaWithValue(dsEarnLeavePolicy.Tables[0].Rows[0]["LvEncashmentFormulaDesID"].ToString(), ref dtValue, dsSalaryDataEmpWise.Tables[0].Rows[0]["EntryCurrencyID"].ToString().Trim(), "0", out _formulaValue, ref dtSlrHd);
                                 sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString();
+
+
+
                                 o.Rate = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult));
+                                //}
                             }
                             catch (Exception ex)
                             {
@@ -2145,16 +2187,16 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 
 
 
-        public CarryForword CheckLeavePolicyDetails(string sPlantID, string sEmployeeId, string LeaveTypeId, decimal LeaveBalance )
+        public CarryForword CheckLeavePolicyDetails(string sPlantID, string sEmployeeId, string LeaveTypeId, decimal LeaveBalance)
         {
             CarryForword objCarryForword = new CarryForword();
-            DataSet dsLeavePld = null;         
+            DataSet dsLeavePld = null;
 
             bool IsCFFixed = false;
             bool IsCarryforward = false;
             decimal CarryForwardMaxDay = 0;
             decimal MaxAllocationLimit = 0;
-           
+
             bool IsMaxEncashment = false;
             decimal MaxEncashment = 0;
             bool IsMaxEncashmentLapse = false;
@@ -2282,7 +2324,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 
                     if (IsCFRestEncash == true)
                     {
-                        if (rest>0)
+                        if (rest > 0)
                         {
                             CarryForwordEncash = rest;
                         }
@@ -2290,7 +2332,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                         {
                             CarryForwordEncash = 0;
                         }
-                        
+
                         CarryForwordLapse = 0;
                     }
                     else
@@ -2471,11 +2513,11 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                     strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
                     if (strTemp.Trim() == "+" || strTemp.Trim() == "-" || strTemp.Trim() == "*" || strTemp.Trim() == "/" || strTemp.Trim() == ">" || strTemp.Trim() == "<" || strTemp.Trim() == "(" || strTemp.Trim() == ")")
                     {
-                        strTemp =  dsLocal.Tables[0].Rows[i]["ID"].ToString() ;
+                        strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
                     }
                     else
                     {
-                       
+
                         var dtv = dtValue.FindAll(x => x.SalaryHeadID == strTemp.Trim());
                         if (dtv.Count() > 0)
                         {
@@ -2483,7 +2525,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                             if (dtv[0].EntryCurrencyID == sLocalCurrencyID)
                             {
                                 strTemp = dtv[0].EntryAmount;
-                                strTemp =  GetAbsValue(strTemp) ;
+                                strTemp = GetAbsValue(strTemp);
                             }
                             else
                             {
@@ -2573,7 +2615,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
         }
 
 
-        public void GetAllLeavePolicyDetails(string sPlantID,  out DataSet dsRef)
+        public void GetAllLeavePolicyDetails(string sPlantID, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
@@ -2587,7 +2629,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                             LEFT JOIN MST.DesignationMaster DM on  DC.DesignationMasterId=DM.Id
                             LEFT JOIN dbo.EmployeeInformation emp on emp.GivenDesignationId=DM.DesignationId
                             where lpd.IsCarryForward=1 AND emp.SystemId IS NOT NULL AND lpd.LTSystemID IN (SELECT id FROM LeaveType WHERE LeaveType='Earn') 
-							ORDER BY emp.SystemId " ;
+							ORDER BY emp.SystemId ";
 
 
 
@@ -3522,7 +3564,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
         public bool? Isdisburse { get; set; } = false;
         public bool CheckBoxSelect { get; set; } = false;
         //public string SystemId { get; set; }
-      
+
         public string EmpCategoryName { get; set; }
         public string Designation { get; set; }
         public string Unit { get; set; }
@@ -3530,7 +3572,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
         public string Department { get; set; }
         public string Section { get; set; }
         public string SubSection { get; set; }
-        public string Line { get; set; }       
+        public string Line { get; set; }
         public string DOJ { get; set; }
         public string EncashmentSpecificDate { get; set; }
         public string PolicyName { get; set; }
@@ -3548,25 +3590,27 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
         //public string EmployeeCategoryId { get; set; }
 
         public string LegalDesignationId { get; set; }
+        public string FixedEncashmentDate { get; set; }
+        public string MaturityDate { get; set; }
 
     }
 
 
     public class MultipleLeaveEncashmentViewModelNew
     {
-      
+
         public string LeaveType { get; set; }
-       
-        public decimal NewBroughtForward { get; set; } = 0;       
+
+        public decimal NewBroughtForward { get; set; } = 0;
         public decimal NewYearEndEncash { get; set; } = 0;
         public decimal NewYearEndLapse { get; set; } = 0;
-        
-        public string LeaveTypeId { get; set; }       
-        public string YearlyCalendarId { get; set; }       
+
+        public string LeaveTypeId { get; set; }
+        public string YearlyCalendarId { get; set; }
         public string EmpSystemId { get; set; }
-        public decimal Days { get; set; } = 0;      
-        public decimal Rate { get; set; } = 0;     
-       
+        public decimal Days { get; set; } = 0;
+        public decimal Rate { get; set; } = 0;
+
         public bool CheckBoxSelect { get; set; } = false;
         public string EmployeeCode { get; set; }
 
@@ -3575,11 +3619,11 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
         public string PaymentMode { get; set; }
         public string BasicAmmount { get; set; }
         public string GrossAmmount { get; set; }
-       
+
         public string BankSystemID { get; set; }
         public string BankBranchId { get; set; }
         public string BankAccNo { get; set; }
-       
+
 
         public string LegalDesignationId { get; set; }
         public string EncashmentDate { get; set; }

@@ -933,7 +933,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                 SELECT ei.SystemId,B.LeaveTypeId, ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
                                 DEPT.UserName AS Department,ct.UserName AS EmployeeCategory,LT.UserName AS LeaveName,
                                 B.CurrentYearAllocation, B.BroughtForward, B.CarryForwardOpeningBalance, B.DaysCanBeSanctioned, B.AppliedDays,
-                                B.AvailedDays, B.YearEndEncash,APL.LeaveDuration AS AppliedLeave,APP.LeaveDuration AS AllFutureAppliedLeave,
+                                B.AvailedDays, B.YearEndEncash,isnull(APL.LeaveDuration,0) AS AppliedLeave,APP.LeaveDuration AS AllFutureAppliedLeave,
                                 isnull(B.CarryForwardOpeningBalance,0)+isnull(B.BroughtForward,0)+isnull(B.CurrentYearAllocation,0)-isnull(B.AvailedDays,0) AS ClosingBalance
                             FROM (		SELECT BAL.EmployeeId, BAL.LeaveTypeId,
 								       SUM(BAL.CurrentYearAllocation) AS CurrentYearAllocation,

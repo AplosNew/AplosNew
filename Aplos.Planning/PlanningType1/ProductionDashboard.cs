@@ -917,7 +917,7 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
 
                 DataTable dt = _sqlRepository.GetDataTable(sql);
 
-                DataTable dtAllPeriod = _sqlRepository.GetDataTable("Select * from HKP.ProductionBookingPeriod");
+                DataTable dtAllPeriod = _sqlRepository.GetDataTable("Select * from HKP.ProductionBookingPeriod ORDER BY [Sequence]");
 
                 DataTable dtPivot = new DataTable("Temp");
                 dtPivot.Columns.Add("EntityId");

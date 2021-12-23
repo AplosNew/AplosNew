@@ -14,6 +14,7 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
     $scope.getListUrl = $scope.path + 'getpartylist';
     $scope.getPlantContactListUrl = 'addresses/ContactMasterParty/GetListByParty/';
     $scope.getSeqUrl = 'Parties/Party/GetAutoSequence';
+
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -403,13 +404,17 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
                             Code: ob.Code,
                             UserName: ob.UserName,
                             ShortName: ob.ShortName,
-                            StandardName: ob.StandardName
+                            StandardName: ob.StandardName,
+                            LanguageId: ob.LanguageId,
+                            AddressMasterId: ob.AddressMasterId,
+                            IsDefault: false
                         }
                     );
                 }
             }
         }
         angular.element(document.querySelector('#PlantPopUp')).modal('hide');
+
     };
 
     $scope.confirmPartyPlantDelete = function (data) {
@@ -425,7 +430,7 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
         else {
             $http({
                 method: 'POST',
-                url: 'parties/party/deletepartyplant',
+                url: 'parties/party/DeleteInterCompanyPartyPlant',
                 dataType: 'JSON',
                 data: { 'Id': $scope.deleteId }
             }).then(function successCallback(response) {
@@ -1627,63 +1632,73 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
             //ValidationCust();
             //ValidationDuplicateCust();
             //if ($scope.partyForm.$valid && $scope.partyForm2.$valid && $scope.partyForm3.$valid && $scope.partyForm5.$valid) {
-                //if ($scope.partyForm.$valid) {
-                if ($scope.Action === 'Save') {
-                    $http({
-                        method: 'POST',
-                        url: $scope.saveUrl,
-                        data: {
-                            'party': $scope.party, 'companyPartyDataList': $scope.companyPartyList,
-                            'partyPartnerFunction': $scope.partyPartnerFunctionList, 'partyPlantList': $scope.partyPlantList
-                        },
-                        dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error == true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.party = response.data.Party;
-                            $scope.parties.push($scope.party);
-                            $scope.parties = $filter('orderBy')($scope.parties, 'Sequence');
-                            baseService.paginationAdd();
-                            $scope.party.Code = response.data.Party.Code;
-                            $scope.popCode('success', 'Party Code Successfully Created : ' + $scope.party.Code);
-                            ClearFields(response.data.Sequence);
-                            $scope.getData();
-                        }
-                    }), function errorCallBack(response) {
+            //if ($scope.partyForm.$valid) {
+            if (baseService.arrayLength($scope.partyPlantList) > 0) {
+                var getRow = $filter("filter")($scope.partyPlantList, { "IsDefault": true });
+                if (getRow.length > 1) {
+                    throw "Select one plant as Default Party Plant.";
+                }
+                if (getRow.length == 0) {
+                    throw "Select one plant as Default Party Plant.";
+                }
+            }
+
+            if ($scope.Action === 'Save') {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: {
+                        'party': $scope.party, 'companyPartyDataList': $scope.companyPartyList,
+                        'partyPartnerFunction': $scope.partyPartnerFunctionList, 'partyPlantList': $scope.partyPlantList
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
                         ShowResult(response.data.Message, 'failure');
                     }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.party = response.data.Party;
+                        $scope.parties.push($scope.party);
+                        $scope.parties = $filter('orderBy')($scope.parties, 'Sequence');
+                        baseService.paginationAdd();
+                        $scope.party.Code = response.data.Party.Code;
+                        $scope.popCode('success', 'Party Code Successfully Created : ' + $scope.party.Code);
+                        ClearFields(response.data.Sequence);
+                        $scope.getData();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
                 }
-                else if ($scope.Action === 'Update') {
-                    $http({
-                        method: 'POST',
-                        url: $scope.updateUrl,
-                        data: {
-                            'party': $scope.party,
-                            'companyPartyDataList': $scope.companyPartyList, 'companyPartyGLDataList': $scope.companyPartyGLList,
-                            'partyPartnerFunction': $scope.partyPartnerFunctionList, 'plantList': $scope.partyPlantList
-                        },
-                        dataType: 'JSON'
-                    }).then(function successCallBack(response) {
-                        if (response.data.Error == true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            if ($scope.index > -1) {
-                                $scope.parties[$scope.index] = $scope.party;
-                                $scope.parties = $filter('orderBy')($scope.parties, 'Sequence');
-                                $scope.tempList = [];
-                            }
-                            ClearFields(response.data.Sequence);
-                            $scope.getData();
-                        }
-                    }, function errorCallback(response) {
+            }
+            else if ($scope.Action === 'Update') {
+                $http({
+                    method: 'POST',
+                    url: $scope.updateUrl,
+                    data: {
+                        'party': $scope.party,
+                        'companyPartyDataList': $scope.companyPartyList, 'companyPartyGLDataList': $scope.companyPartyGLList,
+                        'partyPartnerFunction': $scope.partyPartnerFunctionList, 'plantList': $scope.partyPlantList
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallBack(response) {
+                    if (response.data.Error == true) {
                         ShowResult(response.data.Message, 'failure');
-                    });
-               // }
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        if ($scope.index > -1) {
+                            $scope.parties[$scope.index] = $scope.party;
+                            $scope.parties = $filter('orderBy')($scope.parties, 'Sequence');
+                            $scope.tempList = [];
+                        }
+                        ClearFields(response.data.Sequence);
+                        $scope.getData();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+                // }
             }
         } catch (e) {
             ShowResult(e, 'failure');
