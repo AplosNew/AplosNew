@@ -10,6 +10,7 @@ using Library.Data.UnitOfWorks;
 using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Taxations;
+using Library.OrderManagement.Packing;
 using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Invoices;
@@ -34,7 +35,7 @@ namespace Aplos.Areas.Commercial.Controllers
     {
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
-
+        clsPIInvoice pi = new clsPIInvoice();
         public PIInvoiceController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -50,7 +51,11 @@ namespace Aplos.Areas.Commercial.Controllers
         #endregion
 
         #region -- Operations
-
+        [HttpGet, Authorize]
+        public JsonResult GetPackingData()
+        {
+            return Json(pi.GetPackingData(), JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 
