@@ -493,6 +493,106 @@ namespace Library.Planning.OrderManagement
             }
         }
 
+        public void SplitSalesOrderData(string masterItemId, SalesOrderMaster salesOrderMaster, IdentityParameter para)
+        {
+            DataSet dsToSalesOrder, dsParentSalesOrder;
+            DataSet dsToFirstCharacteristics;
+            DataSet dsToSecondCharacteristics;
+            DataSet dsToThirdCharacteristics;
+            try
+            {
+
+                DataSet dsSOId;
+                GetSalesOrderId(masterItemId, out dsSOId);
+                string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
+                decimal SOQty = Convert.ToDecimal(dsSOId.Tables[0].Rows[0]["Qty"].ToString());
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[SalesOrder] WHERE 1=2", out dsToSalesOrder, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[SalesOrder] WHERE Id='" + salesOrderMaster.ParentId + "'", out dsParentSalesOrder, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[FirstCharacteristics] WHERE 1=2", out dsToFirstCharacteristics, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[SecondCharacteristics] WHERE 1=2", out dsToSecondCharacteristics, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[ThirdCharacteristics] WHERE 1=2", out dsToThirdCharacteristics, false, "1");
+
+                DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM [TRN].[SalesOrder] WHERE Id='" + salesOrderMaster.ParentId + "'");
+                DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.FirstCharacteristics WHERE SalesOrderId='" + salesOrderMaster.ParentId + "'");
+                DataTable dtFromSecondCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.SecondCharacteristics WHERE SalesOrderId='" + salesOrderMaster.ParentId + "'");
+                DataTable dtFromThirdCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.ThirdCharacteristics WHERE SalesOrderId='" + salesOrderMaster.ParentId + "'");
+
+                DataView dv = new DataView(dsParentSalesOrder.Tables[0]);
+                dv.RowFilter = "Id='" + salesOrderMaster.ParentId + "'";
+
+                if (dv.Count > 0)
+                {
+                    DataRow drmo = dv[0].Row;
+
+                    drmo.BeginEdit();
+
+                    drmo["Qty"] = Convert.ToDecimal(drmo["Qty"].ToString()) - salesOrderMaster.Qty;
+                    drmo["UpdatedBy"] = para.UpdatedBy;
+                    drmo["UpdatedDate"] = para.UpdatedDate;
+                    drmo["UpdatedFromIP"] = para.UpdatedFromIP;
+
+                    drmo.EndEdit();
+
+                }
+
+
+                DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
+                CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);
+                drSalesOrder["Id"] = NewId;
+                drSalesOrder["ParentId"] = salesOrderMaster.ParentId;
+                drSalesOrder["Qty"] = salesOrderMaster.Qty;
+                dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
+
+                for (int i = 0; i < dtFromFirstCharacteristics.Rows.Count; i++)
+                {
+                    DataRow drFirstCharacteristics = dsToFirstCharacteristics.Tables[0].NewRow();
+                    CopyRow(dtFromFirstCharacteristics.Rows[i], ref drFirstCharacteristics);
+                    drFirstCharacteristics["Id"] = NewId + (i + 1);
+                    drFirstCharacteristics["SalesOrderId"] = NewId;
+                    drFirstCharacteristics["Qty"] = 0;
+                    dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
+
+                    dtFromSecondCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + salesOrderMaster.ParentId + "' AND FirstCharacteristicsId='" + dtFromFirstCharacteristics.Rows[i]["Id"] + "'";
+                    for (int K = 0; K < dtFromSecondCharacteristics.DefaultView.Count; K++)
+                    {
+                        DataRow drSecondCharacteristics = dsToSecondCharacteristics.Tables[0].NewRow();
+                        CopyRow(dtFromSecondCharacteristics.DefaultView[K].Row, ref drSecondCharacteristics);
+                        drSecondCharacteristics["Id"] = NewId + (i + 1) + (K + 1);
+                        drSecondCharacteristics["SalesOrderId"] = NewId;
+                        drSecondCharacteristics["Qty"] = 0;
+                        drSecondCharacteristics["FirstCharacteristicsId"] = NewId + (i + 1);
+                        dsToSecondCharacteristics.Tables[0].Rows.Add(drSecondCharacteristics);
+
+                        dtFromThirdCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + salesOrderMaster.ParentId + "' AND SecondCharacteristicsId='" + dtFromSecondCharacteristics.Rows[K]["Id"] + "'";
+                        for (int j = 0; j < dtFromThirdCharacteristics.DefaultView.Count; j++)
+                        {
+                            DataRow drThirdCharacteristics = dsToThirdCharacteristics.Tables[0].NewRow();
+                            CopyRow(dtFromThirdCharacteristics.DefaultView[j].Row, ref drThirdCharacteristics);
+                            drThirdCharacteristics["Id"] = NewId + (i + 1) + (j + 1);
+                            drThirdCharacteristics["SalesOrderId"] = NewId;
+                            drThirdCharacteristics["Qty"] = 0;
+                            drThirdCharacteristics["SecondCharacteristicsId"] = NewId + (i + 1) + (K + 1);
+                            dsToThirdCharacteristics.Tables[0].Rows.Add(drThirdCharacteristics);
+                        }
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsParentSalesOrder,dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics);
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
         private string GetContractFundPK()
         {
             string sID = string.Empty;

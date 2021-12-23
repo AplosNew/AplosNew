@@ -290,10 +290,28 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
 
+        //[HttpPost, Authorize]
+        //public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
+        //{
+        //    _masterOrderService.InsertOrUpdateSplitSOGraph(masterItemId, salesOrderMaster);
+        //    return Json(new { Message = AplosMessage.Updated });
+        //}
+
         [HttpPost, Authorize]
         public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
         {
-            _masterOrderService.InsertOrUpdateSplitSOGraph(masterItemId, salesOrderMaster);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IdentityParameter para = new IdentityParameter
+            {
+                AddedBy = identity.Name,
+                AddedDate = DateTime.Now,
+                AddedFromIP = identity.IPAddress,
+                UpdatedBy = identity.Name,
+                UpdatedDate = DateTime.Now,
+                UpdatedFromIP = identity.IPAddress
+            };
+
+            MasterOrder.SplitSalesOrderData(masterItemId, salesOrderMaster,para);
             return Json(new { Message = AplosMessage.Updated });
         }
 
