@@ -595,24 +595,12 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }">
                     <div class="row" ng-form name="partyForm6">
-                        <div class="col-xs-12 col-sm-5 col-md-5">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
                             <ul class="common-btn list-inline text-left">
                                 <li><button class="btn" title="Add Party Plant" ng-click="GetPlantData();" ng-disabled="party.Id===null ||party.Id===undefined"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
                             </ul>
                         </div>
-                        <div class="col-xs-12 col-sm-5 col-md-5">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">IsDefault</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" ng-model="IsDefault" tabindex="8">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
                         <div class="table-responsive modal-table col-md-12">
                             <table class="table table-striped">
                                 <thead>
@@ -631,7 +619,14 @@
                                         <td>{{p.ShortName}}</td>
                                         <td>{{p.StandardName}}</td>
                                         <td>{{p.UserName}}</td>
-                                        <td>{{p.IsDefault?'Yes':'No'}}</td>
+                                        <td>@*{{p.IsDefault?'Yes':'No'}}*@
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="p.IsDefault" tabindex="8">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
