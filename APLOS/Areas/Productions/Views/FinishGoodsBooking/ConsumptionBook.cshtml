@@ -105,7 +105,8 @@
                 <div e-column e-type="string" e-field="OrderCostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
                 <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
                 <div e-column e-type="number" e-field="ItemQty" e-headertext="ItemQty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
-                <div e-column e-type="number" e-field="Balance" e-headertext="Balance" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                <div e-column e-type="number" e-field="BookedQty" e-headertext="Booked Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                <div e-column e-type="number" e-field="Balance" e-headertext="Balance Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
                 <div e-column e-type="number" e-field="Rate" e-headertext="Rate" e-width="50" e-textalign="right" e-format="{0:0.0000}"></div>
                 @*<div e-column e-type="number" e-template="#Rate" e-headertext="Rate" e-width="100" style="height: 20px;" e-textalign="right"></div>*@
                 <div e-column e-type="number" e-field="Amount" e-headertext="Amount" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
@@ -133,12 +134,11 @@
             </div>
         </script>
         <script type="text/template" id="ProductionOrderId">
-            <div class="text-right" style="width:100%">
+            <div class="text-left" style="width:100%">
                 <a style="text-decoration:underline;color:blue; cursor:pointer;font-family:'Segoe UI'" ng-click="$parent.GetItemDetailListData(data);">{{data.ProductionOrderId}}</a>
             </div>
         </script>
     </div>
-
     <div class="clearfix"></div>
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -320,7 +320,6 @@
     </div>
 </ej-dialog>
 
-
 <div class="modal site-modal in" id="FGInventoryRegisterPopup" role="dialog" data-backdrop="static">
     <div class="row">
         <div class="modal-dialog modal-lg">
@@ -350,19 +349,22 @@
 
 <div class="modal site-modal in" id="ItemDetailPopup" role="dialog" data-backdrop="static">
     <div class="row">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">Detail<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-                <div class="modal-body text-center">
-                    <div style="color:black;" id="GridItemDetail" ej-grid e-datasource="ItemDetailList" e-allowscrolling="true" e-allowResizing="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-field="ProductionOrderId" e-headertext="PrO" e-width="50"></div>
-                            <div e-column e-field="ItemId" e-headertext="ItemId" e-width="100"></div>
-                            <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="100"></div>
-                            <div e-column e-field="SONo" e-headertext="SONo" e-width="100"></div>
-                            <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="100"></div>
-                            <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+        <div class="form-element-ctrl">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">Detail<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                    <div class="modal-body text-center">
+                        <div style="color:black;" id="GridItemDetail" ej-grid e-datasource="ItemDetailList" e-allowscrolling="true" e-allowResizing="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
+                                <div e-column e-field="ItemId" e-headertext="ItemId" e-width="80"></div>
+                                <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="80"></div>
+                                <div e-column e-field="SONo" e-headertext="SONo" e-width="100"></div>
+                                <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
+                                <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                <div e-column e-type="number" e-field="SOQty" e-headertext="SO Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -64,7 +64,7 @@ namespace Aplos.Areas.Leave.Controllers
 
         #region Hourly OT Report
 
-        [HttpGet]
+        [HttpGet,Authorize]
         public ActionResult GetHourlyOT(ReportFormat reportFormat, string FromDate, string ToDate)
         {
             try
@@ -96,7 +96,7 @@ namespace Aplos.Areas.Leave.Controllers
 
         #region Hourly ot Report Monthly 
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetHourlyOTMonthly(ReportFormat reportFormat, string YearNo, string MonthNo, bool isActive, bool isSeperated)
         {
             try

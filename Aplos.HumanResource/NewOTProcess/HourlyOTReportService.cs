@@ -802,7 +802,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                 sheet1.Name = "Hourly OT Monthly";
                 #endregion Page Setup
 
-                #endregion  Attendance Summary Status
+                #endregion  
 
                 return workbook;
             }
@@ -842,8 +842,8 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                 wcDos += ")";
 
                 strSql = @"select ei.SystemId,ei.EmployeeName,ei.EmployeeCode,format(ei.DOJ,'dd-MMM-yyyy') DOJ,format(ei.DOS,'dd-MMM-yyyy') DOS,s.UserName as Section,sb.UserName as SubSection,ld.UserName Designation
-                           ,d.UserName Department,ei.GenderID,HO.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
-                                 ,sum(ho.Duration)as Duration,sum(CAST(ho.Duration AS decimal)/60)as DurationH
+                           ,d.UserName Department,ei.GenderID,ap.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
+                                 ,sum(ap.AdditionalOT)as Duration,sum(CAST(ap.AdditionalOT AS decimal)/60)as DurationH
 
                                ,ad.IsAllDesignation--1
                                ,isnull(ad.IsFixed,0)as IsFixed---1--rate--0-farmula
@@ -853,10 +853,9 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                                ,isnull(dar.rate,0)as ratear
                                ,dar.FormulaDesID FormulaDesIDFromRate
 
-                                 FROM HourlyOT  HO 
-                                 LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
-                                 LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
-								 LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = ei.BudgetCode
+                                 FROM AttdnProcessData ap 
+                                 LEFT JOIN EmployeeInformation ei on ei.SystemId=ap.EmpSystemId
+                                 LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = ei.BudgetCode
 								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
                                 LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
                                  LEFT JOIN [ORG].[Section] s on s.Id=PO.SectionId
@@ -873,9 +872,9 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                                   left join HKP.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
                                  LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND ei.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
 
-                               WHERE HO.WorkDate between '" + FirstDayOfTheMonth + "' and '" + LastDayOfTheMonth + @"' " + wcDos + @" AND ei.plantid='" + identity.PlantId + @"' 
+                               WHERE ap.AdditionalOT is not null AND ap.WorkDate between '" + FirstDayOfTheMonth + "' and '" + LastDayOfTheMonth + @"' " + wcDos + @" AND ei.plantid='" + identity.PlantId + @"' 
                               
-                               GROUP BY  EmployeeName,EmployeeCode ,ei.SystemId,DOJ,s.UserName,sb.UserName,ld.UserName,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn
+                               GROUP BY  EmployeeName,EmployeeCode ,ei.SystemId,DOJ,s.UserName,sb.UserName,ld.UserName,d.UserName,ei.GenderID,ap.EmpSystemId,l.UserName,hr.OTConsiderOn
                               ,ad.IsAllDesignation  ,ad.IsFixed ,ad.FormulaDesID,dar.IsFixed,dar.FormulaDesID,ad.Rate,dar.rate ,ei.DOS
                              
                                ORDER BY ei.EmployeeCode

@@ -241,6 +241,32 @@ namespace Library.OrderManagement.TermsAndConditions
             }
         }
 
+        public string DeleteProformaInvoice(string PIMasterId, string PIVersionId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(PIVersionId))
+                    throw new Exception("Select versionId first");
+                //if (string.IsNullOrEmpty(PIVersionId))
+                //    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PIMaterial WHERE PIMasterId='" + PIMasterId + @"' AND PIVersionId='" + PIVersionId + @"'");
+                con.executeQuery("delete from PIVersion WHERE PIMasterId='"+ PIMasterId + @"' AND Id='" + PIVersionId + @"'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

@@ -362,6 +362,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.clearCharNames();
 		$scope.detailList = [];
 		$scope.specificStockList = [];
+		$scope.materialStockList = [];
 		$scope.IssueType = 'Revenue';
 		$scope.productNew.OrderSpecific = 'No';
 		$scope.ispostDisable = false;

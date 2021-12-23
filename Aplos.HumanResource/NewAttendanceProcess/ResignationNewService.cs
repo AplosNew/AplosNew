@@ -178,38 +178,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                         dvEDate.RowFilter = "EmployeeId='" + db.SystemId + "'";
                         if (dvEDate.Count > 0 && !string.IsNullOrEmpty(dvEDate[0]["ApprovedEffectiveDate"].ToString()))
                         {
-                            ///by monir 191128
-                            ////DataTable dtEmpAttdnLockInfo = (_sqlRepository.GetDataTable("select * from PlantWiseAttendanceLock where LockedDate between '" + dvEDate[0]["ApprovedEffectiveDate"].ToString() + "' and '" + DateTime.Now.ToString("dd-MMM-yyyy") + @"' and IsActive = 1"));
-
-                            ////if (dtEmpAttdnLockInfo.Rows.Count > 0)
-                            ////{
-                            ////    for (int i = 0; i < dtEmpAttdnLockInfo.Rows.Count; i++)
-                            ////    {
-                            ////        string sID = string.Empty;
-                            ////        bplib.clsGenID objGenID = new bplib.clsGenID();
-                            ////        objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "ExceptionEmployeeAttendanceUnlock", out sID);
-
-                            ////        string strSql = @"INSERT INTO [dbo].[ExceptionEmployeeAttendanceUnlock]
-                            ////        ([Id],[EmpSystemId],[PlantId],[IsActive],[WorkDate],[AddedBy],[AddedDate],[AddedFromIP],[UpdatedBy],[UpdatedDate],[UpdatedFromIP])
-                            ////         VALUES
-                            ////        ('""R" + sID + "','" + db.SystemId + @"' ,'" + db.PlantID + @"' ,1," + dtEmpAttdnLockInfo.Rows[i]["LockedDate"] + @"'' , "",'" + DateTime.Now.ToString("dd-MMM-yyyy") + @"' ,"","" ,"","")";
-                            ////    }
-                            ////}
-
-
-                            // ob.LockValidation(db.PlantID, dvEDate[0]["ApprovedEffectiveDate"].ToString(), DateTime.Now.ToString("dd-MMM-yyyy"), db.SystemId);
-
+                           
                             db.DOS = Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString());
                             nextMonth = Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).AddMonths(1).Month; //db.DOS.AddMonths(1);
                             MonthNo = Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).Month; //db.DOS.AddMonths(1);
                             year = Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).Year;
-                            db.EmployeeStatus = "Separated";
-                            db.DOSBy = "Schedule";
-                            db.DOSDate = DateTime.Now;
-                            db.DateUpdated = DateTime.Now;
-                            db.ModelState = ModelState.Modified;
-                            _employeeInformationService.InsertOrUpdateGraph(db);
+                      
                             var dosDate = Convert.ToDateTime(db.DOS).ToString("dd-MMM-yyyy");
+
+                            string sqlEmployeeInfo = @"update EmployeeInformation set DOSBy='Schedule',EmployeeStatus='Separated',DOS='"+ dosDate+@"',DateUpdated=GETDATE()
+                            where SYSTEMid='" + db.SystemId+"'";
+
+
                             string strDeleteAttdnProcessData = @"DELETE FROM AttdnProcessData WHERE EmpSystemID IN (SELECT EmployeeId from [TRN].[Resignation]
                                                   WHERE EmployeeId = '" + db.SystemId + "' AND ApprovalStatus = '" + EnumResignationApprovalStatus.Approved + "' AND ApprovedEffectiveDate <= '" + Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).ToString("dd-MMM-yyyy") + "' ) " +
                                                   "AND workDate > '" + dosDate + "' AND EmpSystemID = '" + db.SystemId + "'";
@@ -217,21 +197,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                             string strDeleteAttdnProcessFinalData = @"DELETE FROM AttdnProcessFinalData WHERE EmpSystemID IN (SELECT EmployeeId from [TRN].[Resignation]
 							                                WHERE EmployeeId = '" + db.SystemId + "' AND ApprovalStatus='" + EnumResignationApprovalStatus.Approved + "' AND ApprovedEffectiveDate <= '" + Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).ToString("dd-MMM-yyyy") + "')  " +
                                        "AND workDate > '" + dosDate + "'AND EmpSystemID ='" + db.SystemId + "'";
-                            string strDeleteAttdnMonthlySummary = @"DELETE  FROM AttdnDataMonthlySummary WHERE (YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + nextMonth + @")) AND EmpSystemID ='" + db.SystemId + "'";
                             string strUpdateResignedEmpData = @"UPDATE [TRN].[Resignation] SET IsProcessed= 1 WHERE EmployeeId='" + db.SystemId + "' AND IsProcessed= 0  ";
                             string sqlDeleteExtraAbsentism = @"DELETE FROM SCS.WeeklyAbsentismAssignment WHERE EmpSystemID = '" + db.SystemId + "' AND WorkingDate > '" + dvEDate[0]["ApprovedEffectiveDate"].ToString() + "' ";
                             string sqlUpdateUser = @"UPDATE [SEC].[User] SET Active = 0 WHERE EmployeeId = '" + db.SystemId + "'";
 
-                            string _finalOT = @"DELETE  FROM FinalOT WHERE WorkDate > '" + Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).ToString("dd-MMM-yyyy") + "' AND EmpSystemID ='" + db.SystemId + "'";
 
+                            _sqlRepository.ExecuteSqlCommand(sqlEmployeeInfo);
                             _sqlRepository.ExecuteSqlCommand(strUpdateResignedEmpData);
                             _sqlRepository.ExecuteSqlCommand(strDeleteAttdnProcessData);
                             _sqlRepository.ExecuteSqlCommand(strDeleteAttdnProcessFinalData);
-                            _sqlRepository.ExecuteSqlCommand(strDeleteAttdnMonthlySummary);
                             _sqlRepository.ExecuteSqlCommand(sqlDeleteExtraAbsentism);
                             _sqlRepository.ExecuteSqlCommand(sqlUpdateUser);
-                            _sqlRepository.ExecuteSqlCommand(_finalOT);
-
+                          
                             string _SalaryProceAttdnData = @"DELETE  FROM SalaryProceAttdnData where EmpSystemId ='" + db.SystemId + @"' and SlrProcMstSystemID in (select SystemID from SalaryProcMaster where YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + MonthNo + @")) ";
                             string _SalaryProcessLogDetail = @"DELETE  FROM SalaryProcessLogDetail where EmpSystemId ='" + db.SystemId + @"' and SalaryProcessId in (select SystemID from SalaryProcMaster where YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + MonthNo + @")) ";
                             string _SalaryProcChild = @"DELETE  FROM SalaryProcChild where EmpInfoSystemID ='" + db.SystemId + @"' and SlrProcMstSystemID in (select SystemID from SalaryProcMaster where YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + MonthNo + @")) ";
@@ -985,19 +962,19 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 UpdateResignedEmployees();  ////Calling Service func for Update status
 
-                #region Attendance process
-                clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
+                #region Attendance process Code Commented By Dhruv
+                //clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
 
-                foreach (var item in entities)
-                {
-                    var db = from_dblist.FirstOrDefault(a => a.Id == item.Id);
-                    if (db != null && db.ApprovalStatus == "Approved")
-                    {
-                        DateTime ed = (DateTime)item.ApprovedEffectiveDate;
-                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
-                        obj.SaveTotal(_plantId, ed.ToString("dd-MMM-yyyy"), item.EmployeeId, false);//Main Function for attendace Process
-                    }
-                }
+                //foreach (var item in entities)
+                //{
+                //    var db = from_dblist.FirstOrDefault(a => a.Id == item.Id);
+                //    if (db != null && db.ApprovalStatus == "Approved")
+                //    {
+                //        DateTime ed = (DateTime)item.ApprovedEffectiveDate;
+                //    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
+                //        obj.SaveTotal(_plantId, ed.ToString("dd-MMM-yyyy"), item.EmployeeId, false);//Main Function for attendace Process
+                //    }
+                //}
                 #endregion
 
             }
@@ -1074,7 +1051,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 DataSet dsResignation = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM trn.Resignation WHERE Id IN (" + strRegId + @")", out dsResignation, false, "1");
-                clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
+                AttendanceProcessAplos obj = new AttendanceProcessAplos();
 
                 for (int i = 0; i < entities.Count; i++)
                 {
@@ -1083,11 +1060,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     {
                         DataRow dr = dsResignation.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
-                        //if(string.IsNullOrEmpty(dr["ApprovedEffectiveDate"].ToString()))
-                        //{
-                        //    throw new Exception("Approved Effective Date can not be empty for the employee : "+ dr["EmployeeCode"]+":" + dr["EmployeeName"]); 
-                        //}
-
+                     
                         dr["ApprovedEffectiveDate"] = entities[i]["ApprovedEffectiveDate"].ToString();
                         dr["SeparationTypeId"] = entities[i]["SeparationType"].ToString();
                         dr["Remarks"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.nullrecorder(entities[i]["Remarks"]));
@@ -1119,67 +1092,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                 /////////////////////////
                 clsStaticInfo info = new clsStaticInfo();
                 info.SaveDataSets(dsResignation);
-                //info.SaveDataSets(dsResignation, dsEmployee);
-
-
-
-                //_unitOfWork.BeginTransaction();
-                //flag = true;
-                //var _pks = GetResignationPKs(entities);
-                //var from_dblist = GetMasterlist(entities.);
-                //string _plantId = string.Empty;
-
-                //foreach (var item in entities)
-                //{
-                //    var db = from_dblist.FirstOrDefault(a => a.Id == item.Id);
-                //    if (db != null)
-                //    {
-                //        db.ModelState = ModelState.Modified;
-                //        AuditService.Log(db);
-                //        db.ApprovedEffectiveDate = item.ApprovedEffectiveDate;
-                //        db.Remarks = item.Remarks;
-                //        db.ApprovalStatus = item.ApprovalStatus;
-                //        db.ApprovedBy = name;
-                //        db.SpecialFollowUP = item.SpecialFollowUP;
-                //        db.ApprovedDate = DateTime.Now;
-                //        db.ApprovedFromIP = ipAddress;
-                //        UpdateGraph(db);
-                //    }
-                //}
-
-                //var _emp_pks = GetEmpIds(entities);
-                //var empInfoList = GetEmployeeInformationlist(_emp_pks);
-                //foreach (var item in empInfoList)
-                //{
-                //    _plantId = item.PlantID;
-                //    break;
-                //}
-
-                //InitEmployeeInfo(entities, empInfoList, out List<EmployeeInformation> savedEmpList);
-                //if (empInfoList.Count() > 0)
-                //{
-                //    InitRecruitmentPlanning(companyGroupId, companyId, _plantId, savedEmpList, _emp_pks);
-                //}
-                //_unitOfWork.SaveChanges();
-                //flag = false;
-                //_unitOfWork.Commit();
 
                 UpdateResignedEmployees();  ////Calling Service func for Update status
 
-                #region Attendance process
+                #region Attendance process Code Commented by Dhruv 
 
-                for (int i = 0; i < entities.Count; i++)
-                {
-                    _plantId = entities[i]["PlantId"].ToString();
-                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
-                    obj.SaveTotal(_plantId, entities[i]["ApprovedEffectiveDate"].ToString(), "'"+entities[i]["EmployeeId"]+"'", false, true);
-                }
-
-                //foreach (var item in entities)
+                //for (int i = 0; i < entities.Count; i++)
                 //{
-                //    var db = from_dblist.FirstOrDefault(a => a.Id == item.Id);
-
+                //    _plantId = entities[i]["PlantId"].ToString();
+                //    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
+                //    obj.SaveTotal(_plantId, entities[i]["ApprovedEffectiveDate"].ToString(), "'"+entities[i]["EmployeeId"]+"'", false, true);
                 //}
+
                 #endregion
 
             }
