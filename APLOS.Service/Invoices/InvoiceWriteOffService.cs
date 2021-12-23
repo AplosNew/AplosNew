@@ -6639,10 +6639,10 @@ namespace Library.Service.Invoices
                             {
                                 _voucherService.DeleteGLTransactionDetail(item.Id);
                             }
-                            var rdBuilder = new System.Text.StringBuilder();
-                            var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE Id='" + item.Id + "'";
-                            rdBuilder.Append(builderSql);
-                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                            //var rdBuilder = new System.Text.StringBuilder();
+                            //var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE Id='" + item.Id + "'";
+                            //rdBuilder.Append(builderSql);
+                            //_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
 
                             _voucherService.DeleteVoucherDetail(item.Id);
                         }
