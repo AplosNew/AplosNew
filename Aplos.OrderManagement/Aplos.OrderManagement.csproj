@@ -99,6 +99,7 @@
     <Compile Include="Costing\QuickBOQ.cs" />
     <Compile Include="Costing\CostingBOQ.cs" />
     <Compile Include="FabricRollManagement\FabricRollClass.cs" />
+    <Compile Include="ProformaInvoice\ProformaInvoice.cs" />
     <Compile Include="OrderControl\clsBOQUpload.cs" />
     <Compile Include="OrderControl\OrderControlReport.cs" />
     <Compile Include="OrderControl\ProductionQtyDistributionSO.cs" />
