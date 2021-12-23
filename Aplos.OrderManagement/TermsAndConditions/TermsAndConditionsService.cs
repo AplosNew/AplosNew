@@ -217,30 +217,6 @@ namespace Library.OrderManagement.TermsAndConditions
             }
         }
 
-        //public string DeletePIMaterial(string id)
-        //{
-        //    try
-        //    {
-        //        //if (string.IsNullOrEmpty(id))
-        //        //    throw new Exception("Select entry first");
-
-        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-        //        con.BeginTransaction();
-        //        //con.executeQuery("delete from TermsAndConditionsDetails where TermsAndConditionsChildid='" + id + "'");
-        //        con.executeQuery("delete from PIMaterial where id='" + id + "'");
-        //        con.CommitTransaction();
-
-        //        return "Success";
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return ex.Message;
-
-        //    }
-        //}
-
         public string DeletePOTitle(string id)
         {
             try
