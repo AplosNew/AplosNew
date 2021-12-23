@@ -235,6 +235,9 @@ function SpecificDateLeaveEncashmentController(commonMessage, $scope, $rootScope
                     model.DaysCanBeSanctioned = $scope.LeaveEncashmentList[i].DaysCanBeSanctioned;
                     model.AvailedLeave = $scope.LeaveEncashmentList[i].AvailedLeave;
                     model.CarryForward = $scope.LeaveEncashmentList[i].CarryForward;
+
+                    model.FixedEncashmentDate = $scope.LeaveEncashmentList[i].FixedEncashmentDate;
+                    model.MaturityDate = $scope.LeaveEncashmentList[i].MaturityDate;
                     //model.Balance = $scope.LeaveEncashmentList[i].Balance;
 
                     model.EncashmentDate = null;

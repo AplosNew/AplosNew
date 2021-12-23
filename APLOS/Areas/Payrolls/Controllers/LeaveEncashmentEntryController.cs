@@ -133,7 +133,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         [HttpGet, Authorize]
         public ActionResult LoadLeaveEncashmentTypes()
         {
-          
+
             string sql = string.Empty;
             try
             {
@@ -160,12 +160,12 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetLeaveEncashmentData(string EmpSystemId, string YearNo,string EffectiveDate)
+        public ActionResult GetLeaveEncashmentData(string EmpSystemId, string YearNo, string EffectiveDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             clsLeaveEncashment ob = new clsLeaveEncashment();
-            LeaveEncashmentViewModel data = ob.GetLeaveEncashmentData(EmpSystemId, EffectiveDate, YearNo, identity.PlantId);   
-            return Json(new {LeaveInfo=data}, JsonRequestBehavior.AllowGet);
+            LeaveEncashmentViewModel data = ob.GetLeaveEncashmentData(EmpSystemId, EffectiveDate, YearNo, identity.PlantId);
+            return Json(new { LeaveInfo = data }, JsonRequestBehavior.AllowGet);
         }
 
 
@@ -173,12 +173,12 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetMultipleLeaveEncashmentData( string YearNo, string EffectiveDate)
+        public ActionResult GetMultipleLeaveEncashmentData(string YearNo, string EffectiveDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             clsLeaveEncashment ob = new clsLeaveEncashment();
-            List< MultipleLeaveEncashmentViewModel> data = ob.GetMultipleLeaveEncashmentData( EffectiveDate, YearNo, identity.PlantId);
-            List<MultipleLeaveEncashmentViewModel> dataNew = data.Where(x=>x.Days>0).OrderBy(x => x.EmployeeCode).ToList();
+            List<MultipleLeaveEncashmentViewModel> data = ob.GetMultipleLeaveEncashmentData(EffectiveDate, YearNo, identity.PlantId);
+            List<MultipleLeaveEncashmentViewModel> dataNew = data.Where(x => x.Days > 0).OrderBy(x => x.EmployeeCode).ToList();
             //return Json(new { LeaveInfo = data }, JsonRequestBehavior.AllowGet);
 
 
@@ -307,7 +307,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
         [HttpPost]
-        public JsonResult SaveMultipleLeaveEncashment(List<MultipleLeaveEncashmentViewModelNew> leaveEncashment,string YearlyCalendarId,string EncashmentDate)
+        public JsonResult SaveMultipleLeaveEncashment(List<MultipleLeaveEncashmentViewModelNew> leaveEncashment, string YearlyCalendarId, string EncashmentDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -328,7 +328,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 for (int i = 0; i < leaveEncashment.Count; i++)
                 {
-                    dvleaveEncashment.RowFilter = "EmpSystemId='" + leaveEncashment[i].EmpSystemId + @"' AND YearlyCalendarId='"+ YearlyCalendarId + "'  AND EncashmentDate='" + Convert.ToDateTime(EncashmentDate).ToString("dd-MMM-yyyy") + @"'  AND LeaveEncashmentType='Year End Leave Encashment'";
+                    dvleaveEncashment.RowFilter = "EmpSystemId='" + leaveEncashment[i].EmpSystemId + @"' AND YearlyCalendarId='" + YearlyCalendarId + "'  AND EncashmentDate='" + Convert.ToDateTime(EncashmentDate).ToString("dd-MMM-yyyy") + @"'  AND LeaveEncashmentType='Year End Leave Encashment'";
 
                     if (dvleaveEncashment.Count == 0)
                     {
@@ -414,7 +414,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     }
                     dvleaveEncashment.RowFilter = null;
                 }
-              
+
 
 
 
@@ -442,7 +442,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 string sql = @"SELECT * FROM LeaveEncashmentTransaction 
                                             WHERE ---PlantId='" + identity.PlantId + @"' AND
                                             EmpSystemId='" + leaveEncashment.EmpSystemId + @"' AND EncashmentDate='" + Convert.ToDateTime(leaveEncashment.EncashmentDate).ToString("dd-MMM-yyyy") + @"' 
-                                            AND LeaveEncashmentType='"+leaveEncashment.LeaveEncashmentType+ @"' AND YearlyCalendarId='"+ leaveEncashment.YearlyCalendarId + @"'"; 
+                                            AND LeaveEncashmentType='" + leaveEncashment.LeaveEncashmentType + @"' AND YearlyCalendarId='" + leaveEncashment.YearlyCalendarId + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsleaveEncashment, false, "1");
@@ -460,7 +460,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     DataRow dr = dsleaveEncashment.Tables[0].NewRow();
                     dr["Id"] = "LE" + sID;
                     dr["PlantId"] = identity.PlantId.ToString();
-                    dr["EmpSystemId"] = leaveEncashment.EmpSystemId;                    
+                    dr["EmpSystemId"] = leaveEncashment.EmpSystemId;
                     dr["LeaveEncashmentType"] = leaveEncashment.LeaveEncashmentType;
                     dr["EncashmentDate"] = leaveEncashment.EncashmentDate;  /// System.DateTime.Now.ToString("dd-MMM-yyyy") + " " + item.EffectiveTime.ToString();
                     dr["Days"] = leaveEncashment.Days;
@@ -512,7 +512,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             return Json(new { Message = AplosMessage.Success });
         }
         [HttpPost]
-        public JsonResult DeleteLeaveEncashment(string leaveEncashmentId,string EmpSystemId, string EncashmentDate)
+        public JsonResult DeleteLeaveEncashment(string leaveEncashmentId, string EmpSystemId, string EncashmentDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -530,7 +530,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-              
+
             }
             catch (Exception ex)
             {
@@ -577,16 +577,16 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             string YearNo = string.Empty;
             DataSet dsYearCalander = null;
-          
+
             ConnectionManager.DAL.ConManager objCon;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             clsLeaveEncashment ob = new clsLeaveEncashment();
-            List<MultipleLeaveEncashmentViewModel> data = ob.GetWithInYearLeaveEncashmentData(FromDate,  identity.PlantId);
+            List<MultipleLeaveEncashmentViewModel> data = ob.GetWithInYearLeaveEncashmentData(FromDate, identity.PlantId);
             List<MultipleLeaveEncashmentViewModel> dataNew = data.Where(x => x.Days > 0).OrderBy(x => x.EmployeeCode).ToList();
-            if (data.Count>0)
+            if (data.Count > 0)
             {
-                string sql1 = @"SELECT YearNo FROM YearlyCalendar WHERE id='" + data[0].YearlyCalendarId + @"' AND PlantId='" + identity.PlantId + @"'"; 
-                                           
+                string sql1 = @"SELECT YearNo FROM YearlyCalendar WHERE id='" + data[0].YearlyCalendarId + @"' AND PlantId='" + identity.PlantId + @"'";
+
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql1, out dsYearCalander, false, "1");
@@ -597,7 +597,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }
             }
 
-            
+
             //return Json(new { LeaveInfo = data }, JsonRequestBehavior.AllowGet);
 
 
@@ -606,12 +606,12 @@ namespace Aplos.Areas.Payrolls.Controllers
             return json;
         }
         [HttpPost]
-        public JsonResult SaveWithInYearLeaveEncashment(List<MultipleLeaveEncashmentViewModelNew> leaveEncashment,  string EncashmentDate)
+        public JsonResult SaveWithInYearLeaveEncashment(List<MultipleLeaveEncashmentViewModelNew> leaveEncashment, string EncashmentDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string YearlyCalendarId = string.Empty;
             string YearlyCalendarYearNo = string.Empty;
-            DataSet  dsYearCalander = null;
+            DataSet dsYearCalander = null;
             DataSet dsOldSummary = null;
             DataView dvSaveSummaryOld = null;
             string empids = string.Empty;
@@ -620,14 +620,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-
-
-
-              
-
-
-
-
 
                 string sql1 = @"select * from YearlyCalendar where '" + Convert.ToDateTime(EncashmentDate).ToString("dd-MMM-yyyy") + @"' BETWEEN FromDate AND ToDate  
                                             AND PlantId='" + identity.PlantId + @"' ";
@@ -661,7 +653,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 objCon.OpenDataSetThroughAdapter(sql, out dsleaveEncashment, false, "1");
 
 
-               
+
 
                 DataView dvleaveEncashment = new DataView(dsleaveEncashment.Tables[0]);
 
@@ -702,7 +694,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         {
                             dr["GrossAmmount"] = 0;
                         }
-                        
+
                         //dr["GivenDesignationId"] = leaveEncashment[i].GivenDesignationId;
                         dr["BankSystemID"] = leaveEncashment[i].BankSystemID;
                         dr["BankBranchId"] = leaveEncashment[i].BankBranchId;
@@ -787,19 +779,19 @@ namespace Aplos.Areas.Payrolls.Controllers
                     }
                     dvleaveEncashment.RowFilter = null;
 
-                   
+
                     //Old year insert or update
-                    
+
                     dvSaveSummaryOld.RowFilter = "EmployeeId='" + leaveEncashment[i].EmpSystemId + "' and LeaveTypeId='" + leaveEncashment[i].LeaveTypeId + "' and CalanderYearId='" + YearlyCalendarId + "' AND IsEncashed=0";
                     if (dvSaveSummaryOld.Count > 0)
                     {
 
-                    
-                        DataRow  drSaveSummaryOld = dvSaveSummaryOld[0].Row;
+
+                        DataRow drSaveSummaryOld = dvSaveSummaryOld[0].Row;
                         drSaveSummaryOld.BeginEdit();
                         drSaveSummaryOld["CarryForward"] = leaveEncashment[i].NewBroughtForward;
                         drSaveSummaryOld["YearEndEncash"] = leaveEncashment[i].NewYearEndEncash;
-                        drSaveSummaryOld["YearEndLapse"] = leaveEncashment[i].NewYearEndLapse; 
+                        drSaveSummaryOld["YearEndLapse"] = leaveEncashment[i].NewYearEndLapse;
                         //drSaveSummaryOld["BroughtForward"] = leaveEncashment[i].NewBroughtForward;
                         drSaveSummaryOld["EncashedInbetween"] = leaveEncashment[i].NewYearEndEncash;
                         drSaveSummaryOld["IsEncashed"] = true;
@@ -848,7 +840,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             if (string.IsNullOrEmpty(ToDate))
             {
                 ToDate = DateTime.Now.ToString("dd-MMM-yyyy");
-            }   
+            }
             string YearlyCalendarId = string.Empty;
             DataSet dsYearCalander = null;
 
@@ -940,148 +932,6 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
-
-        [HttpGet]
-        public ActionResult xGetSevedWithInYearLeaveEncashmentData(string ToDate)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (string.IsNullOrEmpty(ToDate))
-            {
-                ToDate = DateTime.Now.ToString("dd-MMM-yyyy");
-            }
-            string YearlyCalendarId = string.Empty;
-            DataSet dsYearCalander = null;
-
-            DataSet dsleaveEncashment;
-            ConnectionManager.DAL.ConManager objCon;
-
-            string sql1 = @"select * from YearlyCalendar where '" + Convert.ToDateTime(ToDate).ToString("dd-MMM-yyyy") + @"' BETWEEN FromDate AND ToDate  
-                                            AND PlantId='" + identity.PlantId + @"' ";
-
-            objCon = new ConnectionManager.DAL.ConManager("1");
-            objCon.OpenDataSetThroughAdapter(sql1, out dsYearCalander, false, "1");
-
-            if (dsYearCalander.Tables[0].Rows.Count > 0)
-            {
-                YearlyCalendarId = dsYearCalander.Tables[0].Rows[0]["Id"].ToString();
-            }
-
-
-            string sql = string.Empty;
-            try
-            {
-                sql = @"SELECT  [CheckBoxSelect] = Convert(bit, 'False'), 
-                             E.SystemId, e.EmployeeCode,e.EmployeeName,t.UserName LeaveType ,FORMAT(e.DOJ,'dd-MMM-yyyy') DOJ
-                             , EC.UserName EmpCategoryName  
-                            ,ld.UserName Designation
-                            ,U.UserName Unit 
-                            ,Dv.UserName Division
-                            ,Dp.UserName Department
-                            ,Se.UserName Section 
-                            ,SB.UserName SubSection 
-                            ,L.UserName Line
-                            ,BroughtForward=isnull(s.BroughtForward,0)+isnull(s.CarryForwardOpeningBalance,0)
-                            ,s.DaysCanBeSanctioned
-                            ,s.CurrentYearAllocation
-                            ,s.IsYearlyProcessed
-                            ,LeaveDaysAllowed=isnull(s.BroughtForward,0)+isnull(s.DaysCanBeSanctioned,0)+isnull(s.CarryForwardOpeningBalance,0)
-                            ,isnull(kk.LeaveDuration,0) AvailedLeave
-                            --,Balance=isnull(s.BroughtForward,0)+isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)
-                           -----------------------------------Is Brought Forward Add to balance -----------------------------------------------------------                                       
-							,Balance=CASE WHEN t.LeaveType='Earn' THEN  
-								CASE WHEN
-								-----------------------------------DOJorDOC start -----------------------------------------------------------
-															CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
-                            																	 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ ) END
-																	   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
-										   														 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	e.DOC  )
-										   													END
-																   END
-							---------------------------------------DOJorDOC start  end-------------------------------------------------------
-	
-								> GETDATE() then 
-									  isnull(s.BroughtForward,0)+isnull(s.CarryForwardOpeningBalance,0)+isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)-isnull(s.EncashedInbetween,0)------No
-									ELSE  isnull(s.BroughtForward,0)+isnull(s.CarryForwardOpeningBalance,0)+isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)-isnull(s.EncashedInbetween,0) END---Yes
-							ELSE  isnull(s.BroughtForward,0)+isnull(s.CarryForwardOpeningBalance,0)+isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)-isnull(s.EncashedInbetween,0) END  ---No
-
-                            ,av.LeaveEncashmentDayNo Days,ltd.PolicyName
-                            from TRN.EmployeeLeaveSummary S 
-                            INNER JOIN LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
-                            INNER JOIN EmployeeInformation e on e.SystemId=s.EmployeeId
-                            LEFT JOIN (
-									select 
-									tt.UserName LeaveType,t.EmpSystemID,t.LTSystemID, sum(isnull(d.LeaveDuration,0)) LeaveDuration
-									from 
-									LeaveTransaction t 
-									left join 
-							          (--detail
-                                    select SUM(LeaveDuration) LeaveDuration, LvTrnsSystemID from LeaveTransactionDetails 
-                                    where IsAvailed=1
-                                    and WorkDate between
-                                    (select FromDate from YearlyCalendar where Id=" + YearlyCalendarId + @" and PlantId='" + identity.PlantId + @"')
-                                    and (select ToDate from YearlyCalendar where Id= " + YearlyCalendarId + @" and PlantId='" + identity.PlantId + @"')
-                                    group by LvTrnsSystemID
-                                    )--detail 
-                                    d on t.SystemID=d.LvTrnsSystemID
-
-									left join LeaveType tt on tt.id=t.LTSystemID
-									where t.IsApproved=1  
-									group by tt.UserName ,t.EmpSystemID,t.LTSystemID
-                            ) kk on kk.LTSystemID=s.LeaveTypeId and kk.EmpSystemID=s.EmployeeId
-                             left outer join (
-                            	--***********LV**********************
-                            	
-								SELECT DC.LeavePolicyMasterId,lpm.PolicyName ,e.SystemId EmpId,d.*
-																				FROM 
-																				EmployeeInformation e
-																				LEFT join MST.DesignationMaster DM ON e.GivenDesignationId=dm.DesignationId
-																				LEFT JOIN SCS.DesignationMasterConfiguration DC 
-																							ON DM.Id=DC.DesignationMasterId AND dc.plantid=e.plantid
-																				LEFT JOIN LeavePolicyDetail d ON d.LPMSystemID=dc.LeavePolicyMasterId
-																				LEFT JOIN LeavePolicyMaster AS lpm  ON lpm.SystemID=dc.LeavePolicyMasterId			
-																where dc.plantid='" + identity.PlantId + @"'
-											--*******************LV***********************
-							) ltd on ltd.LTSystemID = t.Id AND ltd.EmpId=e.SystemId
-                          
-                             LEFT JOIN 
-                            (
-                            	SELECT EmpSystemId,YearlyCalendarId ,SUM(Days) LeaveEncashmentDayNo FROM LeaveEncashmentTransaction WHERE  YearlyCalendarId='" + YearlyCalendarId + @"' GROUP BY EmpSystemId,YearlyCalendarId
-                            ) as 
-                            av ON av.EmpSystemId=s.EmployeeId
-                            LEFT JOIN HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
-                            LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                            LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                            LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                            LEFT JOIN ORG.Section Se ON E.SectionID = Se.Id
-                            LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                            LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                            LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
-                            LEFT JOIN HKP.LegalDesignation AS ld  ON E.LegalDesignationId = ld.Id
-							LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
-							LEFT JOIN MST.ManpowerBudget mb ON mb.Id=e.BudgetCode
-                            where s.CalanderYearId=(select id from YearlyCalendar where Id=" + YearlyCalendarId + @" and PlantId='" + identity.PlantId + @"') 
-                            AND s.EmployeeId IN (SELECT SystemId FROM EmployeeInformation WHERE EmployeeStatus='Active' and PlantId='" + identity.PlantId + @"' )
-                            AND s.EmployeeId  IN (SELECT EmpSystemId  FROM LeaveEncashmentTransaction WHERE YearlyCalendarId='" + YearlyCalendarId + @"' AND LeaveEncashmentType='Encashment Within Year' and PlantId='" + identity.PlantId + @"' )
-                            ORDER BY  e.EmployeeCodePreFix,e.EmployeeCodeNumeric";
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-
-            }
-
-            var data = _sqlRepository.GetDataCollection(sql);
-            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
-            json.MaxJsonLength = int.MaxValue;
-            return json;
-
-
-        }
         #endregion
         #region Specific-date-leave-encashment
         [HttpGet, Authorize]
@@ -1089,12 +939,12 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             clsLeaveEncashment ob = new clsLeaveEncashment();
-            List<MultipleLeaveEncashmentViewModel> data = ob.GetSpecificDateLeaveEncashmentData( identity.PlantId);
+            List<MultipleLeaveEncashmentViewModel> data = ob.GetSpecificDateLeaveEncashmentData(identity.PlantId);
             List<MultipleLeaveEncashmentViewModel> dataNew = data.Where(x => x.Days > 0).OrderBy(x => x.EmployeeCode).ToList();
             //return Json(new { LeaveInfo = data }, JsonRequestBehavior.AllowGet);
 
             string SpecificDate = string.Empty;
-            DataSet dsSpecificDate = null;          
+            DataSet dsSpecificDate = null;
             ConnectionManager.DAL.ConManager objCon;
 
             string sql1 = @"SELECT FORMAT( DATEFROMPARTS( YEAR(GETDATE()),CONVERT(INT,ltd.EncashmentSpecificMonth),CONVERT(INT,ltd.EncashmentSpecificDay)),'dd-MMM-yyyy') EncashmentSpecificDate FROM LeavePolicyDetail AS ltd
@@ -1114,10 +964,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                     }
                     else
                     {
-                        SpecificDate += ", "+dsSpecificDate.Tables[0].Rows[i]["EncashmentSpecificDate"].ToString();
+                        SpecificDate += ", " + dsSpecificDate.Tables[0].Rows[i]["EncashmentSpecificDate"].ToString();
                     }
                 }
-                
+
             }
 
 
@@ -1196,7 +1046,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 for (int i = 0; i < leaveEncashment.Count; i++)
                 {
-                    dvleaveEncashment.RowFilter = "EmpSystemId='" + leaveEncashment[i].EmpSystemId + @"' AND YearlyCalendarId='" + leaveEncashment[i].YearlyCalendarId   + @"'  AND LeaveEncashmentType='Specific Date Leave Encashment'";
+                    dvleaveEncashment.RowFilter = "EmpSystemId='" + leaveEncashment[i].EmpSystemId + @"' AND YearlyCalendarId='" + leaveEncashment[i].YearlyCalendarId + @"'  AND LeaveEncashmentType='Specific Date Leave Encashment'";
 
                     if (dvleaveEncashment.Count == 0)
                     {
@@ -1340,9 +1190,9 @@ namespace Aplos.Areas.Payrolls.Controllers
         public ActionResult GetSevedSpecificDateLeaveEncashmentData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-          
-             string   ToDate = DateTime.Now.ToString("dd-MMM-yyyy");
-           
+
+            string ToDate = DateTime.Now.ToString("dd-MMM-yyyy");
+
             string YearlyCalendarId = string.Empty;
             DataSet dsYearCalander = null;
 
@@ -1433,147 +1283,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         }
-        [HttpGet]
-        public ActionResult xGetSevedSpecificDateLeaveEncashmentData()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            string ToDate = DateTime.Now.ToString("dd-MMM-yyyy");
-
-            string YearlyCalendarId = string.Empty;
-            DataSet dsYearCalander = null;
-
-            DataSet dsleaveEncashment;
-            ConnectionManager.DAL.ConManager objCon;
-
-            string sql1 = @"select * from YearlyCalendar where '" + Convert.ToDateTime(ToDate).ToString("dd-MMM-yyyy") + @"' BETWEEN FromDate AND ToDate  
-                                            AND PlantId='" + identity.PlantId + @"' ";
-
-            objCon = new ConnectionManager.DAL.ConManager("1");
-            objCon.OpenDataSetThroughAdapter(sql1, out dsYearCalander, false, "1");
-
-            if (dsYearCalander.Tables[0].Rows.Count > 0)
-            {
-                YearlyCalendarId = dsYearCalander.Tables[0].Rows[0]["Id"].ToString();
-            }
-
-
-            string sql = string.Empty;
-            try
-            {
-                sql = @"SELECT  [CheckBoxSelect] = Convert(bit, 'False'), 
-                             E.SystemId, e.EmployeeCode,e.EmployeeName,t.UserName LeaveType ,FORMAT(e.DOJ,'dd-MMM-yyyy') DOJ
-                            , EC.UserName EmpCategoryName  
-                            ,ld.UserName Designation
-                            ,U.UserName Unit 
-                            ,Dv.UserName Division
-                            ,Dp.UserName Department
-                            ,Se.UserName Section 
-                            ,SB.UserName SubSection 
-                            ,L.UserName Line
-                            --,BroughtForward=isnull(s.BroughtForward,0)+isnull(s.CarryForwardOpeningBalance,0)
-                            ,BroughtForward=CASE WHEN s.IsEncashed =1 THEN ISNULL(s.CarryForward, 0)+ISNULL(s.EncashedInbetween, 0) ELSE ISNULL(s.BroughtForward, 0)+isnull(s.CarryForwardOpeningBalance,0) END
-                            ,s.DaysCanBeSanctioned
-                            ,s.CurrentYearAllocation
-                            ,s.IsYearlyProcessed
-                            ,LeaveDaysAllowed=isnull(s.BroughtForward,0)+isnull(s.DaysCanBeSanctioned,0)+isnull(s.CarryForwardOpeningBalance,0)
-                            ,isnull(kk.LeaveDuration,0) AvailedLeave
-                            --,Balance=isnull(s.BroughtForward,0)+isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)
-                           -----------------------------------Is Brought Forward Add to balance -----------------------------------------------------------                                       
-							,Balance=CASE WHEN t.LeaveType='Earn' THEN  
-								CASE WHEN
-								-----------------------------------DOJorDOC start -----------------------------------------------------------
-															CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
-                            																	 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ ) END
-																	   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
-										   														 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	e.DOC  )
-										   													END
-																   END
-							---------------------------------------DOJorDOC start  end-------------------------------------------------------
-	
-								> GETDATE() then 
-									  (CASE WHEN s.IsEncashed =1 THEN ISNULL(s.CarryForward, 0)+ISNULL(s.EncashedInbetween, 0) ELSE ISNULL(s.BroughtForward, 0)+isnull(s.CarryForwardOpeningBalance,0) END)+isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)-isnull(s.EncashedInbetween,0)------No
-									ELSE  (CASE WHEN s.IsEncashed =1 THEN ISNULL(s.CarryForward, 0)+ISNULL(s.EncashedInbetween, 0) ELSE ISNULL(s.BroughtForward, 0)+isnull(s.CarryForwardOpeningBalance,0) END)+isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)-isnull(s.EncashedInbetween,0) END---Yes
-							ELSE  (CASE WHEN s.IsEncashed =1 THEN ISNULL(s.CarryForward, 0)+ISNULL(s.EncashedInbetween, 0) ELSE ISNULL(s.BroughtForward, 0)+isnull(s.CarryForwardOpeningBalance,0) END)+isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)-isnull(s.EncashedInbetween,0) END  ---No
-
-                            ,av.LeaveEncashmentDayNo Days,FORMAT(DATEFROMPARTS( YEAR(GETDATE()),CONVERT(INT,ltd.EncashmentSpecificMonth),CONVERT(INT,ltd.EncashmentSpecificDay)),'dd-MMM-yyyy') EncashmentSpecificDate,ltd.PolicyName
-                            from TRN.EmployeeLeaveSummary S 
-                            INNER JOIN LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
-                            INNER JOIN EmployeeInformation e on e.SystemId=s.EmployeeId
-                            LEFT JOIN (
-									select 
-									tt.UserName LeaveType,t.EmpSystemID,t.LTSystemID, sum(isnull(d.LeaveDuration,0)) LeaveDuration
-									from 
-									LeaveTransaction t 
-									left join 
-							          (--detail
-                                    select SUM(LeaveDuration) LeaveDuration, LvTrnsSystemID from LeaveTransactionDetails 
-                                    where IsAvailed=1
-                                    and WorkDate between
-                                    (select FromDate from YearlyCalendar where Id=" + YearlyCalendarId + @" and PlantId='" + identity.PlantId + @"')
-                                    and (select ToDate from YearlyCalendar where Id= " + YearlyCalendarId + @" and PlantId='" + identity.PlantId + @"')
-                                    group by LvTrnsSystemID
-                                    )--detail 
-                                    d on t.SystemID=d.LvTrnsSystemID
-
-									left join LeaveType tt on tt.id=t.LTSystemID
-									where t.IsApproved=1  
-									group by tt.UserName ,t.EmpSystemID,t.LTSystemID
-                            ) kk on kk.LTSystemID=s.LeaveTypeId and kk.EmpSystemID=s.EmployeeId
-                             left outer join (
-                            	--***********LV**********************
-                            	
-								SELECT DC.LeavePolicyMasterId ,lpm.PolicyName ,e.SystemId EmpId,d.*
-																				FROM 
-																				EmployeeInformation e
-																				LEFT join MST.DesignationMaster DM ON e.GivenDesignationId=dm.DesignationId
-																				LEFT JOIN SCS.DesignationMasterConfiguration DC 
-																							ON DM.Id=DC.DesignationMasterId AND dc.plantid=e.plantid
-																				LEFT JOIN LeavePolicyDetail d ON d.LPMSystemID=dc.LeavePolicyMasterId
-                                                                                LEFT JOIN LeavePolicyMaster AS lpm  ON lpm.SystemID=dc.LeavePolicyMasterId
-																where dc.plantid='" + identity.PlantId + @"'
-											--*******************LV***********************
-							) ltd on ltd.LTSystemID = t.Id AND ltd.EmpId=e.SystemId
-                          
-                             LEFT JOIN 
-                            (
-                            	SELECT EmpSystemId,YearlyCalendarId ,SUM(Days) LeaveEncashmentDayNo FROM LeaveEncashmentTransaction WHERE  YearlyCalendarId='" + YearlyCalendarId + @"' GROUP BY EmpSystemId,YearlyCalendarId
-                            ) as 
-                            av ON av.EmpSystemId=s.EmployeeId
-                            LEFT JOIN HKP.EmployeeCategory AS EC ON E.EmployeeCategorySystemID = EC.Id
-                            LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
-                            LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
-                            LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
-                            LEFT JOIN ORG.Section Se ON E.SectionID = Se.Id
-                            LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
-                            LEFT JOIN ORG.Line L ON E.LineID = L.Id
-                            LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
-                            LEFT JOIN HKP.LegalDesignation AS ld  ON E.LegalDesignationId = ld.Id
-							LEFT JOIN MST.DesignationMaster dm ON E.GivenDesignationId = dm.DesignationId
-							LEFT JOIN MST.ManpowerBudget mb ON mb.Id=e.BudgetCode
-                            where s.CalanderYearId=(select id from YearlyCalendar where Id=" + YearlyCalendarId + @" and PlantId='" + identity.PlantId + @"') 
-                            AND s.EmployeeId IN (SELECT SystemId FROM EmployeeInformation WHERE EmployeeStatus='Active' and PlantId='" + identity.PlantId + @"' )
-                            AND s.EmployeeId  IN (SELECT EmpSystemId  FROM LeaveEncashmentTransaction WHERE YearlyCalendarId='" + YearlyCalendarId + @"' AND LeaveEncashmentType='Specific Date Leave Encashment' and PlantId='" + identity.PlantId + @"' )
-                            ORDER BY  e.EmployeeCodePreFix,e.EmployeeCodeNumeric";
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-
-            }
-
-            var data = _sqlRepository.GetDataCollection(sql);
-            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
-            json.MaxJsonLength = int.MaxValue;
-            return json;
-
-
-        }
+     
         #endregion
 
     }

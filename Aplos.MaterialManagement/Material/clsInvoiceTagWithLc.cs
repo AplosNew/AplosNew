@@ -1,9 +1,13 @@
-﻿using Library.Data.Sql;
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Enums;
+using Library.Service.Extension;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.MaterialManagement.Material
@@ -44,7 +48,7 @@ namespace Library.MaterialManagement.Material
 									,IV.DocRefNo
 									,IV.Narration
 									,IV.Id AS InvoiceId
-									,VD.EntityId
+									,EN.Id EntityId
 									,VD.PlantId
 									,IVD.Id AS InvoiceDetailId
 									,IV.VoucherId
@@ -214,7 +218,7 @@ namespace Library.MaterialManagement.Material
 									,IV.DocRefNo
 									,IV.Narration
 									,IV.Id AS InvoiceId
-									,VD.EntityId
+									,EN.Id EntityId
 									,VD.PlantId
 									,IVD.Id AS InvoiceDetailId
 									,IV.VoucherId
@@ -328,5 +332,75 @@ namespace Library.MaterialManagement.Material
             }
 
         }//End Function
+        public void Save(List<Dictionary<string, object>> DataList, Dictionary<string, object> LcData)
+        {
+            try
+            {
+                #region Variable
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string Id = string.Empty;
+                string TempId = string.Empty;
+                bplib.clsGenID objGenID = null;
+                objGenID = new bplib.clsGenID();
+                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "InvoiceTaggingWithLC", out TempId);
+                int count = 0;
+                DataRow drSave;
+                #endregion
+
+                string sql = "SELECT * FROM InvoiceTaggingWithLC WHERE 1=2";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                foreach (var item in DataList)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = "Id = '"+item["InvoiceId"] +"'";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        count++;
+                        drSave = dsMaster.Tables[0].NewRow();
+                        drSave["Id"] = "I" + TempId + count;
+                        drSave["CompanyGroupId"] = identity.CompanyGroupId;
+                        drSave["CompanyId"] = identity.CompanyId;
+                        drSave["PlantId"] = identity.PlantId;
+                        drSave["EntityId"] = item["EntityId"];
+                        drSave["CurrencyId"] = item["CurrencyId"];
+                        drSave["InvoiceId"] = item["InvoiceId"];
+                        drSave["InvoiceDetailId"] = item["InvoiceDetailId"];
+                        drSave["PurchaseLcId"] = LcData["Id"];                        
+                        drSave["VoucherId"] = DBNull.Value;                        
+                        drSave["PartyId"] = item["PartyId"];
+                        drSave["PartyPlantId"] = item["PartyPlantId"];                                                
+                        drSave["LoanDate"] = LcData["LoanDate"];
+                        drSave["LoanNo"] = LcData["LoanNo"];
+                        drSave["Amount"] = LcData["LoanAmount"];
+                        drSave["AddedBy"] = identity.Name;
+                        drSave["AddedDate"] = DateTime.Now;
+                        drSave["AddedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(drSave);
+
+                    }
+                    else
+                    {
+                        drSave = dsMaster.Tables[0].DefaultView[0].Row;
+                        drSave.BeginEdit();
+
+                        drSave["UpdatedBy"] = identity.Name;
+                        drSave["UpdatedDate"] = DateTime.Now;
+                        drSave["UpdatedFromIP"] = identity.IPAddress;
+                        drSave.EndEdit();
+                    }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
     }
 }

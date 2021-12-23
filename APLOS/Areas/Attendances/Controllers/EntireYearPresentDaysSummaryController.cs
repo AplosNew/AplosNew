@@ -101,6 +101,10 @@ namespace Aplos.Areas.Attendances.Controllers
             int ColEmployeeName = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 15, ExcelHAlign.HAlignCenter);
+            int ColDOJ = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Department", 15, ExcelHAlign.HAlignCenter);
             int ColDepartment = COL;
             COL++;
@@ -184,6 +188,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
                 sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
                 sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
                 sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["LegalDesignation"].ToString();
                 sheet[ROW, ColMarch].Number = clsStaticInfo.dbl(data.Rows[i]["Mar"].ToString());
