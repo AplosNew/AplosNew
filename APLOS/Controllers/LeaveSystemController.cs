@@ -11,6 +11,7 @@ using System.Data;
 using Library.Data.UnitOfWorks;
 using Library.Service.Biometrics;
 using APLOS;
+using Library.HumanResource.Leave;
 
 namespace Aplos.Controllers
 {
@@ -105,11 +106,13 @@ namespace Aplos.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetLeaveBalance(string GroupId, string PlantId, string EmpId, string CalId)
+        public IHttpActionResult GetLeaveBalance(string EmpId, string CalId)
         {
             try
             {
-                var result = _leaveapp.GetLeaveBalanceType(GroupId, PlantId, EmpId, CalId);
+                clsLeaveBalanceToDate app = new clsLeaveBalanceToDate();
+                var result = app.GetLeaveBalanceType(EmpId, CalId);
+                //var result = _leaveapp.GetLeaveBalanceType(GroupId, PlantId, EmpId, CalId);
                 return Json(result);
             }
             catch (Exception ex)
