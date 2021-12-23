@@ -15,10 +15,20 @@ namespace Library.MaterialManagement.Material
         {
             _sqlRepository = new SqlRepository();
         }
-        public IEnumerable<object> VendorAvailableInvoiceList(string companyGroupId, string companyId,string date)
+        public IEnumerable<object> VendorAvailableInvoiceList(string companyGroupId, string companyId, string FromDate, string ToDate, bool DateRange)
         {
             try
             {
+                string DatewiseData = "";
+                if (DateRange)
+                {
+                    DatewiseData = "AND IV.ActualDueDate between '" + FromDate + @"' And '" + ToDate + @"'";
+
+                }
+                else
+                {
+                    DatewiseData = "AND IV.ActualDueDate <= '" + FromDate + @"'";
+                }
                 string strSQL = string.Empty;
                 strSQL = @" SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId
 									,GLGI.AccountCode AS GLGeneralInfoCode
@@ -38,7 +48,9 @@ namespace Library.MaterialManagement.Material
 									,VD.PlantId
 									,IVD.Id AS InvoiceDetailId
 									,IV.VoucherId
-									,IV.ActualDueDate
+									,Replace(CONVERT(VARCHAR(11),IV.ActualDueDate, 106), ' ', '-') ActualDueDate
+									,Replace(CONVERT(VARCHAR(11),IV.BaseOnDueDate, 106), ' ', '-') BaseOnDueDate
+									,IV.BaseNoOfDays, CASE WHEN  IV.SourceType = 'VendorInvoice' THEN 'Inbound Invoice'  WHEN  IV.SourceType = 'InventoryPayable' THEN  'GRN' END SourceType
 									,VD.Id AS VoucherDetailId
 									,IV.CurrencyId
 									,C.Code AS CurrencyCode
@@ -178,14 +190,13 @@ namespace Library.MaterialManagement.Material
 									AND IVD.IsBlock = 0
 									AND IV.SourceType IN (
 										'" + SourceType.VendorInvoice + @"'
-										,'" + SourceType.PurchaseDocAcceptance + @"'
 										,'" + SourceType.SuspensePayable + @"'
 										,'" + SourceType.ServicePayable + @"'
 										,'" + SourceType.EmployeePayable + @"'
 										)
 									AND IV.CompanyGroupId = '" + companyGroupId + @"'
 									AND IV.CompanyId = '" + companyId + @"'
-									AND IV.ActualDueDate= '" + date + @"'
+									" + DatewiseData + @"
 								
 								UNION ALL
 								
@@ -207,7 +218,9 @@ namespace Library.MaterialManagement.Material
 									,VD.PlantId
 									,IVD.Id AS InvoiceDetailId
 									,IV.VoucherId
-									,IV.ActualDueDate
+									,Replace(CONVERT(VARCHAR(11),IV.ActualDueDate, 106), ' ', '-') ActualDueDate
+									,Replace(CONVERT(VARCHAR(11),IV.BaseOnDueDate, 106), ' ', '-') BaseOnDueDate
+									,IV.BaseNoOfDays, CASE WHEN  IV.SourceType = 'VendorInvoice' THEN 'Inbound Invoice'  WHEN  IV.SourceType = 'InventoryPayable' THEN  'GRN' END SourceType
 									,VD.Id AS VoucherDetailId
 									,IV.CurrencyId
 									,C.Code AS CurrencyCode
@@ -306,7 +319,7 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyGroupId = '" + companyGroupId + @"'
 									AND IV.CompanyId = '" + companyId + @"'
 									AND IR.PurchaseDocumentAcceptanceId IS NULL
-									AND IV.ActualDueDate= '" + date + @"'";
+									" + DatewiseData + @"";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
