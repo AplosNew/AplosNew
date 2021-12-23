@@ -5,27 +5,37 @@
             <div class="form-elements form-horizontal">
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI No :</span></label>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI No :</span><sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="PI No." ng-model="PImodelNew.PINo" class="form-control" maxlength="15" required tabindex="5">
+                            <input type="text" name="PI No." ng-model="PImodelNew.PINo" class="form-control" maxlength="50" required tabindex="5">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI REF # :</span></label>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI REF # :</span><sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Ref No." ng-model="PImodelNew.RefNo" class="form-control" maxlength="15" required tabindex="5">
+                            <input type="text" name="Ref No." ng-model="PImodelNew.RefNo" class="form-control" maxlength="50" required tabindex="5">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Address :</span></label>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Currency :</span><sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Invoicing by address" ng-model="PImodelNew.InvoicingByAddress" class="form-control" maxlength="15" required tabindex="5">
+                            <div class="select-style">
+                                <select name="Currency" class="form-control" ng-model="PImodelNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList">
+                                    <option value="">--Select--</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
+                    @*<div class="form-group">
+            <label class="col-sm-4 control-label"><span style="font-weight:bold">Address :</span></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Invoicing by address" ng-model="PImodelNew.InvoicingByAddress" class="form-control" maxlength="15" required tabindex="5">
+            </div>
+        </div>*@
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI Date :</span></label>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI Date :</span><sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="PI Date" ng-model="PImodelNew.PIDate" datepicker class="form-control" maxlength="15" required tabindex="5">
                         </div>
@@ -42,20 +52,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Currency :</span><sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select name="Currency" class="form-control" ng-model="PImodelNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList">
-                                    <option value="">--Select--</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Version :</span></label>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Version :</span><sup>*</sup></label>
                         <div class="col-sm-8">
                             <div class="input-group">
                                 <div class="select-style">
@@ -109,8 +110,8 @@
                                             </div>
                                         </td>
                                         <td><input type="text" ng-model="item.Description" class="form-control" @*ng-disabled="DataList.length>1"*@ /></td>
-                                        <td><input type="number" ng-model="item.Quantity" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
-                                        <td><input type="number" ng-model="item.Rate" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                        <td><input type="number" ng-model="item.Quantity" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                        <td><input type="number" ng-model="item.Rate" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
                                         <td style="width:100px;">
                                             <div class="select-style">
                                                 <select ng-model="item.UoMId">
@@ -120,11 +121,11 @@
                                         </td>
                                         <td><input type="text" ng-model="item.DeliveryDate" datepicker class="form-control" /></td>
 
-                                        <td><input type="number" ng-model="item.Amount" class="form-control" /></td>
+                                        <td><input type="number" ng-disabled="true" ng-model="item.Amount" class="form-control" /></td>
                                         <td class="text-right">
                                             <ul class="list-inline">
-                                                <li><button ng-click="SubmitH(item);ClearGrid();" ng-hide="$index<DataList.length-1" class="btn btn-action "><i class="glyphicon glyphicon-plus" style="color: limegreen;"></i></button></li>
-                                                <li><button ng-hide="DataList.length<2" ng-click="Remove($index);ClearGrid();" class="btn btn-action "><i class="glyphicon glyphicon-minus" style="color: orangered;"></i></button></li>
+                                                <li><button ng-click="SubmitH(item);" ng-hide="$index<DataList.length-1" class="btn btn-action "><i class="glyphicon glyphicon-plus" style="color: limegreen;"></i></button></li>
+                                                <li><button ng-hide="DataList.length<2" ng-click="Remove($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus" style="color: orangered;"></i></button></li>
                                                 @*<li><button ng-hide="DataList.length<2" ng-click="Remove($index);ClearGrid();removePIMaterial(item);" class="btn btn-action "><i class="glyphicon glyphicon-minus" style="color: orangered;"></i></button></li>*@
                                             </ul>
                                         </td>
@@ -257,7 +258,7 @@
                         <label class="col-sm-4 col-md-4 control-label">Bill To</label>
                         <div class="col-sm-8">
                             <div class="select-style">
-                                <select ng-model="PImodelNew.InvoicingPartyPlantId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(modelNew.InvoicingPartyPlantId,'billTo')">
+                                <select ng-model="PImodelNew.InvoicingPartyPlantId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: PImodelNew.PartyId }" ng-change="billShippAddress(PImodelNew.InvoicingPartyPlantId,'billTo')">
                                     <option value=""></option>
                                 </select>
                             </div>
