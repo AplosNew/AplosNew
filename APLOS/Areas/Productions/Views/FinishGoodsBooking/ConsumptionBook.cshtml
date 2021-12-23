@@ -93,16 +93,20 @@
              e-allowfiltering="true" e-enabletouch="false" e-responsive="true" e-filtersettings-filterType="excel">
             <div e-columns>
                 <div e-column e-headertext="" e-headertemplateid="#PkheaderTemplate" e-template="#PkcheckboxTemplate" e-textalign="center" e-width="30"></div>
-                <div e-column e-type="string" e-field="ProductionOrderId" e-headertext="PrO" e-width="50"></div>
+                <div e-column e-type="string" e-template="#ProductionOrderId" e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
+                @*<div e-column e-type="string" e-field="ProductionOrderId" e-headertext="PrO" e-width="50"></div>*@
                 <div e-column e-type="string" e-field="ProductCode" e-headertext="ProductCode" e-width="80"></div>
                 <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="80"></div>
                 <div e-column e-type="string" e-field="SONo" e-headertext="SoNo" e-width="80"></div>
                 <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
                 <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="150"></div>
+                <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="BuyerItem#" e-width="150"></div>
                 <div e-column e-type="string" e-field="OrderCostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
                 <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
                 <div e-column e-type="number" e-field="ItemQty" e-headertext="ItemQty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
-                <div e-column e-type="number" e-field="Balance" e-headertext="Balance" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                <div e-column e-type="number" e-field="BookedQty" e-headertext="Booked Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                <div e-column e-type="number" e-field="Balance" e-headertext="Balance Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
                 <div e-column e-type="number" e-field="Rate" e-headertext="Rate" e-width="50" e-textalign="right" e-format="{0:0.0000}"></div>
                 @*<div e-column e-type="number" e-template="#Rate" e-headertext="Rate" e-width="100" style="height: 20px;" e-textalign="right"></div>*@
                 <div e-column e-type="number" e-field="Amount" e-headertext="Amount" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
@@ -110,11 +114,11 @@
             </div>
         </div>
         <script type="text/template" id="PkcheckboxTemplate">
-                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
-            </script>
-            <script type="text/x-jsrender" id="PkheaderTemplate">
-                <input type="checkbox" id="Pkheadchk" />
-            </script>
+            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+        </script>
+        <script type="text/x-jsrender" id="PkheaderTemplate">
+            <input type="checkbox" id="Pkheadchk" />
+        </script>
         <script type="text/template" id="Rate">
             <div class="col-sm-10" style="padding:0px; width:100px;">
                 @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.Rate" e-width="100" e-change="$parent.calculateAmount(data)"/>*@
@@ -129,8 +133,12 @@
                 </ul>
             </div>
         </script>
+        <script type="text/template" id="ProductionOrderId">
+            <div class="text-left" style="width:100%">
+                <a style="text-decoration:underline;color:blue; cursor:pointer;font-family:'Segoe UI'" ng-click="$parent.GetItemDetailListData(data);">{{data.ProductionOrderId}}</a>
+            </div>
+        </script>
     </div>
-
     <div class="clearfix"></div>
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -140,29 +148,29 @@
     </div>
 </div>
 <div class="table-responsive modal-table aplos-grid-toggle">
-    
-        <div style="color:black;" id="GridMaster" ej-grid e-datasource="masterDataList"
-             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-            <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-width="20" e-visible="true" e-type="string"></div>
-                <div e-column e-field="ProductionEntity" e-headertext="Production Entity" e-width="60" e-type="string"></div>
-                <div e-column e-field="Process" e-headertext="Process" e-width="60" e-type="string"></div>
-                <div e-column e-field="FDate" e-headertext="From Date" e-width="60" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                <div e-column e-field="TDate" e-headertext="To Date" e-width="60" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="60" e-type="string"></div>
-                <div e-column e-field="Currency" e-headertext="Currency" e-width="30" e-type="string"></div>
-                <div e-column e-field="Description" e-headertext="Description" e-width="60" e-type="string"></div>
-                <div e-column e-field="GRNNo" e-headertext="FGInventory" e-width="80" e-type="string"></div>
-                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="25"></div>
+
+    <div style="color:black;" id="GridMaster" ej-grid e-datasource="masterDataList"
+         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="20" e-visible="true" e-type="string"></div>
+            <div e-column e-field="ProductionEntity" e-headertext="Production Entity" e-width="60" e-type="string"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="60" e-type="string"></div>
+            <div e-column e-field="FDate" e-headertext="From Date" e-width="60" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+            <div e-column e-field="TDate" e-headertext="To Date" e-width="60" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+            <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="60" e-type="string"></div>
+            <div e-column e-field="Currency" e-headertext="Currency" e-width="30" e-type="string"></div>
+            <div e-column e-field="Description" e-headertext="Description" e-width="60" e-type="string"></div>
+            <div e-column e-field="GRNNo" e-headertext="FGInventory" e-width="80" e-type="string"></div>
+            <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="25"></div>
 
 
-            </div>
         </div>
-        <script type="text/template" id="ShowActionButtonsBOM">
-            <button style="color: #f3f3ec;background-color: #1c1f32; " title="FGGRN PoPUp" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetRawMaterialDetail(this);"></i></button>
-        </script>
-   
+    </div>
+    <script type="text/template" id="ShowActionButtonsBOM">
+        <button style="color: #f3f3ec;background-color: #1c1f32; " title="FGGRN PoPUp" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetRawMaterialDetail(this);"></i></button>
+    </script>
+
 </div>
 
 <div class="modal fade site-modal in" id="CostingItemPoUp" role="dialog" data-backdrop="static">
@@ -312,7 +320,6 @@
     </div>
 </ej-dialog>
 
-
 <div class="modal site-modal in" id="FGInventoryRegisterPopup" role="dialog" data-backdrop="static">
     <div class="row">
         <div class="modal-dialog modal-lg">
@@ -340,4 +347,28 @@
     </div>
 </div>
 
-
+<div class="modal site-modal in" id="ItemDetailPopup" role="dialog" data-backdrop="static">
+    <div class="row">
+        <div class="form-element-ctrl">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">Detail<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                    <div class="modal-body text-center">
+                        <div style="color:black;" id="GridItemDetail" ej-grid e-datasource="ItemDetailList" e-allowscrolling="true" e-allowResizing="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
+                                <div e-column e-field="ItemId" e-headertext="ItemId" e-width="80"></div>
+                                <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="80"></div>
+                                <div e-column e-field="SONo" e-headertext="SONo" e-width="100"></div>
+                                <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
+                                <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                <div e-column e-type="number" e-field="SOQty" e-headertext="SO Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

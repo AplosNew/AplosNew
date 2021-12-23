@@ -522,7 +522,13 @@ namespace Aplos.Areas.Parties.Controllers
             _partyService.DeletePartyPlant(id);
             return Json(new { Sequence = _partyService.GetPartyPalntSequence(), Message = AplosMessage.Deleted });
         }
-
+        [HttpPost, Authorize]
+        public JsonResult DeleteInterCompanyPartyPlant(string id)
+        {
+            if (string.IsNullOrEmpty(id)) throw new CustomException(Resources.IdNotFound);
+            _partyService.DeleteInterCompanyPartyPlant(id);
+            return Json(new { Sequence = _partyService.GetPartyPalntSequence(), Message = AplosMessage.Deleted });
+        }
         [HttpPost, Authorize]
         public JsonResult DeleteCompanyPartyGL(string id)
         {

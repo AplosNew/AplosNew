@@ -493,9 +493,9 @@
                         <th>Material Group Name</th>
                         <th>Material Name</th>
                         <th>Article</th>
-                        <th>Sku1</th>
-                        <th>Sku2</th>
-                        <th>Sku3</th>
+                        <th>SKU1</th>
+                        <th>SKU2</th>
+                        <th>SKU3</th>
                         <th>Country</th>
                         <th>Sales Order</th>
                         <th>Requested Qty</th>
@@ -545,16 +545,25 @@
 
                         <td class="text-right">{{x.RequisitionQty}}</td>
 
-                        <td ng-show="productNew.OrderSpecific==='No'">
+                        @*<td ng-show="productNew.OrderSpecific==='No'">
+            <div class="select-style">
+                <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in gridUoMList" ng-change="OnUOMChange(x)"></select>
+            </div>
+        </td>*@
+
+                        <td>
                             <div class="select-style">
-                                <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in gridUoMList" ng-change="ConvertedDataRow(x)"></select>
+                                <select ng-model="x.TransactionUoMId">
+                                    <option ng-repeat="option in x.uoMList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
                             </div>
                         </td>
-                        <td ng-show="productNew.OrderSpecific==='Yes'">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in x.gridUoMList" ng-change="ConvertedDataRow(x)"></select>
-                            </div>
-                        </td>
+                        	
+                        @*<td ng-show="productNew.OrderSpecific==='Yes'">
+            <div class="select-style">
+                <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in x.uoMList" ng-change="OnUOMChange(x)"></select>
+            </div>
+        </td>*@
                         <td class="text-right">
                             <input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.RequestedQty" ng-disabled="false">
                         </td>
@@ -565,8 +574,8 @@
                         <td>{{x.consumptionUoM}}</td>
                         @*<td>{{x.TransactionUoMName}}</td>*@
                         @*<td class="text-right">
-                                <ul class="list-inline action-list"></ul>
-                            </td>*@
+            <ul class="list-inline action-list"></ul>
+        </td>*@
 
                         @*<td>{{x.POUoMName}}</td>*@
                         <td>{{x.Consumption}}</td>
@@ -1194,8 +1203,8 @@
                         <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="80"></div>
 
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="RequisitionQty" e-headertext="Requested Qty" e-width="70" e-textalign="right"></div>
-                        <div e-column e-template="#convertUOM123" e-headertext="ConvertUOM" e-width="100"></div>
-                        <div e-column e-template="#RequestedQtyTextBox" e-type="numeric" e-format="{0:0.00}" e-field="RequestedQty" e-headertext="Required Valid Qty" e-width="80" e-textalign="right"></div>
+                       @* <div e-column e-template="#convertUOM123" e-headertext="ConvertUOM" e-width="100"></div>*@
+                        @*<div e-column e-template="#RequestedQtyTextBox" e-type="numeric" e-format="{0:0.00}" e-field="RequestedQty" e-headertext="Required Valid Qty" e-width="80" e-textalign="right"></div>*@
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalQty" e-headertext="StockQty" e-width="80" e-textalign="right"></div>
                         <div e-column e-type="string" e-field="StockUOM" e-headertext="S.B.UoM" e-width="70"></div>
 
@@ -1219,22 +1228,22 @@
                 <script type="text/template" id="checkboxTemplate2">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.check" e-value="data.check" />
                 </script>
-                <script type="text/template" id="convertUOM123">
+                <!--<script type="text/template" id="convertUOM123">
                     <div class="select-style">
-                        <!--<select name="Entity" ng-model="data.TransactionUoMId" class="form-control"--> @*ng-change="$parent.ConvertedDataRow(data)"*@
+                        <!--<select name="Entity" ng-model="data.TransactionUoMId" class="form-control"-->--> <!--@*ng-change="$parent.ConvertedDataRow(data)"*@-->
                         <!--ng-options="item.Value as item.Text for item in uoMList"></select>-->
 
-                        <select class="form-control" ng-model="data.TransactionUoMId">
+                        <!--<select class="form-control" ng-model="data.TransactionUoMId">
                             <option value=""> </option>
                             <option ng-repeat="option in data.uoMList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
-                </script>
+                </script>-->
 
-                <script type="text/template" id="RequestedQtyTextBox">
-                    <input type="text" class="input ejinputtext form-control" @*ng-disabled="RequisitionDetailId"*@ style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.RequestedQty" width="80" ng-keyup="$parent.calculateRequisitionData(this)" />
+                <!--<script type="text/template" id="RequestedQtyTextBox">
+                    <input type="text" class="input ejinputtext form-control"--> @*ng-disabled="RequisitionDetailId"*@ <!--style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.RequestedQty" width="80" ng-keyup="$parent.calculateRequisitionData(this)" />
 
-                </script>
+                </script>-->
 
             </div>
             @*</fieldset>*@

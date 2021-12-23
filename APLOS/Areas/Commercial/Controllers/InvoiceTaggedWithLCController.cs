@@ -7,6 +7,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.MaterialManagement.Material;
 using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Parties;
@@ -29,7 +30,7 @@ namespace Aplos.Areas.Commercial.Controllers
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
         private readonly IAutoLoanService _autoLoanService;
-
+        clsInvoiceTagWithLc ep = new clsInvoiceTagWithLc();
         public InvoiceTaggedWithLCController( ISqlRepository R
            , IAutoLoanService autoLoanService
             )
@@ -44,9 +45,30 @@ namespace Aplos.Areas.Commercial.Controllers
         public ActionResult Aplos()
         {
             return View();
-        }
+		}
 
-        #endregion
-                
-    }
+		#endregion
+
+		#region Operation
+
+		[HttpGet, Authorize]
+		public ActionResult GetVendorAvailableInvoiceList(string FromDate,string ToDate,bool DateRange)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var jsondata = Json(ep.VendorAvailableInvoiceList(identity.CompanyGroupId,identity.CompanyId, FromDate,ToDate,DateRange), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+			catch (Exception ex)
+			{
+				return Json(new { Error = true, Message = ex.Message });
+			}
+        }
+		
+
+		#endregion
+
+	}
 }

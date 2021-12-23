@@ -42,24 +42,24 @@ namespace Aplos.Areas.Parties.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Party party, IEnumerable<CompanyParty> companyPartyDataList, IEnumerable<PartyPartnerFunction> PartnerFunctionList)
+        public JsonResult Create(Party party, IEnumerable<CompanyParty> companyPartyDataList, IEnumerable<PartyPartnerFunction> PartnerFunctionList, bool IsDefault)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             party.CompanyGroupId = identity.CompanyGroupId;
             party.PartyType = PartyType.Company.ToString();
-            _interCompanyPartyService.Insert(party, companyPartyDataList, PartnerFunctionList);
+            _interCompanyPartyService.Insert(party, companyPartyDataList, PartnerFunctionList, IsDefault);
             return Json(new { Party = party, Sequence = 0, Message = AplosMessage.Insert });
         }
 
         [HttpPost]
         public JsonResult Edit(Party party,
             IEnumerable<CompanyParty> companyPartyDataList, IEnumerable<CompanyPartyGL> companyPartyGLDataList,
-            IEnumerable<PartyPartnerFunction> vendorPartnerFunction, IEnumerable<PartyPlant> plantList)
+            IEnumerable<PartyPartnerFunction> vendorPartnerFunction, IEnumerable<PartyPlant> plantList, bool IsDefault)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             party.CompanyGroupId = identity.CompanyGroupId;
             party.PartyType = PartyType.Company.ToString();
-            _interCompanyPartyService.Update(party, companyPartyDataList, companyPartyGLDataList, vendorPartnerFunction, plantList);
+            _interCompanyPartyService.Update(party, companyPartyDataList, companyPartyGLDataList, vendorPartnerFunction, plantList, IsDefault);
             return Json(new { Party = party, Sequence = 0, Message = AplosMessage.Updated });
         }
 

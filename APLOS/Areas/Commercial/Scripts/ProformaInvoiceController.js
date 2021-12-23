@@ -5,11 +5,12 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.Action = 'Save';
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
-    $scope.VersionList = [];
     $scope.path = 'Commercial/ProformaInvoice/';
     $scope.CostingPath = 'Costings/costingItem/';
     $scope.getListUrl = $scope.path + 'getlist';
+    $scope.Deletepath = $scope.path + 'DeletePI';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.newVersionUrl = $scope.path + 'NewVersion';
     $scope.deleteUrl = $scope.path + 'delete/';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -17,8 +18,19 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $controller("MasterOrderTaskTemplateController", { cboService: cboService, $scope: $scope, $http: $http });
     $controller("TaskScheduleController", { cboService: cboService, $scope: $scope, $http: $http });
 
-    // $scope.ExchangeRateTableName = 'MasterOrderExchangeRates';//very important to provide the table where the exchange rates will be saved
     $controller("CurrencyExchangeController", { cboService: cboService, $scope: $scope, $http: $http, TableName: 'MasterOrderExchangeRates' });
+    $scope.PIVersionModel = {
+        Id: null,
+        PIMasterId: null,
+        VersionNo: null,
+        VersionRefNo: null,
+        VersionDate: null
+    };
+    $scope.SelectedPIVersion = null;
+    $scope.VersionList = [];
+    $scope.VersionList.push(Object.assign({}, $scope.PIVersionModel));
+
+
     $scope.PIHeaderModel = {
         Id: null
         , PINo: null
@@ -34,7 +46,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         , UoM: null
         , DeliveryDate: null
         , Amount: 0
-        , VersionList: null
+        , CurrencyId: null
         , InvoicingPartyPlantId: null
         , DeliveryPartyPlantId: null
         , InvoicingByAddress: null
@@ -101,25 +113,10 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         , UoMId: null
         , UoM: null
         , DeliveryDate: null
-        , Currency: null
+        , CurrencyId: null
         , Amount: 0
 
     };
-    $scope.ddlVersionList = [
-        {
-            name: '1',
-            value: '1'
-        }
-    ];
-    $scope.PIVersionModel = {
-        Id: null,
-        PIMasterId: null,
-        VersionNo: null,
-        VersionRefNo: null,
-        VersionDate: null
-    };
-
-
 
     $scope.DataList = [];
     $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
@@ -140,7 +137,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
                     , UoMId: null
                     , UoM: null
                     , DeliveryDate: null
-                    , Currency: null
+                    , CurrencyId: null
                     , Amount: 0
                 }
             }
@@ -166,7 +163,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             , UoMId: null
             , UoM: null
             , DeliveryDate: null
-            , Currency: null
+            , CurrencyId: null
             , Amount: 0
         };
 
@@ -193,40 +190,45 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         }
     }
     $scope.LoadPISearchList();
-
     $scope.Get = function (args) {
         //$scope.getHeader(args.data.Id, args.data.PIVersionId);
+        $scope.SelectedPIVersion = args.data.PIVersionId;
         $http({
             method: 'GET',
             url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId,
         }).then(function successCallback(response) {
             if (!baseService.isUndefinedOrNull(response.data)) {
                 $scope.PImodelNew = response.data.PIMaster[0];
-                $scope.VersionList = response.data.VarsionData;
+                $scope.PIVersionModel = response.data.VarsionData;
                 $scope.DataList = response.data.ItemData;
-
+                $scope.PIVersionModel.Id = $scope.PIVersionModel[0].Id;
                 if (!$rootScope.isCollapsed) {
                     $rootScope.toggle();
                 }
-              //  $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
+                $scope.VersionList = $scope.PIVersionModel;
             }
 
         });
 
     };
+    $scope.GetAllVersionData = function () {
+        //$scope.getHeader(args.data.Id, args.data.PIVersionId);
+         $http({
+            method: 'GET',
+            url: $scope.path + "GetAllVersionData?PIMasterId=" +$scope.PImodelNew.Id,
+        }).then(function successCallback(response) {
+            if (!baseService.isUndefinedOrNull(response.data)) {
+                $scope.SelectedPIVersion = null;
+                $scope.DataList = [];
+                $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
 
-    //$scope.getHeader = function (PIMasterId, VersionId) {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + "GetAllData?PIMasterId=" + PIMasterId + '&VersionId=' + VersionId,
-    //    }).then(function successCallback(response) {
-    //        $scope.PImodelNew = response.data.PIMaster[0];
-    //        $scope.VersionList = response.data.VarsionData;
-    //        $scope.PIGridModel = response.data.ItemData;
-    //    });
-    //}
-    // $scope.getHeader();
+                $scope.VersionList = $scope.PIVersionModel;
+            }
 
+        });
+
+    };
+   
     $scope.selectedDataIndex = -1;
     $scope.OnUOMChange = function (data) {
         $scope.selectedDataIndex = data.model.ModelFieldsId;
@@ -245,17 +247,13 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     }
 
     $scope.Clear = function () {
-        ClearFields();
-       $scope.DataList = [];
-    $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
-        $scope.ddlVersionList = [];
-        return true;
-    };
-    function ClearFields() {
         $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
+        $scope.DataList = [];
+        $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
+        $scope.VersionList = [];
+       // $scope.VersionList.push(Object.assign({}, $scope.PIVersionModel));
 
-    }
-
+    };
     $rootScope.title = 'Proforma Invoice';
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.ShowCustomerPopUpNew = function () {
@@ -375,20 +373,44 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     }
     $scope.GetMaterialGroupList();
 
+    $scope.SelectVersion = function () {
+
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetAllData?PIMasterId=" + $scope.PImodelNew.Id + '&VersionId=' + $scope.SelectedPIVersion
+        }).then(function successCallback(response) {
+            if (!baseService.isUndefinedOrNull(response.data)) {
+                $scope.PImodelNew = response.data.PIMaster[0];
+                $scope.PIVersionModel = response.data.VarsionData;
+                $scope.DataList = response.data.ItemData;
+                $scope.PIVersionModel.Id = $scope.PIVersionModel[0].Id;
+                if (!$rootScope.isCollapsed) {
+                    $rootScope.toggle();
+                }
+                $scope.VersionList = $scope.PIVersionModel;
+            }
+
+        });
+
+    }
+
     $scope.Save = function () {
         try {
+
+        
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'HeaderData': $scope.PImodelNew, 'MaterialData': $scope.DataList, 'VersionData': $scope.PIVersionModel },
-                dataType: 'JSON'
+                data: { 'HeaderData': $scope.PImodelNew, 'MaterialData': $scope.DataList, 'PIMasterId': $scope.PImodelNew.Id, 'PIVersionId': $scope.SelectedPIVersion },
+                dataType: 'JSON'                                                                                             
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.LoadPISearchList();
+
+                    $scope.Get(args);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -397,6 +419,126 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         } catch (e) {
             ShowResult(e, 'failure')
         }
+
+    };
+
+    cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        $scope.currencyList = [];
+        $scope.currencyList = result;
+        $scope.PImodelNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+    });
+    //$scope.NewVersion = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + "GetNewVersion?PIMasterId=" + $scope.PImodelNew + "&PIVersionId=" + $scope.PIVersionModel.Id + "&PIMaterialId=" + $scope.PIGridModel.Id,
+    //    }).then(function successCallback(response) {
+
+    //    });
+    //}
+
+
+    $scope.NewVersion = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.newVersionUrl,
+                data: { 'PIMasterId': $scope.PImodelNew.Id, 'PIVersionId': $scope.PIVersionModel.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Get();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure')
+        }
+
+    };
+    $scope.message_detailconfirmation = null;
+    $scope.DeletePI = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.PImodelNew.Id) && !baseService.isUndefinedOrNull($scope.PIVersionModel.Id)) {
+            $scope.message_detailconfirmation = 'Are you sure? You want to delete this material permanently';
+            angular.element(document.querySelector('#confirmPIDeletePopUp')).modal('show');
+        }
+        else {
+            ShowResult('Please select proforma invoice.');
+        }
+    }
+    $scope.Delete = function () {
+        $http({
+            method: 'POST',
+            url: $scope.Deletepath,
+            data: { 'PIMasterId': $scope.PImodelNew.Id, 'PIVersionId': $scope.PIVersionModel.Id },
+            dataType: 'JSON'
+            //url: 'Commercial/ProformaInvoice/DeletePI?id=' + $scope.TitleModel.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetAllVersionData()
+                $scope.LoadPISearchList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+    $scope.DeleteMaterial = function () {
+        $http({
+            method: 'POST',
+            url: $scope.Deletepath,
+            data: { 'PIMasterId': $scope.PImodelNew.Id },
+            dataType: 'JSON'
+
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //  $scope.LoadPISearchList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+    $scope.message_Materialconfirmation = null;
+    $scope.removePIMaterial = function (data) {
+        $scope.PIGridModel = data;
+        if (!baseService.isUndefinedOrNull($scope.PIGridModel.Id))
+            $scope.message_Materialconfirmation = 'Are you sure want to delete this material permanently';
+        angular.element(document.querySelector('#confirmMaterialPopUp')).modal('show');
+    }
+    $scope.DeletePIMaterial = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/ProformaInvoice/DeleteMaterial?id=' + $scope.PIGridModel.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                // $scope.GridTitle();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
 
     };
 }

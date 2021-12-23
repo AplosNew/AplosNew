@@ -76,6 +76,13 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(clsFinishGoodsBooking.GetCostingItemDetailData(costingId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetItemDetailListData(string productionOrderId)
+        {
+            return Json(clsFinishGoodsBooking.GetItemDetailListData(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetCostingItemData(string productionOrderId)
         {
@@ -83,9 +90,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList, List<Dictionary<string, object>> FGList)
         {
-            clsFinishGoodsBooking.SaveData(data, WorkDayList, FinishGoodsBookingDetailList);
+            clsFinishGoodsBooking.SaveData(data, WorkDayList, FinishGoodsBookingDetailList, FGList);
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 

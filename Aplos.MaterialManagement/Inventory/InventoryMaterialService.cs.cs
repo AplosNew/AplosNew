@@ -1737,6 +1737,7 @@ namespace Library.MaterialManagement.Inventory
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
 						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
+                        ,round(ISNULL(II.IssueAmount,0),4) TotalIssueAmount
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
                         ,0 SalesRate
@@ -1765,11 +1766,12 @@ namespace Library.MaterialManagement.Inventory
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
 					LEFT JOIN (
 									    select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, II.MaterialStorageId
-                                        , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalAmount,0)) IssueAmount,IID.IsAsset
+                                        , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,IID.IsAsset
 									    FROM TRN.InventoryIssueDetail IID  
 									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-									    WHERE convert(Date,II.IssueDate) <= CAST('" + issueDate + @"' AS DATE)  AND II.PlantId='" + entity.PlantId + @"'   
+									    WHERE --convert(Date,II.IssueDate) <= CAST('" + issueDate + @"' AS DATE)  AND 
+                                        II.PlantId='" + entity.PlantId + @"'   
 									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
 									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
                     left JOIN SCS.Country C On C.Id=IM.CountryId
@@ -1797,6 +1799,7 @@ namespace Library.MaterialManagement.Inventory
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
 						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
+                         ,0 TotalIssueAmount
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
                         ,0 SalesRate
@@ -1849,6 +1852,7 @@ namespace Library.MaterialManagement.Inventory
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
 						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
+                         ,0 TotalIssueAmount
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
                         ,0 SalesRate

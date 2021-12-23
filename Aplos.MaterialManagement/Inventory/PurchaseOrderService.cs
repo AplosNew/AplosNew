@@ -8283,7 +8283,7 @@ ORDER BY IR.ID DESC";
 
                             LEFT JOIN[dbo].[MasterLC] MLC ON MLC.Id = C.MasterLCId--MLC ON MLC.ContractId = C.Id
 
-                            where C.Id IN(
+                            where  C.PlantId='" + plantId + @"' OR C.Id IN(
 
 
                             select distinct moi.ContractId from BOQ
@@ -8291,7 +8291,13 @@ ORDER BY IR.ID DESC";
 
                             join hkp.PartyPlant P on p.PartyId= boq.VendorId
 
-                            where C.PlantId= '" + plantId + @"'
+                            where P.PlantId= '" + plantId + @"'
+
+                            union
+
+						   select MOI.ContractId from trn.MasterOrderItem MOI
+						   join org.Entity E on e.id=isnull(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+						   where Type='OutSource' and isnull(consignment,0)=0 and E.plantId='" + plantId + @"'
                             )
 
                             ORDER BY C.CustomerId";
@@ -8323,7 +8329,11 @@ ORDER BY IR.ID DESC";
 							FROM [dbo].[Contract] C
 							JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id
 							LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=C.MasterLCId--MLC ON MLC.ContractId=C.Id
-							where C.PlantId='" + plantId + @"'
+							 where  C.PlantId='" + plantId + @"' OR C.Id IN(
+						   select MOI.ContractId from trn.MasterOrderItem MOI
+						   join org.Entity E on e.id=isnull(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+						   where Type='OutSource' and isnull(consignment,0)=0 and E.plantId='" + plantId + @"'
+                            )
 
                             ORDER BY C.CustomerId";
                 return _sqlRepository.GetDataCollection(sql);
@@ -11148,10 +11158,10 @@ ORDER BY IR.ID DESC";
 	                                          ,TUoM.UserName AS TransactionUoM
                                                ,MRMD.MaterialDetail MaterialDetail
 
-											   ,CheckedBy=CASE WHEN SPO.CheckedByStatus='Checked' Then eI.EmployeeName else '' END 
+											   ,CheckedBy=eI.EmployeeName 
                                                 ,AuthorizedBy=CASE When SPO.ApprovedByStatus='Approval'then eI1.EmployeeName else '' END
                                                 ,AddedBy=CASE When SPO.CheckedByStatus='For Checking' OR SPO.CheckedByStatus='Hold' OR SPO.CheckedByStatus='Reject' OR SPO.CheckedByStatus='Checked'then eI3.EmployeeName else ''  END 
-                                             	                ,PurOrCheckedStatus= CASE when SPO.CheckedByStatus='ForChecked' Then 'To be checked'
+                                             	,PurOrCheckedStatus= CASE when SPO.CheckedByStatus='For Checking' Then 'To be checked'
                                            when SPO.CheckedByStatus='Hold' Then 'Hold'
 						                   when SPO.CheckedByStatus='Reject' Then 'Reject'
 						                   when SPO.CheckedByStatus='Checked' Then 'Checked'

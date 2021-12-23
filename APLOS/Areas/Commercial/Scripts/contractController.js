@@ -327,6 +327,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.modelNew.Amount = 0;
         $scope.modelNew.TotalQty = 0;
         $scope.modelNew.Currency = null;
+        
         $scope.GetMasterOrderByContractList($scope.modelNew.Id);
         $scope.GetContractFundData($scope.modelNew.Id);
         getPartyPlantEditList($scope.modelNew.InvoicingPartyPlantId, $scope.modelNew.InvoicingByAddress, $scope.modelNew.DeliveryPartyPlantId, $scope.modelNew.DeliveryByAddress, $scope.modelNew.DeliveryState, $scope.modelNew.DeliveryGSTIN);
@@ -338,6 +339,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.msg = "As this contract saved from Master Order, so no change is possible from here.";
         } else {
             $scope.msg = null;
+            $scope.modelNew.MasterOrderId = null;
         }
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();

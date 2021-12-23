@@ -1343,11 +1343,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.clearEntityOrVendor(list, index);
         if (list[index].JobWorkType === 'EntityWithinCompany') {
             list[index].EntityIdWithinCompany = data.Id;
-            list[index].EntityOrVendorName = data.Name;
+            list[index].EntityOrVendorName = data.Company+' - '+ data.Name;
         }
         else if (list[index].JobWorkType === 'EntityWithinGroup') {
             list[index].EntityIdWithinGroup = data.Id;
-            list[index].EntityOrVendorName = data.Name;
+            list[index].EntityOrVendorName = data.Company+' - ' + data.Name;
         }
         else {
             list[index].PartyId = data.Id;

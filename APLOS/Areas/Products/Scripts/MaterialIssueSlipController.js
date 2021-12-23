@@ -2203,7 +2203,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	$scope.getDataMaterialWise = function () {
 	
 		$scope.IssueSlipType = 'InventorySlip';
-		$scope.GetIssueSlipFilterData();
+		//$scope.GetIssueSlipFilterData();
 		//tarek
 		////$scope.uom();
 		////debugger;
@@ -2731,13 +2731,17 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	};
 
 	$scope.AddRow = function () {
+		var Id = "''";
 		$scope.FilterList123 = [];
 		for (var i = 0; i < $scope.IssueSlipListPopup.length; i++) {
 			if ($scope.IssueSlipListPopup[i].check == true) {
-				$scope.FilterList123.push($scope.IssueSlipListPopup[i])
+				$scope.FilterList123.push($scope.IssueSlipListPopup[i]);
+				Id += ",'" + $scope.IssueSlipListPopup[i].MaterialMasterId + "'";
             }
 		}
+
 		angular.element(document.querySelector('#ListIssueSlipPopup')).modal('hide');
+		$scope.getUoM(Id);
 	}
 
 	$scope.gridUoMList = [];
@@ -2747,5 +2751,17 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		});
 	}
 	$scope.uom();
+
+	
+	$scope.getUoM = function (Id) {
+		$http({
+			method: 'GET',
+			url: $scope.path + "GetUoMList?MaterialMasterId=" + Id,
+		}).then(function successCallback(response) {
+			$scope.FilterList123.uoMList = response.data.UOMList;
+
+		});
+	}
+
 }
 
