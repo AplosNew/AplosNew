@@ -1339,6 +1339,62 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetApprovalList(string companyGroupId, string plantId, bool isControlAdmin, bool isSysAdmin, string employeeId, string companyId, string FirstApprovingAuthority)
+        {
+            string strSql = string.Empty;
+            try
+            {
+                var str = "";
+                str = !isControlAdmin && !isSysAdmin ? @" and isnull(emp.SystemId,'') in (select systemid from EmployeeInformation e where e.BudgetCode in
+                                    (select Id from mst.ManpowerBudget where EntityId in (select entityid from [HKP].[ApprovalConfiguration]
+                                            where LeaveApproval='" + employeeId + "')))" : @" AND Emp.CompanyId='" + companyId + "'";
+
+                strSql = @"SELECT 0 CheckBoxSelect, emp.SystemId EmployeeID,Lvt.SystemID LvTrnMsID, emp.EmployeeCode,emp.BudgetCode,emp.EmployeeName,emp.EmpType,emp.NationalID,Dsgg.UserName GivenDesignation,E.UserName as Entity,
+                             REPLACE(CONVERT(VARCHAR(11), emp.DOJ, 113), ' ', '-') DOJ,
+							 LT.UserName LeaveName, LT.Description LeaveDescription,
+                             REPLACE(CONVERT(VARCHAR(11), LvT.FromDate, 113), ' ', '-') FromDate,
+                             REPLACE(CONVERT(VARCHAR(11), LvT.ToDate, 113), ' ', '-') ToDate, LvT.LeaveDays, LvT.LvReason AS Reason, LvT.ComAssignLvSystemID,LVT.LTSystemID,LVT.SystemID LvTransSystemID
+                        ,(SELECT YearlyCalendar.Id
+                                 FROM YearlyCalendar WHERE LvT.FromDate BETWEEN FromDate AND ToDate AND PlantId='" + plantId + @"' ) CalanderYearID
+                             FROM
+							 dbo.EmployeeInformation emp
+							 LEFT outer JOIN dbo.LeaveTransaction LvT on LvT.EmpSystemID = emp.SystemId
+                             LEFT OUTER JOIN [MST].[ManpowerBudget] PMB ON EMP.BudgetCode=PMB.Id
+							 LEFT OUTER JOIN [ORG].[Position] PR ON PMB.PositionId=PR.Id
+                             LEFT OUTER JOIN [ORG].[Entity] E ON PMB.EntityId=E.Id
+                             LEFT outer JOIN dbo.LeaveType LT ON LvT.LTSystemID = LT.Id
+							 LEFT outer JOIN [HKP].Designation AS Dsg ON Dsg.ID = Emp.DesignationSystemID
+							 LEFT outer JOIN [HKP].Designation AS Dsgg ON Dsgg.ID = Emp.GivenDesignationID
+                             WHERE  IsNull(Lvt.IsApproved,0) = 0
+							 AND ISNULL(LvT.SystemID,'')<> ''
+                             AND LvT.IsCancel=0
+							 --AND emp.GroupID = '" + companyGroupId + @"'
+                             --AND emp.PlantID = '" + plantId + @"' 
+                             AND FirstApprovingAuthority = '" + FirstApprovingAuthority + @"' AND LvT.FirstApprovingStatus = 0 ";
+
+                return _sqlRepository.GetDataCollection(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetYearlyCalendarInfoCmb(string sPlantID)
+        {
+            try
+            {
+               var strSQL = @"select Id from dbo.YearlyCalendar where '" + DateTime.Now.ToString("dd-MMM-yyyy") + @"' between FromDate and ToDate AND PlantId='" + sPlantID + @"'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }          
+           
+        }
+
     }
 
     public class LeaveData
