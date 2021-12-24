@@ -208,7 +208,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.Clean();
                 $scope.employeeNew.EmployeeCodeTypeId = $scope.EmployeeCodeTypeId;
                 
-                $scope.ShowVendorCtrl();
+                
                 $http({
                     method: 'GET',
                     url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?employeeCodeTypeId=' + $scope.employeeNew.EmployeeCodeTypeId
@@ -217,6 +217,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                         ShowResult("Employee Code Generation Setting is not defined.", 'failure');
                     } else {
                         $scope.IsEmployeeCodeOpenField = response.data[0].IsEmployeeCodeOpenField;
+                        $scope.ShowVendorCtrl();
                         angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
                     }
                 })

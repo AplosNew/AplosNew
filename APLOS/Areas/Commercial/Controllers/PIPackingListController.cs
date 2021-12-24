@@ -28,17 +28,17 @@ using Library.OrderManagement.TermsAndConditions;
 
 namespace Aplos.Areas.Commercial.Controllers
 {
-    public class ProformaInvoiceController : BaseController
+    public class PIPackingListController : BaseController
     {
-        #region -- Constructor
-        private readonly ISqlRepository _sqlRepository;
+        #region Constructor
 
-        public ProformaInvoiceController(ISqlRepository R)
+        private readonly ISqlRepository _sqlRepository;
+        public PIPackingListController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
 
-        #endregion -- Constructor
+        #endregion Constructor
         TermsAndConditionsService tg = new TermsAndConditionsService();
 
         #region Pages
@@ -52,13 +52,6 @@ namespace Aplos.Areas.Commercial.Controllers
         #endregion Pages
 
         #region -- Operations
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetList(GridParameter parameters, string paidHours)
-        //{
-        //    CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_fabricRollMasterService.Query(parameters, identity.CompanyGroupId, paidHours, identity.PlantId), JsonRequestBehavior.AllowGet);
-        //}
 
         [HttpPost]
         public JsonResult create(Dictionary<string, object> HeaderData, List<Dictionary<string, object>> MaterialData, string PIMasterId, string PIVersionId)

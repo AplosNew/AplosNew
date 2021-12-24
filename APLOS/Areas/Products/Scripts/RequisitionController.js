@@ -3030,8 +3030,16 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
     $scope.companyGroupId = $window.companyGroupId; $scope.companyId = $window.companyId;
 
+
 	cboService.getCboEntityByPlant($window.companyGroupId, $window.companyId, '', function (result) {
-		$scope.EntityList = result;
+        try {
+			$scope.EntityList = result;
+			if ($scope.EntityList == null || $scope.EntityList.length == 0)
+				ShowResult("CG: " + $window.companyGroupId + " COM: " + $window.companyId, "failure");
+        } catch (e) {
+
+        }
+		
 	});
 
 	$scope.ReqList = [];

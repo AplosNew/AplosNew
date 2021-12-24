@@ -217,7 +217,7 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         $http({
             method: "get",
             //url: "accounts/TaxCode/GetWithholdOutputTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
-            url: "accounts/TaxCode/GetOutputTDSTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
+            url: "accounts/TaxCode/GetOutputTDSCreditableTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
         }).then(
             function successCallback(response) {
                 if (response.data.Error === true) {

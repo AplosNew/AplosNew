@@ -11,6 +11,8 @@ using System.Data;
 using Library.Data.UnitOfWorks;
 using Library.Service.Biometrics;
 using APLOS;
+using Library.HumanResource.Leave;
+using Library.Service.Leave;
 
 namespace Aplos.Controllers
 {
@@ -105,11 +107,13 @@ namespace Aplos.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetLeaveBalance(string GroupId, string PlantId, string EmpId, string CalId)
+        public IHttpActionResult GetLeaveBalance(string EmpId, string CalId)
         {
             try
             {
-                var result = _leaveapp.GetLeaveBalanceType(GroupId, PlantId, EmpId, CalId);
+                clsLeaveBalanceToDate app = new clsLeaveBalanceToDate();
+                var result = app.GetLeaveBalanceType(EmpId, CalId);
+                //var result = _leaveapp.GetLeaveBalanceType(GroupId, PlantId, EmpId, CalId);
                 return Json(result);
             }
             catch (Exception ex)
@@ -157,5 +161,65 @@ namespace Aplos.Controllers
                 throw new HttpResponseException(resp);
             }
         }
+
+        // Leave Approval
+
+        [HttpGet]
+        public IHttpActionResult GetLeaveApprovalList(string CGId, string plantId, bool isControlAdmin, bool isSysAdmin, string EmpId, string CompId)
+        {
+            try
+            {
+                var result = _leaveapp.GetApprovalList(CGId, plantId,isControlAdmin,isSysAdmin,EmpId, CompId,EmpId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+
+        [HttpGet]
+        public IHttpActionResult GetEmpLeaveBalanceForApprovalScreen(string EmpId,string PlantId)
+        {
+            try
+            {
+                List<Dictionary<string, object>> data = (List<Dictionary<string, object>>)_leaveapp.GetYearlyCalendarInfoCmb(PlantId);
+                string calanderYearId = data[0]["Id"].ToString();
+
+                clsLeaveBalanceToDate app = new clsLeaveBalanceToDate();
+                var result = app.GetLeaveBalanceType(EmpId, calanderYearId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+        [HttpPost]
+        public string LeaveApprove([FromBody] IEnumerable<LeaveData> DataToSave)
+        {
+            try
+            {
+                string Id = _leaveapp.Create(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+
     }
 }

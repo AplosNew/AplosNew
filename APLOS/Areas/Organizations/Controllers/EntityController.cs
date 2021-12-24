@@ -73,21 +73,19 @@ namespace Aplos.Areas.Organizations.Controllers
         [HttpGet, Authorize]
         public JsonResult GetCboByPlant(string companyGroupId, string companyId, string plantId)
         {
-            if (string.IsNullOrEmpty(plantId))
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                plantId = identity.PlantId;
-            }
-            if (string.IsNullOrEmpty(companyGroupId))
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                companyGroupId = identity.CompanyGroupId;
-            }
-            if (string.IsNullOrEmpty(companyId))
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                companyId = identity.CompanyId;
-            }
+            //if (string.IsNullOrEmpty(plantId))
+            //{
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            plantId = identity.PlantId;
+            //}
+            //if (string.IsNullOrEmpty(companyGroupId))
+            //{
+            companyGroupId = identity.CompanyGroupId;
+            //}
+            //if (string.IsNullOrEmpty(companyId))
+            //{
+            companyId = identity.CompanyId;
+            //}
             return Json(_entityService.GetCbo(companyGroupId, companyId, plantId), JsonRequestBehavior.AllowGet);
         }
 
@@ -109,7 +107,7 @@ namespace Aplos.Areas.Organizations.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 companyId = identity.CompanyId;
             }
-            return Json(_sqlRepository.GetDataCollection(@"select Id Value,UserName Text from ORG.Entity Where PlantId='"+ plantId + "'"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(@"select Id Value,UserName Text from ORG.Entity Where PlantId='" + plantId + "'"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
