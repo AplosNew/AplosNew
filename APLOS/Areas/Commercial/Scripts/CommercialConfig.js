@@ -87,6 +87,9 @@ function CommercialConfig($routeProvider) {
             controller: 'InvoiceTaggedWithLCController'
         })
 
-
+        .when('/pi-invoice', {
+            templateUrl: 'Commercial/PIInvoice/Aplos',
+            controller: 'PIInvoiceController'
+        })
         ;
 }

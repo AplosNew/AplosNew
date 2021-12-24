@@ -1,12 +1,13 @@
 ﻿'use strict';
-ProformaInvoiceController.$inject = ['commonMessage', '$controller', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService'];
-function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService) {
+PIPackingListController.$inject = ['commonMessage', '$controller', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService'];
+function PIPackingListController(commonMessage, $controller, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService) {
     $rootScope.title = "Proforma Invoice";
     $scope.Action = 'Save';
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
-    $scope.path = 'Commercial/ProformaInvoice/';
+    $scope.path = 'Commercial/PIPackingList/';
     $scope.CostingPath = 'Costings/costingItem/';
+    $scope.getListUrl = $scope.path + 'getlist';
     $scope.Deletepath = $scope.path + 'DeletePI';
     $scope.saveUrl = $scope.path + 'create';
     $scope.newVersionUrl = $scope.path + 'NewVersion';
