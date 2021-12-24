@@ -204,5 +204,22 @@ namespace Aplos.Controllers
                 throw new HttpResponseException(resp);
             }
         }
+
+        [HttpPost]
+        public string LeaveApprove([FromBody] IEnumerable<LeaveData> DataToSave)
+        {
+            try
+            {
+                string Id = _leaveapp.Create(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+
     }
 }
