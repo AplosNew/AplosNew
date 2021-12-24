@@ -184,15 +184,12 @@ namespace Aplos.Controllers
 
 
         [HttpGet]
-        public IHttpActionResult GetEmpLeaveBalanceForApprovalScreen(string EmpId,string PlantId)
+        public IHttpActionResult GetEmpLeaveBalanceForApprovalScreen(string EmpId,string PlantId,string CalId)
         {
             try
-            {
-                List<Dictionary<string, object>> data = (List<Dictionary<string, object>>)_leaveapp.GetYearlyCalendarInfoCmb(PlantId);
-                string calanderYearId = data[0]["Id"].ToString();
-
+            {              
                 clsLeaveBalanceToDate app = new clsLeaveBalanceToDate();
-                var result = app.GetLeaveBalanceType(EmpId, calanderYearId);
+                var result = app.GetLeaveBalanceType(EmpId, CalId);
                 return Json(result);
             }
             catch (Exception ex)

@@ -1132,20 +1132,6 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public IEnumerable<object> GetYearlyCalendarInfoCmb(string sPlantID)
-        {
-            try
-            {
-               var strSQL = @"select Id from dbo.YearlyCalendar where '" + DateTime.Now.ToString("dd-MMM-yyyy") + @"' between FromDate and ToDate AND PlantId='" + sPlantID + @"'";
-                return _sqlRepository.GetDataCollection(strSQL);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }          
-           
-        }
-
     }
 
     public class LeaveData
