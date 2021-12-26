@@ -3333,7 +3333,7 @@ namespace Library.MaterialManagement.Inventory
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)
 					Group BY MS.UserName
             UNION ALL
-            SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
+            SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(II.IssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
 ,MS.UserName StorageLOcationName                        
 FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -3347,21 +3347,21 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
 									FROM TRN.InventoryIssueDetail IID  
 									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-								WHERE convert(Date,II.IssueDate) <= CAST('" + issueDate + @"' AS DATE) AND II.PlantId='" + entity.PlantId + @"'
+								WHERE II.PlantId='" + entity.PlantId + @"'
 								GROUP BY IID.InventoryMaterialId,ii.MaterialStorageId,IH.InventoryReceiveDetailId
 								) II On II.InventoryMaterialId=IM.Id and II.MaterialStorageId=IRD.MaterialStorageId AND II.InventoryReceiveDetailId=IRD.Id
 					Left join (select IH.InventoryMaterialId,II.MaterialStorageId,sum(IH.BaseQty) Qty,sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.TransactionQty)*sum(IRD.MaterialTranRate)) PurchaseReturnAmount 
 					                 from trn.PurchaseReturnDetail IH
 									 Left join trn.PurchaseReturn II ON II.Id=IH.PurchaseReturnId
 									 Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
-									 	WHERE convert(Date,II.[POReturnDate]) <= CAST('" + issueDate + @"' AS DATE) AND II.PlantId='" + entity.PlantId + @"' and IH.InventoryMaterialId=1900 
+									 	WHERE  II.PlantId='" + entity.PlantId + @"' and IH.InventoryMaterialId=1900 
 										GROUP BY IH.InventoryMaterialId,II.MaterialStorageId
 								 )PurchaseReturnData ON PurchaseReturnData.InventoryMaterialId=IM.Id and PurchaseReturnData.MaterialStorageId=IRD.MaterialStorageId
 					Left join (select ISD.InventoryMaterialId,ins.MaterialStorageId,ISH.InventoryReceiveDetailId,sum(ISH.Qty) InvSalesQty,sum(ISH.BaseRate) Rate, (sum(ISH.Qty)*sum(ISH.BaseRate)) InventorySalesAmount 
 					                 from [TRN].[InventorySalesHistory] ISH
 									 Left JOIN [TRN].[InventorySalesDetail] ISD on ISD.Id=ISH.InventorySalesDetailId
 									 Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
-									 WHERE convert(Date,Ins.SalesDate) <= CAST('" + issueDate + @"' AS DATE) AND Ins.PlantId='" + entity.PlantId + @"'  
+									 WHERE Ins.PlantId='" + entity.PlantId + @"'  
 									 GROUP BY ISD.InventoryMaterialId,ins.MaterialStorageId,ISH.InventoryReceiveDetailId
 								 )ISD ON ISD.InventoryMaterialId=IM.Id and ISD.MaterialStorageId=IRD.MaterialStorageId  AND   ISD.InventoryReceiveDetailId=IRD.Id
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
@@ -3411,7 +3411,7 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE)
 					Group BY MS.UserName
             UNION ALL
-           SELECT 0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
+           SELECT 0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(II.IssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
 ,MS.UserName StorageLOcationName                    
 FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -3421,6 +3421,13 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 					left JOIn [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
+                    left join (select IID.InventoryMaterialId,ii.MaterialStorageId,IH.InventoryReceiveDetailId, Sum(IH.Qty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+									FROM TRN.InventoryIssueDetail IID  
+									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
+									LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
+								WHERE  II.PlantId='20171'
+								GROUP BY IID.InventoryMaterialId,ii.MaterialStorageId,IH.InventoryReceiveDetailId
+								) II On II.InventoryMaterialId=IM.Id and II.MaterialStorageId=IRD.MaterialStorageId AND II.InventoryReceiveDetailId=IRD.Id
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
                     AND IR.IsApproved=1
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"'

@@ -3074,14 +3074,14 @@ namespace Library.Service.Invoices
                             _invoiceTaxService.InsertInvoiceTax(invoiceWriteOff, invoiceTax, invoiceTaxPk);
 
                             // Insert Into Customer Invoice Tax Detail (Withhold GL)
-                            withholdgl = taxCode.IsWithhold;
-                            if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
+                            withholdgl = taxCode.IsCreditable;
+                            if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                             {
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
-                                    BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
-                                    ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
+                                    GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                     Amount = invoiceTax.TaxAmount,
                                     AType = "Dr"
                                 };
