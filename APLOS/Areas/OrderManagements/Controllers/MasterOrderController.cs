@@ -312,7 +312,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             };
 
             MasterOrder.SplitSalesOrderData(masterItemId, salesOrderMaster,para);
-            return Json(new { Message = AplosMessage.Updated });
+            return Json(new { Message = AplosMessage.Updated+ " Please reduce SKU Qty." });
         }
 
         [HttpPost, Authorize]
