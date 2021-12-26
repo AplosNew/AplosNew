@@ -1,12 +1,13 @@
 ﻿'use strict';
-ProformaInvoiceController.$inject = ['commonMessage', '$controller', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService'];
-function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService) {
-    $rootScope.title = "Proforma Invoice";
+PIPackingListController.$inject = ['commonMessage', '$controller', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService'];
+function PIPackingListController(commonMessage, $controller, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService) {
+    $rootScope.title = "PI Packing List";
     $scope.Action = 'Save';
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
-    $scope.path = 'Commercial/ProformaInvoice/';
+    $scope.path = 'Commercial/PIPackingList/';
     $scope.CostingPath = 'Costings/costingItem/';
+    $scope.getListUrl = $scope.path + 'getlist';
     $scope.Deletepath = $scope.path + 'DeletePI';
     $scope.saveUrl = $scope.path + 'create';
     $scope.newVersionUrl = $scope.path + 'NewVersion';
@@ -528,28 +529,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         });
 
     };
-    //$scope.DeleteMaterial = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.Deletepath,
-    //        data: { 'PIMasterId': $scope.PImodelNew.Id },
-    //        dataType: 'JSON'
-
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-    //            ShowResult(response.data.Message, 'success');
-    //            //  $scope.LoadPISearchList();
-    //        }
-    //    }, function () {
-    //        ShowResult(commonMessage.NetworkError, 'failure');
-    //    }).finally(function () {
-    //    });
-
-    //};
-
+  
     $scope.message_Materialconfirmation = null;
     $scope.removePIMaterial = function (data) {
         $scope.PIGridModel = data;

@@ -15104,7 +15104,6 @@ ORDER BY tg.[Sequence]";
 
 
 
-
         #region purchase return report
         public void PurchaseReturnReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId)
         {

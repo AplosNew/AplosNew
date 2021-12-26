@@ -467,6 +467,8 @@
     <Compile Include="Areas\Commercial\Controllers\LCReportsController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PostSalesInvoiceController.cs" />
     <Compile Include="Areas\Commercial\Controllers\AutoLoanController.cs" />
+    <Compile Include="Areas\Commercial\Controllers\PIInvoiceController.cs" />
+    <Compile Include="Areas\Commercial\Controllers\PIPackingListController.cs" />
     <Compile Include="Areas\Commercial\Controllers\POMappingWithPIController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PurchaseLCWithPOController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PurchaseLCAmendmentController.cs" />
@@ -1761,6 +1763,8 @@
     <Content Include="Areas\Commercial\Scripts\PostSalesInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanPostController.js" />
+    <Content Include="Areas\Commercial\Scripts\PIInvoiceController.js" />
+    <Content Include="Areas\Commercial\Scripts\PIPackingListController.js" />
     <Content Include="Areas\Commercial\Scripts\POMappingWithPIController.js" />
     <Content Include="Areas\Commercial\Scripts\PurchaseLCWithPOController.js" />
     <Content Include="Areas\Commercial\Scripts\PrePurchaseInvoiceController.js" />
@@ -3906,6 +3910,8 @@
     <Content Include="Areas\Leave\Views\HourlyOTNew\HourlyOtReportMonth.cshtml" />
     <Content Include="Areas\Commercial\Views\InvoiceTaggedWithLC\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\HourlyOTNew\IndividualDailyOt.cshtml" />
+    <Content Include="Areas\Commercial\Views\PIInvoice\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\PIPackingList\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\POMappingWithPI\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

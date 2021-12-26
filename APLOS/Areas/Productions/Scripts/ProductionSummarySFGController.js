@@ -495,7 +495,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
         $scope.wcToProcessList = [];
         if ($scope.ToStatus === 'PROCESS') {
-            cboService.GetWCProcessCbo($scope.productionSummaryNew.ToProcessId, $scope.productionSummaryNew.EntityId, function (result) {
+            cboService.GetWCProcessCbo($scope.productionSummaryNew.ToProcessId, $scope.productionSummaryNew.ToEntityId, function (result) {
                 $scope.wcToProcessList = result;
             });
         }

@@ -35,11 +35,11 @@ function EntireYearPresentDaysSummaryController($window, $timeout, cboService, c
             var ColumnList = [
                 { field: 'EmployeeCode', width: 150, headerText: "EmployeeCode", type: "string" },
                 { field: 'EmployeeName', width: 150, headerText: "Employee Name", type: "string" },
+                { field: 'DOJ', width: 150, headerText: "DOJ", type: "string" },
                 { field: 'Department', width: 150, headerText: "Department", type: "string" },
                 { field: 'Section', width: 150, headerText: "Section", type: "string" },
                 { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
                 { field: 'LegalDesignation', width: 150, headerText: "Designation", type: "string" },
-                { field: 'DOJ', width: 150, headerText: "DOJ", type: "string" },
                 { field: 'Jan', width: 150, headerText: "January", type: "string" },
                 { field: 'Feb', width: 150, headerText: "Feburary", type: "string" },
                 { field: 'Mar', width: 150, headerText: "March", type: "string" },
