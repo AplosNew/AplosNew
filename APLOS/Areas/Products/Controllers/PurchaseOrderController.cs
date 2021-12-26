@@ -2617,7 +2617,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
 									COUNT(A.ServiceMasterId)) 
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
-                      WHERE IR.ApprovedByStatus='Posted' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting'";
+                      WHERE IR.ApprovedByStatus='Approved' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')='Posting'";
 
 				}
 

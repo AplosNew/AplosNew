@@ -189,19 +189,21 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult GetOutputTDSCreditableTaxCodeCbo(DateTime postingDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT DISTINCT TC.Id, TC.UserName AS Text,TC.IsWithhold,TC.TaxCategoryId,TCGL.WithholdCreditableGLId GLGeneralInfoId,GLGI.AccountCode GLGeneralInfoCode,GLGI.UserName GLGeneralInfoName
-                        ,TCGL.WithholdCreditableBudgetMasterId BudgetMasterId,B.UserName BudgetName,A.UserName ActivityName,TCGL.WithholdCreditableActivityId ActivityId
+            string sql = @"SELECT DISTINCT TC.Id, TC.UserName AS Text,TC.IsWithhold,TC.TaxCategoryId,TCGL.CreditableGLId GLGeneralInfoId,GLGI.AccountCode GLGeneralInfoCode,GLGI.UserName GLGeneralInfoName
+                        ,TCGL.CreditableGLBudgetMasterId BudgetMasterId,B.UserName BudgetName,A.UserName ActivityName,TCGL.CreditableGLActivityId ActivityId
+						,TCY.[Type],TCD.ValueOfFixed
                         FROM [MST].[TaxCodeYear] AS TCY
                         LEFT JOIN [MST].[TaxCode] AS TC ON TC.Id = TCY.TaxCodeId
                         LEFT JOIN [MST].[TaxCategory] AS TXC ON TXC.Id=TC.TaxCategoryId
+						LEFT JOIN [MST].[TaxCodeDetail] TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
                         LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TC.Id = TCGL.TaxCodeId
 					    LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
 						LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
                         LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
-                        LEFT JOIN [HKP].GLGeneralInfo AS GLGI ON GLGI.Id=TCGL.WithholdCreditableGLId
-                        LEFT JOIN [MST].BudgetMaster AS BM ON BM.Id=TCGL.WithholdCreditableBudgetMasterId
+                        LEFT JOIN [HKP].GLGeneralInfo AS GLGI ON GLGI.Id=TCGL.CreditableGLId
+                        LEFT JOIN [MST].BudgetMaster AS BM ON BM.Id=TCGL.CreditableGLBudgetMasterId
 						LEFT JOIN [HKP].Budget B ON B.Id=BM.BudgetId
-						LEFT JOIN [HKP].Activity A ON A.Id=TCGL.WithholdCreditableActivityId
+						LEFT JOIN [HKP].Activity A ON A.Id=TCGL.CreditableGLActivityId
                         WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Output + @"'
 						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + identity.CompanyId + @"' 
 						AND TXC.TaxCategoryType='TDS' AND TC.IsCreditable=1";
