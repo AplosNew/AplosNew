@@ -989,6 +989,8 @@ var upanelApp = angular
     .controller('GeneralDataOperationsController', GeneralDataOperationsController)
     .controller('InvoiceTaggedWithLCController', InvoiceTaggedWithLCController)
     .controller('PIInvoiceController', PIInvoiceController)
+    .controller('PIPackingListController', PIPackingListController)
+
 
     .config(AccessControllerConfig)
     .config(accountConfig)
