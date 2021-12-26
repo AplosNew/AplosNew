@@ -1,6 +1,6 @@
 ﻿'use strict';
-masterOrderController.$inject = ['accountService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller'];
-function masterOrderController(accountService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+masterOrderController.$inject = ['accountService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller','toaster'];
+function masterOrderController(accountService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, toaster) {
     $rootScope.title = "Master Order";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -2242,6 +2242,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         getSalesOrderList();
                         $scope.getMasterItemList();
                         angular.element(document.querySelector('#soSplitPoUp')).modal('hide');
+                        $scope.popCode('success', response.data.Message);
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure', 'soSplitPoUp');
@@ -2252,6 +2253,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             //}
         }
     };
+
+    // #region Toaster
+
+    $scope.popCode = function (type, msg) {
+        toaster.pop({
+            type: type,
+            body: msg,
+            timeout: 3000
+        });
+    };
+    // #endregion
 
     // #endregion Split Sales Order
 
