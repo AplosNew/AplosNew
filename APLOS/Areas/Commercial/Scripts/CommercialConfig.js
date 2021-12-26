@@ -87,6 +87,9 @@ function CommercialConfig($routeProvider) {
             controller: 'InvoiceTaggedWithLCController'
         })
 
-
+        .when('/po-mapping-with-pi', {
+            templateUrl: 'Commercial/POMappingWithPI/Aplos',
+            controller: 'POMappingWithPIController'
+        })
         ;
 }
