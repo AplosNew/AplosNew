@@ -991,6 +991,7 @@ var upanelApp = angular
     .controller('PIInvoiceController', PIInvoiceController)
     .controller('PIPackingListController', PIPackingListController)
 
+    .controller('POMappingWithPIController', POMappingWithPIController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)
