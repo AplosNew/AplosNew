@@ -46,7 +46,7 @@ namespace Library.OrderManagement.Packing
                                     LEFT JOIN TRN.MasterOrder MO ON mo.Id = MOI.MasterOrderId
                                     LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                                     LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
-                                    WHERE PO.Id='" + productionOrderId + "'";
+                                    WHERE PO.Id='" + productionOrderId + "' GROUP BY PO.Id,MOI.Id,MOI.MasterOrderId,P.UserName,PL.Code";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -269,22 +269,24 @@ namespace Library.OrderManagement.Packing
                             productCode += ",'" + item["ProductCode"].ToString() + "'";
                         }
 
-                    }
-                    if (MaterialMasterId == null)
-                    {
-                        MaterialMasterId = "'" + item["MaterialMasterId"].ToString() + "'";
-                    }
-                    else
-                    {
-                        MaterialMasterId += ",'" + item["MaterialMasterId"].ToString() + "'";
-                    }
-                    if (ArticleId == null)
-                    {
-                        ArticleId = "'" + item["ArticleId"].ToString() + "'";
-                    }
-                    else
-                    {
-                        ArticleId += ",'" + item["ArticleId"].ToString() + "'";
+
+                        if (MaterialMasterId == null)
+                        {
+                            MaterialMasterId = "'" + item["MaterialMasterId"].ToString() + "'";
+                        }
+                        else
+                        {
+                            MaterialMasterId += ",'" + item["MaterialMasterId"].ToString() + "'";
+                        }
+                        if (ArticleId == null)
+                        {
+                            ArticleId = "'" + item["ArticleId"].ToString() + "'";
+                        }
+                        else
+                        {
+                            ArticleId += ",'" + item["ArticleId"].ToString() + "'";
+                        }
+
                     }
 
                 }
@@ -325,24 +327,28 @@ namespace Library.OrderManagement.Packing
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 				int count = 0;
 				if (FinishGoodsBookingDetailList != null)
+				
 				{
 					foreach (var item in FinishGoodsBookingDetailList)
+					
 					{
-						count++;
-						DataView dv = new DataView(dsFGDetail.Tables[0]);
-						dv.RowFilter = "Id='" + item["Id"] + "'";
+                       
+                            count++;
+                            DataView dv = new DataView(dsFGDetail.Tables[0]);
+                            dv.RowFilter = "Id='" + item["Id"] + "'";
 
-						if (dv.Count == 0)
-						{
-							item["Id"] = masterId+""+count;
-							item["FinishGoodsBookingId"] = masterId;
-							AddNewRow(dsFGDetail.Tables[0], item);
-						}
-						else
-						{
-							DataRow drmo = dv[0].Row;
-							EditRow(drmo, item);
-						}
+                            if (dv.Count == 0)
+                            {
+                                item["Id"] = masterId + "" + count;
+                                item["FinishGoodsBookingId"] = masterId;
+                                AddNewRow(dsFGDetail.Tables[0], item);
+                            }
+                            else
+                            {
+                                DataRow drmo = dv[0].Row;
+                                EditRow(drmo, item);
+                            } 
+                       
 					}
 				}
 
@@ -519,7 +525,7 @@ namespace Library.OrderManagement.Packing
 
                             #region ConsumptionByCosting
 
-                            if (item["CostingMasterTemplateId"] != null)
+                            if (item.ContainsKey("CostingMasterTemplateId"))
                             {
                                 GetConsumptionByCostingData(item["CostingMasterTemplateId"].ToString(), out dsFromConsumptionByCosting);
                                 dsFromConsumptionByCosting.Tables[0].DefaultView.RowFilter = "CostingId='" + item["CostingMasterTemplateId"].ToString() + "'";
@@ -1470,7 +1476,7 @@ where not exists
             }
         }
 
-        public IEnumerable<object> GetDateWiseDetailDataData(string EntityId, string fromDate, string toDate)
+        public IEnumerable<object> GetDateWiseDetailDataData(string EntityId, string fromDate, string toDate, string POId, string ProductCode)
         {
 
             try
@@ -1529,10 +1535,11 @@ where not exists
 					(Select Qty=ROUND(CAST(SUM(CASE WHEN ISC.IsDespatch=0 THEN ISC.NetWeight ELSE 0 END) AS DECIMAL(18,2)), 2),ISC.POId,ISC.ProductCode 
 					from dbo.ItemScanChild ISC 
 					LEFT JOIN dbo.ItemScan ISM ON ISM.Id=ISC.MasterId 
-					WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + EntityId + @"')
-					GROUP BY ISC.PoId,ISC.ProductCode
+					WHERE ISM.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(ISC.InventoryReceiveDetailId,'')='' AND ISNULL(ISC.PackingId,'')='' AND ISC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + EntityId + @"') AND ISC.POId " + POId + @" AND ISC.ProductCode " + ProductCode + @"
+
+                    GROUP BY ISC.PoId,ISC.ProductCode
 					) A ON A.POId= PD.ProductionOrderId AND PD.ProductCode=A.ProductCode
-						WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND ISNULL(SC.PackingId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + EntityId + @"')
+						WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND ISNULL(SC.PackingId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + EntityId + @"') AND SC.POId " + POId + @" AND SC.ProductCode " + ProductCode + @"
 						GROUP BY PD.ProductionOrderId,PD.ProductCode,PD.OrderCostingMasterTemplateId,PD.Rate,PD.MaterialMaster,PD.MaterialMasterId,PD.Article,PD.ArticleId,PD.IsAsset,PD.UOM,PD.MasterOrderItemId,A.Qty,ISN.WorkDate";
 
 				return _sqlRepository.GetDataCollection(sql, null);

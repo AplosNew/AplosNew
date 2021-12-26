@@ -165,49 +165,83 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         $scope.DataList.push(Object.assign({}, $scope.PIGridModelBase));
     }
 
-    $scope.PISearchBy = "Id";
-    $scope.PISearch = "";
-    $scope.PIGridList = [];
-    $scope.LoadPISearchList = function () {
+    //$scope.PISearchBy = "Id";
+    //$scope.PISearch = "";
+    //$scope.PIGridList = [];
+    //$scope.LoadPISearchList = function () {
+    //    $scope.PIGridList = [];
+    //    try {
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.path + "PIList",
+    //            data: { 'column': $scope.PISearchBy, 'value': $scope.PISearch },
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            $scope.PIGridList = [];
+    //            $scope.PIGridList = response.data;
+    //        });
+    //    }
+    //    catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+    //$scope.LoadPISearchList();
+
+
+    $scope.searchByPIPackingList = [
+        {
+            name: 'PI Packing No.',
+            value: 'Id'
+        },
+        {
+            name: 'Description',
+            value: 'Description'
+        },
+        {
+            name: 'Remarks',
+            value: 'Remarks'
+        },
+        {
+            name: 'PI Packing Date',
+            value: 'AddedDate'
+        }
+    ];
+    $scope.PIPackingSearchBy = "Id";
+    $scope.PIPackingSearch = "";
+    $scope.PIPackingGridList = [];
+    $scope.LoadPIPackingList = function () {
         $scope.PIGridList = [];
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "PIList",
-                data: { 'column': $scope.PISearchBy, 'value': $scope.PISearch },
+                url: $scope.path + "PIPackingList",
+                data: { 'column': $scope.PIPackingSearchBy, 'value': $scope.PIPackingSearch },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                $scope.PIGridList = [];
-                $scope.PIGridList = response.data;
+                $scope.PIPackingGridList = [];
+                $scope.PIPackingGridList = response.data;
             });
         }
         catch (e) {
             ShowResult(e, 'failure');
         }
     }
-    $scope.LoadPISearchList();
+    $scope.LoadPIPackingList();
+
+
+    $scope.PIPackingMaterialGridList = [];
+
     $scope.Get = function (args) {
-        //$scope.getHeader(args.data.Id, args.data.PIVersionId);
-        $scope.SelectedPIVersion = args.data.PIVersionId;
         $http({
             method: 'GET',
-            url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId,
+            url: $scope.path + "PIPackingMaterialList?PIPackingMaterId=" + args.data.Id,
         }).then(function successCallback(response) {
 
-            $scope.PImodelNew = response.data.PIMaster[0];
-            $scope.PIVersionModel = response.data.VarsionData;
-            $scope.DataList = response.data.ItemData;
-            if ($scope.DataList == null || $scope.DataList.length == 0)
-                $scope.ClearGrid();
-            $scope.VersionList = $scope.PIVersionModel;
-            getPartyPlantList();
-          //  $scope.PIVersionModel["Id"] = $scope.PIVersionModel[0]["Id"];
-
+            $scope.PIPackingMaterialGridList = response.data;
+          
         });
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
     };
+
     $scope.GetAllVersionData = function () {
         //$scope.getHeader(args.data.Id, args.data.PIVersionId);
         $http({
@@ -252,7 +286,6 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
 
     };
     $scope.Clear();
-    $rootScope.title = 'Proforma Invoice';
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.ShowCustomerPopUpNew = function () {
         $scope.partyType = "Customer";
