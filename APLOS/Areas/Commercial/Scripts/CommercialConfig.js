@@ -91,5 +91,9 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/PIInvoice/Aplos',
             controller: 'PIInvoiceController'
         })
+        .when('/pi-packing-list', {
+            templateUrl: 'Commercial/PIPackingList/Aplos',
+            controller: 'PIPackingListController'
+        })
         ;
 }

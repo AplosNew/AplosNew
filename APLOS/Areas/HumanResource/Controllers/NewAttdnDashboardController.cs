@@ -134,6 +134,22 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColOTime = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Physical In Time", 13, ExcelHAlign.HAlignCenter);
+            int ColPITime = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Physical Out Time", 13, ExcelHAlign.HAlignCenter);
+            int ColPOTime = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "In Time Difference", 13, ExcelHAlign.HAlignCenter);
+            int ColInD = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Out Time Difference", 13, ExcelHAlign.HAlignCenter);
+            int ColOutD = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Designation", 13, ExcelHAlign.HAlignCenter);
             int ColDesg = COL;
             COL++;
@@ -174,6 +190,23 @@ namespace Aplos.Areas.HumanResource.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Plant", 13, ExcelHAlign.HAlignCenter);
             int ColPlant = COL;
             COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Scanned By", 13, ExcelHAlign.HAlignCenter);
+            int ColScan = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Scan Department", 13, ExcelHAlign.HAlignCenter);
+            int ColSDept = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Scan Section", 13, ExcelHAlign.HAlignCenter);
+            int ColSSec = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Scan Sub Section", 13, ExcelHAlign.HAlignCenter);
+            int ColSSubSec = COL;
+            COL++;
+
             ROW++;
             endCol = COL;
             #endregion Headers
@@ -192,6 +225,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColInStat].Text = dtData.Rows[i]["InStatus"].ToString();
                 sheet[ROW, ColITime].Text = dtData.Rows[i]["InTime"].ToString();
                 sheet[ROW, ColOTime].Text = dtData.Rows[i]["OutTime"].ToString();
+                sheet[ROW, ColPOTime].Text = dtData.Rows[i]["PVOut"].ToString();
+                sheet[ROW, ColPITime].Text = dtData.Rows[i]["PVIn"].ToString();
+                sheet[ROW, ColInD].Text = dtData.Rows[i]["InDuration"].ToString();
+                sheet[ROW, ColOutD].Text = dtData.Rows[i]["OutDuration"].ToString();
                 sheet[ROW, ColDesg].Text = dtData.Rows[i]["Designation"].ToString();
                 sheet[ROW, ColLDesg].Text = dtData.Rows[i]["LDesignation"].ToString();
                 sheet[ROW, ColBudCode].Text = dtData.Rows[i]["BudgetCode"].ToString();
@@ -202,6 +239,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColEntity].Text = dtData.Rows[i]["Entity"].ToString();
                 sheet[ROW, ColUnit].Text = dtData.Rows[i]["Unit"].ToString();
                 sheet[ROW, ColPlant].Text = dtData.Rows[i]["Plant"].ToString();
+                sheet[ROW, ColScan].Text = dtData.Rows[i]["ScanName"].ToString();
+                sheet[ROW, ColSDept].Text = dtData.Rows[i]["SDept"].ToString();
+                sheet[ROW, ColSSec].Text = dtData.Rows[i]["SSec"].ToString();
+                sheet[ROW, ColSSubSec].Text = dtData.Rows[i]["SSubSec"].ToString();
 
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);

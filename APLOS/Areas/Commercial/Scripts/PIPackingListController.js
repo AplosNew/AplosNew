@@ -1,7 +1,7 @@
 ﻿'use strict';
 PIPackingListController.$inject = ['commonMessage', '$controller', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService'];
 function PIPackingListController(commonMessage, $controller, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService) {
-    $rootScope.title = "Proforma Invoice";
+    $rootScope.title = "PI Packing List";
     $scope.Action = 'Save';
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
@@ -529,28 +529,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         });
 
     };
-    //$scope.DeleteMaterial = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.Deletepath,
-    //        data: { 'PIMasterId': $scope.PImodelNew.Id },
-    //        dataType: 'JSON'
-
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-    //            ShowResult(response.data.Message, 'success');
-    //            //  $scope.LoadPISearchList();
-    //        }
-    //    }, function () {
-    //        ShowResult(commonMessage.NetworkError, 'failure');
-    //    }).finally(function () {
-    //    });
-
-    //};
-
+  
     $scope.message_Materialconfirmation = null;
     $scope.removePIMaterial = function (data) {
         $scope.PIGridModel = data;
