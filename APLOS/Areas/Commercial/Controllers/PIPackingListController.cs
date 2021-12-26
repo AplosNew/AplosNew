@@ -257,6 +257,20 @@ namespace Aplos.Areas.Commercial.Controllers
         #endregion -- Operations
 
 
+        [HttpPost, Authorize]
+        public ActionResult PIList(string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
+,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
+,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId,PV.VersionNo AS LastVersion
+ FROM PIMaster PM 
+LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
+LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
+LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
+LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC)";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost, Authorize]
         public ActionResult PIPackingList(string column, string value)
@@ -266,8 +280,14 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM PIPackingListMaster
-) AS TEMP WHERE " + strkey + "ORDER BY TEMP.AddedDate DESC";
+            string sql = @"select top 100 * from (SELECT plm.Id PIPackingListMasterId,plm.[Description],plm.Remarks,
+pplm.Id PIPackingListMaterialId,pplm.PIUoMId,uom.Code UoM,pplm.PIQuantity
+,p.PIMasterId, p.PIVersionId
+ FROM PIPackingListMaster AS plm
+LEFT OUTER JOIN PIPackingListMaterial pplm ON  pplm.PIPackingListMasterId=plm.Id
+LEFT OUTER JOIN PIMaterial AS p ON p.Id=pplm.PIMaterialId
+LEFT OUTER JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=pplm.PIUoMId
+) AS TEMP WHERE " + strkey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -303,7 +323,7 @@ WHERE plm.Id='"+ PIPackingMaterId + @"'";
             var PIMasterData = _sqlRepository.GetDataCollection(sql, null);
 
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,NULL AS MaterialGroupUOMList,
-							   p.[Description], p.DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
+							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
 						  FROM PIMaterial AS p
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
