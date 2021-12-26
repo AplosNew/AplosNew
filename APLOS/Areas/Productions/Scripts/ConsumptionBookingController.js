@@ -124,58 +124,212 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         gridObj.refreshTemplate();
     }
 
-    $scope.SetRate = function () {
+    //$scope.SetRate = function () {
+    //    for (var i = 0; i < $scope.LineItemsList.length; i++) {
+    //        for (var j = 0; j < $scope.DatewiseList.length; j++) {
+    //            if ($scope.LineItemsList[i].ProductionOrderId == $scope.DatewiseList[j].ProductionOrderId
+    //                && $scope.LineItemsList[i].ProductCode == $scope.DatewiseList[j].ProductCode
+    //                && $scope.LineItemsList[i].MaterialMasterId == $scope.DatewiseList[j].MaterialMasterId
+    //                && $scope.LineItemsList[i].ArticleId == $scope.DatewiseList[j].ArticleId
+    //                && $scope.LineItemsList[i].UOM == $scope.DatewiseList[j].UOM && $scope.LineItemsList[i].Flag==true) {
+    //                $scope.DatewiseList[j].Rate = $scope.LineItemsList[i].Rate;
+    //                $scope.DatewiseList[j].Amount = parseFloat($scope.DatewiseList[j].Rate) * $scope.DatewiseList[j].Qty;
+    //            }
+    //        }
+    //    }
+    //};
+
+    $scope.LineItemsList = [];
+    $scope.WorkDayList = [];
+    $scope.LoadData = function () {
+        try {
+            if (new Date($scope.modelNew.FromDate) > new Date($scope.modelNew.ToDate)) {
+                throw "From date must be below or equal to To Date";
+            }
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.modelForm.$valid) {
+                $scope.LineItemsList = [];
+                $scope.WorkDayList = [];
+                var ob = {};
+                $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?entityId=" + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+                    .then(
+                        function successCallback(response) {
+                            if (baseService.arrayLength(response.data) > 0) {
+                                $scope.LineItemsList = response.data;
+                                //GetDateWiseData();
+                            }
+                        },
+                        function errorCallback(response) {
+                            ShowResult(response, 'failure');
+                        });
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.tempList = [];
+    function GetIdsandCode() {
         for (var i = 0; i < $scope.LineItemsList.length; i++) {
+            if ($scope.LineItemsList[i].Flag == true) {
+                $scope.tempList.push($scope.LineItemsList[i]);
+            }
+        }
+        var uniqueProductCode = removeDuplicates($scope.tempList, 'ProductCode');
+        var uniqueProductionOrderId = removeDuplicates($scope.tempList, 'ProductionOrderId');
+        var wcProductCode = "";
+        if (uniqueProductCode.length > 0) {
+            wcProductCode = "IN(";
+            wcProductCode += Array.prototype.map.call(uniqueProductCode, function (item) { return "'" + item.ProductCode + "'"; }).join(",") + ")";
+        }
+        $scope.sqlInProductCode = wcProductCode;
+
+        var wcProductionOrderId = "";
+        if (uniqueProductionOrderId.length > 0) {
+            wcProductionOrderId = "IN(";
+            wcProductionOrderId += Array.prototype.map.call(uniqueProductionOrderId, function (item) { return "'" + item.ProductionOrderId + "'"; }).join(",") + ")";
+        }
+        $scope.sqlInProductionOrderId = wcProductionOrderId;
+    }
+
+    function GetDateWiseData() {
+        GetIdsandCode();
+
+        var ob = {};
+        $http.get("Productions/FinishGoodsBooking/GetDateWiseDetailDataData?entityId=" + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate + '&POId=' + $scope.sqlInProductionOrderId + '&ProductCode=' + $scope.sqlInProductCode)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.DatewiseList = response.data;
+
+                        for (var i = 0; i < $scope.DatewiseList.length; i++) {
+                            ob.WorkDate = $scope.DatewiseList[i].WorkDate;
+                            ob.ProductionOrderId = $scope.DatewiseList[i].ProductionOrderId;
+                            if (checkExistList($scope.WorkDayList, ob.WorkDate) === false) {
+                                $scope.WorkDayList.push(ob);
+                                ob = {};
+                            }
+                        }
+                        $scope.SetRate();
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    }
+
+    function checkExistList(list, WorkDate) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].WorkDate === WorkDate) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.SetRate = function () {
+        for (var i = 0; i < $scope.tempList.length; i++) {
             for (var j = 0; j < $scope.DatewiseList.length; j++) {
-                if ($scope.LineItemsList[i].ProductionOrderId == $scope.DatewiseList[j].ProductionOrderId
-                    && $scope.LineItemsList[i].ProductCode == $scope.DatewiseList[j].ProductCode
-                    && $scope.LineItemsList[i].MaterialMasterId == $scope.DatewiseList[j].MaterialMasterId
-                    && $scope.LineItemsList[i].ArticleId == $scope.DatewiseList[j].ArticleId
-                    && $scope.LineItemsList[i].UOM == $scope.DatewiseList[j].UOM) {
-                    $scope.DatewiseList[j].Rate = $scope.LineItemsList[i].Rate;
+                if ($scope.tempList[i].ProductionOrderId == $scope.DatewiseList[j].ProductionOrderId
+                    && $scope.tempList[i].ProductCode == $scope.DatewiseList[j].ProductCode
+                    && $scope.tempList[i].MaterialMasterId == $scope.DatewiseList[j].MaterialMasterId
+                    && $scope.tempList[i].ArticleId == $scope.DatewiseList[j].ArticleId
+                    && $scope.tempList[i].UOM == $scope.DatewiseList[j].UOM && $scope.tempList[i].Flag == true) {
+                    $scope.DatewiseList[j].Id = null;
+                    $scope.DatewiseList[j].Rate = $scope.tempList[i].Rate;
                     $scope.DatewiseList[j].Amount = parseFloat($scope.DatewiseList[j].Rate) * $scope.DatewiseList[j].Qty;
                 }
             }
         }
+        SetToSave();
     };
+
+    function SetToSave() {
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.modelForm.$valid) {
+            if ($scope.Action === "Save" || $scope.Action === "Update") {
+                $http({
+                    method: "POST",
+                    url: "Productions/FinishGoodsBooking/Create",
+                    data: {
+                        "data": $scope.modelNew
+                        , "WorkDayList": $scope.WorkDayList
+                        , "FinishGoodsBookingDetailList": $scope.DatewiseList
+                        , 'FGList': $scope.LineItemsList
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.getSavedData();
+                        $scope.Clear();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+        }
+
+    }
 
     $scope.selectedLineItems = [];
     $scope.Save = function () {
         try {
-            $scope.SetRate();
-            $scope.$broadcast("show-errors-check-validity");
-            if ($scope.modelForm.$valid) {
-                if ($scope.Action === "Save" || $scope.Action === "Update") {
-                    $http({
-                        method: "POST",
-                        url: "Productions/FinishGoodsBooking/Create",
-                        data: {
-                            "data": $scope.modelNew
-                            , "WorkDayList": $scope.WorkDayList
-                            , "FinishGoodsBookingDetailList": $scope.DatewiseList
-                            , 'FGList': $scope.LineItemsList
-                        },
-                        dataType: "JSON"
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, "failure");
-                        }
-                        else {
-                            ShowResult(response.data.Message, "success");
-                            $scope.getSavedData();
-                            $scope.Clear();
-                        }
-                    }, function errorCallback(response) {
-                        ShowResult(response.status.Message, "failure");
-                    });
-                    return true;
-                }
-            }
-            return true;
+            GetDateWiseData();
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
+
+
+    //$scope.Save = function () {
+    //    try {
+    //        GetDateWiseData();
+           
+    //        $scope.$broadcast("show-errors-check-validity");
+    //        if ($scope.modelForm.$valid) {
+    //            if ($scope.Action === "Save" || $scope.Action === "Update") {
+    //                $http({
+    //                    method: "POST",
+    //                    url: "Productions/FinishGoodsBooking/Create",
+    //                    data: {
+    //                        "data": $scope.modelNew
+    //                        , "WorkDayList": $scope.WorkDayList
+    //                        , "FinishGoodsBookingDetailList": $scope.DatewiseList
+    //                        , 'FGList': $scope.LineItemsList
+    //                    },
+    //                    dataType: "JSON"
+    //                }).then(function successCallback(response) {
+    //                    if (response.data.Error === true) {
+    //                        ShowResult(response.data.Message, "failure");
+    //                    }
+    //                    else {
+    //                        ShowResult(response.data.Message, "success");
+    //                        $scope.getSavedData();
+    //                        $scope.Clear();
+    //                    }
+    //                }, function errorCallback(response) {
+    //                    ShowResult(response.status.Message, "failure");
+    //                });
+    //                return true;
+    //            }
+    //        }
+    //        return true;
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 
     $scope.Clear = function () {
         $scope.modelNew = {
@@ -270,68 +424,6 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
 
-    $scope.LineItemsList = [];
-    $scope.WorkDayList = [];
-    $scope.LoadData = function () {
-        try {
-            if (new Date($scope.modelNew.FromDate) > new Date($scope.modelNew.ToDate)) {
-                throw "From date must be below or equal to To Date";
-            }
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.modelForm.$valid) {
-                $scope.LineItemsList = [];
-                $scope.WorkDayList = [];
-                var ob = {};
-                $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?entityId=" + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
-                    .then(
-                        function successCallback(response) {
-                            if (baseService.arrayLength(response.data) > 0) {
-                                $scope.LineItemsList = response.data;
-                                GetDateWiseData();
-                            }
-                        },
-                        function errorCallback(response) {
-                            ShowResult(response, 'failure');
-                        });
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
-
-    function GetDateWiseData() {
-        var ob = {};
-        var incre = 0;
-        $http.get("Productions/FinishGoodsBooking/GetDateWiseDetailDataData?entityId=" + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.DatewiseList = response.data;
-
-                        for (var i = 0; i < $scope.DatewiseList.length; i++) {
-                            ob.WorkDate = $scope.DatewiseList[i].WorkDate;
-                            ob.ProductionOrderId = $scope.DatewiseList[i].ProductionOrderId;
-                            if (checkExistList($scope.WorkDayList, ob.WorkDate) === false) {
-                                $scope.WorkDayList.push(ob);
-                                ob = {};
-                            }
-                        }
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-
-    }
-
-    function checkExistList(list, WorkDate) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].WorkDate === WorkDate) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     $scope.PCode = "";
     $scope.isAlternative = -1;
