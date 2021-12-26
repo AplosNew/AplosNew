@@ -28220,7 +28220,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 			dsOrderItems = loadOrderMasterItems(grnId);
 			dsTax = loadOrderMasterTax(grnId);
 
-			int LasColumnIndex = 12;
+			int LasColumnIndex = 13;
 			Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
 			DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 			if (dv.Count > 0)
@@ -28327,15 +28327,17 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
             range.ApplyCharacterFormat(FontBold);
             int colUoM = COL; COL++;
+            wTable.Rows[ROW].Cells[colUoM].Width = 35;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
 			range.ApplyCharacterFormat(FontBold);
 			int colLotNo = COL; COL++;
+            wTable.Rows[ROW].Cells[colLotNo].Width = 35;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
 			range.ApplyCharacterFormat(FontBold);
 			int colRate = COL; //COL++;
-			wTable.Rows[ROW].Cells[colRate].Width = 55;
+			wTable.Rows[ROW].Cells[colRate].Width = 45;
 
 
 			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
