@@ -203,11 +203,11 @@ namespace Aplos.Controllers
         }
 
         [HttpPost]
-        public string LeaveApprove([FromBody] IEnumerable<LeaveData> DataToSave)
+        public string LeaveApprove([FromBody] IEnumerable<LeaveVM> DataToSave)
         {
             try
             {
-                string Id = _leaveapp.Create(DataToSave);
+                string Id = _leaveapp.SaveLeaveApproval(DataToSave);
                 return Id;
             }
             catch (Exception ex)
