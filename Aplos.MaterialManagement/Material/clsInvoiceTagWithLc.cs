@@ -431,7 +431,26 @@ namespace Library.MaterialManagement.Material
 			try
 			{
 				string strSQL = string.Empty;
-				strSQL = @"select * from InvoiceTaggingWithLCMaster where PlantId='"+PlantId+"' and CompanyGroupId='"+CompanyGroupId+"' and companyId='"+CompanyId+"' ";
+				strSQL = @"SELECT d.PartyID
+										,E.UserName Entity
+										,c.Code Currency
+										,CASE 
+											WHEN ISNULL(m.VoucherId, '') = ''
+												THEN 'Park'
+											ELSE 'Post'
+											END VoucherMood
+										,FORMAT(m.LoanDate, 'dd-MMM-yyyy') LoanDate
+										,p.UserName VendorName
+									FROM InvoiceTaggingWithLCMaster m
+									LEFT JOIN (
+										SELECT DISTINCT PartyID
+											,InvoiceTaggingWithLCMasterId
+										FROM InvoiceTaggingWithLCDetail
+										) D ON D.InvoiceTaggingWithLCMasterId = m.Id
+									LEFT JOIN ORG.Entity AS e ON e.Id = m.EntityId
+									LEFT JOIN SCS.Currency AS c ON c.Id = m.CurrencyId
+									LEFT JOIN HKP.Party AS p ON p.Id=D.PartyID
+									where m.PlantId='" + PlantId+"' and m.CompanyGroupId='"+CompanyGroupId+"' and m.companyId='"+CompanyId+"' ";
 				return _sqlRepository.GetDataCollection(strSQL);
 			}
 			catch (Exception ex)
