@@ -611,6 +611,53 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#ItemDetailPopup')).modal('show');
     };
 
+    $scope.CurrentQtyBreakDownList  = [];
+    $scope.GetCurrentQtyBreakDownData = function (obj) {
+        $scope.CurrentQtyBreakDownList = [];
+        $http.get("Productions/FinishGoodsBooking/GetCurrentQtyBreakDownData?productionOrderId=" + obj.ProductionOrderId + '&productCode=' + obj.ProductCode + '&entityId=' + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.CurrentQtyBreakDownList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#CurrentQtyBreakDownPopup')).modal('show');
+    };
+
+    $scope.UnBookedQtyBreakDownList = [];
+    $scope.GetUnBookedQtyBreakDownData = function (obj) {
+        $scope.UnBookedQtyBreakDownList = [];
+        $http.get("Productions/FinishGoodsBooking/GetUnBookedQtyBreakDownData?productionOrderId=" + obj.ProductionOrderId + '&productCode=' + obj.ProductCode + '&entityId=' + $scope.modelNew.ProductionEntityId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.UnBookedQtyBreakDownList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#UnBookedQtyBreakDownPopup')).modal('show');
+    };
+
+    $scope.BookedQtyBreakDownList = [];
+    $scope.GetBookedQtyBreakDownData = function (obj) {
+        $scope.BookedQtyBreakDownList = [];
+        $http.get("Productions/FinishGoodsBooking/GetBookedQtyBreakDownData?productionOrderId=" + obj.ProductionOrderId + '&productCode=' + obj.ProductCode + '&entityId=' + $scope.modelNew.ProductionEntityId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.BookedQtyBreakDownList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#BookedQtyBreakDownPopup')).modal('show');
+    };
 }
 
 
