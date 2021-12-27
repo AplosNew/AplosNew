@@ -6,10 +6,10 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
     $scope.path = 'Commercial/POMappingWithPI/';
-    $scope.CostingPath = 'Costings/costingItem/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.Deletepath = $scope.path + 'DeletePI';
-    $scope.saveUrl = $scope.path + 'create';
+    //$scope.CostingPath = 'Costings/costingItem/';
+    //$scope.getListUrl = $scope.path + 'getlist';
+    //$scope.Deletepath = $scope.path + 'DeletePI';
+    $scope.saveUrl = $scope.path + 'Save';
 
     $scope.searchPIByList = [
         {
@@ -170,7 +170,7 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     $scope.GetPOPopUpNew = function (args) {
         $http({
             method: 'GET',
-            url: $scope.path + "GetPODetailsData?MaterialGroupMasterId=" + args.data.MaterialGroupMasterId ,
+            url: $scope.path + "GetPODetailsData?MaterialGroupMasterId=" + args.data.MaterialGroupMasterId + '&PIMaterialId=' + args.data.Id ,
 
         }).then(function (response) {
             $scope.PODataList = response.data.Polist;
@@ -206,18 +206,61 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
         gridObj.refreshContent();
     };
 
-    $scope.POList123 = [];
-    $scope.AddPORow = function () {
-        var Id = "''";
-        $scope.POList123 = [];
-        for (var i = 0; i < $scope.PODataList.length; i++) {
-            if ($scope.PODataList[i].check == true) {
-                $scope.POList123.push($scope.PODataList[i]);
-                Id += ",'" + $scope.PODataList[i].MaterialMasterId + "'";
+    //$scope.POList123 = [];
+    //$scope.AddPORow = function () {
+    //    var Id = "''";
+    //    $scope.POList123 = [];
+    //    for (var i = 0; i < $scope.PODataList.length; i++) {
+    //        if ($scope.PODataList[i].check == true) {
+    //            $scope.POList123.push($scope.PODataList[i]);
+    //            Id += ",'" + $scope.PODataList[i].MaterialMasterId + "'";
+    //        }
+    //    }
+
+    //    angular.element(document.querySelector('#POPopUpNew')).modal('hide');
+    //    $scope.getUoM(Id);
+    //}
+
+    $scope.CheckAll123 = function (event) {
+        var _isselected = event.target.checked;
+
+        for (var i = 0; i < $scope.POList123.length; i++) {
+
+            $scope.POList123[i].check = _isselected;
+        }
+    };
+  
+    $scope.Save = function () {
+        try {
+            var LIST = [];
+            for (var i = 0; i < $scope.PODataList.length; i++) {
+                if ($scope.PODataList[i].check) {
+                    LIST.push($scope.PODataList[i]);
+                }
             }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'PIMaterial': $scope.PIMaterialId, 'POList': LIST},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadPISearchList();
+                    /*          $scope.Get();*/
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure')
         }
 
-        angular.element(document.querySelector('#POPopUpNew')).modal('hide');
-        $scope.getUoM(Id);
-    }
+    };
 }
