@@ -217,6 +217,21 @@ namespace Aplos.Controllers
             }
         }
 
+        [HttpPost]
+        public string LeaveReject([FromBody] IEnumerable<LeaveVM> DataToSave,string Reason)
+        {
+            try
+            {
+                string Id = _leaveapp.SaveLeaveReject(DataToSave,Reason);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
 
     }
 }
