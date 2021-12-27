@@ -41,23 +41,23 @@ namespace Aplos.Areas.Productions.Controllers
             return View();
         }
         
-        [Authorize , HttpGet]
-        public ActionResult getCompany()
-        {
-            return Json(ws.getCompany(), JsonRequestBehavior.AllowGet);
-        }
+        //[Authorize , HttpGet]
+        //public ActionResult getCompany()
+        //{
+        //    return Json(ws.getCompany(), JsonRequestBehavior.AllowGet);
+        //}
 
         [Authorize, HttpPost]
-        public ActionResult getPlants(string cmpId)
+        public ActionResult getProcess()
         {
-            return Json(ws.getPlants(cmpId), JsonRequestBehavior.AllowGet);
+            return Json(ws.getProcess(), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
-        public ActionResult getEntity(string PlantId)
-        {
-            return Json(ws.getEntity(PlantId), JsonRequestBehavior.AllowGet);
-        }
+        //[Authorize, HttpPost]
+        //public ActionResult getEntity(string PlantId)
+        //{
+        //    return Json(ws.getEntity(PlantId), JsonRequestBehavior.AllowGet);
+        //}
 
         [Authorize, HttpGet]
         public ActionResult getUOM()
@@ -65,11 +65,11 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(ws.getUOM(), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
-        public ActionResult getBudget( string EId)
-        {
-            return Json(ws.getBudgetId(EId), JsonRequestBehavior.AllowGet);
-        }
+        //[Authorize, HttpPost]
+        //public ActionResult getBudget()
+        //{
+        //    return Json(ws.getBudgetId(), JsonRequestBehavior.AllowGet);
+        //}
 
         [Authorize, HttpGet]
         public JsonResult GetCbo()

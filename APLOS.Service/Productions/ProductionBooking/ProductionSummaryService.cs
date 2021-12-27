@@ -548,7 +548,11 @@ namespace Library.Service.Productions
                 if (ob_fromDB == null)
                 {
                     ps.Id = "P" + GetPK();
-                    ps.AddedDate = DateTime.Now;
+                   
+
+                    ps.ModelState = ModelState.Added;
+                    AuditService.AddedLog(ps);
+                    // ps.AddedDate = DateTime.Now;
                     var pp = GetProductionPeriodData(ps.AddedDate);
 
                     if (pp.Tables[0].Rows.Count > 1)
@@ -567,8 +571,8 @@ namespace Library.Service.Productions
                         }
                     }
 
-                    ps.ModelState = ModelState.Added;
-                    AuditService.AddedLog(ps);
+
+                    
                     base.Insert(ps);
                 }
                 else

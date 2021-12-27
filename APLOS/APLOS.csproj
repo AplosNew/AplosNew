@@ -2318,6 +2318,7 @@
     <Content Include="Areas\Products\Scripts\POUncheckedAndUnApprovedController.js" />
     <Content Include="Areas\Products\Scripts\GRNUncheckedAndUnApprovedController.js" />
     <Content Include="Areas\Products\Scripts\POParameterChangeController.js" />
+    <Content Include="Areas\Products\Scripts\FOCController.js" />
     <Content Include="Areas\Products\Scripts\purchaseReturnPostController.js" />
     <Content Include="Areas\Products\Scripts\InOutGatePassController.js" />
     <Content Include="Areas\Products\Scripts\InventoryDashboardStatusController.js" />
@@ -3964,6 +3965,7 @@
     <Content Include="Areas\Products\Views\InventorySalesReturn\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesPackingPost.cshtml" />
     <Content Include="Areas\Products\Views\POParameterChange\Aplos.cshtml" />
+    <Content Include="Areas\Products\Views\InventoryReceive\FOC.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />

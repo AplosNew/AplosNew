@@ -7381,6 +7381,7 @@ namespace Library.MaterialManagement.Inventory
 							,TotalStock=Sum((isnull(ApprovedQty.ApprovedQty,0) + ISNULL(UnApprovedQty.UnApprovedQty,0)))
 							,Sum(Isnull(PostingQty.PostingQty,0)) PostingQty
 							,BalanceQty=Isnull(IR.RequestedQty,0)-SUM(ISNULL(IDRM.Qty,0))
+                            ,BaseUOMFactor= CASE WHEN AlternativeUOM.BaseUOMFactor is NULL then 1 else  AlternativeUOM.BaseUOMFactor end
 							FROM trn.IssueRequest IR									
 							LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId                                    
 							Left JOIN MST.MaterialMaster AS MM ON IR.MaterialMasterId = MM.Id
@@ -7402,6 +7403,8 @@ namespace Library.MaterialManagement.Inventory
 							LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IR.BudgetMasterId
 							Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
 							LEFT JOIN HKP.Activity IA1 ON IA1.Id=IR.ExpenseActivityId
+                            left join [MST].[MaterialMasterAlternativeUOM] AlternativeUOM ON AlternativeUOM.AlternativeUOMId=IR.TransactionUoMId And AlternativeUOM.MaterialMasterId=mm.Id
+
 							LEFT JOIN(
 										SELECT TUoM.Id UoM,0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
 											,IM.MaterialMasterId
@@ -7555,7 +7558,7 @@ namespace Library.MaterialManagement.Inventory
 							,IA1.UserName
 							,IRM.Id
 							,IR.Id
-                            , PostingQty.MaterialStorageId";
+                            , PostingQty.MaterialStorageId,AlternativeUOM.BaseUOMFactor";
                 }
                 return _sqlRepository.GetDataCollection(sql);
             }

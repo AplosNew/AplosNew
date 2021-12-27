@@ -168,9 +168,10 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     $scope.PODataList = [];
    
     $scope.GetPOPopUpNew = function (args) {
+        $scope.PIMaterialId = args.data.Id;
         $http({
             method: 'GET',
-            url: $scope.path + "GetPODetailsData?MaterialGroupMasterId=" + args.data.MaterialGroupMasterId + '&PIMaterialId=' + args.data.Id ,
+            url: $scope.path + "GetPODetailsData?MaterialGroupMasterId=" + args.data.MaterialGroupMasterId + '&PIMaterialId=' + $scope.PIMaterialId ,
 
         }).then(function (response) {
             $scope.PODataList = response.data.Polist;
