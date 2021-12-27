@@ -14478,7 +14478,9 @@ ORDER BY tg.[Sequence]";
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id	
 					--where mm.UserName like 'Envelop' AND ART.StandardName='Envelop'
                      LEFT JOIN SCS.Country C On C.Id=MRD.CountryId
-					where Isnull(IRD.TransactionQty,0)-isnull(IRD.IssueQty,0)>0 AND IR.IsApproved=1 AND MM.IsAsset=0 --and mm.UserName like '3 Finger Metal Glove' AND ART.StandardName='3 Finger Metal Glove- Left'
+					WHERE Isnull(IRD.TransactionQty,0)-isnull(IRD.IssueQty,0)>0 
+					AND ((isnull(IRD.TransactionQty,0)-(isnull(IRD.IssueQty,0)+isnull(IRD.PurchaseReturnQty,0) +isnull(IRD.ReductionByAdjustmentQty,0)+isnull(IRD.InventorySalesQty,0)+isnull(IRD.InventoryScrapQty,0)+isnull(IRD.InventoryTransferQty,0))) +isnull(IRD.IssueReturnQty,0))>0
+					AND IR.IsApproved=1 AND MM.IsAsset=0 AND IR.[Status]='Posting'
 					group by  MRD.ArticleId				                    
 					,MGM.UserName
 					,mm.Id

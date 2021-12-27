@@ -54,7 +54,10 @@ namespace Library.MaterialManagement.Material
 									,IV.VoucherId
 									,Replace(CONVERT(VARCHAR(11),IV.ActualDueDate, 106), ' ', '-') ActualDueDate
 									,Replace(CONVERT(VARCHAR(11),IV.BaseOnDueDate, 106), ' ', '-') BaseOnDueDate
-									,IV.BaseNoOfDays, CASE WHEN  IV.SourceType = 'VendorInvoice' THEN 'Inbound Invoice'  WHEN  IV.SourceType = 'InventoryPayable' THEN  'GRN' END SourceType
+									,IV.BaseNoOfDays, CASE WHEN  IV.SourceType = 'VendorInvoice' THEN 'Inbound Invoice'  
+															WHEN  IV.SourceType = 'InventoryPayable' THEN  'GRN' 
+															WHEN  IV.SourceType = 'PostInvoice' THEN  'Post Invoice' 
+														END SourceType
 									,VD.Id AS VoucherDetailId
 									,IV.CurrencyId
 									,C.Code AS CurrencyCode
@@ -197,11 +200,12 @@ namespace Library.MaterialManagement.Material
 										,'" + SourceType.SuspensePayable + @"'
 										,'" + SourceType.ServicePayable + @"'
 										,'" + SourceType.EmployeePayable + @"'
+										,'" + SourceType.PostInvoice + @"'
 										)
 									AND IV.CompanyGroupId = '" + companyGroupId + @"'
 									AND IV.CompanyId = '" + companyId + @"'
 									" + DatewiseData + @"
-								
+								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLC)
 								UNION ALL
 								
 								SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId
@@ -323,7 +327,8 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyGroupId = '" + companyGroupId + @"'
 									AND IV.CompanyId = '" + companyId + @"'
 									AND IR.PurchaseDocumentAcceptanceId IS NULL
-									" + DatewiseData + @"";
+									" + DatewiseData + @"
+								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLC)";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)

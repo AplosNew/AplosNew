@@ -990,6 +990,7 @@ var upanelApp = angular
     .controller('InvoiceTaggedWithLCController', InvoiceTaggedWithLCController)
     .controller('PIInvoiceController', PIInvoiceController)
     .controller('PIPackingListController', PIPackingListController)
+    .controller('FOCController', FOCController)
 
 
     .config(AccessControllerConfig)
