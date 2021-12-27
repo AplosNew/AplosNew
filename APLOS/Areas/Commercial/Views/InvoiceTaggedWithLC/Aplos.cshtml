@@ -152,7 +152,6 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                        @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                         <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
@@ -167,8 +166,11 @@
                  e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                    <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
+                    <div e-column e-field="VoucherMood" e-headertext="Voucher Mood" e-width="80"></div>
+                    <div e-column e-field="VendorName" e-headertext="Vendor Name" e-width="80"></div>
                     <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LoanDate" e-headertext="Loan Date" e-textalign="right" e-width="80"></div>
-                    <div e-column e-field="CurrencyId" e-headertext="Currency Id" e-width="80"></div>
                 </div>
             </div>
         </div>
