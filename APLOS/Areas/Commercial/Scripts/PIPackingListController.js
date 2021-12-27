@@ -164,34 +164,56 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         $scope.DataList = [];
         $scope.DataList.push(Object.assign({}, $scope.PIGridModelBase));
     }
+    $scope.PIPopUpList = [];
+    $scope.LoadPIPopUp = function () {
+        $scope.PIPopUpList = [];
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "PIList",
+                data: {},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.PIPopUpList = [];
+                $scope.PIPopUpList = response.data;
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.LoadPIPopUp();
 
-    //$scope.PISearchBy = "Id";
-    //$scope.PISearch = "";
-    //$scope.PIGridList = [];
-    //$scope.LoadPISearchList = function () {
-    //    $scope.PIGridList = [];
-    //    try {
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.path + "PIList",
-    //            data: { 'column': $scope.PISearchBy, 'value': $scope.PISearch },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            $scope.PIGridList = [];
-    //            $scope.PIGridList = response.data;
-    //        });
-    //    }
-    //    catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
-    //$scope.LoadPISearchList();
-
+    $scope.PIPopUp = function () {
+        angular.element(document.querySelector('#PIPOPopup')).modal('show');
+    }
+    $scope.ClosePIPopUp = function () {
+        angular.element(document.querySelector('#PIPOPopup')).modal('hide');
+    }
+    $scope.GetPIPopUp = function (args) {
+        $scope.SelectedPIVersion = args.data.PIVersionId;
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId,
+        }).then(function successCallback(response) {
+            if (!baseService.isUndefinedOrNull(response.data)) {
+                $scope.PImodelNew = response.data.PIMaster[0];
+                $scope.PIVersionModel = response.data.VarsionData;
+                $scope.DataList = response.data.ItemData;
+                $scope.PIVersionModel.Id = $scope.PIVersionModel[0].Id;
+                $scope.VersionList = $scope.PIVersionModel;
+                $scope.ClosePIPopUp();
+            }
+        });
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
 
     $scope.searchByPIPackingList = [
         {
             name: 'PI Packing No.',
-            value: 'Id'
+            value: 'PIPackingListMasterId'
         },
         {
             name: 'Description',
@@ -206,11 +228,11 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             value: 'AddedDate'
         }
     ];
-    $scope.PIPackingSearchBy = "Id";
+    $scope.PIPackingSearchBy = "PIPackingListMasterId";
     $scope.PIPackingSearch = "";
     $scope.PIPackingGridList = [];
     $scope.LoadPIPackingList = function () {
-        $scope.PIGridList = [];
+        $scope.PIPackingGridList = [];
         try {
             $http({
                 method: 'POST',
@@ -241,7 +263,20 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
           
         });
     };
+    $scope.POQTYAllocation = function (args) {
+        //$http({
+        //    method: 'GET',
+        //    url: $scope.path + "GetPODetailsData?MaterialGroupMasterId=" + args.data.MaterialGroupMasterId,
 
+        //}).then(function (response) {
+        //    $scope.PODataList = response.data.Polist;
+        //});
+        angular.element(document.querySelector('#QTYAllocation')).modal('show');
+    }
+    $scope.ClosePopUp = function () {
+        $scope.taxCategoryList = [];
+        angular.element(document.querySelector('#QTYAllocation')).modal('hide');
+    };
     $scope.GetAllVersionData = function () {
         //$scope.getHeader(args.data.Id, args.data.PIVersionId);
         $http({

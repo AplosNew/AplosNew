@@ -80,8 +80,11 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			return View();
 		}
-		
-		
+
+		public ActionResult FOC()
+		{
+			return View();
+		}
 		#endregion Aplos
 
 

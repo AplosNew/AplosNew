@@ -58,6 +58,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         };
         $scope.AutoLoanAvailableDataList = [];
         $scope.fromDateTitle = "As On Date";
+        $scope.LcModel = {};
     }
     //#endregion
 
@@ -129,6 +130,22 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     };
 
     //#endregion
+
+    //#region SaveDataList
+
+    $scope.SaveDataList = [];
+    $scope.getData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetSaveData",
+        }).then(function successCallback(response) {
+            $scope.SaveDataList = response.data;
+        });
+    }
+    $scope.getData();
+
+    //#endregion
+
 }
 
 
