@@ -69,7 +69,7 @@
                                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
                                  e-allowselection="false">
                                 <div e-columns>
-                                    <div e-column e-type="string" e-field="MaterialGroupMasterId" e-headertext="Material Group" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="MaterialGroup" e-headertext="Material Group Name" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
                                     <div e-column e-type="number" e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
                                     <div e-column e-type="number" e-field="Rate" e-headertext="Rate" e-width="100"></div>
@@ -161,9 +161,24 @@
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#POTemplate" e-template="#POcheckboxTemplate" e-textalign="center" e-width="20"></div>
-                            <div e-column e-field="Rate" e-headertext="Rate" e-width="50" e-filter="false"></div>
-                            <div e-column e-field="Qty" e-headertext="Quantity" e-width="130"></div>
+                            <div e-column e-field="PODetailId" e-headertext="PO DetailId" e-width="50" e-filter="false"></div>
+                            <div e-column e-field="POQuantity" e-headertext="PO Quantity" e-width="50" e-filter="false"></div>
+                            <div e-column e-field="POUoM" e-headertext="PO UoM" e-width="50" e-filter="false"></div>
+                            @*<div e-column e-field="PIMaterialID" e-headertext="PI MaterialID" e-width="50" e-filter="false"></div>
+
+                            <div e-column e-field="QuantityAtPIUoM" e-headertext="Quantity At PIUoM" e-width="50" e-filter="false"></div>
+                            <div e-column e-field="PIUoMId" e-headertext="PIUoMId" e-width="50" e-filter="false"></div>
+                                                *@
+                            <div e-column e-field="PORate" e-headertext="PO Rate" e-width="50" e-filter="false"></div>
+                            @*<div e-column e-field="Qty" e-headertext="Quantity" e-width="130"></div>
+                            <div e-column e-field="UoM" e-headertext="UoM" e-width="50"></div>*@
+
+                            @*<div e-column e-field="UoM" e-headertext="Article" e-width="50"></div>
                             <div e-column e-field="UoM" e-headertext="UoM" e-width="50"></div>
+                            <div e-column e-field="UoM" e-headertext="UoM" e-width="50"></div>
+
+                            <div e-column e-field="UoM" e-headertext="UoM" e-width="50"></div>
+                            <div e-column e-field="UoM" e-headertext="UoM" e-width="50"></div>*@
                         </div>
                     </div>
 
@@ -179,7 +194,7 @@
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
                         <li>
-                        <button ng-click="AddPORow();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Add</button>
+                        <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
                         <button ng-click="closePOPopup();" class="btn">Close</button>
                         </li>
                     </ul>
@@ -189,6 +204,43 @@
         </div>
     </div>
 </div>
+
+
+@*<div class="table-responsive modal-table" ng-show="POList123.length>0">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    <div class="checkbox-site text-center">
+                        <label>
+                            <input type="checkbox" ng-click="CheckAll123($event);">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </th>
+                <th>PODetailsID</th>
+                <th>PIMaterialID</th>
+                <th>Quantity</th>
+                <th>UoM</th>
+                <th class="col-sm-1">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="x in POList123">
+
+                
+                <td>{{x.MaterialType}}</td>
+                <td>{{x.MaterialMasterGroupName}}</td>
+                <td>{{x.MaterialMasterName}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.FirstCharacteristicsValue}}</td>
+             
+             </tr>
+
+        </tbody>
+    </table>
+</div>*@
+
 
 <div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
