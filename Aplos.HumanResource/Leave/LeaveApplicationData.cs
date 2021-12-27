@@ -16,6 +16,7 @@ using clsAttendance;
 using Library.Service.Extension.HumanResource.Leave;
 using Library.Data.UnitOfWorks;
 using Library.Service.Biometrics;
+using Library.Service.Leave;
 
 namespace Library.Service.EmployeeServices
 {
@@ -1101,7 +1102,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                     (select Id from mst.ManpowerBudget where EntityId in (select entityid from [HKP].[ApprovalConfiguration]
                                             where LeaveApproval='" + employeeId + "')))" : @" AND Emp.CompanyId='" + companyId + "'";
 
-                strSql = @"SELECT 0 CheckBoxSelect, emp.SystemId EmployeeID,Lvt.SystemID LvTrnMsID, emp.EmployeeCode,emp.BudgetCode,emp.EmployeeName,emp.EmpType,emp.NationalID,Dsgg.UserName GivenDesignation,E.UserName as Entity,
+                strSql = @"SELECT 0 CheckBoxSelect, emp.SystemId EmployeeID,Lvt.SystemID LvTrnMsID,LT.Code AS LeaveStatus, emp.EmployeeCode,emp.BudgetCode,emp.EmployeeName,emp.EmpType,emp.NationalID,Dsgg.UserName GivenDesignation,E.UserName as Entity,
                              REPLACE(CONVERT(VARCHAR(11), emp.DOJ, 113), ' ', '-') DOJ,
 							 LT.UserName LeaveName, LT.Description LeaveDescription,
                              REPLACE(CONVERT(VARCHAR(11), LvT.FromDate, 113), ' ', '-') FromDate,
@@ -1129,6 +1130,18 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public string SaveLeaveApproval(IEnumerable<LeaveVM> DataToSave)
+        {
+            try
+            {
+                return "true";                
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
             }
         }
 

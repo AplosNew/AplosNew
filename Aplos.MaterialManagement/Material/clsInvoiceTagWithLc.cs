@@ -340,50 +340,73 @@ namespace Library.MaterialManagement.Material
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster;
+                DataSet dsDetail;
                 string Id = string.Empty;
                 string TempId = string.Empty;
                 bplib.clsGenID objGenID = null;
                 objGenID = new bplib.clsGenID();
-                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "InvoiceTaggingWithLC", out TempId);
+                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "InvoiceTaggingWithLCMaster", out TempId);
                 int count = 0;
                 DataRow drSave;
+                DataRow drMSave;
+				string MasterId = string.Empty;
                 #endregion
 
-                string sql = "SELECT * FROM InvoiceTaggingWithLC WHERE 1=2";
+                string sql = "SELECT * FROM InvoiceTaggingWithLCMaster WHERE 1=2";
+                string sql2 = "SELECT * FROM InvoiceTaggingWithLCDetail WHERE 1=2";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
+                objCon.OpenDataSetThroughAdapter(sql2, out dsDetail, false, "1");
+                if (dsMaster.Tables[0].DefaultView.Count == 0)
+                {
+                    drMSave = dsMaster.Tables[0].NewRow();
+                    drMSave["Id"] = "M" + TempId;
+					MasterId = drMSave["Id"].ToString();
+					drMSave["CompanyGroupId"] = identity.CompanyGroupId;
+                    drMSave["CompanyId"] = identity.CompanyId;
+                    drMSave["PlantId"] = identity.PlantId;
+                    drMSave["EntityId"] = DataList[0]["EntityId"];
+                    drMSave["CurrencyId"] = DataList[0]["CurrencyId"];
+                    drMSave["LoanDate"] = LcData["LoanDate"];
+                    drMSave["LoanNo"] = LcData["LoanNo"];
+                    drMSave["Amount"] = LcData["LoanAmount"];
+                    drMSave["AddedBy"] = identity.Name;
+                    drMSave["AddedDate"] = DateTime.Now;
+                    drMSave["AddedFromIP"] = identity.IPAddress;
+					drMSave["UpdatedBy"] = identity.Name;
+					drMSave["UpdatedDate"] = DateTime.Now;
+					drMSave["UpdatedFromIP"] = identity.IPAddress;
+					dsMaster.Tables[0].Rows.Add(drMSave);
+                }
                 foreach (var item in DataList)
                 {
-                    dsMaster.Tables[0].DefaultView.RowFilter = "Id = '"+item["InvoiceId"] +"'";
-                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+					dsDetail.Tables[0].DefaultView.RowFilter = "Id = '" + item["InvoiceId"] + "'";
+                    if (dsDetail.Tables[0].DefaultView.Count == 0)
                     {
                         count++;
-                        drSave = dsMaster.Tables[0].NewRow();
-                        drSave["Id"] = "I" + TempId + count;
-                        drSave["CompanyGroupId"] = identity.CompanyGroupId;
-                        drSave["CompanyId"] = identity.CompanyId;
-                        drSave["PlantId"] = identity.PlantId;
-                        drSave["EntityId"] = item["EntityId"];
-                        drSave["CurrencyId"] = item["CurrencyId"];
-                        drSave["InvoiceId"] = item["InvoiceId"];
+                        drSave = dsDetail.Tables[0].NewRow();
+                        drSave["Id"] = "D" + TempId + count;
+						drSave["InvoiceTaggingWithLCMasterId"] = MasterId;
+						drSave["InvoiceId"] = item["InvoiceId"];
                         drSave["InvoiceDetailId"] = item["InvoiceDetailId"];
-                        drSave["PurchaseLcId"] = LcData["Id"];                        
-                        drSave["VoucherId"] = DBNull.Value;                        
+                        drSave["PurchaseLcId"] = LcData["Id"];
+
                         drSave["PartyId"] = item["PartyId"];
-                        drSave["PartyPlantId"] = item["PartyPlantId"];                                                
-                        drSave["LoanDate"] = LcData["LoanDate"];
-                        drSave["LoanNo"] = LcData["LoanNo"];
-                        drSave["Amount"] = LcData["LoanAmount"];
+                        drSave["PartyPlantId"] = item["PartyPlantId"];
+                        
                         drSave["AddedBy"] = identity.Name;
                         drSave["AddedDate"] = DateTime.Now;
                         drSave["AddedFromIP"] = identity.IPAddress;
-                        dsMaster.Tables[0].Rows.Add(drSave);
+
+						drSave["UpdatedBy"] = identity.Name;
+						drSave["UpdatedDate"] = DateTime.Now;
+						drSave["UpdatedFromIP"] = identity.IPAddress;
+						dsDetail.Tables[0].Rows.Add(drSave);
 
                     }
                     else
                     {
-                        drSave = dsMaster.Tables[0].DefaultView[0].Row;
+                        drSave = dsDetail.Tables[0].DefaultView[0].Row;
                         drSave.BeginEdit();
 
                         drSave["UpdatedBy"] = identity.Name;
@@ -393,7 +416,7 @@ namespace Library.MaterialManagement.Material
                     }
                 }
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsDetail);
 
             }
             catch (Exception ex)
@@ -402,5 +425,21 @@ namespace Library.MaterialManagement.Material
                 throw ex;
             }
         }
-    }
+
+		public IEnumerable<object> GetMaster(string CompanyGroupId,string CompanyId,string PlantId)
+		{
+			try
+			{
+				string strSQL = string.Empty;
+				strSQL = @"select * from InvoiceTaggingWithLCMaster where PlantId='"+PlantId+"' and CompanyGroupId='"+CompanyGroupId+"' and companyId='"+CompanyId+"' ";
+				return _sqlRepository.GetDataCollection(strSQL);
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+			}
+
+		}//End Function
+
+	}
 }
