@@ -161,51 +161,49 @@
     </div>
 
     <div class="table-responsive aplos-grid-toggle">
-        <div class="col-xs-12 col-sm-12 col-sm-12" style="padding-left: 0px; padding-right: 0px;">
-            <div id="GridEdit" ej-grid e-datasource="SaveDataList" e-allowfiltering="true" 
-                 e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
-                    <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
-                    <div e-column e-field="VoucherMood" e-headertext="Voucher Mood" e-width="80"></div>
-                    <div e-column e-field="VendorName" e-headertext="Vendor Name" e-width="80"></div>
-                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LoanDate" e-headertext="Loan Date" e-textalign="right" e-width="80"></div>
-                </div>
+        <div id="GridEdit" ej-grid e-datasource="SaveDataList" e-allowfiltering="true"
+             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
+                <div e-column e-field="VoucherMood" e-headertext="Voucher Mood" e-width="80"></div>
+                <div e-column e-field="VendorName" e-headertext="Vendor Name" e-width="80"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LoanDate" e-headertext="Loan Date" e-textalign="right" e-width="80"></div>
             </div>
         </div>
     </div>
-
 </div>
 
 
-    <div class="modal fade site-modal in" id="PurchaseLCPopUp" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header"> Purchase LC <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-                <div class="modal-body">
-                    <div style="color:black;" id="GridPurchaseLC" ej-grid e-datasource="purchaseLCList" e-recorddoubleclick="SetDetails"
-                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
-                            <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="60"></div>
-                            <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
-                            <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
-                            <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="40" e-textalign="right"></div>
-                            <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
-                            <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="40" e-textalign="right"></div>
-                            <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
-                            <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="60"></div>
-                            <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="60"></div>
-                            <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
-                            <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="60"></div>
-                            <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
-                            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
-                            <div e-column e-type="string" e-field="ContractRemarks" e-headertext="Contract Remarks" e-width="100"></div>
-                        </div>
+
+<div class="modal fade site-modal in" id="PurchaseLCPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Purchase LC <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div style="color:black;" id="GridPurchaseLC" ej-grid e-datasource="purchaseLCList" e-recorddoubleclick="SetDetails"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
+                        <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="60"></div>
+                        <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
+                        <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                        <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="40" e-textalign="right"></div>
+                        <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                        <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="40" e-textalign="right"></div>
+                        <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                        <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="60"></div>
+                        <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="60"></div>
+                        <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
+                        <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="60"></div>
+                        <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
+                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ContractRemarks" e-headertext="Contract Remarks" e-width="100"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
