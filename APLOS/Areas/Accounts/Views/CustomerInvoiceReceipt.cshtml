@@ -211,13 +211,13 @@
                         <td class="text-right">{{x.Received | number:3}}</td>
                         <td class="text-right">{{x.Balance | number:3}}</td>
                         <td>
-                            <input ng-keyup="exchangeGainLossAmount(x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount">
+                            <input ng-keyup="exchangeGainLossAmount(x)" type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount">
                         </td>
                         <td>
-                            <input readonly type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeType" ng-model="x.ExchangeType">
+                            <input readonly type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeType" ng-model="x.ExchangeType">
                         </td>
                         <td>
-                            <input readonly type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="x.ExchangeAmount">
+                            <input readonly type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="x.ExchangeAmount">
                         </td>
                         <td class="text-right">
                             <button ng-click="removeRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
@@ -229,9 +229,9 @@
                 <tfoot>
                     <tr>
                         <td colspan="8" class="text-right">Total</td>
-                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Amount' }}</b></td>
+                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Amount' | number:3}}</b></td>
                         <td></td>
-                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'ExchangeAmount' }}</b></td>
+                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'ExchangeAmount' | number:3}}</b></td>
                         <td></td>
                     </tr>
                 </tfoot>
@@ -293,10 +293,11 @@
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6 modal-table" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Tax.ToString()'">
         <table class="table table-responsive table-striped">
-            <caption>Tax<sup>TDS and withhold Taxcode</sup></caption>
+            <caption>Tax<sup>TDS and Creditable Taxcode</sup></caption>
             <thead>
                 <tr>
                     <th>Input Tax</th>
+                    <th>Percentage</th>
                     <th>Amount</th>
                     <th class="text-right">Action</th>
                 </tr>
@@ -305,14 +306,19 @@
                 <tr>
                     <td id="td_TaxCode">
                         <div class="select-style show-message">
-                            <select ng-model="advanceTax.TaxCodeId">
+                            <select ng-model="advanceTax.TaxCodeId" name="TDSTaxCodeId"  ng-change="selectTDS(advanceTax.TaxCodeId)" class="col-sm-3 form-control">
                                 <option ng-repeat="option in taxCodCboList" value="{{option.Id}}">{{option.Text}}</option>
                             </select>
                         </div>
                     </td>
+                    <td>
+                        <div>
+                            <input type="text" n-decimals="2" class="form-control text-right" ng-disabled="advanceTax.Type =='FixedPercentage' && advanceTax.ValueOfFixed!=null" ng-model="advanceTax.ValueOfFixed">
+                        </div>
+                    </td>
                     <td id="td_TaxCodeAmount">
                         <div class="show-message">
-                            <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();">
                         </div>
                     </td>
                     <td class="text-right">
@@ -321,7 +327,8 @@
                 </tr>
                 <tr ng-repeat="x in advanceTaxesList">
                     <td>{{x.TaxName}}</td>
-                    <td class="text-right">{{x.TaxAmount | number:2 }}</td>
+                    <td>{{x.ValueOfFixed}}</td>
+                    <td class="text-right">{{x.TaxAmount | number:3 }}</td>
                     <td class="text-right">
                         <button ng-click="removeTaxesRow($index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                     </td>
@@ -329,8 +336,8 @@
             </tbody>
             <tfoot ng-show="advanceTaxesList.length">
                 <tr>
-                    <td><b>Sub Total</b></td>
-                    <td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'Amount' }}</b></td>
+                    <td colspan="2"><b>Sub Total</b></td>
+                    <td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'TaxAmount' | number:3}}</b></td>
                     <td></td>
                 </tr>
             </tfoot>

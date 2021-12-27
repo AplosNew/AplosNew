@@ -217,7 +217,7 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         $http({
             method: "get",
             //url: "accounts/TaxCode/GetWithholdOutputTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
-            url: "accounts/TaxCode/GetOutputTDSTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
+            url: "accounts/TaxCode/GetOutputTDSCreditableTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
         }).then(
             function successCallback(response) {
                 if (response.data.Error === true) {
@@ -242,6 +242,22 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
     }).then(function successCallback(response) {
         $scope.paymentTermList = response.data;
     });
+
+    $scope.selectTDS = function () {
+        $scope.advanceTax.ValueOfFixed = $.grep($scope.taxCodCboList, function (item) {
+            return item.Id === $scope.advanceTax.TaxCodeId;
+        })[0].ValueOfFixed;
+        $scope.advanceTax.Type = $.grep($scope.taxCodCboList, function (item) {
+            return item.Id === $scope.advanceTax.TaxCodeId;
+        })[0].Type;
+        $scope.advanceTax.TaxCategoryId = $.grep($scope.taxCodCboList, function (item) {
+            return item.Id === $scope.advanceTax.TaxCodeId;
+        })[0].TaxCategoryId;
+
+        if ($scope.advanceTax.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.advanceTax.ValueOfFixed)) {
+            $scope.advanceTax.TaxAmount = Math.round((($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Balance") * $scope.advanceTax.ValueOfFixed / 100)) * 1000 + Number.EPSILON) / 1000;
+        }
+    }
 
     $scope.invalidDocDate = false;
     $scope.checkDocDate = function () {
@@ -1003,9 +1019,7 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
             $scope.advanceTax.TaxName = $.grep($scope.taxCodCboList, function (item) {
                 return item.Id === $scope.advanceTax.TaxCodeId;
             })[0].Text;
-            $scope.advanceTax.TaxName = $.grep($scope.taxCodCboList, function (item) {
-                return item.Id === $scope.advanceTax.TaxCodeId;
-            })[0].Text;
+           
             $scope.advanceTaxesList.push($scope.advanceTax);
             $scope.advanceTax = {};
         }
@@ -1016,7 +1030,7 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
             $scope.advanceTax.CompanyCurrencyAmount = $scope.advanceTax.TaxAmount;
         }
         else {
-            $scope.advanceTax.CompanyCurrencyAmount = ($scope.advanceTax.TaxAmount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
+            $scope.advanceTax.CompanyCurrencyAmount = ($scope.advanceTax.TaxAmount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
         }
     };
 

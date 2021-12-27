@@ -14478,7 +14478,9 @@ ORDER BY tg.[Sequence]";
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id	
 					--where mm.UserName like 'Envelop' AND ART.StandardName='Envelop'
                      LEFT JOIN SCS.Country C On C.Id=MRD.CountryId
-					where Isnull(IRD.TransactionQty,0)-isnull(IRD.IssueQty,0)>0 AND IR.IsApproved=1 AND MM.IsAsset=0 --and mm.UserName like '3 Finger Metal Glove' AND ART.StandardName='3 Finger Metal Glove- Left'
+					WHERE Isnull(IRD.TransactionQty,0)-isnull(IRD.IssueQty,0)>0 
+					AND ((isnull(IRD.TransactionQty,0)-(isnull(IRD.IssueQty,0)+isnull(IRD.PurchaseReturnQty,0) +isnull(IRD.ReductionByAdjustmentQty,0)+isnull(IRD.InventorySalesQty,0)+isnull(IRD.InventoryScrapQty,0)+isnull(IRD.InventoryTransferQty,0))) +isnull(IRD.IssueReturnQty,0))>0
+					AND IR.IsApproved=1 AND MM.IsAsset=0 AND IR.[Status]='Posting'
 					group by  MRD.ArticleId				                    
 					,MGM.UserName
 					,mm.Id
@@ -15101,7 +15103,6 @@ ORDER BY tg.[Sequence]";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-
 
 
 
@@ -28221,7 +28222,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 			dsOrderItems = loadOrderMasterItems(grnId);
 			dsTax = loadOrderMasterTax(grnId);
 
-			int LasColumnIndex = 12;
+			int LasColumnIndex = 13;
 			Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
 			DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 			if (dv.Count > 0)
@@ -28328,15 +28329,17 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
             range.ApplyCharacterFormat(FontBold);
             int colUoM = COL; COL++;
+            wTable.Rows[ROW].Cells[colUoM].Width = 35;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
 			range.ApplyCharacterFormat(FontBold);
 			int colLotNo = COL; COL++;
+            wTable.Rows[ROW].Cells[colLotNo].Width = 35;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
 			range.ApplyCharacterFormat(FontBold);
 			int colRate = COL; //COL++;
-			wTable.Rows[ROW].Cells[colRate].Width = 55;
+			wTable.Rows[ROW].Cells[colRate].Width = 45;
 
 
 			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");

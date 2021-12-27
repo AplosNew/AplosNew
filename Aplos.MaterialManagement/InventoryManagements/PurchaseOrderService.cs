@@ -144,6 +144,24 @@ namespace Library.MaterialManagement.InventoryManagements
                         --LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						--LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
 						WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
+                                AND isnull(B.MasterOrderItemId,'') NOT IN (
+                                select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
+                                join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
+                                WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + identity.PlantId + @"'
+                            )
+
+AND isnull(B.Id,'') NOT IN (
+select isnull(BOQ.Id,'') from BOQ
+                            join trn.MasterOrderItem MOI on moi.id= BOQ.MasterOrderItemId
+
+                            join hkp.PartyPlant P on p.PartyId= boq.VendorId
+
+                            where P.PlantId<> '" + identity.PlantId + @"' AND moi.ContractId='" + ContractId + @"'
+
+)
+
+
+
 						AND b.isParent=0 --and isChild=0
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
                     var Data = _sqlRepository.GetDataCollection(sql);

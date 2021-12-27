@@ -58,18 +58,19 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         };
         $scope.AutoLoanAvailableDataList = [];
         $scope.fromDateTitle = "As On Date";
+        $scope.LcModel = {};
     }
     //#endregion
 
     //#region Pop Up
     $scope.purchaseLCList = [];
-    $scope.getSavedData = function () {
+    $scope.getpurchaseLCListData = function () {
         $scope.purchaseLCList = [];
-        $http.get("Commercial/PurchaseLC/getlist")
+        $http.get("Commercial/InvoiceTaggedWithLC/purchaseLCList")
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
-                        angular.element(document.querySelector("#PurchaseLCPopUp")).modal("show");
+                        
                         $scope.purchaseLCList = response.data;
                     }
                 },
@@ -77,14 +78,74 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
                     ShowResult(response, 'failure');
                 });
     };
-    $scope.LcModel = [];
+    $scope.getpurchaseLCListData();
+
+    $scope.getSavedData = function () {
+        angular.element(document.querySelector("#PurchaseLCPopUp")).modal("show");
+    }
+
+    $scope.LcModel = {};
     $scope.SetDetails = function (args) {
-        $scope.LcModel = [];
+        $scope.LcModel = Object.assign({}, args.data);
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("hide");
-        $scope.LcModel.push(args.data);
     }
 
     //#endregion
+
+    //#region Save
+
+    $scope.Save = function () {
+        try {
+            var SaveList = [];
+            for (var i = 0; i < $scope.AutoLoanAvailableDataList.length; i++) {
+                if ($scope.AutoLoanAvailableDataList[i].isSelected) {
+                    SaveList.push($scope.AutoLoanAvailableDataList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'DataList': SaveList, 'LcData': $scope.LcModel},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.TaxPolicyMaster.SystemID = response.data.Data.SystemID;
+                    $scope.TaxPolicyMaster.TaxYearID = response.data.Data.TaxYearID;
+                    $scope.getTaxMonth($scope.TaxPolicyMaster.TaxYearID);
+                    $scope.getMaster();
+                    $scope.getIncome($scope.TaxPolicyMaster.SystemID);
+
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    //#endregion
+
+    //#region SaveDataList
+
+    $scope.SaveDataList = [];
+    $scope.getData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetSaveData",
+        }).then(function successCallback(response) {
+            $scope.SaveDataList = response.data;
+        });
+    }
+    $scope.getData();
+
+    //#endregion
+
 }
 
 

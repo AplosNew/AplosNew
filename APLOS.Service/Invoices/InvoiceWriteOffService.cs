@@ -3074,14 +3074,14 @@ namespace Library.Service.Invoices
                             _invoiceTaxService.InsertInvoiceTax(invoiceWriteOff, invoiceTax, invoiceTaxPk);
 
                             // Insert Into Customer Invoice Tax Detail (Withhold GL)
-                            withholdgl = taxCode.IsWithhold;
-                            if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
+                            withholdgl = taxCode.IsCreditable;
+                            if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                             {
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
-                                    BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
-                                    ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
+                                    GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                     Amount = invoiceTax.TaxAmount,
                                     AType = "Dr"
                                 };
@@ -6639,10 +6639,10 @@ namespace Library.Service.Invoices
                             {
                                 _voucherService.DeleteGLTransactionDetail(item.Id);
                             }
-                            var rdBuilder = new System.Text.StringBuilder();
-                            var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE Id='" + item.Id + "'";
-                            rdBuilder.Append(builderSql);
-                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                            //var rdBuilder = new System.Text.StringBuilder();
+                            //var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE Id='" + item.Id + "'";
+                            //rdBuilder.Append(builderSql);
+                            //_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
 
                             _voucherService.DeleteVoucherDetail(item.Id);
                         }

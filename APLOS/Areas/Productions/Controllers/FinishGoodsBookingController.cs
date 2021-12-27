@@ -84,6 +84,24 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetCurrentQtyBreakDownData(string productionOrderId, string productCode, string entityId, string fromDate, string toDate)
+        {
+            return Json(clsFinishGoodsBooking.GetCurrentQtyBreakDownData(productionOrderId, productCode,entityId,fromDate,toDate), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetUnBookedQtyBreakDownData(string productionOrderId, string productCode, string entityId)
+        {
+            return Json(clsFinishGoodsBooking.GetUnBookedQtyBreakDownData(productionOrderId, productCode, entityId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetBookedQtyBreakDownData(string productionOrderId, string productCode, string entityId)
+        {
+            return Json(clsFinishGoodsBooking.GetBookedQtyBreakDownData(productionOrderId, productCode, entityId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetCostingItemData(string productionOrderId)
         {
             return Json(clsFinishGoodsBooking.GetCostingItemData(productionOrderId), JsonRequestBehavior.AllowGet);
@@ -168,9 +186,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetDateWiseDetailDataData(string entityId, string fromDate, string toDate)
+        public JsonResult GetDateWiseDetailDataData(string entityId, string fromDate, string toDate, string POId, string ProductCode)
         {
-            var jsondata = Json(clsFinishGoodsBooking.GetDateWiseDetailDataData(entityId, fromDate, toDate), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsFinishGoodsBooking.GetDateWiseDetailDataData(entityId, fromDate, toDate, POId, ProductCode), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }

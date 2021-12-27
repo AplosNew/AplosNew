@@ -1588,17 +1588,7 @@ function InterCompanyPartyController(addressService, commonMessage, $scope, $roo
     };
     // #endregion
 
-    // #region Toaster
-
-    $scope.popCode = function (type, msg) {
-        toaster.pop({
-            type: type,
-            body: msg,
-            timeout: 3000
-        });
-    };
-    // #endregion
-
+   
     // #region ReturnToRequiredTab
 
     function reDirectToRequiredTab() {

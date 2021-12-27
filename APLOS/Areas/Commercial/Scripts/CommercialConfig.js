@@ -87,6 +87,17 @@ function CommercialConfig($routeProvider) {
             controller: 'InvoiceTaggedWithLCController'
         })
 
-
+        .when('/pi-invoice', {
+            templateUrl: 'Commercial/PIInvoice/Aplos',
+            controller: 'PIInvoiceController'
+        })
+        .when('/pi-packing-list', {
+            templateUrl: 'Commercial/PIPackingList/Aplos',
+            controller: 'PIPackingListController'
+        })
+        .when('/po-mapping-with-pi', {
+            templateUrl: 'Commercial/POMappingWithPI/Aplos',
+            controller: 'POMappingWithPIController'
+        })
         ;
 }

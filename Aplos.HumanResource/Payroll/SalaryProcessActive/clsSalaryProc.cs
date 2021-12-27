@@ -2585,15 +2585,15 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             string strSql = "";
             try
             {
-                strSql = @" SELECT EmpSystemID,SUM(NormalOTHr) NormalOTHr,SUM(WeekOffOTHr) WeekOffOTHr,SUM(HoliDayOTHr) HoliDayOTHr from
+                strSql = @"SELECT EmpSystemID,SUM(NormalOTHr) NormalOTHr,SUM(WeekOffOTHr) WeekOffOTHr,SUM(HoliDayOTHr) HoliDayOTHr from
                                 (
-                                SELECT EmpSystemID, NormalOTHr = CASE WHEN OTDayType = 'NW' THEN NormalOTHr
+                                SELECT EmpSystemID, NormalOTHr = CASE WHEN  ISNULL(APD.HoliDayValue,0)=0 AND ISNULL(APD.WeekOffValue,0)=0 THEN apd.StandardOT
 									                              ELSE 0 END,  
-					                         WeekOffOTHr = CASE WHEN OTDayType IN ('W','WL','WLV','WP') THEN NormalOTHr
+					                         WeekOffOTHr = CASE WHEN   ISNULL(APD.HoliDayValue,0)=0 AND ISNULL(APD.WeekOffValue,0)>0 THEN apd.StandardOT
 									                              ELSE 0 END,  
-					                         HoliDayOTHr = CASE WHEN OTDayType IN ('HL','H','HLV','HLV','HP') THEN NormalOTHr
+					                         HoliDayOTHr = CASE WHEN   ISNULL(APD.HoliDayValue,0)>0 AND ISNULL(APD.WeekOffValue,0)=0 THEN apd.StandardOT
 									                              ELSE 0 END 
-                           FROM [dbo].[FinalOT]  
+                           FROM [dbo].AttdnProcessData APD 
                            WHERE WorkDate BETWEEN '" + sFromDate + @"' AND '" + sToDate + "' AND EmpSystemID IN (" + sEmpInfo + @") 
 						   ) x
                            GROUP BY EmpSystemID";

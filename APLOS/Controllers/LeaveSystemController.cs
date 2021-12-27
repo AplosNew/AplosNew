@@ -12,6 +12,7 @@ using Library.Data.UnitOfWorks;
 using Library.Service.Biometrics;
 using APLOS;
 using Library.HumanResource.Leave;
+using Library.Service.Leave;
 
 namespace Aplos.Controllers
 {
@@ -160,5 +161,77 @@ namespace Aplos.Controllers
                 throw new HttpResponseException(resp);
             }
         }
+
+        // Leave Approval
+
+        [HttpGet]
+        public IHttpActionResult GetLeaveApprovalList(string CGId, string plantId, bool isControlAdmin, bool isSysAdmin, string EmpId, string CompId)
+        {
+            try
+            {
+                var result = _leaveapp.GetApprovalList(CGId, plantId,isControlAdmin,isSysAdmin,EmpId, CompId,EmpId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+
+        [HttpGet]
+        public IHttpActionResult GetEmpLeaveBalanceForApprovalScreen(string EmpId,string PlantId,string CalId)
+        {
+            try
+            {              
+                clsLeaveBalanceToDate app = new clsLeaveBalanceToDate();
+                var result = app.GetLeaveBalanceType(EmpId, CalId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+        [HttpPost]
+        public string LeaveApprove([FromBody] IEnumerable<LeaveVM> DataToSave)
+        {
+            try
+            {
+                string Id = _leaveapp.SaveLeaveApproval(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        [HttpPost]
+        public string LeaveReject([FromBody] IEnumerable<LeaveVM> DataToSave,string Reason)
+        {
+            try
+            {
+                string Id = _leaveapp.SaveLeaveReject(DataToSave,Reason);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+
     }
 }

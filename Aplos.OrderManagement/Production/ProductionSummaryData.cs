@@ -1400,7 +1400,7 @@ namespace Library.OrderManagement.Production
                             (
                             SELECT ps.ProductionOrderId,PS.ToWorkCenterMasterId AS WorkCenterMasterId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.ToProcessId ProcessId,PS.SalesOrderId
                             FROM trn.ProductionSummary AS ps
-                            WHERE ps.ToProcessId='" + processId + @"' AND PS.EntityId='" + EntityId + @"' AND ps.ToWorkCenterMasterId='" + workCenterMasterId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
+                            WHERE ps.ToProcessId='" + processId + @"' AND PS.ToEntityId='" + EntityId + @"' AND ps.ToWorkCenterMasterId='" + workCenterMasterId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
                             union all
                             SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,0 AS InQuantity, Quantity,0 AS KillQuantity,PS.ProcessId,PS.SalesOrderId
                             FROM trn.ProductionSummary AS ps
@@ -1415,7 +1415,7 @@ namespace Library.OrderManagement.Production
                     sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
                                (SELECT ps.ProductionOrderId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.FromSFGInventoryId,PS.SalesOrderId
                                FROM trn.ProductionSummary AS ps
-                               WHERE ps.ToSFGInventoryId='" + processId + @"' AND PS.EntityId='" + EntityId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
+                               WHERE ps.ToSFGInventoryId='" + processId + @"' AND PS.ToEntityId='" + EntityId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
                                union all
 
                                SELECT ps.ProductionOrderId,0 AS InQuantity,case when ps.ProductionGrade='A' THEN Quantity else 0 END AS OutQuantity,0 AS KillQuantity,PS.FromSFGInventoryId ,PS.SalesOrderId

@@ -28,14 +28,15 @@ using Library.OrderManagement.TermsAndConditions;
 
 namespace Aplos.Areas.Commercial.Controllers
 {
-    public class ProformaInvoiceController : BaseController
+    public class POMappingWithPIController : BaseController
     {
         #region -- Constructor
-        private readonly ISqlRepository _sqlRepository;
 
-        public ProformaInvoiceController(ISqlRepository R)
+        //private readonly IFabricRollMasterService _fabricRollMasterService;
+        private SqlRepository _sqlRepository = new SqlRepository();
+        public POMappingWithPIController()
         {
-            _sqlRepository = R;
+            //_sqlRepository = fabricRollMasterService;
         }
 
         #endregion -- Constructor
@@ -43,7 +44,6 @@ namespace Aplos.Areas.Commercial.Controllers
 
         #region Pages
 
-        [Authorize]
         public ActionResult Aplos()
         {
             return View();
@@ -53,166 +53,61 @@ namespace Aplos.Areas.Commercial.Controllers
 
         #region -- Operations
 
-        //[HttpGet, Authorize]
-        //public JsonResult GetList(GridParameter parameters, string paidHours)
-        //{
-        //    CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_fabricRollMasterService.Query(parameters, identity.CompanyGroupId, paidHours, identity.PlantId), JsonRequestBehavior.AllowGet);
-        //}
+      
 
         [HttpPost]
-        public JsonResult create(Dictionary<string, object> HeaderData, List<Dictionary<string, object>> MaterialData, string PIMasterId, string PIVersionId)
+        public JsonResult Save(string PIMaterial, List<Dictionary<string, object>> POList)
         {
             try
             {
-                if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(HeaderData["PINo"])))
-                    throw new Exception("Please enter PI No.");
-                if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(HeaderData["PIDate"])))
-                    throw new Exception("Please select PI Date.");
-                if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(HeaderData["CurrencyId"])))
-                    throw new Exception("Please select Currency.");
-                if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(HeaderData["BuyerId"])))
-                    throw new Exception("Please select Buyer.");
-                if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(HeaderData["CustomerId"])))
-                    throw new Exception("Please select Customer.");
-                if (MaterialData == null)
-                    throw new Exception("Please enter at least one material group");
-
-
-                for (int i = 0; i < MaterialData.Count; i++)
-                {
-                    if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(MaterialData[i]["MaterialGroupMasterId"])))
-                        throw new Exception("Please select material.");
-                    if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(MaterialData[i]["Description"])))
-                        throw new Exception("Please enter description.");
-                    if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(clsStaticInfo.dbl(MaterialData[i]["Quantity"].ToString()))))
-                        throw new Exception("Please enter quantity.");
-                    if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(clsStaticInfo.dbl(MaterialData[i]["Rate"].ToString()))))
-                        throw new Exception("Please enter rate.");
-                    if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(MaterialData[i]["DeliveryDate"])))
-                        throw new Exception("Please select delivery date.");
-                    if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(clsStaticInfo.dbl(MaterialData[i]["Amount"].ToString()))))
-                        throw new Exception("Please enter amount.");
-                }
-                ConnectionManager.DAL.ConManager conPIMaster = new ConnectionManager.DAL.ConManager("1");
-                conPIMaster.OpenDataSetThroughAdapter("select * from PIMaster where Id='" + HeaderData["Id"] + "'", out DataSet dsPIMaster, false, "1");
-                string _Id = "";
-                String _PMVersionId = "";
-                string _PMMasterId = "";
-                DataSet dsPIVersion = new DataSet();
-                ConnectionManager.DAL.ConManager conPIVersion = new ConnectionManager.DAL.ConManager("1");
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
 
                 #region data update
-                if (dsPIMaster.Tables[0].Rows.Count == 0)
-                {
-                    //if (string.IsNullOrEmpty(HeaderData["PINo"].ToString()) == dsPIMaster.Tables[0]["PINo"].ToString())
-                    //    throw new Exception("Please select Customer.");
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("PIMaster", out _Id);
-                    _Id = "PI" + _Id;
-                    HeaderData["Id"] = _Id;
-                    PIMasterId = HeaderData["Id"].ToString();
-                    AddNewRow(dsPIMaster.Tables[0], HeaderData);
-                }
-                else
-                {
-                    //PIMasterId = HeaderData["Id"].ToString();
-                    EditRow(dsPIMaster.Tables[0].Rows[0], HeaderData);
-                }
-
-                conPIVersion = new ConnectionManager.DAL.ConManager("1");
-                conPIVersion.OpenDataSetThroughAdapter("select * from PIVersion where Id='" + PIVersionId + "' ", out dsPIVersion, false, "1");
-                if (dsPIVersion.Tables[0].Rows.Count == 0)
-                {
-                    string _IdV = "";
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("PIVersion", out _IdV);
-                    PIVersionId = "PV" + _IdV;
-                    DataRow drVersion = dsPIVersion.Tables[0].NewRow();
-
-                    drVersion["Id"] = PIVersionId;
-                    drVersion["VersionNo"] = 1;
-                    drVersion["PIMasterId"] = PIMasterId;
-
-                    drVersion["AddedBy"] = identity.Name;
-                    drVersion["AddedDate"] = System.DateTime.Now.ToString();
-                    drVersion["AddedFromIP"] = identity.IPAddress;
-                    dsPIVersion.Tables[0].Rows.Add(drVersion);
-
-                }
-                else
-                {
-                    DataRow drVersion = dsPIMaster.Tables[0].Rows[0];
-                    drVersion.BeginEdit();
-
-                    drVersion["UpdatedBy"] = identity.Name;
-                    drVersion["UpdatedDate"] = System.DateTime.Now.ToString();
-                    drVersion["UpdatedFromIP"] = identity.IPAddress;
-                    drVersion.EndEdit();
-                }
+  
 
                 ConnectionManager.DAL.ConManager conPIMaterial = new ConnectionManager.DAL.ConManager("1");
-                conPIMaterial.OpenDataSetThroughAdapter("select * from PIMaterial where  PIVersionId='" + PIVersionId + "'", out DataSet dsPIMaterial, false, "1");
+                conPIMaterial.OpenDataSetThroughAdapter("select * from POMappingWithPI", out DataSet dsPIMaterial, false, "1");
 
-                if (MaterialData == null || MaterialData.Count == 0)
+                foreach (var item in POList)
                 {
-                    while (dsPIMaterial.Tables[0].DefaultView.Count > 0)
+                    dsPIMaterial.Tables[0].DefaultView.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
+
+                    DataView dv = new DataView(dsPIMaterial.Tables[0]);
+                    dv.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
+                    if (dv.Count > 0)
                     {
-                        dsPIMaterial.Tables[0].DefaultView[0].Delete();
-                    }
-                }
+                        //edit
+                        // _Id = VersionData[0]["Id"].ToString();
+                        DataRow drmo = dv[0].Row;
 
-                if (MaterialData != null)
-                {
-                    //delete
-                    for (int i = 0; i < dsPIMaterial.Tables[0].Rows.Count; i++)
+                        drmo["PIMaterialID"] = item["PIMaterialID"];
+                        drmo["PODetailId"] = item["PODetailId"];
+                        drmo["QuantityAtPIUoM"] = item["QuantityAtPIUoM"];
+                        drmo["PIUoMId"] = item["PIUoMId"];
+                        drmo["POQuantity"] = item["POQuantity"];
+                        drmo["POUoM"] = item["POUoM"];
+
+                        EditRow(drmo, item);
+
+                    }
+                    else
                     {
-                        var x = MaterialData.Where(ee => clsStaticInfo.nullrecorder(ee["Id"]) == clsStaticInfo.nullrecorder(dsPIMaterial.Tables[0].Rows[i]["Id"].ToString())).FirstOrDefault();
+                        string _materialId = "";
+                        //add new
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("POMappingWithPI", out _materialId);
+                        _materialId = "PM" + _materialId;
+                        item["Id"] = _materialId;
+                        item["PIMaterialID"] = PIMaterial;
+                        AddNewRow(dsPIMaterial.Tables[0], item);
 
-                        if (x == null)
-                        {
-                            dsPIMaterial.Tables[0].Rows[i].Delete();
-                        }
                     }
-                    foreach (var item in MaterialData)
-                    {
-
-                        dsPIMaterial.Tables[0].DefaultView.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
-
-                        DataView dv = new DataView(dsPIMaterial.Tables[0]);
-                        dv.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
-                        if (dv.Count > 0)
-                        {
-                            //edit
-                            // _Id = VersionData[0]["Id"].ToString();
-                            DataRow drmo = dv[0].Row;
-                            drmo["PIMasterId"] = PIMasterId;
-                            drmo["PIVersionId"] = PIVersionId;
-                            EditRow(drmo, item);
-
-                        }
-                        else
-                        {
-                            string _materialId = "";
-                            //add new
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID("PIMaterial", out _materialId);
-                            _materialId = "PM" + _materialId;
-                            item["Id"] = _materialId;
-                            item["PIMasterId"] = PIMasterId;
-                            item["PIVersionId"] = PIVersionId;
-                            AddNewRow(dsPIMaterial.Tables[0], item);
-
-                        }
-                    }
-
                 }
 
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsPIMaster, dsPIVersion, dsPIMaterial);
-                return Json(new { Error = false, Data = HeaderData, Message = AplosMessage.Insert });
+                _info.SaveDataSets(dsPIMaterial);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -263,7 +158,6 @@ namespace Aplos.Areas.Commercial.Controllers
 
         #endregion -- Operations
 
-
         [HttpPost, Authorize]
         public ActionResult PIList(string column, string value)
         {
@@ -309,10 +203,10 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
 
             var PIMaterial = _sqlRepository.GetDataCollection(sql, null);
 
-            sql = @"SELECT U.MaterialGroupMasterId,UOM.Code,UOM.Id FROM (
-					SELECT mgm.Id MaterialGroupMasterId, mgm.BaseUoMId AS UOMId FROM mst.MaterialGroupMaster AS mgm
+            sql = @"SELECT U.MaterialGroupMasterId,U.MaterialGroup,UOM.Code,UOM.Id FROM (
+					SELECT mgm.Id MaterialGroupMasterId,mgm.UserName MaterialGroup, mgm.BaseUoMId AS UOMId FROM mst.MaterialGroupMaster AS mgm
 					UNION ALL
-					SELECT m.MaterialGroupMasterId, m.AlternativeUoMId
+					SELECT m.MaterialGroupMasterId,''MaterialGroup, m.AlternativeUoMId
 					  FROM mst.MaterialGroupAlternativeUoM AS M
 					) U
 					JOIN scs.UnitOfMeasurement AS uom ON uom.Id=U.UOMId
@@ -381,6 +275,33 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
 
             }
         }
+
+        //public ActionResult DeleteMaterial(string id)
+        //{
+        //    try
+        //    {
+
+        //        string ret = tg.DeletePIMaterial(id);
+
+        //        if (ret == "Success")
+        //        {
+        //            return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        //        }
+        //        else
+        //        {
+        //            return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+        //    }
+
+
+        //}
         [HttpPost, Authorize]
         public JsonResult NewVersion(string PIMasterId, string PIVersionId)
         {
@@ -470,15 +391,28 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+
         [HttpGet, Authorize]
-        public ActionResult GetMaterialGroupList()
+        public ActionResult GetPODetailsData(string MaterialGroupMasterId,string PIMaterialId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT mgm.Id,mgm.UserName AS MaterialGroup 
-                                                        FROM mst.MaterialGroupMaster AS mgm WHERE mgm.[Active]=1";
 
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            string sql = @"
+                             select convert(bit,case when isnull(POMPI.Id,'')<>'' then 1 else 0 END) AS Saved, POMPI.Id,PIM.Id PIMaterialId
+							,POD.Id PODetailId,PIM.Quantity QuantityAtPIUoM,PIM.UoMId PIUoMId
+                            ,POD.TransactionRate PORate,POD.TransactionQty POQuantity,POD.TransactionUoMId POUoM
+
+                            from TRN.PurchaseOrderDetail POD
+							left join PIMaterial PIM on pim.Id='" + PIMaterialId + @"'
+							left join POMappingWithPI POMPI on POMPI.PIMaterialId=PIM.Id and pod.Id=POMPI.PODetailId
+                            left join mst.MaterialMasterArticle MMA on mma.id=POd.ArticleId
+                            left join MST.MaterialMaster MM on MM.Id=MMA.MaterialMasterId
+
+                            where MM.MaterialGroupMasterId = '" + MaterialGroupMasterId + @"' and POD.Id not in (select PODetailId from POMappingWithPI where PIMaterialId<>'" + PIMaterialId + @"')";
+            
+            var POList = _sqlRepository.GetDataCollection(sql, null);
+
+            return Json(new { Polist = POList }, JsonRequestBehavior.AllowGet);
         }
-
     }
 }

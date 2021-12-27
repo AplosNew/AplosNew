@@ -16,6 +16,7 @@ using clsAttendance;
 using Library.Service.Extension.HumanResource.Leave;
 using Library.Data.UnitOfWorks;
 using Library.Service.Biometrics;
+using Library.Service.Leave;
 
 namespace Library.Service.EmployeeServices
 {
@@ -73,255 +74,6 @@ namespace Library.Service.EmployeeServices
             };
 
             return _sqlRepository.GetGridData(parameters).Source;
-        }
-
-        public IEnumerable<object> GetLeaveBalanceType(string sGroupID, string sPlantID, string EmpSystemID, string calYearId)
-        {
-
-            try
-            {
-                string _FromDate = string.Empty;
-                string _ToDate = string.Empty;
-
-                var dsCalYear = GetCalYearInfo(calYearId);
-                if (dsCalYear.Tables[0].Rows.Count > 0)
-                {
-                    _FromDate = Convert.ToDateTime(dsCalYear.Tables[0].Rows[0]["FromDate"]).ToString("dd-MMM-yyyy");
-                    _ToDate = Convert.ToDateTime(dsCalYear.Tables[0].Rows[0]["ToDate"]).ToString("dd-MMM-yyyy");
-                }
-                else
-                {
-                    throw new Exception("No Year found...");
-                }
-                var esic = GetESICEligibleEmployeeFromEnum(EmpSystemID, _FromDate);
-
-                if (esic.Tables[0].Rows.Count > 0)
-                {
-                    var sql = @"SELECT	els.CalanderYearID,ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
-										 els.LeaveTypeId LTSystemID,
-                                         els.EmployeeID,
-										 lt.UserName LeaveName,
-										 ltd.SystemID LvPolDetailsSystemID,
-                                         --ltd.IsProrataPreviousyear,
-                                         ltd.IsProratacurrentyear,
-                                         els.DaysCanBeSanctioned, els.EncashedInbetween as Encashed,
-                                         ltd.IsAvailExceptionAllowedOnSpecialAppeal,
-										 0.00 Balance,
-                                        ISNULL(els.CurrentYearAllocation, 0) CurrentAllocation,
-                                        ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
-										 --all carry forward
-                                         --ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) BroughtForward,
-                                         BroughtForward=CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
-                                         ISNULL(els.DaysCanBeSanctioned, 0) LeaveDays,
-										 --applied +applied ob
-                                         ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
-										 --(ISNULL(tav.av, 0)+ ISNULL(acApl.ldays,0)) Applied,
-                                         --0 Availed,
-										  --Availed +Availed ob
-                                         ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Availed,
-										 ISNULL(acApl.ldays,0) ldays,lt.LeaveType
-
------------------------------------Is Brought Forward Add to balance -----------------------------------------------------------                                       
----,IsBroughtForwardAdd=CASE WHEN LT.LeaveType='Earn' THEN  
-,IsBroughtForwardAdd=CASE WHEN 1=1 THEN  
-	CASE WHEN
-	-----------------------------------DOJorDOC start -----------------------------------------------------------
-								CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
-                            										 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  emp.DOJ )
-																	      WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  emp.DOJ )
-																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  emp.DOJ ) END
-										   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
-										   							 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	emp.DOC  )
-																		  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	emp.DOC  )
-																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	emp.DOC  )
-										   						END
-                                       END
----------------------------------------DOJorDOC start  end-------------------------------------------------------
-	
-	> GETDATE() then 
-		    CONVERT(BIT,0)------No
-        ELSE  CONVERT(BIT,1) END---Yes
-ELSE CONVERT(BIT,0) END  ---No
-
-----------------------------------------------------------------------------------------------------------------------
-
-
-
-                                          FROM (select * from trn.EmployeeLeaveSummary where CalanderYearId='" + calYearId + @"' and EmployeeId ='" + EmpSystemID + @"' ) els
-										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
-                                        LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
-										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m 
-                                           where  (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"') and (ToDate between '" + _FromDate + @"' and '" + _ToDate + @"')
-                                           group by EmpSystemID,LTSystemID
-														)ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
-										 left outer join (
-																select sum(c) av,EmpSystemID,LTSystemID from
-																(
-																	select m.EmpSystemID,m.LTSystemID,c from dbo.LeaveTransaction m
-																	left outer join
-																		(
-																			select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
-																			IsAvailed = 1  and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
-                                                                            group by LvTrnsSystemID
-																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
-																)x group by EmpSystemID,LTSystemID
-														)tav on tav.EmpSystemID = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
-										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
-																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where	IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
-																group by EmpSystemID,LTSystemID
-														  )acApl  on acApl.EmpSystemID = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
-                                         left outer join (select * from dbo.LeavePolicyDetail
-																 where LPMSystemID =
-																 (--w
-																 select LeavePolicyMasterId from 
-																		 (
-																				SELECT DC.LeavePolicyMasterId,dm.DesignationId 
-																										FROM MST.DesignationMaster DM
-																										LEFT JOIN SCS.DesignationMasterConfiguration DC 
-																													ON DM.Id=DC.DesignationMasterId
-																						where dc.plantid='" + sPlantID + @"'
-
-																		 ) dm where dm.DesignationId =(select givendesignationId 
-																									 from dbo.EmployeeInformation 
-																									 where SystemId='" + EmpSystemID + @"')
-																	)--w
-                                                 ) ltd on ltd.LTSystemID = lt.Id
-                                                WHERE els.EmployeeID = '" + EmpSystemID + @"'                                             
-                                              AND CalanderYearID = '" + calYearId + @"'
-                                             AND els.LeaveTypeId IN ( --IN
-
-
-                                            SELECT LT.ID FROM dbo.ESICPolicyLeaveType AS EPLT
-                  LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
-                  WHERE
-                  EPLT.LeaveTypeID IN
-                   (
-                     SELECT LTSystemID FROM dbo.LeavePolicyDetail AS LPD
-                  LEFT JOIN  (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
-LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId WHERE DC.PlantId='" + sPlantID + @"') AS DM ON DM.LeavePolicyMasterId=LPD.LPMSystemID
-                  LEFT JOIN dbo.EmployeeInformation AS EI ON EI.GivenDesignationId=DM.DesignationId
-                  WHERE EI.SystemID='" + EmpSystemID + @"' AND EI.GroupID='" + sGroupID + @"' AND EI.PlantID='" + sPlantID + @"'
-                   )
-                AND
-                EPLT.ESICPolicyMasterID IN (
-                 SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
-LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
-WHERE DC.PlantId='" + sPlantID + @"') DM
-                 WHERE DM.DesignationId IN (
-                  SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'
-                  )
-                )
-
-                                            				)--IN";
-
-                    return _sqlRepository.GetDataCollection(sql, null);
-                }
-                else
-                {
-                    var sql = @"SELECT	els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
-										 els.LeaveTypeId LTSystemID,
-                                         els.EmployeeID,
-										 lt.UserName LeaveName,
-										 ltd.SystemID LvPolDetailsSystemID
-                                         --ISNULL(ltd.IsProrataPreviousyear,0)IsProrataPreviousyear,
-                                         ,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,
-                                         els.DaysCanBeSanctioned,
-                                          ISNULL(ltd.IsAvailExceptionAllowedOnSpecialAppeal,0)IsAvailExceptionAllowedOnSpecialAppeal,
-										 0.00 Balance,
-                                        ISNULL(els.CurrentYearAllocation, 0) CurrentAllocation,
-                                         --ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
-										 --all carry forward
-                                         --ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) BroughtForward,
-                                         BroughtForward=CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
-                                         ISNULL(els.DaysCanBeSanctioned, 0) LeaveDays,
-										 --applied +applied ob
-                                         ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
-										 --(ISNULL(tav.av, 0)+ ISNULL(acApl.ldays,0)) Applied,
-                                         --0 Availed,
-										  --Availed +Availed ob
-                                         ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Availed,els.EncashedInbetween as Encashed,
-										 ISNULL(acApl.ldays,0) ldays,lt.LeaveType
-
-
------------------------------------Is Brought Forward Add to balance -----------------------------------------------------------                                       
----,IsBroughtForwardAdd=CASE WHEN LT.LeaveType='Earn' THEN
-,IsBroughtForwardAdd=CASE WHEN 1=1 THEN  
-	CASE WHEN
-	-----------------------------------DOJorDOC start -----------------------------------------------------------
-								CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
-                            										 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  emp.DOJ )
-																	      WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  emp.DOJ )
-																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  emp.DOJ ) END
-										   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
-										   							 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	emp.DOC  )
-																		  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	emp.DOC  )
-																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	emp.DOC  )
-										   						END
-                                       END
----------------------------------------DOJorDOC start  end-------------------------------------------------------
-	
-	> GETDATE() then 
-		    CONVERT(BIT,0)------No
-        ELSE  CONVERT(BIT,1) END---Yes
-ELSE CONVERT(BIT,0) END  ---No
-
-----------------------------------------------------------------------------------------------------------------------
-                                          FROM (select * from trn.EmployeeLeaveSummary where CalanderYearId='" + calYearId + @"' and EmployeeId ='" + EmpSystemID + @"' ) els
-										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
-										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
-                            where  (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"') and (ToDate between '" + _FromDate + @"' and '" + _ToDate + @"')
-                                                    group by EmpSystemID,LTSystemID
-														)ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
-										 left outer join (
-																select sum(c) av,EmpSystemID,LTSystemID from
-																(
-																	select m.EmpSystemID,m.LTSystemID,c from dbo.LeaveTransaction m
-																	left outer join
-																		(
-																		Select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
-																			IsAvailed = 1 and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
-                                                                        group by LvTrnsSystemID
-																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
-																)x group by EmpSystemID,LTSystemID
-														)tav on tav.EmpSystemID = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
-										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
-																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where	IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
-																group by EmpSystemID,LTSystemID
-														  )acApl  on acApl.EmpSystemID = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
-                                         left outer join (select * from dbo.LeavePolicyDetail
-																 where LPMSystemID =
-																 (--w
-																 select LeavePolicyMasterId from 
-																		 (
-																				SELECT DC.LeavePolicyMasterId,dm.DesignationId 
-																										FROM MST.DesignationMaster DM
-																										LEFT JOIN SCS.DesignationMasterConfiguration DC 
-																													ON DM.Id=DC.DesignationMasterId
-																						where dc.plantid='" + sPlantID + @"'
-
-																		 ) dm where dm.DesignationId =(select givendesignationId 
-																									 from dbo.EmployeeInformation 
-																									 where SystemId='" + EmpSystemID + @"')
-																	)--w
-                                                 ) ltd on ltd.LTSystemID = lt.Id
-LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
-                                                WHERE els.EmployeeID = '" + EmpSystemID + @"'                                             
-                                              AND CalanderYearID = '" + calYearId + @"'
-                                              AND els.LeaveTypeId not IN 
-                                            (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND lt.LeaveType <>'Maternity'";
-
-                    return _sqlRepository.GetDataCollection(sql, null);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
         }
 
         public DataSet GetESICEligibleEmployeeFromEnum(string empSystemId, string FromDate)
@@ -1337,6 +1089,164 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetApprovalList(string companyGroupId, string plantId, bool isControlAdmin, bool isSysAdmin, string employeeId, string companyId, string FirstApprovingAuthority)
+        {
+            string strSql = string.Empty;
+            try
+            {
+                var str = "";
+                str = !isControlAdmin && !isSysAdmin ? @" and isnull(emp.SystemId,'') in (select systemid from EmployeeInformation e where e.BudgetCode in
+                                    (select Id from mst.ManpowerBudget where EntityId in (select entityid from [HKP].[ApprovalConfiguration]
+                                            where LeaveApproval='" + employeeId + "')))" : @" AND Emp.CompanyId='" + companyId + "'";
+
+                strSql = @"SELECT 0 CheckBoxSelect, emp.SystemId EmployeeID,Lvt.SystemID LvTrnMsID,LT.Code AS LeaveStatus, emp.EmployeeCode,emp.BudgetCode,emp.EmployeeName,emp.EmpType,emp.NationalID,Dsgg.UserName GivenDesignation,E.UserName as Entity,
+                             REPLACE(CONVERT(VARCHAR(11), emp.DOJ, 113), ' ', '-') DOJ,
+							 LT.UserName LeaveName, LT.Description LeaveDescription,
+                             REPLACE(CONVERT(VARCHAR(11), LvT.FromDate, 113), ' ', '-') FromDate,
+                             REPLACE(CONVERT(VARCHAR(11), LvT.ToDate, 113), ' ', '-') ToDate, LvT.LeaveDays, LvT.LvReason AS Reason, LvT.ComAssignLvSystemID,LVT.LTSystemID,LVT.SystemID LvTransSystemID
+                        ,(SELECT YearlyCalendar.Id
+                                 FROM YearlyCalendar WHERE LvT.FromDate BETWEEN FromDate AND ToDate AND PlantId='" + plantId + @"' ) CalanderYearID
+                             FROM
+							 dbo.EmployeeInformation emp
+							 LEFT outer JOIN dbo.LeaveTransaction LvT on LvT.EmpSystemID = emp.SystemId
+                             LEFT OUTER JOIN [MST].[ManpowerBudget] PMB ON EMP.BudgetCode=PMB.Id
+							 LEFT OUTER JOIN [ORG].[Position] PR ON PMB.PositionId=PR.Id
+                             LEFT OUTER JOIN [ORG].[Entity] E ON PMB.EntityId=E.Id
+                             LEFT outer JOIN dbo.LeaveType LT ON LvT.LTSystemID = LT.Id
+							 LEFT outer JOIN [HKP].Designation AS Dsg ON Dsg.ID = Emp.DesignationSystemID
+							 LEFT outer JOIN [HKP].Designation AS Dsgg ON Dsgg.ID = Emp.GivenDesignationID
+                             WHERE  IsNull(Lvt.IsApproved,0) = 0
+							 AND ISNULL(LvT.SystemID,'')<> ''
+                             AND LvT.IsCancel=0
+							 --AND emp.GroupID = '" + companyGroupId + @"'
+                             --AND emp.PlantID = '" + plantId + @"' 
+                             AND FirstApprovingAuthority = '" + FirstApprovingAuthority + @"' AND LvT.FirstApprovingStatus = 0 ";
+
+                return _sqlRepository.GetDataCollection(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string SaveLeaveReject(IEnumerable<LeaveVM> DataToSave,string Reason)
+        {
+            try
+            {
+                string LvtrnsId = "''";
+                foreach (LeaveVM item in DataToSave)
+                {
+
+                    if (!string.IsNullOrEmpty(item.EmployeeID))
+                    {
+                        string responsiblePersonName = "";
+                        string responsiblePersonId = "";
+                        string responsiplePersonEmail = "";
+                        string mailMessage = "";
+                        DataTable dtEmpInfo = _sqlRepository.GetDataTable(@"SELECT * FROM EmployeeInformation WHERE SystemId = '" + item.EmployeeID + @"'");
+
+                        var dtFmDate = Convert.ToDateTime(item.FromDate);
+                        var dtToDate = Convert.ToDateTime(item.ToDate);
+
+                        TimeSpan difference = dtToDate - dtFmDate;
+                        var leaveDays = Convert.ToInt32(difference.Days + 1);
+                        
+                        responsiblePersonName = dtEmpInfo.Rows[0]["EmployeeName"].ToString();
+                        responsiblePersonId = dtEmpInfo.Rows[0]["SystemId"].ToString();
+                        responsiplePersonEmail = dtEmpInfo.Rows[0]["EmailId"].ToString();
+                        string EmpPlant = dtEmpInfo.Rows[0]["PlantId"].ToString();
+                        LvtrnsId = item.LvTransSystemID;
+
+
+                        string dt = "";
+                        dt = item.ToDate != null ? item.ToDate : "";
+
+                        mailMessage = @"Dear " + responsiblePersonName + "<br> <br> <br>" +
+                                            " Your leave request has been Accepted for " + leaveDays + " Day(s),  Dated From " + item.FromDate + " To " + dt +
+                                            ". If any discrepancy, Please contact to concern HOD." +
+                                            "<br> <br> <br>" +
+                                            "Thank you";
+
+                        _mailSenderService.SendFirstLeaveApproveRequestMail(responsiblePersonId, EmpPlant, mailMessage, responsiplePersonEmail, responsiblePersonName, item.EmployeeID, dtEmpInfo.Rows[0]["EmployeeName"].ToString(), dtEmpInfo.Rows[0]["EmployeeCode"].ToString());
+                    }
+                }
+
+
+                ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                connection.BeginTransaction();
+                string strSql = @"Update LeaveTransaction set FirstApprovingStatus = 1,FirstApprovingDate = '" + DateTime.Now + "' where SystemID= " + LvtrnsId + "";
+                connection.executeQuery(strSql);
+
+                connection.CommitTransaction();
+
+                return "true";                
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public string SaveLeaveApproval(IEnumerable<LeaveVM> DataToSave)
+        {
+            try
+            {
+                string LvtrnsId = "(' '";
+                foreach (LeaveVM item in DataToSave)
+                {
+                    LvtrnsId += ",'" + item.LvTransSystemID + "'";
+
+                    if (!string.IsNullOrEmpty(item.EmployeeID))
+                    {
+                        string responsiblePersonName = "";
+                        string responsiblePersonId = "";
+                        string responsiplePersonEmail = "";
+                        string mailMessage = "";
+                        DataTable dtEmpInfo = _sqlRepository.GetDataTable(@"SELECT * FROM EmployeeInformation WHERE SystemId = '" + item.EmployeeID + @"'");
+
+                        var dtFmDate = Convert.ToDateTime(item.FromDate);
+                        var dtToDate = Convert.ToDateTime(item.ToDate);
+
+                        TimeSpan difference = dtToDate - dtFmDate;
+                        var leaveDays = Convert.ToInt32(difference.Days + 1);
+
+                        responsiblePersonName = dtEmpInfo.Rows[0]["EmployeeName"].ToString();
+                        responsiblePersonId = dtEmpInfo.Rows[0]["SystemId"].ToString();
+                        responsiplePersonEmail = dtEmpInfo.Rows[0]["EmailId"].ToString();
+                        string EmpPlant = dtEmpInfo.Rows[0]["PlantId"].ToString();
+                   
+
+                        string dt = "";
+                        dt = item.ToDate != null ? item.ToDate : "";
+
+                        mailMessage = @"Dear " + responsiblePersonName + "<br> <br> <br>" +
+                                            " Your leave request has been Accepted for " + leaveDays + " Day(s),  Dated From " + item.FromDate + " To " + dt +
+                                            ". If any discrepancy, Please contact to concern HOD." +
+                                            "<br> <br> <br>" +
+                                            "Thank you";
+
+                        _mailSenderService.SendFirstLeaveApproveRequestMail(responsiblePersonId, EmpPlant, mailMessage, responsiplePersonEmail, responsiblePersonName, item.EmployeeID, dtEmpInfo.Rows[0]["EmployeeName"].ToString(), dtEmpInfo.Rows[0]["EmployeeCode"].ToString());
+                    }
+                }
+                LvtrnsId += ")";
+
+
+                ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                connection.BeginTransaction();
+                string strSql = @"Update LeaveTransaction set FirstApprovingStatus = 1,FirstApprovingDate = '" + DateTime.Now + "' where SystemID IN " + LvtrnsId + "";
+                connection.executeQuery(strSql);
+
+                connection.CommitTransaction();
+
+                return "true";
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
             }
         }
     }
