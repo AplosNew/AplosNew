@@ -95,5 +95,9 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/PIPackingList/Aplos',
             controller: 'PIPackingListController'
         })
+        .when('/po-mapping-with-pi', {
+            templateUrl: 'Commercial/POMappingWithPI/Aplos',
+            controller: 'POMappingWithPIController'
+        })
         ;
 }

@@ -130,6 +130,20 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetSaveData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(ep.GetMaster(identity.CompanyGroupId,identity.CompanyId,identity.PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         #endregion
 
     }

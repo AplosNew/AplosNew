@@ -164,49 +164,118 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         $scope.DataList = [];
         $scope.DataList.push(Object.assign({}, $scope.PIGridModelBase));
     }
-
-    $scope.PISearchBy = "Id";
-    $scope.PISearch = "";
-    $scope.PIGridList = [];
-    $scope.LoadPISearchList = function () {
-        $scope.PIGridList = [];
+    $scope.PIPopUpList = [];
+    $scope.LoadPIPopUp = function () {
+        $scope.PIPopUpList = [];
         try {
             $http({
                 method: 'POST',
                 url: $scope.path + "PIList",
-                data: { 'column': $scope.PISearchBy, 'value': $scope.PISearch },
+                data: {},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                $scope.PIGridList = [];
-                $scope.PIGridList = response.data;
+                $scope.PIPopUpList = [];
+                $scope.PIPopUpList = response.data;
             });
         }
         catch (e) {
             ShowResult(e, 'failure');
         }
     }
-    $scope.LoadPISearchList();
-    $scope.Get = function (args) {
-        //$scope.getHeader(args.data.Id, args.data.PIVersionId);
+    $scope.LoadPIPopUp();
+
+    $scope.PIPopUp = function () {
+        angular.element(document.querySelector('#PIPOPopup')).modal('show');
+    }
+    $scope.ClosePIPopUp = function () {
+        angular.element(document.querySelector('#PIPOPopup')).modal('hide');
+    }
+    $scope.GetPIPopUp = function (args) {
         $scope.SelectedPIVersion = args.data.PIVersionId;
         $http({
             method: 'GET',
             url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId,
         }).then(function successCallback(response) {
-
-            $scope.PImodelNew = response.data.PIMaster[0];
-            $scope.PIVersionModel = response.data.VarsionData;
-            $scope.DataList = response.data.ItemData;
-            if ($scope.DataList == null || $scope.DataList.length == 0)
-                $scope.ClearGrid();
-            $scope.VersionList = $scope.PIVersionModel;
-            getPartyPlantList();
-          //  $scope.PIVersionModel["Id"] = $scope.PIVersionModel[0]["Id"];
-
+            if (!baseService.isUndefinedOrNull(response.data)) {
+                $scope.PImodelNew = response.data.PIMaster[0];
+                $scope.PIVersionModel = response.data.VarsionData;
+                $scope.DataList = response.data.ItemData;
+                $scope.PIVersionModel.Id = $scope.PIVersionModel[0].Id;
+                $scope.VersionList = $scope.PIVersionModel;
+                $scope.ClosePIPopUp();
+            }
         });
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+    };
+
+    $scope.searchByPIPackingList = [
+        {
+            name: 'PI Packing No.',
+            value: 'PIPackingListMasterId'
+        },
+        {
+            name: 'Description',
+            value: 'Description'
+        },
+        {
+            name: 'Remarks',
+            value: 'Remarks'
+        },
+        {
+            name: 'PI Packing Date',
+            value: 'AddedDate'
+        }
+    ];
+    $scope.PIPackingSearchBy = "PIPackingListMasterId";
+    $scope.PIPackingSearch = "";
+    $scope.PIPackingGridList = [];
+    $scope.LoadPIPackingList = function () {
+        $scope.PIPackingGridList = [];
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "PIPackingList",
+                data: { 'column': $scope.PIPackingSearchBy, 'value': $scope.PIPackingSearch },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.PIPackingGridList = [];
+                $scope.PIPackingGridList = response.data;
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.LoadPIPackingList();
+
+
+    $scope.PIPackingMaterialGridList = [];
+
+    $scope.Get = function (args) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "PIPackingMaterialList?PIPackingMaterId=" + args.data.Id,
+        }).then(function successCallback(response) {
+
+            $scope.PIPackingMaterialGridList = response.data;
+          
+        });
+    };
+    $scope.POQTYAllocation = function (args) {
+        //$http({
+        //    method: 'GET',
+        //    url: $scope.path + "GetPODetailsData?MaterialGroupMasterId=" + args.data.MaterialGroupMasterId,
+
+        //}).then(function (response) {
+        //    $scope.PODataList = response.data.Polist;
+        //});
+        angular.element(document.querySelector('#QTYAllocation')).modal('show');
+    }
+    $scope.ClosePopUp = function () {
+        $scope.taxCategoryList = [];
+        angular.element(document.querySelector('#QTYAllocation')).modal('hide');
     };
     $scope.GetAllVersionData = function () {
         //$scope.getHeader(args.data.Id, args.data.PIVersionId);
@@ -252,7 +321,6 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
 
     };
     $scope.Clear();
-    $rootScope.title = 'Proforma Invoice';
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.ShowCustomerPopUpNew = function () {
         $scope.partyType = "Customer";

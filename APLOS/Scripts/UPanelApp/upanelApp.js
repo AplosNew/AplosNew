@@ -992,6 +992,7 @@ var upanelApp = angular
     .controller('PIPackingListController', PIPackingListController)
     .controller('FOCController', FOCController)
 
+    .controller('POMappingWithPIController', POMappingWithPIController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)
