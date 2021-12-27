@@ -1137,6 +1137,52 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
+                string LvtrnsId = "''";
+                foreach (LeaveVM item in DataToSave)
+                {
+
+                    if (!string.IsNullOrEmpty(item.EmployeeID))
+                    {
+                        string responsiblePersonName = "";
+                        string responsiblePersonId = "";
+                        string responsiplePersonEmail = "";
+                        string mailMessage = "";
+                        DataTable dtEmpInfo = _sqlRepository.GetDataTable(@"SELECT * FROM EmployeeInformation WHERE SystemId = '" + item.EmployeeID + @"'");
+
+                        var dtFmDate = Convert.ToDateTime(item.FromDate);
+                        var dtToDate = Convert.ToDateTime(item.ToDate);
+
+                        TimeSpan difference = dtToDate - dtFmDate;
+                        var leaveDays = Convert.ToInt32(difference.Days + 1);
+                        
+                        responsiblePersonName = dtEmpInfo.Rows[0]["EmployeeName"].ToString();
+                        responsiblePersonId = dtEmpInfo.Rows[0]["SystemId"].ToString();
+                        responsiplePersonEmail = dtEmpInfo.Rows[0]["EmailId"].ToString();
+                        string EmpPlant = dtEmpInfo.Rows[0]["PlantId"].ToString();
+                        LvtrnsId = item.LvTransSystemID;
+
+
+                        string dt = "";
+                        dt = item.ToDate != null ? item.ToDate : "";
+
+                        mailMessage = @"Dear " + responsiblePersonName + "<br> <br> <br>" +
+                                            " Your leave request has been Accepted for " + leaveDays + " Day(s),  Dated From " + item.FromDate + " To " + dt +
+                                            ". If any discrepancy, Please contact to concern HOD." +
+                                            "<br> <br> <br>" +
+                                            "Thank you";
+
+                        _mailSenderService.SendFirstLeaveApproveRequestMail(responsiblePersonId, EmpPlant, mailMessage, responsiplePersonEmail, responsiblePersonName, item.EmployeeID, dtEmpInfo.Rows[0]["EmployeeName"].ToString(), dtEmpInfo.Rows[0]["EmployeeCode"].ToString());
+                    }
+                }
+
+
+                ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                connection.BeginTransaction();
+                string strSql = @"Update LeaveTransaction set FirstApprovingStatus = 1,FirstApprovingDate = '" + DateTime.Now + "' where SystemID= " + LvtrnsId + "";
+                connection.executeQuery(strSql);
+
+                connection.CommitTransaction();
+
                 return "true";                
             }
             catch (Exception ex)

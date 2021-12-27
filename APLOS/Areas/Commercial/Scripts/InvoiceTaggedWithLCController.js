@@ -58,6 +58,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         };
         $scope.AutoLoanAvailableDataList = [];
         $scope.fromDateTitle = "As On Date";
+        $scope.LcModel = {};
     }
     //#endregion
 
