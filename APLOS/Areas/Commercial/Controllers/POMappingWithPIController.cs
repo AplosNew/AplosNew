@@ -95,9 +95,10 @@ namespace Aplos.Areas.Commercial.Controllers
                         string _materialId = "";
                         //add new
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("PIMaterial", out _materialId);
+                        genid.GenID("POMappingWithPI", out _materialId);
                         _materialId = "PM" + _materialId;
                         item["Id"] = _materialId;
+                        item["PIMaterialID"] = PIMaterial;
                         AddNewRow(dsPIMaterial.Tables[0], item);
 
                     }
@@ -397,7 +398,8 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
         {
 
             string sql = @"
-                            select convert(bit,case when isnull(POMPI.Id,'')<>'' then 1 else 0 END) AS Saved, POMPI.Id,POD.Id PODetailId
+                             select convert(bit,case when isnull(POMPI.Id,'')<>'' then 1 else 0 END) AS Saved, POMPI.Id,PIM.Id PIMaterialId
+							,POD.Id PODetailId,PIM.Quantity QuantityAtPIUoM,PIM.UoMId PIUoMId
                             ,POD.TransactionRate PORate,POD.TransactionQty POQuantity,POD.TransactionUoMId POUoM
 
                             from TRN.PurchaseOrderDetail POD
@@ -406,7 +408,8 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
                             left join mst.MaterialMasterArticle MMA on mma.id=POd.ArticleId
                             left join MST.MaterialMaster MM on MM.Id=MMA.MaterialMasterId
 
-                            where MM.MaterialGroupMasterId = '"+ MaterialGroupMasterId + @"' and POD.Id not in (select PODetailId from POMappingWithPI where PIMaterialId<>'"+ PIMaterialId + @"')";
+                            where MM.MaterialGroupMasterId = '" + MaterialGroupMasterId + @"' and POD.Id not in (select PODetailId from POMappingWithPI where PIMaterialId<>'" + PIMaterialId + @"')";
+            
             var POList = _sqlRepository.GetDataCollection(sql, null);
 
             return Json(new { Polist = POList }, JsonRequestBehavior.AllowGet);
