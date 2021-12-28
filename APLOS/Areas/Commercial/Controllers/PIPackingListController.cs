@@ -302,11 +302,24 @@ LEFT OUTER JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=pplm.PIUoMId
 LEFT OUTER JOIN PIPackingListMaterial AS plm2 ON plm2.PIPackingListMasterId=plm.Id
 LEFT OUTER JOIN PIPackingListDetail AS pld ON pld.PIPackingListMasterId=plm.Id
 LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON plm2.PIUoMId=uom.Id
-WHERE plm.Id='"+ PIPackingMaterId + @"'";
+WHERE plm.Id='" + PIPackingMaterId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetPopUp(string PIMaterial, string PIMaterialGroup)
+        {
 
+            string sql = @"SELECT pmp.id,p.Id PIMaterialId,MG.UserName MaterialGroup,
+ P.Rate PIRate, P.Quantity PIqty, P.Amount PIAmount
+    FROM POMappingWithPI pmp
+   LEFT OUTER JOIN PIMaterial p ON p.Id=pmp.PIMaterialID
+   LEFT OUTER JOIN mst.MaterialGroupMaster MG ON MG.Id=p.MaterialGroupMasterId
+    WHERE p.Id='" + PIMaterial + @"' AND p.MaterialGroupMasterId='" + PIMaterialGroup + @"'";
+            var PopUp = _sqlRepository.GetDataCollection(sql, null);
+
+            return Json(new { data = PopUp }, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public ActionResult GetAllData(string PIMasterId, string VersionId)
         {
@@ -322,10 +335,11 @@ WHERE plm.Id='"+ PIPackingMaterId + @"'";
 
             var PIMasterData = _sqlRepository.GetDataCollection(sql, null);
 
-            sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,NULL AS MaterialGroupUOMList,
+            sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity AllocatedQty, p.Quantity, p.Amount, p.UoMId,uom.Code UoM,NULL AS MaterialGroupUOMList,
 							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
 						  FROM PIMaterial AS p
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
+						  LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
 
             var PIMaterial = _sqlRepository.GetDataCollection(sql, null);

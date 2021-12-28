@@ -19,7 +19,7 @@
         <div class="form-group" show-errors id="div_FromDate">
             <label class="col-sm-4 control-label">{{fromDateTitle}}</label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Date" ng-model="AutoLoanNew.FromDate" datepicker class="form-control"  tabindex="3">
+                <input type="text" name="Date" ng-model="AutoLoanNew.FromDate" datepicker class="form-control" tabindex="3">
             </div>
         </div>
     </div>
@@ -28,7 +28,7 @@
             <div ng-show="toDateShow">
                 <label class="col-sm-4 control-label">To Date</label>
                 <div class="col-sm-6 show-message">
-                    <input type="text" name="Date" ng-model="AutoLoanNew.ToDate" datepicker class="form-control"  tabindex="4">
+                    <input type="text" name="Date" ng-model="AutoLoanNew.ToDate" datepicker class="form-control" tabindex="4">
                 </div>
             </div>
 
@@ -120,7 +120,17 @@
 
 
         </div>
-       
+        <br />
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Loan No</label>
+                <div class="col-sm-8">
+                    <input type="text" class="input ejinputtext form-control" ng-model="LcModel.LoanNo" maxlength="100" tabindex="2">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+        </div>
     </div>
-    
+
 </div>

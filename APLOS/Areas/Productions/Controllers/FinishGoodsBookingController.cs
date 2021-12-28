@@ -84,6 +84,24 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetCurrentQtyBreakDownData(string productionOrderId, string productCode, string entityId, string fromDate, string toDate)
+        {
+            return Json(clsFinishGoodsBooking.GetCurrentQtyBreakDownData(productionOrderId, productCode,entityId,fromDate,toDate), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetUnBookedQtyBreakDownData(string productionOrderId, string productCode, string entityId)
+        {
+            return Json(clsFinishGoodsBooking.GetUnBookedQtyBreakDownData(productionOrderId, productCode, entityId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetBookedQtyBreakDownData(string productionOrderId, string productCode, string entityId)
+        {
+            return Json(clsFinishGoodsBooking.GetBookedQtyBreakDownData(productionOrderId, productCode, entityId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetCostingItemData(string productionOrderId)
         {
             return Json(clsFinishGoodsBooking.GetCostingItemData(productionOrderId), JsonRequestBehavior.AllowGet);
