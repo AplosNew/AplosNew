@@ -66,7 +66,7 @@
                     </div>
                 </div>
                 <script type="text/template" id="checkMasterLC">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-enabled="{{data.Received == 0.00?'true':'false'}}" e-checked="data.isSelected" />
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-enabled="{{data.Received == 0.00?'true':'false'}}" e-change="$parent.Calculate" e-checked="data.isSelected" />
                 </script>
             </div>
 
@@ -105,7 +105,7 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Loan Amount</label>
                         <div class="col-sm-8">
-                            <input type="number" class="input ejinputtext form-control" ng-model="LcModel.LoanAmount" maxlength="100" tabindex="2">
+                            <input type="number" class="input ejinputtext form-control" ng-disabled="true" ng-model="LcModel.LoanAmount" maxlength="100" tabindex="2">
                         </div>
                     </div>
                 </div>
@@ -157,7 +157,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="table-responsive aplos-grid-toggle">
@@ -165,11 +164,13 @@
              e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
             <div e-columns>
-                <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
-                <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
-                <div e-column e-field="VoucherMood" e-headertext="Voucher Mood" e-width="80"></div>
-                <div e-column e-field="VendorName" e-headertext="Vendor Name" e-width="80"></div>
+                <div e-column e-field="LCRef" e-headertext="LC Ref" e-width="80"></div>
+                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="80"></div>
                 <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LoanDate" e-headertext="Loan Date" e-textalign="right" e-width="80"></div>
+                <div e-column e-field="LoanNo" e-headertext="LoanNo" e-textalign="right" e-width="80"></div>
+                <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
+                <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
             </div>
         </div>
     </div>

@@ -1092,7 +1092,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public IEnumerable<object> GetApprovalList(string companyGroupId, string plantId, bool isControlAdmin, bool isSysAdmin, string employeeId, string companyId, string FirstApprovingAuthority)
+        public IEnumerable<object> GetApprovalList(string plantId, bool isControlAdmin, bool isSysAdmin, string employeeId, string companyId, string FirstApprovingAuthority)
         {
             string strSql = string.Empty;
             try
@@ -1102,7 +1102,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                     (select Id from mst.ManpowerBudget where EntityId in (select entityid from [HKP].[ApprovalConfiguration]
                                             where LeaveApproval='" + employeeId + "')))" : @" AND Emp.CompanyId='" + companyId + "'";
 
-                strSql = @"SELECT 0 CheckBoxSelect, emp.SystemId EmployeeID,Lvt.SystemID LvTrnMsID,LT.Code AS LeaveStatus, emp.EmployeeCode,emp.BudgetCode,emp.EmployeeName,emp.EmpType,emp.NationalID,Dsgg.UserName GivenDesignation,E.UserName as Entity,
+                strSql = @"SELECT 0 CheckBoxSelect, emp.SystemId EmployeeID,emp.PlantId,emp.CompanyId,emp.GroupID,Lvt.SystemID LvTrnMsID,LT.Code AS LeaveStatus, emp.EmployeeCode,emp.BudgetCode,emp.EmployeeName,emp.EmpType,emp.NationalID,Dsgg.UserName GivenDesignation,E.UserName as Entity,
                              REPLACE(CONVERT(VARCHAR(11), emp.DOJ, 113), ' ', '-') DOJ,
 							 LT.UserName LeaveName, LT.Description LeaveDescription,
                              REPLACE(CONVERT(VARCHAR(11), LvT.FromDate, 113), ' ', '-') FromDate,
@@ -1121,9 +1121,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                              WHERE  IsNull(Lvt.IsApproved,0) = 0
 							 AND ISNULL(LvT.SystemID,'')<> ''
                              AND LvT.IsCancel=0
-							 --AND emp.GroupID = '" + companyGroupId + @"'
-                             --AND emp.PlantID = '" + plantId + @"' 
-                             AND FirstApprovingAuthority = '" + FirstApprovingAuthority + @"' AND LvT.FirstApprovingStatus = 0 ";
+					         AND FirstApprovingAuthority = '" + FirstApprovingAuthority + @"' AND LvT.FirstApprovingStatus = 0 ";
 
                 return _sqlRepository.GetDataCollection(strSql);
             }
@@ -1133,13 +1131,29 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public string SaveLeaveApproval(IEnumerable<LeaveVM> DataToSave)
+        public string SaveLeaveReject(IEnumerable<LeaveVM> DataToSave,string Reason)
         {
             try
             {
-                string LvtrnsId = "''";
+                clsLeaveApproval objLvTrsEmpWise;
+                objLvTrsEmpWise = new clsLeaveApproval(_sqlRepository);
                 foreach (LeaveVM item in DataToSave)
                 {
+                    LeaveCustomPara obj = new LeaveCustomPara();
+                    obj.EmpSystemId = item.EmployeeID;
+                    obj.FromDate = Convert.ToDateTime(item.FromDate);
+                    obj.ToDate = Convert.ToDateTime(item.ToDate);
+                    obj.LvTransSystemID = item.LvTransSystemID;
+                    obj.LTSystemID = item.LTSystemID;
+                    obj.CalanderYearID = item.CalanderYearID;
+                    obj.CancelationReason = Reason;
+
+
+                    obj.PlantId = item.PlantId;
+                    obj.CompanyId = item.CompanyId;
+                    obj.GroupId = item.GroupID;
+                    obj.UserId = item.UserId;
+                    objLvTrsEmpWise.Reject(obj);
 
                     if (!string.IsNullOrEmpty(item.EmployeeID))
                     {
@@ -1154,13 +1168,61 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                         TimeSpan difference = dtToDate - dtFmDate;
                         var leaveDays = Convert.ToInt32(difference.Days + 1);
-                        
+                       
                         responsiblePersonName = dtEmpInfo.Rows[0]["EmployeeName"].ToString();
                         responsiblePersonId = dtEmpInfo.Rows[0]["SystemId"].ToString();
                         responsiplePersonEmail = dtEmpInfo.Rows[0]["EmailId"].ToString();
                         string EmpPlant = dtEmpInfo.Rows[0]["PlantId"].ToString();
-                        LvtrnsId = item.LvTransSystemID;
 
+
+                        string dt = "";
+                        dt = item.ToDate != null ? item.ToDate : "";
+
+                        mailMessage = @"Dear " + responsiblePersonName + "<br> <br> <br>" +
+                                            " Your leave request has been rejected for " + leaveDays + " Day(s),  Dated From " + item.FromDate + " To " + dt +
+                                            ". Please contact to concern HOD." +
+                                            "<br> <br> <br>" +
+                                            "Thank you";
+
+                        _mailSenderService.SendFirstLeaveApproveRequestMail(responsiblePersonId, EmpPlant, mailMessage, responsiplePersonEmail, responsiblePersonName, item.EmployeeID, dtEmpInfo.Rows[0]["EmployeeName"].ToString(), dtEmpInfo.Rows[0]["EmployeeCode"].ToString());
+                    }
+                }
+                return "true";                
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public string SaveLeaveApproval(IEnumerable<LeaveVM> DataToSave)
+        {
+            try
+            {
+                string LvtrnsId = "(' '";
+                foreach (LeaveVM item in DataToSave)
+                {
+                    LvtrnsId += ",'" + item.LvTransSystemID + "'";
+
+                    if (!string.IsNullOrEmpty(item.EmployeeID))
+                    {
+                        string responsiblePersonName = "";
+                        string responsiblePersonId = "";
+                        string responsiplePersonEmail = "";
+                        string mailMessage = "";
+                        DataTable dtEmpInfo = _sqlRepository.GetDataTable(@"SELECT * FROM EmployeeInformation WHERE SystemId = '" + item.EmployeeID + @"'");
+
+                        var dtFmDate = Convert.ToDateTime(item.FromDate);
+                        var dtToDate = Convert.ToDateTime(item.ToDate);
+
+                        TimeSpan difference = dtToDate - dtFmDate;
+                        var leaveDays = Convert.ToInt32(difference.Days + 1);
+
+                        responsiblePersonName = dtEmpInfo.Rows[0]["EmployeeName"].ToString();
+                        responsiblePersonId = dtEmpInfo.Rows[0]["SystemId"].ToString();
+                        responsiplePersonEmail = dtEmpInfo.Rows[0]["EmailId"].ToString();
+                        string EmpPlant = dtEmpInfo.Rows[0]["PlantId"].ToString();
+                   
 
                         string dt = "";
                         dt = item.ToDate != null ? item.ToDate : "";
@@ -1174,23 +1236,23 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                         _mailSenderService.SendFirstLeaveApproveRequestMail(responsiblePersonId, EmpPlant, mailMessage, responsiplePersonEmail, responsiblePersonName, item.EmployeeID, dtEmpInfo.Rows[0]["EmployeeName"].ToString(), dtEmpInfo.Rows[0]["EmployeeCode"].ToString());
                     }
                 }
+                LvtrnsId += ")";
 
 
                 ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
                 connection.BeginTransaction();
-                string strSql = @"Update LeaveTransaction set FirstApprovingStatus = 1,FirstApprovingDate = '" + DateTime.Now + "' where SystemID= " + LvtrnsId + "";
+                string strSql = @"Update LeaveTransaction set FirstApprovingStatus = 1,FirstApprovingDate = '" + DateTime.Now + "' where SystemID IN " + LvtrnsId + "";
                 connection.executeQuery(strSql);
 
                 connection.CommitTransaction();
 
-                return "true";                
+                return "true";
             }
             catch (Exception ex)
             {
                 return ex.ToString();
             }
         }
-
     }
 
     public class LeaveData

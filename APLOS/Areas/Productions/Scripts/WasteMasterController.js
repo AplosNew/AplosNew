@@ -14,10 +14,10 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     //$scope.searchBy = "UserName"; $scope.search = "";
     //$scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
-    $scope.CompanyId = null;
-    $scope.CompanyList = [];
-    $scope.PlantId = null;
-    $scope.PlantList = [];
+    //$scope.CompanyId = null;
+    //$scope.CompanyList = [];
+    $scope.ProcessId = null;
+    $scope.ProcessList = [];
     $scope.EntityList = [];
     $scope.UOMList = [];
     $scope.BudgetList = [];
@@ -35,13 +35,30 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.GetSequence();
         });
 
+        //$http({
+        //    method: 'GET',
+        //    url: $scope.path + "getCompany",
+        //    dataType: 'JSON'
+        //}).then(function successCallback(response) {
+        //    $scope.CompanyList = response.data;
+        //});
+
         $http({
-            method: 'GET',
-            url: $scope.path + "getCompany",
+            method: 'POST',
+            url: $scope.path + "getProcess",
+            data: { 'proId': $scope.ProcessId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.CompanyList = response.data;
+            $scope.ProcessList = response.data;
         });
+
+        //$http({
+        //    method: 'POST',
+        //    url: $scope.path + "getBudget",
+        //    dataType: 'JSON'
+        //}).then(function successCallback(response) {
+        //    $scope.BudgetList = response.data;
+        //});
 
         $http({
             method: 'GET',
@@ -53,59 +70,62 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.getData();
 
-    $scope.getPlant = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "getPlants",
-            data: { 'cmpId': $scope.CompanyId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.PlantList = response.data;
-        });
-    }
+    //$scope.getPlant = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + "getPlants",
+    //        data: { 'cmpId': $scope.CompanyId },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.PlantList = response.data;
+    //    });
+    //}
 
-    $scope.getEntity = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "getEntity",
-            data: {'PlantId' : $scope.PlantId},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.EntityList = response.data;
-        });
-    }
+    //$scope.getEntity = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + "getEntity",
+    //        data: {'PlantId' : $scope.PlantId},
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.EntityList = response.data;
+    //    });
+    //}
 
     $scope.getBudgets = function () {
         $http({
             method: 'POST',
             url: $scope.path + "getBudget",
-            data: { 'EId': $scope.ModelNew.EntityId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.BudgetList = response.data;
         });
     }
+    
+    $scope.getBudgets();
+
+
+
 
     $scope.selectBudget = function () {
-        if (angular.isUndefinedOrNull($scope.ModelNew.EntityId)) {
-            ShowResult("Please First Select the Entity!!" , 'failure');
-            throw ("Invalid!!");
-        }
+        //if (angular.isUndefinedOrNull($scope.ModelNew.EntityId)) {
+        //    ShowResult("Please First Select the Entity!!" , 'failure');
+        //    throw ("Invalid!!");
+        //}
         angular.element(document.querySelector('#Budget')).modal('show');
     }
 
-    $scope.doubleBudget = function (e) {
-        $scope.Budget = e.data.Code;
-        $scope.ModelNew.BudgetId = e.data.Id;
-        angular.element(document.querySelector('#Budget')).modal('hide');
-    }
+    //$scope.doubleBudget = function (e) {
+    //    $scope.Budget = e.data.Code;
+    //    $scope.ModelNew.BudgetId = e.data.Id;
+    //    angular.element(document.querySelector('#Budget')).modal('hide');
+    //}
 
     $scope.ModelTemp = {
         Id: null,
         Sequence: 0,
-        EntityId: null,
+        ProcessId: null,
         UOMId: null,
-        BudgetId: null,
         Category: null,
         SubCategory: null,
         ItemName: null,
@@ -134,10 +154,10 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
         }).then(function successCallback(resp) {
             AllData = resp.data.master;
             $scope.ModelNew = Object.assign({}, AllData[0]);
-            $scope.CompanyId = AllData[0].CompanyId;
-            $scope.PlantId = AllData[0].PlantId;
-            $scope.getPlant();
-            $scope.getEntity();
+           // $scope.CompanyId = AllData[0].CompanyId;
+            //$scope.PlantId = AllData[0].PlantId;
+            //$scope.getPlant();
+           // $scope.getEntity();
             $scope.getBudgets();
             $scope.Budget = AllData[0].BudgetCode;
         });
@@ -151,10 +171,10 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
 
-        if (angular.isUndefinedOrNull($scope.ModelNew.BudgetId)) {
-            ShowResult('No Budget Code Selected!!' , 'failure');
-            throw ("Invalid");
-        }
+        //if (angular.isUndefinedOrNull($scope.ModelNew.BudgetId)) {
+        //    ShowResult('No Budget Code Selected!!' , 'failure');
+        //    throw ("Invalid");
+        //}
 
         if (angular.isUndefinedOrNull($scope.ModelNew.UOMId)) {
             ShowResult('No UOM Selected!!', 'failure');
@@ -215,8 +235,13 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.Action = 'Save';
         $scope.CompanyId = null;
         $scope.PlantId = null;
-        $scope.Budget = null;
+      //  $scope.Budget = null;
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+    }
+
+    // Addition of the Modal Operations for Budget Child
+    $scope.closeBudPopUp = function () {
+        var jj = $scope.BudgetList;
     }
 }

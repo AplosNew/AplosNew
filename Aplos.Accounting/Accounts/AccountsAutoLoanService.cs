@@ -66,9 +66,9 @@ namespace Library.Accounting.Accounts
 							, NoOfDays=DATEDIFF(DAY, '12-Jun-2021',I.BaseOnDueDate)
 							,ISNULL(PDAD.MaterialTranAmount,0) AcceptanceAmount
 							,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
-							 ,ISNULL(I.WrittenOffAmount,0)+ISNULL(LAA.LoanAccAmount,0) SetOff
-							 ,ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0) Balance
-							 ,Amount=ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0),NULL LoanNo,NULL LoanDate
+							 ,ISNULL(I.WrittenOffAmount,0) SetOff
+							 ,ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0) Balance
+							 ,Amount=ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0),NULL LoanNo,NULL LoanDate
 							 ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -134,9 +134,10 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
 							LEFT JOIN TRN.Voucher V ON V.Id=PDA.VoucherId
 							LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id
-							LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(ISNULL(Amount,0)) LoanAccAmount FROM TRN.LoanAgainstAcceptance WHERE ISNULL(VoucherId,'') ='' GROUP BY PurchaseDocAcceptanceId)LAA ON LAA.PurchaseDocAcceptanceId=PDA.Id  
+							--LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(ISNULL(Amount,0)) LoanAccAmount FROM TRN.LoanAgainstAcceptance WHERE ISNULL(VoucherId,'') ='' GROUP BY PurchaseDocAcceptanceId)LAA ON LAA.PurchaseDocAcceptanceId=PDA.Id  
                             WHERE PDA.VoucherId <>'' and V.Plantid='" + plantId + "'  " + dateStatus + @"
-							AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0)>0
+							AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0
+							AND pda.id NOT in (SELECT PurchaseDocAcceptanceId FROM LoanAgainstAcceptanceDetail )
 							ORDER BY I.ActualDueDate ASC ";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -177,5 +178,39 @@ namespace Library.Accounting.Accounts
 						WHERE LAA.IsPark=1 AND LAA.PlantId='" + plantId + "'  AND LAA.VoucherId IS NULL";
 			return _sqlRepository.GetDataCollection(sql);
 		}
-    }
+		public IEnumerable<object> GetMaster(string CompanyGroupId, string CompanyId, string PlantId)
+		{
+			try
+			{
+				string strSQL = string.Empty;
+				strSQL = @"SELECT distinct m.Id
+										,pl.LCRef
+										,p.UserName Vendor
+										,FORMAT(m.LoanDate, 'dd-MMM-yyyy') LoanDate
+										,m.LoanNo
+										,c.Code Currency
+										,m.Amount
+										,CASE 
+											WHEN ISNULL(m.VoucherId, '') = ''
+												THEN 'Park'
+											ELSE 'Post'
+											END [Status]
+									FROM LoanAgainstAcceptanceMaster m
+									LEFT JOIN SCS.Currency AS c ON c.Id = m.CurrencyId
+									LEFT JOIN HKP.Party AS p ON p.Id = m.PartyID
+									LEFT JOIN (SELECT LoanAgainstAcceptanceMasterId,PurchaseDocAcceptanceId from  LoanAgainstAcceptanceDetail ) d ON d.LoanAgainstAcceptanceMasterId = m.Id
+									LEFT JOIN TRN.PurchasedocAcceptance pd ON pd.Id=d.PurchaseDocAcceptanceId
+									LEFT JOIN PurchaseLC AS pl ON pl.Id = pd.PurchaseLCId
+									WHERE m.PlantId = '" + PlantId + @"'
+										AND m.CompanyGroupId = '" + CompanyGroupId + @"'
+										AND m.companyId = '" + CompanyId + "'";
+				return _sqlRepository.GetDataCollection(strSQL);
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+			}
+
+		}//End Function
+	}
 }

@@ -442,7 +442,7 @@
 <div class="form-horizontal form-elements" ng-form="productNewForm">
     <div ng-form name="JWPOForm">
         <fieldset class="scheduler-border">
-            <legend class="scheduler-border">Job Work PO Type</legend>
+            <legend class="scheduler-border">OutSource PO Type</legend>
             <div class="row">
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group">
@@ -861,7 +861,7 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
             <div ng-form="tabForm1">
                 <ul class="col-md-6 common-btn list-inline text-left">
-                    <li><button ng-click="detailPopUp();" ng-hide="productNew.Id==null || productNew.OrderSpecific==='Yes'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Job Work Item</button></li>
+                    <li><button ng-click="detailPopUp();" ng-hide="productNew.Id==null || productNew.OrderSpecific==='Yes'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add OutSource Item</button></li>
 
                     <li><button ng-click="getalldataListForBOQList();" ng-hide="productNew.Id==null || productNew.OrderSpecific==='No'" class="btn"><i class="glyphicon glyphicon-plus"></i>  Add BOQ Material</button></li>
                 </ul>
@@ -1384,7 +1384,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                Add Job Work Item(Out Put Item)
+                Add OutSource Item(Out Put Item)
                 <button type="button" class="close" ng-click="closeDetaiPopUp();">×</button>
             </div>
             <div class="modal-body form-elements form-horizontal">
@@ -1396,11 +1396,11 @@
                         <div class="col-sm-12 col-md-4 col-lg-4 " style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class="control-label">
-                                    Job Work Activity<sup>*</sup>
+                                    OutSource Activity<sup>*</sup>
                                 </label>
                                 <div class="show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.JobActivityId" name="Job Work Activity" required ng-change="GetJWItems();GetJWLocation();"
+                                        <select class="form-control" ng-model="detailModel.JobActivityId" name="OutSource Activity" required ng-change="GetJWItems();GetJWLocation();"
                                                 ng-options="item.Value as item.Text for item in JobWorkActivityList" tabindex="16">
                                             <option value=""></option>
                                         </select>
@@ -1415,7 +1415,7 @@
                                 </label>
                                 <div class="show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.JobWorkItemMasterId" name="Job Work Items" required
+                                        <select class="form-control" ng-model="detailModel.JobWorkItemMasterId" name="OutSource Items" required
                                                 ng-options="item.Value as item.Text for item in JobWorkItemMstList" ng-change="GetJWitemDataFromTrans();GetRate();GetCurrencyyy();GetMaterialfromJW();" tabindex="17">
                                             <option value=""></option>
                                         </select>
@@ -1586,7 +1586,7 @@
                         <div class="clearfix"></div>
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
-                                <label class=" control-label">Job Work Location<sup>*</sup></label>
+                                <label class=" control-label">OutSource Location<sup>*</sup></label>
                                 <div class=" show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.MaterialLocationId" name="Material Location" ng-change="GetJWMaterialStorage();"
