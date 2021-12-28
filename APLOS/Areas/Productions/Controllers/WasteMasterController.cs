@@ -65,11 +65,11 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(ws.getUOM(), JsonRequestBehavior.AllowGet);
         }
 
-        //[Authorize, HttpPost]
-        //public ActionResult getBudget()
-        //{
-        //    return Json(ws.getBudgetId(), JsonRequestBehavior.AllowGet);
-        //}
+        [Authorize, HttpPost]
+        public ActionResult getBudget()
+        {
+            return Json(ws.getBudgetId(), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetCbo()

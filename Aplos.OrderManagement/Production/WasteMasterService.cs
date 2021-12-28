@@ -75,23 +75,23 @@ namespace Library.OrderManagement.Production
 
         }
 
-        //public IEnumerable<object> getBudgetId()
-        //{
-        //    try
-        //    {
-        //        var str = @"Select mb.Id , mb.Code , p.UserName as Position , c.UserName as Company, e.UserName as Entity from mst.ManpowerBudget mb
-        //                    left join org.Position p on p.Id = mb.PositionId
-        //                    left join org.Company c on c.Id = mb.CompanyId
-        //                    left join org.Entity e on e.Id = mb.EntityId
-        //                    left join mst.ManpowerBudget mb on mb.Id = wm.BudgetId
-        //                ";
-        //        return _sqlRepository.GetDataCollection(str);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
+        public IEnumerable<object> getBudgetId()
+        {
+            try
+            {
+                var str = @"Select mb.Id , mb.Code , p.UserName as Position , c.UserName as Company, pp.UserName as Plant ,e.UserName as Entity from mst.ManpowerBudget mb
+                            left join org.Position p on p.Id = mb.PositionId
+                            left join org.Company c on c.Id = mb.CompanyId
+                            left join org.Entity e on e.Id = mb.EntityId
+							left join org.Plant pp on pp.Id = e.PlantId
+                        ";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public IEnumerable<object> Get(string Id)
         {

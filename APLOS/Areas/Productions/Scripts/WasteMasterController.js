@@ -20,8 +20,8 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.ProcessList = [];
     $scope.EntityList = [];
     $scope.UOMList = [];
-    //$scope.BudgetList = [];
-    //$scope.Budget = null;
+    $scope.BudgetList = [];
+    $scope.Budget = null;
 
     $scope.getData = function () {
         $http({
@@ -92,16 +92,20 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     //    });
     //}
 
-    //$scope.getBudgets = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + "getBudget",
-    //        data: { 'EId': $scope.ModelNew.EntityId },
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        $scope.BudgetList = response.data;
-    //    });
-    //}
+    $scope.getBudgets = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getBudget",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.BudgetList = response.data;
+        });
+    }
+    
+    $scope.getBudgets();
+
+
+
 
     $scope.selectBudget = function () {
         //if (angular.isUndefinedOrNull($scope.ModelNew.EntityId)) {
@@ -154,8 +158,8 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
             //$scope.PlantId = AllData[0].PlantId;
             //$scope.getPlant();
            // $scope.getEntity();
-           // $scope.getBudgets();
-           // $scope.Budget = AllData[0].BudgetCode;
+            $scope.getBudgets();
+            $scope.Budget = AllData[0].BudgetCode;
         });
 
         $scope.Action = 'Update';
@@ -234,5 +238,10 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
       //  $scope.Budget = null;
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+    }
+
+    // Addition of the Modal Operations for Budget Child
+    $scope.closeBudPopUp = function () {
+        var jj = $scope.BudgetList;
     }
 }
