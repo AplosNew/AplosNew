@@ -142,9 +142,11 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     };
 
     $scope.LoadPISearchList();
+    $scope.LastVersion = null;
     $scope.Get = function (args) {
         //$scope.getHeader(args.data.Id, args.data.PIVersionId);
         $scope.SelectedPIVersion = args.data.PIVersionId;
+        $scope.LastVersion = args.data.LastVersion;
         $http({
             method: 'GET',
             url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId,
@@ -152,6 +154,7 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
             if (!baseService.isUndefinedOrNull(response.data)) {
                 $scope.PImodelNew = response.data.PIMaster[0];
                 $scope.PIVersionModel = response.data.VarsionData;
+                $scope.PImodelNew.VersionNo = $scope.LastVersion;
                 $scope.DataList = response.data.ItemData;
                 $scope.PIVersionModel.Id = $scope.PIVersionModel[0].Id;
                 if (!$rootScope.isCollapsed) {
@@ -164,10 +167,22 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
 
     };
 
-
+    $scope.MaterialModel = {
+       
+                    Id: null
+                    , PIMaterialID: null
+                    , PODetailId: null
+                    , QuantityAtPIUoM: null
+                    , PIUoMId: null
+                    , POQuantity: 0
+                    , POUoMId: null
+         
+    };
+    $scope.ModelPO = {};
     $scope.PODataList = [];
-   
     $scope.GetPOPopUpNew = function (args) {
+        //$scope.MaterialModel = args.data;
+        $scope.ModelPO = args.data;
         $scope.PIMaterialId = args.data.Id;
         $http({
             method: 'GET',
@@ -183,7 +198,7 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
         angular.element(document.querySelector('#POPopUpNew')).modal('hide');
     }
 
-    $scope.refreshIssueSlip = function (args) {
+    $scope.refreshPOMappingWithPI = function (args) {
         $("#POheadchk").ejCheckBox({ "change": CheckBoxSelectPOListWise });
     };
 
@@ -222,14 +237,14 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     //    $scope.getUoM(Id);
     //}
 
-    $scope.CheckAll123 = function (event) {
-        var _isselected = event.target.checked;
+    //$scope.CheckAll123 = function (event) {
+    //    var _isselected = event.target.checked;
 
-        for (var i = 0; i < $scope.POList123.length; i++) {
+    //    for (var i = 0; i < $scope.PODataList.length; i++) {
 
-            $scope.POList123[i].check = _isselected;
-        }
-    };
+    //        $scope.PODataList[i].check = _isselected;
+    //    }
+    ////};
   
     $scope.Save = function () {
         try {
@@ -244,7 +259,7 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'PIMaterial': $scope.PIMaterialId, 'POList': LIST},
+                data: { 'PIMaterial': $scope.ModelPO, 'POList': LIST},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
