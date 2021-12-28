@@ -205,7 +205,7 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyGroupId = '" + companyGroupId + @"'
 									AND IV.CompanyId = '" + companyId + @"'
 									" + DatewiseData + @"
-								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLC)
+								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
 								UNION ALL
 								
 								SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId
@@ -328,7 +328,7 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyId = '" + companyId + @"'
 									AND IR.PurchaseDocumentAcceptanceId IS NULL
 									" + DatewiseData + @"
-								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLC)";
+								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
