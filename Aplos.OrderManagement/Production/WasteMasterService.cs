@@ -186,8 +186,7 @@ namespace Library.OrderManagement.Production
                 string _IdC = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 #region data Child update
-                if (dsChild.Tables[0].Rows.Count == 0)
-                {
+                
                     for(int i = 0; i < budgets.Count; i++)
                     {
                         DataRow dr = dsChild.Tables[0].NewRow();
@@ -204,7 +203,7 @@ namespace Library.OrderManagement.Production
                         dr["UpdatedFromIP"] = identity.IPAddress;
                         dsChild.Tables[0].Rows.Add(dr);
                     }
-                }
+                
                 #endregion data update
 
 
@@ -232,6 +231,12 @@ namespace Library.OrderManagement.Production
 
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from dbo.WasteBudgetDetail where WasteMasterId ='" + id + "'");
+                conC.CommitTransaction();
+
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();

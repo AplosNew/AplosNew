@@ -135,6 +135,8 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
+    $scope.SelBudList = [];
+
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
@@ -153,6 +155,7 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
             dataType: 'JSON'
         }).then(function successCallback(resp) {
             $scope.BudgetIds = [];
+            $scope.SelBudList = [];
             AllData = resp.data.master;
             var child = resp.data.child;
             var ob = {};
@@ -160,11 +163,13 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
             for (var i = 0; i < child.length; i++) {
                 ob[child[i].BudgetId] = true;
                 $scope.BudgetIds.push(child[i].BudgetId);
+                
             }
 
             for (var i = 0; i < $scope.BudgetList.length; i++) {
                 if ($scope.BudgetList[i].Id in ob) {
                     $scope.BudgetList[i].isSelected = true;
+                    $scope.SelBudList.push($scope.BudgetList[i]);
                 }
                 else {
                     $scope.BudgetList[i].isSelected = false;
@@ -250,6 +255,8 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.PlantId = null;
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.BudgetIds = [];
+        $scope.SelBudList = [];
     }
 
     // Addition of the Modal Operations for Budget Child
@@ -261,10 +268,11 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.selectBudDetail = function () {
         $scope.BudgetIds = [];
-
+        $scope.SelBudList = [];
         for (var i = 0; i < $scope.BudgetList.length; i++) {
             if ($scope.BudgetList[i].isSelected == true) {
                 $scope.BudgetIds.push($scope.BudgetList[i].Id);
+                $scope.SelBudList.push($scope.BudgetList[i]);
             }
         }
 
