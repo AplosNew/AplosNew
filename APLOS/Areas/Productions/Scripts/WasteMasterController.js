@@ -112,7 +112,7 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
         //    ShowResult("Please First Select the Entity!!" , 'failure');
         //    throw ("Invalid!!");
         //}
-        angular.element(document.querySelector('#Budget')).modal('show');
+        angular.element(document.querySelector('#BudgetPop')).modal('show');
     }
 
     //$scope.doubleBudget = function (e) {
@@ -152,14 +152,26 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
             data: {'Id':args.data.Id},
             dataType: 'JSON'
         }).then(function successCallback(resp) {
+            $scope.BudgetIds = [];
             AllData = resp.data.master;
+            var child = resp.data.child;
+            var ob = {};
             $scope.ModelNew = Object.assign({}, AllData[0]);
-           // $scope.CompanyId = AllData[0].CompanyId;
-            //$scope.PlantId = AllData[0].PlantId;
-            //$scope.getPlant();
-           // $scope.getEntity();
-            $scope.getBudgets();
-            $scope.Budget = AllData[0].BudgetCode;
+            for (var i = 0; i < child.length; i++) {
+                ob[child[i].BudgetId] = true;
+                $scope.BudgetIds.push(child[i].BudgetId);
+            }
+
+            for (var i = 0; i < $scope.BudgetList.length; i++) {
+                if ($scope.BudgetList[i].Id in ob) {
+                    $scope.BudgetList[i].isSelected = true;
+                }
+                else {
+                    $scope.BudgetList[i].isSelected = false;
+                }
+            }
+
+
         });
 
         $scope.Action = 'Update';
@@ -181,11 +193,12 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
             throw ("Invalid");
         }
 
+
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'datas': $scope.ModelNew },
+                data: { 'datas': $scope.ModelNew , 'budgets' :$scope.BudgetIds },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -235,13 +248,26 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.Action = 'Save';
         $scope.CompanyId = null;
         $scope.PlantId = null;
-      //  $scope.Budget = null;
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }
 
     // Addition of the Modal Operations for Budget Child
     $scope.closeBudPopUp = function () {
-        var jj = $scope.BudgetList;
+        angular.element(document.querySelector('#BudgetPop')).modal('hide');
+    }
+
+    $scope.BudgetIds = [];
+
+    $scope.selectBudDetail = function () {
+        $scope.BudgetIds = [];
+
+        for (var i = 0; i < $scope.BudgetList.length; i++) {
+            if ($scope.BudgetList[i].isSelected == true) {
+                $scope.BudgetIds.push($scope.BudgetList[i].Id);
+            }
+        }
+
+        angular.element(document.querySelector('#BudgetPop')).modal('hide');
     }
 }

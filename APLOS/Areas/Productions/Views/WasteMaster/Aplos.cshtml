@@ -202,7 +202,7 @@
         </div>
     </div>*@
 
-<div class="modal fade site-modal in" id="Budget" tabindex="-1">
+@*<div class="modal fade site-modal in" id="Budget" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -240,7 +240,7 @@
         </div>
 
     </div>
-</div>
+</div>*@
 <confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>
 
@@ -251,12 +251,12 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Please Select All the Budgets.</p>
                         <div style="color:black;" id="GridBudget" ej-grid e-datasource="BudgetList"
                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
                             <div e-columns>
                                 <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
-
                                 <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
                                 <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
                                 <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
@@ -270,9 +270,7 @@
                         <script type="text/template" id="checkboxTemplate">
                             <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
                         </script>
-                        <script type="text/x-jsrender" id="headerTemplate">
-                            <input type="checkbox" id="headchk" />
-                        </script>
+                        
 
 
                     </div>
