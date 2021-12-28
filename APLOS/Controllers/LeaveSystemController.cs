@@ -37,6 +37,8 @@ namespace Aplos.Controllers
 
         #endregion Constructor
 
+        #region Leave Application
+
         [HttpGet]
         public IHttpActionResult GetEmpInfo(string EmpId)
         {
@@ -162,14 +164,16 @@ namespace Aplos.Controllers
             }
         }
 
-        // Leave Approval
+        #endregion
+
+        #region Leave Approval
 
         [HttpGet]
-        public IHttpActionResult GetLeaveApprovalList(string CGId, string plantId, bool isControlAdmin, bool isSysAdmin, string EmpId, string CompId)
+        public IHttpActionResult GetLeaveApprovalList(string plantId, bool isControlAdmin, bool isSysAdmin, string EmpId, string CompId)
         {
             try
             {
-                var result = _leaveapp.GetApprovalList(CGId, plantId,isControlAdmin,isSysAdmin,EmpId, CompId,EmpId);
+                var result = _leaveapp.GetApprovalList(plantId,isControlAdmin,isSysAdmin,EmpId, CompId,EmpId);
                 return Json(result);
             }
             catch (Exception ex)
@@ -184,7 +188,7 @@ namespace Aplos.Controllers
 
 
         [HttpGet]
-        public IHttpActionResult GetEmpLeaveBalanceForApprovalScreen(string EmpId,string PlantId,string CalId)
+        public IHttpActionResult GetEmpLeaveBalanceForApprovalScreen(string EmpId,string CalId)
         {
             try
             {              
@@ -218,7 +222,8 @@ namespace Aplos.Controllers
         }
 
         [HttpPost]
-        public string LeaveReject([FromBody] IEnumerable<LeaveVM> DataToSave,string Reason)
+        [Route("api/Reject/Reason/{Reason}")]
+        public string LeaveReject([FromBody] IEnumerable<LeaveVM> DataToSave,[FromUri] string Reason)
         {
             try
             {
@@ -232,6 +237,6 @@ namespace Aplos.Controllers
             }
         }
 
-
+        #endregion
     }
 }

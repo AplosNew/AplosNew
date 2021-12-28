@@ -116,6 +116,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getData();
+                    $scope.getAutoLoanAvailableList();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -148,9 +149,10 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         $scope.LcModel.LoanAmount = 0;
         for (var i = 0; i < $scope.AutoLoanAvailableDataList.length; i++) {
             if ($scope.AutoLoanAvailableDataList[i].isSelected) {
-                $scope.LcModel.LoanAmount +=  parseFloat($scope.AutoLoanAvailableDataList[i].Receivable);
+                $scope.LcModel.LoanAmount += parseFloat($scope.AutoLoanAvailableDataList[i].Receivable);
             }
         }
+        parseFloat($scope.LcModel.LoanAmount).toFixed(2);
     }
 
     //#endregion

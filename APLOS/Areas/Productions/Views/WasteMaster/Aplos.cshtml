@@ -13,7 +13,7 @@
             <label class="col-sm-4 control-label">Process</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.ProcessId"  name="Process"
+                    <select class="form-control" ng-model="ModelNew.ProcessId" name="Process"
                             ng-options="item.Value as item.Text for item in ProcessList">
                         <option value="">--Select--</option>
                     </select>
@@ -22,27 +22,30 @@
         </div>
 
         @*<div class="form-group">
-            <label class="col-sm-4 control-label">Entity</label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.EntityId" ng-change="getBudgets()" name="entity"
-                            ng-options="item.Value as item.Text for item in EntityList">
-                        <option value="">--Select--</option>
-                    </select>
+                <label class="col-sm-4 control-label">Entity</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EntityId" ng-change="getBudgets()" name="entity"
+                                ng-options="item.Value as item.Text for item in EntityList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </div>*@
+            </div>*@
 
-        @*<div class="form-group">
+
+        <div class="form-group">
             <label class="col-sm-4 control-label">Budget<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <input type="text" name="Location" ng-model="Budget" ng-click="selectBudget()" class="form-control" maxlength="200" tabindex="5">
+
 
             </div>
             <div class="col-sm-1">
                 <button ng-click="selectBudget()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
             </div>
-        </div>*@
+
+        </div>
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
@@ -64,17 +67,17 @@
         </div>
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
-      @*<div class="form-group">
-            <label class="col-sm-4 control-label">Company</label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="CompanyId" ng-change="getPlant()" name="Company"
-                            ng-options="item.Value as item.Text for item in CompanyList">
-                        <option value="">--Select--</option>
-                    </select>
+        @*<div class="form-group">
+                <label class="col-sm-4 control-label">Company</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="CompanyId" ng-change="getPlant()" name="Company"
+                                ng-options="item.Value as item.Text for item in CompanyList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </div>*@
+            </div>*@
 
 
         <div class="form-group">
@@ -94,7 +97,7 @@
                 <input type="text" name="Category" ng-model="ModelNew.Category" class="form-control" maxlength="30" required tabindex="3">
             </div>
         </div>
-        
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Standard Rate<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -118,26 +121,26 @@
     </div>
 </div>
 @*<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
-                </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>*@
+    </div>*@
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -148,17 +151,56 @@
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
             @*<div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>*@
             <div e-column e-field="Process" e-headertext="Process" e-width="3"></div>
-            @*<div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="3"></div>*@
+            <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="3"></div>
             <div e-column e-field="ItemName" e-headertext="Item Name" e-width="3"></div>
             <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
             <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
             <div e-column e-field="StandardRate" e-headertext="Standard Rate" e-type="number" e-width="3"></div>
-           
+
         </div>
     </div>
 </div>
 <confirm-modal></confirm-modal>
 
+
+@*<div class="modal fade site-modal in" id="Budget" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" data-dismiss="modal">&times;</button>
+                    <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Budget</h1>
+                </div>
+                <div class="modal-body" style="min-height:300px; min-width:100%;">
+                    <div class="row" style="margin: 20px; font-style:italic"> </div>
+                    <p style="margin:10px;">
+                        Select The Budgets .
+                    <p>
+
+                        <div id="getBudgets" ej-grid e-datasource="BudgetList" e-templaterefresh="refreshTemplate"
+                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                             e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                             e-recorddoubleclick="doubleBudget">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                                <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
+                                <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
+                                <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
+                                <div e-column e-field="Plant" e-headertext="Plant" e-width="100"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+
+                            </div>
+                        </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>*@
 
 @*<div class="modal fade site-modal in" id="Budget" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -173,17 +215,19 @@
                     Select The Budget by Double Clicking the Choice.
                 <p>
 
-                    <div id="getBudgets" ej-grid e-datasource="BudgetList" e-templaterefresh="refreshTemplate"
+                    <div id="getBudget" ej-grid e-datasource="BudgetList"
                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                          e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
                          e-recorddoubleclick="doubleBudget">
                         <div e-columns>
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
                             <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-                            <div e-column e-field="Code" e-headertext="Budget Code" e-width="120"></div>
-                            <div e-column e-field="Position" e-headertext="Position" e-width="120"></ >
+                            <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
+                            <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
                             <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
-                            <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="100"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
 
                         </div>
                     </div>
@@ -197,3 +241,80 @@
 
     </div>
 </div>*@
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="BudgetPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Budget List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Please Select All the Budgets.</p>
+                        <div style="color:black;" id="GridBudget" ej-grid e-datasource="BudgetList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
+                                <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
+                                <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
+                                <div e-column e-field="Plant" e-headertext="Plant" e-width="100"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+
+                            </div>
+
+                        </div>
+                        <script type="text/template" id="checkboxTemplate">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                        </script>
+                        
+
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="selectBudDetail();" class="btn"><i class=""></i> Select</button>
+                            <button ng-click="closeBudPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*<div class="modal fade site-modal in" id="Budget" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+    <div class="modal-header">
+    <button class="close" data-dismiss="modal">&times;</button>
+    <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Budget</h1>
+    </div>
+    <div class="modal-body" style="min-height:300px; min-width:100%;">
+    <div class="row" style="margin: 20px; font-style:italic"> </div>
+    <p style="margin:10px;">
+    Select The Budget by Double Clicking the Choice.
+    <p> <div id="getBudgets" ej-grid e-datasource="BudgetList" e-templaterefresh="refreshTemplate"
+    e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+    e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+    e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+    e-recorddoubleclick="doubleBudget">
+    <div e-columns>
+    <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+    <div e-column e-field="Code" e-headertext="Budget Code" e-width="120"></div>
+    <div e-column e-field="Position" e-headertext="Position" e-width="120"></ >
+    <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
+    <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div> </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+    <button class="btn btn-primary" data-dismiss="modal">Close</button>
+    </div>
+    </div> </div>
+    </div>*@
+
