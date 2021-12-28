@@ -205,7 +205,7 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyGroupId = '" + companyGroupId + @"'
 									AND IV.CompanyId = '" + companyId + @"'
 									" + DatewiseData + @"
-								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLC)
+								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
 								UNION ALL
 								
 								SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId
@@ -328,7 +328,7 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyId = '" + companyId + @"'
 									AND IR.PurchaseDocumentAcceptanceId IS NULL
 									" + DatewiseData + @"
-								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLC)";
+								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -354,7 +354,7 @@ namespace Library.MaterialManagement.Material
                 int count = 0;
                 DataRow drSave;
                 DataRow drMSave;
-				string MasterId = string.Empty;
+                string MasterId = string.Empty;
                 #endregion
 
                 string sql = "SELECT * FROM InvoiceTaggingWithLCMaster WHERE 1=2";
@@ -366,47 +366,50 @@ namespace Library.MaterialManagement.Material
                 {
                     drMSave = dsMaster.Tables[0].NewRow();
                     drMSave["Id"] = "M" + TempId;
-					MasterId = drMSave["Id"].ToString();
-					drMSave["CompanyGroupId"] = identity.CompanyGroupId;
+                    MasterId = drMSave["Id"].ToString();
+                    drMSave["CompanyGroupId"] = identity.CompanyGroupId;
                     drMSave["CompanyId"] = identity.CompanyId;
                     drMSave["PlantId"] = identity.PlantId;
                     drMSave["EntityId"] = DataList[0]["EntityId"];
                     drMSave["CurrencyId"] = DataList[0]["CurrencyId"];
-                    drMSave["LoanDate"] = LcData["LoanDate"];
+					drMSave["PartyId"] = DataList[0]["PartyId"];
+					drMSave["PartyPlantId"] = DataList[0]["PartyPlantId"];
+					drMSave["PurchaseLcId"] = LcData["Id"];
+					drMSave["VoucherId"] = DBNull.Value;
+					drMSave["BankMasterId"] = LcData["OpeningBankMasterId"];
+
+					drMSave["LoanDate"] = LcData["LoanDate"];
                     drMSave["LoanNo"] = LcData["LoanNo"];
                     drMSave["Amount"] = LcData["LoanAmount"];
+
                     drMSave["AddedBy"] = identity.Name;
                     drMSave["AddedDate"] = DateTime.Now;
                     drMSave["AddedFromIP"] = identity.IPAddress;
-					drMSave["UpdatedBy"] = identity.Name;
-					drMSave["UpdatedDate"] = DateTime.Now;
-					drMSave["UpdatedFromIP"] = identity.IPAddress;
-					dsMaster.Tables[0].Rows.Add(drMSave);
+                    drMSave["UpdatedBy"] = identity.Name;
+                    drMSave["UpdatedDate"] = DateTime.Now;
+                    drMSave["UpdatedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(drMSave);
                 }
                 foreach (var item in DataList)
                 {
-					dsDetail.Tables[0].DefaultView.RowFilter = "Id = '" + item["InvoiceId"] + "'";
+                    dsDetail.Tables[0].DefaultView.RowFilter = "Id = '" + item["InvoiceId"] + "'";
                     if (dsDetail.Tables[0].DefaultView.Count == 0)
                     {
                         count++;
                         drSave = dsDetail.Tables[0].NewRow();
                         drSave["Id"] = "D" + TempId + count;
-						drSave["InvoiceTaggingWithLCMasterId"] = MasterId;
-						drSave["InvoiceId"] = item["InvoiceId"];
+                        drSave["InvoiceTaggingWithLCMasterId"] = MasterId;
+                        drSave["InvoiceId"] = item["InvoiceId"];
                         drSave["InvoiceDetailId"] = item["InvoiceDetailId"];
-                        drSave["PurchaseLcId"] = LcData["Id"];
-
-                        drSave["PartyId"] = item["PartyId"];
-                        drSave["PartyPlantId"] = item["PartyPlantId"];
-                        
+                       
                         drSave["AddedBy"] = identity.Name;
                         drSave["AddedDate"] = DateTime.Now;
                         drSave["AddedFromIP"] = identity.IPAddress;
 
-						drSave["UpdatedBy"] = identity.Name;
-						drSave["UpdatedDate"] = DateTime.Now;
-						drSave["UpdatedFromIP"] = identity.IPAddress;
-						dsDetail.Tables[0].Rows.Add(drSave);
+                        drSave["UpdatedBy"] = identity.Name;
+                        drSave["UpdatedDate"] = DateTime.Now;
+                        drSave["UpdatedFromIP"] = identity.IPAddress;
+                        dsDetail.Tables[0].Rows.Add(drSave);
 
                     }
                     else
@@ -431,39 +434,38 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-		public IEnumerable<object> GetMaster(string CompanyGroupId,string CompanyId,string PlantId)
-		{
-			try
-			{
-				string strSQL = string.Empty;
-				strSQL = @"SELECT d.PartyID
-										,E.UserName Entity
+        public IEnumerable<object> GetMaster(string CompanyGroupId, string CompanyId, string PlantId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"SELECT m.Id
+										,pl.LCRef
+										,p.UserName Vendor
+										,FORMAT(m.LoanDate, 'dd-MMM-yyyy') LoanDate
+										,m.LoanNo
 										,c.Code Currency
+										,m.Amount
 										,CASE 
 											WHEN ISNULL(m.VoucherId, '') = ''
 												THEN 'Park'
 											ELSE 'Post'
-											END VoucherMood
-										,FORMAT(m.LoanDate, 'dd-MMM-yyyy') LoanDate
-										,p.UserName VendorName
+											END [Status]
 									FROM InvoiceTaggingWithLCMaster m
-									LEFT JOIN (
-										SELECT DISTINCT PartyID
-											,InvoiceTaggingWithLCMasterId
-										FROM InvoiceTaggingWithLCDetail
-										) D ON D.InvoiceTaggingWithLCMasterId = m.Id
-									LEFT JOIN ORG.Entity AS e ON e.Id = m.EntityId
 									LEFT JOIN SCS.Currency AS c ON c.Id = m.CurrencyId
-									LEFT JOIN HKP.Party AS p ON p.Id=D.PartyID
-									where m.PlantId='" + PlantId+"' and m.CompanyGroupId='"+CompanyGroupId+"' and m.companyId='"+CompanyId+"' ";
-				return _sqlRepository.GetDataCollection(strSQL);
-			}
-			catch (Exception ex)
-			{
-				throw (ex);
-			}
+									LEFT JOIN HKP.Party AS p ON p.Id = m.PartyID
+									LEFT JOIN PurchaseLC AS pl ON pl.Id = m.PurchaseLcId
+									WHERE m.PlantId = '" + PlantId + @"'
+										AND m.CompanyGroupId = '" + CompanyGroupId + @"'
+										AND m.companyId = '" + CompanyId + "'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
 
-		}//End Function
+        }//End Function
 
-	}
+    }
 }
