@@ -169,7 +169,7 @@ namespace Aplos.Controllers
         #region Leave Approval
 
         [HttpGet]
-        public IHttpActionResult GetLeaveApprovalList(string CGId, string plantId, bool isControlAdmin, bool isSysAdmin, string EmpId, string CompId)
+        public IHttpActionResult GetLeaveApprovalList(string plantId, bool isControlAdmin, bool isSysAdmin, string EmpId, string CompId)
         {
             try
             {
@@ -188,7 +188,7 @@ namespace Aplos.Controllers
 
 
         [HttpGet]
-        public IHttpActionResult GetEmpLeaveBalanceForApprovalScreen(string EmpId,string PlantId,string CalId)
+        public IHttpActionResult GetEmpLeaveBalanceForApprovalScreen(string EmpId,string CalId)
         {
             try
             {              
@@ -222,7 +222,8 @@ namespace Aplos.Controllers
         }
 
         [HttpPost]
-        public string LeaveReject([FromBody] IEnumerable<LeaveVM> DataToSave,string Reason)
+        [Route("api/Reject/Reason/{Reason}")]
+        public string LeaveReject([FromBody] IEnumerable<LeaveVM> DataToSave,[FromUri] string Reason)
         {
             try
             {
