@@ -91,43 +91,43 @@ function partyBaseController($scope, $http, $filter, baseService) {
 	$scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 	
 	$scope.showPartyPopUpNew = function () {
-		if ($scope.OrderSpecific === 'Yes') {
-			if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+		//if ($scope.OrderSpecific === 'Yes') {
+		//	if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
 
-			}
-			$http({
-				method: 'POST',
-				url: 'Parties/party/GetCompanyPartyDataListByContract?ContractId=' + $scope.productNew.ContractId + '&partyType=' + $scope.partyType,
-				data: { column: $scope.searchByParty, value: $scope.searchParty },
-				dataType: 'JSON'
-			}).then(function successCallback(response) {
-				$scope.partyList = response.data;
-				if ($scope.partyList.length === 0) {
-					if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
-						$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
-					}
-					else if ($scope.partyType === 'Party') {
-						$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
-					}
-					else if ($scope.partyType === 'Director') {
-						$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
-					}
-					else if ($scope.partyType === 'Other') {
-						$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
-					}
-					$http({
-						method: 'POST',
-						url: $scope.partyUrl,
-						data: { column: $scope.searchByParty, value: $scope.searchParty },
-						dataType: 'JSON'
-					}).then(function successCallback(response) {
-						$scope.partyList = response.data;
-					});
-				}
-			});
+		//	}
+		//	$http({
+		//		method: 'POST',
+		//		url: 'Parties/party/GetCompanyPartyDataListByContract?ContractId=' + $scope.productNew.ContractId + '&partyType=' + $scope.partyType,
+		//		data: { column: $scope.searchByParty, value: $scope.searchParty },
+		//		dataType: 'JSON'
+		//	}).then(function successCallback(response) {
+		//		$scope.partyList = response.data;
+		//		if ($scope.partyList.length === 0) {
+		//			if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+		//				$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+		//			}
+		//			else if ($scope.partyType === 'Party') {
+		//				$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+		//			}
+		//			else if ($scope.partyType === 'Director') {
+		//				$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+		//			}
+		//			else if ($scope.partyType === 'Other') {
+		//				$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+		//			}
+		//			$http({
+		//				method: 'POST',
+		//				url: $scope.partyUrl,
+		//				data: { column: $scope.searchByParty, value: $scope.searchParty },
+		//				dataType: 'JSON'
+		//			}).then(function successCallback(response) {
+		//				$scope.partyList = response.data;
+		//			});
+		//		}
+		//	});
 			
-		}
-		else {
+		//}
+		//else {
 
 			if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
 				$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
@@ -149,7 +149,7 @@ function partyBaseController($scope, $http, $filter, baseService) {
 			}).then(function successCallback(response) {
 				$scope.partyList = response.data;
 			});
-		}
+		//}
 		angular.element(document.querySelector('#partyPopUp')).modal('show');
 	};
 

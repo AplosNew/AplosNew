@@ -208,15 +208,17 @@ namespace Aplos.Areas.Outsourcing.Controllers
             string sql = "";
             if (ContractType == "OSTransformationPO")
             {
-                sql = @"Select M.RateApplicable as Value, M.RateApplicable as Text,M.MinRate, M.MaxRate,SM.UserName as Service,M.ServiceId 
-                        from MST.JobWorkTransformationMaster M
+                sql = @"SELECT M.RateApplicable as Value, M.RateApplicable as Text,M.MinRate, M.MaxRate,SM.UserName as Service,M.ServiceId,OTMI.ValueLoss,OTMI.Rejection
+                        FROM MST.JobWorkTransformationMaster M
+						left join [MST].[JobWorkTransformationMasterMaterialInput] OTMI ON OTMI.JobWorkTransformationMasterId=M.Id and OTMI.JobWorkItemId=M.JobWorkActivityChildId
                         left join HKP.ServiceMaster SM on SM.Id=M.ServiceId
-                        where JobWorkActivityChildId='" + JobWorkItemId + "' and JobWorkActivityId='" + ActivityId + @"' order by RateApplicable ";
+                        WHERE JobWorkActivityChildId='" + JobWorkItemId + "' and JobWorkActivityId='"+ ActivityId + @"' ORDER BY RateApplicable 
+                        ";
             }
 
             if (ContractType == "OSValueAddedPO")
             {
-                sql = @"Select M.RateApplicable as Value, M.RateApplicable as Text,M.MinRate, M.MaxRate,SM.UserName as Service,M.ServiceId
+                sql = @"Select M.RateApplicable as Value, M.RateApplicable as Text,M.MinRate, M.MaxRate,SM.UserName as Service,M.ServiceId,M.StdValueLoss,M.StdRejection
                         from MST.JobWorkValueAddedMaster M
                         left join HKP.ServiceMaster SM on SM.Id=M.ServiceId
                         where JobWorkActivityChildId='" + JobWorkItemId + @"' and JobWorkActivityId='"+ ActivityId + @"' order by RateApplicable";

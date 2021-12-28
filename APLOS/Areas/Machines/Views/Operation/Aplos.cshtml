@@ -441,6 +441,7 @@
                     <th>Operation Category</th>
                     <th>Operation Activity</th>
                     <th>Machine/Without Machine</th>
+                    <th>Tagged Operation Variation</th>
                     <th>Active</th>
                 </tr>
             </thead>
@@ -456,6 +457,7 @@
                     <td>{{x.OperationCategoryName}}</td>
                     <td>{{x.OperationActivityName}}</td>
                     <td>{{x.IsMachineRequired?'Yes':'No'}}</td>
+                    <td>{{x.OVCount}}</td>
                     <td>{{x.Active?'Yes':'No'}}</td>
                 </tr>
             </tbody>

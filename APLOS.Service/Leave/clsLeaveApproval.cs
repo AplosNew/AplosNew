@@ -1260,5 +1260,13 @@ namespace Library.Service.Leave
         public string LvTransSystemID { get; set; }
         public string CalanderYearID { get; set; }
         public bool MPolicyId { get; set; }
+        
+        #region New Fields
+        public string UserId { get; set; }
+        public string PlantId { get; set; }
+        public string GroupID { get; set; }
+        public string CompanyId { get; set; }
+     
+        #endregion
     }
 }

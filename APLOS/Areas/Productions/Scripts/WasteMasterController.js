@@ -20,8 +20,8 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.ProcessList = [];
     $scope.EntityList = [];
     $scope.UOMList = [];
-    //$scope.BudgetList = [];
-    //$scope.Budget = null;
+    $scope.BudgetList = [];
+    $scope.Budget = null;
 
     $scope.getData = function () {
         $http({
@@ -92,23 +92,27 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     //    });
     //}
 
-    //$scope.getBudgets = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + "getBudget",
-    //        data: { 'EId': $scope.ModelNew.EntityId },
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        $scope.BudgetList = response.data;
-    //    });
-    //}
+    $scope.getBudgets = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getBudget",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.BudgetList = response.data;
+        });
+    }
+    
+    $scope.getBudgets();
+
+
+
 
     $scope.selectBudget = function () {
         //if (angular.isUndefinedOrNull($scope.ModelNew.EntityId)) {
         //    ShowResult("Please First Select the Entity!!" , 'failure');
         //    throw ("Invalid!!");
         //}
-        angular.element(document.querySelector('#Budget')).modal('show');
+        angular.element(document.querySelector('#BudgetPop')).modal('show');
     }
 
     //$scope.doubleBudget = function (e) {
@@ -131,6 +135,8 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
+    $scope.SelBudList = [];
+
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
@@ -148,14 +154,29 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
             data: {'Id':args.data.Id},
             dataType: 'JSON'
         }).then(function successCallback(resp) {
+            $scope.BudgetIds = [];
+            $scope.SelBudList = [];
             AllData = resp.data.master;
+            var child = resp.data.child;
+            var ob = {};
             $scope.ModelNew = Object.assign({}, AllData[0]);
-           // $scope.CompanyId = AllData[0].CompanyId;
-            //$scope.PlantId = AllData[0].PlantId;
-            //$scope.getPlant();
-           // $scope.getEntity();
-           // $scope.getBudgets();
-           // $scope.Budget = AllData[0].BudgetCode;
+            for (var i = 0; i < child.length; i++) {
+                ob[child[i].BudgetId] = true;
+                $scope.BudgetIds.push(child[i].BudgetId);
+                
+            }
+
+            for (var i = 0; i < $scope.BudgetList.length; i++) {
+                if ($scope.BudgetList[i].Id in ob) {
+                    $scope.BudgetList[i].isSelected = true;
+                    $scope.SelBudList.push($scope.BudgetList[i]);
+                }
+                else {
+                    $scope.BudgetList[i].isSelected = false;
+                }
+            }
+
+
         });
 
         $scope.Action = 'Update';
@@ -177,11 +198,12 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
             throw ("Invalid");
         }
 
+
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'datas': $scope.ModelNew },
+                data: { 'datas': $scope.ModelNew , 'budgets' :$scope.BudgetIds },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -231,8 +253,29 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.Action = 'Save';
         $scope.CompanyId = null;
         $scope.PlantId = null;
-      //  $scope.Budget = null;
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.BudgetIds = [];
+        $scope.SelBudList = [];
+    }
+
+    // Addition of the Modal Operations for Budget Child
+    $scope.closeBudPopUp = function () {
+        angular.element(document.querySelector('#BudgetPop')).modal('hide');
+    }
+
+    $scope.BudgetIds = [];
+
+    $scope.selectBudDetail = function () {
+        $scope.BudgetIds = [];
+        $scope.SelBudList = [];
+        for (var i = 0; i < $scope.BudgetList.length; i++) {
+            if ($scope.BudgetList[i].isSelected == true) {
+                $scope.BudgetIds.push($scope.BudgetList[i].Id);
+                $scope.SelBudList.push($scope.BudgetList[i]);
+            }
+        }
+
+        angular.element(document.querySelector('#BudgetPop')).modal('hide');
     }
 }
