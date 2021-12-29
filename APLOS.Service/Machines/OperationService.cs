@@ -263,6 +263,7 @@ namespace Library.Service.Machines
                         , O.BasicProcessTime, O.AssociateProcessTime, O.PersonalAllowance, O.MachineAllowance
 	                    , ART.MaterialMasterId, O.ArticleId, ART.StandardName AS ArticleName, O.SkillId, SK.UserName AS SkillName
 	                    , O.OperationLength, O.Frequency, O.ProductionSystemId, O.SPI,O.AdditionalAllowance
+                        ,OVCount=(Select COUNT(Id) from [MST].OperationVariation Where OperationId=O.Id)
                     FROM MST.[Operation] as O
                     LEFT JOIN HKP.[OperationType] as ot ON O.OperationTypeId = ot.Id
                     LEFT JOIN HKP.[OperationCategory] as oc ON O.OperationCategoryId = oc.Id

@@ -28,7 +28,8 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         });
     };
     $scope.GetFromDate();
-
+        
+    
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -124,20 +125,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         gridObj.refreshTemplate();
     }
 
-    //$scope.SetRate = function () {
-    //    for (var i = 0; i < $scope.LineItemsList.length; i++) {
-    //        for (var j = 0; j < $scope.DatewiseList.length; j++) {
-    //            if ($scope.LineItemsList[i].ProductionOrderId == $scope.DatewiseList[j].ProductionOrderId
-    //                && $scope.LineItemsList[i].ProductCode == $scope.DatewiseList[j].ProductCode
-    //                && $scope.LineItemsList[i].MaterialMasterId == $scope.DatewiseList[j].MaterialMasterId
-    //                && $scope.LineItemsList[i].ArticleId == $scope.DatewiseList[j].ArticleId
-    //                && $scope.LineItemsList[i].UOM == $scope.DatewiseList[j].UOM && $scope.LineItemsList[i].Flag==true) {
-    //                $scope.DatewiseList[j].Rate = $scope.LineItemsList[i].Rate;
-    //                $scope.DatewiseList[j].Amount = parseFloat($scope.DatewiseList[j].Rate) * $scope.DatewiseList[j].Qty;
-    //            }
-    //        }
-    //    }
-    //};
+   
 
     $scope.LineItemsList = [];
     $scope.WorkDayList = [];
@@ -234,22 +222,22 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         return false;
     }
 
-    $scope.SetRate = function () {
-        for (var i = 0; i < $scope.tempList.length; i++) {
-            for (var j = 0; j < $scope.DatewiseList.length; j++) {
-                if ($scope.tempList[i].ProductionOrderId == $scope.DatewiseList[j].ProductionOrderId
-                    && $scope.tempList[i].ProductCode == $scope.DatewiseList[j].ProductCode
-                    && $scope.tempList[i].MaterialMasterId == $scope.DatewiseList[j].MaterialMasterId
-                    && $scope.tempList[i].ArticleId == $scope.DatewiseList[j].ArticleId
-                    && $scope.tempList[i].UOM == $scope.DatewiseList[j].UOM && $scope.tempList[i].Flag == true) {
-                    $scope.DatewiseList[j].Id = null;
-                    $scope.DatewiseList[j].Rate = $scope.tempList[i].Rate;
-                    $scope.DatewiseList[j].Amount = parseFloat($scope.DatewiseList[j].Rate) * $scope.DatewiseList[j].Qty;
-                }
-            }
-        }
-        SetToSave();
-    };
+    //$scope.SetRate = function () {
+    //    for (var i = 0; i < $scope.tempList.length; i++) {
+    //        for (var j = 0; j < $scope.DatewiseList.length; j++) {
+    //            if ($scope.tempList[i].ProductionOrderId == $scope.DatewiseList[j].ProductionOrderId
+    //                && $scope.tempList[i].ProductCode == $scope.DatewiseList[j].ProductCode
+    //                && $scope.tempList[i].MaterialMasterId == $scope.DatewiseList[j].MaterialMasterId
+    //                && $scope.tempList[i].ArticleId == $scope.DatewiseList[j].ArticleId
+    //                && $scope.tempList[i].UOM == $scope.DatewiseList[j].UOM && $scope.tempList[i].Flag == true) {
+    //                $scope.DatewiseList[j].Id = null;
+    //                $scope.DatewiseList[j].Rate = $scope.tempList[i].Rate;
+    //                $scope.DatewiseList[j].Amount = parseFloat($scope.DatewiseList[j].Rate) * $scope.DatewiseList[j].Qty;
+    //            }
+    //        }
+    //    }
+    //    SetToSave();
+    //};
 
     function SetToSave() {
         $scope.$broadcast("show-errors-check-validity");
@@ -283,53 +271,72 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
 
     }
 
-    $scope.selectedLineItems = [];
-    $scope.Save = function () {
-        try {
-            GetDateWiseData();
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-
+    
     //$scope.Save = function () {
     //    try {
     //        GetDateWiseData();
-           
-    //        $scope.$broadcast("show-errors-check-validity");
-    //        if ($scope.modelForm.$valid) {
-    //            if ($scope.Action === "Save" || $scope.Action === "Update") {
-    //                $http({
-    //                    method: "POST",
-    //                    url: "Productions/FinishGoodsBooking/Create",
-    //                    data: {
-    //                        "data": $scope.modelNew
-    //                        , "WorkDayList": $scope.WorkDayList
-    //                        , "FinishGoodsBookingDetailList": $scope.DatewiseList
-    //                        , 'FGList': $scope.LineItemsList
-    //                    },
-    //                    dataType: "JSON"
-    //                }).then(function successCallback(response) {
-    //                    if (response.data.Error === true) {
-    //                        ShowResult(response.data.Message, "failure");
-    //                    }
-    //                    else {
-    //                        ShowResult(response.data.Message, "success");
-    //                        $scope.getSavedData();
-    //                        $scope.Clear();
-    //                    }
-    //                }, function errorCallback(response) {
-    //                    ShowResult(response.status.Message, "failure");
-    //                });
-    //                return true;
-    //            }
-    //        }
-    //        return true;
     //    } catch (e) {
     //        ShowResult(e, "failure");
     //    }
     //};
+
+    // $scope.SetRate = function () {
+    //    for (var i = 0; i < $scope.LineItemsList.length; i++) {
+    //        for (var j = 0; j < $scope.DatewiseList.length; j++) {
+    //            if ($scope.LineItemsList[i].ProductionOrderId == $scope.DatewiseList[j].ProductionOrderId
+    //                && $scope.LineItemsList[i].ProductCode == $scope.DatewiseList[j].ProductCode
+    //                && $scope.LineItemsList[i].MaterialMasterId == $scope.DatewiseList[j].MaterialMasterId
+    //                && $scope.LineItemsList[i].ArticleId == $scope.DatewiseList[j].ArticleId
+    //                && $scope.LineItemsList[i].UOM == $scope.DatewiseList[j].UOM && $scope.LineItemsList[i].Flag==true) {
+    //                $scope.DatewiseList[j].Rate = $scope.LineItemsList[i].Rate;
+    //                $scope.DatewiseList[j].Amount = parseFloat($scope.DatewiseList[j].Rate) * $scope.DatewiseList[j].Qty;
+    //            }
+    //        }
+    //    }
+    //};
+
+    $scope.selectedLineItems = [];
+    $scope.Save = function () {
+        try {
+            $scope.selectedLineItems = [];
+            //GetDateWiseData();
+            for (var i = 0; i < $scope.LineItemsList.length; i++) {
+                if ($scope.LineItemsList[i].Flag) {
+                    $scope.selectedLineItems.push($scope.LineItemsList[i]);
+                }
+            }
+            $scope.$broadcast("show-errors-check-validity");
+            if ($scope.modelForm.$valid) {
+                if ($scope.Action === "Save" || $scope.Action === "Update") {
+                    $http({
+                        method: "POST",
+                        url: "Productions/FinishGoodsBooking/Create",
+                        data: {
+                            "data": $scope.modelNew
+                            , 'FGList': $scope.selectedLineItems
+                            , 'ToDate': $scope.modelNew.ToDate
+                        },
+                        dataType: "JSON"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, "failure");
+                        }
+                        else {
+                            ShowResult(response.data.Message, "success");
+                            $scope.getSavedData();
+                            $scope.Clear();
+                        }
+                    }, function errorCallback(response) {
+                        ShowResult(response.status.Message, "failure");
+                    });
+                    return true;
+                }
+            }
+            return true;
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
     $scope.Clear = function () {
         $scope.modelNew = {
@@ -630,7 +637,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.UnBookedQtyBreakDownList = [];
     $scope.GetUnBookedQtyBreakDownData = function (obj) {
         $scope.UnBookedQtyBreakDownList = [];
-        $http.get("Productions/FinishGoodsBooking/GetUnBookedQtyBreakDownData?productionOrderId=" + obj.ProductionOrderId + '&productCode=' + obj.ProductCode + '&entityId=' + $scope.modelNew.ProductionEntityId)
+        $http.get("Productions/FinishGoodsBooking/GetUnBookedQtyBreakDownData?productionOrderId=" + obj.ProductionOrderId + '&productCode=' + obj.ProductCode + '&entityId=' + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
