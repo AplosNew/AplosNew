@@ -25,8 +25,11 @@ namespace Library.OrderManagement.Packing
         {
             try
             {
-                var str = @"SELECT plm.Id,plm.[Description],plm.Remarks
-                                        FROM PIPackingListMaster AS plm";
+                var str = @"SELECT plm.Id PackingId,p.UserName Customer,p.id CustomerId,c.Code Currency,c.Id CurrencyId,FORMAT (plm.AddedDate,'dd-MMM-yyyy')AddedDate
+                                            FROM PIPackingListMaster AS plm
+                                            LEFT JOIN PIMaster AS pm ON pm.Id=plm.PImasterId
+                                            LEFT JOIN hkp.Party p on p.Id = pm.CustomerId
+                                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=pm.CurrencyId";
                 //var str = @"SELECT Convert(bit,0) Active,PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
                 //            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
                 //            FROM TRN.Packing pk
@@ -47,6 +50,25 @@ namespace Library.OrderManagement.Packing
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        public IEnumerable<object> GetPackingSOData(string PackingId)
+        {
+            try
+            {
+                var _sql = @"SELECT p.Id AS PIMaterialId,MGM.UserName AS MaterialGroup, p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,p.Quantity,uom.UserName AS UOM,p.Rate, p.Amount
+                                          FROM PIPackingListMaster AS PM
+                                        INNER JOIN PIPackingListMaterial AS M ON pm.Id=m.PIPackingListMasterId
+                                        INNER JOIN PIMaterial AS p ON p.Id=m.PIMaterialId
+                                        INNER JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
+                                        INNER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
+                                        WHERE PM.Id " + PackingId + "";
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
@@ -73,7 +95,7 @@ namespace Library.OrderManagement.Packing
                     }
                     else
                     {
-                        ids = ",'" + PackingData[i]["Id"] + "'";
+                        ids += ",'" + PackingData[i]["Id"] + "'";
                     }
                 }
 
@@ -83,13 +105,13 @@ namespace Library.OrderManagement.Packing
 
                 foreach (var item in PackingData)
                 {
-                    dsMaster.Tables[0].DefaultView.RowFilter = "Id = '" + item["Id"] + "'  ";
+                    dsMaster.Tables[0].DefaultView.RowFilter = "PIPackingListMasterId = '" + item["Id"] + "'  ";
                     if (dsMaster.Tables[0].DefaultView.Count == 0)
                     {
                         count++;
                         dr = dsMaster.Tables[0].NewRow();
                         dr["Id"] = "S" + count + TempId;
-                        dr["PIPackingListMasterId"] = item["PIPackingListMasterId"];
+                        dr["PIPackingListMasterId"] = item["Id"];
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
