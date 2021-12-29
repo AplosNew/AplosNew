@@ -398,6 +398,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceDashboard/Aplos',
             controller: 'AttendanceDashboardController'
         })
+        .when('/new-attndprocess-reprocess', {
+            templateUrl: 'Attendances/NewProcessAttendanceReProcess/Aplos',
+            controller: 'NewProcessAttendanceReProcessController'
+        })
         .when('/sandwich-process', {
             templateUrl: 'Attendances/SandwichProcess/Aplos',
             controller: 'SandwichProcessController'

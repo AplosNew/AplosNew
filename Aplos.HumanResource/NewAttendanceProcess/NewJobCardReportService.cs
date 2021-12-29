@@ -649,22 +649,26 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 }
                                 #endregion
 
-                                if (bplib.clsWebLib.GetBoolData(dvBioDvAC[i]["IsManualDayStatus"].ToString().Trim()))
-                                {
-                                    sheet1.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Grey_80_percent;
+                                #region Unnecessary Validation Commented By Dhruv
+                               
+                                //if (bplib.clsWebLib.GetBoolData(dvBioDvAC[i]["IsManualDayStatus"].ToString().Trim()))
+                                //{
+                                //    sheet1.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Grey_80_percent;
 
-                                    sheet1.Range[xlsRow, iOutTime].Text = "";
-                                    sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                //    sheet1.Range[xlsRow, iOutTime].Text = "";
+                                //    sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //    sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, iInTime].Text = "";
-                                    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                //    sheet1.Range[xlsRow, iInTime].Text = "";
+                                //    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, iLateBy].Text = "";
-                                    sheet1.Range[xlsRow, iLateBy].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iLateBy].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                }
+                                //    sheet1.Range[xlsRow, iLateBy].Text = "";
+                                //    sheet1.Range[xlsRow, iLateBy].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //    sheet1.Range[xlsRow, iLateBy].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                //}
+
+                                #endregion
 
                                 if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "L")
                                 {

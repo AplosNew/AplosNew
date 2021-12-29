@@ -22,66 +22,79 @@ namespace Library.OrderManagement.ProformaInvoice
             ConManager = new ConnectionManager.clsConnectionManager();
         }
 
-        public void Save(Dictionary<string, object> PIPackingListMasterData, Dictionary<string, object> MaterialData, List<Dictionary<string, object>> DataList)
+        public string Save(Dictionary<string, object> PIPackingListMasterData, Dictionary<string, object> MaterialData, List<Dictionary<string, object>> DataList)
         {
             try
             {
-              
+                if (DataList != null)
+                {
+                    for (int i = 0; i < DataList.Count; i++)
+                    {
+                        if (clsStaticInfo.dbl(DataList[i]["DistributeQTY"]) <= 0)
+                        {
+                            throw new Exception("Quantity is missing");
+                        }
+                    }
+                }
+
                 ConnectionManager.DAL.ConManager conPIMaster = new ConnectionManager.DAL.ConManager("1");
                 conPIMaster.OpenDataSetThroughAdapter("SELECT * FROM PIPackingListMaster where Id='" + PIPackingListMasterData["Id"] + "'", out DataSet dsMaster, false, "1");
                 string _Id = "";
                 string PIPackingListID = "";
                 string PIPackingListMaterialID = "";
-       
+
                 ConnectionManager.DAL.ConManager conPIVersion = new ConnectionManager.DAL.ConManager("1");
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    //if (string.IsNullOrEmpty(PIPackingListMasterData["PINo"].ToString()) == dsMaster.Tables[0]["PINo"].ToString())
-                    //    throw new Exception("Please select Customer.");
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("PIPackingListMaster", out _Id);
                     _Id = "PPL" + "-" + _Id;
                     PIPackingListMasterData["Id"] = _Id;
+                    //PIPackingListMasterData["Id"] = _Id;
                     PIPackingListID = PIPackingListMasterData["Id"].ToString();
                     AddNewRow(dsMaster.Tables[0], PIPackingListMasterData);
+                    dsMaster.Tables[0].Rows[0]["PImasterId"] = MaterialData["PIMasterId"];
                 }
                 else
                 {
                     //PIMasterId = PIPackingListMasterData["Id"].ToString();
+                    _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], PIPackingListMasterData);
+                    dsMaster.Tables[0].Rows[0]["Id"] = _Id;
                 }
 
                 ConnectionManager.DAL.ConManager conPIMaterial = new ConnectionManager.DAL.ConManager("1");
-                conPIMaterial.OpenDataSetThroughAdapter("SELECT * FROM PIPackingListMaterial where PIPackingListMasterId='" + PIPackingListID + "' ", out DataSet dsMaterial, false, "1");
+                conPIMaterial.OpenDataSetThroughAdapter("SELECT * FROM PIPackingListMaterial where PIPackingListMasterId='" + _Id + "' AND PIMaterialId='" + MaterialData["Id"] + "' ", out DataSet dsMaterial, false, "1");
                 string _IdM = "";
-                string PackingListMaterialId = "";
                 #region data update
                 if (dsMaterial.Tables[0].Rows.Count == 0)
                 {
-                
+
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("PIPackingListMaterial", out _IdM);
                     _IdM = "PLM" + "-" + _IdM;
-                    MaterialData["Id"] = _IdM;
-                    MaterialData["PIPackingListMasterId"] = PIPackingListID;
-                    //dsMaterial.Tables[0].Rows["PIQuantity"] = MaterialData["PIQuantity"];
-                    //dsMaterial.Tables[0]["PIMaterialId"] = MaterialData["Id"];
-                    //dsMaterial.Tables[0]["PIUoMId"] = MaterialData["UoMId"];
 
-                    PackingListMaterialId = MaterialData["Id"].ToString();
+
                     AddNewRow(dsMaterial.Tables[0], MaterialData);
+                    dsMaterial.Tables[0].Rows[0]["Id"] = _IdM;
+                    dsMaterial.Tables[0].Rows[0]["PIQuantity"] = MaterialData["Quantity"];
+                    dsMaterial.Tables[0].Rows[0]["PIMaterialId"] = MaterialData["Id"];
+                    dsMaterial.Tables[0].Rows[0]["PIUoMId"] = MaterialData["UoMId"];
+                    dsMaterial.Tables[0].Rows[0]["PIPackingListMasterId"] = _Id;
                 }
                 else
                 {
-                    //PIMasterId = PIPackingListMasterData["Id"].ToString();
+                    _IdM = dsMaterial.Tables[0].Rows[0]["Id"].ToString();
                     EditRow(dsMaterial.Tables[0].Rows[0], MaterialData);
+                    dsMaterial.Tables[0].Rows[0]["Id"] = _IdM;
+                    dsMaterial.Tables[0].Rows[0]["PIPackingListMasterId"] = _Id;
                 }
 
                 ConnectionManager.DAL.ConManager conPIDetail = new ConnectionManager.DAL.ConManager("1");
-                conPIDetail.OpenDataSetThroughAdapter("select * from PIPackingListDetail where PIMaterialId='" + MaterialData["Id"] +@"'", out DataSet dsPIDetail, false, "1");
+                conPIDetail.OpenDataSetThroughAdapter("select * from PIPackingListDetail where PIPackingListMasterId='" + _Id + "' AND PIMaterialId='" + MaterialData["Id"] + @"'", out DataSet dsPIDetail, false, "1");
 
                 if (DataList == null || DataList.Count == 0)
                 {
@@ -89,7 +102,7 @@ namespace Library.OrderManagement.ProformaInvoice
                         dsPIDetail.Tables[0].DefaultView[0].Delete();
                 }
 
-                if (DataList != null )
+                if (DataList != null)
                 {
                     for (int i = 0; i < dsPIDetail.Tables[0].Rows.Count; i++)
                     {
@@ -101,24 +114,23 @@ namespace Library.OrderManagement.ProformaInvoice
                     }
                     foreach (var item in DataList)
                     {
-                        dsPIDetail.Tables[0].DefaultView.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
+                        dsPIDetail.Tables[0].DefaultView.RowFilter = "PODetailId='" + clsStaticInfo.nullrecorder(item["PODetailId"]) + "'";
 
                         DataView dv = new DataView(dsPIDetail.Tables[0]);
-                        dv.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
+                        dv.RowFilter = "PODetailId='" + clsStaticInfo.nullrecorder(item["PODetailId"]) + "'";
                         if (dv.Count > 0)
                         {
                             //edit
-                           
+
                             DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["Quantity"] = clsStaticInfo.dbl(item["DistributeQTY"]);
 
-                            //drmo["PIMaterialID"] = item["PIMaterialId"];
-                            //drmo["PODetailId"] = item["PODetailId"];
-                            //drmo["QuantityAtPIUoM"] = item["QuantityAtPIUoM"];
-                            //drmo["PIUoMId"] = item["PIUoMId"];
-                            //drmo["POQuantity"] = item["POQuantity"];
-                            //drmo["POUoMId"] = item["POUoMId"];
-
-                            EditRow(drmo, item);
+                            drmo["UpdatedBy"] = identity.Name;
+                            drmo["UpdatedDate"] = System.DateTime.Now.ToString();
+                            drmo["UpdatedFromIP"] = identity.IPAddress;
+                            drmo["PIPackingListMasterId"] = _Id;
+                            drmo.EndEdit();
 
                         }
                         else
@@ -127,14 +139,15 @@ namespace Library.OrderManagement.ProformaInvoice
                             //add new
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID("PIPackingListDetail", out PLDetailId);
-                            PLDetailId = "PLD"+"-"+ PLDetailId;
+                            PLDetailId = "PLD" + "-" + PLDetailId;
                             item["Id"] = PLDetailId;
-                            item["PIPackingListMasterId"] = PIPackingListID;
-                            item["PIMaterialId"] = MaterialData["Id"];
-                            //item["Quantity"] =item[] ;
-                            //item["PIUoMId"] = item[];
-
                             AddNewRow(dsPIDetail.Tables[0], item);
+
+                            DataRow drmo = dsPIDetail.Tables[0].Rows[dsPIDetail.Tables[0].Rows.Count - 1];
+
+                            drmo["PIMaterialId"] = MaterialData["Id"];
+                            drmo["Quantity"] = clsStaticInfo.dbl(item["DistributeQTY"]);
+                            drmo["PIPackingListMasterId"] =_Id;
 
                         }
                     }
@@ -144,14 +157,15 @@ namespace Library.OrderManagement.ProformaInvoice
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsMaterial, dsPIDetail);
-               // return Json(new { Error = false, Message = AplosMessage.Insert });
 
+                return _Id;
             }
             catch (Exception ex)
             {
                 throw ex;
                 //return Json(new { Error = true, Message = ex.Message });
             }
+            return null;
         }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)

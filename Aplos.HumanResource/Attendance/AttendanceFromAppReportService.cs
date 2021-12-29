@@ -170,5 +170,47 @@ namespace Library.Service.Attendances {
             }
         }
 
-    }    
+    }
+
+    public class AttendanceReprocessService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public AttendanceReprocessService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+
+        }
+        public object getFilters()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var str = @"select ID AS PlantId,UserName as Plant from org.Plant where CompanyId='" + identity.CompanyId+@"'
+                and Active='1'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ProcessData(string From, string To)
+        {
+
+            var sql = @"update attdnrawdata set processedflag=0 where pdate>='"+From+"' " +
+                "and pdate<='"+To+"'and plantid=''";
+
+            var sqlx = @"update attdnprocessdata set punchintime=null,punchouttime=null,outpunchlimit=null,
+            intime=null,outtime=null,ProcessIntime=null,ProcessOuttime=null where WorkDate>='"+From+"'" +
+            " and WorkDate <='"+To+"' and PlantID=''";
+        }
+        
+    }
+
+
 }

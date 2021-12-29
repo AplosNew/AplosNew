@@ -1036,5 +1036,30 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }
     };
 
+    $scope.Saves = function ()
+    {
+        try {
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveData',
+                data: { 'PackingData': $scope.PackingList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    }
     //#endregion
 }
