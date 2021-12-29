@@ -8228,7 +8228,7 @@ where h.HeadCategory='GROSS'
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
-                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
+                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
                                             }
                                             else
                                             {
@@ -15468,7 +15468,7 @@ where h.HeadCategory='GROSS'
 									      
 												 INNER JOIN
 		                                    (
-												select EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
+												select EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,0) TotalAbsent
 										,ISNULL(TotalLv,0) TotalLv
 										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) + ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
@@ -16537,7 +16537,7 @@ where h.HeadCategory='GROSS'
                                                 LEFT JOIN HKP.LocalLanguage LocLangLD ON LocLangLD.LegalDesignationId = SPLD.LegalDesignationId AND LocLangLD.LanguageId = '" + languageId + @"'
 												 INNER JOIN
 		                                    (
-												SELECT MMDSA.EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
+												SELECT MMDSA.EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,0) TotalAbsent
 										,ISNULL(TotalLv,0) TotalLv
 										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) + ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
                                         ,ISNULL(OT.TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr

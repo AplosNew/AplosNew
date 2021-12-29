@@ -380,6 +380,7 @@
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\NewProcessAttendanceReProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\OTFinalInformationNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataDeleteNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\EmployeeLastPunchReportController.cs" />
@@ -1654,6 +1655,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Attendances\Scripts\NewProcessAttendanceReProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataDeleteNewController.js" />
     <Content Include="Areas\Attendances\Scripts\EmployeeLastPunchReportController.js" />
     <Content Include="Areas\Attendances\Scripts\BalanceOTReportController.js" />
@@ -2318,6 +2320,7 @@
     <Content Include="Areas\Products\Scripts\POUncheckedAndUnApprovedController.js" />
     <Content Include="Areas\Products\Scripts\GRNUncheckedAndUnApprovedController.js" />
     <Content Include="Areas\Products\Scripts\POParameterChangeController.js" />
+    <Content Include="Areas\Products\Scripts\FOCController.js" />
     <Content Include="Areas\Products\Scripts\purchaseReturnPostController.js" />
     <Content Include="Areas\Products\Scripts\InOutGatePassController.js" />
     <Content Include="Areas\Products\Scripts\InventoryDashboardStatusController.js" />
@@ -3913,6 +3916,7 @@
     <Content Include="Areas\Commercial\Views\PIInvoice\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\PIPackingList\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\POMappingWithPI\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\NewProcessAttendanceReProcess\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3964,6 +3968,7 @@
     <Content Include="Areas\Products\Views\InventorySalesReturn\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesPackingPost.cshtml" />
     <Content Include="Areas\Products\Views\POParameterChange\Aplos.cshtml" />
+    <Content Include="Areas\Products\Views\InventoryReceive\FOC.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />

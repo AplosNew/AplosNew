@@ -41,23 +41,23 @@ namespace Aplos.Areas.Productions.Controllers
             return View();
         }
         
-        [Authorize , HttpGet]
-        public ActionResult getCompany()
-        {
-            return Json(ws.getCompany(), JsonRequestBehavior.AllowGet);
-        }
+        //[Authorize , HttpGet]
+        //public ActionResult getCompany()
+        //{
+        //    return Json(ws.getCompany(), JsonRequestBehavior.AllowGet);
+        //}
 
         [Authorize, HttpPost]
-        public ActionResult getPlants(string cmpId)
+        public ActionResult getProcess()
         {
-            return Json(ws.getPlants(cmpId), JsonRequestBehavior.AllowGet);
+            return Json(ws.getProcess(), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
-        public ActionResult getEntity(string PlantId)
-        {
-            return Json(ws.getEntity(PlantId), JsonRequestBehavior.AllowGet);
-        }
+        //[Authorize, HttpPost]
+        //public ActionResult getEntity(string PlantId)
+        //{
+        //    return Json(ws.getEntity(PlantId), JsonRequestBehavior.AllowGet);
+        //}
 
         [Authorize, HttpGet]
         public ActionResult getUOM()
@@ -66,9 +66,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getBudget( string EId)
+        public ActionResult getBudget()
         {
-            return Json(ws.getBudgetId(EId), JsonRequestBehavior.AllowGet);
+            return Json(ws.getBudgetId(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -82,9 +82,9 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                var _master = ws.Get(Id);
-
-                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
+                var _master = ws.GetMaster(Id);
+                var _child = ws.GetChild(Id);
+                return Json(new { master = _master , child = _child }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -110,11 +110,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> datas)
+        public JsonResult Create(Dictionary<string, object> datas , List<string> budgets)
         {
             try
             {
-                var data = ws.Create(datas);
+                var data = ws.Create(datas , budgets);
                 return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }

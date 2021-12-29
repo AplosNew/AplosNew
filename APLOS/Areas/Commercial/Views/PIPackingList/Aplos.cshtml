@@ -1,32 +1,217 @@
 ﻿<togglable name=" PI Packing List"></togglable>
-<div class="form-elements form-horizontal" ng-form name="PIPackingListNewForm">
+<div class="form-elements form-horizontal" ng-form name="buyerNewForm">
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="PIPopUp();" class="btn"><i class="glyphicon glyphicon-plus"></i>Add PI</button></li>
+        </ul>
+    </div>
     <div class="modal-body">
-        <div class="row">           
-            <div class="form-group">
-                <div class="col-sm-12">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="table-responsive ">
-                                <div style="color:black;" id="GridPIPackingList" ej-grid e-datasource="PIPackingMaterialGridList" @*e-recorddoubleclick="Get"*@
-                                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
-                                     e-allowselection="false">
-                                    <div e-columns>
-                                        <div e-column e-type="string" e-field="Id" e-headertext="PI Packing No." e-width="100"></div>
-                                        <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
-                                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
-                                        <div e-column e-type="date" e-field="AddedDate" e-format="{0:dd-MMM-yyyy}" e-headertext="PI Packing Date" e-width="120"></div>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="row">
+            <div class="form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI No :</span></label>
+                        <div class="col-sm-8 show-message">
+                            <label class="col-sm-4 control-label">{{PImodelNew.PINo}}</label>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI REF # :</span></label>
+                        <div class="col-sm-8 show-message">
+                            <label class="col-sm-4 control-label">{{PImodelNew.RefNo}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Currency :</span></label>
+                        <div class="col-sm-8 show-message">
+                            <label class="col-sm-4 control-label">{{PImodelNew.Currency}}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI Date :</span></label>
+                        <div class="col-sm-8 show-message">
+                            <label class="col-sm-4 control-label">{{PImodelNew.PIDate}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Customer :</span></label>
+                        <div class="col-sm-8 show-message">
+                            <label class="col-sm-4 control-label">{{PImodelNew.Customer}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Description :</span></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Description" ng-model="PIPackingListMasterTemp.Description" class="form-control" maxlength="150" required tabindex="5">
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Version :</span></label>
+                        <div class="col-sm-8">
+                            <label class="col-sm-4 control-label">{{PIVersionModel.VersionNo}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Buyer :</span></label>
+                        <div class="col-sm-8">
+                            <label class="col-sm-4 control-label">{{PImodelNew.Buyer}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Remarks :</span></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Remarks" ng-model="PIPackingListMasterTemp.Remarks" class="form-control" maxlength="100" required tabindex="5">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label"><span style="font-weight:bold">Address :</span></label>
+                        <div class="col-sm-11">
+                            <label class="col-sm-4 control-label">{{PImodelNew.InvoicingByAddress}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="row">
+                    <div class="col-sm-12 table-responsive modal-table">
+
+                        <div style="color:black;" id="GridPI" ej-grid e-datasource="DataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
+                             e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="MaterialGroup" e-headertext="Material Group" e-width="100"></div>
+                                <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
+                                <div e-column e-type="date" e-field="DeliveryDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Delivery date" e-width="120"></div>
+                                <div e-column e-type="number" e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
+                                <div e-column e-field="AllocatedQty" e-template="#AllocatedQTY" e-headertext="Allocated Qty" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="120"></div>
+                                <div e-column e-type="number" e-field="Rate" e-headertext="Rate" e-width="100"></div>
+                                <div e-column e-type="number" e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                                <div e-column e-headertext="Allocation" e-template="#Allocation" e-width="30"></div>
+                            </div>
+                        </div>
+
+                        <script type="text/template" id="Allocation">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="PO Items" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.POQTYAllocation(this);" style="margin: -6px;"></i></button>
+                        </script>
+
+                        <script type="text/template" id="AllocatedQTY">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AllocatedQty" e-width="100" />
+                            </div>
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="QTYAllocation" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Proforma Invoice Quantity Allocation<button type="button" class="close" ng-click="ClosePopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div style="color:maroon;font-weight:bolder;"><label id="PIQTY" ng-model="AllocatedPIQty" class="text-right">Total PI Quantity:{{TotalPIQty}}|| Allocated Quantity:{{AllocatedPIQty}}</label></div>
+
+                <div class="col-lg-12">
+                    <div style="color:black;" id="GridPIPOPOPUP" ej-grid e-datasource="PIPackingMaterialPopUpList" @*e-recorddoubleclick="GetSequence"*@
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true"
+                         e-templaterefresh="PIPOAllCheck" e-allowTextWrap="true">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+                            @*<div e-column e-field="PONo" e-headertext="PO No." e-width="100"></div>*@
+                            <div e-column e-field="PODetailId" e-headertext="PO Detail Id" e-width="75"></div>
+                            <div e-column e-field="Vendor" e-headertext="Vendor" e-width="120"></div>
+                            <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>
+                            <div e-column e-field="MaterialGroup" e-headertext="Material Group" e-width="80"></div>
+                            <div e-column e-field="Material" e-headertext="Material" e-width="130"></div>
+                            <div e-column e-field="Article" e-headertext="Article" e-width="130"></div>
+                            <div e-column e-field="SKU1" e-headertext="SKU1" e-width="80"></div>
+                            <div e-column e-field="SKU2" e-headertext="SKU2" e-width="80"></div>
+                            <div e-column e-field="SKU3" e-headertext="SKU3" e-width="80"></div>
+                            <div e-column e-field="POQty" e-headertext="PO Qty" e-width="80"></div>
+                            <div e-column e-field="" e-template="#DistributeQTY" e-headertext="" e-width="90"></div>
+                            <div e-column e-field="PIUoM" e-headertext="PI UoM" e-width="65"></div>
+                            <div e-column e-field="POUoM" e-headertext="PO UoM" e-width="65"></div>
+                            <div e-column e-field="PORate" e-headertext="PO Rate" e-width="70"></div>
+                            <div e-column e-field="POAmount" e-headertext="PO Amount" e-width="80"></div>
+                            <div e-column e-field="POCurrency" e-headertext="PO Currency" e-width="70"></div>
+
+                        </div>
+                    </div>
+                    <script type="text/template" id="DistributeQTY">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.DistributeQTY" e-width="90" />
+                        </div>
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                    </script>
+                </div>
+
+                <div class="clearfix"></div>
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="SavePIPackingListData();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li><button ng-click="ClosePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="modal fade site-modal in" id="PIPOPopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">Proforma Invoice<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div style="color:black;" id="GridPIPOPuP" ej-grid e-datasource="PIPopUpList" e-recorddoubleclick="GetPIPopUp"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
+                             e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="100"></div>
+                                <div e-column e-type="string" e-field="LastVersion" e-headertext="Last Version" e-width="100"></div>
+                                <div e-column e-type="date" e-field="PIDate" e-format="{0:dd-MMM-yyyy}" e-headertext="PI Date" e-width="120"></div>
+                                <div e-column e-type="string" e-field="RefNo" e-headertext="Ref No." e-width="100"></div>
+                                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="100"></div>
 
+                                <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="120"></div>
+                                <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                <div e-column e-type="string" e-field="InvoicingByAddress" e-headertext="InvoicingByAddress" e-width="100"></div>
+                                <div e-column e-type="string" e-field="DeliveryByAddress" e-headertext="DeliveryByAddress" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="asasas">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadPOBreakDownList(data);">{{data.GRNAmount |number:2}}</a>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
 <div class="table-responsive aplos-grid-toggle">
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12">
@@ -71,4 +256,4 @@
 
 @*<confirm-modal></confirm-modal>*@
 @*<confirm-archive-generic modalid="confirmPIDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmMaterialPopUp" title="Confirmation" message={{message_Materialconfirmation}} data-ng-click-right-button="DeletePIMaterial();"></confirm-archive-generic>*@
+    <confirm-archive-generic modalid="confirmMaterialPopUp" title="Confirmation" message={{message_Materialconfirmation}} data-ng-click-right-button="DeletePIMaterial();"></confirm-archive-generic>*@

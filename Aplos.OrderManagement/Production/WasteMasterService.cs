@@ -20,7 +20,7 @@ namespace Library.OrderManagement.Production
         }
         #endregion Constructor
 
-        public IEnumerable<object> getCompany ()
+        /*public IEnumerable<object> getCompany ()
         {
             try
             {
@@ -32,14 +32,14 @@ namespace Library.OrderManagement.Production
             {
                 throw ex;
             }
-        }
+        }*/
 
-        public IEnumerable<object> getPlants (string cmp)
+        public IEnumerable<object> getProcess ()
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = "Select Id as Value , UserName as Text from Org.Plant where CompanyId = '"+cmp+"'";
+               // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = "Select Id as Value , UserName as Text from hkp.process";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch(Exception ex)
@@ -48,7 +48,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> getEntity(string PlantId)
+       /* public IEnumerable<object> getEntity(string PlantId)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace Library.OrderManagement.Production
             {
                 throw ex;
             }
-        }
+        }*/
 
         public IEnumerable<object> getUOM()
         {
@@ -75,15 +75,16 @@ namespace Library.OrderManagement.Production
 
         }
 
-        public IEnumerable<object> getBudgetId(string EId)
+        public IEnumerable<object> getBudgetId()
         {
             try
             {
-                var str = @"Select mb.Id , mb.Code , p.UserName as Position , c.UserName as Company, e.UserName as Entity from mst.ManpowerBudget mb
+                var str = @"Select mb.Id , mb.Code , p.UserName as Position , c.UserName as Company, pp.UserName as Plant ,e.UserName as Entity from mst.ManpowerBudget mb
                             left join org.Position p on p.Id = mb.PositionId
                             left join org.Company c on c.Id = mb.CompanyId
                             left join org.Entity e on e.Id = mb.EntityId
-                            where e.Id = '" + EId + "' ";
+							left join org.Plant pp on pp.Id = e.PlantId
+                        ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -92,19 +93,27 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> Get(string Id)
+        public IEnumerable<object> GetMaster(string Id)
         {
             try
             {
-				var str = @"select wm.* , mb.Code as BudgetCode,  e.UserName as Entity, p.UserName as Plant , c.UserName as Company,c.id as CompanyId , p.Id as PlantId 
-                            from
-                            dbo.WasteMaster wm
-                            left join org.Entity e on e.Id = wm.EntityId
-                            left join org.Plant p on p.Id = e.PlantId
-                            left join org.Company c on c.Id = p.CompanyId
-                            left join mst.ManpowerBudget mb on mb.Id = wm.BudgetId
-                            where wm.Id = '" + Id + "' ";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"select * from dbo.WasteMaster where Id = '"+Id+"' ";
 				return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> GetChild(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"select BudgetId from dbo.WasteBudgetDetail where WasteMasterId = '" + Id + "' ";
+                return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
             {
@@ -116,12 +125,9 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-				string sql = @"select wm.* , p.Id as PlantId , c.Id as CompanyId , e.UserName as Entity ,p.UserName as Plant , c.UserName as Company , mb.Code as BudgetCode , uom.UserName as UOM 
+				string sql = @"select wm.* , uom.UserName as UOM
                                 from dbo.WasteMaster wm
-                                left join org.Entity e on e.Id = wm.EntityId
-                                left join org.Plant p on p.Id = e.PlantId
-                                left join org.Company c on c.Id = p.CompanyId
-                                left join mst.ManpowerBudget mb on mb.Id = wm.BudgetId
+                                
                                 left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId 
                                 order by wm.Sequence asc";
 
@@ -133,10 +139,11 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public Dictionary<string, object> Create(Dictionary<string, object> data)
+        public Dictionary<string, object> Create(Dictionary<string, object> data, List<string> budgets)
         {
             try
             {
+                //Master Table - WasteMaster
                 string TableName = "dbo.WasteMaster";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -149,7 +156,7 @@ namespace Library.OrderManagement.Production
 
                 string _Id = "";
 
-                #region data update
+                 #region data Master update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
@@ -165,8 +172,45 @@ namespace Library.OrderManagement.Production
                 }
                 #endregion data update
 
+                // Child table - WasteBudgetDetail
+               
+                DataSet dsChild;
+                ConnectionManager.DAL.ConManager conC = new ConnectionManager.DAL.ConManager("1");
+                conC.OpenDataSetThroughAdapter("select * from dbo.WasteBudgetDetail where WastemasterId = '"+ data["Id"].ToString() + "'", out dsChild, false, "1");
+
+                while (dsChild.Tables[0].DefaultView.Count > 0)
+                {
+                    dsChild.Tables[0].DefaultView[0].Delete();
+                }
+
+                string _IdC = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                #region data Child update
+                
+                    for(int i = 0; i < budgets.Count; i++)
+                    {
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.WasteBudgetDetail", out _IdC);
+                        dr["Id"] = "WBD" + _IdC;
+                        dr["WasteMasterId"] = data["Id"].ToString();
+                        dr["BudgetId"] = budgets[i].ToString();
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
+                
+                #endregion data update
+
+
+
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster , dsChild);
 
                 return data;
 
@@ -187,6 +231,12 @@ namespace Library.OrderManagement.Production
 
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from dbo.WasteBudgetDetail where WasteMasterId ='" + id + "'");
+                conC.CommitTransaction();
+
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
@@ -265,10 +315,10 @@ namespace Library.OrderManagement.Production
             try
             {
                 var sql = @"select distinct u.Id as Value,u.UserId as Text,u.EmployeeId,
-                b.Id as BudgetId from [SEC].[User] u 
+                
                 left join EmployeeInformation e on e.SystemId=u.EmployeeId
-                left join mst.ManpowerBudget b on b.Id=e.BudgetCode
-                where UserId='"+UserId+"'";
+               
+                where UserId='" + UserId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -281,8 +331,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var sql = @"select Id as MasterId,ItemName from WasteMaster where EntityId='"+Entity+ "'" +
-                    " and BudgetId='"+BudgetId+"'";
+                var sql = @"select Id as MasterId,ItemName from WasteMaster where EntityId='"+Entity+ "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

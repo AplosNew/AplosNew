@@ -391,8 +391,8 @@
 
                     @*<input type="text" name="Contract" ng-model="productNew.ContractId" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">*@
                     <span class="input-group-btn">
-                        <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-disabled="inventoryMaterialList.length" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
-                        <button ng-click="Clearcontract()" class="btn single-small-btn" ng-disabled="inventoryMaterialList.length" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
+                        <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
                         <button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
                     </span>
                 </div>
@@ -1967,7 +1967,7 @@
                                                 <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
                                                 <div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
                                                 @*<div e-column e-field="TransactionRate" e-textalign="right" e-headertext="BOQRate" e-width="100"></div>*@
-                                                <div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-decimalplaces="4" e-headertext="Rate"  e-width="100"></div>
+                                                @*<div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-headertext="CurrentRate" e-width="100"></div>*@
                                                 <div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
 
                                                 <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
@@ -2007,10 +2007,10 @@
                                             <input type="text" class="input form-control" ng-blur="$parent.refreshQtyTemplete(this)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" @*ng-keyup="$parent.refreshQtyTemplete(this)"*@ />
 
                                         </script>
-                                        <script type="text/template" id="BOQQRate">
+                                        @*<script type="text/template" id="BOQQRate">
                                             <input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="80" ng-change="$parent.calculateRequisitionData(this)" />
 
-                                        </script>
+                                        </script>*@
                                         <script type="text/template" id="UOM">
                                             <div class="select-style">
                                                 <select name="Entity" ng-model="data.TransactionUoMId" class="form-control" ng-change="$parent.ConvertedDataRow(data)"

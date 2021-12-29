@@ -442,7 +442,7 @@
 <div class="form-horizontal form-elements" ng-form="productNewForm">
     <div ng-form name="JWPOForm">
         <fieldset class="scheduler-border">
-            <legend class="scheduler-border">Job Work PO Type</legend>
+            <legend class="scheduler-border">OutSource PO Type</legend>
             <div class="row">
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group">
@@ -719,10 +719,11 @@
                     </div>
                 </div>
                 <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
+                    <div class="form-group" id="div_CCDate" show-errors>
                         <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" ng-change="ValidateContractClosingDate();" datepicker class="form-control" required tabindex="13" placeholder="dd-Mmm-yyyy">
+                            <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" ng-change="ValidateContractClosingDate();" 
+                                   datepicker class="form-control" required tabindex="13" placeholder="dd-Mmm-yyyy">
                         </div>
                     </div>
                 </div>
@@ -861,7 +862,7 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
             <div ng-form="tabForm1">
                 <ul class="col-md-6 common-btn list-inline text-left">
-                    <li><button ng-click="detailPopUp();" ng-hide="productNew.Id==null || productNew.OrderSpecific==='Yes'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Job Work Item</button></li>
+                    <li><button ng-click="detailPopUp();" ng-hide="productNew.Id==null || productNew.OrderSpecific==='Yes'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Outsource Item</button></li>
 
                     <li><button ng-click="getalldataListForBOQList();" ng-hide="productNew.Id==null || productNew.OrderSpecific==='No'" class="btn"><i class="glyphicon glyphicon-plus"></i>  Add BOQ Material</button></li>
                 </ul>
@@ -870,8 +871,8 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>JWActivity</th>
-                                <th>JWOutPutItem</th>
+                                <th>OSActivity</th>
+                                <th>OSOutPutItem</th>
                                 <th>Material</th>
                                 <th>Article</th>
                                 <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -1384,7 +1385,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                Add Job Work Item(Out Put Item)
+                Add Outsource Item(Out Put Item)
                 <button type="button" class="close" ng-click="closeDetaiPopUp();">×</button>
             </div>
             <div class="modal-body form-elements form-horizontal">
@@ -1396,11 +1397,11 @@
                         <div class="col-sm-12 col-md-4 col-lg-4 " style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class="control-label">
-                                    Job Work Activity<sup>*</sup>
+                                    Outsource Activity<sup>*</sup>
                                 </label>
                                 <div class="show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.JobActivityId" name="Job Work Activity" required ng-change="GetJWItems();GetJWLocation();"
+                                        <select class="form-control" ng-model="detailModel.JobActivityId" name="OutSource Activity" required ng-change="GetJWItems();GetJWLocation();"
                                                 ng-options="item.Value as item.Text for item in JobWorkActivityList" tabindex="16">
                                             <option value=""></option>
                                         </select>
@@ -1411,11 +1412,11 @@
                         <div class="col-sm-12 col-md-4 col-lg-4" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class="control-label">
-                                    JW Output item<sup>*</sup>
+                                    OS Output item<sup>*</sup>
                                 </label>
                                 <div class="show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.JobWorkItemMasterId" name="Job Work Items" required
+                                        <select class="form-control" ng-model="detailModel.JobWorkItemMasterId" name="OutSource Items" required
                                                 ng-options="item.Value as item.Text for item in JobWorkItemMstList" ng-change="GetJWitemDataFromTrans();GetRate();GetCurrencyyy();GetMaterialfromJW();" tabindex="17">
                                             <option value=""></option>
                                         </select>
@@ -1552,7 +1553,7 @@
                         </div>
                         <div class="clearfix"></div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Currency<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1564,9 +1565,9 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>*@
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" >
                             <div class="form-group" show-errors>
                                 <label class="control-label">Rate/ Unit<sup>*</sup></label>
                                 <div class="show-message">
@@ -1586,7 +1587,7 @@
                         <div class="clearfix"></div>
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
-                                <label class=" control-label">Job Work Location<sup>*</sup></label>
+                                <label class=" control-label">OutSource Location<sup>*</sup></label>
                                 <div class=" show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.MaterialLocationId" name="Material Location" ng-change="GetJWMaterialStorage();"
@@ -1715,7 +1716,7 @@
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
-                                <label class=" control-label">Rejection<sup>*</sup></label>
+                                <label class=" control-label">Rejection %<sup>*</sup></label>
                                 <div class=" show-message">
                                     <input type="text" ng-model="detailModel.Rejection" name="Rejection" required onkeypress="return isNumber(event)" class="form-control" tabindex="32" maxlength="50">
                                 </div>
@@ -1724,7 +1725,7 @@
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
-                                <label class=" control-label">Value Loss<sup>*</sup></label>
+                                <label class=" control-label">Value Loss %<sup>*</sup></label>
                                 <div class=" show-message">
 
                                     <input type="text" ng-model="detailModel.ValueLoss" name="Value Loss" required onkeypress="return isNumber(event)" class="form-control" tabindex="33" maxlength="50">

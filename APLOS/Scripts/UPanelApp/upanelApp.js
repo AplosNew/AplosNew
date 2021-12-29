@@ -857,6 +857,7 @@ var upanelApp = angular
     .controller('monthlyAttendanceInformationDateRangeController', monthlyAttendanceInformationDateRangeController)
     .controller('MonthlyAttendanceInformationDateRangeNewController', MonthlyAttendanceInformationDateRangeNewController)
     .controller('AttendanceFromAppReportController', AttendanceFromAppReportController)
+    .controller('NewProcessAttendanceReProcessController', NewProcessAttendanceReProcessController)
     .controller('EmployeeLastPunchReportController', EmployeeLastPunchReportController)
     .controller('EntireYearPresentDaysSummaryController', EntireYearPresentDaysSummaryController)
     .controller('professionalTaxReportsController', professionalTaxReportsController)
@@ -990,6 +991,7 @@ var upanelApp = angular
     .controller('InvoiceTaggedWithLCController', InvoiceTaggedWithLCController)
     .controller('PIInvoiceController', PIInvoiceController)
     .controller('PIPackingListController', PIPackingListController)
+    .controller('FOCController', FOCController)
 
     .controller('POMappingWithPIController', POMappingWithPIController)
 

@@ -8,6 +8,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveChargesUrl = $scope.path + 'CreateCharge';
     $scope.deleteUrl = $scope.path + 'delete/';
+    
 
     //#region Page Loading ...
     $scope.AutoLoanAvailableDataList = [];
@@ -58,6 +59,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         };
         $scope.AutoLoanAvailableDataList = [];
         $scope.fromDateTitle = "As On Date";
+        $scope.LcModel = { LoanAmount:0};
     }
     //#endregion
 
@@ -83,9 +85,10 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("show");
     }
 
-    $scope.LcModel = {};
+    $scope.LcModel = { LoanAmount:0};
     $scope.SetDetails = function (args) {
         $scope.LcModel = Object.assign({}, args.data);
+        $scope.LcModel.LoanAmount = 0;
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("hide");
     }
 
@@ -112,13 +115,8 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.TaxPolicyMaster.SystemID = response.data.Data.SystemID;
-                    $scope.TaxPolicyMaster.TaxYearID = response.data.Data.TaxYearID;
-                    $scope.getTaxMonth($scope.TaxPolicyMaster.TaxYearID);
-                    $scope.getMaster();
-                    $scope.getIncome($scope.TaxPolicyMaster.SystemID);
-
-
+                    $scope.getData();
+                    $scope.getAutoLoanAvailableList();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -129,6 +127,36 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     };
 
     //#endregion
+
+    //#region SaveDataList
+
+    $scope.SaveDataList = [];
+    $scope.getData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetSaveData",
+        }).then(function successCallback(response) {
+            $scope.SaveDataList = response.data;
+        });
+    }
+    $scope.getData();
+
+    //#endregion
+
+    //#region Calculation
+
+    $scope.Calculate = function () {
+        $scope.LcModel.LoanAmount = 0;
+        for (var i = 0; i < $scope.AutoLoanAvailableDataList.length; i++) {
+            if ($scope.AutoLoanAvailableDataList[i].isSelected) {
+                $scope.LcModel.LoanAmount += parseFloat($scope.AutoLoanAvailableDataList[i].Receivable);
+            }
+        }
+        parseFloat($scope.LcModel.LoanAmount).toFixed(2);
+    }
+
+    //#endregion
+
 }
 
 
