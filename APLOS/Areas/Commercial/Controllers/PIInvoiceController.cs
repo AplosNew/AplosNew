@@ -56,6 +56,24 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return Json(pi.GetPackingData(), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult SaveData(List<Dictionary<string,object>> PackingData)
+        {
+            try
+            {
+                if (PackingData.Count ==0)
+                {
+                    throw new Exception("Nothing to update");
+                }
+                pi.save(PackingData);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         #endregion
     }
 

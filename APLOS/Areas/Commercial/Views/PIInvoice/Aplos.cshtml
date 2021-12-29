@@ -18,7 +18,7 @@
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
                                     <li>
-                                        <button ng-click="GetPackingListPopUp();" ng-disabled="salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Packing list</button>
+                                        <button ng-click="GetPackingListPopUp();" ng-disabled="salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-search" tabindex="3"></i> Packing list</button>
                                     </li>
                                 </ul>
 
@@ -1325,7 +1325,10 @@
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
-                            <div e-column e-field="PackingId" e-type="string" e-headertext="Packing Id" e-width="80"></div>
+                            <div e-column e-field="Id" e-type="string" e-headertext="PI PackingList Master Id" e-width="80"></div>
+                            <div e-column e-field="Description" e-type="string" e-headertext="PI PackingList Master Description" e-width="80"></div>
+                            <div e-column e-field="Remarks" e-type="string" e-headertext="PI PackingList Master Remarks" e-width="80"></div>
+                            @*<div e-column e-field="PackingId" e-type="string" e-headertext="Packing Id" e-width="80"></div>
                             <div e-column e-field="Entity" e-type="string" e-headertext="Entity" e-width="80"></div>
                             <div e-column e-field="Customer" e-type="string" e-headertext="Customer" e-width="100"></div>
 
@@ -1333,7 +1336,7 @@
                             <div e-column e-field="ByWhom" e-type="string" e-headertext="By Whom" e-width="80"></div>
                             <div e-column e-field="DRespPerson" e-type="string" e-headertext="Despatch Responsible Person" e-width="80"></div>
                             <div e-column e-field="AddedDate" e-type="date" e-headertext="Created Date" e-width="80"></div>
-                            <div e-column e-field="InActiveDate" e-type="date" e-headertext="Inactive Date" e-width="80"></div>
+                            <div e-column e-field="InActiveDate" e-type="date" e-headertext="Inactive Date" e-width="80"></div>*@
 
                         </div>
                     </div>

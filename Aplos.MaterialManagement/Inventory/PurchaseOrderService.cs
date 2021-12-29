@@ -11167,9 +11167,9 @@ ORDER BY IR.ID DESC";
                                                ,MRMD.MaterialDetail MaterialDetail
 
 											   ,CheckedBy=eI.EmployeeName 
-                                                ,AuthorizedBy=CASE When SPO.ApprovedByStatus='Approval'then eI1.EmployeeName else '' END
+                                                ,AuthorizedBy=CASE When SPO.ApprovedByStatus='Approved'then eI1.EmployeeName else '' END
                                                 ,AddedBy=CASE When SPO.CheckedByStatus='For Checking' OR SPO.CheckedByStatus='Hold' OR SPO.CheckedByStatus='Reject' OR SPO.CheckedByStatus='Checked'then eI3.EmployeeName else ''  END 
-                                             	,PurOrCheckedStatus= CASE when SPO.CheckedByStatus='For Checking' Then 'To be checked'
+                                             	,PurOrCheckedStatus= CASE when SPO.CheckedByStatus='For Checking' Then 'To be Checked'
                                            when SPO.CheckedByStatus='Hold' Then 'Hold'
 						                   when SPO.CheckedByStatus='Reject' Then 'Reject'
 						                   when SPO.CheckedByStatus='Checked' Then 'Checked'
