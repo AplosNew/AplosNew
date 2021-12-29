@@ -25,9 +25,11 @@ namespace Aplos.Areas.Attendances.Controllers
     {
        AttendanceFromAppReportService  rep = new AttendanceFromAppReportService();
 
+        AttendanceReprocessService app = new AttendanceReprocessService();
         public NewProcessAttendanceReProcessController()
         {
             rep = new AttendanceFromAppReportService();
+            app = new AttendanceReprocessService();
         }
 
         
@@ -35,7 +37,12 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
-             
+
+        [Authorize, HttpGet]
+        public ActionResult getFilters()
+        {
+            return Json(app.getFilters(), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetAttndData(string From,string To, string AttndType)
