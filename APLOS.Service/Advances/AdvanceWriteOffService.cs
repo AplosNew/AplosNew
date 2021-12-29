@@ -156,6 +156,42 @@ namespace Library.Service.Advances
                 Archive = false
             });
         }
+        
+        private AdvanceWriteOff InsertAdvanceWriteOffDifferentCurrency(AdvanceWriteOff advanceWriteOffVM)
+        {
+            var advanceWriteOff = new AdvanceWriteOff
+            {
+                CompanyGroupId = advanceWriteOffVM.CompanyGroupId,
+                CompanyId = advanceWriteOffVM.CompanyId,
+                PlantId = advanceWriteOffVM.PlantId,
+                EntityId = advanceWriteOffVM.EntityId,
+                FiscalYearId = advanceWriteOffVM.FiscalYearId,
+                FiscalYearPeriodId = advanceWriteOffVM.FiscalYearPeriodId,
+                TaxYearId = advanceWriteOffVM.TaxYearId,
+                TaxYearPeriodId = advanceWriteOffVM.TaxYearPeriodId,
+                VoucherTypeId = advanceWriteOffVM.VoucherTypeId,
+                CurrencyId = advanceWriteOffVM.CurrencyId,
+                PartyType = advanceWriteOffVM.PartyType,
+                PartyId = advanceWriteOffVM.PartyId,
+                PartyPlantId = advanceWriteOffVM.PartyPlantId,
+                EmployeeId = advanceWriteOffVM.EmployeeId,
+                Amount = advanceWriteOffVM.Amount,
+                VoucherDate = advanceWriteOffVM.VoucherDate,
+                PostingDate = advanceWriteOffVM.PostingDate,
+                DocDate = advanceWriteOffVM.DocDate,
+                DocRefNo = advanceWriteOffVM.DocRefNo,
+                Narration = advanceWriteOffVM.Narration,
+                SourceType = advanceWriteOffVM.SourceType,
+                IsPark = advanceWriteOffVM.IsPark,
+                SettlementType = advanceWriteOffVM.SettlementType,
+                PaymentSource = advanceWriteOffVM.PaymentSource,
+                BankMasterId = advanceWriteOffVM.BankMasterId,
+                CashMasterId = advanceWriteOffVM.CashMasterId,
+                Archive = false
+            };
+            
+            return InsertAdvanceWriteOff(advanceWriteOff);
+        }
 
         private void InsertAdvanceWriteOffDetail(AdvanceWriteOff advanceWriteOff, AdvanceWriteOffDetail advanceWriteOffDetail, int currentId)
         {
@@ -1724,12 +1760,44 @@ namespace Library.Service.Advances
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 // INSERT INTO AdvanceWriteOff
-                var advanceWriteOff = InsertAdvanceWriteOff(voucherVM);
+                var AdvanceCurrencyId = "";
+                AdvanceCurrencyId = voucherVM.CurrencyId;
+                var advanceWriteOffVM = new AdvanceWriteOff
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    EntityId = voucherVM.EntityId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherTypeId = voucherVM.VoucherTypeId,
+                    CurrencyId = AdvanceCurrencyId,
+                    PartyType = voucherVM.PartyType,
+                    PartyId = voucherVM.PartyId,
+                    PartyPlantId = voucherVM.PartyPlantId,
+                    EmployeeId = voucherVM.EmployeeId,
+                    Amount = voucherVM.Amount,
+                    VoucherDate = voucherVM.VoucherDate,
+                    PostingDate = voucherVM.PostingDate,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+                    SourceType = voucherVM.SourceType,
+                    IsPark = voucherVM.IsPark,
+                    SettlementType = voucherVM.SettlementType,
+                    PaymentSource = voucherVM.PaymentSource,
+                    BankMasterId = voucherVM.BankMasterId,
+                    CashMasterId = voucherVM.CashMasterId,
+                    Archive = false
+                };
+                var advanceWriteOff = InsertAdvanceWriteOffDifferentCurrency(advanceWriteOffVM);
 
                 var totalCrAmount = 0.0M;
 
                 // Set total Credit amount in write of master.
-                if (voucherVM.CurrencyId== companyCurrencyId)
+                if (AdvanceCurrencyId == companyCurrencyId)
                 {
                     totalCrAmount = Math.Round(voucherDetailVMList.Sum(r => r.DrAmount * r.CompanyCurrencyRate), 4);
                 }
@@ -1740,11 +1808,45 @@ namespace Library.Service.Advances
 
                 advanceWriteOff.Amount += totalCrAmount;
                 // INSERT INTO InvoiceWriteOff
-                var invoiceWriteOff = _invoiceWriteOffService.InsertInvoiceWriteOff(voucherVM);
+                var invoiceWriteOffVM = new InvoiceWriteOff
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherTypeId = voucherVM.VoucherTypeId,
+                    CurrencyId = voucherDetailVMList.FirstOrDefault().CurrencyId,
+                    SourceType = voucherVM.SourceType,
+                    PartyType = voucherVM.PartyType,
+                    PartyId = voucherVM.PartyId,
+                    PartyPlantId = voucherVM.PartyPlantId,
+                    Amount = voucherVM.Amount,
+                    VoucherDate = voucherVM.VoucherDate,
+                    PostingDate = voucherVM.PostingDate,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+                    AddedBy = voucherVM.AddedBy,
+                    AddedDate = voucherVM.AddedDate,
+                    AddedFromIP = voucherVM.AddedFromIP,
+                    IsPark = voucherVM.IsPark,
+                    Archive = false,
+                    BankMasterId = voucherVM.BankMasterId,
+                    CashMasterId = voucherVM.CashMasterId,
+                    EmployeeId = voucherVM.EmployeeId,
+                    PaymentSource = voucherVM.PaymentSource,
+                    RoundingType = voucherVM.RoundingType,
+                    RoundingAmount = voucherVM.RoundingAmount,
+                    InvoiceWriteOffGroupNo = voucherVM.InvoiceWriteOffGroupNo
+                };
+               
+                var invoiceWriteOff = _invoiceWriteOffService.InsertInvoiceWriteOffDifferentCurrency(invoiceWriteOffVM);
 
                 // INSERT INTO Voucher
-                var AdvanceCurrencyId = "";
-                AdvanceCurrencyId = voucherVM.CurrencyId;
+                
                 voucherVM.CurrencyId = companyCurrencyId;
                 var voucher = _voucherService.InsertVoucher(voucherVM);
 
@@ -1820,7 +1922,7 @@ namespace Library.Service.Advances
                 };
                
                 currentVoucherDetailId++;
-                _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+                _voucherService.InsertVoucherDetailDifferentCurrency(voucher, voucherDetailCr, currentVoucherDetailId);
                
                 var CrAmountCurrency = 0.0M;
                 if (AdvanceCurrencyId == companyCurrencyId)
@@ -1908,7 +2010,7 @@ namespace Library.Service.Advances
                         PartyPlantId = advanceWriteOff.PartyPlantId
                     };
                     currentVoucherDetailId++;
-                    _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
+                    _voucherService.InsertVoucherDetailDifferentCurrency(voucher, voucherDetailDr, currentVoucherDetailId);
                     
                     if (AdvanceCurrencyId == companyCurrencyId)
                     {
