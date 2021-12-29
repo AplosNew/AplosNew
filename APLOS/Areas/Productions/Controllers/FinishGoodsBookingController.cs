@@ -90,9 +90,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetUnBookedQtyBreakDownData(string productionOrderId, string productCode, string entityId)
+        public JsonResult GetUnBookedQtyBreakDownData(string productionOrderId, string productCode, string entityId, string fromDate, string toDate)
         {
-            return Json(clsFinishGoodsBooking.GetUnBookedQtyBreakDownData(productionOrderId, productCode, entityId), JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetUnBookedQtyBreakDownData(productionOrderId, productCode, entityId, fromDate, toDate), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -108,9 +108,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList, List<Dictionary<string, object>> FGList)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> FGList, string ToDate)
         {
-            clsFinishGoodsBooking.SaveData(data, WorkDayList, FinishGoodsBookingDetailList, FGList);
+            clsFinishGoodsBooking.SaveData(data,FGList, ToDate);
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 

@@ -3189,7 +3189,6 @@ UNION ALL
 
             try
             {
-
                 var sql = @"select * from dbo.NotificationSetting  where BusinessFlow='IssueSlip' and plantId='" + identity.PlantId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }

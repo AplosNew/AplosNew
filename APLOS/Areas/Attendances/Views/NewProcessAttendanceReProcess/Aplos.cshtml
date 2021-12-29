@@ -1,0 +1,57 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
+
+<div class="form-elements form-horizontal" ng-form name="AttndReProcess">
+    <div class="row" ng-form name="General">
+
+        <div class="col-sm-6 col-md-6 col-lg-6">
+
+            <div class="row">
+
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div id="PlantList" ej-grid e-datasource="filters"
+                         e-allowfiltering="true" e-responsive="true"
+                         e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Plant" e-type="string" e-headertext="Plant" e-width="40"></div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="FromDate" ng-model="selectedValues.FromDate" datepicker class="form-control" required tabindex="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="FromDate" ng-model="selectedValues.ToDate" datepicker class="form-control" required tabindex="2">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        <br />
+        <div class="common-btn" style="padding-right:20px;">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="loadGrid()" class="btn" tabindex="4"><i class="glyphicon glyphicon-save"></i> Process</button></li>
+                <li> <button ng-click="clearFliters()" class="btn" tabindex="5"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+
+    </div>
+    <confirm-modal></confirm-modal>
+       
+</div>
+
+

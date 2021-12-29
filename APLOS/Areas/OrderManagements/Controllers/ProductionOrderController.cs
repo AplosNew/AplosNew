@@ -1000,7 +1000,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult CreateProductionBulletinTemplateMaster(ProductionBulletinTemplateMaster entity)
         {
 
@@ -1070,6 +1070,8 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
                         dr["PlannedHoursPerDay"] = data.PlannedHoursPerDay;
                         dr["MaxNoOfWS"] = data.MaxNoOfWS;
                         dr["BottleNeckPercentage"] = data.BottleNeckPercentage;
+                        dr["SPT"] = data.SPT;
+                        dr["BuildUp"] = data.BuildUp;
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
@@ -1088,6 +1090,8 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
                         dr["PlannedHoursPerDay"] = data.PlannedHoursPerDay;
                         dr["MaxNoOfWS"] = data.MaxNoOfWS;
                         dr["BottleNeckPercentage"] = data.BottleNeckPercentage;
+                        dr["SPT"] = data.SPT;
+                        dr["BuildUp"] = data.BuildUp;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now;
                         dr["UpdatedFromIP"] = identity.IPAddress;
