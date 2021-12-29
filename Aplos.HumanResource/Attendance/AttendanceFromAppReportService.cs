@@ -199,6 +199,17 @@ namespace Library.Service.Attendances {
             }
         }
 
+        public void ProcessData(string From, string To)
+        {
+
+            var sql = @"update attdnrawdata set processedflag=0 where pdate>='"+From+"' " +
+                "and pdate<='"+To+"'and plantid=''";
+
+            var sqlx = @"update attdnprocessdata set punchintime=null,punchouttime=null,outpunchlimit=null,
+            intime=null,outtime=null,ProcessIntime=null,ProcessOuttime=null where WorkDate>='"+From+"'" +
+            " and WorkDate <='"+To+"' and PlantID=''";
+        }
+        
     }
 
 

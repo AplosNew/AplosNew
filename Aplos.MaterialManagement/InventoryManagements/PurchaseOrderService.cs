@@ -32,13 +32,37 @@ namespace Library.MaterialManagement.InventoryManagements
         #endregion Constructor
 
 
-        public IEnumerable<object> GetBOQItems(string ContractId, string VendorId, string IsOwnVendor, string inveReveiveMasterId)
+        public IEnumerable<object> GetBOQItems(string ContractId, string VendorId, string IsOwnVendor, string inveReveiveMasterId,bool istradingPO)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (IsOwnVendor == "OwnVendor")
             {
                 try
                 {
+                    string whereClause = @"WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
+                                AND isnull(B.MasterOrderItemId,'') NOT IN (
+                                select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
+                                join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
+                                WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + identity.PlantId + @"'
+                            )
+
+                                            ";
+                    if (istradingPO)
+                    {
+                        whereClause = @"WHERE moi.ContractId='" + ContractId + @"'
+                                AND isnull(B.Id,'') IN (
+                                select isnull(BOQ.Id,'') from BOQ
+                            join trn.MasterOrderItem MOI on moi.id= BOQ.MasterOrderItemId
+
+                            join hkp.PartyPlant P on p.PartyId= boq.VendorId
+
+                            where P.PlantId= '" + identity.PlantId + @"' AND moi.ContractId='" + ContractId + @"'
+                       
+                            )";
+
+                    }
+
+
                     var sql = "";
                     sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.Sequence Sequence1
 						,b.MasterOrderItemId
@@ -143,23 +167,8 @@ namespace Library.MaterialManagement.InventoryManagements
 
                         --LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						--LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
-						WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
-                                AND isnull(B.MasterOrderItemId,'') NOT IN (
-                                select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
-                                join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
-                                WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + identity.PlantId + @"'
-                            )
-
-AND isnull(B.Id,'') NOT IN (
-select isnull(BOQ.Id,'') from BOQ
-                            join trn.MasterOrderItem MOI on moi.id= BOQ.MasterOrderItemId
-
-                            join hkp.PartyPlant P on p.PartyId= boq.VendorId
-
-                            where P.PlantId<> '" + identity.PlantId + @"' AND moi.ContractId='" + ContractId + @"'
-
-)
-
+						
+                                "+ whereClause + @"
 
 
 						AND b.isParent=0 --and isChild=0

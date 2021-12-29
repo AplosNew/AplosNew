@@ -184,6 +184,7 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
         //$scope.MaterialModel = args.data;
         $scope.ModelPO = args.data;
         $scope.PIMaterialId = args.data.Id;
+        $scope.PODataList = [];
         $http({
             method: 'GET',
             url: $scope.path + "GetPODetailsData?MaterialGroupMasterId=" + args.data.MaterialGroupMasterId + '&PIMaterialId=' + $scope.PIMaterialId ,
@@ -192,6 +193,7 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
             $scope.PODataList = response.data.Polist;
         });
         angular.element(document.querySelector('#POPopUpNew')).modal('show');
+
     }
 
     $scope.closePOPopup = function () {
@@ -269,6 +271,7 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadPISearchList();
                     /*          $scope.Get();*/
+                    angular.element(document.querySelector('#POPopUpNew')).modal('hide');
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

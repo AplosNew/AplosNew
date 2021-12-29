@@ -484,6 +484,8 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
                         $scope.PImodelNew = response.data.PIMaster[0];
                         $scope.PIVersionModel = response.data.VarsionData;
                         $scope.DataList = response.data.ItemData;
+                        $scope.VersionList = $scope.PIVersionModel;
+
                     })
                 }
             }), function errorCallBack(response) {

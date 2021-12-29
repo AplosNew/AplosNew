@@ -3527,7 +3527,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         return $scope.tab1 === tabNum;
     };
 
-
+    $scope.changeIsTradingPO = function () {
+        $scope.productNew.ContractId = null;
+        $scope.productNew.ContractNo = null;
+        $scope.productNew.CustomerName = null;
+    }
     //#endregion
     $scope.GetBOQItemList = function () {
 
@@ -3588,7 +3592,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id,
+            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
         }).then(function successCallback(response) { //datagatefun			
             $scope.GetListForMasterOrder = [];
             $scope.GetListForMasterOrder = response.data;
@@ -3608,7 +3612,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id,
+            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
         }).then(function successCallback(response) { //datagatefun			
             $scope.GetListForMasterOrderOtherVendor = [];
             $scope.GetListForMasterOrderOtherVendor = response.data;
@@ -3627,7 +3631,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id,
+            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
         }).then(function successCallback(response) { //datagatefun			
             $scope.GetListForMasterOrderParent = [];
             $scope.GetListForMasterOrderParent = response.data;
