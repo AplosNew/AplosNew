@@ -4070,7 +4070,8 @@ function ServicePOIndividualController(accountService, addressService, $window, 
 
 	// #endregion
 
-	//#region Order Specific Info	$scope.contractList = [];
+	//#region Order Specific Info
+	$scope.contractList = [];
 	$scope.GetPopUpContract = function () {
 		$scope.contractList = [];
 		$http.get("Products/PurchaseOrder/GetLCContractList")
@@ -4114,7 +4115,9 @@ function ServicePOIndividualController(accountService, addressService, $window, 
 			$scope.masterOrderCustomerList = response.data;
 		});
 		angular.element(document.querySelector('#MasterOrderPopUp')).modal('show');
-	}	//#endregion
+	}
+
+	//#endregion
 
 	$scope.SelectedContract = function (obj) {
 		//debugger;

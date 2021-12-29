@@ -1,8 +1,12 @@
-﻿using Library.Data.Sql;
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
+using OTSBD;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.OrderManagement.Packing
@@ -43,6 +47,79 @@ namespace Library.OrderManagement.Packing
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        public void save(List<Dictionary<string, object>> PackingData)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster; DataRow dr;
+                string ids = "";
+                bplib.clsGenID objGenID = null;
+                objGenID = new bplib.clsGenID();
+                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "SalesPacking", out string TempId);
+                int count = 0;
+
+
+
+                for (int i = 0; i < PackingData.Count; i++)
+                {
+                    if (ids == "")
+                    {
+                        ids = "'" + PackingData[i]["Id"] + "'";
+                    }
+                    else
+                    {
+                        ids = ",'" + PackingData[i]["Id"] + "'";
+                    }
+                }
+
+                string sql = "SELECT * FROM [dbo].[SalesPacking] WHERE Id in (" + ids + ") ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                foreach (var item in PackingData)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = "Id = '" + item["Id"] + "'  ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        count++;
+                        dr = dsMaster.Tables[0].NewRow();
+                        dr["Id"] = "S" + count + TempId;
+                        dr["PIPackingListMasterId"] = item["PIPackingListMasterId"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["PIPackingListMasterId"] = item["PIPackingListMasterId"];
+
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+
+                    }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
