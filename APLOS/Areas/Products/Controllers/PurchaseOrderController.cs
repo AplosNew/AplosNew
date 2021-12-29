@@ -4378,14 +4378,14 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 
 		#region Order Specific PO Material Details
 		[Authorize, HttpGet]
-		public JsonResult GetBOQItems(string ContractId, string VendorId, string IsOwnVendor, string inveReveiveMasterId)
+		public JsonResult GetBOQItems(string ContractId, string VendorId, string IsOwnVendor, string inveReveiveMasterId, bool istradingPO)
 		{
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
 				
-				var jsondata = Json(obj.GetBOQItems(ContractId, VendorId, IsOwnVendor, inveReveiveMasterId), JsonRequestBehavior.AllowGet);
+				var jsondata = Json(obj.GetBOQItems(ContractId, VendorId, IsOwnVendor, inveReveiveMasterId, istradingPO), JsonRequestBehavior.AllowGet);
 				jsondata.MaxJsonLength = int.MaxValue;
 				return jsondata;
 			}

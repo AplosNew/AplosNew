@@ -1332,7 +1332,7 @@ namespace Library.Service.HumanResources
 
                 #region ColumnHeaderVariables              
                 int cUnit = 0; int cSubSection = 0; int cAttendancGroup = 0; int cOnRollManpower; int cBudgetedManPower; int cFdPresent = 0; int cfdAbsent = 0;
-                int cfdLeave = 0; int cfdLate = 0; int cfdOthers = 0; var cfdRemarks = 0; int cDivision = 0; int cEmpCategory = 0; int cSection = 0;int cDepartment = 0;
+                int cfdLeave = 0; int cfdLate = 0; int cfdOthers = 0; var cfdRemarks = 0; int cDivision = 0; int cEmpCategory = 0; int cSection = 0; int cDepartment = 0;int cLine = 0;
                 #endregion
                 #region ColumnHeaders
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Division", ExcelHAlign.HAlignCenter); cDivision = xlsCol; xlsCol++;
@@ -1342,6 +1342,10 @@ namespace Library.Service.HumanResources
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section", ExcelHAlign.HAlignCenter); cSection = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
+                if (withLine)
+                {
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Line", ExcelHAlign.HAlignCenter); cLine = xlsCol; xlsCol++;
+                }
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budgeted", 8, ExcelHAlign.HAlignCenter); cBudgetedManPower = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OnRoll", 8, ExcelHAlign.HAlignCenter); cOnRollManpower = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Present", 8, ExcelHAlign.HAlignCenter); cFdPresent = xlsCol; xlsCol++;
@@ -1388,7 +1392,7 @@ namespace Library.Service.HumanResources
 
                     string strGroupDivisionName = /*strGroupEmpCategory +*/ dtManPBSummary.Rows[0]["DivisionName"].ToString();
                     string strGroupUnitName = strGroupDivisionName + dtManPBSummary.Rows[0]["UnitName"].ToString();
-                    string strGroupEmpCategory = strGroupUnitName+ dtManPBSummary.Rows[0]["EmpCategory"].ToString();
+                    string strGroupEmpCategory = strGroupUnitName + dtManPBSummary.Rows[0]["EmpCategory"].ToString();
                     string strGroupDepartment = strGroupEmpCategory + dtManPBSummary.Rows[0]["Department"].ToString();
                     string strGroupSectionName = strGroupDepartment + dtManPBSummary.Rows[0]["SectionName"].ToString();
                     string strGroupSubSectionName = strGroupSectionName + dtManPBSummary.Rows[0]["SubSectionName"].ToString();
@@ -1404,16 +1408,16 @@ namespace Library.Service.HumanResources
 
 
                     DataRow dr = dtManPBSummary.NewRow(); dtManPBSummary.Rows.Add(dr);
-                    for (int i = 0; i < dtManPBSummary.Rows.Count ; i++)
+                    for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
                     {
                         var catLRow = xlsRow;
-                        if (i==100)
+                        if (i == 100)
                         {
 
                         }
                         strGroupDivisionName =/* strGroupEmpCategory +*/ dtManPBSummary.Rows[i]["DivisionName"].ToString();
                         strGroupUnitName = strGroupDivisionName + dtManPBSummary.Rows[i]["UnitName"].ToString();
-                        strGroupEmpCategory = strGroupUnitName+ dtManPBSummary.Rows[i]["EmpCategory"].ToString();
+                        strGroupEmpCategory = strGroupUnitName + dtManPBSummary.Rows[i]["EmpCategory"].ToString();
                         strGroupDepartment = strGroupEmpCategory + dtManPBSummary.Rows[i]["Department"].ToString();
                         strGroupSectionName = strGroupDepartment + dtManPBSummary.Rows[i]["SectionName"].ToString();
                         strGroupSubSectionName = strGroupSectionName + dtManPBSummary.Rows[i]["SubSectionName"].ToString();
@@ -1456,7 +1460,7 @@ namespace Library.Service.HumanResources
                             dicGroup["DivisionName"].GroupKey = strGroupDivisionName;
                         }
 
-                       
+
 
                         sheet1.Range[xlsRow, cUnit].Text = dtManPBSummary.Rows[i]["UnitName"].ToString();
                         if (dicGroup["UnitName"].GroupKey != strGroupUnitName)
@@ -1716,13 +1720,17 @@ namespace Library.Service.HumanResources
                         #endregion
 
                         oRU.SetTextBorder(ref sheet1, xlsRow, cAttendancGroup, dtManPBSummary.Rows[i]["DesignationName"].ToString());//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower,  clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cBudgetedManPower,  clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ProposedManpowerBudget"].ToString()));
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent,  clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent,  clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate,  clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave,  clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers,  clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
+                        if (withLine)
+                        {
+                            oRU.SetTextBorder(ref sheet1, xlsRow, cLine, dtManPBSummary.Rows[i]["LineName"].ToString());//
+                        }
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cBudgetedManPower, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ProposedManpowerBudget"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
                         oRU.SetTextBorder(ref sheet1, xlsRow, cfdRemarks, "");//
                         xlsRow++;
                     }
@@ -2843,7 +2851,7 @@ namespace Library.Service.HumanResources
                     {
                         var catLRow = xlsRow;
 
-                        if(i ==140)
+                        if (i == 140)
                         {
 
                         }
@@ -3851,7 +3859,7 @@ namespace Library.Service.HumanResources
                 strSql = @"SELECT DivisionName
                             	,UnitName,EDE.EmpCategory,EDE.Department,EDE.SectionName
                             	,SubSectionName
-                            	,DesignationName 
+                            	,DesignationName" + selectLine + @" 
                             	,ISNULL(SUM(TotalNumber), 0) ProposedManpowerBudget
                             	,ISNULL(SUM(TotalManpower), 0) TotalManpower
                             	,ISNULL(SUM(SUM_PRESENT), 0) SUM_PRESENT
@@ -3866,7 +3874,7 @@ namespace Library.Service.HumanResources
                             		,M.SectionName
                             		,M.SubSectionName
                             		,M.Department
-                            		,M.UnitName 
+                            		,M.UnitName" + MselectLine + @" 
                             		,TotalNumber
                             		,EmpAttdn.SUM_PRESENT
                             		,EmpAttdn.SUM_Absent

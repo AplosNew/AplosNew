@@ -84,6 +84,7 @@ namespace Library.Service.Machines
                                             , ISNULL(OP.PersonalAllowance, 0) AS PersonalAllowance
                                             , OP.OperationLength, OP.IsMachineRequired
 	                                        , ART.StandardName AS ArticleName, SK.UserName AS SkillName,MM.UserName MaterialName,OM.Code OperationMasterCode
+                                           ,OP.Code OperationCode,OP.UserName OperationName
                             FROM [MST].[OperationVariation] AS OS
                             JOIN [MST].[Operation] AS OP ON OP.Id = OS.OperationId
                            -- LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON OP.ArticleId = ART.Id

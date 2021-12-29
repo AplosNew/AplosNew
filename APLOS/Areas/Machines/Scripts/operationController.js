@@ -93,6 +93,17 @@ function OperationController(cboService, commonMessage, $scope, $rootScope, base
     $scope.operationNew = Object.assign({}, $scope.operation);
 
     // #region DDL
+    $scope.OperationVariationList = [];
+    $scope.GetOperationVariationData = function (operationId) {
+    $http({
+            method: 'GET',
+        url: 'Machines/operation/GetOperationVariationData?operationId=' + operationId
+        }).then(function successCallback(response) {
+            $scope.OperationVariationList = response.data;
+            });
+        angular.element(document.querySelector('#OperationVariationPopUp')).modal('show');
+    }
+
     $scope.operationTypeList = [];
     $http({
         method: 'GET',
