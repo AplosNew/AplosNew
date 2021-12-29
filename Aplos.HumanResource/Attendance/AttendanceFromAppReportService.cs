@@ -170,5 +170,36 @@ namespace Library.Service.Attendances {
             }
         }
 
-    }    
+    }
+
+    public class AttendanceReprocessService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public AttendanceReprocessService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+
+        }
+        public object getFilters()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var str = @"select ID AS PlantId,UserName as Plant from org.Plant where CompanyId='" + identity.CompanyId+@"'
+                and Active='1'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+    }
+
+
 }

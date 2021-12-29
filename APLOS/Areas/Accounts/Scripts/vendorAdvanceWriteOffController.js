@@ -404,7 +404,7 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
             }
         };
         $scope.DrAmountSubTotal = $filter('sumByKey')($filter('filter')($scope.voucherDetailList), 'DrAmount');
-        if (parseFloat($scope.advance.AdvanceAmount) < parseFloat($scope.DrAmountSubTotal)) {
+        if (parseFloat($scope.advance.AdvanceAmount) * parseFloat($scope.advance.CompanyCurrencyRate) < parseFloat($scope.DrAmountSubTotal)) {
             ShowResult("Invoice  Amount should not exceed Advance Amount.", "failure");
             return true;
         }
@@ -687,8 +687,8 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
 
     $scope.exchangeGainLossAmount = function (data) {
         $scope.DrAmountSubTotal = $filter('sumByKey')($filter('filter')($scope.voucherDetailList), 'DrAmount');
-        if (parseFloat($scope.advance.AdvanceAmount) < parseFloat($scope.DrAmountSubTotal)) {
-            data.DrAmount = $scope.advance.AdvanceAmount;
+        if (parseFloat($scope.advance.AdvanceAmount) * parseFloat($scope.advance.CompanyCurrencyRate) < parseFloat($scope.DrAmountSubTotal)) {
+            data.DrAmount = parseFloat($scope.advance.AdvanceAmount) * parseFloat($scope.advance.CompanyCurrencyRate);
             ShowResult("Invoice  Amount should not exceed Advance Amount.", "failure");
         }
         else {
@@ -703,15 +703,21 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
         else {
             CloseShowResult();
         }
+        if (data.CurrencyCode === $scope.advance.CurrencyCode) {
+            if (data.CompanyCurrencyRate < $scope.advance.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advance.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeLoss";
+            }
+            else if (data.CompanyCurrencyRate > $scope.advance.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advance.CompanyCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeGain";
+            }  
+            else {
+                data.ExchangeAmount = 0;
+                data.ExchangeType = null;
+            }
+        }
        
-        if (data.CompanyCurrencyRate < $scope.advance.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advance.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
-            data.ExchangeType = "ExchangeLoss";
-        }
-        else if (data.CompanyCurrencyRate > $scope.advance.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advance.CompanyCurrencyRate)).toFixed(2);
-            data.ExchangeType = "ExchangeGain";
-        }
         else {
             data.ExchangeAmount = 0;
             data.ExchangeType = null;

@@ -138,7 +138,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             else
             {
-                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcelWithLine(identity.CompanyGroupId, identity.CompanyId, PlantIds, workDate, withLine, typeLists, WithoutTBS, WithoutLA);
+                var workbook = _manpowerAttendanceSummary.GetSummaryManpowerAttendanceExcel(identity.CompanyGroupId, identity.CompanyId, workDate, withLine, PlantIds, typeLists, WithoutTBS, WithoutLA);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
             }
