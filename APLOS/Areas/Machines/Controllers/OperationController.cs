@@ -75,6 +75,13 @@ namespace Aplos.Areas.Machines.Controllers
             return Json(_operationService.Query(parameters, identity.CompanyGroupId, new JavaScriptSerializer().Deserialize<string[]>(ids)), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet,Authorize]
+        public ActionResult GetOperationVariationData(string operationId)
+        {
+            string sql = @"Select * from MST.OperationVariation Where OperationId='"+operationId+"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetOperationUtilityData(string operationId)
         {
