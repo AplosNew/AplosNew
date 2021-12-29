@@ -65,11 +65,11 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(ws.getUOM(), JsonRequestBehavior.AllowGet);
         }
 
-        //[Authorize, HttpPost]
-        //public ActionResult getBudget()
-        //{
-        //    return Json(ws.getBudgetId(), JsonRequestBehavior.AllowGet);
-        //}
+        [Authorize, HttpPost]
+        public ActionResult getBudget()
+        {
+            return Json(ws.getBudgetId(), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetCbo()
@@ -82,9 +82,9 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                var _master = ws.Get(Id);
-
-                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
+                var _master = ws.GetMaster(Id);
+                var _child = ws.GetChild(Id);
+                return Json(new { master = _master , child = _child }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -110,11 +110,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> datas)
+        public JsonResult Create(Dictionary<string, object> datas , List<string> budgets)
         {
             try
             {
-                var data = ws.Create(datas);
+                var data = ws.Create(datas , budgets);
                 return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }

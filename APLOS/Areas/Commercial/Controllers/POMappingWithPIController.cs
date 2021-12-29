@@ -56,7 +56,7 @@ namespace Aplos.Areas.Commercial.Controllers
       
 
         [HttpPost]
-        public JsonResult Save(string PIMaterial, List<Dictionary<string, object>> POList)
+        public JsonResult Save(Dictionary<string, object> PIMaterial,List<Dictionary<string, object>> POList)
         {
             try
             {
@@ -66,43 +66,65 @@ namespace Aplos.Areas.Commercial.Controllers
   
 
                 ConnectionManager.DAL.ConManager conPIMaterial = new ConnectionManager.DAL.ConManager("1");
-                conPIMaterial.OpenDataSetThroughAdapter("select * from POMappingWithPI", out DataSet dsPIMaterial, false, "1");
-
-                foreach (var item in POList)
+                conPIMaterial.OpenDataSetThroughAdapter("select * from POMappingWithPI where PIMaterialID ='" + PIMaterial["Id"] + @"' ", out DataSet dsPIMaterial, false, "1");
+                
+                if (POList == null || POList.Count == 0)
                 {
-                    dsPIMaterial.Tables[0].DefaultView.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
-
-                    DataView dv = new DataView(dsPIMaterial.Tables[0]);
-                    dv.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
-                    if (dv.Count > 0)
+                    while (dsPIMaterial.Tables[0].DefaultView.Count > 0)
+                        dsPIMaterial.Tables[0].DefaultView[0].Delete();
+                }
+                
+                if ( POList != null)
+                {
+                    for (int i = 0; i < dsPIMaterial.Tables[0].Rows.Count; i++)
                     {
-                        //edit
-                        // _Id = VersionData[0]["Id"].ToString();
-                        DataRow drmo = dv[0].Row;
-
-                        drmo["PIMaterialID"] = item["PIMaterialID"];
-                        drmo["PODetailId"] = item["PODetailId"];
-                        drmo["QuantityAtPIUoM"] = item["QuantityAtPIUoM"];
-                        drmo["PIUoMId"] = item["PIUoMId"];
-                        drmo["POQuantity"] = item["POQuantity"];
-                        drmo["POUoM"] = item["POUoM"];
-
-                        EditRow(drmo, item);
-
+                        var item = POList.Where(x => x["PODetailId"].ToString() == dsPIMaterial.Tables[0].Rows[i]["PODetailId"].ToString()).FirstOrDefault();
+                        if (item == null || item.Count == 0)
+                        {
+                            dsPIMaterial.Tables[0].Rows[i].Delete();
+                        }
                     }
-                    else
+                    foreach (var item in POList)
                     {
-                        string _materialId = "";
-                        //add new
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("POMappingWithPI", out _materialId);
-                        _materialId = "PM" + _materialId;
-                        item["Id"] = _materialId;
-                        item["PIMaterialID"] = PIMaterial;
-                        AddNewRow(dsPIMaterial.Tables[0], item);
+                        dsPIMaterial.Tables[0].DefaultView.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
 
+                        DataView dv = new DataView(dsPIMaterial.Tables[0]);
+                        dv.RowFilter = "Id='" + clsStaticInfo.nullrecorder(item["Id"]) + "'";
+                        if (dv.Count > 0)
+                        {
+                            //edit
+                            // _Id = VersionData[0]["Id"].ToString();
+                            DataRow drmo = dv[0].Row;
+
+                            drmo["PIMaterialID"] = item["PIMaterialId"];
+                            drmo["PODetailId"] = item["PODetailId"];
+                            drmo["QuantityAtPIUoM"] = item["QuantityAtPIUoM"];
+                            drmo["PIUoMId"] = item["PIUoMId"];
+                            drmo["POQuantity"] = item["POQuantity"];
+                            drmo["POUoMId"] = item["POUoMId"];
+
+                            EditRow(drmo, item);
+
+                        }
+                        else
+                        {
+                            string _materialId = "";
+                            //add new
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID("POMappingWithPI", out _materialId);
+                            _materialId = "PM" + _materialId;
+                            item["Id"] = _materialId;
+                            item["PIMaterialID"] = PIMaterial["Id"];
+                            AddNewRow(dsPIMaterial.Tables[0], item);
+
+                        }
                     }
                 }
+                else
+                {
+
+                }
+                   
 
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
@@ -167,15 +189,15 @@ namespace Aplos.Areas.Commercial.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select top 100 * from (SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
-,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId,PV.VersionNo AS LastVersion
- FROM PIMaster PM 
-LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
-LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
-LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
-LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC)
---ORDER BY PM.PIDate DESC
-) AS TEMP WHERE " + strkey + "ORDER BY TEMP.PIDate DESC";
+                            ,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
+                            ,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId,PV.VersionNo AS LastVersion
+                             FROM PIMaster PM 
+                            LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
+                            LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
+                            LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
+                            LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC)
+                            --ORDER BY PM.PIDate DESC
+                            ) AS TEMP WHERE " + strkey + "ORDER BY TEMP.PIDate DESC";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -196,7 +218,7 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
             var PIMasterData = _sqlRepository.GetDataCollection(sql, null);
 
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,NULL AS MaterialGroupUOMList,
-							   p.[Description], p.DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
+							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
 						  FROM PIMaterial AS p
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
@@ -398,12 +420,25 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
         {
 
             string sql = @"
-                             select convert(bit,case when isnull(POMPI.Id,'')<>'' then 1 else 0 END) AS Saved, POMPI.Id,PIM.Id PIMaterialId
-							,POD.Id PODetailId,PIM.Quantity QuantityAtPIUoM,PIM.UoMId PIUoMId
-                            ,POD.TransactionRate PORate,POD.TransactionQty POQuantity,POD.TransactionUoMId POUoM
+                            select convert(bit,case when isnull(POMPI.Id,'')<>'' then 1 else 0 END) AS [check], POMPI.Id,PIM.Id PIMaterialId
+							,POD.Id PODetailId,v.UserName Vendor,FORMAT(pod.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,MG.UserName MaterialGroup
+							,MM.UserName Material,mma.StandardName Article,cv1.UserName SKU1,cv2.UserName SKU2,cv3.UserName SKU3
+							,POD.TransactionQty POQuantity,POD.TransactionUoMId POUoMId,pouom.code POUoM,POD.TransactionRate PORate
+							,pod.TransactionAmount POAmount,C.code POCurrency,PIM.Quantity QuantityAtPIUoM,PIM.UoMId PIUoMId,piuom.Code PIUoM
+                            
 
                             from TRN.PurchaseOrderDetail POD
+							left join TRN.PurchaseOrder AS po ON po.Id=pod.InventoryReceiveId
+							left join HKP.Party AS V ON V.Id=po.PartyId
+							left join SCS.Currency AS c ON c.Id=po.CurrencyId
 							left join PIMaterial PIM on pim.Id='" + PIMaterialId + @"'
+							left join SCS.UnitOfMeasurement AS piuom ON piuom.Id=PIM.UoMId
+							left join mst.MaterialGroupMaster MG ON MG.Id=PIM.MaterialGroupMasterId
+							left join TRN.InventoryMaterial AS IM ON IM.Id=POD.InventoryMaterialId
+							left join HKP.CharacteristicsValue AS cv1 ON cv1.Id=IM.FirstCharacteristicsValueId
+							left join HKP.CharacteristicsValue AS cv2 ON cv2.Id=IM.SecondCharacteristicsValueId
+							left join HKP.CharacteristicsValue AS cv3 ON cv3.Id=IM.ThirdCharacteristicsValueId
+							left join SCS.UnitOfMeasurement AS pouom ON pouom.Id=pod.TransactionUoMId 
 							left join POMappingWithPI POMPI on POMPI.PIMaterialId=PIM.Id and pod.Id=POMPI.PODetailId
                             left join mst.MaterialMasterArticle MMA on mma.id=POd.ArticleId
                             left join MST.MaterialMaster MM on MM.Id=MMA.MaterialMasterId

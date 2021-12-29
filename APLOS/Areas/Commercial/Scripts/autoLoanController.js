@@ -69,7 +69,7 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
         });
 
     };
-    $scope.getAutoLoanAvailableList();
+    //$scope.getAutoLoanAvailableList();
 
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.AutoLoanNew.CurrencyId)) {
@@ -108,21 +108,21 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
                         ShowResult("Please Input Amount where AcceptanceNo is " + item.PurchaseDocAcceptanceId, "failure");
                         return true;
                     }
-                    else if (baseService.isUndefinedOrNull(item.LoanNo)) {
-                        isbreak = true;
-                        ShowResult("Please Input LoanNo where AcceptanceNo is " + item.PurchaseDocAcceptanceId, "failure");
-                        return true;
-                    }
-                    else if (baseService.isUndefinedOrNull(item.LoanDate)) {
-                        isbreak = true;
-                        ShowResult("Please Input LoanDate where AcceptanceNo is " + item.PurchaseDocAcceptanceId, "failure");
-                        return true;
-                    }
-                    else if (item.Amount > item.Balance) {
-                        isbreak = true;
-                        ShowResult("Amount can not grater than Balance Amount where AcceptanceNo is " + item.PurchaseDocAcceptanceId, "failure");
-                        return true;
-                    }
+                    //else if (baseService.isUndefinedOrNull(item.LoanNo)) {
+                    //    isbreak = true;
+                    //    ShowResult("Please Input LoanNo where AcceptanceNo is " + item.PurchaseDocAcceptanceId, "failure");
+                    //    return true;
+                    //}
+                    //else if (baseService.isUndefinedOrNull(item.LoanDate)) {
+                    //    isbreak = true;
+                    //    ShowResult("Please Input LoanDate where AcceptanceNo is " + item.PurchaseDocAcceptanceId, "failure");
+                    //    return true;
+                    //}
+                    //else if (item.Amount > item.Balance) {
+                    //    isbreak = true;
+                    //    ShowResult("Amount can not grater than Balance Amount where AcceptanceNo is " + item.PurchaseDocAcceptanceId, "failure");
+                    //    return true;
+                    //}
                 }
             })
         }
@@ -150,13 +150,14 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
 
     $scope.Save = function () {
         $scope.autoLoanProcess();
-        if (!$scope.validation()) {
+        //if (!$scope.validation()) {
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
                     url: "Commercial/AutoLoan/SaveAutoLoan",
                     data: {
                         "autoLoanData": $scope.SelectedForAutoLoanList,
+                        "LCModel": $scope.LcModel
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -166,6 +167,7 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.getAutoLoanAvailableList();
+                        $scope.getData();
 
                     }
                 }, function errorCallback(response) {
@@ -195,7 +197,7 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
                 });
             }
             return true;
-        }
+        //}
     };
 
     $scope.Delete = function () {
@@ -224,6 +226,39 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
     $scope.Clear = function () {
         ClearFields();
     }
+    $scope.LcModel = {
+        LoanDate: null,
+        LoanNo: null,
+        Amount: 0,
+    };
+    $scope.calculateData = function () {
+        try {
+            $scope.LcModel.Amount = 0;
+            for (var i = 0; i < $scope.AutoLoanAvailableDataList.length; i++) {
+                if ($scope.AutoLoanAvailableDataList[i].isSelected) {
+                    if (true) {
+                        $scope.LcModel.Amount += $scope.AutoLoanAvailableDataList[i].Amount;
+                    }
+                }
+            }
+            parseFloat($scope.LcModel.Amount).toFixed(2);
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+
+    }
+
+    $scope.SaveDataList = [];
+    $scope.getData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetSaveData",
+        }).then(function successCallback(response) {
+            $scope.SaveDataList = response.data;
+        });
+    }
+    $scope.getData();
+
 
     //$scope.SelectedForAutoLoanList = [];
     //$scope.rowChecked = function (args) {

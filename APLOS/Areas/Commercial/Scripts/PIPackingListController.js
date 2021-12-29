@@ -10,6 +10,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.Deletepath = $scope.path + 'DeletePI';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.savePIPackingListUrl = $scope.path + 'savePIPackingList';
     $scope.newVersionUrl = $scope.path + 'NewVersion';
     $scope.deleteUrl = $scope.path + 'delete/';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
@@ -26,6 +27,22 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         VersionRefNo: null,
         VersionDate: null
     };
+
+    $scope.PIPackingListMaterial = {
+        Id: null
+        , PIPackingListMasterId: null
+        , PIMaterialId: null
+        , PIQuantity: null
+        , PIUoMId: null
+    };
+    $scope.PIPackingListMaterialTemp = Object.assign({}, $scope.PIPackingListMaterial);
+    $scope.PIPackingListMaster = {
+        Id: null
+        , Description: null
+        , Remarks: null
+    };
+    $scope.PIPackingListMasterTemp = Object.assign({}, $scope.PIPackingListMaster);
+
     $scope.SelectedPIVersion = null;
     $scope.VersionList = [];
     $scope.VersionList.push(Object.assign({}, $scope.PIVersionModel));
@@ -38,10 +55,12 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         , RefNo: null
         , RevisionNo: null
         , BuyerId: null
+        , Buyer: null
         , CustomerId: null
         , Customer: null
         , Currency: null
         , Description: null
+        , Remarks: null        
         , Quantity: 0
         , UoM: null
         , DeliveryDate: null
@@ -271,11 +290,15 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.POQTYAllocation = function (args) {
         $scope.AllocatedPIQty = args.data.AllocatedQty;
         $scope.TotalPIQty = args.data.Quantity;
+        $scope.PIPackingListMaterialTemp = args.data;
+
         $scope.PopUpDataList(args.data.Id, args.data.MaterialGroupMasterId);
         angular.element(document.querySelector('#QTYAllocation')).modal('show');
     };
     $scope.PIPackingMaterialPopUpList = [];
     $scope.PopUpDataList = function (PIMaterialID, PIMaterialGroupID) {
+        //if ($scope.AllocatedPIQty > new Date($scope.LCGrid.ToDate))
+        //    throw " From date can not be greater than To date.";
         $http({
             method: 'GET',
             url: $scope.path + 'GetPopUp?PIMaterial=' + PIMaterialID + '&PIMaterialGroup=' + PIMaterialGroupID,
@@ -291,113 +314,52 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         angular.element(document.querySelector('#QTYAllocation')).modal('hide');
     };
 
-
-
-    $scope.SavePIPackingListData = function () {
-        debugger;
-        try {
-            $scope.NewPIPackingMaterialPopUpList = [];
-            var totalPIQty = 0;
-            var totalallowCatedQtyQty = 0;
-            var totalAllocatedQty = 0;
-            var totalallowCatedQtyQty1 = 0;
-            for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
-
-                if ($scope.PIPackingMaterialPopUpList[i].Active === true) {
-                    //var TotalAllocatedOQty = $filter('sumByKey')($filter('filter')($scope.PIPackingMaterialPopUpList), 'AllocatedQty');
-                    //var TotalPIQty = $filter('sumByKey')($filter('filter')($scope.PIPackingMaterialPopUpList), 'Quantity');
-                    //if (TotalAllocatedOQty > $scope.AllocatedPIQty) {
-                    //    ShowResult('Allocated Qty can not grater than GRN Qty', 'failure', 'ListOfSo');
-                    //    return false;
-                    //}
-                    //else if (TotalPIQty > $scope.TotalPIQty) {
-                    //    ShowResult('Allocated Qty can not grater than Rejection Qty', 'failure', 'ListOfSo');
-                    //    return false;
-                    //}
-                    //else if (baseService.isUndefinedOrNull($scope.soList[i].TransactionQty) || $scope.soList[i].TransactionQty === 0) {
-                    //    ShowResult('Enter the Qty', 'failure', 'ListOfSo');
-                    //    return false;
-                    //}
-                    //else {
-                    //    $scope.soListNew.push($scope.soList[i]);
-                    //}
-                    $scope.NewPIPackingMaterialPopUpList.push($scope.PIPackingMaterialPopUpList[i]);
-                    totalPIQty += $scope.PIPackingMaterialPopUpList[i].Quantity;
-                    totalAllocatedQty += $scope.PIPackingMaterialPopUpList[i].AllocatedQty;
-
-                }
-                else {
-                    totalallowCatedQtyQty += $scope.soList[i].allowCatedQty;
-                    totalallowCatedQtyQty1 += $scope.soList[i].RejectQty;
-                }
-
-                //var res = totalGRNQty + totalallowCatedQtyQty;
-                //var res1 = totalGRNQty1 + totalallowCatedQtyQty1;
-                //if (res > $scope.totalGRNVal) {
-                //    ShowResult('allocated qty can not grater than GRN Qty', 'failure', 'ListOfSo');
-                //    return false;
-                //}
-                //if (res1 > $scope.RejectionQty) {
-                //    ShowResult('allocated qty can not grater than Rejection Qty', 'failure', 'ListOfSo');
-                //    return false;
-                //}
-
-
-            }
-            if ($scope.NewPIPackingMaterialPopUpList.length === 0) {
-                ShowResult('Please select atlest one item', 'failure', 'ListOfSo');
-                return false;
-            }
-            if ($scope.Action1 === 'Save') {
-                $http({
-                    method: 'POST',
-                    url: 'Products/GoodsReceiveNote/GrnRequisitionAllocationSave',
-                    data: {
-                        entity: $scope.soListNew
-                    },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure', 'ListOfSo');
-                    else {
-                        ShowResult(response.data.Message, 'success', 'ListOfSo');
-                        GRNAllowcationForSOList($scope.InventoryReceiveDetailId);
-                        $scope.Action1 = "Update";
-                        //$scope.GetListForMasterOrder = [];
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure', 'ListOfSo');
-                };
-
-            }
-            else if ($scope.Action1 === "Update") {
-                $http({
-                    method: 'POST',
-                    url: 'Products/GoodsReceiveNote/GrnRequisitionAllocationSave',
-                    data: {
-                        entity: $scope.soListNew
-                    },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure', 'ListOfSo');
-                    else {
-                        ShowResult(response.data.Message, 'success', 'ListOfSo');
-                        GRNAllowcationForSOList($scope.InventoryReceiveDetailId);
-
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure', 'ListOfSo');
-                };
-
-            }
-        } catch (e) {
-        }
+    $scope.PIPOAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
     };
 
+    function CheckBoxSelectAll(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
 
+        for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
+            $scope.PIPackingMaterialPopUpList[i].Active = ChkOrUnchk;
+        }
 
+        var gridObj = $("#GridPIPOPOPUP").data("ejGrid");
+        gridObj.refreshContent();
+    };
 
+    $scope.SavePIPackingListData = function () {
+        try {
+            var SaveList = [];
+            for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
+                if ($scope.PIPackingMaterialPopUpList[i].Active) {
+                    SaveList.push($scope.PIPackingMaterialPopUpList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.savePIPackingListUrl,
+                data: { 'PIPackingListMasterData': $scope.PIPackingListMasterTemp, 'MaterialData': $scope.PIPackingListMaterialTemp, 'DataList': $scope.PIPackingMaterialPopUpList},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
 
 

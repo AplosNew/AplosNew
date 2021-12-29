@@ -1000,7 +1000,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult CreateProductionBulletinTemplateMaster(ProductionBulletinTemplateMaster entity)
         {
 

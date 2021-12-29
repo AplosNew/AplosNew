@@ -41,6 +41,12 @@
                             <label class="col-sm-4 control-label">{{PImodelNew.Customer}}</label>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Description :</span></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Description" ng-model="PIPackingListMasterTemp.Description" class="form-control" maxlength="150" required tabindex="5">
+                        </div>
+                    </div>
 
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
@@ -53,7 +59,13 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">Buyer :</span></label>
                         <div class="col-sm-8">
-                            <label class="col-sm-4 control-label">{{PImodelNew.BuyerId}}</label>
+                            <label class="col-sm-4 control-label">{{PImodelNew.Buyer}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Remarks :</span></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Remarks" ng-model="PIPackingListMasterTemp.Remarks" class="form-control" maxlength="100" required tabindex="5">
                         </div>
                     </div>
                 </div>
@@ -78,11 +90,11 @@
                                 <div e-column e-type="string" e-field="MaterialGroup" e-headertext="Material Group" e-width="100"></div>
                                 <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
                                 <div e-column e-type="date" e-field="DeliveryDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Delivery date" e-width="120"></div>
+                                <div e-column e-type="number" e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
+                                <div e-column e-field="AllocatedQty" e-template="#AllocatedQTY" e-headertext="Allocated Qty" e-width="80"></div>
                                 <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="120"></div>
                                 <div e-column e-type="number" e-field="Rate" e-headertext="Rate" e-width="100"></div>
                                 <div e-column e-type="number" e-field="Amount" e-headertext="Amount" e-width="100"></div>
-                                <div e-column e-type="number" e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
-                                <div e-column e-field="AllocatedQty" e-template="#AllocatedQTY" e-headertext="Allocated Qty" e-width="80"></div>
                                 <div e-column e-headertext="Allocation" e-template="#Allocation" e-width="30"></div>
                             </div>
                         </div>
@@ -111,35 +123,43 @@
                 <div style="color:maroon;font-weight:bolder;"><label id="PIQTY" ng-model="AllocatedPIQty" class="text-right">Total PI Quantity:{{TotalPIQty}}|| Allocated Quantity:{{AllocatedPIQty}}</label></div>
 
                 <div class="col-lg-12">
-                    <div style="color:black;" id="GridReqso" ej-grid e-datasource="PIPackingMaterialPopUpList" @*e-recorddoubleclick="GetSequence"*@
+                    <div style="color:black;" id="GridPIPOPOPUP" ej-grid e-datasource="PIPackingMaterialPopUpList" @*e-recorddoubleclick="GetSequence"*@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
-                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true"
+                         e-templaterefresh="PIPOAllCheck" e-allowTextWrap="true">
                         <div e-columns>
-                            <div e-column e-headertext="" e-template="#SOChecked" e-textalign="center" e-width="30"></div>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+                            @*<div e-column e-field="PONo" e-headertext="PO No." e-width="100"></div>*@
+                            <div e-column e-field="PODetailId" e-headertext="PO Detail Id" e-width="75"></div>
+                            <div e-column e-field="Vendor" e-headertext="Vendor" e-width="120"></div>
+                            <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>
                             <div e-column e-field="MaterialGroup" e-headertext="Material Group" e-width="80"></div>
-                            @*<div e-column e-field="Material" e-headertext="Material " e-width="120"></div>
-                                <div e-column e-field="Article" e-headertext="Article" e-width="120"></div>
-                                <div e-column e-field="POTransactionQty" e-headertext="PO Quantity" e-width="80"></div>
-                                <div e-column e-field="POTransactionRate" e-headertext="PO Rate" e-width="80"></div>
-                                <div e-column e-field="POTransactionAmount" e-headertext="PO Amount" e-width="80"></div>
-                                <div e-column e-field="POUoM" e-headertext="PO UoM" e-width="80"></div>*@
-
-                            <div e-column e-field="PIqty" e-headertext="PI Qty" e-width="100"></div>
-                            <div e-column e-field="PIRate" e-headertext="PI Rate" e-width="100"></div>
-                            <div e-column e-field="PIAmount" e-headertext="PI Amount" e-width="80"></div>
-                            <div e-column e-field="PIUoM" e-headertext="PI UoM" e-width="70"></div>
-                            <div e-column e-field="" e-template="#DistributeQTY" e-headertext="" e-width="80"></div>
+                            <div e-column e-field="Material" e-headertext="Material" e-width="130"></div>
+                            <div e-column e-field="Article" e-headertext="Article" e-width="130"></div>
+                            <div e-column e-field="SKU1" e-headertext="SKU1" e-width="80"></div>
+                            <div e-column e-field="SKU2" e-headertext="SKU2" e-width="80"></div>
+                            <div e-column e-field="SKU3" e-headertext="SKU3" e-width="80"></div>
+                            <div e-column e-field="POQty" e-headertext="PO Qty" e-width="80"></div>
+                            <div e-column e-field="" e-template="#DistributeQTY" e-headertext="" e-width="90"></div>
+                            <div e-column e-field="PIUoM" e-headertext="PI UoM" e-width="65"></div>
+                            <div e-column e-field="POUoM" e-headertext="PO UoM" e-width="65"></div>
+                            <div e-column e-field="PORate" e-headertext="PO Rate" e-width="70"></div>
+                            <div e-column e-field="POAmount" e-headertext="PO Amount" e-width="80"></div>
+                            <div e-column e-field="POCurrency" e-headertext="PO Currency" e-width="70"></div>
 
                         </div>
                     </div>
-                    <script type="text/template" id="SOChecked">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
-                    </script>
                     <script type="text/template" id="DistributeQTY">
                         <div class="col-sm-10" style="padding:0px; width:70px;">
-                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.DistributeQTY" e-width="100" />
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.DistributeQTY" e-width="90" />
                         </div>
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
                     </script>
                 </div>
 
@@ -147,7 +167,7 @@
                 <div class="clearfix"></div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="GrnRequisitionAllocationSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li><button ng-click="SavePIPackingListData();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                         <li><button ng-click="ClosePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>

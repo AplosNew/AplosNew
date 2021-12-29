@@ -17,6 +17,7 @@ using Library.ViewModel.Vouchers;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -74,11 +75,33 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveAutoLoan(IEnumerable<LoanAgainstAcceptance> autoLoanData)
+        public JsonResult SaveAutoLoan(List<Dictionary<string, object>> autoLoanData,Dictionary<string,object> LCModel)
         {
             try
             {
-                SaveLoanAgainstAcceptance(autoLoanData);
+                #region Validation
+                string LC = "";
+                for (int i = 0; i < autoLoanData.Count; i++)
+                {
+                    if (i == 0 ||LC == autoLoanData[i]["PurchaseLCNo"].ToString())
+                    {
+                        LC = autoLoanData[i]["PurchaseLCNo"].ToString();
+                    }
+                    else
+                    {
+                        throw new Exception("LC should be matched with " + LC + " ");
+                    }
+                }
+                if (string.IsNullOrEmpty(LCModel["LoanDate"].ToString()))
+                {
+                    throw new Exception("Insert Loan date");
+                }
+                if (string.IsNullOrEmpty(LCModel["LoanNo"].ToString()))
+                {
+                    throw new Exception("Insert Loan no");
+                }
+                #endregion
+                SaveLoanAgainstAcceptance(autoLoanData, LCModel);
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -92,10 +115,10 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(LoanAgainstAcceptance), out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "LoanAgainstAcceptanceMaster", out sID);
             return sID;
         }
-        private void SaveLoanAgainstAcceptance(IEnumerable<LoanAgainstAcceptance> data)
+        private void SaveLoanAgainstAcceptance(List<Dictionary<string, object>> data, Dictionary<string, object> LCModel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -103,75 +126,141 @@ namespace Aplos.Areas.Commercial.Controllers
                 if (data != null)
                 {
                     ConnectionManager.DAL.ConManager objCon;
-                    DataSet dsMaster;
+                    DataSet dsMaster,dsDetails; DataRow drSave, drMSave;
+                    string MasterId = string.Empty; int count = 0;
+                    
+                    string sql = "SELECT * FROM [LoanAgainstAcceptanceMaster] WHERE 1=2";
+                    string sql2 = "SELECT * FROM [LoanAgainstAcceptanceDetail] WHERE 1=2";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                    objCon.OpenDataSetThroughAdapter(sql2, out dsDetails, false, "1");
+
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        drMSave = dsMaster.Tables[0].NewRow();
+                        drMSave["Id"] = GetPK();
+                        MasterId = drMSave["Id"].ToString();
+
+                        drMSave["VoucherId"] = null;
+                        drMSave["CompanyGroupId"] = identity.CompanyGroupId;
+                        drMSave["CompanyId"] = identity.CompanyId;
+                        drMSave["PlantId"] = identity.PlantId;
+                        //drMSave["EntityId"] = data[0]["EntityId"];
+                        drMSave["CurrencyId"] = data[0]["CurrencyId"];
+                        drMSave["PartyType"] = "Vendor";
+                        drMSave["PartyId"] = data[0]["PartyId"];
+                        drMSave["PartyPlantId"] = data[0]["PartyPlantId"];
+                        drMSave["PaymentSource"] = "Bank";
+                        drMSave["TransactionType"] = "LoanTaken";
+                        drMSave["Amount"] = LCModel["Amount"];
+                        drMSave["LoanDate"] = LCModel["LoanDate"];
+                        drMSave["LoanNo"] = LCModel["LoanNo"];
+                        drMSave["IsPark"] = true;
+
+                        drMSave["AddedBy"] = identity.Name;
+                        drMSave["AddedDate"] = DateTime.Now;
+                        drMSave["AddedFromIP"] = identity.IPAddress;
+
+                        drMSave["UpdatedBy"] = identity.Name;
+                        drMSave["UpdatedDate"] = DateTime.Now;
+                        drMSave["UpdatedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(drMSave);
+
+                    }
                     foreach (var item in data)
                     {
-                        string sql = "SELECT * FROM [trn].[LoanAgainstAcceptance] WHERE Id='" + item.Id + "'";
-                        objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-
-                        if (dsMaster.Tables[0].Rows.Count == 0)
+                        dsDetails.Tables[0].DefaultView.RowFilter = "Id = '" + item["PurchaseDocAcceptanceId"] + "'";
+                        if (dsDetails.Tables[0].DefaultView.Count == 0)
                         {
-                            DataRow dr = dsMaster.Tables[0].NewRow();
-                            dr["Id"] = GetPK();
-                            dr["PurchaseDocAcceptanceId"] = item.PurchaseDocAcceptanceId;
-                            dr["VoucherId"] = null;
-                            dr["BankMasterId"] = item.BankMasterId;
-                            dr["CompanyGroupId"] = identity.CompanyGroupId;
-                            dr["CompanyId"] = identity.CompanyId;
-                            dr["PlantId"] = identity.PlantId;
-                            //dr["EntityId"] = identity.EntityId;
-                            dr["CurrencyId"] = item.CurrencyId;
-                            dr["PartyType"] = "Vendor";
-                            dr["PartyId"] = item.PartyId;
-                            dr["PartyPlantId"] = item.PartyPlantId;
-                            dr["Amount"] = item.Amount;
-                            dr["PaymentSource"] = "Bank";
-                            dr["TransactionType"] = "LoanTaken";
-                            dr["LoanDate"] = item.LoanDate;
-                            dr["LoanNo"] = item.LoanNo;
-                            dr["IsPark"] = true;
+                            count++;
+                            drSave = dsDetails.Tables[0].NewRow();
+                            drSave["Id"] =  MasterId + count;
+                            drSave["LoanAgainstAcceptanceMasterId"] = MasterId;
+                            drSave["PurchaseDocAcceptanceId"] = item["PurchaseDocAcceptanceId"];
+                            drSave["BankMasterId"] = item["BankMasterId"];
 
-                            dr["AddedBy"] = identity.Name;
-                            dr["AddedDate"] = DateTime.Now;
-                            dr["AddedFromIP"] = identity.IPAddress;
+                            drSave["AddedBy"] = identity.Name;
+                            drSave["AddedDate"] = DateTime.Now;
+                            drSave["AddedFromIP"] = identity.IPAddress;
 
-                            dsMaster.Tables[0].Rows.Add(dr);
+                            drSave["UpdatedBy"] = identity.Name;
+                            drSave["UpdatedDate"] = DateTime.Now;
+                            drSave["UpdatedFromIP"] = identity.IPAddress;
+                            dsDetails.Tables[0].Rows.Add(drSave);
+
                         }
-                        else
-                        {
-                            //edit
-                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-
-                            dr.BeginEdit();
-
-                            dr["PurchaseDocAcceptanceId"] = item.PurchaseDocAcceptanceId;
-                            dr["VoucherId"] = null;
-                            dr["BankMasterId"] = item.BankMasterId;
-                            dr["CompanyGroupId"] = item.CompanyGroupId;
-                            dr["CompanyId"] = item.CompanyId;
-                            dr["PlantId"] = item.PlantId;
-                            dr["EntityId"] = item.EntityId;
-                            dr["CurrencyId"] = item.CurrencyId;
-                            dr["PartyType"] = item.PartyType;
-                            dr["PartyId"] = item.PartyId;
-                            dr["PartyPlantId"] = item.PartyPlantId;
-                            dr["Amount"] = item.Amount;
-                            dr["PaymentSource"] = "Bank";
-                            dr["TransactionType"] = "LoanTaken";
-                            dr["LoanDate"] = item.LoanDate;
-                            dr["LoanNo"] = item.LoanNo;
-
-                            dr["AddedBy"] = identity.Name;
-                            dr["AddedDate"] = DateTime.Now;
-                            dr["AddedFromIP"] = identity.IPAddress;
-
-                            dr.EndEdit();
-                        }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsMaster);
                     }
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsDetails);
+                    //foreach (var item in data)
+                    //{
+                    //    string sql = "SELECT * FROM [trn].[LoanAgainstAcceptance] WHERE Id='" + item["Id"] + "'";
+                    //    objCon = new ConnectionManager.DAL.ConManager("1");
+                    //    objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+
+                    //    if (dsMaster.Tables[0].Rows.Count == 0)
+                    //    {
+                    //        DataRow dr = dsMaster.Tables[0].NewRow();
+                    //        dr["Id"] = GetPK();
+                    //        dr["PurchaseDocAcceptanceId"] = item["PurchaseDocAcceptanceId"];
+                    //        dr["VoucherId"] = null;
+                    //        dr["BankMasterId"] = item["BankMasterId"];
+                    //        dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    //        dr["CompanyId"] = identity.CompanyId;
+                    //        dr["PlantId"] = identity.PlantId;
+                    //        //dr["EntityId"] = identity.EntityId;
+                    //        dr["CurrencyId"] = item["CurrencyId"];
+                    //        dr["PartyType"] = "Vendor";
+                    //        dr["PartyId"] = item["PartyId"];
+                    //        dr["PartyPlantId"] = item["PartyPlantId"];
+                    //        dr["Amount"] = item["Amount"];
+                    //        dr["PaymentSource"] = "Bank";
+                    //        dr["TransactionType"] = "LoanTaken";
+                    //        dr["LoanDate"] = item["LoanDate"];
+                    //        dr["LoanNo"] = item["LoanNo"];
+                    //        dr["IsPark"] = true;
+
+                    //        dr["AddedBy"] = identity.Name;
+                    //        dr["AddedDate"] = DateTime.Now;
+                    //        dr["AddedFromIP"] = identity.IPAddress;
+
+                    //        dsMaster.Tables[0].Rows.Add(dr);
+                    //    }
+                    //    else
+                    //    {
+                    //        //edit
+                    //        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    //        dr.BeginEdit();
+
+                    //        dr["PurchaseDocAcceptanceId"] = item["PurchaseDocAcceptanceId"];
+                    //        dr["VoucherId"] = null;
+                    //        dr["BankMasterId"] = item["BankMasterId"];
+                    //        dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    //        dr["CompanyId"] = identity.CompanyId;
+                    //        dr["PlantId"] = identity.PlantId;
+                    //        //dr["EntityId"] = identity.EntityId;
+                    //        dr["CurrencyId"] = item["CurrencyId"];
+                    //        dr["PartyType"] = "Vendor";
+                    //        dr["PartyId"] = item["PartyId"];
+                    //        dr["PartyPlantId"] = item["PartyPlantId"];
+                    //        dr["Amount"] = item["Amount"];
+                    //        dr["PaymentSource"] = "Bank";
+                    //        dr["TransactionType"] = "LoanTaken";
+                    //        dr["LoanDate"] = item["LoanDate"];
+                    //        dr["LoanNo"] = item["LoanNo"];
+                    //        dr["IsPark"] = true;
+
+                    //        dr["AddedBy"] = identity.Name;
+                    //        dr["AddedDate"] = DateTime.Now;
+                    //        dr["AddedFromIP"] = identity.IPAddress;
+
+                    //        dr.EndEdit();
+                    //    }
+                    //    clsStaticInfo obj = new clsStaticInfo();
+                    //    obj.SaveDataSets(dsMaster);
+                    //}
                 }
             }
             catch (Exception ex)
@@ -179,7 +268,20 @@ namespace Aplos.Areas.Commercial.Controllers
                 throw (ex);
             }
         }
-
+        [HttpGet, Authorize]
+        public JsonResult GetSaveData()
+        {
+            try
+            {
+                AccountsAutoLoanService _accountsLoanService = new AccountsAutoLoanService(_sqlRepository);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(_accountsLoanService.GetMaster(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         [Authorize, HttpGet]
         public JsonResult GetAutoLoanList(GridParameter parameters)
         {
