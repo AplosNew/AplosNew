@@ -615,7 +615,15 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             advanceVM.SourceType = SourceType.VendorAdvanceWriteOff.ToString();
             advanceVM.PartyType = PartyType.Vendor.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertVendorAdvanceWriteOff(advanceVM, advanceDetailVMList)) });
+            if(advanceVM.CurrencyId != advanceDetailVMList.FirstOrDefault().CurrencyId)
+            {
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertVendorAdvanceWriteOffDifferentCurrency(advanceVM, advanceDetailVMList)) });
+            }
+            else
+            {
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertVendorAdvanceWriteOff(advanceVM, advanceDetailVMList)) });
+            }
+            
         }
 
         [HttpPost]
