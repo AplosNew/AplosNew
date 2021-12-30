@@ -325,8 +325,11 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.AllocatedPIQty = 0;
     $scope.TotalPIQty = 0;
     $scope.PIMaterialId = '';
+    $scope.POPopUpHeader = {};
+
     $scope.POQTYAllocation = function (args) {
         try {
+            $scope.POPopUpHeader = args.data;
             if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Description))
                 throw "Please add Description.";
             if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Remarks))
@@ -352,7 +355,6 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         });
         angular.element(document.querySelector('#QTYAllocation')).modal('show');
     }
-    /*    $scope.PopUpDataList();*/
 
     $scope.ClosePopUp = function () {
         $scope.taxCategoryList = [];

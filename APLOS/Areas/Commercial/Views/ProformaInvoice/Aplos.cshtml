@@ -65,7 +65,7 @@
                                     </select>
                                 </div>
                                 <span class="input-group-btn">
-                                    <button ng-click="NewVersion();" class="btn single-small-btn"><i class="glyphicon glyphicon-plane"></i></button>
+                                    <button ng-click="NewVersion();" class="btn single-small-btn"><i class="glyphicon glyphicon-level-up" style="color: limegreen;"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -115,7 +115,7 @@
                                         <td style="width:100px;">
                                             <div class="select-style">
                                                 <select ng-model="item.UoMId">
-                                                    <option ng-repeat="option in item.MaterialGroupUOMList" value="{{option.Id}}">{{option.Code}}</option>
+                                                    <option ng-repeat="option in item.MaterialGroupUOMList" value="{{option.Id}}">{{option.userName}}</option>
                                                 </select>
                                             </div>
                                         </td>
