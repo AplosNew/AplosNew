@@ -537,7 +537,8 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         try {
             var flag = false;
             if (!baseService.isUndefinedOrNull($scope.operationVariationNew.OperationId)) {
-                var opProcessIds = $.grep($scope.operationList, function (item) { return item.Value === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
+                //var opProcessIds = $.grep($scope.operationList, function (item) { return item.Value === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
+                var opProcessIds = $.grep($scope.operationList, function (item) { return item.Id === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
 
             } else {
                 throw "Select Operation.";

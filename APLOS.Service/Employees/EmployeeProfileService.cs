@@ -434,6 +434,7 @@ namespace Library.Service.Employees
                 dblist.IsConfirmed = entity.IsConfirmed;
                 dblist.VendorId = entity.VendorId;
                 dblist.ExcludeOT = entity.ExcludeOT;
+                dblist.isLeaveOnDOC = entity.isLeaveOnDOC; ;
                 dblist.EmploymentType = entity.EmploymentType;
                 dblist.UpdatedBy = name;
                 dblist.DateUpdated = DateTime.Now;

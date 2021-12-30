@@ -233,6 +233,53 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         }
     };
 
+    $scope.GetPIPopUp2 = function (args) {
+        $scope.SelectedPIVersion = args.data.PIVersionId;
+        $scope.PIMasterId = args.data.Id;
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetAllData2?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId,
+        }).then(function successCallback(response) {
+            if (!baseService.isUndefinedOrNull(response.data)) {
+                $scope.PImodelNew = response.data.PIMaster[0];
+               // $scope.PIPackingListMasterTemp = response.data.PIPackingListMasterData[0];
+                /*           $scope.PIVersionModel = response.data.VarsionData;*/
+                $scope.DataList = response.data.ItemData;
+                /*       $scope.PIVersionModel.VersionNo = $scope.PIVersionModel[0].Id;*/
+                $scope.VersionList = $scope.PIVersionModel;
+                $scope.PIVersionModel.VersionNo = args.data.LastVersion;
+
+                $scope.ClosePIPopUp();
+            }
+        });
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+    //$scope.GetPIPopUp = function (args) {
+    //    $scope.SelectedPIVersion = args.data.PIVersionId;
+    //    $scope.PIMasterId = args.data.Id;
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId + '&PIPackingListMasterId=' + args.data.PIPackingListMasterId,
+    //    }).then(function successCallback(response) {
+    //        if (!baseService.isUndefinedOrNull(response.data)) {
+    //            $scope.PImodelNew = response.data.PIMaster[0];
+    //            $scope.PIPackingListMasterTemp = response.data.PIPackingListMasterData[0];
+    //            /*           $scope.PIVersionModel = response.data.VarsionData;*/
+    //            $scope.DataList = response.data.ItemData;
+    //            /*       $scope.PIVersionModel.VersionNo = $scope.PIVersionModel[0].Id;*/
+    //            $scope.VersionList = $scope.PIVersionModel;
+    //            $scope.PIVersionModel.VersionNo = args.data.LastVersion;
+
+    //            $scope.ClosePIPopUp();
+    //        }
+    //    });
+    //    if (!$rootScope.isCollapsed) {
+    //        $rootScope.toggle();
+    //    }
+    //};
+
     $scope.searchByPIPackingList = [
         {
             name: 'PI Packing No.',

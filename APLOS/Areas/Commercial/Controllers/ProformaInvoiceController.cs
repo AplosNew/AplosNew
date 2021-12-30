@@ -89,6 +89,8 @@ namespace Aplos.Areas.Commercial.Controllers
                         throw new Exception("Please enter quantity.");
                     if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(clsStaticInfo.dbl(MaterialData[i]["Rate"].ToString()))))
                         throw new Exception("Please enter rate.");
+                    if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(MaterialData[i]["UoMId"])))
+                        throw new Exception("Please select UoM.");
                     if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(MaterialData[i]["DeliveryDate"])))
                         throw new Exception("Please select delivery date.");
                     if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(clsStaticInfo.dbl(MaterialData[i]["Amount"].ToString()))))
@@ -128,7 +130,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     string _IdV = "";
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("PIVersion", out _IdV);
-                    PIVersionId = "PV" + _IdV;
+                    PIVersionId = "PV"+"-"+ _IdV;
                     DataRow drVersion = dsPIVersion.Tables[0].NewRow();
 
                     drVersion["Id"] = PIVersionId;

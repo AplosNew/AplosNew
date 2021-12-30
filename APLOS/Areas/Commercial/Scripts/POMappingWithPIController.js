@@ -146,7 +146,7 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     $scope.Get = function (args) {
         //$scope.getHeader(args.data.Id, args.data.PIVersionId);
         $scope.SelectedPIVersion = args.data.PIVersionId;
-        $scope.LastVersion = args.data.LastVersion;
+        $scope.LastVersion = args.data.LastVersionNo;
         $http({
             method: 'GET',
             url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId,
