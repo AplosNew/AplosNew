@@ -85,9 +85,9 @@
                             <div e-column e-type="string" e-field="MaterialGroupUOM" e-headertext="UoM" e-width="120"></div>
                             <div e-column e-type="number" e-field="Rate" e-headertext="Rate" e-width="100"></div>
                             <div e-column e-type="number" e-field="Amount" e-headertext="Amount" e-width="100"></div>
-                            @*<div e-column e-type="button" e-field="Search" e-headertext="PO Items" e-width="100"></div>*@
+                            <div e-column e-type="number" e-field="" e-headertext="PO Tagged Quantity" e-width="100"></div>
+                            <div e-column e-type="number" e-field="" e-headertext="PO Tagged Amount" e-width="100"></div>
                             <div e-column e-headertext="PO Items" e-template="#POItemsTemplate" e-width="30"></div>
-
                         </div>
                     </div>
 
@@ -134,15 +134,15 @@
              e-allowselection="false">
             <div e-columns>
                 <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="100"></div>
-                <div e-column e-type="string" e-field="LastVersion" e-headertext="Last Version" e-width="100"></div>
-                <div e-column e-type="date" e-field="PIDate" e-format="{0:dd-MMM-yyyy}" e-headertext="PI Date" e-width="120"></div>
                 <div e-column e-type="string" e-field="RefNo" e-headertext="Ref No." e-width="100"></div>
-                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="100"></div>
-
+                <div e-column e-type="date" e-field="PIDate" e-format="{0:dd-MMM-yyyy}" e-headertext="PI Date" e-width="120"></div>
+                <div e-column @*e-type="number"*@ e-field="LastVersionNo" e-headertext="Last Version" e-width="100"></div>
                 <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="120"></div>
                 <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
-                @*<div e-column e-type="string" e-field="InvoicingByAddress" e-headertext="InvoicingByAddress" e-width="100"></div>
-                    <div e-column e-type="string" e-field="DeliveryByAddress" e-headertext="DeliveryByAddress" e-width="100"></div>*@
+                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="100"></div>
+
+                <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                <div e-column e-type="string" e-field="POTaggedAmount" e-headertext="PO Tagged Amount" e-width="100"></div>
             </div>
         </div>
     </div>
@@ -182,7 +182,7 @@
                             <div e-column e-field="POQuantity" e-headertext="Quantity At PIUoM" e-width="60"></div>
                             <div e-column e-field="PIUoM" e-headertext="PIUoM" e-width="50"></div>
                             <div e-column e-field="PackedQty" e-headertext="Pack Quantity" e-width="60"></div>
-                            <div e-column e-field="BalanceToPack" e-headertext="Balance To Pack" e-width="60"></div>
+                            @*<div e-column e-field="BalanceToPack" e-headertext="Balance To Pack" e-width="60"></div>*@
                         </div>
                     </div>
 
