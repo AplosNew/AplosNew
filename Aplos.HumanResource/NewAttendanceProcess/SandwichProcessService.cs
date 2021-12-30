@@ -5,6 +5,7 @@ using Library.Data.Sql;
 using OTSBD;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -55,34 +56,25 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public void SandWichDataSet(string PlantId, string month, string year, out DataSet ds)
+        public DataTable SandWichDataTable(string PlantId, string month, string year)
         {
-            ConnectionManager.DAL.ConManager objCon;
             try
             {
                 int dd = 01;
                 string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
                 string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
-                var str = @"select EmpSystemID, e.EmployeeCode,p.UserName as Plant,p.Id as PlantId,
-                            format(WorkDate, 'dd-MMM-yyyy')WorkDate,DayStatus,dp.UserName
-                             as Department,s.UserName as Section,
-                            SuS.UserName as SubSection,ld.UserName as Designation,SandwichFlag as TodayFlag,
+                var str = @"select EmpSystemID,a.RowId, e.EmployeeCode,format(WorkDate, 'dd-MMM-yyyy')WorkDate,DayStatus,SandwichFlag as TodayFlag,
                 (select SandwichFlag from AttdnProcessData where WorkDate = DATEADD(day, -1, a.WorkDate)
-                and EmpSystemID = p.EmpSystemID
-                and PlantID = '" + PlantId+ @"')PrevDayFlag
+                and EmpSystemID = a.EmpSystemID
+                and a.PlantID = '" + PlantId+ @"')PrevDayFlag
                   from attdnprocessdata a
                 left join EmployeeInformation e on e.SystemId = a.EmpSystemID
-                left join org.Plant p on p.Id = e.PlantId
-                left join org.Section s on s.Id = e.SectionId
-                LEFT JOIN ORG.Department DP ON DP.Id = E.DepartmentId
-                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = E.SubSectionID
-                left join hkp.LegalDesignation ld on ld.Id = e.LegalDesignationId
                 where a.WorkDate between '" + date+@"' and GETDATE() and
-                SandwichReprocess = 1 and PlantID = '"+PlantId+@"'
+                SandwichReprocess = 1 and e.PlantID = '"+PlantId+@"'
                 order by EmpSystemID,Workdate,SandwichFlag asc";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(str, out ds, false, false, "", "1");
+                DataTable dtTemp = _sqlRepository.GetDataTable(str);
+                return dtTemp;
             }
             catch (Exception ex)
             {
@@ -93,71 +85,45 @@ namespace Library.HumanResource.NewAttendanceProcess
         public void Process(string PlantId, string month, string year)
         {
             try
-            {
-                string TempMaster = "''", TodayMaster = "''", YesterdayMaster = "''", Back2ndDayMaster = "''", Back3rdDayMaster = "''";
-                string TomorrowMaster = "''", Tomorrow2DayMaster = "''", Tomorrow3DayMaster = "''";
-                DataSet SandwichData; // Build DataSet For Sandwich Process
-                SandWichDataSet(PlantId, month, year, out SandwichData);
-                if (SandwichData.Tables[0].Rows.Count > 0)
+            {                
+                DataTable SandwichData; // Build DataTable For Sandwich Process
+                SandwichData = SandWichDataTable(PlantId, month, year);
+                if (SandwichData.Rows.Count > 0)
                 {
-                    for (int i = 0; i < SandwichData.Tables[0].Rows.Count; i++)
-                    {
-                        string Past3rdDay = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"Past3rdDay"]).ToString();
-                        string Past2ndDay = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"Past2ndDay"]).ToString();
-                        string PastDay = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"PastDay"]).ToString();
-                        string Today = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"Today"]).ToString();
-                        string Tomorrow = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"Tomorrow"]).ToString();
-                        string Future2ndDay = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"Future2ndDay"]).ToString();
-                        string Future3rdDay = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"Future3rdDay"]).ToString();
+                    #region DataTable Generation 
+                    
+                    StringCollection StrDistinctWorkDate = new StringCollection();
+                    var StringDates = new List<DateTime>();
 
-                        // Unique RowId Finding Region
-                        if (Past3rdDay != "")
+                    for (int i = 0; i < SandwichData.Rows.Count; i++)
+                    {
+                        string WkDate = clsWebLib.RetValidLen(SandwichData.Rows[i][@"WorkDate"]).ToString();
+                        if (StrDistinctWorkDate.Contains(WkDate))
                         {
-                            CheckerFunction(ref TempMaster, ref Back3rdDayMaster, Past3rdDay);
+                            continue;
                         }
-                        if (Past2ndDay != "")
-                        {
-                            CheckerFunction(ref TempMaster, ref Back2ndDayMaster, Past2ndDay);
-                        }
-                        if (PastDay != "")
-                        {
-                            CheckerFunction(ref TempMaster, ref YesterdayMaster, PastDay);
-                        }
-                        if (Today != "")
-                        {
-                            CheckerFunction(ref TempMaster, ref TodayMaster, Today);
-                        }
-                        if (Tomorrow != "")
-                        {
-                            CheckerFunction(ref TempMaster, ref TomorrowMaster, Tomorrow);
-                        }
-                        if (Future2ndDay != "")
-                        {
-                            CheckerFunction(ref TempMaster, ref Tomorrow2DayMaster, Future2ndDay);
-                        }
-                        if (Future3rdDay != "")
-                        {
-                            CheckerFunction(ref TempMaster, ref Tomorrow3DayMaster, Future3rdDay);
-                        }
+
+                        StrDistinctWorkDate.Add(WkDate);
+                        StringDates.Add(Convert.ToDateTime(WkDate));
+                    }
+                    string MaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
+                    string MinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
+
+                    #endregion
+
+
+                    for (int i = 0; i < SandwichData.Rows.Count; i++)
+                    {                        
+                       
                     }
 
-                    #region Manual Flag Update
-             //       ManualFlagRows(Back3rdDayMaster, Back2ndDayMaster, YesterdayMaster, TodayMaster, TomorrowMaster, Tomorrow2DayMaster, Tomorrow3DayMaster);
-                    #endregion
 
-                    #region Calling Manual Process
-                    NewAttendanceProcessService ap = new NewAttendanceProcessService();
-                 //   ap.ManualScheduler(PlantId);
-                    #endregion
-                     
                 }
             }
             catch(Exception ex)
             {
                 throw ex;
             }
-
-
         }
 
         public void CheckerFunction(ref string TempMaster,ref string MainMaster, string Value)
