@@ -13,7 +13,7 @@ using Library.Data.UnitOfWorks;
 using Library.Data.Sql;
 using System.Data;
 using Syncfusion.XlsIO;
-using Library.Service.Attendances;
+using Library.HumanResource.Attendances;
 using Library.Service.Helpers;
 using Library.Model.Enums;
 using Library.Security.Core;
