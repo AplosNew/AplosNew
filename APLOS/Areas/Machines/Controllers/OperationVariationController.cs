@@ -67,6 +67,7 @@ namespace Aplos.Areas.Machines.Controllers
 					                    GROUP BY P.UserName
 					                    FOR XML PATH ('')
 					                    ),1,1,'')
+, ProsessIds=(SELECT STUFF((SELECT DISTINCT ',' +  ProcessId FROM [MST].[OperationProcess] WHERE OperationId=O.Id FOR XML PATH('')),1,1,''))
                         , O.CompanyGroupId, O.OperationTypeId, ot.UserName AS OperationTypeCode, O.OperationCategoryId, oc.UserName AS OperationCategoryName
                         , O.OperationActivityId, OA.UserName AS OperationActivityName, O.[Sequence], O.Code, O.ShortName
                         , O.StandardName, O.UserName, O.Remarks, IsMachineRequired = CASE WHEN O.IsMachineRequired='M' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, O.Active, O.Archive                       
