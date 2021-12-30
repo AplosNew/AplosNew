@@ -3524,6 +3524,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
                                 dr["ProcessFinalDayStatus"] = Result;
                                 dr["SandwichFlag"] = SandwichFlag;
+                                if (SandwichFlag != "0")
+                                {
+                                    dr["SandwichReprocess"] = true;
+                                }
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -3564,7 +3568,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
                                 if (PrevDaySandwich == "0" && ToDaySandwich == "2")
                                 {
-                                    dr["SandwichFlag"] = "0"; //Today Change
+                                    dr["SandwichFlag"] = "0"; //Today Change                                    
+                                    dr["SandwichReprocess"] = false;
+                                    
                                 }
 
                                 else if (PrevDaySandwich == "1" && ToDaySandwich == "2")
@@ -3575,11 +3581,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 else if (PrevDaySandwich == "0" && ToDaySandwich == "3")
                                 {
                                     dr["SandwichFlag"] = "0"; //Today Change
+                                    dr["SandwichReprocess"] = false;
                                 }
 
                                 else if (PrevDaySandwich == "0" && ToDaySandwich == "4")
                                 {
                                     dr["SandwichFlag"] = "0"; //Today Change
+                                    dr["SandwichReprocess"] = false;
                                 }
 
                                 else if (PrevDaySandwich == "1" && ToDaySandwich == "3")
@@ -3592,8 +3600,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         }
 
-                        SaveDataSets(dsRef); // Saving Main DataSet                      
-
+                        SaveDataSets(dsRef); // Saving Main DataSet                  
 
                     }
                     #endregion
@@ -5024,10 +5031,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dr.BeginEdit();                       
                             dr["ProcessFinalDayStatus"] = Result;
                             dr["SandwichFlag"] = SandwichFlag;
-                            //if(SandwichFlag!="0")
-                            //{
-                            //    dr["SandwichReprocess"] = true;
-                            //}
+                            if (SandwichFlag != "0")
+                            {
+                                dr["SandwichReprocess"] = true;
+                            }
                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                             dr.EndEdit();
                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5040,79 +5047,77 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 SaveLog("Manual ProcessFinalDayStatus Logic Ran Successfully ...", PlantValue, false);
 
-                #region Sandwich Saving 
-                DataSet ManualSandwichSavingData;
-                ManualsandwichLogic(out ManualSandwichSavingData, PlantValue);
-                if (ManualSandwichSavingData.Tables[0].Rows.Count > 0)
-                {
+                #region Commented Code 
 
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = "";
-                    if (empMaster == "")
-                    {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
-                    }
-                    else
-                    {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
-                    }
+                //DataSet ManualSandwichSavingData;
+                //ManualsandwichLogic(out ManualSandwichSavingData, PlantValue);
+                //if (ManualSandwichSavingData.Tables[0].Rows.Count > 0)
+                //{
 
-                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                //    var sqlx = "";
+                //    if (empMaster == "")
+                //    {
+                //        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
+                //    }
+                //    else
+                //    {
+                //        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in (" + empList + ")";
+                //    }
 
-                    for (int i = 0; i < ManualSandwichSavingData.Tables[0].Rows.Count; i++)
-                    {
-                        var WkDate = ManualSandwichSavingData.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-                        string EmpId = clsWebLib.RetValidLen(ManualSandwichSavingData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                        string PrevDaySandwich = clsWebLib.RetValidLen(ManualSandwichSavingData.Tables[0].Rows[i][@"PrevDayFlag"]).ToString();
-                        var PrevWkDate = clsWebLib.RetValidLen(ManualSandwichSavingData.Tables[0].Rows[i][@"PrevWorkDate"]).ToString();
+                //    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                        // Updation in AttdnProcessData
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                        if (dsRef.Tables[0].DefaultView.Count > 0)
-                        {
-                            string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
+                //    for (int i = 0; i < ManualSandwichSavingData.Tables[0].Rows.Count; i++)
+                //    {
+                //        var WkDate = ManualSandwichSavingData.Tables[0].Rows[i][@"WorkDate"].ToString();
+                //        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                //        string EmpId = clsWebLib.RetValidLen(ManualSandwichSavingData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                //        string PrevDaySandwich = clsWebLib.RetValidLen(ManualSandwichSavingData.Tables[0].Rows[i][@"PrevDayFlag"]).ToString();
+                //        var PrevWkDate = clsWebLib.RetValidLen(ManualSandwichSavingData.Tables[0].Rows[i][@"PrevWorkDate"]).ToString();
 
-                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            if (PrevDaySandwich == "0" && TodaySandwich == "2")
-                            {
-                                dr["SandwichFlag"] = "0"; //Today
-                            }
+                //        // Updation in AttdnProcessData
+                //        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                //        if (dsRef.Tables[0].DefaultView.Count > 0)
+                //        {
+                //            string TodaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
 
-                            else if (PrevDaySandwich == "1" && TodaySandwich == "2")
-                            {
-                                dr["SandwichFlag"] = "2"; //Today
-                            }
+                //            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                //            dr.BeginEdit();
+                //            if (PrevDaySandwich == "0" && TodaySandwich == "2")
+                //            {
+                //                dr["SandwichFlag"] = "0"; //Today
+                //            }
 
-                            else if (PrevDaySandwich == "0" && TodaySandwich == "3")
-                            {
-                                dr["SandwichFlag"] = "0"; //Today Change
-                            }
+                //            else if (PrevDaySandwich == "1" && TodaySandwich == "2")
+                //            {
+                //                dr["SandwichFlag"] = "2"; //Today
+                //            }
 
-                            else if (PrevDaySandwich == "1" && TodaySandwich == "3")
-                            {
-                                dr["SandwichFlag"] = "3"; //Today Change
-                            }
+                //            else if (PrevDaySandwich == "0" && TodaySandwich == "3")
+                //            {
+                //                dr["SandwichFlag"] = "0"; //Today Change
+                //            }
 
-                            else if (PrevDaySandwich == "0" && TodaySandwich == "4")
-                            {
-                                dr["SandwichFlag"] = "0"; //Today Change
-                            }
+                //            else if (PrevDaySandwich == "1" && TodaySandwich == "3")
+                //            {
+                //                dr["SandwichFlag"] = "3"; //Today Change
+                //            }
+
+                //            else if (PrevDaySandwich == "0" && TodaySandwich == "4")
+                //            {
+                //                dr["SandwichFlag"] = "0"; //Today Change
+                //            }
 
 
-                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                            dr.EndEdit();
-                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
-                        }
-                    }
+                //            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                //            dr.EndEdit();
+                //            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                //        }
+                //    }
 
-                    SaveDataSets(dsRef); // Saving Main DataSet 
+                //    SaveDataSets(dsRef); // Saving Main DataSet 
 
-                }
-                #endregion
-
-                #region Commented Code
+                //}
 
                 //#region Sandwich Logic 
                 //DataSet ManualSandwichData;
@@ -5243,9 +5248,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 //}
                 //#endregion
 
+                // SaveLog("Manual Sandwich Logic Ran Successfully ...", PlantValue, false);
+                
                 #endregion
-
-                SaveLog("Manual Sandwich Logic Ran Successfully ...", PlantValue, false);
 
                 #region Payroll DayStatus 
                 PayrollDayStatus(PlantValue, empList); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
@@ -6640,7 +6645,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 return "0";
             }
         }        
-        private void UpdateStatus(string sql)
+        public void UpdateStatus(string sql)
         {
             bool IsTransactionStarted = false;
             ConnectionManager.DAL.ConManager objCon = null;
