@@ -94,6 +94,8 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
+                #region Calculations
+                string MaxDate ="", MinDate="";
                 DataTable SandwichData; // Build DataTable For Sandwich Process
                 SandwichData = SandWichDataTable(PlantId, month, year);
                 if (SandwichData.Rows.Count > 0)
@@ -115,8 +117,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         StrDistinctWorkDate.Add(WkDate);
                         StringDates.Add(Convert.ToDateTime(WkDate));
                     }
-                    string MaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
-                    string MinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
+                    MaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
+                    MinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
 
                     #endregion
 
@@ -130,8 +132,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         string PrevDayFlag = clsWebLib.RetValidLen(SandwichData.Rows[i]["PrevDayFlag"]).ToString();
                         string RowId = clsWebLib.RetValidLen(SandwichData.Rows[i]["RowId"]).ToString();
                         string PrevDayRowId = clsWebLib.RetValidLen(SandwichData.Rows[i]["PrevRowId"]).ToString();
-                        string WkDate= clsWebLib.RetValidLen(SandwichData.Rows[i]["WorkDate"]).ToString();
-                        
+                        string WkDate = clsWebLib.RetValidLen(SandwichData.Rows[i]["WorkDate"]).ToString();
+
                         #endregion
 
                         if (TodayFlag != "" && PrevDayFlag != "")
@@ -194,10 +196,50 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         }
                     }
-                }            
+                }
+                #endregion
+
+                #region Save Data in APD 
+                if (SandwichData.Rows.Count > 0)
+                {
+                    int counter =0;
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = @"select * from AttdnProcessData where PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
+
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                    for (int i = 0; i < SandwichData.Rows.Count; i++)
+                    {
+                        // Manipulated DataSet Variables
+                        string RowId = SandwichData.Rows[i][@"RowId"].ToString();
+                        string ChangedFlag = SandwichData.Rows[i][@"SandwichFlag"].ToString();
+
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            string ActualFlag = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
+                            if (ActualFlag != ChangedFlag)
+                            {
+                                counter++;
+                                dr.BeginEdit();
+                                dr["SandwichFlag"] = ChangedFlag;
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+
+                    }
+                    if (counter > 0)
+                    {
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsRef);
+                    }
+                }
+                #endregion
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
