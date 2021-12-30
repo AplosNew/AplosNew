@@ -212,6 +212,59 @@ namespace Library.Service.Invoices
             }
             return InsertInvoiceWriteOff(invoiceWriteOff);
         }
+        public InvoiceWriteOff InsertInvoiceWriteOffDifferentCurrency(InvoiceWriteOff invoiceWriteOffVM)
+        {
+            if (invoiceWriteOffVM.PaymentSource == PaymentSource.Bank.ToString())
+                if (string.IsNullOrEmpty(invoiceWriteOffVM.BankMasterId))
+                    throw new CustomException("Bank Id not found!");
+                else
+                    invoiceWriteOffVM.CashMasterId = null;
+            else if (invoiceWriteOffVM.PaymentSource == PaymentSource.Cash.ToString())
+                if (string.IsNullOrEmpty(invoiceWriteOffVM.CashMasterId))
+                    throw new CustomException("Cash Id not found!");
+                else
+                    invoiceWriteOffVM.BankMasterId = null;
+
+            var invoiceWriteOff = new InvoiceWriteOff
+            {
+                CompanyGroupId = invoiceWriteOffVM.CompanyGroupId,
+                CompanyId = invoiceWriteOffVM.CompanyId,
+                PlantId = invoiceWriteOffVM.PlantId,
+                FiscalYearId = invoiceWriteOffVM.FiscalYearId,
+                FiscalYearPeriodId = invoiceWriteOffVM.FiscalYearPeriodId,
+                TaxYearId = invoiceWriteOffVM.TaxYearId,
+                TaxYearPeriodId = invoiceWriteOffVM.TaxYearPeriodId,
+                VoucherTypeId = invoiceWriteOffVM.VoucherTypeId,
+                CurrencyId = invoiceWriteOffVM.CurrencyId,
+                SourceType = invoiceWriteOffVM.SourceType,
+                PartyType = invoiceWriteOffVM.PartyType,
+                PartyId = invoiceWriteOffVM.PartyId,
+                PartyPlantId = invoiceWriteOffVM.PartyPlantId,
+                Amount = invoiceWriteOffVM.Amount,
+                VoucherDate = invoiceWriteOffVM.VoucherDate,
+                PostingDate = invoiceWriteOffVM.PostingDate,
+                DocDate = invoiceWriteOffVM.DocDate,
+                DocRefNo = invoiceWriteOffVM.DocRefNo,
+                Narration = invoiceWriteOffVM.Narration,
+                AddedBy = invoiceWriteOffVM.AddedBy,
+                AddedDate = invoiceWriteOffVM.AddedDate,
+                AddedFromIP = invoiceWriteOffVM.AddedFromIP,
+                IsPark = invoiceWriteOffVM.IsPark,
+                Archive = false,
+                BankMasterId = invoiceWriteOffVM.BankMasterId,
+                CashMasterId = invoiceWriteOffVM.CashMasterId,
+                EmployeeId = invoiceWriteOffVM.EmployeeId,
+                PaymentSource = invoiceWriteOffVM.PaymentSource,
+                RoundingType = invoiceWriteOffVM.RoundingType,
+                RoundingAmount = invoiceWriteOffVM.RoundingAmount,
+                InvoiceWriteOffGroupNo = invoiceWriteOffVM.InvoiceWriteOffGroupNo
+            };
+            if (invoiceWriteOffVM.SourceType != "CustomerBanksReceipt")
+            {
+                Check(invoiceWriteOff);
+            }
+            return InsertInvoiceWriteOff(invoiceWriteOff);
+        }
 
         public InvoiceWriteOff InsertCustomerInvoiceSetOff(VoucherViewModel voucherVM)
         {

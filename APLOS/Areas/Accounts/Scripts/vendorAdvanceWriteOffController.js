@@ -380,8 +380,8 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
         return manualValidation('div_PostingDate', $scope.invalidPostingDate, msg);
     };
 
-    
-
+    $scope.invoice1stCurrencyId = "";
+   
     $scope.validation = function () {
         if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
             ShowResult('Please select Currency!', 'failure');
@@ -396,10 +396,15 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
             ShowResult('Posting is not possible before Advance!', 'failure');
             return true;
         }
-
+        $scope.invoice1stCurrencyId = "";
+        $scope.invoice1stCurrencyId = $scope.voucherDetailList[0].CurrencyId;
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
             if (new Date($scope.voucherDetailList[i].PostingDate) > new Date($scope.advance.PostingDate)) {
                 ShowResult('Posting is not possible before Invoice!', 'failure');
+                return true;
+            }
+            if ($scope.invoice1stCurrencyId != $scope.voucherDetailList[i].CurrencyId) {
+                ShowResult('Please add Same Currency Invoice!', 'failure');
                 return true;
             }
         };

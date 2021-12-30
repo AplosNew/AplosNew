@@ -364,84 +364,85 @@
 </div>
 
 <div class="modal site-modal in" id="ItemDetailPopup" role="dialog" data-backdrop="static">
-    <div class="row">
         <div class="form-element-ctrl">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">Detail<button type="button" class="close" data-dismiss="modal">&times;</button></div>
                     <div class="modal-body text-center">
-                        <div style="color:black;" id="GridItemDetail" ej-grid e-datasource="ItemDetailList" e-allowscrolling="true" e-allowResizing="true"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
-                            <div e-columns>
-                                <div e-column e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
-                                <div e-column e-field="ItemId" e-headertext="ItemId" e-width="80"></div>
-                                <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="80"></div>
-                                <div e-column e-field="SONo" e-headertext="SONo" e-width="100"></div>
-                                <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
-                                <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
-                                <div e-column e-type="number" e-field="SOQty" e-headertext="SO Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                        <div class="row">
+                            <div style="color:black;" id="GridItemDetail" ej-grid e-datasource="ItemDetailList" e-allowscrolling="true" e-allowResizing="true"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
+                                    <div e-column e-field="ItemId" e-headertext="ItemId" e-width="80"></div>
+                                    <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="80"></div>
+                                    <div e-column e-field="SONo" e-headertext="SONo" e-width="100"></div>
+                                    <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
+                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                    <div e-column e-type="number" e-field="SOQty" e-headertext="SO Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="modal site-modal in" id="CurrentQtyBreakDownPopup" role="dialog" data-backdrop="static">
-    <div class="row">
         <div class="form-element-ctrl">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">Current Qty Break Down<button type="button" class="close" data-dismiss="modal">&times;</button></div>
                     <div class="modal-body text-center">
-                        <div style="color:black;" id="GridCurrentQtyBreakDown" ej-grid e-datasource="CurrentQtyBreakDownList" e-allowscrolling="true" e-allowResizing="true"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
-                            <div e-columns>
-                                <div e-column e-field="POId" e-headertext="PrO" e-width="80"></div>
-                                <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
-                                <div e-column e-type="date" e-field="WorkDate" e-headertext="Work Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
-                                <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                        <div class="row">
+                            <div style="color:black;" id="GridCurrentQtyBreakDown" ej-grid e-datasource="CurrentQtyBreakDownList" e-allowscrolling="true" e-allowResizing="true"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="POId" e-headertext="PrO" e-width="80"></div>
+                                    <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
+                                    <div e-column e-type="date" e-field="WorkDate" e-headertext="Work Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
+                                    <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="modal site-modal in" id="UnBookedQtyBreakDownPopup" role="dialog" data-backdrop="static">
-    <div class="row">
+    
         <div class="form-element-ctrl">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">UnBooked Qty Break Down<button type="button" class="close" data-dismiss="modal">&times;</button></div>
                     <div class="modal-body text-center">
-                        <div style="color:black;" id="GridUnBookedQtyBreakDown" ej-grid e-datasource="UnBookedQtyBreakDownList" e-allowscrolling="true" e-allowResizing="true"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
-                            <div e-columns>
-                                <div e-column e-field="POId" e-headertext="PrO" e-width="80"></div>
-                                <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
-                                <div e-column e-type="date" e-field="WorkDate" e-headertext="Work Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
-                                <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                        <div class="row">
+                            <div style="color:black;" id="GridUnBookedQtyBreakDown" ej-grid e-datasource="UnBookedQtyBreakDownList" e-allowscrolling="true" e-allowResizing="true"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="POId" e-headertext="PrO" e-width="80"></div>
+                                    <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
+                                    <div e-column e-type="date" e-field="WorkDate" e-headertext="Work Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
+                                    <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="modal site-modal in" id="BookedQtyBreakDownPopup" role="dialog" data-backdrop="static">
-    <div class="row">
-        <div class="form-element-ctrl">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">Booked Qty Break Down<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-                    <div class="modal-body text-center">
+    <div class="form-element-ctrl">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">Booked Qty Break Down<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body text-center">
+                    <div class="row">
                         <div style="color:black;" id="GridBookedQtyBreakDown" ej-grid e-datasource="BookedQtyBreakDownList" e-allowscrolling="true" e-allowResizing="true"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
