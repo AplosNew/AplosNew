@@ -15,26 +15,81 @@ function NewProcessAttendanceReProcessController($window, $timeout, cboService, 
         $scope.selectedValues.ToDate = null;      
     }
 
-
-    $scope.parameters = [];
-    $scope.filters = [];
-    $scope.loadfilters = function () {
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'getFilters',
-            dataType: 'JSON'
+            url: $scope.path + "getFilters",
         }).then(function successCallback(response) {
-            $scope.filters = response.data;
+            $scope.PlantList = response.data;
 
-            var gridObj = $("#PlantList").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-            $("#PlantList").children('.e-pager.e-js.e-pager').hide();
-            $("#PlantList").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#PlantList").children('.e-gridcontent').hide();
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#CWPlant').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 180
+                });
+
 
         });
     }
-    $scope.loadfilters();    
+    $scope.getPlant();
 
+    /// ReProcess Function
+
+    $scope.ReProcessFunction = function () {
+        try {
+            var PlantId = "";
+            var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+            if (!baseService.isUndefinedOrNull(DropDownListObj)) {
+                PlantId = DropDownListObj.getSelectedValue();
+
+                if (baseService.isUndefinedOrNull(PlantId)) {
+                    throw "Select Plant..";
+                }
+            }
+
+
+            if (angular.isUndefinedOrNull($scope.selectedValues.FromDate)) {
+                ShowResult("Select From Date", 'failure');
+            }
+            if (angular.isUndefinedOrNull($scope.selectedValues.ToDate)) {
+                ShowResult("Select To Date", 'failure');
+            }
+
+            else {
+
+                var parameters = {
+                    'From': $scope.selectedValues.FromDate, 'To': $scope.selectedValues.ToDate,
+                    'PlantId': PlantId
+                };
+                $http({
+                    method: "POST",
+                    dataType: 'JSON',
+                    url: $scope.path + '/ReProcessAttendance',
+                    data: parameters
+                }).then(function successCallback(response) {
+                    if (response.data.length > 0) {
+
+                    }
+                    else {
+                       ///    ShowResult("No Data Found", 'failure');
+                    }
+                });
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+
+      
 }

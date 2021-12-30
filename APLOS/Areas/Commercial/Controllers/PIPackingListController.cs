@@ -313,7 +313,7 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
 FROM PIPackingListMaster AS plm
 LEFT  JOIN PIMaster AS p ON p.Id=plm.PIMasterId
 LEFT JOIN PIVersion AS p2 ON P2.PIMasterId=p.Id AND  P2.Id=(select top 1 Id from PIVersion where PIMasterId=p.Id ORDER BY VersionNo DESC)
-) AS TEMP WHERE " + strkey;
+) AS TEMP WHERE " + strkey+ " ORDER BY TEMP.PIPackingListMasterId  DESC";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
