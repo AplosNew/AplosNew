@@ -64,8 +64,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
                 string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
                 var str = @"select dd.* from (
-                select EmpSystemID,a.RowId, e.EmployeeCode,format(WorkDate, 'dd-MMM-yyyy')WorkDate,
-                DayStatus,SandwichFlag,SandwichReprocess,
+                select EmpSystemID,a.RowId,format(WorkDate, 'dd-MMM-yyyy')WorkDate,
+                SandwichFlag,SandwichReprocess,
                 (select SandwichFlag from AttdnProcessData where WorkDate = 
 				DATEADD(day, -1, a.WorkDate)
                 and EmpSystemID = a.EmpSystemID
@@ -90,12 +90,46 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public DataTable RecallUpdatedDataTable(string PlantId, string month, string year)
+        {
+            try
+            {
+                int dd = 01;
+                string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
+                string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
+                var str = @"select dd.* from (
+                select EmpSystemID,a.RowId,format(WorkDate, 'dd-MMM-yyyy')WorkDate,
+                DayStatus,SandwichFlag,a.ProcessFinalDayStatus,
+                (select SandwichFlag from AttdnProcessData where WorkDate = 
+				DATEADD(day, -1, a.WorkDate)
+                and EmpSystemID = a.EmpSystemID
+                and a.PlantID = '" + PlantId + @"')PrevDayFlag,
+                (select WorkDate from AttdnProcessData where WorkDate = 
+				DATEADD(day, -1, a.WorkDate)
+                and EmpSystemID = a.EmpSystemID
+                and a.PlantID = '" + PlantId + @"')PrevWkDate
+                from attdnprocessdata a
+                where a.WorkDate between '" + date + @"' and GETDATE() and
+                SandwichReprocess = 1 and PlantID = '" + PlantId + @"' )as dd				
+				where dd.PrevDayFlag is not null
+				order by dd.WorkDate,dd.EmpSystemID asc";
+
+                DataTable dtTemp = _sqlRepository.GetDataTable(str);
+                return dtTemp;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
         public void Process(string PlantId, string month, string year)
         {
             try
             {
                 #region Calculations
-                string MaxDate ="", MinDate="";
+                string MaxDate = "", MinDate = "";
                 DataTable SandwichData; // Build DataTable For Sandwich Process
                 SandwichData = SandWichDataTable(PlantId, month, year);
                 if (SandwichData.Rows.Count > 0)
@@ -202,7 +236,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #region Save Data in APD 
                 if (SandwichData.Rows.Count > 0)
                 {
-                    int counter =0;
+                    int counter = 0;
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
 
@@ -238,38 +272,90 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 #endregion
 
+                #region DayStatus Changing Logic
+              
+                DataTable RefreshedDt; // Build DataTable For DayStatus Changing
+                RefreshedDt = SandWichDataTable(PlantId, month, year);
+                if (RefreshedDt.Rows.Count > 0)
+                {
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet MasterDataSet, false, false, "", "1");
+
+                    for (int i = 0; i < RefreshedDt.Rows.Count; i++)
+                    {
+                        #region Variables                       
+
+                        string EmpId = clsWebLib.RetValidLen(RefreshedDt.Rows[i]["EmpSystemID"]).ToString();
+                        string TodayFlag = clsWebLib.RetValidLen(RefreshedDt.Rows[i]["SandwichFlag"]).ToString();
+                        string PrevDayFlag = clsWebLib.RetValidLen(RefreshedDt.Rows[i]["PrevDayFlag"]).ToString();
+                        string PrevWkDate = clsWebLib.RetValidLen(RefreshedDt.Rows[i]["PrevWkDate"]).ToString();
+                        string FinalStatus = clsWebLib.RetValidLen(RefreshedDt.Rows[i]["ProcessFinalDayStatus"]).ToString();
+
+                        #endregion
+
+                        if (PrevDayFlag == "2" || PrevDayFlag == "4" || PrevDayFlag == "3")
+                        {
+                            if (TodayFlag == "1")
+                            {
+                                if (FinalStatus != "")
+                                {
+                                    // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
+
+                                    var sqly = @"SELECT * FROM (
+
+                                                            select RowId,EmpSystemID,sandwichflag as SandwichMaster,
+                                                            CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
+                                                            SandwichFlag END SandwichFlag,WorkDate,
+                                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,CASE WHEN 
+                                                            SandwichFlag IN (2,3) THEN 2 ELSE 
+                                                            SandwichFlag END ORDER BY WorkDate DESC,CASE WHEN SandwichFlag IN 
+                                                            (2,3) THEN 2 ELSE SandwichFlag END) AS RNKFlag,
+                                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) 
+                                                            AS RNKEmp
+                                                            from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'
+                                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
+                                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
+
+                                    var RowData = _sqlRepository.GetDataTable(sqly);
+                                    if (RowData.Rows.Count > 0)
+                                    {
+                                        for (int x = 0; x < RowData.Rows.Count; x++)
+                                        {
+                                            var RowxId = RowData.Rows[x]["RowId"].ToString();
+                                            var SandwichMaster = RowData.Rows[x]["SandwichMaster"].ToString();
+                                            if (SandwichMaster == "3")
+                                            {
+                                                DataRow drx = MasterDataSet.Tables[0].NewRow();
+                                                drx["DayStatus"] = "W";
+                                                drx["RowId"] = RowxId;
+                                                MasterDataSet.Tables[0].Rows.Add(drx);
+                                            }
+                                            else if (SandwichMaster == "2")
+                                            {
+                                                if (FinalStatus != "")
+                                                {
+                                                    DataRow drx = MasterDataSet.Tables[0].NewRow();
+                                                    drx["DayStatus"] = FinalStatus;
+                                                    drx["RowId"] = RowxId;
+                                                    MasterDataSet.Tables[0].Rows.Add(drx);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }                 
+                
+                #endregion
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }       
-        public void ManualFlagRows(string Past3rdDay,string Past2ndDay, string Yesterday, string Today,string Tomorrow,string Future2ndDay,string Future3rdDay)
-        {
-
-            try
-            {
-               // Command to Update the ManualFlag Trigger
-
-               var sql = @"update attdnprocessdata set manualflag=1,LockedBy=null,LockedDate=null,IsLock=0,
-                IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null
-                where rowid in("+Past3rdDay+") or RowId in("+Past2ndDay+") or RowId in("+Yesterday+") " +
-                " or RowId in("+Today+") or RowId in("+Tomorrow+") or RowId in("+Future2ndDay+") or RowId in("+Future3rdDay+")";
-                
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
-
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                objCone.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-
-        }
+        
     }
 }
  
