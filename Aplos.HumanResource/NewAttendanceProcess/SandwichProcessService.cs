@@ -293,6 +293,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         #endregion
 
+                        #region Generating DataSet
+
                         if (PrevDayFlag == "2" || PrevDayFlag == "4" || PrevDayFlag == "3")
                         {
                             if (TodayFlag == "1")
@@ -345,6 +347,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 }
                             }
                         }
+
+                        #endregion
                     }
                 }                 
                 
