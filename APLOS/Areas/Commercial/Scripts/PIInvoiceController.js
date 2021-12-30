@@ -229,11 +229,11 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.salesOrderList = [];
         $http({
             method: 'GET',
-            url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
+            url: "Commercial/PIInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
         }).then(function (response) {
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
+                //getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
 
             }
         });
@@ -474,20 +474,20 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     cboService.getCboEntityByPlant(null, null, " ", function (result) {
         $scope.entityList = result;
     });
-    $scope.salesOrderList = [];
-    $scope.GetPackingSOData = function () {
-        $scope.salesOrderList = [];
-        $http({
-            method: 'GET',
-            url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
-        }).then(function (response) {
-            $scope.salesOrderList = response.data;
-            for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
+    //$scope.salesOrderList = [];
+    //$scope.GetPackingSOData = function () {
+    //    $scope.salesOrderList = [];
+    //    $http({
+    //        method: 'GET',
+    //        url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
+    //    }).then(function (response) {
+    //        $scope.salesOrderList = response.data;
+    //        for (var i = 0; i < $scope.salesOrderList.length; i++) {
+    //            getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
 
-            }
-        });
-    }
+    //        }
+    //    });
+    //}
 
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
         $scope.tranCurrencyList = result;
@@ -933,17 +933,24 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                 throw "Posted data cann't save or update.";
             }
 
-            $scope.$broadcast("show-errors-check-validity");
-            if ($scope.form0.$valid) {
+            var PackList = [];
+            for (var i = 0; i < $scope.PackingList.length; i++) {
+                if ($scope.PackingList[i].Active) {
+                    PackList.push($scope.PackingList[i]);
+                }
+            }
+
+            //$scope.$broadcast("show-errors-check-validity");
+            //if ($scope.form0.$valid) {
                 $scope.savebtndisable = true;
                 if ($scope.Action === "Save") {
                     $http({
                         method: "POST",
-                        url: "Productions/PackingInvoice/Create",
+                        url: "Commercial/PIInvoice/Create",
                         data: {
                             "voucherVM": $scope.salesVM
                             , "salesMaterialVMList": $scope.salesOrderList
-                            , "selectedPackingList": $scope.selectedPackingList
+                            , "selectedPackingList": PackList
                             , "salesServiceVMList": $scope.chargesList
                         },
                         dataType: "JSON"
@@ -1027,7 +1034,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                     }, function errorCallback(response) {
                         ShowResult(response.status.Message, "failure");
                     });
-                }
+                //}
                 return true;
             }
             return true;
@@ -1036,30 +1043,36 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }
     };
 
-    $scope.Saves = function ()
-    {
-        try {
+    //$scope.Saves = function ()
+    //{
+    //    try {
+    //        var PackList = [];
+    //        for (var i = 0; i < $scope.PackingList.length; i++) {
+    //            if ($scope.PackingList[i].Active) {
+    //                PackList.push($scope.PackingList[i]);
+    //            }
+    //        }
 
-            $http({
-                method: 'POST',
-                url: $scope.path + 'SaveData',
-                data: { 'PackingData': $scope.PackingList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.path + 'SaveData',
+    //            data: { 'PackingData': PackList },
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, 'success');
 
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
+    //            }
+    //        }), function errorCallBack(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
 
-        } catch (e) {
-            ShowResult(e, 'info');
-        }
-    }
+    //    } catch (e) {
+    //        ShowResult(e, 'info');
+    //    }
+    //}
     //#endregion
 }

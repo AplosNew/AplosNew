@@ -24,7 +24,7 @@ namespace Library.Service.Invoices
         InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff);
 
         InvoiceWriteOff InsertInvoiceWriteOff(VoucherViewModel voucherVM);
-
+        InvoiceWriteOff InsertInvoiceWriteOffDifferentCurrency(InvoiceWriteOff invoiceWriteOffVM);
         InvoiceWriteOff InsertCustomerInvoiceSetOff(VoucherViewModel voucherVM);
 
         void InsertInvoiceWriteOffDetail(InvoiceWriteOff invoiceWriteOff, InvoiceWriteOffDetail invoiceWriteOffDetail, int currentId);
