@@ -31,6 +31,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 int dd = 01;
                 string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
                 string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
+              
                 var str = @"select EmpSystemID,e.EmployeeCode,p.UserName as Plant,p.Id as PlantId,
                             format(WorkDate,'dd-MMM-yyyy')WorkDate,DayStatus,dp.UserName
                             as Department,s.UserName as Section,
@@ -49,6 +50,32 @@ namespace Library.HumanResource.NewAttendanceProcess
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public void SandwichProcessDataSet(string PlantId, string month, string year, out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                int dd = 01;
+                string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
+                string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
+               
+                var sql = @"select EmpSystemID,WorkDate,SandwichFlag as TodayFlag,RowId,
+                (select SandwichFlag from AttdnProcessData where WorkDate=DATEADD(day,-1,p.WorkDate) 
+                and EmpSystemID=p.EmpSystemID
+                and PlantID='"+PlantId+@"')PrevDayFlag
+                from attdnprocessdata p where WorkDate between '"+date+@"' and GETDATE() and
+                SandwichReprocess=1 and PlantID='"+PlantId+@"' 
+                order by EmpSystemID,Workdate,SandwichFlag asc";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
 
