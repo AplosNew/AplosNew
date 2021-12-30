@@ -3600,8 +3600,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         }
 
-                        SaveDataSets(dsRef); // Saving Main DataSet                      
-
+                        SaveDataSets(dsRef); // Saving Main DataSet                  
 
                     }
                     #endregion

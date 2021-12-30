@@ -63,15 +63,23 @@ namespace Library.HumanResource.NewAttendanceProcess
                 int dd = 01;
                 string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
                 string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
-                var str = @"select EmpSystemID,a.RowId, e.EmployeeCode,format(WorkDate, 'dd-MMM-yyyy')WorkDate,DayStatus,SandwichFlag as TodayFlag,
-                (select SandwichFlag from AttdnProcessData where WorkDate = DATEADD(day, -1, a.WorkDate)
+                var str = @"select dd.* from (
+                select EmpSystemID,a.RowId, e.EmployeeCode,format(WorkDate, 'dd-MMM-yyyy')WorkDate,
+                DayStatus,SandwichFlag,SandwichReprocess,
+                (select SandwichFlag from AttdnProcessData where WorkDate = 
+				DATEADD(day, -1, a.WorkDate)
                 and EmpSystemID = a.EmpSystemID
-                and a.PlantID = '" + PlantId+ @"')PrevDayFlag
-                  from attdnprocessdata a
+                and a.PlantID = '" + PlantId+ @"')PrevDayFlag,
+                (select RowId from AttdnProcessData where WorkDate = 
+				DATEADD(day, -1, a.WorkDate)
+                and EmpSystemID = a.EmpSystemID
+                and a.PlantID = '"+PlantId+@"')PrevRowId
+                from attdnprocessdata a
                 left join EmployeeInformation e on e.SystemId = a.EmpSystemID
                 where a.WorkDate between '" + date+@"' and GETDATE() and
-                SandwichReprocess = 1 and e.PlantID = '"+PlantId+@"'
-                order by EmpSystemID,Workdate,SandwichFlag asc";
+                SandwichReprocess = 1 and e.PlantID = '"+PlantId+@"' )as dd				
+				where dd.PrevDayFlag is not null
+				order by dd.WorkDate,dd.EmpSystemID asc";
 
                 DataTable dtTemp = _sqlRepository.GetDataTable(str);
                 return dtTemp;
@@ -85,14 +93,15 @@ namespace Library.HumanResource.NewAttendanceProcess
         public void Process(string PlantId, string month, string year)
         {
             try
-            {                
+            {
                 DataTable SandwichData; // Build DataTable For Sandwich Process
                 SandwichData = SandWichDataTable(PlantId, month, year);
                 if (SandwichData.Rows.Count > 0)
                 {
                     #region DataTable Generation 
-                    
+
                     StringCollection StrDistinctWorkDate = new StringCollection();
+                    StringCollection StrDistinctEmployee = new StringCollection();
                     var StringDates = new List<DateTime>();
 
                     for (int i = 0; i < SandwichData.Rows.Count; i++)
@@ -113,33 +122,86 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                     for (int i = 0; i < SandwichData.Rows.Count; i++)
-                    {                        
-                       
+                    {
+                        #region Variables
+
+                        string EmpId = clsWebLib.RetValidLen(SandwichData.Rows[i]["EmpSystemID"]).ToString();
+                        string TodayFlag = clsWebLib.RetValidLen(SandwichData.Rows[i]["SandwichFlag"]).ToString();
+                        string PrevDayFlag = clsWebLib.RetValidLen(SandwichData.Rows[i]["PrevDayFlag"]).ToString();
+                        string RowId = clsWebLib.RetValidLen(SandwichData.Rows[i]["RowId"]).ToString();
+                        string PrevDayRowId = clsWebLib.RetValidLen(SandwichData.Rows[i]["PrevRowId"]).ToString();
+                        string WkDate= clsWebLib.RetValidLen(SandwichData.Rows[i]["WorkDate"]).ToString();
+                        
+                        #endregion
+
+                        if (TodayFlag != "" && PrevDayFlag != "")
+                        {
+
+                            #region Flag Changing Logic
+
+                            SandwichData.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate =#" + WkDate + "# ";
+                            DataRow dr = SandwichData.DefaultView[0].Row;
+                            string ActualFlag = SandwichData.DefaultView[0][@"SandwichFlag"].ToString();
+
+                            dr.BeginEdit();
+                            if (PrevDayFlag == "0" && TodayFlag == "2")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change                                    
+                                dr["SandwichReprocess"] = false;
+                            }
+
+                            else if (PrevDayFlag == "1" && TodayFlag == "2")
+                            {
+                                dr["SandwichFlag"] = "2"; //Today Change
+                            }
+
+                            else if (PrevDayFlag == "0" && TodayFlag == "3")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change
+                                dr["SandwichReprocess"] = false;
+                            }
+
+                            else if (PrevDayFlag == "0" && TodayFlag == "4")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change
+                                dr["SandwichReprocess"] = false;
+                            }
+
+                            else if (PrevDayFlag == "1" && TodayFlag == "3")
+                            {
+                                dr["SandwichFlag"] = "3"; //Today Change
+                            }
+                            dr.EndEdit();
+                            string ChangedFlag = SandwichData.DefaultView[0][@"SandwichFlag"].ToString();
+
+                            #endregion
+
+                            #region To Change Value of Flag in Next Day Row
+
+                            SandwichData.DefaultView.RowFilter = @"PrevRowId='" + RowId + "' ";
+                            if (SandwichData.DefaultView.Count > 0)
+                            {
+                                if (ActualFlag != ChangedFlag)
+                                {
+                                    DataRow drx = SandwichData.DefaultView[0].Row;
+                                    drx.BeginEdit();
+                                    drx["PrevDayFlag"] = ChangedFlag;
+                                    drx.EndEdit();
+                                }
+                            }
+
+                            #endregion
+
+                        }
                     }
+                }            
 
-
-                }
             }
             catch(Exception ex)
             {
                 throw ex;
             }
-        }
-
-        public void CheckerFunction(ref string TempMaster,ref string MainMaster, string Value)
-        {
-            if (TempMaster.Contains(Value))
-            {
-                return;
-            }
-            else
-            {
-                TempMaster += ",'" + Value + "'";
-                MainMaster += ",'" + Value + "'";
-            }
-        }
-
-
+        }       
         public void ManualFlagRows(string Past3rdDay,string Past2ndDay, string Yesterday, string Today,string Tomorrow,string Future2ndDay,string Future3rdDay)
         {
 
