@@ -89,12 +89,22 @@ namespace Aplos.Areas.Commercial.Controllers
                         throw new Exception("Please enter quantity.");
                     if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(clsStaticInfo.dbl(MaterialData[i]["Rate"].ToString()))))
                         throw new Exception("Please enter rate.");
+                    if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(MaterialData[i]["UoMId"])))
+                        throw new Exception("Please select UoM.");
                     if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(MaterialData[i]["DeliveryDate"])))
                         throw new Exception("Please select delivery date.");
+                    if (Convert.ToDateTime( HeaderData["PIDate"]) < Convert.ToDateTime( MaterialData[i]["DeliveryDate"].ToString()))
+                        throw new Exception("Delivery date must less than PI date.");
                     if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(clsStaticInfo.dbl(MaterialData[i]["Amount"].ToString()))))
                         throw new Exception("Please enter amount.");
                 }
                 ConnectionManager.DAL.ConManager conPIMaster = new ConnectionManager.DAL.ConManager("1");
+
+                conPIMaster.OpenDataSetThroughAdapter("select * from PIMaster where RefNo='" + HeaderData["RefNo"] + "' AND Id<>'" + HeaderData["Id"] + @"' ", out DataSet dsRef, false, "1");
+
+                if (dsRef.Tables[0].Rows.Count>0)
+                    throw new Exception("PI Ref No. already exists.");
+
                 conPIMaster.OpenDataSetThroughAdapter("select * from PIMaster where Id='" + HeaderData["Id"] + "'", out DataSet dsPIMaster, false, "1");
                 string _Id = "";
                 String _PMVersionId = "";
@@ -128,7 +138,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     string _IdV = "";
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("PIVersion", out _IdV);
-                    PIVersionId = "PV" + _IdV;
+                    PIVersionId = "PV"+"-"+ _IdV;
                     DataRow drVersion = dsPIVersion.Tables[0].NewRow();
 
                     drVersion["Id"] = PIVersionId;
@@ -139,7 +149,6 @@ namespace Aplos.Areas.Commercial.Controllers
                     drVersion["AddedDate"] = System.DateTime.Now.ToString();
                     drVersion["AddedFromIP"] = identity.IPAddress;
                     dsPIVersion.Tables[0].Rows.Add(drVersion);
-
                 }
                 else
                 {
@@ -301,7 +310,12 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
 
             var PIMasterData = _sqlRepository.GetDataCollection(sql, null);
 
-            sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,NULL AS MaterialGroupUOMList,
+            sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId,
+--cast(p.Rate,decimal(10,2)) Rate
+CAST(ROUND(p.Rate, 4) AS DECIMAL(10,4)) Rate,
+CAST(ROUND(p.Quantity, 2) AS DECIMAL(10,2)) Quantity,
+ROUND(p.Amount, 2) Amount,
+ p.UoMId,NULL AS MaterialGroupUOMList,
 							   p.[Description], p.DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
 						  FROM PIMaterial AS p
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
@@ -309,7 +323,7 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
 
             var PIMaterial = _sqlRepository.GetDataCollection(sql, null);
 
-            sql = @"SELECT U.MaterialGroupMasterId,UOM.Code,UOM.Id FROM (
+            sql = @"SELECT U.MaterialGroupMasterId,UOM.Code,UOM.userName,UOM.Id FROM (
 					SELECT mgm.Id MaterialGroupMasterId, mgm.BaseUoMId AS UOMId FROM mst.MaterialGroupMaster AS mgm
 					UNION ALL
 					SELECT m.MaterialGroupMasterId, m.AlternativeUoMId
@@ -344,7 +358,7 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
         public ActionResult GetUoMList(string MaterialGroupMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT U.MaterialGroupMasterId,UOM.Code,UOM.Id FROM (
+            string sql = @"SELECT U.MaterialGroupMasterId,UOM.Code,UOM.userName,UOM.Id FROM (
 						SELECT mgm.Id MaterialGroupMasterId, mgm.BaseUoMId AS UOMId FROM mst.MaterialGroupMaster AS mgm
 						UNION ALL
 						SELECT m.MaterialGroupMasterId, m.AlternativeUoMId

@@ -420,9 +420,10 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         });
 
     }
-
+/*    $scope.isBtnActive = false;*/
     $scope.Save = function () {
         try {
+            $scope.isBtnActive = true;
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -434,8 +435,9 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.PImodelNew.Id = response.data.Data.Id;
                     $scope.LoadPISearchList();
-          /*          $scope.Get();*/
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

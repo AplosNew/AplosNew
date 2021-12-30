@@ -1322,6 +1322,7 @@ namespace Aplos.HumanResource
                 drLocal["TransportGroupId"] = data.TransportGroupId;
                 drLocal["EmploymentType"] = data.EmploymentType;
                 drLocal["ExcludeOT"] = false;
+                drLocal["isLeaveOnDOC"] = false;
                 
                 if (!string.IsNullOrEmpty(data.RelativeSystemId))
                 {

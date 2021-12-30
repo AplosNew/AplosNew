@@ -67,18 +67,15 @@ namespace Aplos.Areas.Machines.Controllers
 					                    GROUP BY P.UserName
 					                    FOR XML PATH ('')
 					                    ),1,1,'')
+, ProsessIds=(SELECT STUFF((SELECT DISTINCT ',' +  ProcessId FROM [MST].[OperationProcess] WHERE OperationId=O.Id FOR XML PATH('')),1,1,''))
                         , O.CompanyGroupId, O.OperationTypeId, ot.UserName AS OperationTypeCode, O.OperationCategoryId, oc.UserName AS OperationCategoryName
                         , O.OperationActivityId, OA.UserName AS OperationActivityName, O.[Sequence], O.Code, O.ShortName
                         , O.StandardName, O.UserName, O.Remarks, IsMachineRequired = CASE WHEN O.IsMachineRequired='M' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, O.Active, O.Archive                       
                         , O.BasicProcessTime, O.AssociateProcessTime, O.PersonalAllowance, O.MachineAllowance
 	                    , ART.MaterialMasterId, O.ArticleId, ART.StandardName AS ArticleName, O.SkillId, SK.UserName AS SkillName
-	                    , O.OperationLength, O.Frequency, O.ProductionSystemId, O.SPI,O.AdditionalAllowance
-                        ,OVCount=(Select COUNT(Id) from [MST].OperationVariation Where OperationId=O.Id)
-						 , OperationVariation=STUFF((SELECT DISTINCT ',' + OV.UserName FROM [MST].[OperationVariation] AS OV
-					                    WHERE OV.OperationId=O.Id
-					                    FOR XML PATH ('')
-					                    ),1,1,'')
-                    FROM MST.[Operation] as O
+	                    , O.OperationLength, O.Frequency, O.ProductionSystemId, O.SPI,O.AdditionalAllowance,OV.UserName OperationVariation
+                        FROM MST.[Operation] as O 				
+					LEFT JOIN [MST].[OperationVariation] OV	 ON OV.OperationId=O.Id
                     LEFT JOIN HKP.[OperationType] as ot ON O.OperationTypeId = ot.Id
                     LEFT JOIN HKP.[OperationCategory] as oc ON O.OperationCategoryId = oc.Id
                     LEFT JOIN HKP.[OperationActivity] AS OA ON O.OperationActivityId=OA.Id
