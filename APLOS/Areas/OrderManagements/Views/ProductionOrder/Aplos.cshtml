@@ -416,8 +416,8 @@
                                             <div e-column e-field="MaxNoOfWS" e-headertext="Max No Of WS" e-width="80"></div>
                                             <div e-column e-field="PlannedHoursPerDay" e-headertext="Planned Hours PerDay" e-width="80"></div>
                                             <div e-column e-field="BottleNeckPercentage" e-headertext="Bottle Neck Percentage" e-width="80"></div>
-                                            <div e-column e-field="SPT" e-headertext="SPT" e-width="50"></div>
-                                            <div e-column e-field="BuildUp" e-headertext="BuildUp" e-width="50"></div>
+                                            <div e-column e-field="SPT" e-headertext="SPT change allowed" e-width="50"></div>
+                                            <div e-column e-field="BuildUp" e-headertext="BuildUp change allowed" e-width="50"></div>
                                             <div e-column e-headertext="Actions" e-width="70">
                                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.EditProcess($event);" style="margin: -6px;"></i></button>
                                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeProcess($event);" style="margin: -6px;"></i></button>
@@ -1427,7 +1427,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">SPT</label>
+                            <label class="col-sm-4 control-label">SPT change allowed</label>
                             <div class="col-sm-2">
                                 <div class="checkbox-site">
                                     <label>
@@ -1436,7 +1436,7 @@
                                     </label>
                                 </div>
                             </div>
-                            <label class="col-sm-4 control-label">BuildUp</label>
+                            <label class="col-sm-4 control-label">BuildUp change allowed</label>
                             <div class="col-sm-2">
                                 <div class="checkbox-site">
                                     <label>
@@ -1445,6 +1445,9 @@
                                     </label>
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-group" style="margin-top: -10px;">
+                            <label class="col-sm-12 control-label">(For planning)</label>
                         </div>
                     </div>
                     <div class="common-btn" style="padding-right: 15px;">

@@ -198,44 +198,28 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th>MasterOrder</th>
-                                                <th>SONo</th>
-                                                <th>PONumber</th>
+                                                <th>PI Material Id</th>
                                                 <th>DeliveryDate</th>
-                                                <th>Destination</th>
                                                 <th>MaterialMasterName</th>
-                                                <th>Article</th>
-                                                <th>SKU1</th>
-                                                <th>SKU2</th>
                                                 <th class="text-right">Rate</th>
                                                 <th class="text-right">Qty</th>
-                                                @*<th class="text-right">Balance</th>*@
+                                                <th class="text-right">UOM</th>
                                                 <th class="text-right">Amount</th>
-                                                <th class="text-right">Tax</th>
-                                                <th class="text-right">Service Charge</th>
-                                                <th class="text-right">Service Tax</th>
+                                                
                                                 <th class="text-right">Total Amount  </th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr ng-repeat="x in salesOrderList">
-                                                <td>{{x.MasterOrderId}}</td>
-                                                <td>{{x.SONo}}</td>
-                                                <td>{{x.PONumber}}</td>
+                                                <td>{{x.PIMaterialId}}</td>
                                                 <td>{{x.DeliveryDate}}</td>
-                                                <td>{{x.DestinationName}}</td>
-                                                <td>{{x.MaterialMasterName}}</td>
-                                                <td>{{x.MaterialMasterArticleName}}</td>
-                                                <td>{{x.SKU1}}</td>
-                                                <td>{{x.SKU2}}</td>
+                                                <td>{{x.MaterialGroup}}</td>
                                                 <td class="text-right">{{x.Rate}}</td>
-                                                <td class="text-right">{{x.TransactionQty | number:2}}</td>
-                                                @*<td class="text-right">{{x.Balance | number:2}}</td>*@
-                                                <td class="text-right">{{x.TransactionAmount | number:2}}</td>
-                                                <td class="text-right">{{x.TaxAmount | number:2}}</td>
-                                                <td class="text-right">{{x.ServiceCharge | number:2}}</td>
-                                                <td class="text-right">{{x.ServiceTax | number:2}}</td>
+                                                <td class="text-right">{{x.Quantity | number:2}}</td>
+                                                <td class="text-right">{{x.UOM}}</td>
+                                                <td class="text-right">{{x.Amount | number:2}}</td>
+                                                
                                                 <td class="text-right">{{x.NetAmount | number:2}}</td>
                                                 <td class="text-right">
                                                     <ul class="list-inline action-list">
@@ -1325,18 +1309,18 @@
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
-                            <div e-column e-field="Id" e-type="string" e-headertext="PI PackingList Master Id" e-width="80"></div>
-                            <div e-column e-field="Description" e-type="string" e-headertext="PI PackingList Master Description" e-width="80"></div>
-                            <div e-column e-field="Remarks" e-type="string" e-headertext="PI PackingList Master Remarks" e-width="80"></div>
-                            @*<div e-column e-field="PackingId" e-type="string" e-headertext="Packing Id" e-width="80"></div>
+                            @*<div e-column e-field="Id" e-type="string" e-headertext="PI PackingList Master Id" e-width="80"></div>*@
+                            @*<div e-column e-field="Description" e-type="string" e-headertext="PI PackingList Master Description" e-width="80"></div>
+                                <div e-column e-field="Remarks" e-type="string" e-headertext="PI PackingList Master Remarks" e-width="80"></div>*@
+                            <div e-column e-field="PackingId" e-type="string" e-headertext="Packing Id" e-width="80"></div>
                             <div e-column e-field="Entity" e-type="string" e-headertext="Entity" e-width="80"></div>
                             <div e-column e-field="Customer" e-type="string" e-headertext="Customer" e-width="100"></div>
-
-                            <div e-column e-field="StorageLoc" e-type="string" e-headertext="Storage Location" e-width="80"></div>
-                            <div e-column e-field="ByWhom" e-type="string" e-headertext="By Whom" e-width="80"></div>
-                            <div e-column e-field="DRespPerson" e-type="string" e-headertext="Despatch Responsible Person" e-width="80"></div>
+                            <div e-column e-field="Currency" e-type="string" e-headertext="Currency" e-width="100"></div>
+                            @*<div e-column e-field="StorageLoc" e-type="string" e-headertext="Storage Location" e-width="80"></div>
+                                <div e-column e-field="ByWhom" e-type="string" e-headertext="By Whom" e-width="80"></div>
+                                <div e-column e-field="DRespPerson" e-type="string" e-headertext="Despatch Responsible Person" e-width="80"></div>*@
                             <div e-column e-field="AddedDate" e-type="date" e-headertext="Created Date" e-width="80"></div>
-                            <div e-column e-field="InActiveDate" e-type="date" e-headertext="Inactive Date" e-width="80"></div>*@
+                            @*<div e-column e-field="InActiveDate" e-type="date" e-headertext="Inactive Date" e-width="80"></div>*@
 
                         </div>
                     </div>
@@ -1350,7 +1334,7 @@
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="ClosePackingList();" class="btn">Apply</button>
+                            <button ng-click="ClosePackingList();Saves()" class="btn">Apply</button>
                         </li>
                     </ul>
                 </div>
