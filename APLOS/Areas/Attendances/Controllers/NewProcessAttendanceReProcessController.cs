@@ -42,18 +42,18 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost, Authorize]
-        public string ReProcessAttendance(string From,string To)
+        public ActionResult ReProcessAttendance(string From,string To,string PlantId)
         {
             try
-            {
-                // var jsondata = Json(new { Error = false, DATA = rep.GetAttndData(From, To,AttndType) }, JsonRequestBehavior.AllowGet);
-                //jsondata.MaxJsonLength = int.MaxValue;
-                return "";// jsondata;
+            {                
+                app.ProcessData(From,To,PlantId);
+                return Json(new { Error = false, Message = "Attendance Processed Successfully..." }, JsonRequestBehavior.AllowGet);
+
             }
-            catch(Exception ex)
+            catch (Exception)
             {
-                return "";// Json(new { Error =true,Message= ex.Message },JsonRequestBehavior.AllowGet);
-               
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+
             }
         }
 

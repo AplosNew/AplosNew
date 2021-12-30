@@ -1,5 +1,6 @@
 ﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.HumanResource.NewAttendanceProcess;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -189,7 +190,7 @@ namespace Library.Service.Attendances {
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var str = @"select ID AS PlantId,UserName as Plant from org.Plant where CompanyId='" + identity.CompanyId+@"'
+                var str = @"select ID AS PlantId,UserName as PlantName from org.Plant where CompanyId='" + identity.CompanyId+@"'
                 and Active='1'";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -199,18 +200,39 @@ namespace Library.Service.Attendances {
             }
         }
 
-        public void ProcessData(string From, string To)
+        public void ProcessData(string From, string To,string Plant)
         {
+            try {
+                TimeSpan ts = Convert.ToDateTime(To).Subtract(Convert.ToDateTime(From));
+                if (ts.Days >= 0)
+                {
 
-            var sql = @"update attdnrawdata set processedflag=0 where pdate>='"+From+"' " +
-                "and pdate<='"+To+"'and plantid=''";
+                    var sql = @"update attdnrawdata set processedflag=0 where pdate>='" + From + "' " +
+                    "and pdate<='" + To + "'and plantid In ("+Plant+")";
 
-            var sqlx = @"update attdnprocessdata set punchintime=null,punchouttime=null,outpunchlimit=null,
-            intime=null,outtime=null,ProcessIntime=null,ProcessOuttime=null where WorkDate>='"+From+"'" +
-            " and WorkDate <='"+To+"' and PlantID=''";
+                    var sqlx = @"update attdnprocessdata set punchintime=null,punchouttime=null,outpunchlimit=null,
+                    intime=null,outtime=null,ProcessIntime=null,ProcessOuttime=null where WorkDate>='" + From + "'" +
+                    " and WorkDate <='" + To + "' and plantid In (" + Plant + ")";
+
+                    NewAttendanceProcessService app = new NewAttendanceProcessService();
+
+                    string PlantId = "";
+
+                    app.AttndProcess(From, PlantId);
+
+                    app.DayStatus(From, PlantId);
+                }
+                else
+                {
+                    throw new Exception("Please choose a valid Date Range !!");
+                }
+
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }            
         }
         
     }
-
-
 }
