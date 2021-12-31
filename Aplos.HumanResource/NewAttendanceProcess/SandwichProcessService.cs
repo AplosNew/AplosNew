@@ -303,6 +303,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         }
                     }
+                    SaveLog("Sandwich Calculations Done ...", PlantId, false);
+
                 }
                 #endregion
 
@@ -341,6 +343,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                     if (counter > 0)
                     {
+                        SaveLog("Sandwich Process Flags Saved ...", PlantId, false);
                         clsStaticInfo info = new clsStaticInfo();
                         info.SaveDataSets(dsRef);
                     }
@@ -380,12 +383,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             if (TodayFlag == "1")
                             {
                                 if (FinalStatus != "")
-                                {
-                                   if(Convert.ToDateTime( PrevWkDate)> Convert.ToDateTime(TempDate))
-                                   { 
-
+                                {                                
                                       var sqly = @"SELECT * FROM (
-
                                                             select RowId,EmpSystemID,sandwichflag as SandwichMaster,
                                                             CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
                                                             SandwichFlag END SandwichFlag,WorkDate,
@@ -400,12 +399,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
                                         var RowData = _sqlRepository.GetDataTable(sqly);
-                                        if (RowData.Rows.Count > 0)
+                                    if (RowData.Rows.Count > 0)
+                                    {
+                                        for (int x = 0; x < RowData.Rows.Count; x++)
                                         {
-                                            for (int x = 0; x < RowData.Rows.Count; x++)
+                                            var RowxId = RowData.Rows[x]["RowId"].ToString();
+                                            var SandwichMaster = RowData.Rows[x]["SandwichMaster"].ToString();
+                                            var Wk = RowData.Rows[x]["WorkDate"].ToString();
+                                            if (Convert.ToDateTime(Wk) >= Convert.ToDateTime(TempDate))
                                             {
-                                                var RowxId = RowData.Rows[x]["RowId"].ToString();
-                                                var SandwichMaster = RowData.Rows[x]["SandwichMaster"].ToString();
                                                 if (SandwichMaster == "3")
                                                 {
                                                     DataRow drx = MasterDataSet.Tables[0].NewRow();
@@ -425,9 +427,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                 }
                                             }
                                         }
-                                    
-                                   }
-                                
+                                    }                          
+                                                         
                                 }
                             }
                         }
@@ -471,6 +472,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                         if(x>0)
                         {
+                            SaveLog("Sandwich DayStaus Updated ...", PlantId, false);
                             clsStaticInfo info = new clsStaticInfo();
                             info.SaveDataSets(dsMaster);                           
                         }
@@ -484,6 +486,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #region PayDay Values Change
 
                 UpdatePayDayValues(MinDate, MaxDate, PlantId);
+                SaveLog("PayDay Values Updated ...", PlantId, false);
 
                 #endregion
             }
