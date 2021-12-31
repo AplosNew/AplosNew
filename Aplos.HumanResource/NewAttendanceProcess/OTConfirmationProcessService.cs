@@ -189,7 +189,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         if (Table.Rows.Count > 0)
                         {
-
                             for (int i = 0; i < Table.Rows.Count; i++)
                             {
 
@@ -397,8 +396,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 #endregion
 
                             }
-
-
                         }
                         #endregion
 

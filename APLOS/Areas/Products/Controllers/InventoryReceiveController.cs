@@ -17,6 +17,7 @@ using System.IO;
 using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Aplos.MaterialManagement;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -351,6 +352,119 @@ namespace Aplos.Areas.Products.Controllers
 				throw new CustomException(Resources.IdNotFound);
 		}
 		#endregion GRN-without-PO --Vendor GRN
+		#region GRN FOC
+		[Authorize, HttpGet]
+		public JsonResult GetListFOCGRN(string status)
+		{
+			InventoryReceiveQueryService inventoryReceiveQueryService =new InventoryReceiveQueryService(_sqlRepository);
+			return Json(inventoryReceiveQueryService.GetListFOCGRN(status), JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpPost]
+		public JsonResult GRNBYFOC(InventoryReceive entity, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+		{
+			if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+			{
+				CheckedByStatusForNoti = "False";
+				ApprovedByStatusForNoti = "False";
+			}
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			entity.CompanyGroupId = identity.CompanyGroupId;
+			entity.CompanyId = identity.CompanyId;
+			entity.PlantId = identity.PlantId;
+
+			if (identity.EmployeeId == entity.CheckedBy)
+			{
+				throw new CustomException("Please select another employee for Check by.");
+			}
+			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+			{
+
+				entity.AuthorizedBy = entity.CheckedBy;
+				entity.AuthorizedByStatus = "For Approval";
+				entity.CheckedBy = null;
+				entity.CheckedByStatus = null;
+				entity.IsApproved = false;
+				entity.RequiredPosting = true;
+
+
+			}
+			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+			{
+				entity.CheckedByStatus = null;
+				entity.AuthorizedByStatus = null;
+				entity.CheckedBy = null;
+				entity.AuthorizedBy = null;
+				entity.IsApproved = true;
+				entity.RequiredPosting = true;
+			}
+			else
+			{
+				entity.CheckedBy = entity.CheckedBy;
+				entity.CheckedByStatus = "ForChecked";
+				entity.AuthorizedBy = null;
+				entity.AuthorizedByStatus = null;
+				entity.IsApproved = false;
+				entity.RequiredPosting = true;
+
+			}
+
+
+			if (entity.EmployeeId == null || entity.EmployeeId == "")
+			{
+				entity.GRNType = "GRN";
+
+			}
+			else
+			{
+				entity.GRNType = "EMPGRN";
+			}
+			if (entity.IsNonVendor == true)
+			{
+
+				entity.IsNonVendor = true;
+			}
+			else
+			{
+				entity.IsNonVendor = false;
+			}
+			if (entity.IsNonVendor == true)
+			{
+				if (entity.Reason == null || entity.Reason == "")
+				{
+					throw new CustomException("Enter Reason!");
+				}
+			}
+			else
+			{
+				if (entity.PartyId == null || entity.PartyId == "")
+				{
+					throw new CustomException("Please select vendor!");
+				}
+
+
+			}
+			if (entity.AlongwithInvoice == true)
+			{
+				if (entity.DocRefNo == null || entity.DocRefNo == "")
+				{
+					throw new CustomException("Please Enter the RefNo!");
+				}
+				if (entity.DocDate == null)
+				{
+					throw new CustomException("Please Enter the DocDate!");
+				}
+			}
+			bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+			if (_returnRes == true)
+			{
+				throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+			}
+			_inventoryReveiveService.Insert(entity);
+			return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+		}
+
+		#endregion
 		#region -- Operations
 
 		[Authorize, HttpGet]
@@ -365,36 +479,32 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpGet]
 		public JsonResult GetListGRN(GridParameter parameters)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListGRN(), JsonRequestBehavior.AllowGet);
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+			return Json(inventoryReceiveQueryService.GetListGRN(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult CheckedHoldReject(GridParameter parameters)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			return Json(_inventoryReveiveService.CheckedHoldReject(), JsonRequestBehavior.AllowGet);
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+			return Json(inventoryReceiveQueryService.CheckedHoldReject(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult NotApproveChecked(GridParameter parameters)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			return Json(_inventoryReveiveService.NotApproveChecked(), JsonRequestBehavior.AllowGet);
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+			return Json(inventoryReceiveQueryService.NotApproveChecked(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult ApprovedHoldChecked(GridParameter parameters)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			return Json(_inventoryReveiveService.ApprovedHoldChecked(), JsonRequestBehavior.AllowGet);
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+			return Json(inventoryReceiveQueryService.ApprovedHoldChecked(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult ApprovedNotPost(GridParameter parameters)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			return Json(_inventoryReveiveService.ApprovedNotPost(), JsonRequestBehavior.AllowGet);
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+			return Json(inventoryReceiveQueryService.ApprovedNotPost(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult Posted(GridParameter parameters)
@@ -422,27 +532,31 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpGet]
 		public JsonResult GetListEmployeePurchase(GridParameter parameters)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListEmployeePurchase(), JsonRequestBehavior.AllowGet);
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
+			return Json(inventoryReceiveQueryService.GetListEmployeePurchase(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetListEmpCheckedHoldReject(GridParameter parameters)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListEmpCheckedHoldReject(), JsonRequestBehavior.AllowGet);
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
+			return Json(inventoryReceiveQueryService.GetListEmpCheckedHoldReject(), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
 		public JsonResult GetListEmpNotApproveChecked(GridParameter parameters)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListEmpNotApproveChecked(), JsonRequestBehavior.AllowGet);
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
+			return Json(inventoryReceiveQueryService.GetListEmpNotApproveChecked(), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
 		public JsonResult GetListEmpApprovedHoldReject(GridParameter parameters)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListEmpApprovedHoldReject(), JsonRequestBehavior.AllowGet);
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
+			return Json(inventoryReceiveQueryService.GetListEmpApprovedHoldReject(), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
@@ -872,8 +986,9 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpGet]
 		public JsonResult GetEmployeePurchaseList(GridParameter parameters)
 		{
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetEmployeePurchaseList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(inventoryReceiveQueryService.GetEmployeePurchaseList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 
 		#endregion Employee Purchase
@@ -894,8 +1009,9 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpGet]
 		public JsonResult GetListForHold(GridParameter parameters)
 		{
+			InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetListForHold(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+			return Json(inventoryReceiveQueryService.GetListForHold(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpPost, ChaildAction(ParentActionName = "Edit")]

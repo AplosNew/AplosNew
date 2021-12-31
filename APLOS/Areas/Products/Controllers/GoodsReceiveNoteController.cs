@@ -27,6 +27,7 @@ using Library.MaterialManagement.Products;
 using System.Data;
 using Library.Security.Core;
 using Library.MaterialManagement.JobWork;
+using Aplos.MaterialManagement;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -656,8 +657,9 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetListForGRNSaveData(string GRNWithReqPOCheckStatus)
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.QueryGetListForGRNSaveData(identity.PlantId, GRNWithReqPOCheckStatus), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.QueryGetListForGRNSaveData(identity.PlantId, GRNWithReqPOCheckStatus), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetListOfPO(string PoType, string Status)
@@ -727,9 +729,10 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetListForMasterData2(string GRNbyPOApprovedStatus)
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             //return Json(_inventoryReveiveService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
-            var jsondata = Json(_inventoryReveiveService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(inventoryReceiveQueryService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -737,22 +740,27 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetListForGrnByPoReq(string GRNWithReqPOApprovedStatus)
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListForGrnByPoReq(identity.PlantId, GRNWithReqPOApprovedStatus), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.GetListForGrnByPoReq(identity.PlantId, GRNWithReqPOApprovedStatus), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public JsonResult GetListByGrnno(GridParameter parameters, int GRN)
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListByGrnno(parameters, identity.PlantId, GRN), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.GetListByGrnno(parameters, identity.PlantId, GRN), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public JsonResult GetPostingList(GridParameter parameters)
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetPostingList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.GetPostingList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -763,8 +771,10 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetListForInvPayable(GridParameter parameters)
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListForInvPayable(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.GetListForInvPayable(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -1039,8 +1049,10 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetEmployeePurchaseList(GridParameter parameters)
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetEmployeePurchaseList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.GetEmployeePurchaseList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         #endregion Employee Purchase
@@ -1084,8 +1096,10 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetListForHold(GridParameter parameters)
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListForHold(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.GetListForHold(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, ChaildAction(ParentActionName = "Edit")]
