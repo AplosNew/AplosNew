@@ -2800,7 +2800,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 SandwichFlag=NULL,DayTypeOtApplicable=null,SandwichStatus=null,ProcessFinalDayStatus=null,DayStatus=null,
                 DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,DayTypeGoodWorkApplicable=null,IsLock=0,LockedBy=null,
                 LockedDate=null ,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
-                AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,CalculatedOT=0
+                AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,CalculatedOT=0,SandwichReprocess=0
                 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -3527,7 +3527,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 if (SandwichFlag != "0")
                                 {
                                     dr["SandwichReprocess"] = true;
-                                }
+                                }                               
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -4459,7 +4459,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
                     LockedBy=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
-                    AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,
+                    AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,SandwichReprocess=0,
                     LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null ,CalculatedOT=0
                     where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
