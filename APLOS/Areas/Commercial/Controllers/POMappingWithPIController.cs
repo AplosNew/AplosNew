@@ -207,15 +207,10 @@ namespace Aplos.Areas.Commercial.Controllers
 
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,UoM.UserName AS MaterialGroupUOM,
 							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId
-							   ,mgm.UserName AS MaterialGroup,PIM.POAmount   
+							   ,mgm.UserName AS MaterialGroup,isnull(MAP.POQuantity,0) POTaggedQuantity
 							  FROM PIMaterial AS p
 							  left join PIMaster PM on PM.Id=p.PIMasterId
-							  left join 
-							 (select sum(POD.TransactionAmount) POAmount,PIMasterId from PIMaterial PM
-							 LEFT JOIN POMappingWithPI MAP ON MAP.PIMaterialID=PM.Id
-							 left outer join TRN.PurchaseOrderDetail POD on POD.Id=MAP.PODetailId
-							 group by PIMasterId
-							 ) as PIM on PIM.PIMasterId=PM.Id
+							  LEFT JOIN POMappingWithPI MAP ON MAP.PIMaterialID=PM.Id
 							 LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 							 left join SCS.UnitOfMeasurement AS UoM on UoM.Id=p.UoMId
 							 WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
