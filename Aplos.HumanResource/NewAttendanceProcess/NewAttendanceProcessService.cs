@@ -4348,35 +4348,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void ManualsandwichLogic(out DataSet ds, string Plant)
-
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct p.EmpSystemID,p.SandwichFlag as TodayFlag,p.ProcessFinalDayStatus as TodayStatus,
-                Format(WorkDate,'yyyy-MMM-dd')WorkDate,
-				(
-				select SandwichFlag from AttdnProcessData where WorkDate=DATEADD(day,-1,p.WorkDate) 
-				and EmpSystemID=p.EmpSystemID
-				and PlantID='" + Plant + @"'
-				)PrevDayFlag,
-				(
-				select Format(WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData 
-				where WorkDate=DATEADD(day,-1,p.WorkDate) 
-				and EmpSystemID=p.EmpSystemID
-				and PlantID='" + Plant + @"'
-				)PrevWorkDate
-				from AttdnProcessData p
-                where ManualFlag=1 and PlantID='" + Plant + "' order by WorkDate asc";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void PayrollDayStatus(string Plant , string empMaster)
         {
 
@@ -4450,26 +4421,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"update AttdnProcessData set ManualFlag=0,DateUpdated=GetDate()
-                where RowID IN(" + MainFlagId + @")";
-
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
-
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                objCone.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void ProcessSandwichFlag(string MainFlagId)
-        {
-            try
-            {
-                var sql = @"update AttdnProcessData set SandwichFlag='0',UpdatedBy='Sandwich',DateUpdated=GetDate()
                 where RowID IN(" + MainFlagId + @")";
 
                 ConnectionManager.DAL.ConManager objCone = null;

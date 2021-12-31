@@ -24,6 +24,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
         }
 
+        #region DataSet Functions
+       
         public IEnumerable<object> GetEmployeeInformation(string month, string year)
         {
             try
@@ -123,7 +125,54 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public void UpdatePayDayValues(string MinDate,string MaxDate,string Plant)
+        {
 
+            try
+            {
+                var sql = @"update AttdnProcessData set PresentValue=x.PresentValue,LateValue=x.LateValue,
+                AbsentValue=x.AbsentValue,
+                LvValue=x.LvValue,MLvValue=x.MlvValue,CompAssignLvValue=x.CompAssignLvValue,WeekOffValue=x.WeekOffValue,
+                HoliDayValue=x.HoliDayValue,
+                WeekOffHoliDayValue=x.WeekOffHoliDayValue,LWPValue=x.TotalLWP,CasualLeaveValue=x.TotalCasualLeave,
+                PriviledgeLeaveValue=x.PriviledgeLeaveValue,MedicalLeaveValue=x.MedicalLeaveValue,
+                WorkingDayValue=x.WorkingDay,
+                ActualWorkingDayValue=x.ActualWorkingDay,PayDayValue=x.TotalPayDay,NonPayDayValue=x.TotalNonPayDay
+                from 
+                (select distinct p.EmpSystemID,p.rowid as rowidx,Result=dt.DayType,format(p.WorkDate,'yyyy-MMM-dd')WorkDate,                 		
+				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
+				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
+                isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
+				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
+				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
+				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                 
+				from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                     	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
+						left join DayStatus ds on ds.headerId=dh.Id
+						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
+						where WorkDate between '"+MinDate+@"' and '"+MaxDate+@"'
+						and SandwichStatus is not null and ei.PlantId='"+Plant+@"'
+						and dt.DayType=p.DayStatus)	as x where
+						x.rowidx=RowId";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        #endregion
+        
         public void Process(string PlantId, string month, string year)
         {
             try
@@ -350,8 +399,55 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         #endregion
                     }
-                }                 
-                
+
+                    #region Save Sandwich Status
+                    if (MasterDataSet.Tables[0].Rows.Count > 0)
+                    {
+                        int x = 0;
+                        ConnectionManager.DAL.ConManager newcon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
+
+                        newcon.OpenDataSetThroughAdapter(sqlx, out DataSet dsMaster, false, false, "", "1");
+
+                        for (int j = 0; j < MasterDataSet.Tables[0].Rows.Count; j++)
+                        {
+                            string IndvRow = clsWebLib.RetValidLen(MasterDataSet.Tables[0].Rows[j][@"RowId"]).ToString();
+                            string DayType = clsWebLib.RetValidLen(MasterDataSet.Tables[0].Rows[j][@"DayStatus"]).ToString();
+                          
+                            dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + IndvRow + "'";
+                            if (dsMaster.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
+                                string ActualSandwich = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"Sandwichstatus"]).ToString();
+                                if (ActualSandwich != DayType)
+                                {
+                                    x++;
+                                    dry.BeginEdit();
+                                    dry["Sandwichstatus"] = DayType;
+                                    dry["DayStatus"] = DayType;
+                                    dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dry["UpdatedBy"] = "Sandwich";
+                                    dry.EndEdit();
+                                }
+                            }
+
+                        }
+                        if(x>0)
+                        {
+                            clsStaticInfo info = new clsStaticInfo();
+                            info.SaveDataSets(dsMaster);                           
+                        }
+                    }
+                    #endregion
+
+                }
+
+                #endregion
+
+                #region PayDay Values Change
+
+                UpdatePayDayValues(MinDate, MaxDate, PlantId);
+
                 #endregion
             }
             catch (Exception ex)
