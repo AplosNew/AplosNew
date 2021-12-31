@@ -2800,7 +2800,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 SandwichFlag=NULL,DayTypeOtApplicable=null,SandwichStatus=null,ProcessFinalDayStatus=null,DayStatus=null,
                 DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,DayTypeGoodWorkApplicable=null,IsLock=0,LockedBy=null,
                 LockedDate=null ,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
-                AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,CalculatedOT=0
+                AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,CalculatedOT=0,SandwichReprocess=0
                 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -3527,7 +3527,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 if (SandwichFlag != "0")
                                 {
                                     dr["SandwichReprocess"] = true;
-                                }
+                                }                               
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -4348,35 +4348,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void ManualsandwichLogic(out DataSet ds, string Plant)
-
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct p.EmpSystemID,p.SandwichFlag as TodayFlag,p.ProcessFinalDayStatus as TodayStatus,
-                Format(WorkDate,'yyyy-MMM-dd')WorkDate,
-				(
-				select SandwichFlag from AttdnProcessData where WorkDate=DATEADD(day,-1,p.WorkDate) 
-				and EmpSystemID=p.EmpSystemID
-				and PlantID='" + Plant + @"'
-				)PrevDayFlag,
-				(
-				select Format(WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData 
-				where WorkDate=DATEADD(day,-1,p.WorkDate) 
-				and EmpSystemID=p.EmpSystemID
-				and PlantID='" + Plant + @"'
-				)PrevWorkDate
-				from AttdnProcessData p
-                where ManualFlag=1 and PlantID='" + Plant + "' order by WorkDate asc";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void PayrollDayStatus(string Plant , string empMaster)
         {
 
@@ -4465,26 +4436,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void ProcessSandwichFlag(string MainFlagId)
-        {
-            try
-            {
-                var sql = @"update AttdnProcessData set SandwichFlag='0',UpdatedBy='Sandwich',DateUpdated=GetDate()
-                where RowID IN(" + MainFlagId + @")";
-
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
-
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                objCone.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void CheckerFunction(ref string ManualFlagRowId, string Value)
         {
             if (ManualFlagRowId.Contains(Value))
@@ -4508,7 +4459,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                     DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,DayStatus=null,
                     LockedBy=null,StandardOT=null,PlanOT=null,AppliedOTLimit=null,
-                    AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,
+                    AllowedOTLimit=null,TargetOT=null,AdditionalOT=null,SandwichReprocess=0,
                     LockedDate=null,IsOTComfirm=0,OTComfirmBy=null,DateOTComfirm=null ,CalculatedOT=0
                     where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
