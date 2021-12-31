@@ -274,9 +274,8 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                 }).then(function successCallback(response) {
                     $scope.SecenodIteration = [];
                     $scope.SecenodIterationHeader = [];
-                    $scope.SecenodIteration = response.data.MaintData;
                     $scope.SecenodIterationHeader = response.data.HeaderData;
-                    $scope.SecenodIterationColumn = response.data.SizeData;
+                    $scope.SecenodIteration = response.data.MaintData;
                 });
             }
             else {
