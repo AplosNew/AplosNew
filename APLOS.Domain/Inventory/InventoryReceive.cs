@@ -51,7 +51,7 @@ namespace Library.Model.Inventory
 
 		public string ApprovedHoldRejectReason { get; set; }
 		public string NoteForAccounts { get; set; }
-       // public string ContractId { get; set; }
+        public string ContractId { get; set; }
         public bool IsFOC { get; set; }
         public bool RequiredPosting { get; set; }
 
