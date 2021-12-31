@@ -407,7 +407,7 @@ namespace Library.MaterialManagement.CutPlan
                         dr["CutPlanChildId"] = SkuValueList[j]["CutPlanChildId"];
                         dr["MarkerCharacteristicsValueId"] = FGCharacteristicsValueList[i]["CharacteristicsValueId"].ToString();
                         dr["MarkerRatio"] = FGCharacteristicsValueList[i]["Ratio"];
-                        dr["CalculatedQty"] = SkuValueList[j]["MinimumPlyActualValue"];
+                        dr["CalculatedQty"] = clsStaticInfo.dbl(SkuValueList[j]["MinimumPlyOptionValue"]) * clsStaticInfo.dbl(FGCharacteristicsValueList[i]["Ratio"]) ;
                         dr["QtyForCalculation"] = SkuValueList[j]["Qty"];
 
                         dr["AddedBy"] = identity.Name;
