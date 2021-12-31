@@ -45,7 +45,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
         #endregion
 
-        #region Get 
+        #region Operation
         [HttpGet, Authorize]
         public JsonResult GetProductionOrderDataList(string entityId)
         {
@@ -81,6 +81,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             var _sql = "";
             var _sql1 = "";
+            var _sql2 = "";
             _sql = @"SELECT distinct cv.UserName,cv.Sequence,cpf.MarkerRatio
                             FROM CutPlanFormation AS cpf
                             JOIN CutPlanChild AS cpc ON cpc.Id = cpf.CutPlanChildId
@@ -94,10 +95,19 @@ namespace Aplos.Areas.Productions.Controllers
                             JOIN CutPlanChild AS cpc ON cpc.Id = cpf.CutPlanChildId
                             JOIN CutPlanMarkerDetails AS cpmd ON cpmd.Id = cpc.CutPlanMarkerDetailsId
                             JOIN hkp.CharacteristicsValue AS cv ON cv.Id = cpf.MarkerCharacteristicsValueId
+                            JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id = cpf.MarkerCharacteristicsValueId
+                            WHERE cpmd.CutPlanMasterId='" + MasterId + @"' 
+                            ORDER BY CV1.Sequence,cv.Sequence";
+
+            _sql2 = @"SELECT DISTINCT cv.UserName,cpf.QtyForCalculation,cv.Sequence
+                            FROM CutPlanFormation AS cpf
+                            JOIN CutPlanChild AS cpc ON cpc.Id = cpf.CutPlanChildId
+                            JOIN CutPlanMarkerDetails AS cpmd ON cpmd.Id = cpc.CutPlanMarkerDetailsId
+                            JOIN hkp.CharacteristicsValue AS cv ON cv.Id = cpc.CharacteristicsValueId
                             WHERE cpmd.CutPlanMasterId='" + MasterId + @"' 
                             ORDER BY cv.Sequence";
 
-            var jsondata = Json(new { MaintData = _sqlRepository.GetDataCollection(_sql), HeaderData = _sqlRepository.GetDataCollection(_sql1) }, JsonRequestBehavior.AllowGet);
+            var jsondata = Json(new { HeaderData = _sqlRepository.GetDataCollection(_sql), MaintData = _sqlRepository.GetDataCollection(_sql1), SizeData = _sqlRepository.GetDataCollection(_sql2) }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }

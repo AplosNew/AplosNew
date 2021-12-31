@@ -190,17 +190,17 @@
                     </tr>
                     <tr>
                         <th>Ratio</th>
-                        <th>Min. Ply Value</th>
-                        <th>{{CalculateOn}} Ply Value</th>
+                        <th>Qty For Calculation</th>
+                        @*<th>Calculated Qty</th>*@
                         <th ng-repeat="x in SecenodIterationHeader">{{x.MarkerRatio}}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="x in SecenodIteration">
-                        <td>{{x.QtyForCalculation}}</td>
-                        <td>{{x.CalculatedQty}}</td>
-                        <td>{{x.CurrentQty}}</td>
-                        @*<td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" value="{{x.MinimumPlyOptionValue * y.Ratio}}" class="form-control"></td>*@
+                    <tr ng-repeat="y in SecenodIterationColumn">
+                        <td>{{y.UserName}}</td>
+                        <td>{{y.QtyForCalculation}}</td>
+                        @*<td ng-repeat="z in SecenodIteration"><input disabled type="text" value="{{z.CalculatedQty}}" class="form-control"></td>*@
+                        <td ng-repeat="zx in SecenodIteration"><input disabled type="text" value="{{zx.CurrentQty}}" class="form-control"></td>
                     </tr>
                 </tbody>
             </table>
