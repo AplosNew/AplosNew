@@ -207,8 +207,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.EmployeeCodeTypeId = $scope.employeeNew.EmployeeCodeTypeId;
                 $scope.Clean();
                 $scope.employeeNew.EmployeeCodeTypeId = $scope.EmployeeCodeTypeId;
-                
-                
+
+
                 $http({
                     method: 'GET',
                     url: 'Employees/EmployeeInformation/GetEmpCodeGenSetting?employeeCodeTypeId=' + $scope.employeeNew.EmployeeCodeTypeId
@@ -235,7 +235,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.ShowEVendor = false;
     $scope.ShowVendorCtrl = function () {
         angular.forEach($scope.EmployeeCodeTypeList, function (item) {
-   
+
             if (item.Value == $scope.employeeNew.EmployeeCodeTypeId) {
                 $scope.employeeNew.EmpCodeType = item.Text;
                 if (item.IsOutSider == true) {
@@ -246,7 +246,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                     $scope.ShowVendor = false;
                 }
             }
-            
+
         });
     }
 
@@ -414,6 +414,16 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.DOC = new Date(dt.setDate(dt.getDate() + $scope.employeeInformation.DOCDay));
             $scope.employeeInformation.DOC = $filter('dateFiltering')(new Date($scope.DOC), 'dd-MM-yyyy');
         }
+    }
+
+    $scope.SetLeaveOnDOC = function () {
+        $scope.employeeInformation.isLeaveOnDOC = true;
+        $scope.employeeInformation.isLeaveOnDOJ = false;
+    }
+
+    $scope.SetLeaveOnDOJ = function () {
+        $scope.employeeInformation.isLeaveOnDOC = false;
+        $scope.employeeInformation.isLeaveOnDOJ = true;
     }
 
     //#region BudgetCode
@@ -1103,6 +1113,11 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeInformation.MarriagedayCelebrationDate = $filter('dateFiltering')($scope.employeeInformation.MarriagedayCelebrationDate, 'dd-M-yyyy');
         $scope.employeeInformation.PaymentModeEffectiveDate = $filter('dateFiltering')($scope.employeeInformation.PaymentModeEffectiveDate, 'dd-M-yyyy');
         $scope.employeeInformation.EmpCodeType = $scope.employeeInformation.EmployeeCodeType;
+        if ($scope.employeeInformation.isLeaveOnDOC==false) {
+            $scope.employeeInformation.isLeaveOnDOJ = true;
+        } else {
+            $scope.employeeInformation.isLeaveOnDOC = true;
+        }
         $scope.approved = "";
         if ($scope.employeeInformation.IsApproved) {
             $scope.approved = "Employee Profile is Approved.";
@@ -3801,6 +3816,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
             Ref2Address: null
         };
         $scope.IsOTEntitled = false;
+        $scope.employeeInformation.isLeaveOnDOC = false;
+        $scope.employeeInformation.isLeaveOnDOJ = true;
     };
 
     $scope.onBeginUpload = function (args) {

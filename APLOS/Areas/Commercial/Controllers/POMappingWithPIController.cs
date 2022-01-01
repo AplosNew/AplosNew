@@ -170,16 +170,22 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
+            string sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
                             ,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-                            ,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId,PV.VersionNo AS LastVersion
+                            ,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId,PV.VersionNo AS LastVersionNo
+							,isnull(PIM.Amount,0) Amount,isnull(PIM.POTaggedAmount,0) POTaggedAmount
+
                              FROM PIMaster PM 
+							 left outer join 
+							 (select sum(Amount) as Amount,sum(POD.TransactionAmount) POTaggedAmount,PIMasterId from PIMaterial PM
+							 LEFT JOIN POMappingWithPI MAP ON MAP.PIMaterialID=PM.Id
+							 left outer join TRN.PurchaseOrderDetail POD on POD.Id=MAP.PODetailId
+							 group by PIMasterId
+							 ) as PIM on PIM.PIMasterId=PM.Id
                             LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
                             LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
                             LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
-                            LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC)
-                            --ORDER BY PM.PIDate DESC
-                            ) AS TEMP WHERE " + strkey + "ORDER BY TEMP.PIDate DESC";
+                            LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC)";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -200,11 +206,14 @@ namespace Aplos.Areas.Commercial.Controllers
             var PIMasterData = _sqlRepository.GetDataCollection(sql, null);
 
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,UoM.UserName AS MaterialGroupUOM,
-							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
-						  FROM PIMaterial AS p
-						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
-                          left join SCS.UnitOfMeasurement AS UoM on UoM.Id=p.UoMId
-						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
+							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId
+							   ,mgm.UserName AS MaterialGroup,isnull(MAP.POQuantity,0) POTaggedQuantity
+							  FROM PIMaterial AS p
+							  left join PIMaster PM on PM.Id=p.PIMasterId
+							  LEFT JOIN POMappingWithPI MAP ON MAP.PIMaterialID=PM.Id
+							 LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
+							 left join SCS.UnitOfMeasurement AS UoM on UoM.Id=p.UoMId
+							 WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
 
             var PIMaterial = _sqlRepository.GetDataCollection(sql, null);
 
@@ -249,8 +258,8 @@ namespace Aplos.Areas.Commercial.Controllers
                                     POMPI.Id,PIM.Id PIMaterialId
 							        ,POD.Id PODetailId,v.UserName Vendor,FORMAT(pod.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,MG.UserName MaterialGroup
 							        ,MM.UserName Material,mma.StandardName Article,cv1.UserName SKU1,cv2.UserName SKU2,cv3.UserName SKU3
-							        ,POD.TransactionQty POQuantity,POD.TransactionUoMId POUoMId,pouom.code POUoM,POD.TransactionRate PORate
-							        ,pod.TransactionAmount POAmount,C.code POCurrency,PIM.UoMId PIUoMId,POD.TransactionQty QuantityAtPIUoM,piuom.Code PIUoM
+							        ,POD.TransactionQty POQuantity,POD.TransactionUoMId POUoMId,pouom.UserName POUoM,POD.TransactionRate PORate
+							        ,pod.TransactionAmount POAmount,C.code POCurrency,PIM.UoMId PIUoMId,POD.TransactionQty QuantityAtPIUoM,piuom.UserName PIUoM
                                     ,pack.PackedQty,POMPI.QuantityAtPIUoM-isnull(pack.PackedQty,0) AS BalanceToPack
 
                                     from TRN.PurchaseOrderDetail POD
