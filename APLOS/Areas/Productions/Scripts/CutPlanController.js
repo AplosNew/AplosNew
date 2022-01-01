@@ -187,7 +187,11 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                     $scope.ErrorThrow = false;
                     $scope.CalculatedSkuValueList.push($scope.SkuValueList[j]);
                     for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
-                        CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
+                        for (var k = 0; k < $scope.SkuValueList[j].Qty.length; k++) {
+                            if ($scope.SkuValueList[j].Qty[k].Ratio == $scope.FGCharacteristicsValueList[i].Ratio) {
+                            CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty[k].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
+                            }
+                        }
                     }
 
                     $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
