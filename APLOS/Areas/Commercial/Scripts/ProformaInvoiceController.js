@@ -111,6 +111,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         , PIMasterId: null
         , PIVersionId: null
         , MaterialGroupMasterId: null
+        , HSNCodeId: null
         , Description: null
         , Quantity: 0
         , Rate: 0
@@ -139,6 +140,8 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
                     , PIMasterId: null
                     , PIVersionId: null
                     , MaterialGroupMasterId: null
+                    , HSNCodeId: null
+
                     , Description: null
                     , Quantity: 0
                     , Rate: 0
@@ -229,9 +232,8 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.OnUOMChange = function (data) {
         $scope.selectedDataIndex = data.model.ModelFieldsId;
         $scope.getUoM();
+        $scope.OnHSNChange();
     }
-    // $scope.OnUOMChange();
-
     $scope.getUoM = function () {
         $http({
             method: 'GET',
@@ -241,6 +243,25 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
 
         });
     }
+
+    $scope.OnHSNChange = function (data) {
+        $scope.selectedHSNDataIndex = data.model.ModelFieldsId;
+        $scope.getHSN();
+    }
+    $scope.selectedHSNDataIndex = -1;
+
+    $scope.getHSN = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetHSNList?MaterialGroupMasterId=" + $scope.DataList[$scope.selectedHSNDataIndex].MaterialGroupMasterId
+        }).then(function successCallback(response) {
+            $scope.DataList[$scope.selectedHSNDataIndex].MaterialGroupUOMList = response.data.HSNList;
+
+        });
+    }
+    // $scope.OnUOMChange();
+
+
 
     $scope.Clear = function () {
         $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
@@ -399,6 +420,25 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         });
     }
     $scope.GetMaterialGroupList();
+    $scope.HSNCodeList = [];
+    $scope.GetHSNCode = function () {
+        $http({
+            method: "GET",
+            url: $scope.path + "GetHSNCode",
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+
+            }
+            else {
+                $scope.HSNCodeList = response.data;
+            }
+        }, function errorCallback(response) {
+
+        });
+    }
+    $scope.GetHSNCode();
+    
 
     $scope.SelectVersion = function () {
 
@@ -478,6 +518,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadPISearchList();
+                    $scope.SelectedPIVersion = response.data.VersionId;
                     $http({
                         method: 'GET',
                         url: $scope.path + "GetAllData?PIMasterId=" + $scope.PImodelNew.Id + '&VersionId=' + $scope.SelectedPIVersion,
@@ -487,6 +528,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
                         $scope.PIVersionModel = response.data.VarsionData;
                         $scope.DataList = response.data.ItemData;
                         $scope.VersionList = $scope.PIVersionModel;
+                        
 
                     })
                 }
