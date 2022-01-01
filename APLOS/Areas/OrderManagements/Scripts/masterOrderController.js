@@ -2706,6 +2706,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
                         $scope.char1Id = $scope.characteristicsList[0].Value;
                         $scope.char2Id = $scope.characteristicsList[1].Value;
+                        $scope.ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
 
                         //angular.element(document.querySelector('#firstPopup')).modal('hide');
                         //angular.element(document.querySelector('#secondPopup')).modal('show');
@@ -4747,7 +4748,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShortName: null
             , StandardName: null
             , UserName: null
-            , SourceType: 'Specific'
+            , SourceType: $scope.ValueAssignmentLevel
             , Description: null
             , Remarks: null
             , IsDefault: false
