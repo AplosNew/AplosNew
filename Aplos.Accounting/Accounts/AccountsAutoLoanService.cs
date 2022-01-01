@@ -151,9 +151,9 @@ namespace Library.Accounting.Accounts
 
 		public IEnumerable<object> GetAutoLoanPostableList(string plantId)
         {
-			var sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.*, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,BM.AccountTitle ,CU.Code CurrencyCode,
-						IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.CompanyCurrencyRate
-						,PDA.AcceptanceNo,PDA.AcceptanceDate,U.FullName UserName
+			var sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.*, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
+						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.CompanyCurrencyRate,BM.AccountTitle 
+						,PDA.AcceptanceNo,PDA.AcceptanceDate,LAAD.BankMasterId
 						,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -166,13 +166,14 @@ namespace Library.Accounting.Accounts
 							,PaymentType= STUFF((select distinct ','+XVD.[Type] from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						FROM TRN.LoanAgainstAcceptance LAA 
-						LEFT JOIN TRN.PurchasedocAcceptance AS PDA ON PDA.Id=LAA.PurchasedocAcceptanceId
+						FROM LoanAgainstAcceptanceMaster LAA 
+						LEFT JOIN LoanAgainstAcceptanceDetail LAAD ON LAA.Id=LAAD.LoanAgainstAcceptanceMasterId
+						LEFT JOIN TRN.PurchasedocAcceptance AS PDA ON PDA.Id=LAAD.PurchasedocAcceptanceId
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
-						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
+						LEFT JOIN MST.BankMaster BM ON BM.Id=LAAD.BankMasterId
 						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
-						LEFT JOIN TRN.Invoice IV ON IV.PurchaseDocAcceptanceId=LAA.PurchaseDocAcceptanceId
+						LEFT JOIN TRN.Invoice IV ON IV.PurchaseDocAcceptanceId=LAAD.PurchaseDocAcceptanceId
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
 						WHERE LAA.IsPark=1 AND LAA.PlantId='" + plantId + "'  AND LAA.VoucherId IS NULL";

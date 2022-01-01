@@ -251,7 +251,7 @@ namespace Library.Service.Finances
                 //_loanInterestPayableRepository.Insert(loanInterestPayable);
 
 
-                string sql = "SELECT * FROM [trn].[LoanAgainstAcceptance] WHERE Id='" + voucherVM.LoanAgainstAcceptanceId + "'";
+                string sql = "SELECT * FROM LoanAgainstAcceptanceMaster WHERE Id='" + voucherVM.LoanAgainstAcceptanceId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
@@ -261,9 +261,9 @@ namespace Library.Service.Finances
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                     dr.BeginEdit();
-                    dr["PurchaseDocAcceptanceId"] = voucherVM.PurchaseDocAcceptanceId;
+                    //dr["PurchaseDocAcceptanceId"] = voucherVM.PurchaseDocAcceptanceId;
                     dr["VoucherId"] = voucher.Id;
-                    dr["BankMasterId"] = voucherVM.BankMasterId;
+                    //dr["BankMasterId"] = voucherVM.BankMasterId;
                     dr["CompanyGroupId"] = voucherVM.CompanyGroupId;
                     dr["CompanyId"] = voucherVM.CompanyId;
                     dr["PlantId"] = voucherVM.PlantId;
