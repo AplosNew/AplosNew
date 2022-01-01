@@ -284,11 +284,17 @@ namespace Aplos.Areas.Commercial.Controllers
             string sql = @"select top 100 * from (SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 ,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
 ,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId,PV.VersionNo AS LastVersion
+,P2.Amount,p2.POQuantity
  FROM PIMaster PM 
+LEFT OUTER JOIN
+(SELECT p.PIMasterId, SUM(p.Amount) Amount,SUM(pmp.POQuantity) POQuantity FROM PIMaterial p
+LEFT OUTER JOIN POMappingWithPI pmp ON pmp.PIMaterialID=p.Id
+ GROUP BY p.PIMasterId) P2 ON p2.PIMasterId = PM.Id
+
 LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
 LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
-LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC)
+LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC))
 --ORDER BY PM.PIDate DESC
 ) AS TEMP WHERE " + strkey + "ORDER BY TEMP.PIDate DESC";
 

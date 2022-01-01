@@ -19,6 +19,7 @@ using System.IO;
 using Library.Core;
 using Library.MaterialManagement.CutPlan;
 using Library.Service.OrderManagements;
+using System.Linq;
 
 #endregion Using
 
@@ -90,7 +91,7 @@ namespace Aplos.Areas.Productions.Controllers
                             WHERE cpmd.CutPlanMasterId='" + MasterId + @"' 
                             ORDER BY cv.Sequence";
 
-            _sql1 = @"SELECT cpf.QtyForCalculation,cpf.CalculatedQty,(cpf.QtyForCalculation-cpf.CalculatedQty) CurrentQty
+            _sql1 = @"SELECT cpf.QtyForCalculation,cpf.CalculatedQty,(cpf.QtyForCalculation-cpf.CalculatedQty) CurrentQty,cpc.CharacteristicsValueId
                             FROM CutPlanFormation AS cpf
                             JOIN CutPlanChild AS cpc ON cpc.Id = cpf.CutPlanChildId
                             JOIN CutPlanMarkerDetails AS cpmd ON cpmd.Id = cpc.CutPlanMarkerDetailsId
@@ -99,7 +100,7 @@ namespace Aplos.Areas.Productions.Controllers
                             WHERE cpmd.CutPlanMasterId='" + MasterId + @"' 
                             ORDER BY CV1.Sequence,cv.Sequence";
 
-            _sql2 = @"SELECT DISTINCT cv.UserName,cpf.QtyForCalculation,cv.Sequence
+            _sql2 = @"SELECT DISTINCT cv.UserName,cpf.QtyForCalculation,cv.Sequence,cpc.CharacteristicsValueId, null as Details
                             FROM CutPlanFormation AS cpf
                             JOIN CutPlanChild AS cpc ON cpc.Id = cpf.CutPlanChildId
                             JOIN CutPlanMarkerDetails AS cpmd ON cpmd.Id = cpc.CutPlanMarkerDetailsId
@@ -107,7 +108,15 @@ namespace Aplos.Areas.Productions.Controllers
                             WHERE cpmd.CutPlanMasterId='" + MasterId + @"' 
                             ORDER BY cv.Sequence";
 
-            var jsondata = Json(new { HeaderData = _sqlRepository.GetDataCollection(_sql), MaintData = _sqlRepository.GetDataCollection(_sql1), SizeData = _sqlRepository.GetDataCollection(_sql2) }, JsonRequestBehavior.AllowGet);
+            var ColorData = _sqlRepository.GetDataCollection(_sql2);
+            var SizeData = _sqlRepository.GetDataCollection(_sql1);
+            for (int i = 0; i < ColorData.Count; i++)
+            {
+                var TempData = SizeData.Where(x=>x["CharacteristicsValueId"].ToString() == ColorData[i]["CharacteristicsValueId"].ToString() && x["QtyForCalculation"].ToString() == ColorData[i]["QtyForCalculation"].ToString()).ToList();
+                ColorData[i]["Details"] = TempData;
+            }
+
+            var jsondata = Json(new { HeaderData = _sqlRepository.GetDataCollection(_sql), MaintData = ColorData }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }

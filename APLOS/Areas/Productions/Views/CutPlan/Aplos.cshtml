@@ -185,22 +185,25 @@
                     <tr>
                         <th>{{CharacteristicsName}}</th>
                         <th></th>
-                        <th></th>
                         <th ng-repeat="x in SecenodIterationHeader">{{x.UserName}}</th>
                     </tr>
                     <tr>
                         <th>Ratio</th>
                         <th>Qty For Calculation</th>
-                        @*<th>Calculated Qty</th>*@
                         <th ng-repeat="x in SecenodIterationHeader">{{x.MarkerRatio}}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="y in SecenodIterationColumn">
+                    <tr ng-repeat="y in SecenodIteration">
                         <td>{{y.UserName}}</td>
                         <td>{{y.QtyForCalculation}}</td>
-                        @*<td ng-repeat="z in SecenodIteration"><input disabled type="text" value="{{z.CalculatedQty}}" class="form-control"></td>*@
-                        <td ng-repeat="zx in SecenodIteration"><input disabled type="text" value="{{zx.CurrentQty}}" class="form-control"></td>
+                        <td ng-repeat="zx in y.Details">
+                            <label class="col-sm-3 control-label">Calculated Qty: </label>
+                            <label class="col-sm-3 control-label">{{zx.CalculatedQty}}</label>
+                            <label class="col-sm-3 control-label">Available Qty: </label>
+                            <label class="col-sm-3 control-label">{{zx.CurrentQty}}</label>
+                        </td>
+                        @*<td ng-repeat="zx in y.Details"></td>*@
                     </tr>
                 </tbody>
             </table>
@@ -210,38 +213,6 @@
                 </ul>
             </div>
         </div>
-        @*<div class="table-responsive modal-table" ng-show="Clicked">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>{{CharacteristicsName}}</th>
-                        <th></th>
-                        <th></th>
-                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
-                    </tr>
-                    <tr>
-                        <th>Ratio</th>
-                        <th>Min. Ply Value</th>
-                        <th>{{CalculateOn}} Ply Value</th>
-                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="x in CalculatedSkuValueList">
-                        <td>{{x.Characteristicsvalue}}</td>
-                        <td>{{x.MinimumPlyActualValue}}</td>
-                        <td>{{x.MinimumPlyOptionValue}}</td>
-                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" value="{{x.MinimumPlyOptionValue * y.Ratio}}" class="form-control"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="Save();" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                </ul>
-            </div>
-        </div>*@
-
     </div>
 </div>
 <div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">

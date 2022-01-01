@@ -372,6 +372,7 @@ namespace Aplos.Areas.Products.Controllers
 			entity.CompanyGroupId = identity.CompanyGroupId;
 			entity.CompanyId = identity.CompanyId;
 			entity.PlantId = identity.PlantId;
+			entity.IsFOC = true;
 
 			if (identity.EmployeeId == entity.CheckedBy)
 			{
