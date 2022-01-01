@@ -294,7 +294,7 @@ LEFT OUTER JOIN POMappingWithPI pmp ON pmp.PIMaterialID=p.Id
 LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
 LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
-LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC))
+LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC)
 --ORDER BY PM.PIDate DESC
 ) AS TEMP WHERE " + strkey + "ORDER BY TEMP.PIDate DESC";
 
@@ -322,9 +322,11 @@ CAST(ROUND(p.Rate, 4) AS DECIMAL(10,4)) Rate,
 CAST(ROUND(p.Quantity, 2) AS DECIMAL(10,2)) Quantity,
 ROUND(p.Amount, 2) Amount,
  p.UoMId,NULL AS MaterialGroupUOMList,
-							   p.[Description], p.DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
+							   p.[Description], p.DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup
+							   ,p.HSNCodeId,h.Code HSNCode
 						  FROM PIMaterial AS p
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
+						  LEFT JOIN hkp.HSNCode AS h ON h.Id=p.HSNCodeId
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
 
             var PIMaterial = _sqlRepository.GetDataCollection(sql, null);
@@ -376,6 +378,19 @@ ROUND(p.Amount, 2) Amount,
             var _UOMList = _sqlRepository.GetDataCollection(sql, null);
 
             return Json(new { UOMList = _UOMList }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetHSNList(string MaterialGroupMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"						SELECT mgm.Id MaterialGroupMasterId,h.Code HSNCode
+						  FROM mst.MaterialGroupMaster AS mgm
+						LEFT JOIN hkp.HSNCode AS h ON mgm.HSNCodeId=h.Id
+						WHERE mgm.Id='" + MaterialGroupMasterId + @"'";
+
+            var _HSNList = _sqlRepository.GetDataCollection(sql, null);
+
+            return Json(new { HSNList = _HSNList }, JsonRequestBehavior.AllowGet);
         }
         public ActionResult DeletePI(string PIMasterId, string PIVersionId)
         {
@@ -483,7 +498,7 @@ ROUND(p.Amount, 2) Amount,
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsPINewVersion, dsPINewMaterial);
 
-                return Json(new { Error = false, Message = AplosMessage.Insert });
+                return Json(new { Error = false,VersionId= _VersionId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -496,6 +511,14 @@ ROUND(p.Amount, 2) Amount,
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT mgm.Id,mgm.UserName AS MaterialGroup 
                                                         FROM mst.MaterialGroupMaster AS mgm WHERE mgm.[Active]=1";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetHSNCode()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT h.Id,h.Code HSNCode FROM hkp.HSNCode AS h";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
