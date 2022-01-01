@@ -14,14 +14,12 @@
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <fieldset class="scheduler-border">
                             <legend class="scheduler-border">Packing list</legend>
-
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
                                     <li>
-                                        <button ng-click="GetPackingListPopUp();" ng-disabled="salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Packing list</button>
+                                        <button ng-click="GetPackingListPopUp();" class="btn"><i class="glyphicon glyphicon-search" tabindex="3"></i> Packing list</button>
                                     </li>
                                 </ul>
-
                             </div>
                             <div class="clearfix"></div>
                             <div class="table-responsive modal-table" ng-show="selectedPackingList.length">
@@ -56,7 +54,7 @@
 
                     </div>
                     <div class="clearfix"></div>
-                    <div class="col-xs-12 col-sm-5 col-md-5">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -92,23 +90,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-3 col-md-3">
-
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-2 control-label">Entity<sup>*</sup></label>
-                            <div class="col-sm-10 show-message">
-                                <div class="select-style">
-                                    <select id="entityId" class="form-control" disabled name="Entity" ng-model="salesVM.EntityId" tabindex="7" required>
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Entry Date" ng-model="salesVM.VoucherDate" datepicker class="form-control" disabled required>
+                                <input type="text" name="Entry Date" ng-model="salesVM.EntryDate" datepicker class="form-control" disabled required>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -134,21 +120,6 @@
                             <div class="col-sm-4" style="margin-left: -12px;width: 42%;">
                                 <input type="text" name="BL Date" ng-model="salesVM.BLDate" datepicker class="form-control">
                                 @*<input type="text" class="form-control" ej-numerictextbox e-decimalplaces="0" ej-disabled="true" e-enablertl="false" e-value="model.Amount" e-width="100%" />*@
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-4 col-md-4">
-
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
-                            <div class="col-sm-10 show-message">
-                                <textarea rows="2" type="text" ng-maxlength="250" name="Narration" tabindex="8" class="form-control" ng-model="salesVM.Narration" required capitalize></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" title="Item Description">Description</label>
-                            <div class="col-sm-10">
-                                <textarea rows="2" type="text" ng-maxlength="250" name="Item Description" tabindex="8" class="form-control" ng-model="salesVM.ItemDescription"></textarea>
                             </div>
                         </div>
                     </div>
@@ -198,52 +169,36 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th>MasterOrder</th>
-                                                <th>SONo</th>
-                                                <th>PONumber</th>
+                                                <th>PI Material Id</th>
                                                 <th>DeliveryDate</th>
-                                                <th>Destination</th>
                                                 <th>MaterialMasterName</th>
-                                                <th>Article</th>
-                                                <th>SKU1</th>
-                                                <th>SKU2</th>
                                                 <th class="text-right">Rate</th>
                                                 <th class="text-right">Qty</th>
-                                                @*<th class="text-right">Balance</th>*@
+                                                <th class="text-right">UOM</th>
                                                 <th class="text-right">Amount</th>
-                                                <th class="text-right">Tax</th>
-                                                <th class="text-right">Service Charge</th>
-                                                <th class="text-right">Service Tax</th>
+                                                
                                                 <th class="text-right">Total Amount  </th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr ng-repeat="x in salesOrderList">
-                                                <td>{{x.MasterOrderId}}</td>
-                                                <td>{{x.SONo}}</td>
-                                                <td>{{x.PONumber}}</td>
+                                                <td>{{x.PIMaterialId}}</td>
                                                 <td>{{x.DeliveryDate}}</td>
-                                                <td>{{x.DestinationName}}</td>
-                                                <td>{{x.MaterialMasterName}}</td>
-                                                <td>{{x.MaterialMasterArticleName}}</td>
-                                                <td>{{x.SKU1}}</td>
-                                                <td>{{x.SKU2}}</td>
+                                                <td>{{x.MaterialGroup}}</td>
                                                 <td class="text-right">{{x.Rate}}</td>
-                                                <td class="text-right">{{x.TransactionQty | number:2}}</td>
-                                                @*<td class="text-right">{{x.Balance | number:2}}</td>*@
-                                                <td class="text-right">{{x.TransactionAmount | number:2}}</td>
-                                                <td class="text-right">{{x.TaxAmount | number:2}}</td>
-                                                <td class="text-right">{{x.ServiceCharge | number:2}}</td>
-                                                <td class="text-right">{{x.ServiceTax | number:2}}</td>
+                                                <td class="text-right">{{x.Quantity | number:2}}</td>
+                                                <td class="text-right">{{x.UOM}}</td>
+                                                <td class="text-right">{{x.Amount | number:2}}</td>
+                                                
                                                 <td class="text-right">{{x.NetAmount | number:2}}</td>
                                                 <td class="text-right">
                                                     <ul class="list-inline action-list">
                                                         <li>
-                                                            <button ng-click="getMaterialTaxList(x, false,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
+                                                            <button ng-click="getMaterialTaxList(x, false,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
                                                         </li>
                                                         <li>
-                                                            <button ng-click="removeMaterialRow(x.Id,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                            <button ng-click="removeMaterialRow(x.Id,$index)"  class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                                         </li>
                                                     </ul>
                                                 </td>
@@ -284,7 +239,7 @@
                             <div ng-form="tabForm2">
                                 <ul class="common-btn list-inline text-left">
                                     <li>
-                                        <button ng-click="serviceChargePopUp();" ng-disabled="salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button>
+                                        <button ng-click="serviceChargePopUp();"  class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button>
                                     </li>
                                 </ul>
                                 <div class="table-responsive modal-table">
@@ -344,8 +299,8 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="Save();" ng-disabled="salesVM.RowState==='Posted'|| savebtndisable" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                            <li> <button data-toggle="modal" ng-disabled="salesVM.RowState==='Posted'" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
@@ -772,7 +727,7 @@
         </div>
     </div>
 </div>
-<div class="row text-right aplos-grid-toggle">
+@*<div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="search-form">
             <div class="row">
@@ -792,46 +747,19 @@
             </div>
         </div>
     </div>
-</div>
-<div class="table-responsive modal-table aplos-grid-toggle">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>InvoiceNo</th>
-                <th>Invoice Date</th>
-                <th>@Library.Model.Parties.PartyType.Customer.ToString()</th>
-                <th>Bill To</th>
-                <th>DocRef No</th>
-                <th>Amount</th>
-                <th>Currency</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr dir-paginate="x in invoiceList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x);">
-                <td>{{x.InvoiceNo}}</td>
-                <td>{{x.InvoiceDate}}</td>
-                <td>{{x.PartyCode}} - {{x.PartyName}}</td>
-                <td>{{x.BillTo}}</td>
-                <td>{{x.DocRefNo}}</td>
-                <td>{{x.Amount | number:2}}</td>
-                <td>{{x.CurrencyCode}}</td>
-                <td>{{x.RowState}}</td>
-                <td class="text-right">
-                    <ul class="list-inline action-list">
-                        <li>
-                            <a class="btn btn-action" ng-click="CommercialInvoiceReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice" href="" target="_blank"><i class=""></i>CI</a>
-                        </li>
-                        <li>
-                            <a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>*@
+<div class="table-responsive aplos-grid-toggle">
+    <div ej-grid e-datasource="invoiceList" e-recorddoubleclick="Get"
+         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
+         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Invoice No" e-width="6"></div>
+            <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="6"></div>
+            <div e-column e-field="PartyName" e-headertext="Customer" e-width="6"></div>
+            <div e-column e-field="BillTo" e-headertext="Bill To" e-width="6"></div>
+            <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="6"></div>
+        </div>
+    </div>    
 </div>
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
 
@@ -1325,15 +1253,18 @@
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                            @*<div e-column e-field="Id" e-type="string" e-headertext="PI PackingList Master Id" e-width="80"></div>*@
+                            @*<div e-column e-field="Description" e-type="string" e-headertext="PI PackingList Master Description" e-width="80"></div>
+                                <div e-column e-field="Remarks" e-type="string" e-headertext="PI PackingList Master Remarks" e-width="80"></div>*@
                             <div e-column e-field="PackingId" e-type="string" e-headertext="Packing Id" e-width="80"></div>
                             <div e-column e-field="Entity" e-type="string" e-headertext="Entity" e-width="80"></div>
                             <div e-column e-field="Customer" e-type="string" e-headertext="Customer" e-width="100"></div>
-
-                            <div e-column e-field="StorageLoc" e-type="string" e-headertext="Storage Location" e-width="80"></div>
-                            <div e-column e-field="ByWhom" e-type="string" e-headertext="By Whom" e-width="80"></div>
-                            <div e-column e-field="DRespPerson" e-type="string" e-headertext="Despatch Responsible Person" e-width="80"></div>
+                            <div e-column e-field="Currency" e-type="string" e-headertext="Currency" e-width="100"></div>
+                            @*<div e-column e-field="StorageLoc" e-type="string" e-headertext="Storage Location" e-width="80"></div>
+                                <div e-column e-field="ByWhom" e-type="string" e-headertext="By Whom" e-width="80"></div>
+                                <div e-column e-field="DRespPerson" e-type="string" e-headertext="Despatch Responsible Person" e-width="80"></div>*@
                             <div e-column e-field="AddedDate" e-type="date" e-headertext="Created Date" e-width="80"></div>
-                            <div e-column e-field="InActiveDate" e-type="date" e-headertext="Inactive Date" e-width="80"></div>
+                            @*<div e-column e-field="InActiveDate" e-type="date" e-headertext="Inactive Date" e-width="80"></div>*@
 
                         </div>
                     </div>
@@ -1347,7 +1278,7 @@
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="ClosePackingList();" class="btn">Apply</button>
+                            <button ng-click="ClosePackingList();Saves()" class="btn">Apply</button>
                         </li>
                     </ul>
                 </div>

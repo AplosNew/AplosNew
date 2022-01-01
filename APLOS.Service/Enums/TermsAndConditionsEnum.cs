@@ -4,7 +4,7 @@
     {
         Contract,
         LetterOfCredit,
-        PerformaInvoice,
+        ProformaInvoice,
         Invoice,
         PO
     }

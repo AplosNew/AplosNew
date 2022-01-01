@@ -54,7 +54,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         CurrencyId: null,
         PartyType: "Customer",
         InvoiceDate: $filter("dateFiltering")(Date.now()),
-        VoucherDate: $filter("dateFiltering")(Date.now()),
+        EntryDate: $filter("dateFiltering")(Date.now()),
         PostingDate: $filter("dateFiltering")(Date.now()),
         DocDate: $filter("dateFiltering")(Date.now()),
         DocRefNo: null,
@@ -102,6 +102,15 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             url: "Commercial/PIInvoice/GetPackingData"
         }).then(function (response) {
             $scope.PackingList = response.data;
+            if ($scope.selectedPackingList.length != 0) {
+                for (var j = 0; j < $scope.PackingList.length; j++) {
+                    for (var i = 0; i < $scope.selectedPackingList.length; i++) {
+                        if ($scope.selectedPackingList[i].PackingId == $scope.PackingList[j].PackingId) {
+                            $scope.PackingList[j].Active = true;
+                        }
+                    }
+                }
+            }
         });
         angular.element(document.querySelector('#PackingListPopUp')).modal('show');
     }
@@ -137,6 +146,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     $scope.selectedPackingList = [];
     function MakeData() {
         try {
+            $scope.selectedPackingList = [];
             for (var i = 0; i < $scope.PackingList.length; i++) {
                 var getRow = $filter("filter")($scope.selectedPackingList, { "selectedPackingList": $scope.PackingList[i].PackingId });
                 if (getRow.length == 0) {
@@ -144,34 +154,35 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                         var ob = {};
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
-                        ob.EntityId = $scope.PackingList[i].EntityId;
-                        if (checkExistCustomer($scope.selectedPackingList, ob.PartyId, ob.EntityId)) {
-                            if (checkExistList($scope.selectedPackingList, ob.PackingId) === false) {
+                        //ob.EntityId = $scope.PackingList[i].EntityId;
+                        //if (checkExistCustomer($scope.selectedPackingList, ob.PartyId, ob.EntityId)) {
+                        //    if (checkExistList($scope.selectedPackingList, ob.PackingId) === false) {
+                        ob.Id = null;
+                        ob.PackingId = $scope.PackingList[i].PackingId;
+                        $scope.salesVM.PackingId = $scope.PackingList[i].PackingId;
+                        $scope.salesVM.Id = $scope.PackingList[i].Id;
+                        //ob.Entity = $scope.PackingList[i].Entity;
+                        //$scope.salesVM.EntityId = $scope.PackingList[i].EntityId;
+                        $scope.salesVM.CurrencyId = $scope.PackingList[i].CurrencyId;
+                        ob.Customer = $scope.PackingList[i].Customer;
+                        ob.CustomerId = $scope.PackingList[i].CustomerId;
+                        $scope.salesVM.PartyName = $scope.PackingList[i].Customer;
+                        $scope.salesVM.PartyId = $scope.PackingList[i].CustomerId;
+                        ob.StorageLoc = $scope.PackingList[i].StorageLoc;
+                        ob.ByWhom = $scope.PackingList[i].ByWhom;
+                        ob.DRespPerson = $scope.PackingList[i].DRespPerson;
+                        ob.AddedDate = $scope.PackingList[i].AddedDate;
+                        ob.InActiveDate = $scope.PackingList[i].InActiveDate;
 
-                                ob.PackingId = $scope.PackingList[i].PackingId;
-                                $scope.salesVM.PackingId = $scope.PackingList[i].PackingId;
-                                ob.Entity = $scope.PackingList[i].Entity;
-                                $scope.salesVM.EntityId = $scope.PackingList[i].EntityId;
-                                $scope.salesVM.CurrencyId = $scope.PackingList[i].CurrencyId;
-                                ob.Customer = $scope.PackingList[i].Customer;
-                                ob.CustomerId = $scope.PackingList[i].CustomerId;
-                                $scope.salesVM.PartyName = $scope.PackingList[i].Customer;
-                                $scope.salesVM.PartyId = $scope.PackingList[i].CustomerId;
-                                ob.StorageLoc = $scope.PackingList[i].StorageLoc;
-                                ob.ByWhom = $scope.PackingList[i].ByWhom;
-                                ob.DRespPerson = $scope.PackingList[i].DRespPerson;
-                                ob.AddedDate = $scope.PackingList[i].AddedDate;
-                                ob.InActiveDate = $scope.PackingList[i].InActiveDate;
+                        $scope.selectedPackingList.push(ob);
+                        $scope.getPartyPlant();
 
-                                $scope.selectedPackingList.push(ob);
-                                $scope.getPartyPlant();
-
-                            }
-                        }
-                        else {
-                            throw 'Select same Entity and Customer.';
-                        }
                     }
+                    //}
+                    //else {
+                    //    throw 'Select same Entity and Customer.';
+                    //}
+                    //}
                 }
             }
             $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
@@ -229,11 +240,11 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.salesOrderList = [];
         $http({
             method: 'GET',
-            url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
+            url: "Commercial/PIInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
         }).then(function (response) {
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
+                //getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
 
             }
         });
@@ -336,21 +347,21 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.paymentTermList = response.data;
     });
 
+
+
     //#endregion
 
     //#region Page load Function
     $scope.invoiceList = [];
-    baseService.init("Productions/PackingInvoice/GetList", null, null, "DESC", "InvoiceDate", "InvoiceNo");
-    $scope.getData = function (pageno) {
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.invoiceList = result.Rows;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, "failure");
-            }).finally(function () {
-            });
+    $scope.GetMasterData = function () {
+        $http({
+            method: "GET",
+            url: "Commercial/PIInvoice/GetMaster"
+        }).then(function successCallback(response) {
+            $scope.invoiceList = response.data;
+        });
     };
-    $scope.getData();
+    $scope.GetMasterData();
     //#endregion
 
     //#region Party PoPup
@@ -379,7 +390,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     $scope.invoicingPartyPopUp = function () {
         angular.element(document.querySelector('#invoicingPartyPopUp')).modal('show');
     };
-    
+
     $scope.closeInvoicingPartyPopUp = function () {
         angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
 
@@ -406,7 +417,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             CurrencyId: null,
             PartyType: "Customer",
             InvoiceDate: $filter("dateFiltering")(Date.now()),
-            VoucherDate: $filter("dateFiltering")(Date.now()),
+            EntryDate: $filter("dateFiltering")(Date.now()),
             PostingDate: $filter("dateFiltering")(Date.now()),
             DocDate: $filter("dateFiltering")(Date.now()),
             DocRefNo: null,
@@ -470,24 +481,24 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
 
     //#region Page Function
 
-    $scope.entityList = [];
-    cboService.getCboEntityByPlant(null, null, " ", function (result) {
-        $scope.entityList = result;
-    });
-    $scope.salesOrderList = [];
-    $scope.GetPackingSOData = function () {
-        $scope.salesOrderList = [];
-        $http({
-            method: 'GET',
-            url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
-        }).then(function (response) {
-            $scope.salesOrderList = response.data;
-            for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
+    //$scope.entityList = [];
+    //cboService.getCboEntityByPlant(null, null, " ", function (result) {
+    //    $scope.entityList = result;
+    //});
+    //$scope.salesOrderList = [];
+    //$scope.GetPackingSOData = function () {
+    //    $scope.salesOrderList = [];
+    //    $http({
+    //        method: 'GET',
+    //        url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
+    //    }).then(function (response) {
+    //        $scope.salesOrderList = response.data;
+    //        for (var i = 0; i < $scope.salesOrderList.length; i++) {
+    //            getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
 
-            }
-        });
-    }
+    //        }
+    //    });
+    //}
 
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
         $scope.tranCurrencyList = result;
@@ -591,7 +602,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             angular.element(document.querySelector('#serviceChargePopUp')).modal('show');
         } catch (e) {
             ShowResult(e, 'info');
-        }        
+        }
     };
     $http.get("Setups/CompanyServiceMaster/GetCboList")
         .then(function (response) {
@@ -738,21 +749,46 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
 
     //#region Double Click
 
-    $scope.Get = function (data) {
-        $scope.salesVM = data;
-        $scope.ModelNew.Amount = data.Amount;
-        getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
-        $scope.GetSalesMaterialData($scope.salesVM.Id);
-        $scope.GetSalesPackingData($scope.salesVM.Id);
-        $scope.getPostSalesData();
+    $scope.Get = function (obj) {
+        $scope.salesVM = obj.data;
 
-        $scope.getTaxCodeByTaxYearWithhold($scope.salesVM.InvoiceDate);
+        $scope.getPartyPlant();
+        //$scope.changePaymentTerm($scope.salesVM.PaymentTermId);
+        $scope.GetCurrencyExchangeRateList();
+
+        $scope.GetListData($scope.salesVM.Id);
+
+        
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
         $scope.salesVM.TaxOptionAddiTax = 'Yes';
     };
+
+    $scope.GetListData = function (CommercialInvoiceMasterId) {
+        $http({
+            method: "GET",
+            url: "Commercial/PIInvoice/GetSelectedList?CommercialInvoiceMasterId=" + CommercialInvoiceMasterId,
+        }).then(function successCallback(response) {
+            $scope.selectedPackingList = response.data;
+
+            if ($scope.selectedPackingList.length > 0) {
+                var uniquePackingId = removeDuplicates($scope.selectedPackingList, 'PackingId');
+                var wcPackingId = "";
+                if (uniquePackingId.length > 0) {
+                    wcPackingId = "IN(";
+                    wcPackingId += Array.prototype.map.call(uniquePackingId, function (item) { return "'" + item.PackingId + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcPackingId;
+            }
+
+
+            $scope.GetPackingSOData($scope.sqlInStatement);
+
+        });
+    };
+
     function getPartyPlantEditList(invoicingPartyPlantId, invoAddress, deliveryplant, deliAddress, deliState, deliGSTIN) {
         $scope.partyPlantList = [];
         $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.salesVM.PartyId).then(function (response) {
@@ -914,127 +950,27 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
 
     $scope.Save = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.salesVM.PaymentTermId) && $scope.BaseLineDate !== 'postingdate') {
-                throw "Payment Term is required.";
-            }
-            if (baseService.isUndefinedOrNull($scope.salesVM.BaseOnDueDate) && $scope.BaseLineDate !== 'postingdate') {
-                throw "Due Date BaseOn is required.";
-            }
-            $scope.BLDate = $scope.salesVM.BLDate;
-            $scope.EXPDate = $scope.salesVM.EXPDate;
-            $scope.BaseDate = $scope.salesVM.BaseOnDueDate;
-            $scope.DData = $scope.salesVM.DocDate;
-            $scope.InDate = $scope.salesVM.InvoiceDate;
-            $scope.MDate = $scope.salesVM.MatureDate;
-            $scope.PDate = $scope.salesVM.PostingDate;
-            $scope.VDate = $scope.salesVM.VoucherDate;
 
-            if ($scope.salesVM.IsPark == 0) {
-                throw "Posted data cann't save or update.";
-            }
-
-            $scope.$broadcast("show-errors-check-validity");
-            if ($scope.form0.$valid) {
-                $scope.savebtndisable = true;
-                if ($scope.Action === "Save") {
-                    $http({
-                        method: "POST",
-                        url: "Productions/PackingInvoice/Create",
-                        data: {
-                            "voucherVM": $scope.salesVM
-                            , "salesMaterialVMList": $scope.salesOrderList
-                            , "selectedPackingList": $scope.selectedPackingList
-                            , "salesServiceVMList": $scope.chargesList
-                        },
-                        dataType: "JSON"
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, "failure");
-                            $scope.savebtndisable = false;
-                        }
-                        else {
-                            ShowResult(response.data.Message, "success");
-                            $scope.savebtndisable = false;
-                            $scope.getData();
-
-                            $scope.salesVM = response.data.Data;
-
-                            $scope.salesVM.BLDate = $scope.BLDate;
-                            $scope.salesVM.EXPDate = $scope.EXPDate;
-
-                            $scope.salesVM.BaseOnDueDate = $scope.BaseDate;
-                            $scope.salesVM.DocDate = $scope.DData;
-                            $scope.salesVM.InvoiceDate = $scope.InDate;
-                            $scope.salesVM.MatureDate = $scope.MDate;
-                            $scope.salesVM.PostingDate = $scope.PDate;
-                            $scope.salesVM.VoucherDate = $scope.VDate;
-
-                            getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
-                            $scope.GetSalesMaterialData($scope.salesVM.Id);
-                            $scope.GetSalesPackingData($scope.salesVM.Id);
-                            $scope.getPostSalesData();
-
-                            $scope.getTaxCodeByTaxYearWithhold($scope.salesVM.InvoiceDate);
-
-                            $scope.Action = "Update";
-                        }
-                    }, function errorCallback(response) {
-                        ShowResult(response.status.Message, "failure");
-                    });
-                    return true;
+            $http({
+                method: 'POST',
+                url: $scope.path + 'Create',
+                data: { 'MasterData': $scope.salesVM, 'CommercialInvoicePackingList': $scope.selectedPackingList, 'CommercialInvoicePIMaterial': $scope.salesOrderList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
                 }
-                else if ($scope.Action === "Update") {
-                    $scope.savebtndisable = true;
-                    $http({
-                        method: "POST",
-                        url: "Productions/PackingInvoice/Edit",
-                        data: {
-                            "voucherVM": $scope.salesVM
-                            , "salesMaterialVMList": $scope.salesOrderList
-                            , "selectedPackingList": $scope.selectedPackingList
-                            , "salesServiceVMList": $scope.chargesList
-                        },
-                        dataType: "JSON"
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, "failure");
-                            $scope.savebtndisable = false;
-                        }
-                        else {
-                            ShowResult(response.data.Message, "success");
-                            $scope.savebtndisable = false;
-                            $scope.getData();
-                            $scope.salesVM = response.data.Data;
-
-                            $scope.salesVM.BLDate = $scope.BLDate;
-                            $scope.salesVM.EXPDate = $scope.EXPDate;
-                            $scope.salesVM.BaseOnDueDate = $scope.BaseDate;
-                            $scope.salesVM.DocDate = $scope.DData;
-                            $scope.salesVM.InvoiceDate = $scope.InDate;
-                            $scope.salesVM.MatureDate = $scope.MDate;
-                            $scope.salesVM.PostingDate = $scope.PDate;
-                            $scope.salesVM.VoucherDate = $scope.VDate;
-
-                            getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
-                            $scope.GetSalesMaterialData($scope.salesVM.Id);
-                            $scope.GetSalesPackingData($scope.salesVM.Id);
-                            $scope.getPostSalesData();
-
-                            $scope.getTaxCodeByTaxYearWithhold($scope.salesVM.InvoiceDate);
-
-                            $scope.Action = "Update";
-                        }
-                    }, function errorCallback(response) {
-                        ShowResult(response.status.Message, "failure");
-                    });
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetMasterData();
                 }
-                return true;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
             }
-            return true;
+
         } catch (e) {
-            ShowResult(e, "failure");
+            ShowResult(e, 'info');
         }
-    };
-
+    }
     //#endregion
 }

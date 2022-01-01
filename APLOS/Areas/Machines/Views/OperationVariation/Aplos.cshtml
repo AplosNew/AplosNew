@@ -1,8 +1,8 @@
 ﻿<togglable name="Operation Variation"></togglable>
 
 <div class="form-horizontal" ng-form="operationVariationNewForm">
-    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl">
-        <div class="form-group" show-errors>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
+        @*<div class="form-group" show-errors>
             <label class="col-sm-2 control-label">Operation<sup>*</sup></label>
             <div class="col-sm-4 show-message">
                 <div class="select-style">
@@ -14,7 +14,20 @@
                 </div>
             </div>
             <label class="col-sm-4 control-label" style="color:blue">{{msg}}</label>
+        </div>*@
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Operation<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <span class="input-group-addon">{{operationVariationNew.OperationCode}}</span>
+                    <input type="text" name="Vendor" ng-model="operationVariationNew.OperationName" class="form-control" required readonly>
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="GetOperationData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
         </div>
+
     </div>
 
     <div class="clearfix"></div>
@@ -726,6 +739,35 @@
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmOPSZPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteSizeGroup()"></confirm-archive-generic>
 
+<div class="modal fade site-modal in" id="MainOperationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Operations</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div style="color:black;" id="MainOperationGrid" ej-grid e-datasource="operationList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SetMainOperation" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="100"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="150"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="150"></div>
+                            <div e-column e-field="Process" e-headertext="Process" e-width="70"></div>
+                            <div e-column e-field="OperationTypeCode" e-headertext="Operation Type" e-width="70"></div>
+                            <div e-column e-field="OperationCategoryName" e-headertext="Operation Category" e-width="70"></div>
+                            <div e-column e-field="OperationActivityName" e-headertext="Operation Activity" e-width="70"></div>
+                            <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="150"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade site-modal in" id="OperationPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -754,5 +796,7 @@
         </div>
     </div>
 </div>
+
+
 
 

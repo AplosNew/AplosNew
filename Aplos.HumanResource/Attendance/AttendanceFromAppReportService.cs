@@ -1,5 +1,6 @@
 ﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.HumanResource.NewAttendanceProcess;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Library.Service.Attendances { 
+namespace Library.HumanResource.Attendances { 
     public class AttendanceFromAppReportService
     {
         SqlRepository _sqlRepository;
@@ -170,5 +171,122 @@ namespace Library.Service.Attendances {
             }
         }
 
-    }    
+    }
+
+    public class AttendanceReprocessService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public AttendanceReprocessService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+
+        }
+        public object getFilters()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var str = @"select ID AS PlantId,UserName as PlantName from org.Plant where CompanyId='" + identity.CompanyId+@"'
+                and Active='1'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ProcessData(string From, string To,string Plant)
+        {
+            try {
+
+                NewAttendanceProcessService app = new NewAttendanceProcessService();
+
+                TimeSpan ts = Convert.ToDateTime(To).Subtract(Convert.ToDateTime(From));
+                if (ts.Days >= 0)
+                {
+                    #region PlantLock Checking
+                    
+                    DataSet PlantLock;
+                    PlantLockCheck(From, To, out PlantLock, Plant);
+                    string pl = "",Name="";
+                    if (PlantLock.Tables[0].Rows.Count > 0)
+                    {
+                        for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                        {
+                            pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                            Name = Name + " " + PlantLock.Tables[0].Rows[i]["PlantId"].ToString() + ", ";
+                        }
+
+                        throw new Exception("The "+Name+" is Locked for - " + pl);
+                    }
+                    #endregion
+
+                    #region Data Nullifying
+                   
+                    string sql = "";
+
+                    sql = @"update attdnrawdata set processedflag=0 where pdate>='" + From + "' " +
+                    "and pdate<='" + To + "'and plantid In ("+Plant+")";
+
+                    sql += Environment.NewLine + @"update attdnprocessdata set punchintime=null,punchouttime=null,outpunchlimit=null,
+                    intime=null,outtime=null,ProcessIntime=null,ProcessOuttime=null where WorkDate>='" + From + "'" +
+                    " and WorkDate <='" + To + "' and plantid In (" + Plant + ")";
+
+                    app.UpdateStatus(sql);
+
+                    #endregion
+
+                    #region ReProcessing 
+
+                    string[] PlantList = Plant.Split(',');
+
+                    foreach (string item in PlantList)
+                    {
+                        string PlantId = item.ToString();
+                        
+                        app.AttndProcess(From, PlantId);
+
+                        app.DayStatus(From, PlantId);
+
+                    }
+                    #endregion
+                }
+                else
+                {
+                    throw new Exception("Please choose a valid Date Range !!");
+                }
+
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }            
+        }
+
+        public void PlantLockCheck(string FDate, string TDate, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string From = Convert.ToDateTime(FDate).ToString("dd-MMM-yyyy");
+                string To = Convert.ToDateTime(TDate).ToString("dd-MMM-yyyy");
+
+                var sql = @"select * from PlantWiseAttendanceLock where PlantId in("+Plant+")" +
+                    "and LockedDate between '" + From + "' and '" + To + "' and IsActive='1'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+    }
 }

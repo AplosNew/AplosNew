@@ -65,6 +65,8 @@ function SandwichProcessController($window,cboService, commonMessage, $scope, $r
 
     $scope.EmpList = [];
 
+    // Grid Data
+
     $scope.GetEmployeeInformation = function () {
         if ($scope.SandwichForm.$valid) {
 
@@ -91,6 +93,8 @@ function SandwichProcessController($window,cboService, commonMessage, $scope, $r
             throw "Choose Required Fields";
         }
     }
+
+    // SandwichProcess Function
 
     $scope.RunProcess = function () {
         if ($scope.SandwichForm.$valid) {

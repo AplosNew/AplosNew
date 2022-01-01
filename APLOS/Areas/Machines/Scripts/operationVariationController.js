@@ -92,12 +92,32 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
 
     $scope.operationList = [];
 
-    $http({
-        method: 'GET',
-        url: 'Machines/operation/getcbo'
-    }).then(function successCallback(response) {
-        $scope.operationList = response.data;
-    });
+    //$http({
+    //    method: 'GET',
+    //    url: 'Machines/operation/getcbo'
+    //}).then(function successCallback(response) {
+    //    $scope.operationList = response.data;
+    //});
+
+    $scope.GetOperationData = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/OperationVariation/GetOperationData'
+        }).then(function successCallback(response) {
+            $scope.operationList = response.data;
+        });
+        angular.element(document.querySelector('#MainOperationPopUp')).modal('show');
+    }
+
+    $scope.SetMainOperation = function (args) {
+        //var gridObj = $("#Grid").data("ejGrid");
+        //$scope.data = gridObj.getSelectedRecords()[0];
+        $scope.operationVariationNew.OperationId = args.data.Id;
+        $scope.operationVariationNew.OperationCode = args.data.Code;
+        $scope.operationVariationNew.OperationName = args.data.UserName;
+        angular.element(document.querySelector('#MainOperationPopUp')).modal('hide');
+        $scope.getDataList(); $scope.GetSequence(); $scope.getAttributeList();
+    }
 
     $scope.GetSequence = function () {
         $http.get("Machines/operationVariation/getautosequence?id=" + $scope.operationVariationNew.OperationId)
@@ -517,7 +537,8 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         try {
             var flag = false;
             if (!baseService.isUndefinedOrNull($scope.operationVariationNew.OperationId)) {
-                var opProcessIds = $.grep($scope.operationList, function (item) { return item.Value === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
+                //var opProcessIds = $.grep($scope.operationList, function (item) { return item.Value === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
+                var opProcessIds = $.grep($scope.operationList, function (item) { return item.Id === $scope.operationVariationNew.OperationId; })[0].ProsessIds;
 
             } else {
                 throw "Select Operation.";

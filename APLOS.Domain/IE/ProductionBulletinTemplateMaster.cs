@@ -13,6 +13,8 @@ namespace Library.Model.IE
         public decimal MaxNoOfWS { get; set; }
         public decimal PlannedHoursPerDay { get; set; }
         public decimal BottleNeckPercentage { get; set; }
+        public bool SPT { get; set; }
+        public bool BuildUp { get; set; }
 
         #endregion Scalar Properties
 

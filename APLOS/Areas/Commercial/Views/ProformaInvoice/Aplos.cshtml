@@ -65,7 +65,7 @@
                                     </select>
                                 </div>
                                 <span class="input-group-btn">
-                                    <button ng-click="NewVersion();" class="btn single-small-btn"><i class="glyphicon glyphicon-plane"></i></button>
+                                    <button ng-click="NewVersion();" class="btn single-small-btn"><i class="glyphicon glyphicon-level-up" style="color: limegreen;"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -115,7 +115,7 @@
                                         <td style="width:100px;">
                                             <div class="select-style">
                                                 <select ng-model="item.UoMId">
-                                                    <option ng-repeat="option in item.MaterialGroupUOMList" value="{{option.Id}}">{{option.Code}}</option>
+                                                    <option ng-repeat="option in item.MaterialGroupUOMList" value="{{option.Id}}">{{option.userName}}</option>
                                                 </select>
                                             </div>
                                         </td>
@@ -126,7 +126,6 @@
                                             <ul class="list-inline">
                                                 <li><button ng-click="SubmitH(item);" ng-hide="$index<DataList.length-1" class="btn btn-action "><i class="glyphicon glyphicon-plus" style="color: limegreen;"></i></button></li>
                                                 <li><button ng-hide="DataList.length<2" ng-click="Remove($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus" style="color: orangered;"></i></button></li>
-                                                @*<li><button ng-hide="DataList.length<2" ng-click="Remove($index);ClearGrid();removePIMaterial(item);" class="btn btn-action "><i class="glyphicon glyphicon-minus" style="color: orangered;"></i></button></li>*@
                                             </ul>
                                         </td>
                                     </tr>
@@ -186,7 +185,9 @@
                 <div e-column e-type="string" e-field="LastVersion" e-headertext="Last Version" e-width="100"></div>
                 <div e-column e-type="date" e-field="PIDate" e-format="{0:dd-MMM-yyyy}" e-headertext="PI Date" e-width="120"></div>
                 <div e-column e-type="string" e-field="RefNo" e-headertext="Ref No." e-width="100"></div>
+                <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="100"></div>
                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="100"></div>
+                <div e-column e-type="string" e-field="POQuantity" e-headertext="PO Quantity" e-width="100"></div>
 
                 <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="120"></div>
                 <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>

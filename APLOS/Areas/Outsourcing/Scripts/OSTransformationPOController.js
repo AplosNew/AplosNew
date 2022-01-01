@@ -1066,7 +1066,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     $scope.taxCategoryList[i].HSNCode = HSNCode;
                     $scope.taxCategoryList[i].HSNCodeId = hsnCodeId;
                     $scope.taxCategoryList[i].OSTransformationPOId = $scope.productNew.Id;
-                    $scope.taxCategoryList[i].OSTransformationPODetailId = $scope.detailModel.Id;
+                    /*$scope.taxCategoryList[i].OSTransformationPODetailId = $scope.detailModel.Id;*/
                     //$scope.taxCategoryList[i].OSTransformationPODetailId = $scope.detailModel.Id;
                     $scope.taxCategoryList[i].TaxAmount = ($scope.TotalAmount * $scope.taxCategoryList[i].Percentage) / 100;
 

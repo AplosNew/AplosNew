@@ -380,8 +380,8 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
         return manualValidation('div_PostingDate', $scope.invalidPostingDate, msg);
     };
 
-    
-
+    $scope.invoice1stCurrencyId = "";
+   
     $scope.validation = function () {
         if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
             ShowResult('Please select Currency!', 'failure');
@@ -396,15 +396,20 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
             ShowResult('Posting is not possible before Advance!', 'failure');
             return true;
         }
-
+        $scope.invoice1stCurrencyId = "";
+        $scope.invoice1stCurrencyId = $scope.voucherDetailList[0].CurrencyId;
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
             if (new Date($scope.voucherDetailList[i].PostingDate) > new Date($scope.advance.PostingDate)) {
                 ShowResult('Posting is not possible before Invoice!', 'failure');
                 return true;
             }
+            if ($scope.invoice1stCurrencyId != $scope.voucherDetailList[i].CurrencyId) {
+                ShowResult('Please add Same Currency Invoice!', 'failure');
+                return true;
+            }
         };
         $scope.DrAmountSubTotal = $filter('sumByKey')($filter('filter')($scope.voucherDetailList), 'DrAmount');
-        if (parseFloat($scope.advance.AdvanceAmount) < parseFloat($scope.DrAmountSubTotal)) {
+        if (parseFloat($scope.advance.AdvanceAmount) * parseFloat($scope.advance.CompanyCurrencyRate) < parseFloat($scope.DrAmountSubTotal)) {
             ShowResult("Invoice  Amount should not exceed Advance Amount.", "failure");
             return true;
         }
@@ -687,8 +692,8 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
 
     $scope.exchangeGainLossAmount = function (data) {
         $scope.DrAmountSubTotal = $filter('sumByKey')($filter('filter')($scope.voucherDetailList), 'DrAmount');
-        if (parseFloat($scope.advance.AdvanceAmount) < parseFloat($scope.DrAmountSubTotal)) {
-            data.DrAmount = $scope.advance.AdvanceAmount;
+        if (parseFloat($scope.advance.AdvanceAmount) * parseFloat($scope.advance.CompanyCurrencyRate) < parseFloat($scope.DrAmountSubTotal)) {
+            data.DrAmount = parseFloat($scope.advance.AdvanceAmount) * parseFloat($scope.advance.CompanyCurrencyRate);
             ShowResult("Invoice  Amount should not exceed Advance Amount.", "failure");
         }
         else {
@@ -703,15 +708,21 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
         else {
             CloseShowResult();
         }
+        if (data.CurrencyCode === $scope.advance.CurrencyCode) {
+            if (data.CompanyCurrencyRate < $scope.advance.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advance.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeLoss";
+            }
+            else if (data.CompanyCurrencyRate > $scope.advance.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advance.CompanyCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeGain";
+            }  
+            else {
+                data.ExchangeAmount = 0;
+                data.ExchangeType = null;
+            }
+        }
        
-        if (data.CompanyCurrencyRate < $scope.advance.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advance.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
-            data.ExchangeType = "ExchangeLoss";
-        }
-        else if (data.CompanyCurrencyRate > $scope.advance.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advance.CompanyCurrencyRate)).toFixed(2);
-            data.ExchangeType = "ExchangeGain";
-        }
         else {
             data.ExchangeAmount = 0;
             data.ExchangeType = null;
