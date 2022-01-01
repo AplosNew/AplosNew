@@ -145,6 +145,8 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     $scope.LastVersion = null;
     $scope.Get = function (args) {
         //$scope.getHeader(args.data.Id, args.data.PIVersionId);
+        $scope.PIMId = args.data.Id;
+        $scope.PIVId = args.data.PIVersionId;
         $scope.SelectedPIVersion = args.data.PIVersionId;
         $scope.LastVersion = args.data.LastVersionNo;
         $http({
@@ -180,8 +182,10 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     };
     $scope.ModelPO = {};
     $scope.PODataList = [];
+    $scope.POPopUpHeader = {};
     $scope.GetPOPopUpNew = function (args) {
         //$scope.MaterialModel = args.data;
+        $scope.POPopUpHeader = args.data;
         $scope.ModelPO = args.data;
         $scope.PIMaterialId = args.data.Id;
         $scope.PODataList = [];
@@ -270,16 +274,48 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadPISearchList();
-                    /*          $scope.Get();*/
                     angular.element(document.querySelector('#POPopUpNew')).modal('hide');
+                    $scope.GetMaterialGrid();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-
+           
         } catch (e) {
             ShowResult(e, 'failure')
         }
 
     };
+    
+    
+    $scope.GetMaterialGrid = function () {
+        //$scope.getHeader(args.data.Id, args.data.PIVersionId);
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetAllData?PIMasterId=" + $scope.PIMId + '&VersionId=' + $scope.PIVId,
+        }).then(function successCallback(response) {
+            if (!baseService.isUndefinedOrNull(response.data)) {
+              
+                $scope.DataList = response.data.ItemData;
+               
+                if (!$rootScope.isCollapsed) {
+                    $rootScope.toggle();
+                }
+             
+            }
+
+        });
+
+    };
+
+    $scope.summaryPO = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POQuantity", dataMember: "POQuantity", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POAmount", dataMember: "POAmount", format: "{0:N2}" },
+            /*{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POQuantity", dataMember: "POQuantity", format: "{0:N2}" }*/],
+        showCaptionSummary: true
+
+    }];
+
+
 }

@@ -293,7 +293,12 @@ namespace Aplos.Areas.Commercial.Controllers
             string sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 ,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
 ,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId,PV.VersionNo AS LastVersion
+,P2.Amount,p2.POQuantity
  FROM PIMaster PM 
+LEFT OUTER JOIN
+(SELECT p.PIMasterId, SUM(p.Amount) Amount,SUM(pmp.POQuantity) POQuantity FROM PIMaterial p
+LEFT OUTER JOIN POMappingWithPI pmp ON pmp.PIMaterialID=p.Id
+ GROUP BY p.PIMasterId) P2 ON p2.PIMasterId = PM.Id
 LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
 LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
@@ -310,7 +315,7 @@ ORDER BY PM.PIDate DESC";
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT plm.Id PIPackingListMasterId,plm.[Description],plm.Remarks,FORMAT(plm.AddedDate,'dd-MMM-yyyy') AddedDate,P.Id,p2.Id PIVersionId,p2.VersionNo LastVersion
+            string sql = @"select top 100 * from (SELECT plm.Id PIPackingListMasterId,plm.[Description],plm.Remarks,FORMAT(plm.AddedDate,'dd-MMM-yyyy') AddedDate,P.Id,p2.Id PIVersionId,p2.VersionNo LastVersion,p.PINo
 FROM PIPackingListMaster AS plm
 LEFT  JOIN PIMaster AS p ON p.Id=plm.PIMasterId
 LEFT JOIN PIVersion AS p2 ON P2.PIMasterId=p.Id AND  P2.Id=(select top 1 Id from PIVersion where PIMasterId=p.Id ORDER BY VersionNo DESC)
@@ -343,6 +348,7 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
 ,cv1.UserName SKU1,cv2.UserName SKU2,cv3.UserName SKU3
 ,pod.TransactionQty POQty,ISNULL(pmd.Quantity,pmp.QuantityAtPIUoM) AS  DistributeQTY,pouom.code POUoM,pod.TransactionRate PORate,pod.TransactionAmount POAmount,C.code POCurrency
 ,MG.UserName MaterialGroup,piuom.Code PIUoM,piuom.Id PIUoMId
+,PMD.Quantity PackingQTY,P.Quantity PIQty,pmp.POQuantity POTaggedQty  
     FROM POMappingWithPI pmp
     LEFT OUTER JOIN PIMaterial p ON pmp.PIMaterialId=p.Id  
     LEFT OUTER JOIN SCS.UnitOfMeasurement AS piuom ON piuom.Id=p.UoMId 
@@ -441,8 +447,11 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
             var PIMasterData = _sqlRepository.GetDataCollection(sql, null);
 
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity AllocatedQty, p.Quantity, p.Amount, p.UoMId,uom.Code UoM,NULL AS MaterialGroupUOMList,
-							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup       
+							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup
+,c.Code Currency     
 						  FROM PIMaterial AS p
+ LEFT JOIN PIMaster AS p2 ON p2.Id=p.PIMasterId
+ LEFT JOIN SCS.Currency AS c ON c.Id=p2.CurrencyId
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 						  LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
