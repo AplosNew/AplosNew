@@ -97,25 +97,32 @@ namespace Library.OrderManagement.Production
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var strrr = @"Select wm.Id , wm.ProcessId ,p.UserName as process, wm.Category ,
-                        wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom ,wbd.BudgetId , ept.EntityId
-                         from dbo.WasteMaster wm
-                         left join dbo.WasteBudgetDetail wbd on wbd.WasteMasterId = wm.Id
-                         left join hkp.EntityProcessTag ept on ept.ProcessId = wm.ProcessId
-                         left join hkp.Process p on p.Id = wm.ProcessId
-                         left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId
-                         where ept.EntityId = '" + Id + @"' and wbd.BudgetId ='" + Id + @"'";
-                DataTable ddt = _sqlRepository.GetDataTable(strrr);
-                ddt.Rows[0]["BudgetId"].ToString();
-                if (ddt.Rows.Count > 0)
-                    throw new Exception("Please provide budgetId  ");
+                var budC = @"Select ei.BudgetCode  as Id
+                                from SEC.[USER] u 
+                                left join dbo.EmployeeInformation ei on ei.SystemId = u.EmployeeId
+                                where ei.BudgetCode is not null and u.Id = '"+identity.UserId+@"'  ";
+                DataTable tb = _sqlRepository.GetDataTable(budC);
 
-                var str = @"Select wm.Id , wm.ProcessId , wm.Category , wm.SubCategory , wm.Sequence , wm.Code , wm.UOMId , wbd.BudgetId , ept.EntityId
+                string str = "";
+                
+                if (tb.Rows.Count == 0)
+                {
+                    throw new Exception("You are not an Employee with a Budget Code!");
+                }
+                else
+                {
+                    string Bdc = tb.Rows[0]["Id"].ToString();
+                    str = @"Select wm.Id , wm.ProcessId ,p.UserName as process, wm.Category ,
+                                wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom ,wbd.BudgetId , ept.EntityId
                                 from dbo.WasteMaster wm
                                 left join dbo.WasteBudgetDetail wbd on wbd.WasteMasterId = wm.Id
                                 left join hkp.EntityProcessTag ept on ept.ProcessId = wm.ProcessId
-                                where ept.EntityId = '" + Id + @"'
-                        ";
+                                left join hkp.Process p on p.Id = wm.ProcessId
+                                left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId
+                                where ept.EntityId = '"+Id+"' and wbd.BudgetId = '"+Bdc+@"'";
+                    
+                }
+
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)

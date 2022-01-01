@@ -41,11 +41,6 @@ namespace Aplos.Areas.Productions.Controllers
             return View();
         }
         
-        //[Authorize , HttpGet]
-        //public ActionResult getCompany()
-        //{
-        //    return Json(ws.getCompany(), JsonRequestBehavior.AllowGet);
-        //}
 
         [Authorize, HttpPost]
         public ActionResult getProcess()
@@ -53,11 +48,6 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(ws.getProcess(), JsonRequestBehavior.AllowGet);
         }
 
-        //[Authorize, HttpPost]
-        //public ActionResult getEntity(string PlantId)
-        //{
-        //    return Json(ws.getEntity(PlantId), JsonRequestBehavior.AllowGet);
-        //}
 
         [Authorize, HttpGet]
         public ActionResult getUOM()

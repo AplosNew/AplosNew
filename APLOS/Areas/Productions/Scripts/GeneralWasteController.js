@@ -76,6 +76,10 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
             data: {'Id': $scope.EntityId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+                throw ('Invalid Request!');
+            }
             $scope.ViewGridPop= [];
             $scope.ViewGridPop = response.data;
             
