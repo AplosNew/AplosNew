@@ -35,7 +35,7 @@ function NewProcessAttendanceReProcessController($window, $timeout, cboService, 
                     dataSource: $scope.PlantList,
                     fields: { text: "PlantName", value: "PlantId" },
                     selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
-                    , width: 180
+                    , width: 300
                 });
 
 
