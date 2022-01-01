@@ -1,0 +1,129 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="text" name="Entity" ng-model="Entity" ng-click="selectEntity()" class="form-control" maxlength="200" tabindex="5">
+
+            </div>
+            <div class="col-sm-2">
+                <button ng-click="selectEntity()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+    </div>
+
+
+
+
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-model="View" ng-click="getView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> View</button></li>
+            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+        </ul>
+    </div>
+
+
+
+
+    <div class="row">
+
+        <div id="ViewPop" ej-grid e-datasource="ViewGridPop" e-templaterefresh="refreshTemplate"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" style="margin-top:30px;" e-allowtextwrap="true"
+             e-tooltipsettings-visible="true" e-tooltip="tooltip">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                <div e-column e-field="Process" e-headertext="Process" e-width="2"></div>
+                <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
+                <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
+                <div e-column e-field="code" e-headertext="code" e-width="3"></div>
+                <div e-column e-field="UOMId" e-headertext="UOMId" e-width="3"></div>
+                <div e-column e-field="BudgetId" e-headertext="BudgetId" e-width="3"></div>
+                <div e-column e-field="EntityId" e-headertext="EntityId" e-width="3"></div>
+            </div>
+        </div>
+    </div>
+
+    @*<div class="table-responsive">
+            <div id="selectView" ej-grid e-datasource="ViewList" e-recorddoubleclick="Get" e-load="loadView"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                    <div e-column e-field="Process" e-headertext="Process" e-width="2"></div>
+                    <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
+                    <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
+                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
+                    <div e-column e-field="code" e-headertext="code" e-width="3"></div>
+                    <div e-column e-field="UOMId" e-headertext="UOMId" e-width="3"></div>
+                    <div e-column e-field="BudgetId" e-headertext="BudgetId" e-width="3"></div>
+                    <div e-column e-field="EntityId" e-headertext="EntityId" e-width="3"></div>
+
+                </div>
+            </div>
+        </div>*@
+    <confirm-modal></confirm-modal>
+
+
+    <confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+    <confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>
+
+    <div class="modal fade site-modal in" id="EntityPop" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modellgModify">
+            <div class="modal-content">
+                <div class="modal-header">Entity List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-md-12">
+                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                            <p>Double click to Select an Entity</p>
+                            <div style="color:black;" id="GridEntity" ej-grid e-datasource="EntityList"
+                                 e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                                 e-recorddoubleclick="doubleEntity">
+                                <div e-columns>
+                                    @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
+
+                                    <div e-column e-field="EntityId" e-headertext="Entity" e-width="50"></div>
+                                    <div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>
+                                    <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
+
+                                </div>
+
+                            </div>
+                            @*<script type="text/template" id="checkboxTemplate">
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                                </script>*@
+
+
+
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="closePopUp();" class="btn"><i class=""></i> Close</button>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+

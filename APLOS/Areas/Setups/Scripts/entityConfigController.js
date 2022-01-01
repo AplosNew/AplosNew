@@ -57,14 +57,28 @@ function entityConfigController(cboService, commonMessage, $scope, $rootScope, b
 
 
     $scope.EntityList = [];
+    //$scope.getEntityWithChange = function () {
+    //    $scope.EntityList = [];
+    //    cboService.getCboEntityByPlant(null, $scope.entityConfig.CompanyId, $scope.entityConfig.PlantId, function (result) {
+    //        $scope.EntityList = result;
+    //    });
+    //    //cboService.getCboProductionEntityByCompany(null, $scope.entityConfig.CompanyId, function (result) {
+    //    //    $scope.EntityList = result;
+    //    //});
+    //};
+
     $scope.getEntityWithChange = function () {
         $scope.EntityList = [];
-        cboService.getCboEntityByPlant(null, $scope.entityConfig.CompanyId, $scope.entityConfig.PlantId, function (result) {
-            $scope.EntityList = result;
-        });
-        //cboService.getCboProductionEntityByCompany(null, $scope.entityConfig.CompanyId, function (result) {
-        //    $scope.EntityList = result;
-        //});
+        $http.get("Organizations/Entity/GetEntityCboByPlant?companyGroupId=" + null + '&companyId=' + $scope.entityConfig.CompanyId + '&plantId=' + $scope.entityConfig.PlantId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.EntityList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
     };
 
     $scope.processList = [];

@@ -686,6 +686,7 @@
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
+    <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteTransactionReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteMasterController.cs" />
     <Compile Include="Areas\Outsourcing\Controllers\OSIssueRegisterController.cs" />
@@ -1980,6 +1981,7 @@
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataMasterController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
+    <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\WasteTransactionReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteMasterController.js" />
     <Content Include="Areas\Outsourcing\Scripts\OSissueRegisterController.js" />
@@ -3916,6 +3918,7 @@
     <Content Include="Areas\Commercial\Views\POMappingWithPI\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\NewProcessAttendanceReProcess\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\SandwichProcess\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\GeneralWaste\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
