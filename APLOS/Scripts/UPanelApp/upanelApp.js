@@ -994,7 +994,8 @@ var upanelApp = angular
     .controller('FOCController', FOCController)
 
     .controller('POMappingWithPIController', POMappingWithPIController)
-
+    .controller('GeneralWasteController', GeneralWasteController)
+    
     .config(AccessControllerConfig)
     .config(accountConfig)
     .config(bankConfig)

@@ -35,7 +35,7 @@ function NewProcessAttendanceReProcessController($window, $timeout, cboService, 
                     dataSource: $scope.PlantList,
                     fields: { text: "PlantName", value: "PlantId" },
                     selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
-                    , width: 180
+                    , width: 300
                 });
 
 
@@ -77,11 +77,12 @@ function NewProcessAttendanceReProcessController($window, $timeout, cboService, 
                     url: $scope.path + '/ReProcessAttendance',
                     data: parameters
                 }).then(function successCallback(response) {
-                    if (response.data.length > 0) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
 
                     }
                     else {
-                       ///    ShowResult("No Data Found", 'failure');
+                        ShowResult(response.data.Message, 'success');
                     }
                 });
             }
