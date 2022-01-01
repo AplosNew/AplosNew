@@ -50,10 +50,9 @@ namespace Aplos.Areas.Attendances.Controllers
                 return Json(new { Error = false, Message = "Attendance Processed Successfully..." }, JsonRequestBehavior.AllowGet);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
-
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
             }
         }
 

@@ -241,15 +241,19 @@ namespace Library.HumanResource.Attendances {
 
                     #endregion
 
-
                     #region ReProcessing 
 
-                    string PlantId = "";
+                    string[] PlantList = Plant.Split(',');
 
-                    app.AttndProcess(From, PlantId);
+                    foreach (string item in PlantList)
+                    {
+                        string PlantId = item.ToString();
+                        
+                        app.AttndProcess(From, PlantId);
 
-                    app.DayStatus(From, PlantId);
+                        app.DayStatus(From, PlantId);
 
+                    }
                     #endregion
                 }
                 else

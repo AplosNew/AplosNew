@@ -77,11 +77,12 @@ function NewProcessAttendanceReProcessController($window, $timeout, cboService, 
                     url: $scope.path + '/ReProcessAttendance',
                     data: parameters
                 }).then(function successCallback(response) {
-                    if (response.data.length > 0) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
 
                     }
                     else {
-                       ///    ShowResult("No Data Found", 'failure');
+                        ShowResult(response.data.Message, 'success');
                     }
                 });
             }
