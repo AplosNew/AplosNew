@@ -207,14 +207,15 @@ namespace Aplos.Areas.Commercial.Controllers
 
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,UoM.UserName AS MaterialGroupUOM,
 							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId
-							   ,mgm.UserName AS MaterialGroup,isnull(MAP.POQuantity,0) POTaggedQuantity
+							   ,mgm.UserName AS MaterialGroup,SUM(isnull(MAP.POQuantity,0)) POTaggedQuantity,SUM(isnull(PD.TransactionAmount,0)) POTaggedAmount
 							  FROM PIMaterial AS p
-							  left join PIMaster PM on PM.Id=p.PIMasterId
-							  LEFT JOIN POMappingWithPI MAP ON MAP.PIMaterialID=PM.Id
+							  LEFT JOIN POMappingWithPI MAP ON MAP.PIMaterialID=P.Id
+							  LEFT JOIN TRN.PurchaseOrderDetail PD ON PD.Id=MAP.PODetailId
 							 LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 							 left join SCS.UnitOfMeasurement AS UoM on UoM.Id=p.UoMId
-							 WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
-
+							 WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'
+							 GROUP BY p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,UoM.UserName
+							 ,p.[Description],p.DeliveryDate, p.MaterialGroupMasterId,mgm.UserName";
             var PIMaterial = _sqlRepository.GetDataCollection(sql, null);
 
             sql = @"SELECT U.MaterialGroupMasterId,U.MaterialGroup,UOM.Code,UOM.Id FROM (

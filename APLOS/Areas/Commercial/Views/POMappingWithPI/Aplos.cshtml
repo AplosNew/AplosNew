@@ -85,8 +85,8 @@
                             <div e-column e-type="string" e-field="MaterialGroupUOM" e-headertext="UoM" e-width="120"></div>
                             <div e-column e-type="number" e-field="Rate" e-headertext="Rate" e-width="100"></div>
                             <div e-column e-type="number" e-field="Amount" e-headertext="Amount" e-width="100"></div>
-                            <div e-column e-type="number" e-field="" e-headertext="PO Tagged Quantity" e-width="100"></div>
-                            <div e-column e-type="number" e-field="" e-headertext="PO Tagged Amount" e-width="100"></div>
+                            <div e-column e-type="number" e-field="POTaggedQuantity" e-headertext="PO Tagged Quantity" e-width="100"></div>
+                            <div e-column e-type="number" e-field="POTaggedAmount" e-headertext="PO Tagged Amount" e-width="100"></div>
                             <div e-column e-headertext="PO Items" e-template="#POItemsTemplate" e-width="30"></div>
                         </div>
                     </div>
@@ -159,12 +159,50 @@
                     <button type="button" class="close" ng-click="closePOPopup();">&times;</button>
                 </div>
                 <div class="modal-body">
+                  
+                    <div class="row" @*style="background-color:lightgray;"*@>
+                        <div class="form-element-ctrl form-horizontal">
+                            <div class="col-xs-12">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label"><span style="font-weight:bold;">Material Group :</span></label>
+                                        <label class="col-sm-8 control-label">{{POPopUpHeader.MaterialGroup}}</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Quantity :</span></label>
+                                        <label class="col-sm-8 control-label">{{POPopUpHeader.Quantity}}&nbsp;({{POPopUpHeader.MaterialGroupUOM}})</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Description :</span></label>
+                                        <label class="col-sm-8 control-label">{{POPopUpHeader.Description}}</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Rate :</span></label>
+                                        <label class="col-sm-8 control-label">{{POPopUpHeader.Rate}}</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Delivery Date :</span></label>
+                                        <label class="col-sm-8 control-label">{{POPopUpHeader.DeliveryDate}}</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Amount :</span></label>
+                                        <label class="col-sm-8 control-label">{{POPopUpHeader.Amount}}&nbsp;({{PImodelNew.Currency}})</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <div id="GridPacking" ej-grid e-datasource="PODataList" e-templaterefresh="refreshPOMappingWithPI"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                         e-summaryrows="summaryPO" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
                          e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel" e-allowscrolling="true">
                         <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#POTemplate" e-template="#POcheckboxTemplate" e-textalign="center" e-width="25"></div>
+                            <div e-column e-headertext="" e-headertemplateid="#POTemplate" e-template="#POcheckboxTemplate" e-textalign="center" e-width="45"></div>
                             <div e-column e-field="PODetailId" e-headertext="PO DetailId" e-width="60" e-filter="false"></div>
                             <div e-column e-field="Vendor" e-headertext="Vendor" e-width="120"></div>
                             <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>
@@ -174,10 +212,10 @@
                             <div e-column e-field="SKU1" e-headertext="SKU1" e-width="60"></div>
                             <div e-column e-field="SKU2" e-headertext="SKU2" e-width="60"></div>
                             <div e-column e-field="SKU3" e-headertext="SKU3" e-width="60"></div>
-                            <div e-column e-field="POQuantity" e-headertext="PO Qty" e-width="60" e-filter="false"></div>
+                            <div e-column e-field="POQuantity" e-headertext="PO Qty" e-width="80" e-filter="false"></div>
                             <div e-column e-field="POUoM" e-headertext="PO UoM" e-width="50" e-filter="false"></div>
                             <div e-column e-field="PORate" e-headertext="PO Rate" e-width="60" e-filter="false"></div>
-                            <div e-column e-field="POAmount" e-headertext="PO Amount" e-width="60" e-filter="false"></div>
+                            <div e-column e-field="POAmount" e-headertext="PO Amount" e-width="80" e-filter="false"></div>
                             <div e-column e-field="POCurrency" e-headertext="PO Currency" e-width="50" e-filter="false"></div>
                             <div e-column e-field="POQuantity" e-headertext="Quantity At PIUoM" e-width="60"></div>
                             <div e-column e-field="PIUoM" e-headertext="PIUoM" e-width="50"></div>
