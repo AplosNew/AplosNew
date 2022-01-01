@@ -12,41 +12,13 @@ namespace Library.MaterialManagement.Inventory
     {
         GridModel Query(GridParameter parameters, string plantId);
 
-        IEnumerable<object> GetListGRN();
-
-
-        IEnumerable<object> NotApproveChecked();
-		IEnumerable<object> CheckedHoldReject();
-		IEnumerable<object> ApprovedHoldChecked();
-		IEnumerable<object> ApprovedNotPost();
-
 		
 		IEnumerable<object> Posted();
         
-        IEnumerable<object> GetListEmployeePurchase();
 		
-			IEnumerable<object> GetListEmpCheckedHoldReject();
-		IEnumerable<object> GetListEmpNotApproveChecked();
-		
-		IEnumerable<object> GetListEmpApprovedHoldReject();
-		//IEnumerable<object> GetListEmpApprovedNotPost();
-
-       // IEnumerable<object> GetListEmpPosted();
         GridModel QueryEmpGrn(GridParameter parameters, string plantId); 
 
-		
-		//IEnumerable<object> QueryGetListForMasterData(string plantId,string GRNbyPOCheckStatus);
-		IEnumerable<object> QueryGetListForGRNSaveData(string plantId,string GRNWithReqPOCheckStatus); 
 
-
-		
-		IEnumerable<object> QueryGetListForMasterData2(string plantId,string GRNbyPOApprovedStatus);
-
-        IEnumerable<object> GetListForGrnByPoReq(string plantId, string GRNWithReqPOApprovedStatus);
-
-
-
-        GridModel GetListByGrnno(GridParameter parameters, string plantId, int GRN);        
         IEnumerable<object> GetListForHold(string plantId,string PoType,string Status);
         IEnumerable<object> LoadAcceptanceDetails(string AcceptanceId);
 
@@ -59,13 +31,8 @@ namespace Library.MaterialManagement.Inventory
 
         
         IEnumerable<object> GetListOfPOGateEntry(string CompanyGroupId, string CompanyId, string PlantId, string partyCode); 
-        GridModel GetPostingList(GridParameter parameters, string plantId);
        
         void Insert(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMaterial);
-        GridModel GetListForHold(GridParameter parameters, string plantId);
-		GridModel GetEmployeePurchaseList(GridParameter parameters, string plantId);
-        GridModel GetListForInvPayable(GridParameter parameters, string plantId);
-
         IEnumerable<object> GetListOfPOGateEntryEmployee(string CompanyGroupId, string CompanyId, string PlantId, string EmployeeId);
 		IEnumerable<object> GetListForInvShortagePayable(string plantId);
         IEnumerable<object> GetListForInvRejectPayable(string plantId);

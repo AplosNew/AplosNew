@@ -248,69 +248,70 @@
 		</div>
 	</div>
 	<div class="clearfix"></div>
-	<fieldset class="scheduler-border">
-		<legend class="scheduler-border">Order Specific(Yes/No)</legend>
-		<div class="col-xs-12 col-sm-4 col-md-4">
-			<div class="form-group">
-				<label class="col-sm-6 control-label">Order Specific</label>
-				<div class="col-sm-6">
-					<div class="radio">
-						<label>
-							<input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="No" ng-click="hide()">
-							<span class="cr"><i class="cr-icon"></i></span>No
-						</label>
-						<label>
-							<input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="Yes" ng-click="show()">
-							<span class="cr"><i class="cr-icon"></i></span>Yes
-						</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-xs-12 col-sm-4 col-md-4">
-			<div class="form-group">
-				<label class="col-sm-4 control-label" title="Customer Name" ng-hide="productNew.OrderSpecific==='No'">Customer Name</label>
-				<div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-					<input type="text" name="Customer Name" ng-model="productNew.CustomerName" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
-				</div>
-			</div>
-		</div>
-		<div class="col-xs-12 col-sm-4 col-md-4">
-			<div class="form-group">
-				<label class="col-sm-4 control-label" title="Contract" ng-hide="productNew.OrderSpecific==='No'">Contract</label>
-				<div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-					<input type="text" name="Contract" ng-model="productNew.ContractId" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
-					<span class="input-group-btn">
-						<button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
-						<button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
-						<button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
-					</span>
-				</div>
-			</div>
-		</div>
-		<div class="clearfix"></div>
-		<div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
-			<div class="form-group">
-				<label class="col-sm-4 control-label">Contract No</label>
-				<div class="col-sm-6">
-					<div class="radio">
-						<label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.ContractNo}}</label>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
-			<div class="form-group">
-				<label class="col-sm-4 control-label">Master LC Ref No</label>
-				<div class="col-sm-6">
-					<div class="radio">
-						<label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.LCRef}}</label>
-					</div>
-				</div>
-			</div>
-		</div>
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Order Specific(Yes/No)</legend>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Order Specific</label>
+                <div class="col-sm-6">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="No" ng-click="hide()">
+                            <span class="cr"><i class="cr-icon"></i></span>No
+                        </label>
+                        <label>
+                            <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="Yes" ng-click="show()">
+                            <span class="cr"><i class="cr-icon"></i></span>Yes
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
 
-	</fieldset>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Contract" ng-hide="productNew.OrderSpecific==='No'">Contract</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" name="Contract" ng-model="productNew.ContractId" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
+                    <span class="input-group-btn">
+                        <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
+                        <button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Customer Name" ng-hide="productNew.OrderSpecific==='No'">Customer Name</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" name="Customer Name" ng-model="productNew.CustomerName" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Contract No</label>
+                <div class="col-sm-6">
+                    <div class="radio">
+                        <label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.ContractNo}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Master LC Ref No</label>
+                <div class="col-sm-6">
+                    <div class="radio">
+                        <label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.LCRef}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </fieldset>
 	<div class="clearfix"></div>
 	<ul class="common-btn list-inline text-right">
 		<li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>

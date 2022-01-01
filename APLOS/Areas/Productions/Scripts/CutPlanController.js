@@ -262,6 +262,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
 
     $scope.SecenodIteration = [];
     $scope.SecenodIterationHeader = [];
+    $scope.SecenodIterationColumn = [];
     $scope.GetSecIteration = function (MasterId, iteration) {
         try {
             if (iteration == 2) {
@@ -273,8 +274,8 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                 }).then(function successCallback(response) {
                     $scope.SecenodIteration = [];
                     $scope.SecenodIterationHeader = [];
-                    $scope.SecenodIteration = response.data.MaintData;
                     $scope.SecenodIterationHeader = response.data.HeaderData;
+                    $scope.SecenodIteration = response.data.MaintData;
                 });
             }
             else {

@@ -5,10 +5,10 @@ function FOCController(accountService, addressService, $window, cboService, comm
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.products = [];
-    $scope.path = 'Products/PurchaseOrder/';
+    $scope.path = 'Products/InventoryReceive/';
     $scope.saveGridUrl = $scope.path + 'SaveData';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrl = $scope.path + 'GRNBYFOC';
     $scope.saveUrlFG = $scope.path + 'CreateFGMasterOrder';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.updateUrlFG = $scope.path + 'FGMasterOrderedit';
@@ -78,6 +78,13 @@ function FOCController(accountService, addressService, $window, cboService, comm
         }
 
     }
+    $scope.storageList = [];
+    $http({
+        method: 'GET',
+        url: 'Materials/MaterialStorage/getcbo'
+    }).then(function (response) {
+        $scope.storageList = response.data;
+    });
     //#endregion
 
     //#region all Tab Function of PO Index
@@ -143,32 +150,21 @@ function FOCController(accountService, addressService, $window, cboService, comm
 
     //#region PO Index Grid Data Display Load Function
 
+ 
     $scope.Griddata = [];
-    $scope.POTypeStatus = 'Pending';
     $scope.getalldata = function () {
-        if ($scope.POTypeStatus === 'Pending') {
-            $scope.POTypeStatus = 'Pending'
-        }
-        else {
-
-            // $scope.POTypeStatus;
-        }
-
+        //debugger;
         $http({
-            method: "GET",
-            dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
-            url: 'Products/PurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus,
+            method: 'GET',
+            url: 'Products/InventoryReceive/GetListFOCGRN?status=' +'For Approval'
         }).then(function successCallback(response) {
             $scope.Griddata = response.data;
             for (var i = 0; i < $scope.Griddata.length; i++) {
-                response.data[i].PODate = new Date($scope.Griddata[i].PODate);
+                response.data[i].GRNDate = new Date($scope.Griddata[i].GRNDate);
             }
         });
-    };
+    }
     $scope.getalldata();
-
-
 
     $scope.GriddataPoApp = [];
     $scope.getalldataPoApp = function () {
@@ -316,6 +312,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         , Tolerance: 0
         , TermsAndConditionsId: null
         , IsTradingPO: false
+        , IsFOC : true
     };
     $scope.productNew = Object.assign({}, $scope.product);
     $scope.productDocMap = {
@@ -1746,27 +1743,81 @@ function FOCController(accountService, addressService, $window, cboService, comm
         return result;
     }
     $scope.sumORnot = false;
-    // Material Load
     function getInventoryMaterialList(inveReveiveId) {
+        //debugger;
         $scope.masterId = inveReveiveId;
-
-        $scope.inventoryMaterialList = [];
-        $http.get($scope.path + 'GetInventoryMaterialList?inveReveiveId=' + inveReveiveId)
+        $http.get($scope.path + 'GetInventoryMaterialListwithoutpo?inveReveiveId=' + inveReveiveId)
             .then(function (response) {
-
-                $scope.inventoryMaterialList = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName desc"));//response.data.Rows;
-                //var dataManagerObj = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName ASC"));
-                $scope.DetailId = $scope.inventoryMaterialList[0].InventoryReceiveDetailId;
-                $scope.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
-                $scope.productNew.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
-                $scope.productNew.InvoicingStateId = $scope.inventoryMaterialList[0].InvoicingStateId;
-                $scope.productNew.PlantStateId = $scope.inventoryMaterialList[0].PlantStateId;
+                $scope.inventoryMaterialList = [];
+                $scope.inventoryMaterialList = response.data.Rows;
                 checkSameValueInColumnList($scope.inventoryMaterialList, 'TransactionUoM');
                 getGrossAmount($scope.inventoryMaterialList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
                 $scope.GetSalesTaxData();
-            });
+                for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
 
+                    if ($scope.productNew.IsNonCreditable == 1) {
+                        if ($scope.inventoryMaterialList[i].TaxAmount === null || $scope.inventoryMaterialList[i].TaxAmount === "" || $scope.inventoryMaterialList[i].TaxAmount === 0) {
+                            $scope.inventoryMaterialList[i].TaxAmount = 0; //parseFloat(Math.round(num3 * 100) / 100).toFixed(2);
+                            $scope.inventoryMaterialList[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialList[i].TrnAmount + $scope.inventoryMaterialList[i].TaxAmount + $scope.inventoryMaterialList[i].ServiceCharge + $scope.inventoryMaterialList[i].ServiceTax).toFixed(2);
+                            $scope.inventoryMaterialList[i].BaseAmount = parseFloat($scope.inventoryMaterialList[i].TotalMaterialTranAmount * $scope.productNew.ToCurrencyRate).toFixed(2);
+
+                        }
+                        else if ($scope.inventoryMaterialList[i].ServiceCharge === null || $scope.inventoryMaterialList[i].ServiceCharge === "" || $scope.inventoryMaterialList[i].ServiceCharge === 0) {
+                            $scope.inventoryMaterialList[i].ServiceCharge = 0;
+                            $scope.inventoryMaterialList[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialList[i].TrnAmount + $scope.inventoryMaterialList[i].TaxAmount + $scope.inventoryMaterialList[i].ServiceCharge + $scope.inventoryMaterialList[i].ServiceTax).toFixed(2);
+                            $scope.inventoryMaterialList[i].BaseAmount = parseFloat($scope.inventoryMaterialList[i].TotalMaterialTranAmount * $scope.productNew.ToCurrencyRate).toFixed(2);
+
+                        }
+                        else if ($scope.inventoryMaterialList[i].ServiceTax === null || $scope.inventoryMaterialList[i].ServiceTax === "" || $scope.inventoryMaterialList[i].ServiceTax === 0) {
+                            $scope.inventoryMaterialList[i].ServiceTax = 0;
+                            $scope.inventoryMaterialList[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialList[i].TrnAmount + $scope.inventoryMaterialList[i].TaxAmount + $scope.inventoryMaterialList[i].ServiceCharge + $scope.inventoryMaterialList[i].ServiceTax).toFixed(2);
+                            $scope.inventoryMaterialList[i].BaseAmount = parseFloat($scope.inventoryMaterialList[i].TotalMaterialTranAmount * $scope.productNew.ToCurrencyRate).toFixed(2);
+
+                        }
+                        else {
+                            $scope.inventoryMaterialList[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialList[i].TrnAmount + $scope.inventoryMaterialList[i].TaxAmount + $scope.inventoryMaterialList[i].ServiceCharge + $scope.inventoryMaterialList[i].ServiceTax).toFixed(2);
+                            $scope.inventoryMaterialList[i].BaseAmount = parseFloat($scope.inventoryMaterialList[i].TotalMaterialTranAmount * $scope.productNew.ToCurrencyRate).toFixed(2);
+                        }
+
+
+                    }
+                    else {
+                        if ($scope.inventoryMaterialList[i].ServiceCharge === null || $scope.inventoryMaterialList[i].ServiceCharge === "" || $scope.inventoryMaterialList[i].ServiceCharge === 0) {
+                            $scope.inventoryMaterialList[i].ServiceCharge = 0;
+                            $scope.inventoryMaterialList[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialList[i].TrnAmount + $scope.inventoryMaterialList[i].ServiceCharge).toFixed(2);
+                            $scope.inventoryMaterialList[i].BaseAmount = parseFloat($scope.inventoryMaterialList[i].TotalMaterialTranAmount * $scope.productNew.ToCurrencyRate).toFixed(2);
+                        }
+                        else {
+                            $scope.inventoryMaterialList[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialList[i].TrnAmount + $scope.inventoryMaterialList[i].ServiceCharge).toFixed(2);
+                            $scope.inventoryMaterialList[i].BaseAmount = parseFloat($scope.inventoryMaterialList[i].TotalMaterialTranAmount * $scope.productNew.ToCurrencyRate).toFixed(2);
+                        }
+                    }
+
+                }
+                //$scope.GetAdvanceTaxInfo($scope.productNew.Id);
+                //$scope.TotalSumAfterTCS();
+            });
     }
+    //// Material Load
+    //function getInventoryMaterialList(inveReveiveId) {
+    //    $scope.masterId = inveReveiveId;
+
+    //    $scope.inventoryMaterialList = [];
+    //    $http.get($scope.path + 'GetInventoryMaterialListwithoutpo?inveReveiveId=' + inveReveiveId)
+    //        .then(function (response) {
+    //            $scope.inventoryMaterialList = response.data.Rows;
+    //            //var dataManagerObj = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName ASC"));
+    //            $scope.DetailId = $scope.inventoryMaterialList[0].InventoryReceiveDetailId;
+    //            $scope.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
+    //            $scope.productNew.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
+    //            $scope.productNew.InvoicingStateId = $scope.inventoryMaterialList[0].InvoicingStateId;
+    //            $scope.productNew.PlantStateId = $scope.inventoryMaterialList[0].PlantStateId;
+    //            checkSameValueInColumnList($scope.inventoryMaterialList, 'TransactionUoM');
+    //            getGrossAmount($scope.inventoryMaterialList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
+    //            $scope.GetSalesTaxData();
+    //        });
+
+    //}
     function checkSameValueInColumnList(list, fieldName) {
         for (var i = 0; i < baseService.arrayLength(list); i++) {
             if (list[i][fieldName] === (i > 0 ? list[i - 1][fieldName] : list[i][fieldName]))
@@ -1774,11 +1825,17 @@ function FOCController(accountService, addressService, $window, cboService, comm
             else return $scope.sumORnot = false;
         }
     }
+    function getGrossAmount(list, key1, key2, key3, fieldName) {
+        $scope[fieldName] = 0;
+        for (var t = 0; t < baseService.arrayLength(list); t++) {
+            $scope[fieldName] += parseFloat(list[t][key1]);// + parseFloat(list[t][key2]) + parseFloat(list[t][key3]);
+        }
+    }
     function getTaxCategoryList(hsnCodeId, HSNCode) {
         $scope.taxCategoryList = [];
         $http({
             method: 'GET'
-            , url: $scope.path + 'GetTaxCategoryList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.productNew.PODate
+            , url: $scope.path + 'GetReceiveTaxList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.productNew.PODate
         }).then(function (response) {
             $scope.taxCategoryList = response.data;
             for (var i = 0; i < $scope.taxCategoryList.length; i++) {
@@ -2345,7 +2402,6 @@ function FOCController(accountService, addressService, $window, cboService, comm
         });
     }
     $scope.getalldataVendor();
-    $scope.getalldata();
     $scope.recorddoubleclick = function ($event) {
 
         var x = $event;
@@ -2355,7 +2411,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         $scope.Id = $scope.productNew.Id;
         $scope.productNew.PODate = x.data.PODate1;
         //getPartyPlantList();
-        $scope.GetTerms($scope.productNew.Id);
+       // $scope.GetTerms($scope.productNew.Id);
         getPartyPlantEditList($scope.productNew.InvoicingPartyPlantId, $scope.productNew.InvoicingByAddress, $scope.productNew.DeliveryPartyPlantId, $scope.productNew.DeliveryByAddress, $scope.productNew.DeliveryState, $scope.productNew.DeliveryGSTIN);
         // getPartyPlantEditList();
         getInventoryMaterialList($scope.productNew.Id);
@@ -2381,7 +2437,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
             $scope.ApprovedByStatusForNoti = true;
             $scope.productNew.CheckedBy = x.data.CheckedById;
         }
-        $scope.ContractWiseData(x.data.ContractId);
+        //$scope.ContractWiseData(x.data.ContractId);
         $scope.ImagedataLoad($scope.productNew.Id);
         $scope.GetCheckedByAndApprovedBy1();
         if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
@@ -3588,7 +3644,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id,
+            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
         }).then(function successCallback(response) { //datagatefun			
             $scope.GetListForMasterOrder = [];
             $scope.GetListForMasterOrder = response.data;
@@ -3608,7 +3664,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id,
+            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
         }).then(function successCallback(response) { //datagatefun			
             $scope.GetListForMasterOrderOtherVendor = [];
             $scope.GetListForMasterOrderOtherVendor = response.data;
@@ -3627,7 +3683,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id,
+            url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
         }).then(function successCallback(response) { //datagatefun			
             $scope.GetListForMasterOrderParent = [];
             $scope.GetListForMasterOrderParent = response.data;
@@ -4453,7 +4509,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
     $scope.LoadTermsAndConditionGrid = function (TermsAndConditionId, POId) {
         $scope.TermsAndConditionGridList = [];
 
-        $scope.termandconditionURL = $scope.path + "GetTermsAndConditionsPOList";
+        $scope.termandconditionURL = "Products/PurchaseOrder/GetTermsAndConditionsPOList";
 
         try {
             $http({
@@ -4473,12 +4529,37 @@ function FOCController(accountService, addressService, $window, cboService, comm
         }
     }
 
+    $scope.POPopUpGateEntry = function () {
+        $scope.getalldataGateEntry();
+        angular.element(document.querySelector('#POPopUpGateEntry')).modal('show');
+    };
+    $scope.POPopUpCloseGateEntry = function () {
+        angular.element(document.querySelector('#POPopUpGateEntry')).modal('hide');
+    };
 
+    $scope.GriddataGateEntry = [];
+    $scope.getalldataGateEntry = function () {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/GoodsReceiveNote/GetListOfPOGateEntry?partyCode=' + $scope.productNew.PartyId,
+        }).then(function successCallback(response) {
+            $scope.GriddataGateEntry = response.data;
+        });
+    };
+    $scope.recorddoubleclickGateEntry = function ($event) {
+        var x = $event;
+        var Id = x.data.Id;
+        $scope.productNew.GateEntryNo = x.data.Id;
+        $scope.productNew.EntryDate = x.data.EntryDate;
+
+        $scope.POPopUpCloseGateEntry();
+    }
     $scope.TermsAndConditionDetailGridList = [];
     $scope.LoadTermsAndConditionDetailGrid = function () {
         $scope.TermsAndConditionDetailGridList = [];
 
-        $scope.termandconditiondetailURL = $scope.path + "GetTermsAndConditionsPODetailList";
+        $scope.termandconditiondetailURL = "Products/PurchaseOrder/GetTermsAndConditionsPODetailList";
 
         try {
             $http({
