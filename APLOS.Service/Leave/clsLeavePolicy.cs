@@ -190,15 +190,6 @@ namespace Library.Service.Leave
 
             try
             {
-                if (_LeavePolicyDetails.EncasementEndDate.ToString()=="0")
-                {
-                    _LeavePolicyDetails.EncasementEndDate = false;
-                }
-                else
-                {
-                    _LeavePolicyDetails.EncasementEndDate = true;
-
-                }
                 var LeaveType = CheckLeaveType(_LeavePolicyDetails.SystemID, _LeavePolicyDetails.LPMSystemID, _LeavePolicyDetails.LTSystemID);
                 if (LeaveType.Tables[0].Rows.Count > 0)
                 {
