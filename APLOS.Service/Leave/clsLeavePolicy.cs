@@ -190,6 +190,15 @@ namespace Library.Service.Leave
 
             try
             {
+                if (_LeavePolicyDetails.EncasementEndDate.ToString()=="0")
+                {
+                    _LeavePolicyDetails.EncasementEndDate = false;
+                }
+                else
+                {
+                    _LeavePolicyDetails.EncasementEndDate = true;
+
+                }
                 var LeaveType = CheckLeaveType(_LeavePolicyDetails.SystemID, _LeavePolicyDetails.LPMSystemID, _LeavePolicyDetails.LTSystemID);
                 if (LeaveType.Tables[0].Rows.Count > 0)
                 {
@@ -512,7 +521,7 @@ namespace Library.Service.Leave
         public bool IsActive { get; set; }
 
         public string GroupID { get; set; }
-        public string EncasementEndDate { get; set; }
+        public bool EncasementEndDate { get; set; }
         public string PlantID { get; set; }
 
         public string AddedBy { get; set; }
