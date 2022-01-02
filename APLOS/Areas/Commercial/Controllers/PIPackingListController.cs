@@ -452,14 +452,19 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
 
             var PIMasterData = _sqlRepository.GetDataCollection(sql, null);
 
-            sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity AllocatedQty, p.Quantity, p.Amount, p.UoMId,uom.Code UoM,NULL AS MaterialGroupUOMList,
-							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup
-,c.Code Currency     
+            sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity AllocatedQty, p.Quantity, p.Amount, p.UoMId,uom.UserName UoM,NULL AS MaterialGroupUOMList,
+							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup ,
+							   c.Code Currency
+							   ,PLM.Quantity PackingQTY,pmp.POQuantity  POTaggedQty
+
 						  FROM PIMaterial AS p
- LEFT JOIN PIMaster AS p2 ON p2.Id=p.PIMasterId
- LEFT JOIN SCS.Currency AS c ON c.Id=p2.CurrencyId
+						  LEFT JOIN PIMaster AS p2 ON p2.Id=p.PIMasterId
+						  LEFT JOIN SCS.Currency AS c ON c.Id=p2.CurrencyId
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 						  LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
+						  LEFT OUTER JOIN PIPackingListDetail PLM ON PLM.PIMaterialId=p.Id
+						  LEFT OUTER JOIN(SELECT pmp.PIMaterialId,SUM(pmp.POQuantity) POQuantity FROM POMappingWithPI AS pmp GROUP BY pmp.PIMaterialId) pmp ON pmp.PIMaterialId=p.Id
+
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
 
             var PIMaterial = _sqlRepository.GetDataCollection(sql, null);
