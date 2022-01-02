@@ -337,8 +337,8 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
                 $scope.SumModel.Amount += $scope.PODataList[i].POAmount;
             }
         }
-        parseFloat($scope.SumModel.QTY).toFixed(2);
-        parseFloat($scope.SumModel.Amount).toFixed(2);
+        $scope.SumModel.QTY= parseFloat($scope.SumModel.QTY).toFixed(2);
+        $scope.SumModel.Amount=parseFloat($scope.SumModel.Amount).toFixed(2);
     }
 
     $scope.summaryPO = [{
