@@ -419,6 +419,8 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
 
+                objCon.ExecuteNonQueryWrapper(@"delete from ExpectedSOWiseProductionCompletion where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningType1 where ProductionOrderId='" + masterid + "'", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningType1 where ProductionOrderId='" + masterid + "'", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningSnapshotType1 where ProductionOrderId='" + masterid + "'", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningSnapshot2Type1 where ProductionOrderId='" + masterid + "'", true, "1");
