@@ -361,6 +361,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         QTY: 0,
         Amount: 0
     };
+
     $scope.ASSSSDFG = function () {
         $scope.PImodelNew.SumAmount = 0;
         $scope.PImodelNew.QTY = 0;
