@@ -11,6 +11,42 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     //$scope.Deletepath = $scope.path + 'DeletePI';
     $scope.saveUrl = $scope.path + 'Save';
 
+    $scope.PIHeadModel = {
+        Id: null
+        , PINo: null
+        , PIDate: null
+        , RefNo: null
+        , RevisionNo: null
+        , BuyerId: null
+        , Buyer: null
+        , CustomerId: null
+        , Customer: null
+        , Currency: null
+        , Description: null
+        , Remarks: null
+        , Quantity: 0
+        , UoM: null
+        , DeliveryDate: null
+        , Amount: 0
+        , CurrencyId: null
+        , InvoicingPartyPlantId: null
+        , DeliveryPartyPlantId: null
+        , InvoicingByAddress: null
+        , DeliveryByAddress: null
+        , InvoicingState: null
+        , InvoicingGSTIN: null
+        , DeliveryState: null
+        , DeliveryGSTIN: null
+        , PartyCode: null
+        , CustomerName: null
+        , PartyId: null
+        , PartyAccountGroupId: null
+        , IsPaymentTermChangeable: null
+        , PaymentTermId: null
+        , SumAmount: 0
+    };
+    $scope.PImodelNew = Object.assign({}, $scope.PIHeadModel);
+
     $scope.searchPIByList = [
         {
             name: 'Id',
@@ -229,29 +265,6 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
         $scope.SummaryPOMappingWithPI();
     };
 
-    //$scope.POList123 = [];
-    //$scope.AddPORow = function () {
-    //    var Id = "''";
-    //    $scope.POList123 = [];
-    //    for (var i = 0; i < $scope.PODataList.length; i++) {
-    //        if ($scope.PODataList[i].check == true) {
-    //            $scope.POList123.push($scope.PODataList[i]);
-    //            Id += ",'" + $scope.PODataList[i].MaterialMasterId + "'";
-    //        }
-    //    }
-
-    //    angular.element(document.querySelector('#POPopUpNew')).modal('hide');
-    //    $scope.getUoM(Id);
-    //}
-
-    //$scope.CheckAll123 = function (event) {
-    //    var _isselected = event.target.checked;
-
-    //    for (var i = 0; i < $scope.PODataList.length; i++) {
-
-    //        $scope.PODataList[i].check = _isselected;
-    //    }
-    ////};
   
     $scope.Save = function () {
         try {
@@ -309,24 +322,30 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
 
     };
 
-        $scope.sumpoQuantity =0;
-        $scope.sumpoAmount =0;
-    $scope.SummaryPOMappingWithPI = function () {
-        $scope.sumpoQuantity = 0;
-        $scope.sumpoAmount = 0;
+  
+
+    $scope.SumModel = {
+        QTY: 0,
+        Amount: 0
+    };
+    $scope.ASSSSDFG = function () {
+        $scope.SumModel.QTY = 0;
+        $scope.SumModel.Amount = 0;
         for (var i = 0; i < $scope.PODataList.length; i++) {
             if ($scope.PODataList[i].check) {
-                $scope.sumpoQuantity += $scope.PODataList[i].POQuantity;
-                $scope.sumpoAmount += $scope.PODataList[i].POAmount;
-                
+                $scope.SumModel.QTY += $scope.PODataList[i].POQuantity;
+                $scope.SumModel.Amount += $scope.PODataList[i].POAmount;
             }
         }
+        parseFloat($scope.SumModel.QTY).toFixed(2);
+        parseFloat($scope.SumModel.Amount).toFixed(2);
     }
+
     $scope.summaryPO = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POQuantity", dataMember: "POQuantity", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POAmount", dataMember: "POAmount", format: "{0:N2}" },
-            /*{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POQuantity", dataMember: "POQuantity", format: "{0:N2}" }*/],
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "QuantityAtPIUoM", dataMember: "QuantityAtPIUoM", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];

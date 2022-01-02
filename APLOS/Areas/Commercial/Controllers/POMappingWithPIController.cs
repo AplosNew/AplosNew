@@ -269,7 +269,7 @@ namespace Aplos.Areas.Commercial.Controllers
                                     POMPI.Id,PIM.Id PIMaterialId
 							        ,POD.Id PODetailId,v.UserName Vendor,FORMAT(pod.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,MG.Id MaterialGroupMasterId,MG.UserName MaterialGroup
 							        ,MM.UserName Material,mma.StandardName Article,cv1.UserName SKU1,cv2.UserName SKU2,cv3.UserName SKU3
-							        ,POD.TransactionQty POQuantity,POD.TransactionUoMId POUoMId,pouom.UserName POUoM,POD.TransactionRate PORate
+							        ,ISNULL(POD.TransactionQty,0) POQuantity,POD.TransactionUoMId POUoMId,pouom.UserName POUoM,POD.TransactionRate PORate
 							        ,pod.TransactionAmount POAmount,C.code POCurrency,PIM.UoMId PIUoMId,ISNULL(POMPI.QuantityAtPIUoM,0)QuantityAtPIUoM,piuom.UserName PIUoM
                                     ,pack.PackedQty,POMPI.QuantityAtPIUoM-isnull(pack.PackedQty,0) AS BalanceToPack
 
