@@ -159,7 +159,7 @@
                     <button type="button" class="close" ng-click="closePOPopup();">&times;</button>
                 </div>
                 <div class="modal-body">
-                  
+
                     <div class="row" @*style="background-color:lightgray;"*@>
                         <div class="form-element-ctrl form-horizontal">
                             <div class="col-xs-12">
@@ -217,12 +217,13 @@
                             <div e-column e-field="PORate" e-headertext="PO Rate" e-width="60" e-filter="false"></div>
                             <div e-column e-field="POAmount" e-headertext="PO Amount" e-width="80" e-filter="false"></div>
                             <div e-column e-field="POCurrency" e-headertext="PO Currency" e-width="50" e-filter="false"></div>
-                            <div e-column e-field="POQuantity" e-headertext="Quantity At PIUoM" e-width="60"></div>
+                            <div e-column e-field="QuantityAtPIUoM" e-headertext="Quantity At PIUoM" e-width="60"></div>
                             <div e-column e-field="PIUoM" e-headertext="PIUoM" e-width="50"></div>
                             <div e-column e-field="PackedQty" e-headertext="Pack Quantity" e-width="60"></div>
                             @*<div e-column e-field="BalanceToPack" e-headertext="Balance To Pack" e-width="60"></div>*@
                         </div>
                     </div>
+                    
 
                     <script type="text/x-jsrender" id="POTemplate">
                         <input type="checkbox" id="POheadchk" />
@@ -231,7 +232,16 @@
                     <script type="text/template" id="POcheckboxTemplate">
                         <input type="checkbox" e-enabled="{{data.HasPackingList?'false':'true'}}" ej-checkbox class="rowCheckbox" e-checked="data.check" e-value="data.check" />
                     </script>
+
                     <div class="common-btn" style="padding-right: 15px;">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Selected PO Quantity:</span></label>
+                            <label class="col-sm-8 control-label">{{sumpoQuantity}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Selected PO Amount :</span></label>
+                            <label class="col-sm-8 control-label">{{sumpoAmount}}</label>
+                        </div>
                         <ul class="list-inline text-right">
                             <li>
                                 <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>

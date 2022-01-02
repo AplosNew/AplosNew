@@ -226,6 +226,7 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
         }
         var gridObj = $("#GridPacking").data("ejGrid");
         gridObj.refreshContent();
+        $scope.SummaryPOMappingWithPI();
     };
 
     //$scope.POList123 = [];
@@ -308,6 +309,19 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
 
     };
 
+        $scope.sumpoQuantity =0;
+        $scope.sumpoAmount =0;
+    $scope.SummaryPOMappingWithPI = function () {
+        $scope.sumpoQuantity = 0;
+        $scope.sumpoAmount = 0;
+        for (var i = 0; i < $scope.PODataList.length; i++) {
+            if ($scope.PODataList[i].check) {
+                $scope.sumpoQuantity += $scope.PODataList[i].POQuantity;
+                $scope.sumpoAmount += $scope.PODataList[i].POAmount;
+                
+            }
+        }
+    }
     $scope.summaryPO = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POQuantity", dataMember: "POQuantity", format: "{0:N2}" },
