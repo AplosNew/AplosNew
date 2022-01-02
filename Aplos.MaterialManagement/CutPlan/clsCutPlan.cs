@@ -213,15 +213,16 @@ namespace Library.MaterialManagement.CutPlan
                 throw e;
             }
         }
-        public IEnumerable<object> GetOtherSkuDetailList(string OtherSkuId, string SOId, string Sequence)
+        public IEnumerable<object> GetOtherSkuDetailList(string OtherSkuId, string SOId, string Sequence,string CharacteristicsValueId)
         {
             try
             {
                 var _sql = "";
+                var _sql1 = "";
 
                 if (Sequence == "1")
                 {
-                    _sql = @"select IsSelect=Convert(bit, 'False'), c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(fc.Qty)Qty
+                    _sql = @"select c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(fc.Qty)Qty
                                 , '' MinimumPlyActualValue, '' MinimumPlyOptionValue,'' CutPlanChildId
 								From TRN.FirstCharacteristics fc
 								left join hkp.Characteristicsvalue c on c.Id = fc.CharacteristicsValueId
@@ -230,7 +231,7 @@ namespace Library.MaterialManagement.CutPlan
                 }
                 else
                 {
-                    _sql = @"select IsSelect=Convert(bit, 'False'), c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(sc.Qty)Qty
+                    _sql = @"select c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(sc.Qty)Qty
                                 , '' MinimumPlyActualValue, '' MinimumPlyOptionValue,'' CutPlanChildId
 								From TRN.SecondCharacteristics sc
 								left join hkp.Characteristicsvalue c on c.Id = sc.CharacteristicsValueId
@@ -238,7 +239,23 @@ namespace Library.MaterialManagement.CutPlan
 								where  ch.Id='" + OtherSkuId + "' and sc.SalesOrderId in (" + SOId + @") group by  c.UserName  ,c.Id ";
                 }
 
-                return _sqlRepository.GetDataCollection(_sql, null);
+                _sql1 = @"select cv.Id ColorId,cv.UserName Colorvalue, c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(sc.Qty)Qty,m.Ratio
+								From TRN.FirstCharacteristics fc
+								left JOIN TRN.SecondCharacteristics sc ON SC.FirstCharacteristicsId=fc.Id AND SC.SalesOrderId=fc.SalesOrderId
+								left join hkp.Characteristicsvalue c on c.Id = sc.CharacteristicsValueId
+								left join hkp.Characteristicsvalue cv on cv.Id = fc.CharacteristicsValueId
+                                LEFT JOIN MarkerDetails M ON M.CharacteristicsValueId = c.Id
+								where    fc.SalesOrderId in (" + SOId + ") AND c.Id IN ("+ CharacteristicsValueId + @")
+								 group by  c.UserName  ,c.Id, cv.UserName,cv.Id,m.Ratio";
+
+               var ColorList= _sqlRepository.GetDataCollection(_sql, null);
+               var SizeList= _sqlRepository.GetDataCollection(_sql1, null);
+                for (int i = 0; i < ColorList.Count; i++)
+                {
+                    var TempData = SizeList.Where(x => x["ColorId"].ToString() == ColorList[i]["CharacteristicsId"].ToString()).ToList();
+                    ColorList[i]["Qty"] = TempData;
+                }
+                return(ColorList);
             }
             catch (Exception e)
             {
