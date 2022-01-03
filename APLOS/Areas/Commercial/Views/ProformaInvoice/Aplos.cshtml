@@ -26,12 +26,6 @@
                             </div>
                         </div>
                     </div>
-                    @*<div class="form-group">
-            <label class="col-sm-4 control-label"><span style="font-weight:bold">Address :</span></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Invoicing by address" ng-model="PImodelNew.InvoicingByAddress" class="form-control" maxlength="15" required tabindex="5">
-            </div>
-        </div>*@
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
@@ -115,8 +109,8 @@
                                                 <input id="{{'HS'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="HSNCodeList" e-enablefiltersearch="true" e-value="item.HSNCodeId" e-fields-value="Id" e-fields-text="HSNCode" e-width="100%" />
                                             </div>
                                         </td>
-                                        <td><input type="number" ng-model="item.Quantity" @*n-decimals="2"*@ ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
-                                        <td><input type="number" ng-model="item.Rate" @*n-decimals="4"*@ ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                        <td><input type="text" ng-model="item.Quantity" n-decimals="2" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                        <td><input type="text" ng-model="item.Rate" n-decimals="4" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
                                         <td style="width:100px;">
                                             <div class="select-style">
                                                 <select ng-model="item.UoMId">
@@ -126,7 +120,7 @@
                                         </td>
                                         <td><input type="text" ng-model="item.DeliveryDate" datepicker class="form-control" /></td>
 
-                                        <td><input type="number" ng-disabled="true" ng-model="item.Amount" class="form-control" /></td>
+                                        <td><input type="text" ng-disabled="true" ng-model="item.Amount" class="form-control" /></td>
                                         <td class="text-right">
                                             <ul class="list-inline">
                                                 <li><button ng-click="SubmitH(item);" ng-hide="$index<DataList.length-1" class="btn btn-action "><i class="glyphicon glyphicon-plus" style="color: limegreen;"></i></button></li>
@@ -202,7 +196,7 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="CustomerPopUpNew" role="dialog" data-backdrop="static">
+<div class="modal site-modal" id="CustomerPopUpNew" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg ">
         <div class="modal-content">
             <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closeCustomerPopUpNew();">&times;</button></div>
@@ -253,7 +247,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
+<div class="modal site-modal" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header"> Invoicing Party<button type="button" class="close" ng-click="closeInvoicingPartyPopUp();">&times;</button></div>

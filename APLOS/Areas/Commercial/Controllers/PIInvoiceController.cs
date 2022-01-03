@@ -77,10 +77,10 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string,object> MasterData,List<Dictionary<string, object>> CommercialInvoicePackingList,List<Dictionary<string,object>> CommercialInvoicePIMaterial)
+        public JsonResult Create(Dictionary<string,object> MasterData,List<Dictionary<string, object>> CommercialInvoicePackingList,List<Dictionary<string,object>> CommercialInvoicePIMaterial,List<Dictionary<string,object>> taxList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            pi.save(MasterData,CommercialInvoicePackingList,CommercialInvoicePIMaterial);
+            pi.save(MasterData,CommercialInvoicePackingList,CommercialInvoicePIMaterial, taxList);
             return Json(new { Data = MasterData, Message = AplosMessage.Insert + "Invoice No: " + MasterData["Id"] + "" });
         }
 
