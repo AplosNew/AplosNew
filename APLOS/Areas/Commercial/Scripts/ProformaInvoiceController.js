@@ -128,7 +128,10 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
     $scope.SumAmount = function (item)
     {
-        item.Amount = parseFloat(item.Quantity) * parseFloat(item.Rate);
+
+       // item.Amount = parseFloat(item.Quantity) * parseFloat(item.Rate);
+        item.Amount = parseFloat(parseFloat(item.Quantity) * parseFloat(item.Rate)).toFixed(2);
+        
     }
 
     $scope.SubmitH = function (data) {

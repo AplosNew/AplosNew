@@ -2876,6 +2876,10 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             , IsDefault: false
             , Active: true
         };
+        if ($scope.SKULevel == 'General') {
+            $scope.characteristicsValue.MaterialMasterId = null;
+        }
+
         $scope.characteristicsvalueNew = angular.copy($scope.characteristicsValue);
         $scope.GetMaterialMasterCharacteristicsValueSequence();
         angular.element(document.querySelector('#SKUpopup')).modal('show');
@@ -2907,8 +2911,10 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         }
     }
 
+    $scope.skubtn = false;
     $scope.SaveBOMSKU = function () {
         try {
+            $scope.skubtn = true;
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.skuForm.$valid) {
                 $http({
@@ -2919,6 +2925,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure', 'SKUpopup');
+                        $scope.skubtn = false;
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'SKUpopup');
@@ -2948,9 +2955,9 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                             $scope.rmchar3.CharacteristicsValueId = $scope.bomDetailNew.ThirdCharacteristicsValueId;
                         }
 
-
                         $scope.clearMasterCharacteristicsValue();
                         angular.element(document.querySelector('#SKUpopup')).modal('hide');
+                        $scope.skubtn = false;
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure', 'SKUpopup');
