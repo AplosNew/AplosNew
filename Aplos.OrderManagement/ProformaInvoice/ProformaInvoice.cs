@@ -148,6 +148,8 @@ namespace Library.OrderManagement.ProformaInvoice
                             drmo["PIMaterialId"] = MaterialData["Id"];
                             drmo["Quantity"] = clsStaticInfo.dbl(item["DistributeQTY"]);
                             drmo["PIPackingListMasterId"] =_Id;
+                            drmo["PIPackingListMaterialId"] = _IdM;
+                            
 
                         }
                     }

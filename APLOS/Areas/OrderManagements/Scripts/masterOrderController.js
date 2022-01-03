@@ -2706,6 +2706,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
                         $scope.char1Id = $scope.characteristicsList[0].Value;
                         $scope.char2Id = $scope.characteristicsList[1].Value;
+                        $scope.ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
 
                         //angular.element(document.querySelector('#firstPopup')).modal('hide');
                         //angular.element(document.querySelector('#secondPopup')).modal('show');
@@ -4747,19 +4748,22 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShortName: null
             , StandardName: null
             , UserName: null
-            , SourceType: 'Specific'
+            , SourceType: $scope.ValueAssignmentLevel
             , Description: null
             , Remarks: null
             , IsDefault: false
             , Active: true
         };
+        if ($scope.ValueAssignmentLevel =='General') {
+            $scope.characteristicsValue.MaterialMasterId = null;
+        }
         $scope.characteristicsvalueNew = angular.copy($scope.characteristicsValue);
         $scope.GetSOMaterialMasterCharacteristicsValueSequence();
         angular.element(document.querySelector('#SOSKUpopup')).modal('show');
     }
 
     $scope.GetSOMaterialMasterCharacteristicsValueSequence = function () {
-        $http.get('Materials/characteristicsvalue/getautosequence?characteristicsId=' + $scope.charId + '&materialId=' + $scope.materialMasterId)
+        $http.get('Materials/characteristicsvalue/getautosequence?characteristicsId=' + $scope.charId + '&materialId=' + $scope.characteristicsValue.MaterialMasterId)
             .then(function (response) {
                 $scope.characteristicsvalueNew.Sequence = response.data;
             });
@@ -4773,8 +4777,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             });
     }
 
+
+    $scope.skubtn = false;
     $scope.SaveSOSKU = function () {
         try {
+            $scope.skubtn = true;
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.skuForm.$valid) {
                 $http({
@@ -4785,11 +4792,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure', 'SOSKUpopup');
+                        $scope.skubtn = false;
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'SOSKUpopup');
                         GetChValueCbo();
                         angular.element(document.querySelector('#SOSKUpopup')).modal('hide');
+                        $scope.skubtn = false;
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure', 'SOSKUpopup');

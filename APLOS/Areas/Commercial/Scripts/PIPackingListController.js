@@ -81,6 +81,8 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         , PartyAccountGroupId: null
         , IsPaymentTermChangeable: null
         , PaymentTermId: null
+        , SumAmount: 0
+        , QTY:0
     };
     $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
 
@@ -219,12 +221,12 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             if (!baseService.isUndefinedOrNull(response.data)) {
                 $scope.PImodelNew = response.data.PIMaster[0];
                 $scope.PIPackingListMasterTemp = response.data.PIPackingListMasterData[0];
-     /*           $scope.PIVersionModel = response.data.VarsionData;*/
+                /*           $scope.PIVersionModel = response.data.VarsionData;*/
                 $scope.DataList = response.data.ItemData;
-         /*       $scope.PIVersionModel.VersionNo = $scope.PIVersionModel[0].Id;*/
+                /*       $scope.PIVersionModel.VersionNo = $scope.PIVersionModel[0].Id;*/
                 $scope.VersionList = $scope.PIVersionModel;
                 $scope.PIVersionModel.VersionNo = args.data.LastVersion;
-              
+
                 $scope.ClosePIPopUp();
             }
         });
@@ -242,7 +244,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         }).then(function successCallback(response) {
             if (!baseService.isUndefinedOrNull(response.data)) {
                 $scope.PImodelNew = response.data.PIMaster[0];
-               // $scope.PIPackingListMasterTemp = response.data.PIPackingListMasterData[0];
+                // $scope.PIPackingListMasterTemp = response.data.PIPackingListMasterData[0];
                 /*           $scope.PIVersionModel = response.data.VarsionData;*/
                 $scope.DataList = response.data.ItemData;
                 /*       $scope.PIVersionModel.VersionNo = $scope.PIVersionModel[0].Id;*/
@@ -355,7 +357,23 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         });
         angular.element(document.querySelector('#QTYAllocation')).modal('show');
     }
+    $scope.SumModel = {
+        QTY: 0,
+        Amount: 0
+    };
 
+    $scope.ASSSSDFG = function () {
+        $scope.PImodelNew.SumAmount = 0;
+        $scope.PImodelNew.QTY = 0;
+        for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
+            if ($scope.PIPackingMaterialPopUpList[i].Active) {
+                $scope.PImodelNew.SumAmount += $scope.PIPackingMaterialPopUpList[i].POAmount;
+                $scope.PImodelNew.QTY += $scope.PIPackingMaterialPopUpList[i].POQty;
+            }
+        }
+        $scope.PImodelNew.SumAmount = parseFloat($scope.PImodelNew.SumAmount).toFixed(2);
+        $scope.PImodelNew.QTY = parseFloat($scope.PImodelNew.QTY).toFixed(2);
+    }
     $scope.ClosePopUp = function () {
         $scope.taxCategoryList = [];
         angular.element(document.querySelector('#QTYAllocation')).modal('hide');
@@ -627,7 +645,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     }
     $scope.GetMaterialGroupList();
 
-  
+
     cboService.getCboTransactionCurrencyByCompany('', function (result) {
         $scope.currencyList = [];
         $scope.currencyList = result;

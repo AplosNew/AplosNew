@@ -404,6 +404,18 @@ ORDER BY e.PlantId, e.UserName";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colArticle = COL;
                 COL++;
+                sheet[ROW, COL].Text = "SKU1";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colSKU1 = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SKU2";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colSKU2 = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SKU3";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colSKU3 = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Main Raw Material Inhouse Date";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colMainRawMaterialInhouseDate = COL;
@@ -766,6 +778,9 @@ ORDER BY e.PlantId, e.UserName";
                     sheet[ROW, colMaterial].Text = dt.Rows[i]["Material"].ToString();
                     sheet[ROW, colProduct].Text = dt.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = dt.Rows[i]["Article"].ToString();
+                    sheet[ROW, colSKU1].Text = dt.Rows[i]["SKU1"].ToString();
+                    sheet[ROW, colSKU2].Text = dt.Rows[i]["SKU2"].ToString();
+                    sheet[ROW, colSKU3].Text = dt.Rows[i]["SKU3"].ToString();
 
                     sheet[ROW, colAccountHolder].Text = dt.Rows[i]["AccountHolder"].ToString();
                     sheet[ROW, colAccountIncharge].Text = dt.Rows[i]["AccountIncharge"].ToString();
@@ -2316,7 +2331,25 @@ ORDER BY  p1.ProductionDate,po.Id,popc.Sequence
 		                                                                               left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 			                                                                                where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 			                                                    
-                                                              
+                                                               SKU1=STUFF((select distinct ','+cv.UserName FROM 
+	                                                                                trn.FirstCharacteristics c
+		                                                                                left outer join hkp.CharacteristicsValue cv on cv.Id=c.CharacteristicsValueId
+		                                                                               left outer join TRN.SalesOrder AS so ON SO.Id=c.SalesOrderId
+		                                                                               left outer join TRN.ProductionOrderDetail PD ON PD.SalesOrderId=SO.Id
+			                                                                                where ord.ProductionOrderId=PD.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+			                  SKU2=STUFF((select distinct ','+cv.UserName FROM 
+	                                                                                trn.SecondCharacteristics AS sc 
+		                                                                                left outer join hkp.CharacteristicsValue cv on cv.Id=sc.CharacteristicsValueId
+		                                                                               left outer join TRN.SalesOrder AS so ON SO.Id=sc.SalesOrderId
+		                                                                               left outer join TRN.ProductionOrderDetail PD ON PD.SalesOrderId=SO.Id
+			                                                                                where ord.ProductionOrderId=PD.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+			                                                                                
+			                  SKU3=STUFF((select distinct ','+cv.UserName FROM 
+	                                                                                trn.ThirdCharacteristics AS tc 
+		                                                                                left outer join hkp.CharacteristicsValue cv on cv.Id=tc.CharacteristicsValueId
+		                                                                               left outer join TRN.SalesOrder AS so ON SO.Id=tc.SalesOrderId
+		                                                                               left outer join TRN.ProductionOrderDetail PD ON PD.SalesOrderId=SO.Id
+			                                                                                where ord.ProductionOrderId=PD.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
                             ord.FOB,ord.CM,CEILING(t1.TargetPerDay) AS LineTargetPerDay,ord.OrderQty,ord.PlannedQty AS PlanOrderQty,prodWC.ProductionQtyAtWC,prodpr.ProductionQtyAtPR,u.UserName AS Unit,
                             ACCI.EmployeeName AS AccountIncharge,acch.EmployeeName AS AccountHolder,ord.FirstDeliveryDate,ord.LastDeliveryDate,ord.ProductionCompletionDate,
                             DATEADD(DD,ISNULL(PRDTIME.LastDayOfProduction,0)*-1, ord.LastDeliveryDate) AS BaseProcessCompletionDate,
@@ -2459,10 +2492,6 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
                                 WHERE WC.EntityId IN (" + entityid + @")
                             order by wc.Code,p1.ProductionDate";
-
-
-
-
 
                 dtOS2 = _sqlRepository.GetDataTable(sql);
             }

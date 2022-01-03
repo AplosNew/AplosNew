@@ -11,6 +11,42 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     //$scope.Deletepath = $scope.path + 'DeletePI';
     $scope.saveUrl = $scope.path + 'Save';
 
+    $scope.PIHeadModel = {
+        Id: null
+        , PINo: null
+        , PIDate: null
+        , RefNo: null
+        , RevisionNo: null
+        , BuyerId: null
+        , Buyer: null
+        , CustomerId: null
+        , Customer: null
+        , Currency: null
+        , Description: null
+        , Remarks: null
+        , Quantity: 0
+        , UoM: null
+        , DeliveryDate: null
+        , Amount: 0
+        , CurrencyId: null
+        , InvoicingPartyPlantId: null
+        , DeliveryPartyPlantId: null
+        , InvoicingByAddress: null
+        , DeliveryByAddress: null
+        , InvoicingState: null
+        , InvoicingGSTIN: null
+        , DeliveryState: null
+        , DeliveryGSTIN: null
+        , PartyCode: null
+        , CustomerName: null
+        , PartyId: null
+        , PartyAccountGroupId: null
+        , IsPaymentTermChangeable: null
+        , PaymentTermId: null
+        , SumAmount: 0
+    };
+    $scope.PImodelNew = Object.assign({}, $scope.PIHeadModel);
+
     $scope.searchPIByList = [
         {
             name: 'Id',
@@ -145,6 +181,8 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     $scope.LastVersion = null;
     $scope.Get = function (args) {
         //$scope.getHeader(args.data.Id, args.data.PIVersionId);
+        $scope.PIMId = args.data.Id;
+        $scope.PIVId = args.data.PIVersionId;
         $scope.SelectedPIVersion = args.data.PIVersionId;
         $scope.LastVersion = args.data.LastVersionNo;
         $http({
@@ -180,8 +218,10 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
     };
     $scope.ModelPO = {};
     $scope.PODataList = [];
+    $scope.POPopUpHeader = {};
     $scope.GetPOPopUpNew = function (args) {
         //$scope.MaterialModel = args.data;
+        $scope.POPopUpHeader = args.data;
         $scope.ModelPO = args.data;
         $scope.PIMaterialId = args.data.Id;
         $scope.PODataList = [];
@@ -222,31 +262,9 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
         }
         var gridObj = $("#GridPacking").data("ejGrid");
         gridObj.refreshContent();
+        $scope.SummaryPOMappingWithPI();
     };
 
-    //$scope.POList123 = [];
-    //$scope.AddPORow = function () {
-    //    var Id = "''";
-    //    $scope.POList123 = [];
-    //    for (var i = 0; i < $scope.PODataList.length; i++) {
-    //        if ($scope.PODataList[i].check == true) {
-    //            $scope.POList123.push($scope.PODataList[i]);
-    //            Id += ",'" + $scope.PODataList[i].MaterialMasterId + "'";
-    //        }
-    //    }
-
-    //    angular.element(document.querySelector('#POPopUpNew')).modal('hide');
-    //    $scope.getUoM(Id);
-    //}
-
-    //$scope.CheckAll123 = function (event) {
-    //    var _isselected = event.target.checked;
-
-    //    for (var i = 0; i < $scope.PODataList.length; i++) {
-
-    //        $scope.PODataList[i].check = _isselected;
-    //    }
-    ////};
   
     $scope.Save = function () {
         try {
@@ -270,16 +288,67 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadPISearchList();
-                    /*          $scope.Get();*/
                     angular.element(document.querySelector('#POPopUpNew')).modal('hide');
+                    $scope.GetMaterialGrid();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-
+           
         } catch (e) {
             ShowResult(e, 'failure')
         }
 
     };
+    
+    
+    $scope.GetMaterialGrid = function () {
+        //$scope.getHeader(args.data.Id, args.data.PIVersionId);
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetAllData?PIMasterId=" + $scope.PIMId + '&VersionId=' + $scope.PIVId,
+        }).then(function successCallback(response) {
+            if (!baseService.isUndefinedOrNull(response.data)) {
+              
+                $scope.DataList = response.data.ItemData;
+               
+                if (!$rootScope.isCollapsed) {
+                    $rootScope.toggle();
+                }
+             
+            }
+
+        });
+
+    };
+
+  
+
+    $scope.SumModel = {
+        QTY: 0,
+        Amount: 0
+    };
+    $scope.ASSSSDFG = function () {
+        $scope.SumModel.QTY = 0;
+        $scope.SumModel.Amount = 0;
+        for (var i = 0; i < $scope.PODataList.length; i++) {
+            if ($scope.PODataList[i].check) {
+                $scope.SumModel.QTY += $scope.PODataList[i].POQuantity;
+                $scope.SumModel.Amount += $scope.PODataList[i].POAmount;
+            }
+        }
+        $scope.SumModel.QTY= parseFloat($scope.SumModel.QTY).toFixed(2);
+        $scope.SumModel.Amount=parseFloat($scope.SumModel.Amount).toFixed(2);
+    }
+
+    $scope.summaryPO = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POQuantity", dataMember: "POQuantity", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POAmount", dataMember: "POAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "QuantityAtPIUoM", dataMember: "QuantityAtPIUoM", format: "{0:N2}" }],
+        showCaptionSummary: true
+
+    }];
+
+
 }

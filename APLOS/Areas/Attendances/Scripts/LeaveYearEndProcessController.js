@@ -5,11 +5,26 @@ function LeaveYearEndProcessController(cboService, commonMessage, $scope, $rootS
     $scope.path = 'Attendances/LeaveYearEndProcess/';
     $scope.getYearlyCalendarUrl = $scope.path + 'LoadYearlyCalendar';
     $scope.LeaveYearEndProcessSummaryDataUrl = $scope.path + 'GetLeaveYearEndProcessSummaryData';
+    $scope.LeaveYearEndProcessSummaryDataIndividualUrl = $scope.path + 'GetLeaveYearEndProcessSummaryDataIndividual';
     $scope.LeaveYearEndProcessUrl = $scope.path + 'LeaveYearEndProcess';
+    $scope.LeaveYearEndProcessIndividualUrl = $scope.path + 'LeaveYearEndProcessIndividual';
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    }
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+
+    $scope.Date = ($filter('dateFiltering')(new Date(), 'dd-MM-yyyy'));
 
     $scope.ShowProcButton = false;
+    $scope.ShowProcButtonIndividual = false;
     $scope.YearlyCalendarId = null;
     $scope.LeaveYearEndProcessSummary = [];
+    $scope.LeaveYearEndProcessSummaryIndividual = [];
     $scope.LoadYearlyCalendarList = function () {
         try {
 
@@ -55,12 +70,57 @@ function LeaveYearEndProcessController(cboService, commonMessage, $scope, $rootS
                         ShowResult(response.data.Message, 'failure');
                     });
 
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.LeaveYearEndProcessIndividual = function () {
+        try {
+
+
+            $http.get($scope.LeaveYearEndProcessIndividualUrl + '?ToDate=' + $scope.Date)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $scope.LeaveYearEndProcessSummary = [];
+                        $scope.ShowProcButton = false;
+                        ShowResult(response.data.Message, 'success');
+                    }
+                },
+
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    });
 
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
+    
+    $scope.GetLeaveYearEndProcessSummaryDataIndividual = function () {
+        try {
+            $http.get($scope.LeaveYearEndProcessSummaryDataIndividualUrl + '?ToDate=' + $scope.Date)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $scope.LeaveYearEndProcessSummaryIndividual = response.data;
+                        $scope.ShowProcButtonIndividual = true;
+                    }
+                },
 
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    });
+
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
     $scope.GetLeaveYearEndProcessSummaryData = function () {
         try {
 
@@ -86,33 +146,5 @@ function LeaveYearEndProcessController(cboService, commonMessage, $scope, $rootS
         }
     };
  
-    $window.onresize = function (event) {
-        $scope.actionCompleteSelected();    
-
-    };
-    $scope.actionCompleteSelected = function (args) {
-        try {
-            if (args.requestType === "refresh") {
-                var gridObj = $("#GridLeaveYearEndProcessSummary").ejGrid("instance");
-                var scrollerwidth = $("#tabpaneldiv").width();//Obtain the width of the container
-
-                $("#GridLeaveYearEndProcessSummary").children('.e-grid.e-headercell').css('height', '100px');
-                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });
-                gridObj.windowonresize();
-            }
-        } catch (e) {
-            //$scope.ShowResultCustom(e, 'failure');
-        }
-    };
-    
-   
-
-
-
-
-
-
-
-
    
 }

@@ -135,7 +135,7 @@
                             </div>
                         </td>
                         <td>{{x.Characteristicsvalue}}</td>
-                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.Qty}}" class="form-control" autocomplete="off"></td>
+                        <td ng-repeat="y in x.Qty"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{y.Qty}}" class="form-control" autocomplete="off"></td>
                     </tr>
                 </tbody>
             </table>
