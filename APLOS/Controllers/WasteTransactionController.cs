@@ -38,11 +38,11 @@ namespace Aplos.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetItemName(string Entity,string BudgetId)
+        public IHttpActionResult GetItemName(string BudgetId)
         {
             try
             {
-                var result = _data.GetItemName(Entity,BudgetId);
+                var result = _data.GetItemName(BudgetId);
                 return Json(result);
             }
             catch (Exception ex)
