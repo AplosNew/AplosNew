@@ -2005,8 +2005,7 @@ namespace Library.HumanResource.Payroll
                 var ColHlDy = 0;
                 var ColWkOf = 0;
                 var ColLv = 0;
-                var ColMLv = 0;
-
+              
                 var ColLWP = 0;
 
                 int ColDMP = 0;
@@ -2049,7 +2048,6 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
-                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 9);
                 SetCellValue("Total OT Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOtHr, 25);
 
                 //SR to
@@ -2398,8 +2396,7 @@ namespace Library.HumanResource.Payroll
                     SetCellTextAttdn(sheet1, xlsRow, ColHlDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalHoliDay"].ToString()));
                     SetCellTextAttdn(sheet1, xlsRow, ColWkOf, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString()));
                     SetCellTextAttdn(sheet1, xlsRow, ColLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLv"].ToString()));
-                    SetCellTextAttdn(sheet1, xlsRow, ColMLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalMLv"].ToString()));
-
+                
                     SetCellTextDR(sheet1, xlsRow, ColTotalOtHr, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
 
                     //}
@@ -5121,7 +5118,7 @@ namespace Library.HumanResource.Payroll
 
                 #region Column Variables
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
-                    cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0
+                    cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0
                    , ColLWP = 0, colBank = 0, cDMP = 0, colBankAccountNo = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
                 int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0, ColContractor = 0;
 
@@ -5169,7 +5166,6 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
-                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 9);
                 SetCellValue("Total OT Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
                 endGenericColumn = xlsCol;
 
@@ -5496,7 +5492,7 @@ namespace Library.HumanResource.Payroll
                         SetCellTextAttdn(sheet1, xlsRow, ColHlDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalHoliDay"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColWkOf, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLv"].ToString()));
-                        SetCellTextAttdn(sheet1, xlsRow, ColMLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalMLv"].ToString()));
+   
 
                         SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
 
