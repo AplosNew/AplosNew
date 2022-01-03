@@ -532,7 +532,7 @@ namespace OTSBD
                         if (dvMonthWiseExtraSalaryAmtMaster.Count == 0)
                         {
                             DataRow dr = dsMonthWiseExtraSalaryAmtMaster.Tables[0].NewRow();
-                            MasterId = "DAM" + sID + "_" + count_master;
+                            MasterId = "SALM-" + sID + "-" + count_master;
                             dr["SystemID"] = MasterId;
                            // MasterId = "DAM" + sID;
                             dr["EmpInfoSystemID"] = dsDailyAllowanceSummary.Tables[0].Rows[i]["EmpSystemId"].ToString();
@@ -584,7 +584,7 @@ namespace OTSBD
                             //bplib.clsGenID objGenID = new bplib.clsGenID();
                             //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "DAChild", out sID);
                             DataRow dr = dsMonthWiseExtraSalaryAmtChild.Tables[0].NewRow();
-                            dr["SystemID"] = "DAC" + sIDc+"_"+count_master;
+                            dr["SystemID"] = "SALC-" + sIDc+"-"+count_master;
                             dr["MWESAMasterSystemID"] = MasterId;
                             dr["SalaryHeadID"] = dsDailyAllowanceSummary.Tables[0].Rows[i]["SalaryHeadId"].ToString();
 
