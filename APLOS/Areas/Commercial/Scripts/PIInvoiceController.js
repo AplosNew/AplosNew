@@ -154,9 +154,6 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                         var ob = {};
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
-                        //ob.EntityId = $scope.PackingList[i].EntityId;
-                        //if (checkExistCustomer($scope.selectedPackingList, ob.PartyId, ob.EntityId)) {
-                        //    if (checkExistList($scope.selectedPackingList, ob.PackingId) === false) {
                         ob.Id = null;
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         $scope.salesVM.PackingId = $scope.PackingList[i].PackingId;
@@ -178,11 +175,6 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                         $scope.getPartyPlant();
 
                     }
-                    //}
-                    //else {
-                    //    throw 'Select same Entity and Customer.';
-                    //}
-                    //}
                 }
             }
             $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
@@ -244,7 +236,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }).then(function (response) {
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                //getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
+                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
 
             }
         });
