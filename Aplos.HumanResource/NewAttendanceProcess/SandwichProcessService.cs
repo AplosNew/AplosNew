@@ -492,7 +492,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
-                SaveLog(ex.Message, PlantId, false);
+                SaveLog(ex.Message, PlantId, true);
                 throw ex;
             }
         }       
