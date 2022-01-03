@@ -3919,6 +3919,7 @@
     <Content Include="Areas\Attendances\Views\NewProcessAttendanceReProcess\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\SandwichProcess\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\GeneralWaste\Aplos.cshtml" />
+    <Content Include="Areas\Outsourcing\Views\OSIssueReturn\_StockPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
