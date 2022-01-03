@@ -81,7 +81,7 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
         }
     ];
     $scope.month = new Date().getMonth().toString();
-
+    $scope.year = null;
     $scope.yearList = [];
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
@@ -106,6 +106,10 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
 
     $scope.SalaryAdvanceList = [];
     $scope.getSalaryAdvance = function () {
+
+        var ddlYear = $("#ddlYearList").data("ejDropDownList");
+        //$scope.year = ddlYear.getSelectedValue();
+        $scope.year;
         $http({
             method: 'POST',
             url: $scope.path + "GetSalaryAdvance",
@@ -117,6 +121,8 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
     };
     $scope.SalaryInterestList = [];
     $scope.getSalaryInterest = function () {
+        //var ddlYear = $("#ddlYearList").data("ejDropDownList");
+        //$scope.year = ddlYear.getSelectedValue();
         $http({
             method: 'GET',
             url: $scope.path + "GetSalaryInterest",
@@ -128,6 +134,8 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
     $scope.getSalaryInterest();
     $scope.SalaryGeneralList = [];
     $scope.getGeneralAdvance = function () {
+        //var ddlYear = $("#ddlYearList").data("ejDropDownList");
+        //$scope.year = ddlYear.getSelectedValue();
         $http({
             method: 'POST',
             url: $scope.path + "GetGeneralAdvance",
@@ -158,6 +166,8 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
 
     $scope.SaveSalaryAdvance = function () {
         try {
+            //var ddlYear = $("#ddlYearList").data("ejDropDownList");
+            //$scope.year = ddlYear.getSelectedValue();
             var DataToBeSaved = [];
             var DataToBeDelete = [];
             var SalaryHead = [];

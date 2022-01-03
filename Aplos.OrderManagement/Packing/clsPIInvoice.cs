@@ -149,12 +149,22 @@ namespace Library.OrderManagement.Packing
         {
             try
             {
-                var _sql = @"SELECT M.Id PIPackingListMaterialId,p.Id AS PIMaterialId,MGM.UserName AS MaterialGroup, p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,p.Quantity,uom.UserName AS UOM,p.Rate, p.Amount
-                                          FROM PIPackingListMaster AS PM
-                                        INNER JOIN PIPackingListMaterial AS M ON pm.Id=m.PIPackingListMasterId
-                                        INNER JOIN PIMaterial AS p ON p.Id=m.PIMaterialId
-                                        INNER JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
-                                        INNER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
+                var _sql = @"SELECT M.Id PIPackingListMaterialId
+                                        	,p.Id AS PIMaterialId
+                                        	,MGM.UserName AS MaterialGroup
+                                        	,p.[Description]
+                                        	,FORMAT(p.DeliveryDate, 'dd-MMM-yyyy') DeliveryDate
+                                        	,p.Quantity
+                                        	,uom.UserName AS UOM
+                                        	,p.Rate
+                                        	,p.Amount
+                                        	,p.Amount NetAmount
+                                            ,p.HSNCodeId
+                                        FROM PIPackingListMaster AS PM
+                                        INNER JOIN PIPackingListMaterial AS M ON pm.Id = m.PIPackingListMasterId
+                                        INNER JOIN PIMaterial AS p ON p.Id = m.PIMaterialId
+                                        INNER JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id = p.MaterialGroupMasterId
+                                        INNER JOIN scs.UnitOfMeasurement AS uom ON uom.Id = p.UoMId
                                         WHERE PM.Id " + PackingId + "";
                 return _sqlRepository.GetDataCollection(_sql);
             }

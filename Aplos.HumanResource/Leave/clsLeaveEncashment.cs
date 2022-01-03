@@ -665,7 +665,9 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 							LEFT JOIN EmployeeBankInfo  AS BI ON BI.EmpSystemID=e.SystemId
                             where s.CalanderYearId=(select id from YearlyCalendar where Id=" + YearId + @" and PlantId='" + PlantId + @"')  AND s.IsYearlyProcessed=1 
                             AND s.EmployeeId IN (SELECT SystemId FROM EmployeeInformation WHERE EmployeeStatus='Active' and PlantId='" + PlantId + @"' )
-                            AND  ltd.EncashmentBasis='CalanderYear' AND (CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
+                            AND  ltd.EncashmentBasis='CalanderYear'
+
+                                            AND (CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
                             																	 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  e.DOJ )
 																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  e.DOJ )
 																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ ) END
