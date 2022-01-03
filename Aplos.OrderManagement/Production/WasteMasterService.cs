@@ -315,11 +315,12 @@ namespace Library.OrderManagement.Production
             try
             {
                 var sql = @"select distinct u.Id as Value,u.UserId as Text,u.EmployeeId,
-                
+                b.Id as BudgetId from [SEC].[User] u 
                 left join EmployeeInformation e on e.SystemId=u.EmployeeId
-               
+                left join mst.ManpowerBudget b on b.Id=e.BudgetCode
                 where UserId='" + UserId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
+
             }
             catch (Exception ex)
             {
@@ -327,11 +328,13 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetItemName(string Entity,string BudgetId)
+        public IEnumerable<object> GetItemName(string BudgetId)
         {
             try
             {
-                var sql = @"select Id as MasterId,ItemName from WasteMaster where EntityId='"+Entity+ "'";
+                var sql = @"select w.ItemName,w.Id as MasterId from WasteMaster w 
+                left join WasteBudgetDetail wb on wb.WasteMasterId=w.Id
+                where wb.BudgetId='"+BudgetId+"'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
