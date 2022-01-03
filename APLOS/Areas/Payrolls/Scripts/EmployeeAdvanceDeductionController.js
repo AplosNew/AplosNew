@@ -81,7 +81,7 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
         }
     ];
     $scope.month = new Date().getMonth().toString();
-
+    $scope.year = null;
     $scope.yearList = [];
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
@@ -107,9 +107,9 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
     $scope.SalaryAdvanceList = [];
     $scope.getSalaryAdvance = function () {
 
-        //var ddlYear = $("#ddlYearList").data("ejDropDownList");
+        var ddlYear = $("#ddlYearList").data("ejDropDownList");
         //$scope.year = ddlYear.getSelectedValue();
-
+        $scope.year;
         $http({
             method: 'POST',
             url: $scope.path + "GetSalaryAdvance",
