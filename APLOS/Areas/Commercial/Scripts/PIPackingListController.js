@@ -82,6 +82,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         , IsPaymentTermChangeable: null
         , PaymentTermId: null
         , SumAmount: 0
+        , QTY:0
     };
     $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
 
@@ -360,14 +361,18 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         QTY: 0,
         Amount: 0
     };
+
     $scope.ASSSSDFG = function () {
         $scope.PImodelNew.SumAmount = 0;
+        $scope.PImodelNew.QTY = 0;
         for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
             if ($scope.PIPackingMaterialPopUpList[i].Active) {
                 $scope.PImodelNew.SumAmount += $scope.PIPackingMaterialPopUpList[i].POAmount;
+                $scope.PImodelNew.QTY += $scope.PIPackingMaterialPopUpList[i].POQty;
             }
         }
-        parseFloat($scope.SumModel.Amount).toFixed(2);
+        $scope.PImodelNew.SumAmount = parseFloat($scope.PImodelNew.SumAmount).toFixed(2);
+        $scope.PImodelNew.QTY = parseFloat($scope.PImodelNew.QTY).toFixed(2);
     }
     $scope.ClosePopUp = function () {
         $scope.taxCategoryList = [];
