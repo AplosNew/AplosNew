@@ -73,6 +73,16 @@ namespace Aplos.Areas.Commercial.Controllers
             return jsondata;
 
         }
+        [Authorize, HttpGet]
+        public JsonResult GetAutoLoanPostableDetailList(string LoanAgainstAcceptanceMasterId, string SourceType)
+        {
+            AccountsAutoLoanService accountsAutoLoanService = new AccountsAutoLoanService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(accountsAutoLoanService.GetAutoLoanPostableDetailList(identity.PlantId, LoanAgainstAcceptanceMasterId, SourceType), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
 
         [HttpPost]
         public JsonResult SaveAutoLoan(List<Dictionary<string, object>> autoLoanData,Dictionary<string,object> LCModel)
@@ -291,7 +301,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public JsonResult AutoLoanPost(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        public JsonResult AutoLoanPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -303,7 +313,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 throw new CustomException("Please Select Currency !");
             if (voucherVM.Amount < 0 || voucherVM.Amount == 0)
                 throw new CustomException("Please Input Amount !");
-            if (voucherVM.CompanyCurrencyRate < 0 || voucherVM.CompanyCurrencyRate == 0)
+            if (voucherDetailVMList.FirstOrDefault().CompanyCurrencyRate < 0 || voucherDetailVMList.FirstOrDefault().CompanyCurrencyRate == 0)
                 throw new CustomException("Rate can not Empty!");
             if (voucherVM.TransactionType == null)
                 throw new CustomException("Please Select Loan Type !");
@@ -323,7 +333,14 @@ namespace Aplos.Areas.Commercial.Controllers
                 if (voucherVM.NoOfInstallmentPerYear == 0)
                     throw new CustomException("Please Input  No Of Installment!");
             }
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _autoLoanService.ParkAutoLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist)) });
+            if (voucherVM.SettlementType == "Acceptance")
+            {
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _autoLoanService.ParkAutoLoan(voucherVM, voucherDetailVMList, existingLoanList, loanRepaymentSchedulelist)) });
+            }
+            else
+            {
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _autoLoanService.ParkAutoLoanInvoice(voucherVM, voucherDetailVMList, existingLoanList, loanRepaymentSchedulelist)) });
+            }
         }
 
     }

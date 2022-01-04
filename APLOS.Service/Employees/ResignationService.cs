@@ -209,6 +209,12 @@ namespace Library.Service.Employees
                             db.ModelState = ModelState.Modified;
                             _employeeInformationService.InsertOrUpdateGraph(db);
                             var dosDate = Convert.ToDateTime(db.DOS).ToString("dd-MMM-yyyy");
+
+                            string strDeleteAttdnProcessManualEntryRemarksData = @"delete from ManualEntryRemarks where RowId IN ( SELECT RowId FROM AttdnProcessData WHERE EmpSystemID IN (SELECT EmployeeId from [TRN].[Resignation]
+                                                  WHERE EmployeeId = '" + db.SystemId + "' AND ApprovalStatus = '" + EnumResignationApprovalStatus.Approved + "' AND ApprovedEffectiveDate <= '" + Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).ToString("dd-MMM-yyyy") + "' ) " +
+                                               "AND workDate > '" + dosDate + "' AND EmpSystemID = '" + db.SystemId + "')";
+
+
                             string strDeleteAttdnProcessData = @"DELETE FROM AttdnProcessData WHERE EmpSystemID IN (SELECT EmployeeId from [TRN].[Resignation]
                                                   WHERE EmployeeId = '" + db.SystemId + "' AND ApprovalStatus = '" + EnumResignationApprovalStatus.Approved + "' AND ApprovedEffectiveDate <= '" + Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).ToString("dd-MMM-yyyy") + "' ) " +
                                                   "AND workDate > '" + dosDate + "' AND EmpSystemID = '" + db.SystemId + "'";
@@ -223,22 +229,26 @@ namespace Library.Service.Employees
 
                             string _finalOT = @"DELETE  FROM FinalOT WHERE WorkDate > '" + Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).ToString("dd-MMM-yyyy") + "' AND EmpSystemID ='" + db.SystemId + "'";
 
-                            _sqlRepository.ExecuteSqlCommand(strUpdateResignedEmpData);
-                            _sqlRepository.ExecuteSqlCommand(strDeleteAttdnProcessData);
-                            _sqlRepository.ExecuteSqlCommand(strDeleteAttdnProcessFinalData);
-                            _sqlRepository.ExecuteSqlCommand(strDeleteAttdnMonthlySummary);
-                            _sqlRepository.ExecuteSqlCommand(sqlDeleteExtraAbsentism);
-                            _sqlRepository.ExecuteSqlCommand(sqlUpdateUser);
-                            _sqlRepository.ExecuteSqlCommand(_finalOT);
+                            ConnectionManager.clsConnectionManager conManager = new ConnectionManager.clsConnectionManager(600);
+                            conManager.BeginTransaction();
+
+                            conManager.executeQuery(strUpdateResignedEmpData);
+                            conManager.executeQuery(strDeleteAttdnProcessManualEntryRemarksData);
+                            conManager.executeQuery(strDeleteAttdnProcessData);
+                            conManager.executeQuery(strDeleteAttdnProcessFinalData);
+                            conManager.executeQuery(strDeleteAttdnMonthlySummary);
+                            conManager.executeQuery(sqlDeleteExtraAbsentism);
+                            conManager.executeQuery(sqlUpdateUser);
+                            conManager.executeQuery(_finalOT);
 
                             string _SalaryProceAttdnData = @"DELETE  FROM SalaryProceAttdnData where EmpSystemId ='" + db.SystemId + @"' and SlrProcMstSystemID in (select SystemID from SalaryProcMaster where YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + MonthNo + @")) ";
                             string _SalaryProcessLogDetail = @"DELETE  FROM SalaryProcessLogDetail where EmpSystemId ='" + db.SystemId + @"' and SalaryProcessId in (select SystemID from SalaryProcMaster where YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + MonthNo + @")) ";
                             string _SalaryProcChild = @"DELETE  FROM SalaryProcChild where EmpInfoSystemID ='" + db.SystemId + @"' and SlrProcMstSystemID in (select SystemID from SalaryProcMaster where YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + MonthNo + @")) ";
 
-                            _sqlRepository.ExecuteSqlCommand(_SalaryProceAttdnData);
-                            _sqlRepository.ExecuteSqlCommand(_SalaryProcessLogDetail);
-                            _sqlRepository.ExecuteSqlCommand(_SalaryProcChild);
-
+                            conManager.executeQuery(_SalaryProceAttdnData);
+                            conManager.executeQuery(_SalaryProcessLogDetail);
+                            conManager.executeQuery(_SalaryProcChild);
+                            conManager.CommitTransaction();
                         }
                     }
                     UpdateInActiveUser(ResignedEmpList, out List<User> inActiveUser);
