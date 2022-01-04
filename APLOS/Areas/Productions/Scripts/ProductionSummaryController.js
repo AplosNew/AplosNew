@@ -436,7 +436,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             return ShowResult('Please Work Center.', 'failure');
         }
         $scope.SOItemList = [];
-        $http.get('Productions/ProductionSummary/GetSOItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
