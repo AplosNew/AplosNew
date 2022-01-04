@@ -39,6 +39,11 @@ namespace Aplos.Areas.Productions.Controllers
             return View();
         }
 
+        public ActionResult Aplos1()
+        {
+            return View();
+        }
+
         public ActionResult AplosSFG()
         {
             return View();
@@ -280,6 +285,12 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId)
         {
             return Json(_productionSummaryData.GetSOItem(entityid, workCenterMasterId, productionLevel, processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetProductionOrderData(string entityid, string workCenterMasterId, string productionLevel, string processId)
+        {
+            return Json(_productionSummaryData.GetProductionOrderData(entityid, workCenterMasterId, productionLevel, processId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

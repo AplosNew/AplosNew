@@ -5840,8 +5840,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 						 ,IssueUoM=case when IID.TransactionUoMId is not null then uom.UserName else uomm.UserName End
 						 ,Buom.UserName as BaseUoM
 
-						 ,AverageAmount=round(DD.AverageAmount,2) 
-                        ,AveRateeee= ROUND((DD.AverageAmount / IID.TransactionQty),4)
+						,AverageAmount=round(ISNULL(DD.AverageAmount,0),2) 
+                        ,AveRateeee= ROUND(ISNULL((DD.AverageAmount / IID.TransactionQty),0),4)
                         from TRN.InventoryIssueDetail IID left
                         join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
                         left
@@ -5878,7 +5878,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                             LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = IM.ThirdCharacteristicsValueId
 
                                         where mp.OSTransformationPOId = '" + PrintTabId + @"' and II.Id = '" + IssueId + @"'
-                                           and II.Types = 'InventoryJWIssue'
+                                           and II.Types = 'InventoryOSIssue'
                                           group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id
 										, jwi.UserName
 										,mp.Quantity

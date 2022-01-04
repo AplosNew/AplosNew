@@ -201,21 +201,31 @@ namespace Library.HumanResource.NewAttendanceProcess
                             string sqlDeleteExtraAbsentism = @"DELETE FROM SCS.WeeklyAbsentismAssignment WHERE EmpSystemID = '" + db.SystemId + "' AND WorkingDate > '" + dvEDate[0]["ApprovedEffectiveDate"].ToString() + "' ";
                             string sqlUpdateUser = @"UPDATE [SEC].[User] SET Active = 0 WHERE EmployeeId = '" + db.SystemId + "'";
 
+                            string strDeleteAttdnProcessManualEntryRemarksData = @"delete from ManualEntryRemarks where RowId IN ( SELECT RowId FROM AttdnProcessData WHERE EmpSystemID IN (SELECT EmployeeId from [TRN].[Resignation]
+                                                  WHERE EmployeeId = '" + db.SystemId + "' AND ApprovalStatus = '" + EnumResignationApprovalStatus.Approved + "' AND ApprovedEffectiveDate <= '" + Convert.ToDateTime(dvEDate[0]["ApprovedEffectiveDate"].ToString()).ToString("dd-MMM-yyyy") + "' ) " +
+                                         "AND workDate > '" + dosDate + "' AND EmpSystemID = '" + db.SystemId + "')";
 
-                            _sqlRepository.ExecuteSqlCommand(sqlEmployeeInfo);
-                            _sqlRepository.ExecuteSqlCommand(strUpdateResignedEmpData);
-                            _sqlRepository.ExecuteSqlCommand(strDeleteAttdnProcessData);
-                            _sqlRepository.ExecuteSqlCommand(strDeleteAttdnProcessFinalData);
-                            _sqlRepository.ExecuteSqlCommand(sqlDeleteExtraAbsentism);
-                            _sqlRepository.ExecuteSqlCommand(sqlUpdateUser);
-                          
+
+
+                            ConnectionManager.clsConnectionManager conManager = new ConnectionManager.clsConnectionManager(600);
+                            conManager.BeginTransaction();
+
+                            conManager.executeQuery(sqlEmployeeInfo);
+                            conManager.executeQuery(strUpdateResignedEmpData);
+                            conManager.executeQuery(strDeleteAttdnProcessManualEntryRemarksData);
+                            conManager.executeQuery(strDeleteAttdnProcessData);
+                            conManager.executeQuery(strDeleteAttdnProcessFinalData);
+                            conManager.executeQuery(sqlDeleteExtraAbsentism);
+                            conManager.executeQuery(sqlUpdateUser);
+                           
                             string _SalaryProceAttdnData = @"DELETE  FROM SalaryProceAttdnData where EmpSystemId ='" + db.SystemId + @"' and SlrProcMstSystemID in (select SystemID from SalaryProcMaster where YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + MonthNo + @")) ";
                             string _SalaryProcessLogDetail = @"DELETE  FROM SalaryProcessLogDetail where EmpSystemId ='" + db.SystemId + @"' and SalaryProcessId in (select SystemID from SalaryProcMaster where YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + MonthNo + @")) ";
                             string _SalaryProcChild = @"DELETE  FROM SalaryProcChild where EmpInfoSystemID ='" + db.SystemId + @"' and SlrProcMstSystemID in (select SystemID from SalaryProcMaster where YearNo >" + year + @" or (YearNo =" + year + @" and MonthNo  >=" + MonthNo + @")) ";
 
-                            _sqlRepository.ExecuteSqlCommand(_SalaryProceAttdnData);
-                            _sqlRepository.ExecuteSqlCommand(_SalaryProcessLogDetail);
-                            _sqlRepository.ExecuteSqlCommand(_SalaryProcChild);
+                            conManager.executeQuery(_SalaryProceAttdnData);
+                            conManager.executeQuery(_SalaryProcessLogDetail);
+                            conManager.executeQuery(_SalaryProcChild);
+                            conManager.CommitTransaction();
 
                         }
                     }

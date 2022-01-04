@@ -236,7 +236,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }).then(function (response) {
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
+                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].Amount);
 
             }
         });
@@ -250,7 +250,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             $scope.materialtaxCategoryList = response.data;
 
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                if ($scope.salesOrderList[i].SONo === soId) {
+                if ($scope.salesOrderList[i].HSNCodeId === hsnCodeId) {
                     $scope.salesOrderList[i].TaxList = $scope.materialtaxCategoryList;
                     for (var j = 0; j < $scope.salesOrderList[i].TaxList.length; j++) {
                         $scope.calculateHSNTaxAmount($scope.salesOrderList[i].TaxList[j], transactionAmount);
@@ -264,12 +264,12 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     $scope.CalculateTransactionAmount = function (data) {
 
         data.TaxAmount = 0;
-        if (!baseService.isUndefinedOrNull(data.Id)) {
+        if (!baseService.isUndefinedOrNull(data.PIMaterialId)) {
 
-            data.TransactionAmount = parseFloat(data.Rate * data.Qty).toFixed(2);
+            data.TransactionAmount = parseFloat(data.Rate * data.Quantity).toFixed(2);
         } else {
 
-            data.TransactionAmount = parseFloat(data.Rate * data.Qty).toFixed(2);
+            data.TransactionAmount = parseFloat(data.Rate * data.Quantity).toFixed(2);
         }
 
         if (baseService.arrayLength(data.TaxList) > 0) {
@@ -384,7 +384,22 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.closeInvoicingPartyPopUp = function () {
-        angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+        if ($scope.salesMaterialList.length || $scope.chargesList.length) {
+            if (!baseService.isUndefinedOrNull($scope.salesVM.ChangeInvoicingStateId)) {
+                if ($scope.salesVM.PlantStateId == $scope.salesVM.InvoicingStateId == $scope.salesVM.ChangeInvoicingStateId)
+                    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+                else if ($scope.salesVM.InvoicingStateId == $scope.salesVM.ChangeInvoicingStateId)
+                    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+                else if ($scope.salesVM.PlantStateId != $scope.salesVM.InvoicingStateId && $scope.salesVM.PlantStateId != $scope.salesVM.ChangeInvoicingStateId)
+                    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+                else
+                    ShowResult('Change is not allowed', 'failure', 'invoicingPartyPopUp');
+            }
+            else
+                angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+        }
+        else
+            angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
 
     };
     //#endregion
@@ -527,6 +542,23 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
     };
+    $scope.closeServiceTaxPopUp = function () {
+        var salesData = $scope.chargesList[$scope.currentServiceRow];
+        $scope.chargesList[$scope.currentServiceRow].TaxAmount = 0;
+        angular.forEach($scope.receiveTaxList, function (item) {
+            $scope.chargesList[$scope.currentServiceRow].TaxAmount += item.Amount;
+        });
+        $scope.chargesList[$scope.currentServiceRow].TaxAndTotal = parseFloat($scope.chargesList[$scope.currentServiceRow].NetAmount) + parseFloat($scope.chargesList[$scope.currentServiceRow].TaxAmount);
+        angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
+    };
+    $scope.chargesList = [];
+    $scope.addCharge = function () {
+        var data = {
+            Amount: 0
+        };
+        $scope.chargesList.push(data);
+    };
+
 
     $scope.LoadTaxButtonClick = function () {
         accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
@@ -571,9 +603,72 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     $scope.closeReceiveTaxPopUpwindow = function () {
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
     }
+
+    $scope.calculateTaxAmountForService = function (data) {
+        if (baseService.isUndefinedOrNull(data.Percentage)) {
+            data.Percentage = 0;
+        }
+        // data.Amount = Math.round($scope.serviceModel.Amount * data.Percentage) / 100;
+        data.Amount = parseFloat(($scope.serviceModel.Amount * data.Percentage) / 100).toFixed(2);
+        data.TaxAndTotal = parseFloat($scope.serviceModel.Amount)+parseFloat(data.Amount);
+        $scope.calculateSvcTaxCategory();
+    };
+
+    $scope.calculateSvcTaxCategory = function () {
+        $scope.serviceModel.TaxAmount = 0;
+        $scope.serviceModel.NetAmount = 0;
+        for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
+            $scope.taxCategoryList[i].Amount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.serviceModel.Amount) / 100).toFixed(2);
+            $scope.serviceModel.TaxAmount = (parseFloat($scope.serviceModel.TaxAmount) + parseFloat($scope.taxCategoryList[i].Amount)).toFixed(2);
+        }
+        if (isNaN($scope.serviceModel.TaxAmount)) $scope.serviceModel.TaxAmount = 0;
+        //$scope.serviceModel.NetAmount = parseFloat($scope.serviceModel.TaxAmount) + $scope.serviceModel.Amount;
+        $scope.serviceModel.NetAmount = $scope.serviceModel.Amount;
+    };
+
+    $scope.closeServiceChargeAddPopUp = function () {
+        //$scope.serviceModel.TaxAmount = $filter("sumByKey")($filter("filter")($scope.taxCategoryList), "TotalAmount");
+        $scope.serviceModel.TaxAmount = $filter("sumByKey")($filter("filter")($scope.taxCategoryList), "Amount");
+        var Tax = $filter("sumByKey")($filter("filter")($scope.taxCategoryList), "TaxAndTotal");
+        $scope.serviceModel.TaxAndTotal = parseFloat(Tax).toFixed(2);
+        //$scope.serviceModel.NetAmount = $filter("sumByKey")($filter("filter")($scope.taxCategoryList), "NetAmount");
+        $scope.serviceModel.ServiceTaxList = $scope.taxCategoryList;
+        $scope.chargeValidation();
+        if (!$scope.invalidcharges) {
+            $scope.chargesList.push($scope.serviceModel);
+            angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
+        }
+    }
+
+    $scope.chargeValidation = function () {
+        var getRowCharge = $filter("filter")($scope.chargesList, { "ServiceMasterId": $scope.serviceModel.ServiceMasterId });
+        if (getRowCharge == 0) {
+            $scope.invalidcharges = false;
+        }
+        else {
+            ShowResult('This Charge  already exsist', 'failure', 'serviceChargePopUp');
+            $scope.invalidcharges = true;
+        }
+    }
+
     //#endregion
 
     //#region
+
+    $scope.getServiceTax = function (index) {
+        $scope.currentServiceIndex = index;
+        var data = $scope.chargesList[$scope.currentServiceIndex];
+        var TaxList = [];
+        var hsnCodeId = $filter("filter")($scope.serviceList, { HSNCodeId: data.ServiceMasterId })[0].HSNCodeId;
+        $http({
+            method: 'GET',
+            url: 'Accounts/TaxCategory/GetTaxCategoryList?partyPlantId=' + $scope.salesVM.PartyPlantId + '&hsnCodeId=' + hsnCodeId
+        }).then(function (response) {
+            TaxList = response.data;
+            $scope.chargesList[$scope.currentServiceIndex].ServiceTaxList = TaxList;
+        });
+    };
+
     $scope.serviceChargePopUp = function () {
         try {
             $scope.salesVM.TaxOptionService = 'Yes';
@@ -629,6 +724,47 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.receiveTaxList = [];
         angular.element(document.querySelector("#serviceChargeTaxPopUp")).modal("hide");
         angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
+    };
+
+    $scope.calculateServiceAmount = function (data) {
+        if (data.Amount == 'NaN')
+            data.Amount = 0;
+        data.TaxAmount = 0;
+        angular.forEach(data.ServiceTaxList, function (item) {
+            item.TotalAmount = data.Amount * item.Percentage / 100;
+            data.TaxAmount += item.TotalAmount;
+        });
+        data.NetAmount = parseFloat(data.Amount) + parseFloat(data.TaxAmount);
+        data.TaxAndTotal = parseFloat(data.Amount + data.TaxAmount).toFixed(2);
+    };
+    $scope.removeServiceRow = function (Id, index) {
+        if (Id === null) {
+            $(this).remove();
+            $scope.chargesList.splice(index);
+            return false;
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#removeServicePopUp')).modal('show');
+            $scope.serId = Id;
+            $scope.serIndex = index;
+        }
+    };
+
+    $scope.onchangeFunction = function (id) {
+        $scope.TaxCategoryId = id;
+
+        var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": id });
+        if (getRow.length === 2) {
+            ShowResult("You can't add Same Tax two times", 'failure', 'receiveTaxPopUp');
+        }
+    };
+    $scope.calculateTaxAmountForServiceModify = function (data) {
+        if (baseService.isUndefinedOrNull(data.Percentage)) {
+            data.Percentage = 0;
+        }
+        data.Amount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
+        
     };
     //#endregion
 
@@ -750,7 +886,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
 
         $scope.GetListData($scope.salesVM.Id);
 
-        
+
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -935,18 +1071,60 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             function errorCallback(response) {
             });
     };
+    $scope.getServiceTaxList = function (data, flag, ServiceId, index) {
+        $scope.isService = true;
 
+        $scope.LoadTaxButtonClick();
+        $scope.Currency = $("#currency option:selected").text();
+        $scope.ServiceId = ServiceId;
+        if (!$scope.isService) {
+            $scope.taxAbleAmnt = data.TransactionAmount;
+        }
+        else {
+            $scope.taxAbleAmnt = data.Amount;
+        }
+        $scope.percentageColumn = flag;
+        $scope.currentServiceRow = index;
+        $scope.receiveTaxList = [];
+        if (data.ServiceTaxList.length > 0) {
+            $scope.HSNCode = data.ServiceTaxList[0].HSNCode;
+            $scope.receiveTaxList = data.ServiceTaxList;
+        }
+        $scope.total = 0;
+        for (var j = 0; j < $scope.receiveTaxList.length; j++) {
+            $scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
+        }
+        $scope.salesVM.TaxOptionServiceModify = 'Yes';
+        angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('show');
+    }
+    $scope.closeServiceChargeTaxPopUpwindow = function () {
+        angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
+    }
     //#endregion
 
     //#region S A V E
 
     $scope.Save = function () {
         try {
+            var TaxLists = [];
+            for (var i = 0; i < $scope.salesOrderList.length; i++) {
+                for (var j = 0; j < $scope.salesOrderList[i].TaxList.length; j++) {
+                    TaxLists.push($scope.salesOrderList[i].TaxList[j]);
+                }
+            }
+            var ChargeTax = [];
+            for (var i = 0; i < $scope.chargesList.length; i++) {
+                for (var j = 0; j < $scope.chargesList[i].ServiceTaxList.length; j++) {
+                    ChargeTax.push($scope.chargesList[i].ServiceTaxList[j]);
+                }
+            }
+
+            $scope.Validation();
 
             $http({
                 method: 'POST',
                 url: $scope.path + 'Create',
-                data: { 'MasterData': $scope.salesVM, 'CommercialInvoicePackingList': $scope.selectedPackingList, 'CommercialInvoicePIMaterial': $scope.salesOrderList },
+                data: { 'MasterData': $scope.salesVM, 'CommercialInvoicePackingList': $scope.selectedPackingList, 'CommercialInvoicePIMaterial': $scope.salesOrderList, 'taxList': TaxLists, 'Charge': $scope.chargesList,'ChargeTax': ChargeTax  },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -962,6 +1140,14 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
 
         } catch (e) {
             ShowResult(e, 'info');
+        }
+    }
+    $scope.Validation = function () {
+        if (baseService.isUndefinedOrNull($scope.salesVM.PaymentTermId)) {
+            throw " Select Payment Term";
+        }
+        if (baseService.isUndefinedOrNull($scope.salesVM.BaseOnDueDate)) {
+            throw " Select Due Date BaseOn";
         }
     }
     //#endregion
