@@ -431,6 +431,26 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         }
     };
 
+    $scope.getProductionOrderPopUp = function () {
+        if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
+            return ShowResult('Please Work Center.', 'failure');
+        }
+        $scope.SOItemList = [];
+        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SOItemList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        
+            angular.element(document.querySelector('#POItemPopup')).modal('show');
+       
+    };
+
     $scope.selectSOItem = function ($event) {
         try {
             var soitem = $event.data;

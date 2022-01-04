@@ -296,7 +296,8 @@ namespace Library.Service.Finances
 						,[ParticularName]=CASE
 								WHEN VI.TransactionType='LoanGiven'  THEN FT.AssetUserName
 								WHEN VI.TransactionType='LoanTaken' THEN FT.LiabilityUserName
-								WHEN P.UserName<>'' THEN P.UserName 
+								WHEN P.UserName<>'' AND isnull(IV.DocRefNo,'')<>'' THEN P.UserName +' ('+ isnull(IV.DocRefNo,'')+')'
+								WHEN P.UserName<>'' THEN P.UserName
                                 WHEN FS.DocRefNo<>'' THEN FS.DocRefNo
 								WHEN ACT.UserName<>'' THEN ACT.UserName
 								ELSE ''	END
@@ -304,10 +305,12 @@ namespace Library.Service.Finances
 		                 JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                 JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 
+                        LEFT JOIN TRN.InvoiceWriteOffDetail AS IVWD ON IVWD.Id=VD.InvoiceWriteOffDetailId
+						LEFT JOIN TRN.Invoice AS IV ON IV.Id=IVWD.InvoiceId
                         LEFT JOIN TRN.FinancingDetail AS VID ON VID.Id=VD.FinancingDetailId
                         LEFT JOIN TRN.Financing AS VI ON VI.Id=VID.FinancingId
                         LEFT JOIN HKP.FinancingType AS FT ON FT.Id=VI.FinancingTypeId
-						LEFT JOIN (select PartyId,VoucherId from TRN.VoucherDetail where ISNULL(PartyId,'')<>''  ) AS PD ON PD.VoucherId=V.Id
+						LEFT JOIN (select Id,PartyId,VoucherId from TRN.VoucherDetail where ISNULL(PartyId,'')<>''  ) AS PD ON PD.VoucherId=V.Id AND PD.Id=VDC.VoucherDetailId
 		                LEFT JOIN HKP.Party AS P ON P.Id=PD.PartyId
 		                LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 						 LEFT JOIN TRN.FinancingSubsequentTransaction F ON F.VoucherDetailId=VD.Id
