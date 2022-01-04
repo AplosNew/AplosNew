@@ -1,13 +1,17 @@
-﻿using Library.Data.Sql;
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Service.Currencies;
+using Library.Service.Extension;
 using Library.Service.Extension.Accounts;
 using Library.Service.Helpers;
 using Library.Service.Organizations;
 using Syncfusion.XlsIO;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 
 namespace Library.Service.Banks
 {
@@ -1940,6 +1944,298 @@ namespace Library.Service.Banks
             {
                 throw;
             }
+        }
+
+        private string BanReconcileCRSql(string BankMasterID, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT V.Id AS VoucherId
+	                                         ,VD.Id AS VoucherDetailId
+	                                         ,V.VoucherNo
+	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+                                             ,VD.DocRefNo, VD.PartyType, VD.Narration
+	                                         ,GLT.CrAmount AS Amount --[Add : BanK other Credit]
+	                                         ,'' AS CheckNo
+	                                         ,'' EncashmentDate
+                                       FROM TRN.VoucherDetail AS VD
+                                       INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                       INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                                       WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + BankMasterID + @"' AND (ReconcileId IS NULL))
+                                       AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'  AND V.IsPark=0
+                                       AND (VD.BankMasterId='" + BankMasterID + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
+                                       AND (VD.CrAmount<>0.0000)";
+        }
+
+        private string BanReconcileDRSql(string BankMasterID, string fromDate, string toDate,string cutOffDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = "";
+            if (Convert.ToDateTime(cutOffDate).Date == Convert.ToDateTime(fromDate).Date)
+            {
+                str = " AND V.[SourceType]<>'OpeningBalance' ";
+            }
+            else
+            {
+                str = " ";
+            }
+            return @"SELECT V.Id AS VoucherId
+	                                         ,VD.Id AS VoucherDetailId
+	                                         ,V.VoucherNo
+	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+                                             ,VD.DocRefNo, VD.PartyType, VD.Narration
+	                                         ,GLT.DrAmount AS Amount --[Add : BanK other Credit]
+	                                         ,'' AS CheckNo
+	                                         ,'' EncashmentDate 
+                                       FROM TRN.VoucherDetail AS VD
+                                       INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                       INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                                       WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + BankMasterID + @"' AND (ReconcileId IS NULL))
+                                       AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.IsPark=0
+                                       AND (VD.BankMasterId='" + BankMasterID + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
+                                       AND (VD.DrAmount<>0.0000)" + str;
+        }
+
+        public void CRReconcileReport(string BankMasterID,string fromDate,string toDate, Dictionary<string, object> bankReconciliation)
+        {
+            try
+            {
+                //if (string.IsNullOrEmpty(entityid) || entityid == "''")
+                //    throw new Exception("Select entity");
+
+                string sql = BanReconcileCRSql( BankMasterID,  fromDate, toDate);
+
+                //Instantiate the Excel application object
+                DataTable dtCRBR = _sqlRepository.GetDataTable(sql);
+                if (dtCRBR.Rows.Count == 0)
+                    throw new Exception("No data found");
+                ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+
+                sheet.Name = "CR Reconcile Report";
+
+                int ROW = 6;
+                int COL = 1;
+
+                sheet[ROW, COL].Text = "Voucher No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colVoucherNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Voucher Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colVoucherDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Posting Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPostingDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Doc Ref No.";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int colDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPartyType = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Narration";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colNarration = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colAmount = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Check No.";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colCheckNo = COL;
+
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
+
+                int StartRow = ROW; //row 20
+                for (int i = 0; i < dtCRBR.Rows.Count; i++)
+                {
+
+                    sheet[ROW, colVoucherNo].Text = dtCRBR.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colVoucherDate].Text = dtCRBR.Rows[i]["VoucherDate"].ToString();
+
+                    sheet[ROW, colPostingDate].Text = dtCRBR.Rows[i]["PostingDate"].ToString();
+                    sheet[ROW, colDocRefNo].Text = dtCRBR.Rows[i]["DocRefNo"].ToString();
+                    sheet[ROW, colNarration].Text = dtCRBR.Rows[i]["PartyType"].ToString();
+                    sheet[ROW, colPartyType].Text = dtCRBR.Rows[i]["Narration"].ToString();
+                    sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtCRBR.Rows[i]["Amount"].ToString());
+                    sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colCheckNo].Text = dtCRBR.Rows[i]["CheckNo"].ToString();
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+
+                }
+
+                //sheet.Range[StartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[StartRow, colPOValue, ROW, colPOValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[StartRow, colAcceptanceValue, ROW, colAcceptanceValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[StartRow, colGRNValue, ROW, colGRNValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.IsGridLinesVisible = false;
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+                sheet["A" + StartRow.ToString()].FreezePanes();
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "CR Reconcile Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                string strFileName = "CRReconcileReport.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        public void DRReconcileReport(string BankMasterID, string fromDate, string toDate,string cutOffDate)
+        {
+            try
+            {
+                //if (string.IsNullOrEmpty(entityid) || entityid == "''")
+                //    throw new Exception("Select entity");
+
+                string sql = BanReconcileDRSql(BankMasterID, fromDate, toDate, cutOffDate);
+
+                //Instantiate the Excel application object
+                DataTable dtDRBR = _sqlRepository.GetDataTable(sql);
+                if (dtDRBR.Rows.Count == 0)
+                    throw new Exception("No data found");
+                ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+
+                sheet.Name = "DR Reconcile Report";
+
+                int ROW = 6;
+                int COL = 1;
+
+                sheet[ROW, COL].Text = "Voucher No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colVoucherNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Voucher Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colVoucherDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Posting Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPostingDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Doc Ref No.";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int colDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPartyType = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Narration";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colNarration = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colAmount = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Check No.";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colCheckNo = COL;
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
+
+                int StartRow = ROW; //row 20
+                for (int i = 0; i < dtDRBR.Rows.Count; i++)
+                {
+
+                    sheet[ROW, colVoucherNo].Text = dtDRBR.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colVoucherDate].Text = dtDRBR.Rows[i]["VoucherDate"].ToString();
+
+                    sheet[ROW, colPostingDate].Text = dtDRBR.Rows[i]["PostingDate"].ToString();
+                    sheet[ROW, colDocRefNo].Text = dtDRBR.Rows[i]["DocRefNo"].ToString();
+                    sheet[ROW, colNarration].Text = dtDRBR.Rows[i]["PartyType"].ToString();
+                    sheet[ROW, colPartyType].Text = dtDRBR.Rows[i]["Narration"].ToString();
+                    sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtDRBR.Rows[i]["Amount"].ToString());
+                    sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colCheckNo].Text = dtDRBR.Rows[i]["CheckNo"].ToString();
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+
+                }
+
+                //sheet.Range[StartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[StartRow, colPOValue, ROW, colPOValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[StartRow, colAcceptanceValue, ROW, colAcceptanceValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[StartRow, colGRNValue, ROW, colGRNValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.IsGridLinesVisible = false;
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+                sheet["A" + StartRow.ToString()].FreezePanes();
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "DR Reconcile Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                string strFileName = "DRReconcileReport.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
     }
