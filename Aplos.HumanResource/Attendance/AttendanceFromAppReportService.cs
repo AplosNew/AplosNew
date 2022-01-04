@@ -242,17 +242,27 @@ namespace Library.HumanResource.Attendances {
                     #endregion
 
                     #region ReProcessing 
-
-                    string[] PlantList = Plant.Split(',');
-
-                    foreach (string item in PlantList)
+                    if (From != "" && To != "")
                     {
-                        string PlantId = item.ToString();
-                        
-                        app.AttndProcess(From, PlantId);
+                        DateTime frmdate = Convert.ToDateTime(From);
+                        DateTime Todat = Convert.ToDateTime(To);
 
-                        app.DayStatus(From, PlantId);
+                        int days = 0;
+                        while (frmdate.AddDays(days) <= Todat)
+                        {
+                            string[] PlantList = Plant.Split(',');
 
+                            foreach (string item in PlantList)
+                            {
+                                string PlantId = item.ToString();
+
+                                app.AttndProcess(frmdate.AddDays(days).ToString("yyyy-MM-dd"), PlantId);
+
+                                app.DayStatus(frmdate.AddDays(days).ToString("yyyy-MM-dd"), PlantId);
+
+                            }
+                            days += 1;
+                        }
                     }
                     #endregion
                 }
