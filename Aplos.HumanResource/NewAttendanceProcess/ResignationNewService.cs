@@ -210,6 +210,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             ConnectionManager.clsConnectionManager conManager = new ConnectionManager.clsConnectionManager(600);
                             conManager.BeginTransaction();
 
+                            conManager.executeQuery(sqlEmployeeInfo);
                             conManager.executeQuery(strUpdateResignedEmpData);
                             conManager.executeQuery(strDeleteAttdnProcessManualEntryRemarksData);
                             conManager.executeQuery(strDeleteAttdnProcessData);
