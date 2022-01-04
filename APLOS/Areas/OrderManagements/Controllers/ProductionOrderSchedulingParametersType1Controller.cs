@@ -3004,7 +3004,7 @@ from trn.ProductionOrder PO
 
 WHERE  
 isnull(wc.Id,'') IN(" + parameters["WorkCenterId"] + @") AND 
-
+isnull(PO.Id,'') IN(" + parameters["ProductOrderId"] + @") AND 
 isnull(MO.Id,'') IN(" + parameters["MasterOrderNo"] + @") AND 
 isnull(MO.BuyerReferenceNo,'') IN(" + parameters["BuyerOrderNo"] + @") AND 
 isnull(moi.BuyerReferenceNo,'') IN(" + parameters["BuyerItemNo"] + @") AND 
@@ -3368,7 +3368,7 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @" SELECT * FROM (
                                         SELECT DISTINCT 
-                                        isnull(mo.Id,'')AS MasterOrderNo,isnull(mo.BuyerReferenceNo,'') AS BuyerOrderNo,isnull(moi.BuyerReferenceNo,'') AS BuyerItemNo,
+                                        isnull(po.Id,'') ProductOrderId,isnull(mo.Id,'')AS MasterOrderNo,isnull(mo.BuyerReferenceNo,'') AS BuyerOrderNo,isnull(moi.BuyerReferenceNo,'') AS BuyerItemNo,
                                         wc.Sequence, isnull(wc.Id,'') AS WorkCenterId,isnull(wc.UserName,'') AS WorkCenter,isnull(e.Id,'') AS EntityId,isnull(e.UserName,'') Entity,
                                         isnull(pm.Id,'') ProductMasterId,isnull(pm.UserName,'') ProductMaster,isnull(pc.Id,'') ProductCategoryId,isnull(pc.UserName,'') ProductCategory,
                                         isnull(mm.Id,'') MaterialMasterId,isnull(mm.UserName ,'')MaterialMaster,isnull(MMr.Id,'') ArticleId,isnull(mmr.ShortName,'') Article,isnull(b.Id,'') BuyerId,isnull(b.UserName,'') Buyer,

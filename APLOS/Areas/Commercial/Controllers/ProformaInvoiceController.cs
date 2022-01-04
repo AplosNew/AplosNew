@@ -317,12 +317,11 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
             var PIMasterData = _sqlRepository.GetDataCollection(sql, null);
 
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId,
---cast(p.Rate,decimal(10,2)) Rate
 CAST(ROUND(p.Rate, 4) AS DECIMAL(10,4)) Rate,
 CAST(ROUND(p.Quantity, 2) AS DECIMAL(10,2)) Quantity,
 ROUND(p.Amount, 2) Amount,
  p.UoMId,NULL AS MaterialGroupUOMList,
-							   p.[Description], p.DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup
+							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup
 							   ,p.HSNCodeId,h.Code HSNCode
 						  FROM PIMaterial AS p
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId

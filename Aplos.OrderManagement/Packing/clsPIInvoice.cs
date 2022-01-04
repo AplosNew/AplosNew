@@ -68,7 +68,7 @@ namespace Library.OrderManagement.Packing
                                 	LEFT JOIN [SCS].[Currency] AS C ON C.Id = pm.CurrencyId
                                 	LEFT JOIN CommercialInvoicePackingList IPL ON IPL.PIPackingListMasterId = PLM.Id
                                 	) d
-                                WHERE d.Id = '"+ CommercialInvoiceMasterId + @"' ";
+                                WHERE d.Id = '" + CommercialInvoiceMasterId + @"' ";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -174,13 +174,13 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-        public void save(Dictionary<string, object> MasterData, List<Dictionary<string, object>> CommercialInvoicePackingList, List<Dictionary<string, object>> CommercialInvoicePIMaterial)
+        public void save(Dictionary<string, object> MasterData, List<Dictionary<string, object>> CommercialInvoicePackingList, List<Dictionary<string, object>> CommercialInvoicePIMaterial, List<Dictionary<string, object>> taxList)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dsMaster, dsDetails, dsMaterial; DataRow dr;
+                DataSet dsMaster, dsDetails, dsMaterial, dsTaxes; DataRow dr;
                 string MasterID = "";
                 bplib.clsGenID objGenID = null;
                 objGenID = new bplib.clsGenID();
@@ -308,6 +308,7 @@ namespace Library.OrderManagement.Packing
                 #region Commercial Invoice PI Material Save
 
                 dr = null;
+                string PIMaterial = "";
                 string sql2 = "SELECT * FROM [dbo].[CommercialInvoicePIMaterial] WHERE CommercialInvoiceMasterId ='" + MasterData["Id"] + "' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql2, out dsMaterial, false, "1");
@@ -320,6 +321,7 @@ namespace Library.OrderManagement.Packing
                         dr = dsMaterial.Tables[0].NewRow();
 
                         dr["Id"] = "C" + TempId + count++;
+                        PIMaterial = dr["Id"].ToString();
                         dr["CommercialInvoiceMasterId"] = MasterID;
                         dr["PIPackingListMaterialId"] = CommercialInvoicePIMaterial[i]["PIPackingListMaterialId"];
 
@@ -345,8 +347,67 @@ namespace Library.OrderManagement.Packing
 
                 #endregion
 
+                #region Tax Save Part
+
+                string sql3 = "SELECT * FROM [dbo].[CommercialInvoiceTaxes] WHERE CommercialInvoiceMasterId ='" + MasterData["Id"] + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql3, out dsTaxes, false, "1");
+                count = 0;
+                for (int j = 0; j < dsMaterial.Tables[0].Rows.Count; j++)
+                {
+                    for (int i = 0; i < taxList.Count; i++)
+                    {
+                        dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + taxList[i]["Id"] + "'  ";
+                        if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                        {
+                            dr = dsTaxes.Tables[0].NewRow();
+
+                            dr["Id"] = "T" + TempId + count++;
+                            dr["CommercialInvoiceMasterId"] = MasterID;
+                            dr["CommercialInvoicePIMaterialId"] = dsMaterial.Tables[0].Rows[i]["Id"];
+                            //dr["CommercialInvoiceChargesId"] = taxList[i]["CommercialInvoiceChargesId"];
+                            dr["TaxCategoryId"] = taxList[i]["TaxCategoryId"];
+                            dr["HSNCodeId"] = taxList[i]["HSNCodeId"];
+                            dr["Percentage"] = taxList[i]["Percentage"];
+                            dr["Amount"] = taxList[i]["TotalAmount"];
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = identity.IPAddress;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+                            dsTaxes.Tables[0].Rows.Add(dr);
+                        }
+                        else
+                        {
+                            dr = dsTaxes.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            //dr["PIPackingListMaterialId"] = taxList[i]["PIPackingListMaterialId"];
+                            //dr["UpdatedBy"] = identity.Name;
+                            //dr["UpdatedDate"] = DateTime.Now;
+                            //dr["UpdatedFromIP"] = identity.IPAddress;
+                            dr.EndEdit();
+                        }
+                    }
+                }
+
+                //for (int i = 0; i < CommercialInvoicePIMaterial.Count; i++)
+                //{
+                //    if (CommercialInvoicePIMaterial[i].ContainsKey("TaxList[0]") == false)
+                //    {
+
+
+                //        continue;
+                //    }
+                //    TaxList TaxLists = (TaxList)CommercialInvoicePIMaterial[i]["TaxList[0]"];
+
+                //}
+
+                #endregion
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetails, dsMaterial);
+                _info.SaveDataSets(dsMaster, dsDetails, dsMaterial, dsTaxes);
 
             }
             catch (Exception ex)
@@ -356,4 +417,16 @@ namespace Library.OrderManagement.Packing
         }
 
     }
+}
+
+
+public class TaxList
+{
+    public string HSNCode { get; set; }
+    public string HSNCodeId { get; set; }
+    public string Id { get; set; }
+    public string Percentage { get; set; }
+    public string TaxCategoryId { get; set; }
+    public string TotalAmount { get; set; }
+    public string UserName { get; set; }
 }

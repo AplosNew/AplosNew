@@ -192,7 +192,7 @@
                                                 <td class="text-right">{{x.Quantity | number:2}}</td>
                                                 <td class="text-right">{{x.UOM}}</td>
                                                 <td class="text-right">{{x.Amount | number:2}}</td>
-                                                <td class="text-right">{{x.Tax | number:2}}</td>
+                                                <td class="text-right">{{x.TaxAmount | number:2}}</td>
                                                 <td class="text-right">{{x.ServiceCharge | number:2}}</td>
                                                 <td class="text-right">{{x.ServiceTax | number:2}}</td>                                                
                                                 <td class="text-right">{{x.NetAmount | number:2}}</td>
@@ -215,7 +215,7 @@
                                                 <td class="text-right"><strong>{{salesOrderList | sumByKey : 'Quantity'| setDecimal:2 | number:2}}</strong></td>
                                                 <td></td>
                                                 <td class="text-right"><strong>{{salesOrderList | sumByKey : 'Amount'| setDecimal:2 | number:2}}</strong></td>
-                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'Tax'| setDecimal:2 | number:2}}</strong></td>
+                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'TaxAmount'| setDecimal:2 | number:2}}</strong></td>
                                                 <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision | number}}</strong></td>
                                                 <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
                                                 <td class="text-right">

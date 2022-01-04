@@ -259,6 +259,7 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
             if (angular.isUndefinedOrNull(filteredRecords) == false) {
                 if (filteredRecords.length > 0) {
                     var parameters = [];
+                    parameters.push({ "Key": "ProductOrderId", "Value": getString(filteredRecords, "ProductOrderId") });
                     parameters.push({ "Key": "WorkCenterId", "Value": getString(filteredRecords, "WorkCenterId") });
                     //parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
                     parameters.push({ "Key": "ProductMasterId", "Value": getString(filteredRecords, "ProductMasterId") });
