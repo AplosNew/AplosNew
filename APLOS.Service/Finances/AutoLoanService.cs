@@ -414,6 +414,7 @@ namespace Library.Service.Finances
                         voucherDetailTo.BudgetMasterId = voucherDetailVM.BudgetMasterId;
                         voucherDetailTo.ActivityId = voucherDetailVM.ActivityId;
                         voucherDetailTo.TrnNature = TransactionNature.ToVendor.ToString();
+                        voucherDetailTo.InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id;
                         voucherDetailTo.DrAmount = voucherDetailVM.Amount;
 
                         currentVoucherDetailId++;
@@ -780,6 +781,7 @@ namespace Library.Service.Finances
                         voucherDetailTo.BudgetMasterId = voucherDetailVM.BudgetMasterId;
                         voucherDetailTo.ActivityId = voucherDetailVM.ActivityId;
                         voucherDetailTo.TrnNature = TransactionNature.ToVendor.ToString();
+                        voucherDetailTo.InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id;
                         voucherDetailTo.DrAmount = voucherDetailVM.Amount;
 
                         currentVoucherDetailId++;
