@@ -111,9 +111,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" ng-show="IsGo===true">
-            <label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for production booking.</label>
-        </div>
+        
         <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
             <div class="col-sm-8">
@@ -142,23 +140,23 @@
         </div>
         <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-2 control-label">Buyer Item</label>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <label class="control-label">{{productionSummaryNew.BuyerItem}}</label>
             </div>
 
             <label class="col-sm-2 control-label">Own Item</label>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <label class="control-label">{{productionSummaryNew.OwnItem}}</label>
             </div>
         </div>
         <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-2 control-label">Buyer Order</label>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <label class="control-label">{{productionSummaryNew.BuyerOrder}}</label>
             </div>
 
             <label class="col-sm-2 control-label">Own Order</label>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <label class="control-label">{{productionSummaryNew.OwnOrder}}</label>
             </div>
         </div>
@@ -217,13 +215,11 @@
                 </ul>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-12 control-label"></label>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for production booking.</label>
         </div>
-        <div class="form-group">
-            <label class="col-sm-12 control-label"></label>
-        </div>
-        <div class="form-group" ng-show="IsGo===true" style="margin-top: 18px;">
+        
+        @*<div class="form-group" ng-show="IsGo===true" style="margin-top: 18px;">
             <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Master Order</label>
             <div class="col-sm-8" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
                 <div class="input-group">
@@ -233,14 +229,7 @@
                     </span>
                 </div>
             </div>
-        </div>
-        <div class="form-group" ng-show="IsGo===true">
-            <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">PO Number</label>
-            <div class="col-sm-8" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
-                <label class="control-label">{{productionSummaryNew.PONumber}}</label>
-            </div>
-        </div>
-
+        </div>*@
         <div class="form-group" ng-show="IsGo===true && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
             <label class="col-sm-4 control-label">{{ProductionLevel}}<sup>*</sup></label>
             <div class="col-sm-8">
@@ -255,7 +244,12 @@
             </div>
         </div>
 
-        
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">PO Number</label>
+            <div class="col-sm-8" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
+                <label class="control-label">{{productionSummaryNew.PONumber}}</label>
+            </div>
+        </div>
         <div class="form-group" ng-show="IsGo===true && LotNumberCapture==true">
             <label class="col-sm-4 control-label">Lot Number<sup>*</sup></label>
             <div class="col-sm-4">
@@ -340,6 +334,7 @@
             </div>
         </div>
     </div>
+
 </div>
 <div class="col-xs-12" ng-show="IsGo===true">
     <div class="common-btn">
