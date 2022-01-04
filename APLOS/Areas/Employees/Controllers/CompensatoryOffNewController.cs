@@ -384,10 +384,10 @@ namespace Aplos.Areas.Employees.Controllers
                     dr["IsAlignedWithHoliday"] = masterdata.IsAlignedWithHoliday;
 
                     dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedDate"] = DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
                     dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
 
                     dsMaster.Tables[0].Rows.Add(dr);
@@ -413,18 +413,14 @@ namespace Aplos.Areas.Employees.Controllers
 
 
                     dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
 
                     dr.EndEdit();
 
                 }
 
-
-
-
-
-
+                string RowMaster = "''";
                 //deleting all unused data
                 if (employeedata == null)
                 {
@@ -446,7 +442,6 @@ namespace Aplos.Areas.Employees.Controllers
                     }
 
 
-
                     string employeeTableID = "";
                     for (int i = 0; i < employeedata.Count; i++)
                     {
@@ -462,14 +457,18 @@ namespace Aplos.Areas.Employees.Controllers
                             DataRow dr = dsEmployee.Tables[0].NewRow();
                             dr["id"] = employeeTableID + "-" + (i + 1).ToString();
 
+                            string RowId = Convert.ToDateTime(masterdata.OriginalDate).ToString("yyyyMMdd")+ employeedata[i].Id;
+
+                            RowMaster += ",'" + RowId + "'";
+
                             dr["CompensatoryOffId"] = MasterID;
                             dr["EmpSystemId"] = employeedata[i].Id;
 
                             dr["AddedBy"] = identity.Name;
-                            dr["AddedDate"] = System.DateTime.Now.ToString();
+                            dr["AddedDate"] = DateTime.Now.ToString();
                             dr["AddedFromIP"] = identity.IPAddress;
                             dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
                             dr["UpdatedFromIP"] = identity.IPAddress;
 
                             dsEmployee.Tables[0].Rows.Add(dr);
@@ -482,6 +481,11 @@ namespace Aplos.Areas.Employees.Controllers
 
                 clsStaticInfo obj1 = new clsStaticInfo();
                 obj1.SaveDataSets(dsMaster, dsEmployee);
+
+                #region Flag Update
+                ProcessFlag(RowMaster, masterdata.DayCode);
+                #endregion
+
             }
             catch (Exception ex)
             {
@@ -490,6 +494,27 @@ namespace Aplos.Areas.Employees.Controllers
             }
 
         }
+        public void ProcessFlag(string MainRowId,string DayType)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData set IsManualDayStatus=1,DateUpdated=GetDate(),ManualDayStatus='" + DayType+@"',ManualFlag=1 
+                where rowid in ("+MainRowId+ @")";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
 
         [HttpPost]
         public JsonResult deleteemployee(CompensatoryOffNew masterdata, string employeedata)
