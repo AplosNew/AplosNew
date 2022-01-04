@@ -564,9 +564,8 @@ namespace Library.Service.Finances
                     IsPark = voucherVM.IsPark,
                     PartyPlantId = voucherVM.PartyPlantId,
                     TransactionType = voucherVM.TransactionType,
-                    IsSchedule = voucherVM.IsSchedule
-                    //,
-                    //InvoiceTaggingWithLCMasterId = voucherVM.LoanAgainstAcceptanceId
+                    IsSchedule = voucherVM.IsSchedule,
+                    InvoiceTaggingWithLCMasterId = voucherVM.LoanAgainstAcceptanceId
                 });
 
                 var voucher = _voucherService.InsertVoucher(voucherVM);
