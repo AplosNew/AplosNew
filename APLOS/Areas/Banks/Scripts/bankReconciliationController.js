@@ -624,4 +624,26 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
         
         return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
     };
+    $scope.CRREconcileReport = function () {
+        try {
+            
+            var file_src = 'banks/bankreconciliation/CRReconcileReport?BankMasterID=' + $scope.bankCrReconParameters.bankMasterId + '&fromDate=' + $scope.bankCrReconParameters.fromDate + '&toDate=' + $scope.bankCrReconParameters.toDate + '&bankReconciliation=' + $scope.bankReconciliationNew
+            $rootScope.report(file_src);
+      
+        } catch (e) {
+
+        }
+    }
+
+  
+    $scope.DRREconcileReport = function () {
+        try {
+
+            var file_src = 'banks/bankreconciliation/DRReconcileReport?BankMasterID=' + $scope.bankCrReconParameters.bankMasterId + '&fromDate=' + $scope.bankCrReconParameters.fromDate + '&toDate=' + $scope.bankCrReconParameters.toDate + '&cutOffDate' + $scope.bankDrReconParameters.cutOffDate
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 }

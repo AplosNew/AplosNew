@@ -116,8 +116,12 @@
 
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Day Type</label>
-                                    <div class="col-sm-8">
+                                    <div class="col-sm-6">
                                         <input type="text" ng-model="DayChild.DayType" ng-click="selectCurrDayStatus()" class="form-control" maxlength="100" tabindex="2">
+
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <button ng-click="selectCurrDayStatus()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                                     </div>
                                 </div>
 
@@ -160,10 +164,16 @@
                                 </div>
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
+                                    <div class="col-sm-6 show-message">
 
                                         <input type="text" name="Responsible Person" ng-model="RespPerson" ng-click="selectRespPerson()" class="form-control" maxlength="200" tabindex="15" required>
 
+                                        
+
+                                    </div>
+
+                                    <div class="col-sm-1">
+                                        <button ng-click="selectRespPerson()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                                     </div>
                                 </div>
 
@@ -830,8 +840,12 @@
 
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Day Type</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-6">
                                     <input type="text" ng-model="DayStatusType" ng-click="selectStatusDayType()" class="form-control" maxlength="100" tabindex="2">
+                                    
+                                </div>
+                                <div class="col-sm-1">
+                                    <button ng-click="selectStatusDayType()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                                 </div>
                             </div>
 
