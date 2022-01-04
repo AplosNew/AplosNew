@@ -334,7 +334,7 @@ namespace Library.MaterialManagement.JobWork
 ,kk.TotalQuantity as TIRCTotalQty
 ,Sum(0) PlannedQty,0 IssuedQty,0 BalanceQty
 ,null MaterialStorageId ,uom.Id as TransactionUoMId,uom.Id as BaseUoMId, uom.UserName as TransactionUoM
-,Isnull(ab.TotalQty,0) TotalQty, Isnull(cd.PostingQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
+,Isnull(ab.TotalQty,0)+ISNULL(TIRD.TransferBaseQty,0) TotalQty, Isnull(cd.PostingQty,0)+ISNULL(TIRD.TransferBaseQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
 ,Isnull(cd.PostingQty,0) PostingQuantity--,IRD.BaseUoMFactor
 
 from dbo.OSTransformationPOInputMaterial mi
@@ -344,6 +344,11 @@ left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 left join TRN.InventoryMaterial IM on  IM.ArticleId=mi.ArticleId
 left join TRN.InventoryReceiveDetail IRD on IRD.InventoryMaterialId=IM.Id
+LEFT JOIN (SELECT TIRD.InventoryReceiveId,TIRD.InventoryMaterialId,sum(ISNULL(TIRD.BaseQty,0)) TransferBaseQty FROM TRN.InventoryReceiveDetail TIRD 
+										LEFT JOIN TRN.InventoryReceive TIR ON TIR.Id=TIRD.InventoryReceiveId
+										WHERE  TIR.[Status] IS NULL AND TIR.IsApproved=1 AND TIR.RequiredPosting=0 AND TIR.GRNType='MaterialTransfer'
+										GROUP BY TIRD.InventoryReceiveId,TIRD.InventoryMaterialId
+										) TIRD ON TIRD.InventoryMaterialId=IM.Id 
 left join(select iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId,iid.OSTransformationPOId 
 			FROM TRN.InventoryIssueDetail iid 
 			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
@@ -498,7 +503,7 @@ group by uom.Id --,mi.Id
 , mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity
 ,mi.OSTransformationPODetailId
 ,uom.UserName,mm.Code ,mma.StandardName ,mma.Id
-,ab.TotalQty,cd.PostingQty,ef.ApprovedQty,gh.UnApprovedQty--,IRD.BaseUoMFactor
+,ab.TotalQty,cd.PostingQty,ef.ApprovedQty,gh.UnApprovedQty,TIRD.TransferBaseQty--,IRD.BaseUoMFactor
 ";
 
                 }
@@ -1143,7 +1148,7 @@ group by uom.Id --,mi.Id
 ,BaseUoMId=case when mi.ArticleId is not null then uom.Id else uomm.Id End
 --,uom.UserName as TransactionUoM
 ,TransactionUoM=case when mi.ArticleId is not null then uom.UserName else uomm.UserName End
-,Isnull(ab.TotalQty,0) TotalQty, Isnull(cd.PostingQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
+,Isnull(ab.TotalQty,0)+ISNULL(TIRD.TransferBaseQty,0) TotalQty, Isnull(cd.PostingQty,0)+ISNULL(TIRD.TransferBaseQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
 from dbo.OSTransformationPOInputMaterial mi
 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
@@ -1154,6 +1159,18 @@ left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 left join trn.InventoryMaterial IM ON IM.MaterialMasterId=jwii.MaterialMasterId and IM.ArticleId=mi.ArticleId
 left join trn.InventoryReceiveDetail IRD ON IRD.InventoryMaterialId=IM.Id
+LEFT JOIN (SELECT TIRD.InventoryReceiveId,TIRD.InventoryMaterialId,sum(ISNULL(TIRD.BaseQty,0))-sum(isnull(TII.IssueQuantity,0)) TransferBaseQty FROM TRN.InventoryReceiveDetail TIRD 
+										LEFT JOIN TRN.InventoryReceive TIR ON TIR.Id=TIRD.InventoryReceiveId
+										 left join(select SUM(iih.Qty) as IssueQuantity, iih.InventoryReceiveDetailId 
+										 FROM TRN.InventoryIssueHistory iih
+										 left join TRN.InventoryIssueDetail iid on iid.Id=iih.InventoryIssueDetailId
+										 left join TRN.InventoryIssue II
+											on iid.InventoryIssueId=II.Id group by iih.InventoryReceiveDetailId
+										) TII on TII.InventoryReceiveDetailId=TIRD.Id
+										WHERE  TIR.[Status] IS NULL AND TIR.IsApproved=1 AND TIR.RequiredPosting=0 AND TIR.GRNType='MaterialTransfer'
+                                        AND CAST(TIR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)
+										GROUP BY TIRD.InventoryReceiveId,TIRD.InventoryMaterialId
+										) TIRD ON TIRD.InventoryMaterialId=IM.Id 
 left join(select iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId, iid.OSTransformationPOId
 			FROM TRN.InventoryIssueDetail iid 
 			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
@@ -1383,7 +1400,7 @@ left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.OSTra
 where mi.OSTransformationPODetailId IN (" + MPId + @")
 group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.TotalQty,uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity
 ,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id
-,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty ";
+,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty,TIRD.TransferBaseQty ";
                 }
 
                 else if(OrderSpecific == "Yes" && !string.IsNullOrEmpty(TransIssueId))
@@ -2292,7 +2309,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							,II.ContractId,II.ProductionOrderId,Con.ContractNo
                             ,II.Types, II.JWContractId,Tuom.UserName as TransactionUoM
 							FROM[TRN].[InventoryIssue] AS II
-							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
+							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id  AND ISNULL(IID.IsAsset,0)= 0 
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
@@ -2306,7 +2323,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
         					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryOSIssue' and II.JWContractId='" + Id + @"'
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting'  AND ISNULL(IID.IsAsset,0)= 0  and II.Types='InventoryOSIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
@@ -2336,7 +2353,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							,II.ContractId,II.ProductionOrderId,Con.ContractNo
                             ,II.Types, II.JWContractId,Tuom.UserName as TransactionUoM
 							FROM[TRN].[InventoryIssue] AS II
-							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
+							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id  AND ISNULL(IID.IsAsset,0)= 0 
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
@@ -2350,7 +2367,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
 							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
         					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryOSIssue' and II.JWContractId='" + Id + @"'
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting'  AND ISNULL(IID.IsAsset,0)= 0  and II.Types='InventoryOSIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  

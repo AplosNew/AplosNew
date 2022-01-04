@@ -687,12 +687,17 @@ namespace Library.Service.Productions
                 if (!string.IsNullOrEmpty(ps.ProcessId))
                 {
                     var productionOrderProcessSet = _ProductionOrderProcessSetRepository.Query(r => r.ProductionOrderId == ps.ProductionOrderId && r.ProcessId == ps.ProcessId).Select().FirstOrDefault();
+                    if (productionOrderProcessSet==null)
+                    {
+                        throw new CustomException("Production Order ProcessSet not define.");
+                    }
                     if (productionOrderProcessSet.StartDate == null)
                     {
                         productionOrderProcessSet.StartDate = DateTime.Now;
                         AuditService.UpdatedLog(productionOrderProcessSet);
                         _ProductionOrderProcessSetRepository.Update(productionOrderProcessSet);
-                    } 
+                    }
+                    
                 }
 
                 _unitOfWork.SaveChanges();

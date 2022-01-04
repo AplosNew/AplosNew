@@ -154,9 +154,6 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                         var ob = {};
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
-                        //ob.EntityId = $scope.PackingList[i].EntityId;
-                        //if (checkExistCustomer($scope.selectedPackingList, ob.PartyId, ob.EntityId)) {
-                        //    if (checkExistList($scope.selectedPackingList, ob.PackingId) === false) {
                         ob.Id = null;
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         $scope.salesVM.PackingId = $scope.PackingList[i].PackingId;
@@ -178,11 +175,6 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                         $scope.getPartyPlant();
 
                     }
-                    //}
-                    //else {
-                    //    throw 'Select same Entity and Customer.';
-                    //}
-                    //}
                 }
             }
             $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
@@ -244,7 +236,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }).then(function (response) {
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                //getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
+                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].Amount);
 
             }
         });
@@ -258,7 +250,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             $scope.materialtaxCategoryList = response.data;
 
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                if ($scope.salesOrderList[i].SONo === soId) {
+                if ($scope.salesOrderList[i].HSNCodeId === hsnCodeId) {
                     $scope.salesOrderList[i].TaxList = $scope.materialtaxCategoryList;
                     for (var j = 0; j < $scope.salesOrderList[i].TaxList.length; j++) {
                         $scope.calculateHSNTaxAmount($scope.salesOrderList[i].TaxList[j], transactionAmount);
@@ -272,12 +264,12 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     $scope.CalculateTransactionAmount = function (data) {
 
         data.TaxAmount = 0;
-        if (!baseService.isUndefinedOrNull(data.Id)) {
+        if (!baseService.isUndefinedOrNull(data.PIMaterialId)) {
 
-            data.TransactionAmount = parseFloat(data.Rate * data.Qty).toFixed(2);
+            data.TransactionAmount = parseFloat(data.Rate * data.Quantity).toFixed(2);
         } else {
 
-            data.TransactionAmount = parseFloat(data.Rate * data.Qty).toFixed(2);
+            data.TransactionAmount = parseFloat(data.Rate * data.Quantity).toFixed(2);
         }
 
         if (baseService.arrayLength(data.TaxList) > 0) {
@@ -950,11 +942,17 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
 
     $scope.Save = function () {
         try {
+            var TaxLists = [];
+            for (var i = 0; i < $scope.salesOrderList.length; i++) {
+                for (var j = 0; j < $scope.salesOrderList[i].TaxList.length; j++) {
+                    TaxLists.push($scope.salesOrderList[i].TaxList[j]);
+                }
+            }
 
             $http({
                 method: 'POST',
                 url: $scope.path + 'Create',
-                data: { 'MasterData': $scope.salesVM, 'CommercialInvoicePackingList': $scope.selectedPackingList, 'CommercialInvoicePIMaterial': $scope.salesOrderList },
+                data: { 'MasterData': $scope.salesVM, 'CommercialInvoicePackingList': $scope.selectedPackingList, 'CommercialInvoicePIMaterial': $scope.salesOrderList, 'taxList': TaxLists },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

@@ -541,7 +541,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, EndOfStaticColumns + 1, ROW, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[ROW, EndOfStaticColumns + 1, ROW, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[ROW, EndOfStaticColumns + 1, ROW, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, 1, ROW, endCol].RowHeight = 80;
                 sheet.Range[ROW - 1, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 ROW++;
@@ -914,7 +914,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, EndOfStaticColumns + 1, ROW, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[ROW, EndOfStaticColumns + 1, ROW, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[ROW, EndOfStaticColumns + 1, ROW, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, 1, ROW, endCol].RowHeight = 80;
                 sheet.Range[ROW - 1, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 ROW++;
@@ -2191,11 +2191,16 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1.Range[xlsRow, colAssignBy].Text = dtTNA.Rows[i]["AssignBy"].ToString();
                     sheet1.Range[xlsRow, colAssignTo].Text = dtTNA.Rows[i]["AssignTo"].ToString();
                     sheet1.Range[xlsRow, colClosedBy].Text = dtTNA.Rows[i]["ClosedBy"].ToString();
+                    
+                    sheet1.Range[xlsRow, colDueDate].Text = dtTNA.Rows[i]["DueDate"].ToString();
+                    sheet1.Range[xlsRow, colExpectedCompletionDate].Text = dtTNA.Rows[i]["TempEndDate"].ToString();
+                    sheet1.Range[xlsRow, colClosingDate].Text = dtTNA.Rows[i]["ClosingDate"].ToString();
+                    sheet1.Range[xlsRow, colCommitmentDate].Text = dtTNA.Rows[i]["CommitmentDate"].ToString();
 
-                    clsStaticInfo.SetDate(sheet1[xlsRow, colDueDate], dtTNA.Rows[i]["DueDate"].ToString());
-                    clsStaticInfo.SetDate(sheet1[xlsRow, colExpectedCompletionDate], dtTNA.Rows[i]["TempEndDate"].ToString());
-                    clsStaticInfo.SetDate(sheet1[xlsRow, colClosingDate], dtTNA.Rows[i]["ClosingDate"].ToString());
-                    clsStaticInfo.SetDate(sheet1[xlsRow, colCommitmentDate], dtTNA.Rows[i]["CommitmentDate"].ToString());
+                    //clsStaticInfo.SetDate(sheet1[xlsRow, colDueDate], dtTNA.Rows[i]["DueDate"].ToString());
+                    //clsStaticInfo.SetDate(sheet1[xlsRow, colExpectedCompletionDate], dtTNA.Rows[i]["TempEndDate"].ToString());
+                    //clsStaticInfo.SetDate(sheet1[xlsRow, colClosingDate], dtTNA.Rows[i]["ClosingDate"].ToString());
+                    //clsStaticInfo.SetDate(sheet1[xlsRow, colCommitmentDate], dtTNA.Rows[i]["CommitmentDate"].ToString());
 
                     sheet1.Range[xlsRow, colLastChat].Text = dtTNA.Rows[i]["LastChat"].ToString();
 
@@ -2333,7 +2338,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 17;
-                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
@@ -2350,7 +2355,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
-                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
@@ -2368,7 +2373,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 22;
-                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
@@ -2378,10 +2383,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
                 sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
+                
                 #endregion ******************Report Header******************
 
 

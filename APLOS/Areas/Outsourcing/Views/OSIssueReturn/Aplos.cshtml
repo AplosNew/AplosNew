@@ -128,7 +128,7 @@
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
-                                                <input type="text" name="Date" ng-model="Issue.IssueDate" datepicker class="form-control" required tabindex="2">
+                                                <input type="text" name="Date" ng-model="Issue.IssueDate" ng-disabled="detailList.length" datepicker class="form-control" required tabindex="2">
                                             </div>
                                         </div>
 
@@ -268,11 +268,11 @@
                                                 @*<th>Budget</th>
                                                     <th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
                                                 @*<th>Activity</th>*@
-                                                <th>JWTCMasterId</th>
-                                                @*<th>JWTCDetailId</th>*@
+                                                <th>OSTCMasterId</th>
+                                                @*<th>OSTCDetailId</th>*@
 
-                                                <th>JWOutputItem</th>
-                                                @*<th>JWInputItem</th>*@
+                                                <th>OSOutputItem</th>
+                                                @*<th>OSInputItem</th>*@
                                                 <th width="350">Material</th>
                                                 <th>ArticleName</th>
                                                 <th>SKU1</th>
@@ -534,7 +534,7 @@
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
-                                                <input type="text" name="Date" ng-model="IssueTransformation.IssueDate" ng-change="ValidateIssueDate();" datepicker class="form-control" required tabindex="2">
+                                                <input type="text" name="Date" ng-model="IssueTransformation.IssueDate" ng-disabled="detailList.length" ng-change="ValidateIssueDate();" datepicker class="form-control" required tabindex="2">
                                             </div>
                                         </div>
                                         @*<div class="form-group" show-errors>
@@ -655,7 +655,7 @@
                                     <div e-columns>
                                         <div e-column e-template="#checkedPBSChildTabItem" e-width="15"></div>
                                         <div e-column e-type="string" e-field="Id" e-headertext="OSTransformationPOId" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="JobWorkItem" e-headertext="JW Output Item" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="JobWorkItem" e-headertext="OS Output Item" e-width="50"></div>
                                         <div e-column e-type="string" e-field="JobWorkActivity" e-headertext="Job Work Activity" e-width="50"></div>
                                         <div e-column e-type="string" e-field="MaterialType" e-headertext="Material Type" e-width="50"></div>
                                         <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="50"></div>
@@ -696,11 +696,11 @@
                                                 @*<th>Budget</th>
                                                     <th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
                                                 @*<th>Activity</th>*@
-                                                <th>JWTCMasterId</th>
-                                                <th>JWTCDetailId</th>
+                                                <th>OSTCMasterId</th>
+                                                <th>OSTCDetailId</th>
 
-                                                <th>JWOutputItem</th>
-                                                <th>JWInputItem</th>
+                                                <th>OSOutputItem</th>
+                                                <th>OSInputItem</th>
                                                 <th width="350">Material</th>
                                                 <th>ArticleName</th>
                                                 <th>SKU1</th>
@@ -780,7 +780,7 @@
 
                                                         <div class="input-group">
                                                             @*<span class="input-group-addon">{{x.ArticleCode}}</span>*@
-                                                            <input type="text" ng-model="x.ArticleName" name="Material Master" required class="form-control" readonly>
+                                                            <input type="text" ng-model="x.ArticleName" name="Article Master" required class="form-control" readonly>
                                                             <input type="hidden" ng-model="x.MaterialMasterArticleId" />
                                                             <span class="input-group-btn">
                                                                 <button ng-click="MaterialMstArticlePopUp(x, $index)" @*ng-disabled="x.InputMaterialId==null"*@ ng-disabled="true" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
@@ -804,7 +804,7 @@
                                                 <td>{{x.RequestedQty}}</td>
                                                 <td>{{x.TIRCTotalQty}}</td>
                                                 <td>{{x.BalanceToIssue}}</td>
-                                                <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFunc(x, $index)" ;></td>
+                                                <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-disabled="true" ng-change="qtyFunc(x, $index)" ;></td>
                                                 <td class="text-right" ng-hide="false"><input type="text" class="form-control text-right" width="400" ng-model="x.Comments"></td>
                                                 @*<td>{{x.char3.FreeText}}</td>*@
                                                 @*<td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>*@
@@ -1272,19 +1272,6 @@
                                         <li><a class="btn btn-action" ng-click="GRNReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
                                     </ul>
                                 </td>
-                                @*<td>
-                                        <div class="dropdown">
-                                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                                                Action
-                                                <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Pdf');" href="" target="_blank">View P&nbsp;d&nbsp;f</a></li>
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Excel');" href="" target="_blank">View Excel</a></li>
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Word');" href="" target="_blank">View Word&nbsp;</a></li>
-                                            </ul>
-                                        </div>
-                                    </td>*@
                             </tr>
                         </tbody>
                     </table>
@@ -1335,21 +1322,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        @*<script id="tabGridContents" type="text/x-jsrender">
-                <div class="tabcontrol" id="Test">
-                    <ul>
-                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-                    </ul>
-                    <div id="gridTab{{:Id}}">
-                        <div id="detailGrid"></div>
-                    </div>
-                    <div id="gridTab1{{:Id}}">
-                        <div id="detailGrid1" style="width:800px;"></div>
-                    </div>
-                </div>
-            </script>*@
 
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
@@ -1478,21 +1450,6 @@
                             </div>
                         </div>
 
-                        @*<script id="tabGridContents" type="text/x-jsrender">
-                <div class="tabcontrol" id="Test">
-                    <ul>
-                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-                    </ul>
-                    <div id="gridTab{{:Id}}">
-                        <div id="detailGrid"></div>
-                    </div>
-                    <div id="gridTab1{{:Id}}">
-                        <div id="detailGrid1" style="width:800px;"></div>
-                    </div>
-                </div>
-            </script>*@
-
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
                                 <ul>
@@ -1620,20 +1577,6 @@
                             </div>
                         </div>
 
-                        @*<script id="tabGridContents" type="text/x-jsrender">
-                <div class="tabcontrol" id="Test">
-                    <ul>
-                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-                    </ul>
-                    <div id="gridTab{{:Id}}">
-                        <div id="detailGrid"></div>
-                    </div>
-                    <div id="gridTab1{{:Id}}">
-                        <div id="detailGrid1" style="width:800px;"></div>
-                    </div>
-                </div>
-            </script>*@
 
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
@@ -1710,19 +1653,6 @@
                                         <li><a class="btn btn-action" ng-click="GRNReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
                                     </ul>
                                 </td>
-                                @*<td>
-                                        <div class="dropdown">
-                                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                                                Action
-                                                <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Pdf');" href="" target="_blank">View P&nbsp;d&nbsp;f</a></li>
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Excel');" href="" target="_blank">View Excel</a></li>
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Word');" href="" target="_blank">View Word&nbsp;</a></li>
-                                            </ul>
-                                        </div>
-                                    </td>*@
                             </tr>
                         </tbody>
                     </table>
@@ -1774,21 +1704,6 @@
                             </div>
                         </div>
 
-                        @*<script id="tabGridContents" type="text/x-jsrender">
-                <div class="tabcontrol" id="Test">
-                    <ul>
-                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-                    </ul>
-                    <div id="gridTab{{:Id}}">
-                        <div id="detailGrid"></div>
-                    </div>
-                    <div id="gridTab1{{:Id}}">
-                        <div id="detailGrid1" style="width:800px;"></div>
-                    </div>
-                </div>
-            </script>*@
-
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
                                 <ul>
@@ -1864,19 +1779,6 @@
                                         <li><a class="btn btn-action" ng-click="GRNReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
                                     </ul>
                                 </td>
-                                @*<td>
-                                        <div class="dropdown">
-                                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                                                Action
-                                                <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Pdf');" href="" target="_blank">View P&nbsp;d&nbsp;f</a></li>
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Excel');" href="" target="_blank">View Excel</a></li>
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Word');" href="" target="_blank">View Word&nbsp;</a></li>
-                                            </ul>
-                                        </div>
-                                    </td>*@
                             </tr>
                         </tbody>
                     </table>
@@ -1928,22 +1830,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        @*<script id="tabGridContents" type="text/x-jsrender">
-                <div class="tabcontrol" id="Test">
-                    <ul>
-                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-                    </ul>
-                    <div id="gridTab{{:Id}}">
-                        <div id="detailGrid"></div>
-                    </div>
-                    <div id="gridTab1{{:Id}}">
-                        <div id="detailGrid1" style="width:800px;"></div>
-                    </div>
-                </div>
-            </script>*@
-
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
                                 <ul>
@@ -2044,61 +1930,6 @@
         </div>
     </div>
 </div>
-
-@*<fieldset class="scheduler-border table-responsive aplos-grid-toggle" ng-show="ShowReport">
-    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-    <div>
-        <div id='Grid'></div>
-        <div class="content-container-fluid" style="color:black;">
-            <div style="color:black;" id="GridIIssue" ej-grid e-datasource="GridInventoryIssuedata"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                 e-recorddoubleclick="GetDataList" e-filtersettings-filterType="excel"
-                 e-enabletouch="true" e-allowselection="true" e-allowscrolling="true"
-                 e-detailstemplate="detailTemp"
-                 e-detailsdatabound="detailgrid">
-                <div e-columns>
-                    <div e-column e-field="JWContractId" e-headertext="PO Number" e-width="100"></div>
-                    <div e-column e-field="Id" e-headertext="Issue No" e-width="100"></div>
-                    <div e-column e-field="Types" e-headertext="Type" e-width="100"></div>
-                    <div e-column e-field="issuetype" e-headertext="Issue Type" e-width="100"></div>
-                    <div e-column e-field="Entity" e-headertext="Entity Name" e-width="100"></div>
-                    <div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="100"></div>
-                    <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
-                    <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="100"></div>
-
-                    <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="100"></div>
-                    <div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="100"></div>
-                    <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="100"></div>
-                    <div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
-                    <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-                    <div e-column e-headertext="Actions" e-width="100">
-                        <ul class="list-inline text-left">
-                            <li>
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
-                            </li>
-                        </ul>
-
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-        <script id="tabGridContents" type="text/x-jsrender">
-            <div class="tabcontrol" id="Test">
-                <ul>
-                    <li><a href="#gridTab{{:Id}}">Material Issue Details</a></li>
-                </ul>
-                <div id="gridTab{{:Id}}">
-                    <div id="detailGrid"></div>
-                </div>
-            </div>
-        </script>
-    </div>
-</fieldset>*@
 
 
 <div class="modal fade site-modal in" id="EmployeePopUpResPerson" role="dialog" data-backdrop="static">
@@ -2511,7 +2342,7 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
-@Html.Partial("~/Areas/Products/Views/InventoryIssue/_StockPopUp.cshtml")
+@Html.Partial("~/Areas/Outsourcing/Views/OSIssueReturn/_StockPopUp.cshtml")
 @Html.Partial("~/Areas/Products/Views/InventoryIssue/_ApprovedStockPopUp.cshtml")
 @Html.Partial("~/Areas/Products/Views/InventoryIssue/_UnApprovedStockPopUp.cshtml")
 @Html.Partial("~/Areas/Products/Views/InventoryIssue/_PostingStockPopUp.cshtml")

@@ -41,6 +41,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         , Description: null
         , Remarks: null
         , PImasterId: null
+        , EntityId: null
     };
     $scope.PIPackingListMasterTemp = Object.assign({}, $scope.PIPackingListMaster);
 
@@ -81,6 +82,9 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         , PartyAccountGroupId: null
         , IsPaymentTermChangeable: null
         , PaymentTermId: null
+        , SumAmount: 0
+        , QTY: 0
+        , EntityId: null
     };
     $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
 
@@ -219,12 +223,12 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             if (!baseService.isUndefinedOrNull(response.data)) {
                 $scope.PImodelNew = response.data.PIMaster[0];
                 $scope.PIPackingListMasterTemp = response.data.PIPackingListMasterData[0];
-     /*           $scope.PIVersionModel = response.data.VarsionData;*/
+
                 $scope.DataList = response.data.ItemData;
-         /*       $scope.PIVersionModel.VersionNo = $scope.PIVersionModel[0].Id;*/
+
                 $scope.VersionList = $scope.PIVersionModel;
                 $scope.PIVersionModel.VersionNo = args.data.LastVersion;
-              
+
                 $scope.ClosePIPopUp();
             }
         });
@@ -234,6 +238,10 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     };
 
     $scope.GetPIPopUp2 = function (args) {
+        $scope.PIPackingListMasterTemp.EntityId = null;
+        $scope.PIPackingListMasterTemp.Remarks = null;
+        $scope.PIPackingListMasterTemp.Description = null;
+
         $scope.SelectedPIVersion = args.data.PIVersionId;
         $scope.PIMasterId = args.data.Id;
         $http({
@@ -242,13 +250,9 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         }).then(function successCallback(response) {
             if (!baseService.isUndefinedOrNull(response.data)) {
                 $scope.PImodelNew = response.data.PIMaster[0];
-               // $scope.PIPackingListMasterTemp = response.data.PIPackingListMasterData[0];
-                /*           $scope.PIVersionModel = response.data.VarsionData;*/
                 $scope.DataList = response.data.ItemData;
-                /*       $scope.PIVersionModel.VersionNo = $scope.PIVersionModel[0].Id;*/
                 $scope.VersionList = $scope.PIVersionModel;
                 $scope.PIVersionModel.VersionNo = args.data.LastVersion;
-
                 $scope.ClosePIPopUp();
             }
         });
@@ -256,29 +260,20 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             $rootScope.toggle();
         }
     };
-    //$scope.GetPIPopUp = function (args) {
-    //    $scope.SelectedPIVersion = args.data.PIVersionId;
-    //    $scope.PIMasterId = args.data.Id;
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id + '&VersionId=' + args.data.PIVersionId + '&PIPackingListMasterId=' + args.data.PIPackingListMasterId,
-    //    }).then(function successCallback(response) {
-    //        if (!baseService.isUndefinedOrNull(response.data)) {
-    //            $scope.PImodelNew = response.data.PIMaster[0];
-    //            $scope.PIPackingListMasterTemp = response.data.PIPackingListMasterData[0];
-    //            /*           $scope.PIVersionModel = response.data.VarsionData;*/
-    //            $scope.DataList = response.data.ItemData;
-    //            /*       $scope.PIVersionModel.VersionNo = $scope.PIVersionModel[0].Id;*/
-    //            $scope.VersionList = $scope.PIVersionModel;
-    //            $scope.PIVersionModel.VersionNo = args.data.LastVersion;
 
-    //            $scope.ClosePIPopUp();
-    //        }
-    //    });
-    //    if (!$rootScope.isCollapsed) {
-    //        $rootScope.toggle();
-    //    }
-    //};
+    $scope.GetMaterialData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetMaterialData?PIMasterId=" + $scope.PIMasterId + '&VersionId=' + $scope.SelectedPIVersion,
+        }).then(function successCallback(response) {
+            if (!baseService.isUndefinedOrNull(response.data)) {             
+                $scope.DataList = response.data.ItemData;
+            }
+        });
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
 
     $scope.searchByPIPackingList = [
         {
@@ -330,6 +325,8 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.POQTYAllocation = function (args) {
         try {
             $scope.POPopUpHeader = args.data;
+            if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.EntityId))
+                throw "Please select Entity.";
             if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Description))
                 throw "Please add Description.";
             if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Remarks))
@@ -355,9 +352,25 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         });
         angular.element(document.querySelector('#QTYAllocation')).modal('show');
     }
+    $scope.SumModel = {
+        QTY: 0,
+        Amount: 0
+    };
 
+    $scope.ASSSSDFG = function () {
+        $scope.PImodelNew.SumAmount = 0;
+        $scope.PImodelNew.QTY = 0;
+        for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
+            if ($scope.PIPackingMaterialPopUpList[i].Active) {
+                $scope.PImodelNew.SumAmount += $scope.PIPackingMaterialPopUpList[i].POAmount;
+                $scope.PImodelNew.QTY += $scope.PIPackingMaterialPopUpList[i].QuantityAtPIUoM;
+            }
+        }
+        $scope.PImodelNew.SumAmount = parseFloat($scope.PImodelNew.SumAmount).toFixed(2);
+        $scope.PImodelNew.QTY = parseFloat($scope.PImodelNew.QTY).toFixed(2);
+    }
     $scope.ClosePopUp = function () {
-        $scope.taxCategoryList = [];
+        $scope.GetMaterialData();
         angular.element(document.querySelector('#QTYAllocation')).modal('hide');
     };
 
@@ -418,8 +431,9 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.PIPackingListMasterTemp.Id = response.data.PIPackingListMasterId;
+                    $scope.GetMaterialData();
                     $scope.LoadPIPackingList();
-                    /*                    $scope.getData();*/
+                    $scope.ClosePopUp();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -428,11 +442,6 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             ShowResult(e, "failure");
         }
     };
-
-
-
-
-
 
 
     $scope.GetAllVersionData = function () {
@@ -626,42 +635,25 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         });
     }
     $scope.GetMaterialGroupList();
-
-  
     cboService.getCboTransactionCurrencyByCompany('', function (result) {
         $scope.currencyList = [];
         $scope.currencyList = result;
         $scope.PImodelNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
     });
-    //$scope.Get = function (args) {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + "PIPackingMaterialList?PIPackingMaterId=" + args.data.Id,
-    //    }).then(function successCallback(response) {
+    $scope.EntityList = [];
+    $scope.getEntityWithChange = function () {
+        $scope.EntityList = [];
+        $http.get("Organizations/Entity/GetEntityCboByPlant?companyGroupId=" + null + '&companyId=' + $window.companyId + '&plantId=' + $window.plantId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.EntityList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+    $scope.getEntityWithChange();
 
-    //        $scope.PIPackingMaterialGridList = response.data;
-
-    //    });
-    ////};
-    //$scope.Get = function (args) {
-    //    $scope.PIMasterId = args.data.Id;
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + "GetAllData?PIMasterId=" + args.data.Id,
-    //    }).then(function successCallback(response) {
-    //        if (!baseService.isUndefinedOrNull(response.data)) {
-    //            $scope.PImodelNew = response.data.PIMaster[0];
-    //            //$scope.PIPackingListMasterTemp = response.data.PackingMasterData;
-    //            $scope.PIVersionModel = response.data.VarsionData;
-    //            $scope.DataList = response.data.ItemData;
-    //            /*                $scope.PIVersionModel.Id = $scope.PIVersionModel[0].Id;*/
-    //            $scope.VersionList = $scope.PIVersionModel;
-    //            $scope.PIVersionModel.VersionNo = args.data.LastVersion;
-    //            $scope.ClosePIPopUp();
-    //        }
-    //    });
-    //    if (!$rootScope.isCollapsed) {
-    //        $rootScope.toggle();
-    //    }
-    //};
 }

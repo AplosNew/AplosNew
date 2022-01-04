@@ -32,7 +32,7 @@ namespace Aplos.Areas.Commercial.Controllers
     {
         #region -- Constructor
 
-        //private readonly IFabricRollMasterService _fabricRollMasterService;
+        Dictionary<string, List<Factors>> MaterialGroupMasterUOMList = new Dictionary<string, List<Factors>>();
         private SqlRepository _sqlRepository = new SqlRepository();
         public POMappingWithPIController()
         {
@@ -60,10 +60,10 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             try
             {
-                
+
 
                 #region data update
-  
+                DataSet dsConversion;
 
                 ConnectionManager.DAL.ConManager conPIMaterial = new ConnectionManager.DAL.ConManager("1");
                 conPIMaterial.OpenDataSetThroughAdapter("select * from POMappingWithPI where PIMaterialID ='" + PIMaterial["Id"] + @"' ", out DataSet dsPIMaterial, false, "1");
@@ -76,6 +76,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 
                 if ( POList != null)
                 {
+                    GetAllUOMConversionData();
                     for (int i = 0; i < dsPIMaterial.Tables[0].Rows.Count; i++)
                     {
                         var item = POList.Where(x => x["PODetailId"].ToString() == dsPIMaterial.Tables[0].Rows[i]["PODetailId"].ToString()).FirstOrDefault();
@@ -86,6 +87,12 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     foreach (var item in POList)
                     {
+                        GetUOMConversionAtMaterialGroupMasterData(item["MaterialGroupMasterId"].ToString(), out dsConversion);
+
+                        double conversiongroupListData = ConvertUoM(item["MaterialGroupMasterId"].ToString(), item["POUoMId"].ToString(), item["PIUoMId"].ToString(), Convert.ToDouble(item["POQuantity"]));
+                        decimal BaseQty = Convert.ToDecimal(conversiongroupListData);
+
+
                         dsPIMaterial.Tables[0].DefaultView.RowFilter = "PODetailId='" + clsStaticInfo.nullrecorder(item["PODetailId"]) + "'";
 
                         DataView dv = new DataView(dsPIMaterial.Tables[0]);
@@ -98,7 +105,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                             drmo["PIMaterialID"] = item["PIMaterialId"];
                             drmo["PODetailId"] = item["PODetailId"];
-                            drmo["QuantityAtPIUoM"] = item["POQuantity"];
+                            drmo["QuantityAtPIUoM"] = BaseQty;
                             drmo["PIUoMId"] = item["PIUoMId"];
                             drmo["POQuantity"] = item["POQuantity"];
                             drmo["POUoMId"] = item["POUoMId"];
@@ -115,6 +122,7 @@ namespace Aplos.Areas.Commercial.Controllers
                             _materialId = "PM" + _materialId;
                             item["Id"] = _materialId;
                             item["PIMaterialID"] = PIMaterial["Id"];
+                            item["QuantityAtPIUoM"] = BaseQty;
                             AddNewRow(dsPIMaterial.Tables[0], item);
 
                         }
@@ -138,6 +146,8 @@ namespace Aplos.Areas.Commercial.Controllers
                 //return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+        
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -207,14 +217,15 @@ namespace Aplos.Areas.Commercial.Controllers
 
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,UoM.UserName AS MaterialGroupUOM,
 							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId
-							   ,mgm.UserName AS MaterialGroup,isnull(MAP.POQuantity,0) POTaggedQuantity
+							   ,mgm.UserName AS MaterialGroup,SUM(isnull(MAP.POQuantity,0)) POTaggedQuantity,SUM(isnull(PD.TransactionAmount,0)) POTaggedAmount
 							  FROM PIMaterial AS p
-							  left join PIMaster PM on PM.Id=p.PIMasterId
-							  LEFT JOIN POMappingWithPI MAP ON MAP.PIMaterialID=PM.Id
+							  LEFT JOIN POMappingWithPI MAP ON MAP.PIMaterialID=P.Id
+							  LEFT JOIN TRN.PurchaseOrderDetail PD ON PD.Id=MAP.PODetailId
 							 LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 							 left join SCS.UnitOfMeasurement AS UoM on UoM.Id=p.UoMId
-							 WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
-
+							 WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'
+							 GROUP BY p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,UoM.UserName
+							 ,p.[Description],p.DeliveryDate, p.MaterialGroupMasterId,mgm.UserName";
             var PIMaterial = _sqlRepository.GetDataCollection(sql, null);
 
             sql = @"SELECT U.MaterialGroupMasterId,U.MaterialGroup,UOM.Code,UOM.Id FROM (
@@ -256,10 +267,10 @@ namespace Aplos.Areas.Commercial.Controllers
             string sql = @"select  convert(bit,case when isnull(POMPI.Id,'')<>'' then 1 else 0 END) AS [check], 
                                     convert(bit,case when isnull(PACK.PODetailId,'')<>'' then 1 else 0 END) AS HasPackingList,
                                     POMPI.Id,PIM.Id PIMaterialId
-							        ,POD.Id PODetailId,v.UserName Vendor,FORMAT(pod.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,MG.UserName MaterialGroup
+							        ,POD.Id PODetailId,v.UserName Vendor,FORMAT(pod.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,MG.Id MaterialGroupMasterId,MG.UserName MaterialGroup
 							        ,MM.UserName Material,mma.StandardName Article,cv1.UserName SKU1,cv2.UserName SKU2,cv3.UserName SKU3
-							        ,POD.TransactionQty POQuantity,POD.TransactionUoMId POUoMId,pouom.UserName POUoM,POD.TransactionRate PORate
-							        ,pod.TransactionAmount POAmount,C.code POCurrency,PIM.UoMId PIUoMId,POD.TransactionQty QuantityAtPIUoM,piuom.UserName PIUoM
+							        ,ISNULL(POD.TransactionQty,0) POQuantity,POD.TransactionUoMId POUoMId,pouom.UserName POUoM,POD.TransactionRate PORate
+							        ,pod.TransactionAmount POAmount,C.code POCurrency,PIM.UoMId PIUoMId,ISNULL(POMPI.QuantityAtPIUoM,0)QuantityAtPIUoM,piuom.UserName PIUoM
                                     ,pack.PackedQty,POMPI.QuantityAtPIUoM-isnull(pack.PackedQty,0) AS BalanceToPack
 
                                     from TRN.PurchaseOrderDetail POD
@@ -276,7 +287,7 @@ namespace Aplos.Areas.Commercial.Controllers
 							        left join SCS.UnitOfMeasurement AS pouom ON pouom.Id=pod.TransactionUoMId 
 							        left join POMappingWithPI POMPI on POMPI.PIMaterialId=PIM.Id and pod.Id=POMPI.PODetailId
 							        left join (
-							        select PIMaterialId,	PODetailId,sum(Quantity) AS PackedQty from PIPackingListDetail group by PIMaterialId,	PODetailId
+							        select PIMaterialId,PODetailId,sum(Quantity) AS PackedQty from PIPackingListDetail group by PIMaterialId,	PODetailId
 							        ) AS PACK on pack.PIMaterialId=POMPI.PIMaterialID and pack.PODetailId=POMPI.PODetailId
                                     left join mst.MaterialMasterArticle MMA on mma.id=POd.ArticleId
                                     left join MST.MaterialMaster MM on MM.Id=MMA.MaterialMasterId
@@ -287,5 +298,145 @@ namespace Aplos.Areas.Commercial.Controllers
 
             return Json(new { Polist = POList }, JsonRequestBehavior.AllowGet);
         }
+
+        #region UOMConversionAtMaterialGroupMaster
+
+        public void GetUOMConversionAtMaterialGroupMasterData(string MaterialGroupMasterId, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT UOM.MaterialGroupMasterId, UOM.AlternativeUOMId, UOM.BaseUOMId,
+       CONVERT(decimal(18,8),UOM.AltToBaseUOMFactor) AS AltToBaseUOMFactor,  convert(decimal(18,8),UOM.BaseToAltUOMFactor) AS BaseToAltUOMFactor, 
+       UOM.UOMType FROM (
+                    SELECT mm.Id AS MaterialGroupMasterId, mm.BaseUOMId AS AlternativeUOMId,mm.BaseUOMId,
+                    1 AS AltToBaseUOMFactor,1 AS BaseToAltUOMFactor,
+                    'BASE' AS UOMType FROM mst.MaterialGroupMaster AS mm
+					WHERE mm.Id='" + MaterialGroupMasterId + @"'
+                    UNION ALL
+                    SELECT mmau.MaterialGroupMasterId, mmau.AlternativeUOMId, mmau.BaseUOMId,
+                    mmau.BaseUOMFactor/mmau.AlternativeUOMFactor AS AltToBaseUOMFactor,mmau.AlternativeUOMFactor/mmau.BaseUOMFactor AS AltToBaseUOMFactor,
+                    'ALT' AS UOMType FROM  mst.MaterialGroupAlternativeUoM AS mmau
+					WHERE mmau.MaterialGroupMasterId='" + MaterialGroupMasterId + @"'
+                    ) AS UOM
+                    ORDER BY UOM.MaterialGroupMasterId";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public double ConvertUoM(string MaterialGroupMasterId, string FromUOM, string ToUOM, double Value)
+        {
+
+            //If source and target uom are same, no need conversion
+            if (FromUOM == ToUOM)
+                return Value;
+
+            List<Factors> AltUOM = MaterialGroupMasterUOMList[MaterialGroupMasterId].Where(ee => ee.AlternativeUOMId == FromUOM).ToList();
+
+            //means, need to convert the source UOM to target UOM
+            if (AltUOM.Count > 0)
+            {
+                //converting to base
+                Value = Value * AltUOM[0].AltToBaseUOMFactor;
+                //and if target uom is also base;no need to further conversion
+                if (AltUOM[0].BaseUOMId == ToUOM)
+                    return Value;//because we have already converted the source value to base UOM. no need to further conversion
+
+                //second step conversion from base value to alternative target value
+                AltUOM = MaterialGroupMasterUOMList[MaterialGroupMasterId].Where(ee => ee.AlternativeUOMId == ToUOM).ToList();
+                if (AltUOM.Count > 0)
+                {
+                    //convert base value to alternative uom using basetoaltuomfactor
+                    return Value = Value * AltUOM[0].BaseToAltUOMFactor;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+
+            return 0;
+        }
+
+        public void GetUOMConversionData(string MaterialGroupMasterId)
+        {
+           // _sqlRepository = new SqlRepository();
+
+            MakeMaterialCluster(_sqlRepository.GetModelCollection<Factors>(@"SELECT UOM.MaterialGroupMasterId, UOM.AlternativeUOMId, UOM.BaseUOMId,
+       CONVERT(decimal(18,8),UOM.AltToBaseUOMFactor) AS AltToBaseUOMFactor,  convert(decimal(18,8),UOM.BaseToAltUOMFactor) AS BaseToAltUOMFactor, 
+       UOM.UOMType FROM (
+                    SELECT mm.Id AS MaterialGroupMasterId, mm.BaseUOMId AS AlternativeUOMId,mm.BaseUOMId,
+                    1 AS AltToBaseUOMFactor,1 AS BaseToAltUOMFactor,
+                    'BASE' AS UOMType FROM mst.MaterialGroupMaster AS mm
+					WHERE mm.Id='" + MaterialGroupMasterId + @"'
+                    UNION ALL
+                    SELECT mmau.MaterialGroupMasterId, mmau.AlternativeUOMId, mmau.BaseUOMId,
+                    mmau.BaseUOMFactor/mmau.AlternativeUOMFactor AS AltToBaseUOMFactor,mmau.AlternativeUOMFactor/mmau.BaseUOMFactor AS AltToBaseUOMFactor,
+                    'ALT' AS UOMType FROM  mst.MaterialGroupAlternativeUoM AS mmau
+					WHERE mmau.MaterialGroupMasterId='" + MaterialGroupMasterId + @"'
+                    ) AS UOM
+                    ORDER BY UOM.MaterialGroupMasterId"));
+        }
+
+        public void GetAllUOMConversionData()
+        {
+            // _sqlRepository = new SqlRepository();
+
+            MakeMaterialCluster(_sqlRepository.GetModelCollection<Factors>(@"SELECT UOM.MaterialGroupMasterId, UOM.AlternativeUOMId, UOM.BaseUOMId,
+       CONVERT(decimal(18,8),UOM.AltToBaseUOMFactor) AS AltToBaseUOMFactor,  convert(decimal(18,8),UOM.BaseToAltUOMFactor) AS BaseToAltUOMFactor, 
+       UOM.UOMType FROM (
+                    SELECT mm.Id AS MaterialGroupMasterId, mm.BaseUOMId AS AlternativeUOMId,mm.BaseUOMId,
+                    1 AS AltToBaseUOMFactor,1 AS BaseToAltUOMFactor,
+                    'BASE' AS UOMType FROM mst.MaterialGroupMaster AS mm
+                    UNION ALL
+                    SELECT mmau.MaterialGroupMasterId, mmau.AlternativeUOMId, mmau.BaseUOMId,
+                    mmau.BaseUOMFactor/mmau.AlternativeUOMFactor AS AltToBaseUOMFactor,mmau.AlternativeUOMFactor/mmau.BaseUOMFactor AS AltToBaseUOMFactor,
+                    'ALT' AS UOMType FROM  mst.MaterialGroupAlternativeUoM AS mmau
+                    ) AS UOM
+                    ORDER BY UOM.MaterialGroupMasterId"));
+        }
+
+        private void MakeMaterialCluster(List<Factors> UOMData)
+        {
+            MaterialGroupMasterUOMList = new Dictionary<string, List<Factors>>();
+            List<Factors> _list = new List<Factors>();
+            string MaterialGroupMasterId = "";
+            foreach (Factors item in UOMData)
+            {
+                if (MaterialGroupMasterId != item.MaterialGroupMasterId)
+                {
+                    _list = new List<Factors>();
+                    MaterialGroupMasterUOMList.Add(item.MaterialGroupMasterId, _list);
+                }
+
+                _list.Add(item);
+
+                MaterialGroupMasterId = item.MaterialGroupMasterId;
+            }
+        }
+
+        #endregion
+    }
+
+    class Factors : BaseModel
+    {
+
+        public string MaterialGroupMasterId { get; set; }
+        public string AlternativeUOMId { get; set; }
+        public string BaseUOMId { get; set; }
+        public double AltToBaseUOMFactor { get; set; }
+        public double BaseToAltUOMFactor { get; set; }
+        public string UOMType { get; set; }
     }
 }

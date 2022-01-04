@@ -116,9 +116,18 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             $scope.CalculationOption = true;
             $scope.Clicked = false;
             $scope.SOIDs = "";
+            var CharacteristicsValueId = "";
             $scope.totalRatio = 0;
             for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
                 $scope.totalRatio = parseFloat($scope.FGCharacteristicsValueList[i].Ratio) + parseFloat($scope.totalRatio);
+
+                if (CharacteristicsValueId == "") {
+                    CharacteristicsValueId = "'" + $scope.FGCharacteristicsValueList[i].CharacteristicsValueId + "'";
+                }
+                else {
+                    CharacteristicsValueId += ",'" + $scope.FGCharacteristicsValueList[i].CharacteristicsValueId + "'";
+                }
+
             }
             for (var i = 0; i < $scope.recipeMaterialListSelected.length; i++) {
                 if ($scope.SOIDs === "") {
@@ -128,7 +137,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                     $scope.SOIDs += ", '" + $scope.recipeMaterialListSelected[i].SalesOrderId + "'";
                 }
             }
-            $scope.getOtherFGCharacteristics($scope.characteristicsList[0].Value, $scope.characteristicsList[0].Sequence, $scope.SOIDs);
+            $scope.getOtherFGCharacteristics($scope.characteristicsList[0].Value, $scope.characteristicsList[0].Sequence, $scope.SOIDs, CharacteristicsValueId);
         });
     };
     $scope.IsSelect = false;
@@ -154,10 +163,10 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         });
     };
     $scope.SkuValueList = [];
-    $scope.getOtherFGCharacteristics = function (skuId, Sequence, SOIDs) {
+    $scope.getOtherFGCharacteristics = function (skuId, Sequence, SOIDs, CharacteristicsValueId) {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSkuDetails?OtherSku=' + skuId + '&SOId=' + SOIDs + '&Sequence=' + Sequence
+            url: $scope.path + 'GetSkuDetails?OtherSku=' + skuId + '&SOId=' + SOIDs + '&Sequence=' + Sequence + '&CharacteristicsValueId=' + CharacteristicsValueId
         }).then(function successCallback(response) {
             $scope.SkuValueList = [];
             $scope.SkuValueList = response.data;
@@ -178,7 +187,11 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                     $scope.ErrorThrow = false;
                     $scope.CalculatedSkuValueList.push($scope.SkuValueList[j]);
                     for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
-                        CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
+                        for (var k = 0; k < $scope.SkuValueList[j].Qty.length; k++) {
+                            if ($scope.SkuValueList[j].Qty[k].Ratio == $scope.FGCharacteristicsValueList[i].Ratio) {
+                            CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty[k].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
+                            }
+                        }
                     }
 
                     $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
@@ -204,11 +217,6 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                     }
                 }
             }
-            //for (var m = 0; m < $scope.FGCharacteristicsValueList.length; m++) {
-            //    for (var n = 0; n < $scope.CalculatedSkuValueList.length; n++) {
-            //        $scope.CalculatedSkuValueList[n].xx = parseFloat($scope.FGCharacteristicsValueList[m].Ratio) * parseFloat($scope.CalculatedSkuValueList[n].Qty);
-            //    }
-            //}
             if ($scope.ErrorThrow) {
                 throw "Select Value For Calculation.. ";
             }

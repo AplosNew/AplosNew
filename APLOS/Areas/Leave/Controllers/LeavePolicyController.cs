@@ -156,10 +156,11 @@ namespace Aplos.Areas.Leave.Controllers
             {
                 throw new Exception("select Can Avail After dropdown Value");
             }
-            if (string.IsNullOrEmpty(LeavePolicyDetails.EncasementEndDate))
+            if (string.IsNullOrEmpty(LeavePolicyDetails.EncasementEndDate.ToString())|| LeavePolicyDetails.EncasementEndDate.ToString()=="0")
             {
-                LeavePolicyDetails.EncasementEndDate = "0";
+                LeavePolicyDetails.EncasementEndDate = false;
             }
+            
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             clsLeavePolicy obj = new clsLeavePolicy();
             LeavePolicyDetails.AddedBy = identity.Name;

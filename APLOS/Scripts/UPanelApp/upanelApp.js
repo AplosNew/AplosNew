@@ -881,7 +881,7 @@ var upanelApp = angular
     .controller("MovementScanDataReportController", MovementScanDataReportController)
     .controller("OS3DashboardController", OS3DashboardController)
     .controller("WeighingScaleReportController", WeighingScaleReportController)
-
+    .controller("ProductionPlanningReportController", ProductionPlanningReportController)
     .controller("BlackListController", BlackListController)
     .controller("JobEvaluationAttributeController", JobEvaluationAttributeController)
     .controller("JobEvaluationMasterController", JobEvaluationMasterController)
@@ -994,7 +994,8 @@ var upanelApp = angular
     .controller('FOCController', FOCController)
 
     .controller('POMappingWithPIController', POMappingWithPIController)
-
+    .controller('GeneralWasteController', GeneralWasteController)
+    
     .config(AccessControllerConfig)
     .config(accountConfig)
     .config(bankConfig)

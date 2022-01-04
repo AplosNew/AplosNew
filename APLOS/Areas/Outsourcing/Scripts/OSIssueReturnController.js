@@ -1416,7 +1416,12 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 	$scope.materialStockList = [];
 	$scope.specificStockList = [];
-	//;
+	$scope.issueSpecificIndex = null;
+	$scope.modalSpecificMaterialName = null;
+	$scope.modalSpecificArticleName = null;
+	$scope.modalSpecificOSTCMasterId = null;
+	$scope.modalSpecificOSOutputItem = null;
+	$scope.modalSpecificOSInputItem = null;
 	$scope.getSpecificMaterialStockForSlipIssue = function (data, index) {
 
 		for (var i = 0; i < $scope.detailList.length; i++) {
@@ -1435,7 +1440,13 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				}
 			}
 		}
+		$scope.modalSpecificMaterialName = data.MaterialMaster;
+		$scope.modalSpecificArticleName = data.ArticleName;
+		$scope.modalSpecificOSTCMasterId = data.OSTransformationPODetailId;
+		$scope.modalSpecificOSOutputItem = data.JWOutputItem;
+		$scope.modalSpecificOSInputItem = data.JWInputItem;
 
+		$scope.issueSpecificIndex = index;
 		$scope.index = index;
 		//data.MaterialStorageId = $scope.IssueTransformation.MaterialStorageId;
 		$http({
@@ -2479,8 +2490,16 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					//$scope.detailModel.IsSpecific = true;
 					$scope.specificStockList.push(nRow);
 			}
+			$scope.detailList[$scope.issueSpecificIndex].TransactionQty = $filter("sumByKey")($filter("filter")($scope.materialStockList, { Flag: true }), "RequisitionQty");
 			//$scope.detailList[$scope.index].TransactionQty = issueQty;
 			angular.element(document.querySelector('#stockPopUp')).modal('hide');
+			$scope.modalSpecificMaterialName =null;
+			$scope.modalSpecificArticleName = null;
+			$scope.modalSpecificOSTCMasterId = null;
+			$scope.modalSpecificOSOutputItem = null;
+			$scope.modalSpecificOSInputItem = null;
+
+			$scope.issueSpecificIndex = null;
 			CloseModalShowResult();
 		} catch (e) {
 			ShowResult(e, 'failure', 'stockPopUp');

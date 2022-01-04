@@ -160,6 +160,9 @@ namespace OTSBD.clsLeave
                     objGenID.GenerateIDYearly(DateTime.Now.ToString("dd-MMM-yyyy"), "LEAVE_SUMMARY_N", out _pks);
 
                 }
+
+                GetLeavePolicyDetails(sPlantID, PDate.ToString("dd-MMM-yyyy"), out Dictionary<string, DataRow> dsLeavePld);
+
                 for (int i = 0; i < dsOldSummary.Tables[0].Rows.Count; i++)
                 {
                     #region variables
@@ -234,7 +237,7 @@ namespace OTSBD.clsLeave
                     //CalendarYearId = sdsInitLeaveSummary.Tables[0].Rows[i]["CalendarYearId"].ToString();
                     CalendarYearId = sCurrentYearId;
                     //DaysCanBeSanctioned = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString())- CurrentYearAvailedOpeningBalance;//
-                    CarryForword objCarryForword = CheckLeavePolicyDetails(sPlantID, EmpSystemId, LeaveTypeId, BroughtForwardOLd, CarryForwardOpeningBalance, CarryForwardOld, DaysCanBeSanctioned, CurrentYearAllocation, CurrentYearAvailedOpeningBalance, YearEndEncash, CurrentYearEncashedInbetween, sdsLeaveTranInfo, PDate, NotEncashedButYearEnded, IsEncashed, out CarryForwardBasedOn);
+                    CarryForword objCarryForword = CheckLeavePolicyDetails(sPlantID, EmpSystemId, LeaveTypeId, BroughtForwardOLd, CarryForwardOpeningBalance, CarryForwardOld, DaysCanBeSanctioned, CurrentYearAllocation, CurrentYearAvailedOpeningBalance, YearEndEncash, CurrentYearEncashedInbetween, sdsLeaveTranInfo, PDate, NotEncashedButYearEnded, IsEncashed, out CarryForwardBasedOn, dsLeavePld);
                     //leaveResult = CalculateLeave(EmpSystemId, LeaveTypeId, sdsLeaveTranInfo);
                     if (objCarryForword != null)
                     {
@@ -330,7 +333,7 @@ namespace OTSBD.clsLeave
                             drSaveSummary = dvSaveSummary[0].Row;
                             drSaveSummary.BeginEdit();
 
-                            drSaveSummary["BroughtForward"] = CarryForward;                    
+                            drSaveSummary["BroughtForward"] = CarryForward;
 
 
 
@@ -420,6 +423,295 @@ namespace OTSBD.clsLeave
             }
         }//End Function 
 
+        public void LeaveYearEndProcessIndividual(string sPlantID, string ToDate, DataSet sdsLeaveTranInfo, out DataSet dsNewSummary, out DataSet dsOldSummary)
+        {
+            clsLeaveYearEndProcess objLeaveYearEndProcessData;
+            objLeaveYearEndProcessData = new clsLeaveYearEndProcess();
+            #region variables
+            var _count = 0;
+            dsNewSummary = null;
+            dsOldSummary = null;
+            //DataSet dsAllEmpEarningDaysSummary = null;
+            //DataSet dsCalandarYearLocal = null;
+
+            string EmpSystemId = string.Empty;
+            string LeaveTypeId = string.Empty;
+
+            //decimal leaveResult = 0;
+
+
+
+            #endregion variables
+
+            try
+            {
+                string EarnleaveID = string.Empty;
+                EarnleaveID = objLeaveYearEndProcessData.GetEarnLeaveID();
+                //for HR proj starts
+                objLeaveYearEndProcessData.InitLeaveSummaryIndividualOld(sPlantID, ToDate, out dsOldSummary);
+                objLeaveYearEndProcessData.InitLeaveSummaryIndividualNew(sPlantID, ToDate, out dsNewSummary);
+                DataView dvSaveSummary = null;
+                DataRow drSaveSummary = null;
+
+                DataView dvSaveSummaryOld = null;
+                DataRow drSaveSummaryOld = null;
+                //for HR porj ends
+                var _pks = string.Empty;
+
+                if (dsOldSummary.Tables[0].Rows.Count > 0)
+                {
+                    bplib.clsGenID objGenID = new bplib.clsGenID();
+                    objGenID.GenerateIDYearly(DateTime.Now.ToString("dd-MMM-yyyy"), "LEAVE_SUMMARY_N", out _pks);
+
+                }
+                GetLeavePolicyDetails(sPlantID, ToDate, out Dictionary<string, DataRow> dsLeavePld);
+
+
+                for (int i = 0; i < dsOldSummary.Tables[0].Rows.Count; i++)
+                {
+                    #region variables
+                    string CarryForwardBasedOn = string.Empty;
+                    decimal CarryForwardOpeningBalance = 0;
+                    decimal CurrentYearEncashedInbetween = 0;
+                    decimal CurrentYearAllocation = 0;
+                    decimal CurrentYearAvailedOpeningBalance = 0;
+                    decimal CurrentYearEarnedDaysOpeningBalance = 0;
+                    //decimal CalculatedEarningDays = 0;
+                    decimal CarryForward = 0;
+                    decimal CarryForwardOld = 0;
+                    decimal BroughtForwardOLd = 0;
+                    decimal DaysCanBeSanctioned = 0;
+                    decimal CarryForwordEncash = 0;
+                    decimal CarryForwordLapse = 0;
+                    decimal CarryforwardEncashCumulative = 0;
+                    decimal CarryForwordLapseCumulative = 0;
+                    decimal YearEndEncash = 0;
+                    bool NotEncashedButYearEnded = false;
+                    bool IsEncashed = false;
+                    EmpSystemId = dsOldSummary.Tables[0].Rows[i]["EmployeeId"].ToString();
+                    LeaveTypeId = dsOldSummary.Tables[0].Rows[i]["LeaveTypeId"].ToString();
+
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["CurrentYearEarnedDaysOpeningBalance"].ToString()))
+                    {
+                        CurrentYearEarnedDaysOpeningBalance = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["CurrentYearEarnedDaysOpeningBalance"].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["CurrentYearAvailedOpeningBalance"].ToString()))
+                    {
+                        CurrentYearAvailedOpeningBalance = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["CurrentYearAvailedOpeningBalance"].ToString());
+                    }
+
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["CarryForwardOpeningBalance"].ToString()))
+                    {
+                        CarryForwardOpeningBalance = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["CarryForwardOpeningBalance"].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["CarryForward"].ToString()))
+                    {
+                        CarryForwardOld = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["CarryForward"].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["CurrentYearAllocation"].ToString()))
+                    {
+                        CurrentYearAllocation = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["CurrentYearAllocation"].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["BroughtForward"].ToString()))
+                    {
+                        BroughtForwardOLd = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["BroughtForward"].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString()))
+                    {
+                        DaysCanBeSanctioned = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["EncashedInbetween"].ToString()))
+                    {
+                        CurrentYearEncashedInbetween = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["EncashedInbetween"].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["YearEndEncash"].ToString()))
+                    {
+                        YearEndEncash = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["YearEndEncash"].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["NotEncashedButYearEnded"].ToString()))
+                    {
+                        NotEncashedButYearEnded = Convert.ToBoolean(dsOldSummary.Tables[0].Rows[i]["NotEncashedButYearEnded"].ToString());
+                    }
+
+                    if (!string.IsNullOrEmpty(dsOldSummary.Tables[0].Rows[i]["IsEncashed"].ToString()))
+                    {
+                        IsEncashed = Convert.ToBoolean(dsOldSummary.Tables[0].Rows[i]["IsEncashed"].ToString());
+                    }
+
+                    //CalendarYearId = sdsInitLeaveSummary.Tables[0].Rows[i]["CalendarYearId"].ToString();
+                    //DaysCanBeSanctioned = Convert.ToDecimal(dsOldSummary.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString())- CurrentYearAvailedOpeningBalance;//
+
+
+                    string leaveKey = EmpSystemId + "-" + LeaveTypeId;
+                    string _tempToDate = System.DateTime.Now.ToString("dd-MMM-yyyy");
+                    DataRow _drLeavePolicyData = dsLeavePld[leaveKey];
+                    _tempToDate = _drLeavePolicyData["ToDate"].ToString();
+                    if (string.IsNullOrEmpty(_tempToDate))
+                        _tempToDate = System.DateTime.Now.ToString("dd-MMM-yyyy");
+
+                    CarryForword objCarryForword = CheckLeavePolicyDetails(sPlantID, EmpSystemId, LeaveTypeId, BroughtForwardOLd, CarryForwardOpeningBalance, CarryForwardOld, DaysCanBeSanctioned, CurrentYearAllocation, CurrentYearAvailedOpeningBalance, YearEndEncash, CurrentYearEncashedInbetween, sdsLeaveTranInfo, Convert.ToDateTime(_tempToDate), NotEncashedButYearEnded, IsEncashed, out CarryForwardBasedOn, dsLeavePld);
+                    //leaveResult = CalculateLeave(EmpSystemId, LeaveTypeId, sdsLeaveTranInfo);
+                    if (objCarryForword != null)
+                    {
+                        CarryForward = objCarryForword.CarryForward;
+                        CarryForwordEncash = objCarryForword.CarryForwordEncash;
+                        CarryForwordLapse = objCarryForword.CarryForwordLapse;
+                        CarryforwardEncashCumulative = objCarryForword.CarryforwardEncashCumulative;
+                        CarryForwordLapseCumulative = objCarryForword.CarryForwordLapseCumulative;
+                    }
+                    else
+                    {
+                        CarryForward = 0;
+                        CarryForwordEncash = 0;
+                        CarryForwordLapse = 0;
+                        CarryforwardEncashCumulative = 0;
+                        CarryForwordLapseCumulative = 0;
+                    }
+
+
+
+                    #endregion variables
+
+
+
+                    #region Database entry
+
+
+                    if (string.IsNullOrEmpty(sPlantID))
+                    {
+                        throw new Exception("PlantId can not be blank...");
+                    }
+                    if (string.IsNullOrEmpty(EmpSystemId))
+                    {
+                        throw new Exception("EmployeeId can not be blank...");
+                    }
+
+
+                    if (EmpSystemId == null || LeaveTypeId == null)
+                    {
+                    }
+                    else
+                    {
+                        //new year insert or update
+                        dvSaveSummary = new DataView(dsNewSummary.Tables[0]);
+                        dvSaveSummary.RowFilter = "EmployeeId='" + EmpSystemId + "' and LeaveTypeId='" + LeaveTypeId + "'";
+                        if (dvSaveSummary.Count == 0)
+                        {
+                            bool ShouldCreateNewYear = true;
+                            DateTime NewFromData = Convert.ToDateTime(_drLeavePolicyData["ToDate"].ToString()).AddDays(1);
+                            DateTime NewToData = Convert.ToDateTime(_drLeavePolicyData["ToDate"].ToString()).AddYears(1);
+
+                            if (_drLeavePolicyData["DOS"].ToString() != "")
+                            {
+                                if (Convert.ToDateTime(_drLeavePolicyData["DOS"].ToString()) <= NewFromData)
+                                    ShouldCreateNewYear = false;
+                            }
+
+                            _count++;
+                            drSaveSummary = dsNewSummary.Tables[0].NewRow();
+                            drSaveSummary["Id"] = "LS" + _pks + "-" + _count;
+                            drSaveSummary["EmployeeId"] = EmpSystemId;
+                            //drSaveSummary["CalanderYearId"] = sNextYearId;
+                            drSaveSummary["FromDate"] = NewFromData.ToString("dd-MMM-yyyy");
+                            drSaveSummary["ToDate"] = NewToData.ToString("dd-MMM-yyyy");
+                            drSaveSummary["PlantId"] = sPlantID;
+                            drSaveSummary["LeaveTypeId"] = LeaveTypeId;
+                            drSaveSummary["CurrentYearAllocation"] = 0;
+                            drSaveSummary["DaysCanBeSanctioned"] = 0;
+                            drSaveSummary["CurrentYearAvailedOpeningBalance"] = 0;
+                            drSaveSummary["CurrentYearEarnedDaysOpeningBalance"] = 0;
+
+                            drSaveSummary["CarryForwardOpeningBalance"] = 0;
+                            drSaveSummary["CarryForward"] = 0;
+                            drSaveSummary["BroughtForward"] = CarryForward;
+                            drSaveSummary["AppliedDays"] = 0;
+                            drSaveSummary["AvailedDays"] = 0;
+                            //drSaveSummary["PreviousYearCarryForward"] = 0;
+                            drSaveSummary["YearEndEncash"] = 0;
+                            drSaveSummary["YearEndLapse"] = 0;
+                            //drSaveSummary["YearEndEncashCumulative"] = 0;
+                            //drSaveSummary["YearEndLapseCumulative"] = 0;
+                            drSaveSummary["AddedBy"] = "Schedule";
+                            drSaveSummary["AddedDate"] = System.DateTime.Now;
+                            drSaveSummary["AddedFromIP"] = "::1";
+                            drSaveSummary["UpdatedFromIP"] = "::1";
+
+                            if (ShouldCreateNewYear)
+                                dsNewSummary.Tables[0].Rows.Add(drSaveSummary);
+                        }
+                        else
+                        {
+                            drSaveSummary = dvSaveSummary[0].Row;
+                            drSaveSummary.BeginEdit();
+
+                            drSaveSummary["BroughtForward"] = CarryForward;
+
+
+                            drSaveSummary["UpdatedFromIP"] = "::1";
+                            drSaveSummary["UpdatedDate"] = System.DateTime.Now;
+                            drSaveSummary["UpdatedBy"] = "Schedule";
+                            drSaveSummary.EndEdit();
+                        }
+                        //Old year insert or update
+                        dvSaveSummaryOld = new DataView(dsOldSummary.Tables[0]);
+                        dvSaveSummaryOld.RowFilter = "EmployeeId='" + EmpSystemId + "' and LeaveTypeId='" + LeaveTypeId + "'";
+                        if (dvSaveSummaryOld.Count == 0)
+                        {
+
+                        }
+                        else
+                        {
+                            drSaveSummaryOld = dvSaveSummaryOld[0].Row;
+                            drSaveSummaryOld.BeginEdit();
+
+                            if (!string.IsNullOrEmpty(CarryForwardBasedOn))
+                            {
+                                if (CarryForwardBasedOn == "CalanderYear")
+                                {
+                                    drSaveSummaryOld["CarryForward"] = CarryForward;
+                                    drSaveSummaryOld["YearEndEncash"] = CarryForwordEncash;
+                                    drSaveSummaryOld["YearEndLapse"] = CarryForwordLapse;
+                                    drSaveSummaryOld["EncashedInbetween"] = CarryForwordEncash;
+                                }
+                            }
+
+
+
+                            //drSaveSummaryOld["YearEndEncashCumulative"] = CarryforwardEncashCumulative;
+                            //drSaveSummaryOld["YearEndLapseCumulative"] = CarryForwordLapseCumulative;
+                            drSaveSummaryOld["IsYearlyProcessed"] = true;
+                            //drSaveSummaryOld["CalculatedEarningDays"] = CalculatedEarningDays;
+                            //drSaveSummaryOld["CurrentYearAllocation"] = 0;
+                            //drSaveSummaryOld["DaysCanBeSanctioned"] = 0;
+                            //drSaveSummaryOld["CurrentYearAvailedOpeningBalance"] = 0;
+                            //drSaveSummaryOld["CurrentYearEarnedDaysOpeningBalance"] = 0;
+                            //drSaveSummaryOld["CarryForwardOpeningBalance"] = 0;
+                            drSaveSummaryOld["UpdatedFromIP"] = "::1";
+                            drSaveSummaryOld["UpdatedDate"] = System.DateTime.Now;
+                            drSaveSummaryOld["UpdatedBy"] = "Schedule";
+                            drSaveSummaryOld.EndEdit();
+                        }
+
+
+                    }//if(empId == null || leaveType == null || CalendarYearId == null)
+
+
+
+                    #endregion Database entry
+                }//loop dtLeaveInfo
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }//End Function 
 
         public decimal CalculateLeave(string EmpSystemId, string LeaveTypeId, DataSet sdsLeaveTranInfo)
         {
@@ -581,112 +873,28 @@ namespace OTSBD.clsLeave
                 objCon = null;
             }
         }//End Function
-        //(sPlantID, EmpSystemId, LeaveTypeId, BroughtForwardOLd, DaysCanBeSanctioned, CurrentYearAvailedOpeningBalance, sdsLeaveTranInfo);
-        public CarryForword xCheckLeavePolicyDetails(string sPlantID, string sEmployeeId, string LeaveTypeId, decimal BroughtForwardOLd, decimal CarryforwardOB, decimal DaysCanBeSanctioned, decimal CurrentYearAvailedOpeningBalance, DataSet sdsLeaveTranInfo)
+        public void GetLeaveTranInfoIndividual(string sPlantID, string ToDate, out DataSet dsRef)
         {
-            CarryForword objCarryForword = null;
-            DataSet dsLeavePld = null;
-            decimal LeaveTran = 0;
-            decimal newCarryForward = 0;
-            decimal Carryforward = 0;
-            decimal CarryForwordEncash = 0;
-            decimal CarryForwordLapse = 0;
-
-
-
-
-            decimal CarryforwardEncashCumulative = 0;
-            decimal CarryForwordLapseCumulative = 0;
-
-            bool IsCFFixed = false;
-
-            decimal CarryForwardMaxDay = 0;
-            decimal MaxAllocationLimit = 0;
-            bool IsCarryForwardCumulative = false;
-            decimal CarryForwardCumulativeMaxLimit = 0;
-            bool IsMaxEncashment = false;
-            decimal MaxEncashment = 0;
-            bool IsMaxEncashmentLapse = false;
-            decimal MaxEncashmentLapse = 0;
-            string CarryForwardRoundupOption = string.Empty;
-
-            bool IsCFRestEncash = false;
-            bool IsCFCRestEncash = false;
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
             try
             {
-                GetLeavePolicyDetails(sPlantID, sEmployeeId, out dsLeavePld);
-                DataView dv = new DataView(dsLeavePld.Tables[0]);
-                dv.RowFilter = "IsCarryForward=1 and LTSystemID='" + LeaveTypeId + "'";
-                if (dv.Count > 0)
-                {
-                    IsCFFixed = Convert.ToBoolean(dv[0]["IsCFFixed"].ToString());
-                    CarryForwardMaxDay = Convert.ToDecimal(dv[0]["CarryForwardDay"].ToString());
-                    //IsCarryForwardCumulative = Convert.ToBoolean(dv[0]["IsCarryForwardCumulative"].ToString());
-                    //CarryForwardCumulativeMaxLimit = Convert.ToDecimal(dv[0]["CarryForwardCumulative"].ToString());
-                    MaxAllocationLimit = Convert.ToDecimal(dv[0]["MaxAllocationLimit"].ToString());
-                    IsMaxEncashment = Convert.ToBoolean(dv[0]["IsMaxEncashment"].ToString());
-                    MaxEncashment = Convert.ToDecimal(dv[0]["MaxEncashment"].ToString());
-                    IsMaxEncashmentLapse = Convert.ToBoolean(dv[0]["IsMaxEncashmentLapse"].ToString());
-                    MaxEncashmentLapse = Convert.ToDecimal(dv[0]["MaxEncashmentLapse"].ToString());
+                strSQL = @"SELECT s.EmployeeId AS EmpSystemID,s.LeaveTypeId AS LTSystemID,
+                                        ISNULL( (SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
+                                        INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
+                                        where D.WorkDate BETWEEN SE.FromDate and SE.ToDate
+                                AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId),0) AS totalLeave 
+                                from [TRN].[EmployeeLeaveSummary] S
+                                JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
+                                select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
+                                join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
+                                where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
+                                AND X.ToDate<='" + ToDate + @"'
+                                ORDER BY x.FromDate DESC
+                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId ";
 
-                    IsCFRestEncash = Convert.ToBoolean(dv[0]["IsCFRestEncash"].ToString());
-                    IsCFCRestEncash = Convert.ToBoolean(dv[0]["IsCFCRestEncash"].ToString());
-
-
-                    MaxEncashmentLapse = Convert.ToDecimal(dv[0]["MaxEncashmentLapse"].ToString());
-                    CarryForwardRoundupOption = dv[0]["CarryForwardRoundupOption"].ToString();
-
-                    LeaveTran = CalculateLeave(sEmployeeId, LeaveTypeId, sdsLeaveTranInfo);
-                    newCarryForward = DaysCanBeSanctioned + CarryforwardOB - (LeaveTran + CurrentYearAvailedOpeningBalance);
-                    if (newCarryForward > 0)
-                    {
-                        objCarryForword = xGetCarryforwardQnty(IsCFFixed, newCarryForward, BroughtForwardOLd, CarryForwardMaxDay, IsCFRestEncash, IsCFCRestEncash, IsCarryForwardCumulative, CarryForwardCumulativeMaxLimit);
-                        if (!string.IsNullOrEmpty(CarryForwardRoundupOption))
-                        {
-                            if (CarryForwardRoundupOption == "Round Up")
-                            {
-                                Carryforward = Math.Ceiling(objCarryForword.CarryForward);
-                            }
-                            if (CarryForwardRoundupOption == "Round Down")
-                            {
-                                Carryforward = Math.Floor(objCarryForword.CarryForward);
-                            }
-                            if (CarryForwardRoundupOption == "Round")
-                            {
-                                Carryforward = Math.Round(objCarryForword.CarryForward);
-                            }
-                        }
-                        else
-                        {
-                            Carryforward = objCarryForword.CarryForward;
-                        }
-                        CarryForwordEncash = objCarryForword.CarryForwordEncash;
-                        CarryForwordLapse = objCarryForword.CarryForwordLapse;
-                        CarryforwardEncashCumulative = objCarryForword.CarryforwardEncashCumulative;
-                        CarryForwordLapseCumulative = objCarryForword.CarryForwordLapseCumulative;
-
-                    }
-                    else
-                    {
-
-                        //objCarryForword.Carryforward = 0;
-                        //CarryForwordEncash = 0;
-                        //CarryForwordLapse = 0;
-                        //CarryforwardEncashCumulative = 0;
-                        //CarryForwordLapseCumulative = 0;
-                        //objCarryForword = null;
-
-
-
-
-                    }
-
-
-                }
-
-
-
-                return objCarryForword;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
             catch (Exception ex)
             {
@@ -694,16 +902,16 @@ namespace OTSBD.clsLeave
             }
             finally
             {
-
+                objCon = null;
             }
+        }//End Function
+         //(sPlantID, EmpSystemId, LeaveTypeId, BroughtForwardOLd, DaysCanBeSanctioned, CurrentYearAvailedOpeningBalance, sdsLeaveTranInfo);
 
-        }
 
-
-        public CarryForword CheckLeavePolicyDetails(string sPlantID, string sEmployeeId, string LeaveTypeId, decimal BroughtForwardOLd, decimal CarryforwardOB, decimal CarryforwardOld, decimal DaysCanBeSanctioned, decimal CurrentYearAllocation, decimal CurrentYearAvailedOpeningBalance, decimal CurrentYearEncashed, decimal CurrentYearEncashedInbetween, DataSet sdsLeaveTranInfo, DateTime PDate, bool NotEncashedButYearEnded, bool IsEncashed, out string CarryForwardBasedOn)
+        public CarryForword CheckLeavePolicyDetails(string sPlantID, string sEmployeeId, string LeaveTypeId, decimal BroughtForwardOLd, decimal CarryforwardOB, decimal CarryforwardOld, decimal DaysCanBeSanctioned, decimal CurrentYearAllocation, decimal CurrentYearAvailedOpeningBalance, decimal CurrentYearEncashed, decimal CurrentYearEncashedInbetween, DataSet sdsLeaveTranInfo, DateTime PDate, bool NotEncashedButYearEnded, bool IsEncashed, out string CarryForwardBasedOn, Dictionary<string, DataRow> dsLeavePld)
         {
             CarryForword objCarryForword = null;
-            DataSet dsLeavePld = null;
+            //DataSet dsLeavePld = null;
             decimal LeaveTran = 0;
             decimal newCarryForward = 0;
             decimal Carryforward = 0;
@@ -741,38 +949,38 @@ namespace OTSBD.clsLeave
             DateTime DOJorDOC = DateTime.Now;
             try
             {
-                GetLeavePolicyDetails(sPlantID, sEmployeeId, out dsLeavePld);
-                DataView dv = new DataView(dsLeavePld.Tables[0]);
-                dv.RowFilter = "LTSystemID='" + LeaveTypeId + "'";
-                if (dv.Count > 0)
+                string leaveKey = sEmployeeId + "-" + LeaveTypeId;
+
+                if (dsLeavePld.ContainsKey(leaveKey))
                 {
+
                     //CarryForwardBasedOn =dv[0]["EncasementEndDate"].ToString();
-                    CarryForwardBasedOn = dv[0]["EncashmentBasis"].ToString();
+                    CarryForwardBasedOn = dsLeavePld[leaveKey]["EncashmentBasis"].ToString();
 
-                    IsCarryforward = Convert.ToBoolean(dv[0]["IsCarryForward"].ToString());
-                    IsCFFixed = Convert.ToBoolean(dv[0]["IsCFFixed"].ToString());
-                    CarryForwardMaxDay = Convert.ToDecimal(dv[0]["CarryForwardDay"].ToString());
-                    //IsCarryForwardCumulative = Convert.ToBoolean(dv[0]["IsCarryForwardCumulative"].ToString());
-                    //CarryForwardCumulativeMaxLimit = Convert.ToDecimal(dv[0]["CarryForwardCumulative"].ToString());
-                    MaxAllocationLimit = Convert.ToDecimal(dv[0]["MaxAllocationLimit"].ToString());
-                    IsMaxEncashment = Convert.ToBoolean(dv[0]["IsMaxEncashment"].ToString());
-                    MaxEncashment = Convert.ToDecimal(dv[0]["MaxEncashment"].ToString());
-                    IsMaxEncashmentLapse = Convert.ToBoolean(dv[0]["IsMaxEncashmentLapse"].ToString());
-                    MaxEncashmentLapse = Convert.ToDecimal(dv[0]["MaxEncashmentLapse"].ToString());
+                    IsCarryforward = Convert.ToBoolean(dsLeavePld[leaveKey]["IsCarryForward"].ToString());
+                    IsCFFixed = Convert.ToBoolean(dsLeavePld[leaveKey]["IsCFFixed"].ToString());
+                    CarryForwardMaxDay = Convert.ToDecimal(dsLeavePld[leaveKey]["CarryForwardDay"].ToString());
+                    //IsCarryForwardCumulative = Convert.ToBoolean(dsLeavePld[leaveKey]["IsCarryForwardCumulative"].ToString());
+                    //CarryForwardCumulativeMaxLimit = Convert.ToDecimal(dsLeavePld[leaveKey]["CarryForwardCumulative"].ToString());
+                    MaxAllocationLimit = Convert.ToDecimal(dsLeavePld[leaveKey]["MaxAllocationLimit"].ToString());
+                    IsMaxEncashment = Convert.ToBoolean(dsLeavePld[leaveKey]["IsMaxEncashment"].ToString());
+                    MaxEncashment = Convert.ToDecimal(dsLeavePld[leaveKey]["MaxEncashment"].ToString());
+                    IsMaxEncashmentLapse = Convert.ToBoolean(dsLeavePld[leaveKey]["IsMaxEncashmentLapse"].ToString());
+                    MaxEncashmentLapse = Convert.ToDecimal(dsLeavePld[leaveKey]["MaxEncashmentLapse"].ToString());
 
-                    IsCFRestEncash = Convert.ToBoolean(dv[0]["IsCFRestEncash"].ToString());
-                    IsCFCRestEncash = Convert.ToBoolean(dv[0]["IsCFCRestEncash"].ToString());
+                    IsCFRestEncash = Convert.ToBoolean(dsLeavePld[leaveKey]["IsCFRestEncash"].ToString());
+                    IsCFCRestEncash = Convert.ToBoolean(dsLeavePld[leaveKey]["IsCFCRestEncash"].ToString());
 
 
-                    MaxEncashmentLapse = Convert.ToDecimal(dv[0]["MaxEncashmentLapse"].ToString());
-                    CarryForwardRoundupOption = dv[0]["CarryForwardRoundupOption"].ToString();
-                    LvAvailedOnDOJ = Convert.ToBoolean(dv[0]["LvAvailedOnDOJ"].ToString());
-                    LvAvailedOnDOC = Convert.ToBoolean(dv[0]["LvAvailedOnDOC"].ToString()); ;
-                    LvCanAvailAfter = Convert.ToDouble(dv[0]["LvCanAvailAfter"].ToString());
-                    CanAvailUOM = dv[0]["CanAvailUOM"].ToString();
-                    if (!string.IsNullOrEmpty(dv[0]["DOJorDOC"].ToString()))
+                    MaxEncashmentLapse = Convert.ToDecimal(dsLeavePld[leaveKey]["MaxEncashmentLapse"].ToString());
+                    CarryForwardRoundupOption = dsLeavePld[leaveKey]["CarryForwardRoundupOption"].ToString();
+                    LvAvailedOnDOJ = Convert.ToBoolean(dsLeavePld[leaveKey]["LvAvailedOnDOJ"].ToString());
+                    LvAvailedOnDOC = Convert.ToBoolean(dsLeavePld[leaveKey]["LvAvailedOnDOC"].ToString()); ;
+                    LvCanAvailAfter = Convert.ToDouble(dsLeavePld[leaveKey]["LvCanAvailAfter"].ToString());
+                    CanAvailUOM = dsLeavePld[leaveKey]["CanAvailUOM"].ToString();
+                    if (!string.IsNullOrEmpty(dsLeavePld[leaveKey]["DOJorDOC"].ToString()))
                     {
-                        DOJorDOC = Convert.ToDateTime(dv[0]["DOJorDOC"].ToString());
+                        DOJorDOC = Convert.ToDateTime(dsLeavePld[leaveKey]["DOJorDOC"].ToString());
                     }
 
                     if (LvAvailedOnDOJ || LvAvailedOnDOC)
@@ -821,7 +1029,7 @@ namespace OTSBD.clsLeave
                             else
                             {
                                 //newCarryForward = DaysCanBeSanctioned + CarryforwardOB - (LeaveTran + CurrentYearAvailedOpeningBalance + CurrentYearEncashedInbetween);
-                                newCarryForward = DaysCanBeSanctioned + CarryforwardOB+ BroughtForwardOLd - (LeaveTran + CurrentYearAvailedOpeningBalance + CurrentYearEncashedInbetween);
+                                newCarryForward = DaysCanBeSanctioned + CarryforwardOB + BroughtForwardOLd - (LeaveTran + CurrentYearAvailedOpeningBalance + CurrentYearEncashedInbetween);
 
                             }
 
@@ -830,7 +1038,7 @@ namespace OTSBD.clsLeave
                         {
 
                             //newCarryForward = CurrentYearAllocation + CarryforwardOB - (LeaveTran + CurrentYearAvailedOpeningBalance + CurrentYearEncashedInbetween);
-                            newCarryForward = CurrentYearAllocation + CarryforwardOB+ BroughtForwardOLd - (LeaveTran + CurrentYearAvailedOpeningBalance + CurrentYearEncashedInbetween);
+                            newCarryForward = CurrentYearAllocation + CarryforwardOB + BroughtForwardOLd - (LeaveTran + CurrentYearAvailedOpeningBalance + CurrentYearEncashedInbetween);
                         }
 
                         if (newCarryForward > 0)
@@ -939,7 +1147,7 @@ namespace OTSBD.clsLeave
                                 if (IsEncashed)
                                 {
                                     //newCarryForward = DaysCanBeSanctioned + CarryforwardOB + CurrentYearEncashed - (LeaveTran + CurrentYearAvailedOpeningBalance + CurrentYearEncashedInbetween);
-                                    newCarryForward = DaysCanBeSanctioned + CarryforwardOld  - LeaveTran;
+                                    newCarryForward = DaysCanBeSanctioned + CarryforwardOld - LeaveTran;
                                 }
                                 else
                                 {
@@ -1344,7 +1552,7 @@ namespace OTSBD.clsLeave
 
         }
 
-        public void GetLeavePolicyDetails(string sPlantID, string sEmployeeId, out DataSet dsRef)
+        public void GetLeavePolicyDetails(string sPlantID, string ToDate, out Dictionary<string, DataRow> DicLeavePolicy)
         {
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
@@ -1352,20 +1560,43 @@ namespace OTSBD.clsLeave
             try
             {
 
-                strSql = @"select lpd.* 
-                            ,DOJorDOC=CASE WHEN lpd.LvAvailedOnDOJ=1 THEN emp.DOJ 
-                            WHEN  lpd.LvAvailedOnDOC=1 THEN emp.DOC end
-                            from dbo.LeavePolicyDetail as lpd
-                            LEFT JOIN dbo.LeavePolicyMaster as lpm on lpd.LPMSystemID = lpm.SystemID
-                            LEFT JOIN (select * from SCS.DesignationMasterConfiguration where PlantId='" + sPlantID + @"') DC on   lpm.SystemID = DC.LeavePolicyMasterId
-                            LEFT JOIN MST.DesignationMaster DM on  DC.DesignationMasterId=DM.Id
-                            LEFT JOIN dbo.EmployeeInformation emp on emp.GivenDesignationId=DM.DesignationId
-                            where lpd.IsCarryForward=1 and emp.SystemId=" + sEmployeeId;
+                //strSql = @"select lpd.* 
+                //            ,DOJorDOC=CASE WHEN lpd.LvAvailedOnDOJ=1 THEN emp.DOJ 
+                //            WHEN  lpd.LvAvailedOnDOC=1 THEN emp.DOC end
+                //            from dbo.LeavePolicyDetail as lpd
+                //            LEFT JOIN dbo.LeavePolicyMaster as lpm on lpd.LPMSystemID = lpm.SystemID
+                //            LEFT JOIN (select * from SCS.DesignationMasterConfiguration where PlantId='" + sPlantID + @"') DC on   lpm.SystemID = DC.LeavePolicyMasterId
+                //            LEFT JOIN MST.DesignationMaster DM on  DC.DesignationMasterId=DM.Id
+                //            LEFT JOIN dbo.EmployeeInformation emp on emp.GivenDesignationId=DM.DesignationId
+                //            where lpd.IsCarryForward=1 and emp.SystemId=" + sEmployeeId;
 
+                strSql = @"select lpd.* ,emp.SystemId AS EmpSystemId
+                            ,DOJorDOC=CASE WHEN lpd.LvAvailedOnDOJ=1 THEN emp.DOJ WHEN  lpd.LvAvailedOnDOC=1 THEN emp.DOC END,
+                            FORMAT(SM.ToDate,'dd-MMM-yyyy')ToDate,emp.doj,emp.doc,emp.DOS
+                            from dbo.EmployeeInformation emp
+                       
+                            LEFT JOIN mst.DesignationMasterLegalDesignation AS LGD ON lgd.LegalDesignationId=emp.LegalDesignationId
+                            LEFT JOIN SCS.DesignationMasterConfiguration DC on DC.PlantId=emp.PlantId AND dc.DesignationMasterId=lgd.DesignationMasterId
+                            LEFT JOIN dbo.LeavePolicyMaster as lpm on dc.LeavePolicyMasterId = lpm.SystemID
+                            
+                            LEFT JOIN dbo.LeavePolicyDetail as lpd  on lpd.LPMSystemID=lpm.SystemID
+                            
+                            LEFT JOIN trn.EmployeeLeaveSummary SM ON sm.EmployeeId=emp.SystemId AND sm.LeaveTypeId=lpd.LTSystemID
+                            AND sm.Id=(SELECT TOP 1 Id FROM trn.EmployeeLeaveSummary SMX WHERE SMX.EmployeeId=emp.SystemId AND SMX.LeaveTypeId=lpd.LTSystemID AND smx.ToDate<='" + ToDate + @"' ORDER BY SMX.ToDate DESC)
+                           
+                            where lpd.IsCarryForward=1 AND emp.PlantId='" + sPlantID + @"'
+                            
+                    ORDER BY emp.SystemId";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+                objCon.OpenDataSetThroughAdapter(strSql, out DataSet dsRef, false, false, "", "1");
+
+                DicLeavePolicy = new Dictionary<string, DataRow>();
+                foreach (DataRow item in dsRef.Tables[0].Rows)
+                {
+                    DicLeavePolicy.Add(item["EmpSystemId"].ToString() + "-" + item["LTSystemID"].ToString(), item);
+                }
             }
             catch (Exception ex)
             {
@@ -1391,10 +1622,109 @@ namespace OTSBD.clsLeave
                                     and CalanderYearId = '" + calendarYearId + @"' 
                                     ----AND EmployeeId IN (1800001)
                                     and CompanyGroupId = '" + CompanyGroupId + @"' 
-                                    and LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE IsCarryForward=1 and PlantId='" + plantId + @"'   and GroupId = '" + CompanyGroupId + @"'  )";
+                                    and LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE EncashmentBasis='CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"'   and GroupId = '" + CompanyGroupId + @"'  )";
 
 
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsSaveSummary, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
+        }
+        public void InitLeaveSummaryIndividualOld(string plantId, string ToDate, out DataSet dsSaveSummary)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
+                                select S.Id from [TRN].[EmployeeLeaveSummary] S
+                                JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
+                                select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
+                                join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
+                                where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
+                                AND X.ToDate<='" + ToDate + @"'
+                                ORDER BY x.FromDate DESC
+                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId
+
+                                and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE  EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
+                                    
+                                )";
+
+                strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
+                                select S.Id from [TRN].[EmployeeLeaveSummary] S
+                                
+                                WHERE S.Id IN (
+                                select Top 1 X.Id from [TRN].[EmployeeLeaveSummary] X
+                               
+                                join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
+                                where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
+                                AND X.ToDate<='" + ToDate + @"'   AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
+                                ORDER BY x.ToDate DESC
+                                ) 
+                         		
+                                and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE  EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
+                                    
+                                )";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsSaveSummary, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
+        }
+        public void InitLeaveSummaryIndividualNew(string plantId, string ToDate, out DataSet dsSaveSummary)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
+                                select S.Id from [TRN].[EmployeeLeaveSummary] S
+                                JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
+                                select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
+                                join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
+                                where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
+                                AND X.ToDate<='" + ToDate + @"'
+                                ORDER BY x.FromDate DESC
+                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId
+                                and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
+                                INNER JOIN  [TRN].[EmployeeLeaveSummary] ST ON st.EmployeeId=s.EmployeeId AND st.LeaveTypeId=s.LeaveTypeId
+                                   AND st.FromDate=DATEADD(DAY,1,s.ToDate)
+                                )";
+
+
+                strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
+                                select SN.Id from [TRN].[EmployeeLeaveSummary] S
+                                JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
+                                JOIN [TRN].[EmployeeLeaveSummary] SN ON sn.EmployeeId=s.EmployeeId AND sn.LeaveTypeId=s.LeaveTypeId
+                                AND sn.FromDate=DATEADD(DAY,1,s.ToDate)
+                                WHERE S.Id IN (
+                                select Top 1 X.Id from [TRN].[EmployeeLeaveSummary] X
+                               
+                                join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
+                                where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
+                                AND X.ToDate<='" + ToDate + @"'  AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
+                                ORDER BY x.ToDate DESC
+                                ) 
+                                and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE  EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
+                                    
+                            )";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsSaveSummary, false, "1");
             }
