@@ -1112,13 +1112,19 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                     TaxLists.push($scope.salesOrderList[i].TaxList[j]);
                 }
             }
+            var ChargeTax = [];
+            for (var i = 0; i < $scope.chargesList.length; i++) {
+                for (var j = 0; j < $scope.chargesList[i].ServiceTaxList.length; j++) {
+                    ChargeTax.push($scope.chargesList[i].ServiceTaxList[j]);
+                }
+            }
 
             $scope.Validation();
 
             $http({
                 method: 'POST',
                 url: $scope.path + 'Create',
-                data: { 'MasterData': $scope.salesVM, 'CommercialInvoicePackingList': $scope.selectedPackingList, 'CommercialInvoicePIMaterial': $scope.salesOrderList, 'taxList': TaxLists, 'Charge': $scope.chargesList },
+                data: { 'MasterData': $scope.salesVM, 'CommercialInvoicePackingList': $scope.selectedPackingList, 'CommercialInvoicePIMaterial': $scope.salesOrderList, 'taxList': TaxLists, 'Charge': $scope.chargesList,'ChargeTax': ChargeTax  },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
