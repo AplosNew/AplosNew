@@ -1289,7 +1289,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
             $scope.bankCharge.CompanyCurrencyAmount = $scope.bankCharge.Amount;
         }
         else {
-            $scope.bankCharge.CompanyCurrencyAmount = Math.round(($scope.bankCharge.Amount * $scope.voucher.CompanyCurrencyRate) * 100 + Number.EPSILON) / 100;
+            $scope.bankCharge.CompanyCurrencyAmount = Math.round(($scope.bankCharge.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
         }
     };
 
