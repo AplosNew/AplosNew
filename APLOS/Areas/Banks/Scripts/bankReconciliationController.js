@@ -624,4 +624,32 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
         
         return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
     };
+    $scope.CRREconcileReport = function () {
+        try {
+            //$scope.bankCrReconParameters.bankMasterId = $scope.bankReconciliationNew.BankMasterId;
+            //$scope.bankCrReconParameters.fromDate = $scope.bankReconciliationNew.FromDate;
+            //$scope.bankCrReconParameters.toDate = $scope.bankReconciliationNew.ToDate;
+            var file_src = 'banks/bankreconciliation/CRReconcileReport?BankMasterID=' + $scope.bankCrReconParameters.bankMasterId + '&fromDate=' + $scope.bankCrReconParameters.fromDate + '&toDate=' + $scope.bankCrReconParameters.toDate + '&bankReconciliation=' + $scope.bankReconciliationNew
+            $rootScope.report(file_src);
+      
+        } catch (e) {
+
+        }
+    }
+
+  
+    $scope.DRREconcileReport = function () {
+        //$scope.bankDrReconParameters.cutOffDate = $scope.cutOffDate;
+        //$scope.bankDrReconParameters.bankMasterId = $scope.bankReconciliationNew.BankMasterId;
+        //$scope.bankDrReconParameters.fromDate = $scope.bankReconciliationNew.FromDate;
+        //$scope.bankDrReconParameters.toDate = $scope.bankReconciliationNew.ToDate;
+        try {
+
+            var file_src = 'banks/bankreconciliation/DRReconcileReport?BankMasterID=' + $scope.bankCrReconParameters.bankMasterId + '&fromDate=' + $scope.bankCrReconParameters.fromDate + '&toDate=' + $scope.bankCrReconParameters.toDate + '&cutOffDate' + $scope.bankDrReconParameters.cutOffDate
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 }

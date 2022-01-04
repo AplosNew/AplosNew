@@ -109,9 +109,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                                WHERE eab.PlantId='" + identity.PlantId + @"' " + filter + @"
                                 ) AS K ";
 
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
 
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+         //   return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -656,7 +658,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 sheet.Range[StartRow, 1, ROW, EndOfStaticColumns].CellStyle.Font.Size = 8f;
                 sheet.Range[StartRow, 1, ROW, EndOfStaticColumns].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.IsGridLinesVisible = false;
+                sheet.IsGridLinesVisible = true;
                 sheet.UsedRange[clsStaticInfo.GetxlsCol(EndOfStaticColumns + 1) + "6"].FreezePanes();
 
 
@@ -2308,9 +2310,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     xlsRow++;
                     SLNo++;
                 }
-                //sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                //sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                //sheet1.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
+                sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
                 //sheet1.Range[StartRow, 1, xlsRow - 1, endXlsCol].CellStyle.Font.Size = 8f;
                 ////sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
                 ////Specify first condition
@@ -2423,6 +2425,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet1.IsDisplayZeros = false;
                 sheet1.Name = "Task List";
+
                 #endregion Page Setup
 
                 #endregion  ManualOutTime
@@ -2519,7 +2522,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 int TaskSequence = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Seq";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 xlsCol += 1;
                 colDueDate = xlsCol;
                 sheet1.Range[xlsRow, colDueDate].Text = "Due Date";
