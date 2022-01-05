@@ -406,8 +406,11 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
             return ShowResult('Please Work Center.', 'failure');
         }
+        if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionOrderId)) {
+            return ShowResult('Please Production Order.', 'failure');
+        }
         $scope.SOItemList = [];
-        $http.get('Productions/ProductionSummary/GetSOItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+        $http.get('Productions/ProductionSummary/GetItemsData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -431,26 +434,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         }
     };
 
-    $scope.getProductionOrderPopUp = function () {
-        if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
-            return ShowResult('Please Work Center.', 'failure');
-        }
-        $scope.SOItemList = [];
-        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.SOItemList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-        
-            angular.element(document.querySelector('#POItemPopup')).modal('show');
-       
-    };
-
     $scope.selectSOItem = function ($event) {
         try {
             var soitem = $event.data;
@@ -471,7 +454,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             $scope.productionSummaryNew.ProductCode = soitem.ProductCode
             $scope.productionSummaryNew.MasterOrderItemId = soitem.MasterOrderItemId;
             $scope.productionSummaryNew.SalesOrderId = soitem.SOId;
-            $scope.productionSummaryNew.ProductionOrderId = soitem.POId;
+          
 
             $scope.productionSummaryNew.MaterialMasterId = soitem.MaterialMasterId;
             $scope.productionSummaryNew.MaterialMaster = soitem.MaterialMaster;
@@ -502,7 +485,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 $scope.TotalProductionBookingQty = parseFloat(soitem.TotalProductionQty.toFixed(2));
             }
 
-            angular.element(document.querySelector('#POItemPopup')).modal('hide');
+          
             angular.element(document.querySelector('#SOItemPopup')).modal('hide');
             angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
             angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
@@ -513,6 +496,32 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         } catch (ex) {
             ShowResult(ex, 'error');
         }
+    }
+
+    $scope.ProductionOrderList = [];
+    $scope.getProductionOrderPopUp = function () {
+        if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
+            return ShowResult('Please Work Center.', 'failure');
+        }
+        $scope.ProductionOrderList = [];
+        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.ProductionOrderList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+
+    };
+
+    $scope.SetPrOData = function ($event) {
+        $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
+        angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
 
     $scope.psdList = [];
