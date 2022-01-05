@@ -225,12 +225,12 @@ namespace Library.Service.Extension.Payroll.Tax
                     {
                         DataView dvTax = new DataView(dsTax.Tables[0]);
                         dvTax.RowFilter = "EmpSystemId='" + item.EmpSystemId + "'";
-
+                        _count++;
                         if (dvTax.Count == 0)
                         {
-                            _count++;
+                           
                             DataRow dr = dsTax.Tables[0].NewRow();
-                            dr["Id"] = "PT" + sID + "_" + _count;
+                            dr["Id"] = "PTSAL-" + sID + "-" + _count;
 
                             dr["EmpSystemId"] = item.EmpSystemId;
                             dr["EarnedAmount"] = item.EarnedAmount;

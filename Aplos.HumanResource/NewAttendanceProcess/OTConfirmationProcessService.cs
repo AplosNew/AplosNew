@@ -442,7 +442,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     #endregion
 
-                                    if (IsManual == "True")
+                                    if (IsManual == "True" && NewOut!="")
                                     {
                                         dr["OutTime"] = NewOut;
                                         dr["ManualOutTime"] = NewOut; // New Out Based on OT Split 
