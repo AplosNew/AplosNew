@@ -98,7 +98,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId)
+        public IEnumerable<object> GetItemsData(string entityid, string workCenterMasterId, string productionLevel, string processId,string ProductionOrderId)
         {
             if (productionLevel == ProductionBookingLevel.SalesOrder.ToString())
             {
@@ -153,7 +153,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
@@ -210,13 +210,13 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='"+ProductionOrderId+"'";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             else if (productionLevel == ProductionBookingLevel.ProductCode.ToString())
             {
-                string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,MOI.ProductLibraryId,PL.Code ProductCode
+                string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,MOI.Id MasterOrderItemId,MOI.ProductLibraryId,PL.Code ProductCode
 	                                ,ISNULL(so.Id,'') SOId
 	                                ,SO.CustomerPOId
 	                                ,CPO.PONumber
@@ -268,7 +268,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
@@ -353,7 +353,7 @@ namespace Library.OrderManagement.Production
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								   WHERE PO.EntityId='" + entityid + "' AND PS.UserName = 'Running'";
+								   WHERE PO.EntityId='" + entityid + "' AND PS.UserName = 'Running'  AND PO.Id='" + ProductionOrderId + "'";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
@@ -361,9 +361,7 @@ namespace Library.OrderManagement.Production
 
         public IEnumerable<object> GetProductionOrderData(string entityid, string workCenterMasterId, string productionLevel, string processId)
         {
-            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo
-	                                ,ISNULL(so.Id,'') SOId
-	                                ,SO.CustomerPOId
+            string CmdText = @"SELECT SO.CustomerPOId
 	                                ,CPO.PONumber
 	                                ,mm.Id MaterialMasterId
 	                                ,mm.UserName MaterialMaster
@@ -1032,7 +1030,7 @@ namespace Library.OrderManagement.Production
 								,mma.Id ArticleId,mm.Id MaterialMasterId,mmc.CharCount, p.PlantID,p.WorkCenterMasterId,EP.ProductionBookingLevel
                                 ,PBP.UserName ProductionBookingPeriod,P.ResponsiblePersonId,R.EmployeeName ResponsiblePersonName,P.MentorId, M.EmployeeName MentorName
                                 ,FORMAT (P.InTime, 'dd-MMM-yyyy hh:mm:tt') InTime, FORMAT (P.OutTime, 'dd-MMM-yyyy hh:mm:tt') OutTime,P.ConsumeHour,P.ManPower, P.CheckedBy,C.EmployeeName CheckedByName,p.LotNumber
-                                ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description
+                                ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description,P.ProductionOrderId
                                  FROM [TRN].[ProductionSummary] p
 								 LEFT JOIN trn.SalesOrder so on so.Id=p.SalesOrderId
                                  LEFT JOIN trn.[MasterOrderItem] moi on moi.id=so.MasterOrderItemId
@@ -1164,7 +1162,7 @@ namespace Library.OrderManagement.Production
 								,mma.Id ArticleId,mm.Id MaterialMasterId,mmc.CharCount, p.PlantID,p.WorkCenterMasterId,EP.ProductionBookingLevel
                                 ,PBP.UserName ProductionBookingPeriod,P.ResponsiblePersonId,R.EmployeeName ResponsiblePersonName,P.MentorId, M.EmployeeName MentorName
                                 ,FORMAT (P.InTime, 'dd-MMM-yyyy hh:mm:tt') InTime, FORMAT (P.OutTime, 'dd-MMM-yyyy hh:mm:tt') OutTime,P.ConsumeHour,P.ManPower, P.CheckedBy,C.EmployeeName CheckedByName,p.LotNumber
-                                ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description
+                                ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description,P.ProductionOrderId
                                  FROM [TRN].[ProductionSummary] p
 								 LEFT JOIN trn.SalesOrder so on so.Id=p.SalesOrderId
                                  LEFT JOIN trn.[MasterOrderItem] moi on moi.id=P.MasterOrderItemId
@@ -1192,7 +1190,7 @@ namespace Library.OrderManagement.Production
                 }
                 else
                 {
-                    string _sql = @"select p.Id,mo.MasterOrderNo
+                    string _sql = @"select p.Id,mo.MasterOrderNo,PL.Code ProductCode,P.ProductLibraryId
 								,moi.Id MOrderLineNo
 								,so.Id SalesOrderId,SO.Description
                                 ,PO.PONumber
@@ -1209,15 +1207,15 @@ namespace Library.OrderManagement.Production
 								,mma.Id ArticleId,mm.Id MaterialMasterId,mmc.CharCount, p.PlantID,p.WorkCenterMasterId,EP.ProductionBookingLevel
                                 ,PBP.UserName ProductionBookingPeriod,P.ResponsiblePersonId,R.EmployeeName ResponsiblePersonName,P.MentorId, M.EmployeeName MentorName
                                 ,FORMAT (P.InTime, 'dd-MMM-yyyy hh:mm:tt') InTime, FORMAT (P.OutTime, 'dd-MMM-yyyy hh:mm:tt') OutTime,P.ConsumeHour,P.ManPower, P.CheckedBy,C.EmployeeName CheckedByName,p.LotNumber
-                                ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description
+                                ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description,P.ProductionOrderId
                                  FROM [TRN].[ProductionSummary] p
 								 LEFT JOIN trn.SalesOrder so on so.Id=p.SalesOrderId
                                  LEFT JOIN trn.[MasterOrderItem] moi on moi.id=so.MasterOrderItemId
                                  LEFT JOIN trn.MasterOrder mo on mo.id=moi.MasterOrderId
                                  LEFT JOIN hkp.Party b on b.id=mo.PartyId
 								 LEFT JOIN scs.UnitOfMeasurement u on u.id=mo.TotalQtyUOMId
-                                 LEFT JOIN mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
-                                 LEFT JOIN mst.MaterialMasterArticle mma on mma.id=moi.ArticleId
+                                 LEFT JOIN mst.MaterialMaster mm on mm.id=p.MaterialMasterId
+                                 LEFT JOIN mst.MaterialMasterArticle mma on mma.id=p.ArticleId
                                  LEFT JOIN (
 											SELECT count(Id) CharCount,MaterialMasterId from [MST].[MaterialMasterCharacteristics] group by  MaterialMasterId
 											) mmc on mmc.MaterialMasterId=mm.id
@@ -1226,7 +1224,8 @@ namespace Library.OrderManagement.Production
                                  LEFT JOIN EmployeeInformation R ON P.ResponsiblePersonId=R.SystemId
                                  LEFT JOIN EmployeeInformation M ON P.MentorId=M.SystemId
                                  LEFT JOIN [TRN].[CustomerPO] PO ON PO.Id=SO.CustomerPOId
-                                 LEFT JOIN EmployeeInformation C ON P.CheckedBy=C.SystemId
+                                 LEFT JOIN EmployeeInformation C ON P.CheckedBy=C.SystemId								 
+                                LEFT JOIN dbo.ProductLibrary PL ON PL.Id=P.ProductLibraryId
                                  WHERE p.EntityId='" + EntityId + @"' 
 								 and p.ProcessId='" + ProcessId + @"' 
 								 and p.WorkCenterMasterId='" + WorkCenterMasterId + @"' 

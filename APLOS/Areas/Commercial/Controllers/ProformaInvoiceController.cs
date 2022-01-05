@@ -23,7 +23,10 @@ using Library.OrderManagement.FabricRollClass;
 using System.Linq;
 using Library.Security.Core;
 using Library.OrderManagement.TermsAndConditions;
-
+using Library.Service.Logs;
+using System.Reflection;
+using Library.OrderManagement.ShipmentControl;
+using Library.OrderManagement.ProformaInvoice;
 #endregion using
 
 namespace Aplos.Areas.Commercial.Controllers
@@ -40,7 +43,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
         #endregion -- Constructor
         TermsAndConditionsService tg = new TermsAndConditionsService();
-
+        ProformaInvoice PI = new ProformaInvoice();
         #region Pages
 
         [Authorize]
@@ -521,6 +524,83 @@ ROUND(p.Amount, 2) Amount,
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult TermsAndConditions()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                string _sql = "select Id,Description,UserName TermsAndConditions from HKP.TermsAndConditions where Type='ProformaInvoice' And CompanyId='" + identity.CompanyId + @"'";
+                //_sqlRepository.ExecuteSqlCommand(_sql);
 
+                return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetTermsAndConditionsPIList(string TermsAndConditionMasterId, string PIMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select TC.Id TermsAndConditionPIChildId,TC.Id,TC.Title
+from TermsAndConditionsPIChild TC
+WHERE TC.PIMasterId='" + PIMasterId + @"' ";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetTermsAndConditionsPIDetailList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select TCD.Id,TC.Id TermsAndConditionPIChildId,TCD.HeaderCaption ,TCD.Description  from TermsAndConditionsPIDetails TCD 
+left outer join TermsAndConditionsPIChild TC on TC.Id=TCD.TermsAndConditionsPIChildId ORDER BY TCD.Sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetPopUp(string TermsAndConditionsPIDetailId)
+        {
+            try
+            {
+                return Json(PI.GetTermsAndConditionPOPopUp(TermsAndConditionsPIDetailId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+        public ActionResult DeletePIDetailPOPup(string id)
+        {
+            try
+            {
+
+                string ret = PI.DeletePIDetailPopUp(id);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false/*, Sequence = GetSequence()*/, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
     }
 }
