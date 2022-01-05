@@ -113,11 +113,11 @@ namespace Aplos.Areas.Banks.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult CRReconcileReport(string BankMasterID,string fromDate,string toDate, Dictionary<string, object> bankReconciliation)
+        public ActionResult CRReconcileReport(string BankMasterID,string fromDate,string toDate)
         {
             try
             {
-                _bankReportService.CRReconcileReport(BankMasterID, fromDate, toDate, bankReconciliation);
+                _bankReportService.CRReconcileReport(BankMasterID, fromDate, toDate);
 
                 return null;
             }

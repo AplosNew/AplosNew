@@ -111,19 +111,17 @@
                 </div>
             </div>
         </div>
+        
         <div class="form-group" ng-show="IsGo===true">
-            <label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for production booking.</label>
-        </div>
-        <div class="form-group" ng-show="IsGo===true">
-            <label class="col-sm-4 control-label">{{ProductionLevel}}<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
             <div class="col-sm-8">
                 <div class="input-group">
-                    <input type="text" name="SalesOrder" ng-show="productionSummaryNew.ProductionBookingLevel=='SalesOrder'" ng-model="productionSummaryNew.SalesOrderId" class="form-control" readonly>
-                    <input type="text" name="ProductionOrder" ng-show="productionSummaryNew.ProductionBookingLevel==='ProductionOrder'" ng-model="productionSummaryNew.ProductionOrderId" class="form-control" readonly>
+                    <input type="text" name="ProductionOrder" ng-model="productionSummaryNew.ProductionOrderId" class="form-control" readonly>
+                    @*<input type="text" name="SalesOrder" ng-show="productionSummaryNew.ProductionBookingLevel=='SalesOrder'" ng-model="productionSummaryNew.SalesOrderId" class="form-control" readonly>
                     <input type="text" name="MasterOrderItem" ng-show="productionSummaryNew.ProductionBookingLevel==='MasterOrderItem'" ng-model="productionSummaryNew.MasterOrderItemId" class="form-control" readonly>
-                    <input type="text" name="ProductCode" ng-show="productionSummaryNew.ProductionBookingLevel==='ProductCode'" ng-model="productionSummaryNew.ProductCode" class="form-control" readonly>
+                    <input type="text" name="ProductCode" ng-show="productionSummaryNew.ProductionBookingLevel==='ProductCode'" ng-model="productionSummaryNew.ProductCode" class="form-control" readonly>*@
                     <span class="input-group-btn">
-                        <button ng-click="getMaterialMasterbyTypePopUp('');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
@@ -141,13 +139,24 @@
             </div>
         </div>
         <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-2 control-label">Buyer Item</label>
+            <div class="col-sm-4">
+                <label class="control-label">{{productionSummaryNew.BuyerItem}}</label>
+            </div>
+
+            <label class="col-sm-2 control-label">Own Item</label>
+            <div class="col-sm-4">
+                <label class="control-label">{{productionSummaryNew.OwnItem}}</label>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-2 control-label">Buyer Order</label>
-            <div class="col-sm-5">
+            <div class="col-sm-4">
                 <label class="control-label">{{productionSummaryNew.BuyerOrder}}</label>
             </div>
 
             <label class="col-sm-2 control-label">Own Order</label>
-            <div class="col-sm-3" style="margin-left: -25px;">
+            <div class="col-sm-4">
                 <label class="control-label">{{productionSummaryNew.OwnOrder}}</label>
             </div>
         </div>
@@ -199,14 +208,6 @@
             </div>
         </div>
         <div class="form-group">
-            @*<label class="col-sm-4 control-label"></label>
-
-                <div class="col-sm-2 show-message" style="padding-right:0;">
-                    <button ng-click="masterGo(true);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button>
-                </div>
-                <div class="col-sm-2 show-message" style="padding-left:0;">
-                    <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
-                </div>*@
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
@@ -214,13 +215,11 @@
                 </ul>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-12 control-label"></label>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for production booking.</label>
         </div>
-        <div class="form-group">
-            <label class="col-sm-12 control-label"></label>
-        </div>
-        <div class="form-group" ng-show="IsGo===true" style="margin-top: 18px;">
+        
+        @*<div class="form-group" ng-show="IsGo===true" style="margin-top: 18px;">
             <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Master Order</label>
             <div class="col-sm-8" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
                 <div class="input-group">
@@ -230,25 +229,25 @@
                     </span>
                 </div>
             </div>
+        </div>*@
+        <div class="form-group" ng-show="IsGo===true && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
+            <label class="col-sm-4 control-label">{{ProductionLevel}}<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="SalesOrder" ng-show="productionSummaryNew.ProductionBookingLevel=='SalesOrder'" ng-model="productionSummaryNew.SalesOrderId" class="form-control" readonly>
+                    <input type="text" name="MasterOrderItem" ng-show="productionSummaryNew.ProductionBookingLevel==='MasterOrderItem'" ng-model="productionSummaryNew.MasterOrderItemId" class="form-control" readonly>
+                    <input type="text" name="ProductCode" ng-show="productionSummaryNew.ProductionBookingLevel==='ProductCode'" ng-model="productionSummaryNew.ProductCode" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getMaterialMasterbyTypePopUp('');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
         </div>
+
         <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">PO Number</label>
             <div class="col-sm-8" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
                 <label class="control-label">{{productionSummaryNew.PONumber}}</label>
-            </div>
-        </div>
-        <div class="form-group" ng-show="IsGo===true">
-            <label class="col-sm-2 control-label">Buyer Item</label>
-            <div class="col-sm-10">
-                <label class="control-label">{{productionSummaryNew.BuyerItem}}</label>
-            </div>
-
-
-        </div>
-        <div class="form-group" ng-show="IsGo===true">
-            <label class="col-sm-2 control-label">Own Item</label>
-            <div class="col-sm-10">
-                <label class="control-label">{{productionSummaryNew.OwnItem}}</label>
             </div>
         </div>
         <div class="form-group" ng-show="IsGo===true && LotNumberCapture==true">
@@ -335,6 +334,7 @@
             </div>
         </div>
     </div>
+
 </div>
 <div class="col-xs-12" ng-show="IsGo===true">
     <div class="common-btn">
@@ -359,9 +359,11 @@
             <tr>
                 @*<th ng-repeat="h in SearchLineGridList">{{h.Text}}</th>*@
                 <th>Action</th>
-                @*<th>Production Order</th>*@
-                <th>Master Order</th>
-                <th>Sales Order</th>
+                <th>Production Order</th>
+                <th ng-show="productionSummaryNew.ProductionBookingLevel=='MasterOrderItem'">Master Order</th>
+                <th ng-show="productionSummaryNew.ProductionBookingLevel=='MasterOrderItem'">Master Order Item</th>
+                <th ng-show="productionSummaryNew.ProductionBookingLevel=='ProductCode'">Product Code</th>
+                <th ng-show="productionSummaryNew.ProductionBookingLevel=='SalesOrder'">Sales Order</th>
 
                 <th>Buyer Order</th>
                 <th>Own Order</th>
@@ -378,7 +380,6 @@
                 <th>Production Booking Period</th>
                 <th>Customer</th>
                 <th>PO Number</th>
-                @*<th>SKU</th>*@
             </tr>
         </thead>
         <tbody>
@@ -391,9 +392,11 @@
                         </li>
                     </ul>
                 </td>
-                @*<td>{{x.Id}}</td>*@
-                <td>{{x.MasterOrderNo}}</td>
-                <td>{{x.SalesOrderId}}</td>
+                <td>{{x.ProductionOrderId}}</td>
+                <td ng-show="productionSummaryNew.ProductionBookingLevel=='MasterOrderItem'">{{x.MasterOrderNo}}</td>
+                <td ng-show="productionSummaryNew.ProductionBookingLevel=='MasterOrderItem'">{{x.MOrderLineNo}}</td>
+                <td ng-show="productionSummaryNew.ProductionBookingLevel=='ProductCode'">{{x.ProductCode}}</td>
+                <td ng-show="productionSummaryNew.ProductionBookingLevel=='SalesOrder'">{{x.SalesOrderId}}</td>
 
                 <td>{{x.BuyerOrder}}</td>
                 <td>{{x.OwnOrder}}</td>
@@ -403,7 +406,6 @@
                 <td>{{x.Description}}</td>
                 <td>{{x.LotNumber}}</td>
 
-
                 <td>{{x.MaterialMaster}}</td>
                 <td>{{x.Article}}</td>
                 <td>{{x.ProductionGrade}}</td>
@@ -411,9 +413,7 @@
                 <td>{{x.ProductionBookingPeriod}}</td>
                 <td>{{x.Customer}}</td>
                 <td>{{x.PONumber}}</td>
-                @*<td>
-                        <button ng-click="showFirstPopup(x);" class="btn single-small-btn" ng-disabled="productionSummaryNew.ProductionBookingLevel==='ProductionOrder' || productionSummaryNew.ProductionBookingLevel==='SalesOrder'"><i class="cr-icon glyphicon glyphicon-list"></i></button>
-                    </td>*@
+               
             </tr>
         </tbody>
     </table>
@@ -458,8 +458,8 @@
                 <td>{{x.Quantity}}</td>
                 <td>{{x.ProductionBookingPeriod}}</td>
                 @*<td>
-                        <button class="btn single-small-btn" ng-disabled="productionSummaryNew.ProductionBookingLevel==='ProductionOrder' || productionSummaryNew.ProductionBookingLevel==='SalesOrder'"><i class="cr-icon glyphicon glyphicon-list"> </i></button>
-                    </td>*@
+            <button class="btn single-small-btn" ng-disabled="productionSummaryNew.ProductionBookingLevel==='ProductionOrder' || productionSummaryNew.ProductionBookingLevel==='SalesOrder'"><i class="cr-icon glyphicon glyphicon-list"> </i></button>
+        </td>*@
             </tr>
         </tbody>
     </table>
@@ -578,8 +578,8 @@
             <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body text-center">
                 <div class="row">
-                    <div style="color:black;" id="Grid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
+                    <div style="color:black;" id="GridPO" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SetPrOData"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>

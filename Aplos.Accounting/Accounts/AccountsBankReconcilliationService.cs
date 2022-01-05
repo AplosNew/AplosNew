@@ -190,6 +190,7 @@ namespace Library.Accounting.Accounts
             {
                 parameters.CmdText = @"SELECT V.Id AS VoucherId
 	                                         ,VD.Id AS VoucherDetailId
+                                             ,VD.Id AS VoucherDetail
 	                                         ,V.VoucherNo
 	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
 	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
@@ -229,6 +230,7 @@ namespace Library.Accounting.Accounts
                 }
                 parameters.CmdText = @"SELECT V.Id AS VoucherId
 	                                         ,VD.Id AS VoucherDetailId
+                                             ,VD.Id AS VoucherDetail
 	                                         ,V.VoucherNo
 	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
 	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate

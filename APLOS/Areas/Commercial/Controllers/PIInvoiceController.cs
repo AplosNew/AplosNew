@@ -77,7 +77,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string,object> MasterData,List<Dictionary<string, object>> CommercialInvoicePackingList,List<Dictionary<string,object>> CommercialInvoicePIMaterial,List<Dictionary<string,object>> taxList,List<Dictionary<string,object>> Charge,List<Dictionary<string,object>> ChargeTax)
+        public JsonResult Create(Dictionary<string,object> MasterData,List<Dictionary<string, object>> CommercialInvoicePackingList,List<CommercialInvoiceModel> CommercialInvoicePIMaterial,List<Dictionary<string,object>> taxList,List<ChargeModel> Charge,List<Dictionary<string,object>> ChargeTax)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             pi.save(MasterData,CommercialInvoicePackingList,CommercialInvoicePIMaterial, taxList, Charge, ChargeTax);
