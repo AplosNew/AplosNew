@@ -1,5 +1,6 @@
 ﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.Model.Taxations;
 using OTSBD;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ namespace Library.OrderManagement.Packing
             {
                 var str = @"SELECT *
                                 FROM (
-                                	SELECT IPL.CommercialInvoiceMasterId Id
+                                	SELECT IPL.CommercialInvoiceMasterId ,IPL.Id
                                 		,plm.Id PackingId
                                 		,p.UserName Customer
                                 		,p.id CustomerId
@@ -70,7 +71,7 @@ namespace Library.OrderManagement.Packing
                                 	LEFT JOIN [SCS].[Currency] AS C ON C.Id = pm.CurrencyId
                                 	LEFT JOIN CommercialInvoicePackingList IPL ON IPL.PIPackingListMasterId = PLM.Id
                                 	) d
-                                WHERE d.Id = '" + CommercialInvoiceMasterId + @"' ";
+                                WHERE d.CommercialInvoiceMasterId = '" + CommercialInvoiceMasterId + @"' ";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -123,6 +124,7 @@ namespace Library.OrderManagement.Packing
                                 	,FORMAT(S.UpdatedDate, 'dd-MMM-yyyy') UpdatedDate
                                 	,s.UpdatedBy
                                 	,S.UpdatedFromIP
+                                    ,s.EXPFromNo,s.BLNumber
                                 FROM CommercialInvoiceMaster s
                                 LEFT JOIN [ORG].[Company] AS CO ON CO.Id = S.CompanyId
                                 JOIN [HKP].[Party] AS P ON P.Id = S.PartyId
@@ -162,11 +164,14 @@ namespace Library.OrderManagement.Packing
                                         	,p.Amount
                                         	,p.Amount NetAmount
                                             ,p.HSNCodeId
+                                            ,c.Id
+                                            ,c.CommercialInvoiceMasterId
                                         FROM PIPackingListMaster AS PM
                                         INNER JOIN PIPackingListMaterial AS M ON pm.Id = m.PIPackingListMasterId
                                         INNER JOIN PIMaterial AS p ON p.Id = m.PIMaterialId
                                         INNER JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id = p.MaterialGroupMasterId
                                         INNER JOIN scs.UnitOfMeasurement AS uom ON uom.Id = p.UoMId
+                                        LEFT JOIN CommercialInvoicePIMaterial c ON c.PIPackingListMaterialId=m.Id
                                         WHERE PM.Id " + PackingId + "";
                 return _sqlRepository.GetDataCollection(_sql);
             }
@@ -174,6 +179,120 @@ namespace Library.OrderManagement.Packing
             {
                 throw ex;
             }
+        }
+        public IEnumerable<object> GetTaxCategoryList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string PODate)
+        {
+            try
+            {
+                var sql = @"DECLARE @receiveId varchar(100)='" + receiveId + @"'
+                                  , @partyState varchar(30)
+                                  , @partyCountry varchar(10)
+                                  , @plantState varchar(30)
+                                  , @plantCountry varchar(10)
+                                  , @plantId varchar(30)='" + plantId + @"'
+                                  , @hsnCodeId varchar(30)='" + hsnCodeId + @"'
+                    SET @partyCountry =(SELECT AM.CountryId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id WHERE PP.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @partyState =(SELECT AM.StateId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id WHERE PP.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+
+                    SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SELECT ct.Id, TVD.TaxCategoryId, HP.HSNCodeId, HN.Code AS HSNCode, TC.UserName, HP.[Percentage] AS [Percentage], NULL TotalAmount
+                    FROM [MST].[TaxVariantDetail] AS TVD
+                    JOIN [MST].[TaxVariant] AS TV ON TVD.TaxVariantId=TV.Id
+                    JOIN [MST].[TaxCategory] AS TC ON TVD.TaxCategoryId=TC.Id
+                    --LEFT JOIN (SELECT * FROM [MST].[HSNTaxPercentage] WHERE HSNCodeId=@hsnCodeId) AS HP ON HP.TaxCategoryId=TC.Id
+					LEFT JOIN (SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY TaxCategoryId, HSNCodeId ORDER BY EffectiveDate DESC) AS RN
+								FROM [MST].[HSNTaxPercentage] WHERE CountryId=@plantCountry AND HSNCodeId=@hsnCodeId AND convert(DATE, EffectiveDate)<='" + PODate + @"') AS TBL WHERE RN=1) AS HP ON HP.TaxCategoryId=TC.Id
+
+                    LEFT JOIN [HKP].[HSNCode] AS HN ON HP.HSNCodeId=HN.Id
+                    LEFT JOIN CommercialInvoiceTaxes ct ON ct.TaxCategoryId = HP.TaxCategoryId AND ct.HSNCodeId=HN.Id
+                    WHERE TV.CompanyGroupId='" + companyGroupId + @"' AND TV.CountryId=@plantCountry --AND HP.HSNCodeId=@hsnCodeId
+                    AND TV.TaxFor=CASE WHEN @partyCountry=@plantCountry THEN '" + TaxFor.DomesticSales + @"'
+				                        WHEN @partyCountry<>@plantCountry THEN '" + TaxFor.OverseasSales + @"' END
+                    AND (TV.Different=CASE WHEN @partyCountry=@plantCountry AND @partyState=@plantState AND TV.DifferentIn='State' THEN 'Same'
+					                       WHEN @partyCountry=@plantCountry AND @partyState<>@plantState AND TV.DifferentIn='State' THEN 'Different' END
+	                    OR TV.Different IS NULL)
+                    ORDER BY TC.[Sequence]";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<Dictionary<string, object>> GetSalesTaxData(string companyGroupId, string companyId, string plantId, string salesId)
+        {
+            var cmdText = @"SELECT c.Id,c.CommercialInvoiceMasterId,c.ServiceMasterId,sm.UserName ChargeName ,c.Amount,c.TaxAmount,(c.Amount+c.TaxAmount)TaxAndTotal,c.Amount TransactionAmount
+                                FROM  CommercialInvoiceCharges c 
+                                LEFT JOIN HKP.ServiceMaster AS sm ON sm.Id=c.ServiceMasterId
+								WHERE c.CommercialInvoiceMasterId='" + salesId + @"' ";
+            return _sqlRepository.GetDataCollection(cmdText);
+        }
+        public List<Dictionary<string, object>> GetSalesServiceTaxData(string companyGroupId, string companyId, string plantId, string salesId)
+        {
+            var cmdText = @"SELECT ST.Id, ST.CommercialInvoiceMasterId, ST.CommercialInvoiceChargesId, ST.TaxCategoryId, TC.UserName AS TaxCategory,ST.HSNCodeId, HC.Code, ST.[Percentage], ST.Amount
+								FROM CommercialInvoiceTaxes AS ST 
+								LEFT JOIN CommercialInvoiceCharges AS SM ON SM.Id=ST.CommercialInvoiceChargesId
+								LEFT JOIN CommercialInvoiceMaster AS SA ON SA.Id=ST.CommercialInvoiceMasterId
+								LEFT JOIN MST.TaxCategory AS TC ON TC.Id=ST.TaxCategoryId
+								LEFT JOIN HKP.HSNCode AS HC ON HC.Id=ST.HSNCodeId
+								WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND ST.CommercialInvoiceChargesId in (" + salesId + @")";
+            return _sqlRepository.GetDataCollection(cmdText);
+        }
+        public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
+        {
+
+            var cmdText = @"SELECT SM.*,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
+            , BUoM.UserName AS BaseUoM, TUoM.UserName AS TransactionUoM
+            , CU.Code AS Currency,NULL TaxList ,FC.ValueFreeText,FCV.UserName AS [FreeText] 
+            , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue
+
+			,FC.Id FirstCharacteristicsId
+			,FC.CharacteristicsValueId FirstCharacteristicsValueId
+			,CH.UserName FCH,FCV.UserName SKU1
+
+			,CH2.UserName SCH,SCV.UserName SKU2
+			,SC.Id SecondCharacteristicsId
+            ,SC.CharacteristicsValueId SecondCharacteristicsValueId
+
+			,CH3.UserName TCH,TCV.UserName SKU3
+			,TC.Id ThirdCharacteristicsId
+			,TC.CharacteristicsValueId ThirdCharacteristicsValueId
+            ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
+			, SO.SOType,SO.Rate
+           ,SM.TransactionQty SalesQty
+                ,SM.TransactionQty 
+                ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
+	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
+            FROM TRN.SalesMaterial AS SM 
+            LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
+            LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
+            JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+			JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+			LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+			LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
+
+            LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
+            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+            LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
+            LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId AND SM.SalesOrderId=FC.SalesOrderId
+            LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
+			LEFT JOIN [HKP].[Characteristics] AS CH ON FC.CharacteristicsId=CH.Id
+
+            LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId AND SM.SalesOrderId=SC.SalesOrderId
+            LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
+			LEFT JOIN [HKP].[Characteristics] AS CH2 ON SC.CharacteristicsId=CH2.Id
+
+            LEFT JOIN TRN.ThirdCharacteristics AS TC ON TC.Id=SM.ThirdCharacteristicsId AND SM.SalesOrderId=TC.SalesOrderId
+            LEFT JOIN HKP.CharacteristicsValue AS TCV ON TCV.Id=SM.ThirdCharacteristicsValueId
+			LEFT JOIN [HKP].[Characteristics] AS CH3 ON TC.CharacteristicsId=CH3.Id
+
+            LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
+            JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
+            JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
+            WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + "'";
+
+            return _sqlRepository.GetDataCollection(cmdText);
         }
 
         public void save(Dictionary<string, object> MasterData, List<Dictionary<string, object>> CommercialInvoicePackingList, List<CommercialInvoiceModel> CommercialInvoicePIMaterial, List<Dictionary<string, object>> MaterialtaxList, List<ChargeModel> Charge, List<Dictionary<string, object>> ChargeTax)
@@ -221,7 +340,9 @@ namespace Library.OrderManagement.Packing
                     dr["InvoicingByAddress"] = MasterData["InvoicingByAddress"];
                     dr["DeliveryByAddress"] = MasterData["DeliveryByAddress"];
                     dr["ComercialInvoiceNo"] = MasterData["ComercialInvoiceNo"];
+                    dr["BLNumber"] = MasterData["BLNumber"];
                     dr["BLDate"] = MasterData["BLDate"];
+                    dr["EXPFromNo"] = MasterData["EXPFromNo"];
                     dr["EXPDate"] = MasterData["EXPDate"];
                     dr["SourceType"] = MasterData["SourceType"];
 
@@ -238,10 +359,14 @@ namespace Library.OrderManagement.Packing
                 {
                     dr = dsMaster.Tables[0].DefaultView[0].Row;
                     dr.BeginEdit();
+
+                    MasterID = dr["Id"].ToString();
+                    dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = identity.PlantId;
                     dr["PartyId"] = MasterData["PartyId"];
                     dr["InvoicingPartyPlantId"] = MasterData["InvoicingPartyPlantId"];
                     dr["CurrencyId"] = MasterData["CurrencyId"];
-                    dr["DeliveryPartyPlantId"] = MasterData["DeliveryPartyPlantId"];
                     dr["DeliveryPartyPlantId"] = MasterData["DeliveryPartyPlantId"];
                     dr["DocRefNo"] = MasterData["DocRefNo"];
                     dr["EntryDate"] = MasterData["EntryDate"];
@@ -254,9 +379,11 @@ namespace Library.OrderManagement.Packing
                     dr["InvoicingByAddress"] = MasterData["InvoicingByAddress"];
                     dr["DeliveryByAddress"] = MasterData["DeliveryByAddress"];
                     dr["ComercialInvoiceNo"] = MasterData["ComercialInvoiceNo"];
+                    dr["BLNumber"] = MasterData["BLNumber"];
                     dr["BLDate"] = MasterData["BLDate"];
+                    dr["EXPFromNo"] = MasterData["EXPFromNo"];
                     dr["EXPDate"] = MasterData["EXPDate"];
-                    dr["SourceType"] = MasterData["SourceType"];
+                    //dr["SourceType"] = MasterData["SourceType"];
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now;
@@ -438,7 +565,13 @@ namespace Library.OrderManagement.Packing
                             {
                                 dr = dsTaxes.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-
+                                dr["TaxCategoryId"] = y.TaxCategoryId;
+                                dr["HSNCodeId"] = y.HSNCodeId;
+                                dr["Percentage"] = y.Percentage;
+                                dr["Amount"] = y.TotalAmount;
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = DateTime.Now;
+                                dr["UpdatedFromIP"] = identity.IPAddress;
                                 dr.EndEdit();
                             }
                         }
