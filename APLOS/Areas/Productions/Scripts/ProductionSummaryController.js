@@ -522,6 +522,8 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.SetPrOData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
+        $scope.GetTotalProductionBookingQty();
+        $scope.getLotNumberCbo();
     }
 
     $scope.psdList = [];
