@@ -77,7 +77,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         LCNumber: null,
         ComercialInvoiceNo: null,
         EXPFromNo: null,
-        SourceType: 'MasterOrderSales',
+        SourceType: 'PIInvoice',
         ContractId: null
         , TaxOption: 'Yes'
         , TaxOptionMat: 'Yes'
@@ -245,7 +245,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     function getTaxCategoryList(hsnCodeId, soId, transactionAmount) {
         $http({
             method: 'GET',
-            url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+            url: 'Commercial/PIInvoice/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
         }).then(function (response) {
             $scope.materialtaxCategoryList = response.data;
 
@@ -447,7 +447,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             LCNumber: null,
             ComercialInvoiceNo: null,
             EXPFromNo: null,
-            SourceType: 'MasterOrderSales',
+            SourceType: 'PIInvoice',
             ContractId: null
             , TaxOption: 'Yes'
             , TaxOptionMat: 'Yes'
@@ -487,26 +487,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     //#endregion
 
     //#region Page Function
-
-    //$scope.entityList = [];
-    //cboService.getCboEntityByPlant(null, null, " ", function (result) {
-    //    $scope.entityList = result;
-    //});
-    //$scope.salesOrderList = [];
-    //$scope.GetPackingSOData = function () {
-    //    $scope.salesOrderList = [];
-    //    $http({
-    //        method: 'GET',
-    //        url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
-    //    }).then(function (response) {
-    //        $scope.salesOrderList = response.data;
-    //        for (var i = 0; i < $scope.salesOrderList.length; i++) {
-    //            getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
-
-    //        }
-    //    });
-    //}
-
+        
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
         $scope.tranCurrencyList = result;
     });
@@ -883,10 +864,10 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.getPartyPlant();
         //$scope.changePaymentTerm($scope.salesVM.PaymentTermId);
         $scope.GetCurrencyExchangeRateList();
-
+        //$scope.GetSalesMaterialData($scope.salesVM.Id);
         $scope.GetListData($scope.salesVM.Id);
 
-
+        $scope.GetSalesServiceData($scope.salesVM.Id);
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -961,6 +942,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             //$scope.TotalSumAfterTCS();
         });
     };
+    
     $scope.getAllTransactionUoM = function (materialMasterId) {
         var mmId = [];
         mmId.push(materialMasterId);
@@ -979,7 +961,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.TaxList = [];
         $http({
             method: "GET",
-            url: "SalesManagements/Sales/GetSalesTaxData?salesId=" + salesId
+            url: "Commercial/PIInvoice/GetSalesTaxData?salesId=" + salesId
         }).then(function (response) {
             $scope.TaxList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
@@ -991,6 +973,47 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             $scope.GetSalesServiceData($scope.salesVM.Id);
         });
     };
+    $scope.GetSalesServiceData = function (salesId) {
+        $http({
+            method: "GET",
+            url: "Commercial/PIInvoice/GetSalesTaxData?salesId=" + salesId
+        }).then(function (response) {
+            var Id = "";
+            $scope.chargesList = response.data;
+            for (var i = 0; i < $scope.chargesList.length; i++) {
+                if (Id == "") {
+                    Id = "'" + $scope.chargesList[i]["Id"] + "'";
+                }
+                else {
+                    Id += ",'" + $scope.chargesList[i]["Id"] + "'";
+                }
+            }
+            $scope.GetSalesServiceTaxData(Id);
+        });
+    };
+    $scope.GetSalesServiceTaxData = function (Id) {
+        $scope.ServiceTaxList = [];
+        $http({
+            method: "GET",
+            url: "Commercial/PIInvoice/GetSalesServiceTaxData?Ids=" + Id
+        }).then(function (response) {
+            $scope.ServiceTaxList = response.data;
+            for (var i = 0; i < $scope.chargesList.length; i++) {
+                var linepk = $scope.chargesList[i].Id;
+                var list = gettaxServicelist(linepk);
+                $scope.chargesList[i].ServiceTaxList = list;
+            }
+        });
+    };
+    function gettaxServicelist(linepk) {
+        var result = [];
+        for (var i = 0; i < $scope.ServiceTaxList.length; i++) {
+            if ($scope.ServiceTaxList[i].CommercialInvoiceChargesId === linepk) {
+                result.push($scope.ServiceTaxList[i]);
+            }
+        }
+        return result;
+    }
     $scope.GetAdvanceTaxInfo = function (Id) {
 
         $http({
@@ -1133,6 +1156,10 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.GetMasterData();
+                    $scope.Clear();
+                    //if ($rootScope.isCollapsed) {
+                    //    $rootScope.toggle();
+                    //}
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
