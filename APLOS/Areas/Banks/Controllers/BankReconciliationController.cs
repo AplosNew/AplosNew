@@ -24,10 +24,12 @@ namespace Aplos.Areas.Banks.Controllers
 
         private readonly IBankReconciliationService _bankReconciliationService;
         private readonly ISqlRepository _sqlRepository;
+        private readonly IBankReportService _bankReportService;
 
-        public BankReconciliationController(IBankReconciliationService bankReconciliationService, ISqlRepository sqlRepository)
+        public BankReconciliationController(IBankReconciliationService bankReconciliationService, ISqlRepository sqlRepository, IBankReportService bankReportService)
         {
             _bankReconciliationService = bankReconciliationService;
+            _bankReportService = bankReportService;
             _sqlRepository = sqlRepository;
         }
 
@@ -35,7 +37,7 @@ namespace Aplos.Areas.Banks.Controllers
 
         #region Aplos
 
-       
+
         public ActionResult BankReconciliation()
         {
             return View("~/Areas/Banks/Views/BankReconciliation.cshtml");
@@ -89,9 +91,8 @@ namespace Aplos.Areas.Banks.Controllers
         public JsonResult GetBankReconLastDate(string bankMasterId)
         {
             AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsBankReconcilliationService.GetBankReconLastDate(identity.CompanyGroupId, identity.CompanyId,bankMasterId), JsonRequestBehavior.AllowGet);
+            return Json(accountsBankReconcilliationService.GetBankReconLastDate(identity.CompanyGroupId, identity.CompanyId, bankMasterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -108,6 +109,37 @@ namespace Aplos.Areas.Banks.Controllers
         {
             _bankReconciliationService.InsertBankReconciliation(bankReconciliation, tempList);
             return Json(new { Message = AplosMessage.Insert });
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult CRReconcileReport(string BankMasterID,string fromDate,string toDate)
+        {
+            try
+            {
+                _bankReportService.CRReconcileReport(BankMasterID, fromDate, toDate);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult DRReconcileReport(string BankMasterID, string fromDate, string toDate,string cutOffDate)
+        {
+            try
+            {
+                _bankReportService.DRReconcileReport(BankMasterID, fromDate, toDate, cutOffDate);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
         #endregion Operation

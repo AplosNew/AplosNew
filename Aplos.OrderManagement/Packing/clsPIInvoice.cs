@@ -34,11 +34,13 @@ namespace Library.OrderManagement.Packing
                                 		,c.Code Currency
                                 		,c.Id CurrencyId
                                 		,FORMAT(plm.AddedDate, 'dd-MMM-yyyy') AddedDate
+                                        ,e.UserName Entity
                                 	FROM PIPackingListMaster AS plm
                                 	LEFT JOIN PIMaster AS pm ON pm.Id = plm.PImasterId
                                 	LEFT JOIN hkp.Party p ON p.Id = pm.CustomerId
                                 	LEFT JOIN [SCS].[Currency] AS C ON C.Id = pm.CurrencyId
                                 	LEFT JOIN CommercialInvoicePackingList IPL ON IPL.PIPackingListMasterId = PLM.Id
+                                    LEFT JOIN ORG.Entity AS e ON e.Id=plm.EntityId
                                 	) d
                                 WHERE d.Id IS NULL";
 
@@ -174,13 +176,13 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-        public void save(Dictionary<string, object> MasterData, List<Dictionary<string, object>> CommercialInvoicePackingList, List<Dictionary<string, object>> CommercialInvoicePIMaterial, List<Dictionary<string, object>> taxList)
+        public void save(Dictionary<string, object> MasterData, List<Dictionary<string, object>> CommercialInvoicePackingList, List<CommercialInvoiceModel> CommercialInvoicePIMaterial, List<Dictionary<string, object>> MaterialtaxList, List<ChargeModel> Charge, List<Dictionary<string, object>> ChargeTax)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dsMaster, dsDetails, dsMaterial, dsTaxes; DataRow dr;
+                DataSet dsMaster, dsDetails, dsMaterial, dsTaxes, dsCharges; DataRow dr;
                 string MasterID = "";
                 bplib.clsGenID objGenID = null;
                 objGenID = new bplib.clsGenID();
@@ -308,22 +310,22 @@ namespace Library.OrderManagement.Packing
                 #region Commercial Invoice PI Material Save
 
                 dr = null;
-                string PIMaterial = "";
                 string sql2 = "SELECT * FROM [dbo].[CommercialInvoicePIMaterial] WHERE CommercialInvoiceMasterId ='" + MasterData["Id"] + "' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql2, out dsMaterial, false, "1");
 
                 for (int i = 0; i < CommercialInvoicePIMaterial.Count; i++)
                 {
-                    dsMaterial.Tables[0].DefaultView.RowFilter = "Id = '" + CommercialInvoicePIMaterial[i]["PIMaterialId"] + "'  ";
+                    dsMaterial.Tables[0].DefaultView.RowFilter = "Id = '" + CommercialInvoicePIMaterial[i].Id + "'  ";
                     if (dsMaterial.Tables[0].DefaultView.Count == 0)
                     {
                         dr = dsMaterial.Tables[0].NewRow();
 
                         dr["Id"] = "C" + TempId + count++;
-                        PIMaterial = dr["Id"].ToString();
+                        CommercialInvoicePIMaterial[i].Id = dr["Id"].ToString();
                         dr["CommercialInvoiceMasterId"] = MasterID;
-                        dr["PIPackingListMaterialId"] = CommercialInvoicePIMaterial[i]["PIPackingListMaterialId"];
+                        CommercialInvoicePIMaterial[i].CommercialInvoiceMasterId = dr["CommercialInvoiceMasterId"].ToString();
+                        dr["PIPackingListMaterialId"] = CommercialInvoicePIMaterial[i].PIPackingListMaterialId;
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
@@ -337,7 +339,7 @@ namespace Library.OrderManagement.Packing
                     {
                         dr = dsMaterial.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
-                        dr["PIPackingListMaterialId"] = CommercialInvoicePIMaterial[i]["PIPackingListMaterialId"];
+                        dr["PIPackingListMaterialId"] = CommercialInvoicePIMaterial[i].PIPackingListMaterialId;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now;
                         dr["UpdatedFromIP"] = identity.IPAddress;
@@ -347,29 +349,32 @@ namespace Library.OrderManagement.Packing
 
                 #endregion
 
-                #region Tax Save Part
-
-                string sql3 = "SELECT * FROM [dbo].[CommercialInvoiceTaxes] WHERE CommercialInvoiceMasterId ='" + MasterData["Id"] + "' ";
+                #region Charges Save Part
+                dr = null;
+                string sql4 = "SELECT * FROM [dbo].[CommercialInvoiceCharges] WHERE CommercialInvoiceMasterId ='" + MasterData["Id"] + "' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql3, out dsTaxes, false, "1");
+                objCon.OpenDataSetThroughAdapter(sql4, out dsCharges, false, "1");
                 count = 0;
-                for (int j = 0; j < dsMaterial.Tables[0].Rows.Count; j++)
+                if (Charge != null)
                 {
-                    for (int i = 0; i < taxList.Count; i++)
-                    {
-                        dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + taxList[i]["Id"] + "'  ";
-                        if (dsTaxes.Tables[0].DefaultView.Count == 0)
-                        {
-                            dr = dsTaxes.Tables[0].NewRow();
 
-                            dr["Id"] = "T" + TempId + count++;
+
+                    for (int i = 0; i < Charge.Count; i++)
+                    {
+                        dsCharges.Tables[0].DefaultView.RowFilter = "Id = '" + Charge[i].Id + "'  ";
+                        if (dsCharges.Tables[0].DefaultView.Count == 0)
+                        {
+                            dr = dsCharges.Tables[0].NewRow();
+
+                            dr["Id"] = "Ch" + TempId + count++;
+                            Charge[i].Id = dr["Id"].ToString();
                             dr["CommercialInvoiceMasterId"] = MasterID;
-                            dr["CommercialInvoicePIMaterialId"] = dsMaterial.Tables[0].Rows[i]["Id"];
-                            //dr["CommercialInvoiceChargesId"] = taxList[i]["CommercialInvoiceChargesId"];
-                            dr["TaxCategoryId"] = taxList[i]["TaxCategoryId"];
-                            dr["HSNCodeId"] = taxList[i]["HSNCodeId"];
-                            dr["Percentage"] = taxList[i]["Percentage"];
-                            dr["Amount"] = taxList[i]["TotalAmount"];
+                            Charge[i].CommercialInvoiceMasterId = dr["CommercialInvoiceMasterId"].ToString();
+                            dr["ServiceMasterId"] = Charge[i].ServiceMasterId;
+                            dr["VoucherDetailId"] = DBNull.Value;
+                            dr["Amount"] = Charge[i].Amount;
+                            dr["TaxAmount"] = Charge[i].TaxAmount;
+                            dr["NetAmount"] = Charge[i].NetAmount;
 
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = DateTime.Now;
@@ -377,37 +382,117 @@ namespace Library.OrderManagement.Packing
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = DateTime.Now;
                             dr["UpdatedFromIP"] = identity.IPAddress;
-                            dsTaxes.Tables[0].Rows.Add(dr);
+                            dsCharges.Tables[0].Rows.Add(dr);
                         }
                         else
                         {
-                            dr = dsTaxes.Tables[0].DefaultView[0].Row;
+                            dr = dsCharges.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
-                            //dr["PIPackingListMaterialId"] = taxList[i]["PIPackingListMaterialId"];
-                            //dr["UpdatedBy"] = identity.Name;
-                            //dr["UpdatedDate"] = DateTime.Now;
-                            //dr["UpdatedFromIP"] = identity.IPAddress;
+
                             dr.EndEdit();
                         }
                     }
                 }
 
-                //for (int i = 0; i < CommercialInvoicePIMaterial.Count; i++)
-                //{
-                //    if (CommercialInvoicePIMaterial[i].ContainsKey("TaxList[0]") == false)
-                //    {
+                #endregion
 
+                #region Tax Save Part
 
-                //        continue;
-                //    }
-                //    TaxList TaxLists = (TaxList)CommercialInvoicePIMaterial[i]["TaxList[0]"];
+                dr = null;
+                string sql3 = "SELECT * FROM [dbo].[CommercialInvoiceTaxes] WHERE CommercialInvoiceMasterId ='" + MasterData["Id"] + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql3, out dsTaxes, false, "1");
+                count = 0;
 
-                //}
+                #region Material Tax Save
+                if (CommercialInvoicePIMaterial != null)
+                {
+                    foreach (var item in CommercialInvoicePIMaterial)
+                    {
+                        foreach (var y in item.TaxList)
+                        {
+                            dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + y.Id + "'  ";
+                            if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                            {
+                                dr = dsTaxes.Tables[0].NewRow();
+
+                                dr["Id"] = "T" + TempId + count++;
+                                dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
+                                dr["CommercialInvoicePIMaterialId"] = item.Id;
+                                dr["CommercialInvoiceChargesId"] = DBNull.Value;
+                                dr["TaxCategoryId"] = y.TaxCategoryId;
+                                dr["HSNCodeId"] = y.HSNCodeId;
+                                dr["Percentage"] = y.Percentage;
+                                dr["Amount"] = y.TotalAmount;
+
+                                dr["AddedBy"] = identity.Name;
+                                dr["AddedDate"] = DateTime.Now;
+                                dr["AddedFromIP"] = identity.IPAddress;
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = DateTime.Now;
+                                dr["UpdatedFromIP"] = identity.IPAddress;
+                                dsTaxes.Tables[0].Rows.Add(dr);
+
+                            }
+                            else
+                            {
+                                dr = dsTaxes.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+
+                                dr.EndEdit();
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region Charge Tax
+                if (Charge != null)
+                {
+                    foreach (var item in Charge)
+                    {
+                        foreach (var x in item.ServiceTaxList)
+                        {
+                            dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + x.Id + "'  ";
+                            if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                            {
+                                dr = dsTaxes.Tables[0].NewRow();
+                                dr["Id"] = "T" + TempId + count++;
+                                dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
+                                dr["CommercialInvoicePIMaterialId"] = DBNull.Value;
+                                dr["CommercialInvoiceChargesId"] = item.Id;
+                                dr["TaxCategoryId"] = x.TaxCategoryId;
+                                dr["HSNCodeId"] = x.HSNCodeId;
+                                dr["Percentage"] = x.Percentage;
+                                dr["Amount"] = x.Amount;
+
+                                dr["AddedBy"] = identity.Name;
+                                dr["AddedDate"] = DateTime.Now;
+                                dr["AddedFromIP"] = identity.IPAddress;
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = DateTime.Now;
+                                dr["UpdatedFromIP"] = identity.IPAddress;
+                                dsTaxes.Tables[0].Rows.Add(dr);
+
+                            }
+
+                            else
+                            {
+                                dr = dsTaxes.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+
+                                dr.EndEdit();
+                            }
+                        }
+                    }
+                }
+
+                #endregion
 
                 #endregion
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetails, dsMaterial, dsTaxes);
+                _info.SaveDataSets(dsMaster, dsDetails, dsMaterial, dsCharges, dsTaxes);
 
             }
             catch (Exception ex)
@@ -420,13 +505,42 @@ namespace Library.OrderManagement.Packing
 }
 
 
-public class TaxList
+public class ChargeModel
 {
-    public string HSNCode { get; set; }
-    public string HSNCodeId { get; set; }
     public string Id { get; set; }
-    public string Percentage { get; set; }
+    public string CommercialInvoiceMasterId { get; set; }
+    public string ServiceMasterId { get; set; }
+    public decimal Amount { get; set; }
+    public decimal TaxAmount { get; set; }
+    public decimal NetAmount { get; set; }
+
+    public ICollection<ChargeTaxModel> ServiceTaxList { get; set; }
+}
+public class ChargeTaxModel
+{
+    public string Id { get; set; }
+    public string CommercialInvoiceMasterId { get; set; }
+    public string CommercialInvoiceChargesId { get; set; }
     public string TaxCategoryId { get; set; }
-    public string TotalAmount { get; set; }
-    public string UserName { get; set; }
+    public string HSNCodeId { get; set; }
+    public decimal Percentage { get; set; }
+    public decimal Amount { get; set; }
+}
+
+public class CommercialInvoiceModel
+{
+    public string Id { get; set; }
+    public string CommercialInvoiceMasterId { get; set; }
+    public string PIPackingListMaterialId { get; set; }
+    public ICollection<MaterialTaxModel> TaxList { get; set; }
+}
+public class MaterialTaxModel
+{
+    public string Id { get; set; }
+    public string CommercialInvoiceMasterId { get; set; }
+    public string CommercialInvoicePIMaterialId { get; set; }
+    public string TaxCategoryId { get; set; }
+    public string HSNCodeId { get; set; }
+    public decimal Percentage { get; set; }
+    public decimal TotalAmount { get; set; }
 }

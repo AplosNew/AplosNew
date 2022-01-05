@@ -123,47 +123,43 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th style="text-align: center;">Voucher No</th>
-                                <th style="text-align: center;">Voucher Date</th>
-                                <th style="text-align: center;">Posting Date</th>
-                                <th style="text-align: center;">Amount</th>
-                                <th style="text-align: center;">Reconcile No</th>
-                                <th style="text-align: center;" class="col-sm-2">BankStatementNo</th>
-                                <th class="col-md-1">ReconcileDate</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in issuedReconDataList|itemsPerPage:issuedReconParameters.pageSize"
-                                total-items="issuedReconParameters.total_count" pagination-id="metaData.name + 'issuedReconDataList'">
-                                <td ng-show="hh.Value!='Flag' && hh.Value!='EncashmentDate'" ng-repeat="hh in issuedReconList">{{x[hh.Value]}}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3" class="text-right"><b>Total :</b></td>
-                                <td> <b>{{issuedAmmount}}</b></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </tbody>
+                <div class="row">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center;">Voucher No</th>
+                                    <th style="text-align: center;">Voucher Date</th>
+                                    <th style="text-align: center;">Posting Date</th>
+                                    <th style="text-align: center;">Amount</th>
+                                    <th style="text-align: center;">Reconcile No</th>
+                                    <th style="text-align: center;" class="col-sm-2">BankStatementNo</th>
+                                    <th class="col-md-1">ReconcileDate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in issuedReconDataList|itemsPerPage:issuedReconParameters.pageSize"
+                                    total-items="issuedReconParameters.total_count" pagination-id="metaData.name + 'issuedReconDataList'">
+                                    <td ng-show="hh.Value!='Flag' && hh.Value!='EncashmentDate'" ng-repeat="hh in issuedReconList">{{x[hh.Value]}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right"><b>Total :</b></td>
+                                    <td> <b>{{issuedAmmount}}</b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
 
-                    </table>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Bank</label>
-                        <div class="col-sm-7 pdr3">
-                            <input type="text" ng-model="bankReconciliationNew.BankName" class="form-control" readonly>
-                        </div>
-                        <button ng-click="showBankPopUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                        </table>
+
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'issuedReconDataList'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getIssuedReconData(newPageNumber)">
+                        </dir-pagination-controls>
                     </div>
-                    <dir-pagination-controls max-size="10"
-                                             pagination-id="metaData.name + 'issuedReconDataList'"
-                                             direction-links="true"
-                                             boundary-links="true"
-                                             on-page-change="getIssuedReconData(newPageNumber)">
-                    </dir-pagination-controls>
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
@@ -203,63 +199,12 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                <div class="table-responsive  modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th style="text-align: center;">Voucher No</th>
-                                <th style="text-align: center;">Voucher Date</th>
-                                <th style="text-align: center;">Posting Date</th>
-                                <th style="text-align: center;">Doc Ref No</th>
-                                <th style="text-align: center;">Party Type</th>
-                                <th style="text-align: center;">Narration</th>
-                                <th style="text-align: center;">Amount</th>
-                                <th style="text-align: center;" class="col-sm-2">CheckNo</th>
-                                <th style="text-align: center;" class="col-sm-2">Encashment Date (as per statement)</th>
-                                <th class="col-md-1">Reconciled</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in bankCrReconDataList|itemsPerPage:bankCrReconParameters.pageSize"
-                                total-items="bankCrReconParameters.total_count" pagination-id="metaData.name + 'bankCrReconDataList'">
-                                <td ng-show="hh.Value!='Flag' && hh.Value!='EncashmentDate'" ng-repeat="hh in bankCrReconList">{{x[hh.Value]}}</td>
-                                <td>
-                                    <div>
-                                        <input type="text" ng-model="x.EncashmentDate" datepicker class="form-control" placeholder="dd-MMM-yyyy"
-                                               ng-change="validDateRange(x,'bankCrReconDataList',$index);encashmentDateUpdate(x)">@*ng-disabled="x.Flag"*@
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="checkbox-site">
-                                            <label>
-                                                <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="isReconciled($event,x,3,'bankCrReconAmount');asignInTempList($event,x,'Dr','bankCrTempList');listMerge($event,x);">
-                                                @*ng-disabled="x.EncashmentDate==''"*@
-                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                            </label>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <tr>
-                                <td colspan="6" class="text-right"><b>Total :</b></td>
-                                <td> <b>{{bankCrAmmount}}</b></td>
-                                <td colspan="2"><b>Reconciled Amount : {{bankCrReconAmount==0?'':bankCrReconAmount}}</b></td>
-                                <td></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                        <dir-pagination-controls max-size="10"
-                                                 pagination-id="metaData.name + 'bankCrReconDataList'"
-                                                 direction-links="true"
-                                                 boundary-links="true"
-                                                 on-page-change="getBankCrReconData(newPageNumber)">
-                        </dir-pagination-controls>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
-                    <div class="table-responsive modal-table">
+                <div class="row">
+                    <div class="table-responsive  modal-table">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
+                                    <th style="text-align: center;">Id</th>
                                     <th style="text-align: center;">Voucher No</th>
                                     <th style="text-align: center;">Voucher Date</th>
                                     <th style="text-align: center;">Posting Date</th>
@@ -273,19 +218,19 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr dir-paginate="x in bankDrReconDataList|itemsPerPage:bankDrReconParameters.pageSize"
-                                    total-items="bankDrReconParameters.total_count" pagination-id="metaData.name + 'bankDrReconDataList'">
-                                    <td ng-show="hh.Value!='Flag' && hh.Value!='EncashmentDate'" ng-repeat="hh in bankDrReconList">{{x[hh.Value]}}</td>
+                                <tr dir-paginate="x in bankCrReconDataList|itemsPerPage:bankCrReconParameters.pageSize"
+                                    total-items="bankCrReconParameters.total_count" pagination-id="metaData.name + 'bankCrReconDataList'">
+                                    <td ng-show="hh.Value!='Flag' && hh.Value!='EncashmentDate'" ng-repeat="hh in bankCrReconList">{{x[hh.Value]}}</td>
                                     <td>
                                         <div>
                                             <input type="text" ng-model="x.EncashmentDate" datepicker class="form-control" placeholder="dd-MMM-yyyy"
-                                                   ng-change="validDateRange(x,'bankDrReconDataList',$index);encashmentDateUpdate(x)">@*ng-disabled="x.Flag"*@
+                                                   ng-change="validDateRange(x,'bankCrReconDataList',$index);encashmentDateUpdate(x)">@*ng-disabled="x.Flag"*@
                                             </div>
                                         </td>
                                         <td>
                                             <div class="checkbox-site">
                                                 <label>
-                                                    <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="isReconciled($event,x,4,'bankDrReconAmount');asignInTempList($event,x,'Cr','bankDrTempList');listMerge($event,x);">
+                                                    <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="isReconciled($event,x,3,'bankCrReconAmount');asignInTempList($event,x,'Dr','bankCrTempList');listMerge($event,x);">
                                                     @*ng-disabled="x.EncashmentDate==''"*@
                                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                                 </label>
@@ -294,17 +239,84 @@
                                     </tr>
                                     <tr>
                                         <td colspan="6" class="text-right"><b>Total :</b></td>
-                                        <td><b>{{bankDrAmmount}}</b></td>
-                                        <td colspan="2"><b>Reconciled Amount : {{bankDrReconAmount==0.00?'':bankDrReconAmount}}</b></td>
+                                        <td> <b>{{bankCrAmmount}}</b></td>
+                                        <td colspan="2"><b>Reconciled Amount : {{bankCrReconAmount==0?'':bankCrReconAmount}}</b></td>
                                         <td></td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'bankDrReconDataList'"
+                            <dir-pagination-controls max-size="10"
+                                                     pagination-id="metaData.name + 'bankCrReconDataList'"
                                                      direction-links="true"
                                                      boundary-links="true"
-                                                     on-page-change="getBankDrReconData(newPageNumber)">
+                                                     on-page-change="getBankCrReconData(newPageNumber)">
                             </dir-pagination-controls>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="CRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                    <div class="row">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: center;">Id</th>
+                                        <th style="text-align: center;">Voucher No</th>
+                                        <th style="text-align: center;">Voucher Date</th>
+                                        <th style="text-align: center;">Posting Date</th>
+                                        <th style="text-align: center;">Doc Ref No</th>
+                                        <th style="text-align: center;">Party Type</th>
+                                        <th style="text-align: center;">Narration</th>
+                                        <th style="text-align: center;">Amount</th>
+                                        <th style="text-align: center;" class="col-sm-2">CheckNo</th>
+                                        <th style="text-align: center;" class="col-sm-2">Encashment Date (as per statement)</th>
+                                        <th class="col-md-1">Reconciled</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr dir-paginate="x in bankDrReconDataList|itemsPerPage:bankDrReconParameters.pageSize"
+                                        total-items="bankDrReconParameters.total_count" pagination-id="metaData.name + 'bankDrReconDataList'">
+                                        <td ng-show="hh.Value!='Flag' && hh.Value!='EncashmentDate'" ng-repeat="hh in bankDrReconList">{{x[hh.Value]}}</td>
+                                        <td>
+                                            <div>
+                                                <input type="text" ng-model="x.EncashmentDate" datepicker class="form-control" placeholder="dd-MMM-yyyy"
+                                                       ng-change="validDateRange(x,'bankDrReconDataList',$index);encashmentDateUpdate(x)">@*ng-disabled="x.Flag"*@
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="checkbox-site">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="isReconciled($event,x,4,'bankDrReconAmount');asignInTempList($event,x,'Cr','bankDrTempList');listMerge($event,x);">
+                                                        @*ng-disabled="x.EncashmentDate==''"*@
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="6" class="text-right"><b>Total :</b></td>
+                                            <td><b>{{bankDrAmmount}}</b></td>
+                                            <td colspan="2"><b>Reconciled Amount : {{bankDrReconAmount==0.00?'':bankDrReconAmount}}</b></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'bankDrReconDataList'"
+                                                         direction-links="true"
+                                                         boundary-links="true"
+                                                         on-page-change="getBankDrReconData(newPageNumber)">
+                                </dir-pagination-controls>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="DRREconcileReport();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Download </button></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
