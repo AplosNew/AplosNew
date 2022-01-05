@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
+using System.Drawing.Printing;
 
 namespace Library.Service.Banks
 {
@@ -2019,12 +2020,8 @@ WHERE BM.Id='"+ BankMasterID + "'";
         {
             try
             {
-                //if (string.IsNullOrEmpty(entityid) || entityid == "''")
-                //    throw new Exception("Select entity");
-
                 string sql = BanReconcileCRSql( BankMasterID,  fromDate, toDate);
                 string Banksql = BanKSql(BankMasterID);
-
 
                 //Instantiate the Excel application object
                 DataTable dtBank = _sqlRepository.GetDataTable(Banksql);
@@ -2049,18 +2046,23 @@ WHERE BM.Id='"+ BankMasterID + "'";
                 int StartRow = ROW;
                 sheet[ROW, COL].Text = "Bank :";
                 sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+
                 int colBank = COL;
                 ROW++;
                 sheet[ROW, COL].Text = "Branch :";
                 sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 int colBranch = COL;
                 ROW++;
                 sheet[ROW, COL].Text = "From Date :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colFromDate = COL;
                 ROW = StartRow;
                 COL = 4;
                 sheet[ROW, COL].Text = "Account :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colAccount = COL;
                 ROW++;
@@ -2070,13 +2072,15 @@ WHERE BM.Id='"+ BankMasterID + "'";
                 ROW++;
                 sheet[ROW, COL].Text = "To Date :";
                 sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 int colToDate = COL;
                 ROW = StartRow;
                 COL = 7;
                 sheet[ROW, COL].Text = "Bank Currency :";
                 sheet[ROW, COL].ColumnWidth = 13;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 int colBankCurrency = COL;
-               // Headerdata
+                // Headerdata
                 ROW = 6;
                 sheet[ROW, colBank + 1].Text = dtBank.Rows[0]["BankName"].ToString();
                 ROW++;
@@ -2086,17 +2090,30 @@ WHERE BM.Id='"+ BankMasterID + "'";
                 ROW = StartRow;
                 sheet[ROW, colAccount + 1].Text = dtBank.Rows[0]["AccountTitle"].ToString();
                 ROW++;
-                sheet[ROW, colBankGL + 1].Text = dtBank.Rows[0]["GLGeneralInfoName"].ToString();
+               
+                sheet[ROW, colBankGL + 1].Text = dtBank.Rows[0]["GLGeneralInfoId"].ToString() + "-" + dtBank.Rows[0]["GLGeneralInfoName"].ToString();
+
                 ROW++;
                 sheet[ROW, colToDate + 1].Text = toDate;
                 ROW = StartRow;
                 sheet[ROW, colBankCurrency + 1].Text = dtBank.Rows[0]["CurrencyCode"].ToString();
 
-
+                sheet.Range[StartRow, colBank + 1, StartRow , colBank + 2].Merge();
+                sheet.Range[StartRow+1, colBranch + 1, StartRow + 1, colBranch + 2].Merge();
+                sheet.Range[StartRow + 2, colFromDate + 1, StartRow + 2, colFromDate + 2].Merge();
+                sheet.Range[StartRow, colAccount + 1, StartRow, colAccount + 2].Merge();
+                sheet.Range[StartRow+1, colBankGL + 1, StartRow + 1, colBankGL + 2].Merge();
+                sheet.Range[StartRow+2, colToDate + 1, StartRow + 2, colToDate + 2].Merge();
+                sheet.Range[StartRow, colBankCurrency + 1, StartRow, colBankCurrency + 2].Merge();
+                sheet.Range[StartRow, colBank, StartRow+3, colBankCurrency + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
+              
                 ROW = 10;
                 COL = 1;
                 #endregion
-
+                sheet[ROW, COL].Text = "Id";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colId = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Voucher No";
                 sheet[ROW, COL].ColumnWidth = 18;
                 int colVoucherNo = COL;
@@ -2143,6 +2160,7 @@ WHERE BM.Id='"+ BankMasterID + "'";
                 for (int i = 0; i < dtCRBR.Rows.Count; i++)
                 {
 
+                    sheet[ROW, colId].Text = dtCRBR.Rows[i]["VoucherDetailId"].ToString();
                     sheet[ROW, colVoucherNo].Text = dtCRBR.Rows[i]["VoucherNo"].ToString();
                     sheet[ROW, colVoucherDate].Text = dtCRBR.Rows[i]["VoucherDate"].ToString();
 
@@ -2161,17 +2179,24 @@ WHERE BM.Id='"+ BankMasterID + "'";
                     ROW++;
 
                 }
+                sheet[ROW, 1].Text = "Total:";
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                int colTotal = COL;
+                var reportUtility = new ReportUtility();
+                sheet.Range[ROW, colAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + (ROW - 1) + ")";
+                sheet.Range[ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.IsGridLinesVisible = false;
-
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet[ROW, 1].CellStyle.Font.Size = 9;
 
                 sheet["A" + StartRow.ToString()].FreezePanes();
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
                 reportUtility.PlantHeader(ref sheet, endCol, "Cr. Reconcile Pending Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -2220,18 +2245,23 @@ WHERE BM.Id='"+ BankMasterID + "'";
                 int StartRow = ROW;
                 sheet[ROW, COL].Text = "Bank :";
                 sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+
                 int colBank = COL;
                 ROW++;
                 sheet[ROW, COL].Text = "Branch :";
                 sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 int colBranch = COL;
                 ROW++;
                 sheet[ROW, COL].Text = "From Date :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colFromDate = COL;
                 ROW = StartRow;
                 COL = 4;
                 sheet[ROW, COL].Text = "Account :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colAccount = COL;
                 ROW++;
@@ -2241,11 +2271,13 @@ WHERE BM.Id='"+ BankMasterID + "'";
                 ROW++;
                 sheet[ROW, COL].Text = "To Date :";
                 sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 int colToDate = COL;
                 ROW = StartRow;
                 COL = 7;
                 sheet[ROW, COL].Text = "Bank Currency :";
                 sheet[ROW, COL].ColumnWidth = 13;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
                 int colBankCurrency = COL;
                 // Headerdata
                 ROW = 6;
@@ -2257,16 +2289,29 @@ WHERE BM.Id='"+ BankMasterID + "'";
                 ROW = StartRow;
                 sheet[ROW, colAccount + 1].Text = dtBank.Rows[0]["AccountTitle"].ToString();
                 ROW++;
-                sheet[ROW, colBankGL + 1].Text = dtBank.Rows[0]["GLGeneralInfoName"].ToString();
-                ROW++;
+                sheet[ROW, colBankGL + 1].Text = dtBank.Rows[0]["GLGeneralInfoId"].ToString() +"-"+ dtBank.Rows[0]["GLGeneralInfoName"].ToString(); 
+                 ROW++;
                 sheet[ROW, colToDate + 1].Text = toDate;
                 ROW = StartRow;
                 sheet[ROW, colBankCurrency + 1].Text = dtBank.Rows[0]["CurrencyCode"].ToString();
+
+                sheet.Range[StartRow, colBank + 1, StartRow, colBank + 2].Merge();
+                sheet.Range[StartRow + 1, colBranch + 1, StartRow + 1, colBranch + 2].Merge();
+                sheet.Range[StartRow + 2, colFromDate + 1, StartRow + 2, colFromDate + 2].Merge();
+                sheet.Range[StartRow, colAccount + 1, StartRow, colAccount + 2].Merge();
+                sheet.Range[StartRow + 1, colBankGL + 1, StartRow + 1, colBankGL + 2].Merge();
+                sheet.Range[StartRow + 2, colToDate + 1, StartRow + 2, colToDate + 2].Merge();
+                sheet.Range[StartRow, colBankCurrency + 1, StartRow, colBankCurrency + 2].Merge();
+                sheet.Range[StartRow, colBank, StartRow + 3, colBankCurrency + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
 
 
                 ROW = 10;
                 COL = 1;
                 #endregion
+                sheet[ROW, COL].Text = "Id";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colId = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Voucher No";
                 sheet[ROW, COL].ColumnWidth = 18;
                 int colVoucherNo = COL;
@@ -2311,6 +2356,7 @@ WHERE BM.Id='"+ BankMasterID + "'";
                  StartRow = ROW; //row 20
                 for (int i = 0; i < dtDRBR.Rows.Count; i++)
                 {
+                    sheet[ROW, colId].Text = dtDRBR.Rows[i]["VoucherDetailId"].ToString();
 
                     sheet[ROW, colVoucherNo].Text = dtDRBR.Rows[i]["VoucherNo"].ToString();
                     sheet[ROW, colVoucherDate].Text = dtDRBR.Rows[i]["VoucherDate"].ToString();
@@ -2330,22 +2376,25 @@ WHERE BM.Id='"+ BankMasterID + "'";
                     ROW++;
 
                 }
+                sheet[ROW, 1].Text = "Total:";
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                int colTotal = COL;
+                var reportUtility = new ReportUtility();
+                sheet.Range[ROW, colAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + (ROW - 1) + ")";
+                sheet.Range[ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
-                //sheet.Range[StartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colPOValue, ROW, colPOValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colAcceptanceValue, ROW, colAcceptanceValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colGRNValue, ROW, colGRNValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.IsGridLinesVisible = false;
-
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet[ROW, 1].CellStyle.Font.Size = 9;
 
                 sheet["A" + StartRow.ToString()].FreezePanes();
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
                 reportUtility.PlantHeader(ref sheet, endCol, "Dr. Reconcile Pending Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
