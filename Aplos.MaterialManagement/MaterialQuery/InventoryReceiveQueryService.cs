@@ -958,9 +958,9 @@ namespace Aplos.MaterialManagement
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
 									,NetQty=IRD.TransactionQty-IRD.Shortageqty
 									,isnull(PO.PurchaseLCId,'') PurchaseLCId
-									,isnull(PO.ContractId,'') ContractId
-                                    ,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
-									,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
+									--,isnull(PO.ContractId,'') ContractId
+                                    --,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
+									,p2.UserName CustomerName,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
 							FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 		                            ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -983,6 +983,7 @@ namespace Aplos.MaterialManagement
                             left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
                             Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
 							Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
+							LEFT JOIN HKP.Party AS p2 ON p2.Id=c.CustomerId
 							--Left JOIN dbo.PurchaseLC PL ON PL.ContractId=C.Id
 							LEFT JOIN(
 							SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
@@ -996,11 +997,11 @@ namespace Aplos.MaterialManagement
 								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
 								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-								,ContractNo=STUFF((select distinct ','+C.ContractNo from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								--,ContractNo=STUFF((select distinct ','+C.ContractNo from
+								--trn.PurchaseOrder xpo
+								--INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								--LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								--where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								
 								,PurchaseLCId=STUFF((select distinct ','+PLC.Id from
 								trn.PurchaseOrder xpo
@@ -1063,9 +1064,9 @@ namespace Aplos.MaterialManagement
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
 									,NetQty=IRD.TransactionQty-IRD.Shortageqty
 									,isnull(PO.PurchaseLCId,'') PurchaseLCId
-									,isnull(PO.ContractId,'') ContractId
-                                    ,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
-									,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
+									--,isnull(PO.ContractId,'') ContractId
+                                    --,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
+									,p2.UserName CustomerName,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
 							FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 		                            ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -1088,6 +1089,7 @@ namespace Aplos.MaterialManagement
                             left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
                             Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
 							Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
+							LEFT JOIN HKP.Party AS p2 ON p2.Id=c.CustomerId
 							--Left JOIN dbo.PurchaseLC PL ON PL.ContractId=C.Id
 							LEFT JOIN(
 							SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
@@ -1101,11 +1103,11 @@ namespace Aplos.MaterialManagement
 								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
 								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-								,ContractNo=STUFF((select distinct ','+C.ContractNo from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								--,ContractNo=STUFF((select distinct ','+C.ContractNo from
+								--trn.PurchaseOrder xpo
+								--INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								--LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								--where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								
 								,PurchaseLCId=STUFF((select distinct ','+PLC.Id from
 								trn.PurchaseOrder xpo
@@ -1169,9 +1171,9 @@ namespace Aplos.MaterialManagement
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
 									,NetQty=IRD.TransactionQty-IRD.Shortageqty
 									,isnull(PO.PurchaseLCId,'') PurchaseLCId
-									,isnull(PO.ContractId,'') ContractId
-                                    ,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
-									,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
+									--,isnull(PO.ContractId,'') ContractId
+                                    --,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
+									,p2.UserName CustomerName,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
 							FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 		                            ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -1194,6 +1196,7 @@ namespace Aplos.MaterialManagement
                             left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
                             Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
 							Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
+							LEFT JOIN HKP.Party AS p2 ON p2.Id=c.CustomerId
 							--Left JOIN dbo.PurchaseLC PL ON PL.ContractId=C.Id
 							LEFT JOIN(
 							SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
@@ -1207,11 +1210,11 @@ namespace Aplos.MaterialManagement
 								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
 								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-								,ContractNo=STUFF((select distinct ','+C.ContractNo from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								--,ContractNo=STUFF((select distinct ','+C.ContractNo from
+								--trn.PurchaseOrder xpo
+								--INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								--LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								--where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								
 								,PurchaseLCId=STUFF((select distinct ','+PLC.Id from
 								trn.PurchaseOrder xpo

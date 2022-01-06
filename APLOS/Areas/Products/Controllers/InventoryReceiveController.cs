@@ -554,11 +554,11 @@ namespace Aplos.Areas.Products.Controllers
 
 				}
 			}
-			bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
-			if (_returnRes == true)
-			{
-				throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
-			}
+			//bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+			//if (_returnRes == true)
+			//{
+			//	throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+			//}
 
 			DetailFOCCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
 			ServiceChargesFOCCreate(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
@@ -568,13 +568,100 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult DetailFOCCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+			_inventoryDetailService.InsertFOCDetail(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
 			return Json(new { Message = AplosMessage.Success });
 		}
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
 		public JsonResult ServiceChargesFOCCreate(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id, string AcceptanceId)
 		{
 			_inventoryService.InsertGraphNew(chargesListPO, POServiceTaxList, Id, AcceptanceId);
+			return Json(new { Message = AplosMessage.Success });
+		}
+
+		[HttpPost]
+		public JsonResult UpdateGRNBYFOC(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+		{
+			if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+			{
+				CheckedByStatusForNoti = "False";
+				ApprovedByStatusForNoti = "False";
+			}
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			entity.CompanyGroupId = identity.CompanyGroupId;
+			entity.CompanyId = identity.CompanyId;
+			entity.PlantId = identity.PlantId;
+
+			if (identity.EmployeeId == entity.CheckedBy)
+			{
+				throw new CustomException("Please select another employee for Check by.");
+			}
+			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+			{
+
+				entity.AuthorizedBy = entity.CheckedBy;
+				entity.AuthorizedByStatus = "For Approval";
+				entity.CheckedBy = null;
+				entity.CheckedByStatus = null;
+				entity.IsApproved = false;
+				entity.RequiredPosting = true;
+			}
+			else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+			{
+				entity.CheckedByStatus = null;
+				entity.AuthorizedByStatus = null;
+				entity.CheckedBy = null;
+				entity.AuthorizedBy = null;
+				entity.IsApproved = true;
+				entity.RequiredPosting = true;
+			}
+			else
+			{
+				entity.CheckedBy = entity.CheckedBy;
+				entity.CheckedByStatus = "ForChecked";
+				entity.AuthorizedBy = null;
+				entity.AuthorizedByStatus = null;
+				entity.IsApproved = false;
+				entity.RequiredPosting = true;
+			}
+			if (entityMatAndImat != null)
+			{
+				foreach (var item in entityMatAndImat)
+				{
+
+					if (!item.check)
+						throw new CustomException("Please Select Materials !");
+
+				}
+			}
+			else
+			{
+				throw new CustomException("Please Select atlest one Materials !");
+			}
+			if (chargesListPO != null)
+			{
+				foreach (var item in chargesListPO)
+				{
+					if (!item.check)
+						throw new CustomException("Please Select Materials !");
+
+				}
+			}
+			DetailFOCEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+			ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
+
+			return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+		}
+		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+		public JsonResult DetailFOCEdits(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			_inventoryDetailService.UpdateFOCDetail(entity, entityMatAndImat, taxCategoryList, id, MaterialStorageId, GRNType);
+			return Json(new { Message = AplosMessage.Success });
+		}
+		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+		public JsonResult ServiceChargesCreateNewEdit(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id)
+		{
+			_inventoryService.InsertGraphNewEdit(chargesListPO, POServiceTaxList, Id);
 			return Json(new { Message = AplosMessage.Success });
 		}
 		#endregion
@@ -783,11 +870,11 @@ namespace Aplos.Areas.Products.Controllers
 					throw new CustomException("Enter Reason!");
 				}
 			}
-			bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
-			if (_returnRes == true)
-			{
-				throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
-			}
+			//bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+			//if (_returnRes == true)
+			//{
+			//	throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+			//}
 			_inventoryReveiveService.Update(entity);
 			return Json(new { Message = AplosMessage.Updated });
 		}
