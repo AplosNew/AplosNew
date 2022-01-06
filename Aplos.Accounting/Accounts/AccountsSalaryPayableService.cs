@@ -77,6 +77,7 @@ namespace Library.Accounting.Accounts
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
                         SELECT sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
@@ -94,6 +95,7 @@ namespace Library.Accounting.Accounts
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
                         SELECT sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
@@ -111,7 +113,7 @@ namespace Library.Accounting.Accounts
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' 
-
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
                         SELECT sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
@@ -129,6 +131,7 @@ namespace Library.Accounting.Accounts
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"'
                         --and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable')  
                         and spc.DisbusmentAmount!=0 and  PO.DirectManpowerCost=1 AND sh.HeadType='D' " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         ) x
 						ORDER BY x.HeadType desc,x.[Sequence] asc";
@@ -190,6 +193,7 @@ namespace Library.Accounting.Accounts
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @"
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						ORDER BY sh.[Sequence],sh.SalaryHead";
             return _sqlRepository.GetDataCollection(sql);
@@ -263,6 +267,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.Activity DA ON DA.Id=SGL.DrDirectActivityId
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=1 and sgl.DrDirectActivityId<>''
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
 						,DGL.AccountCode,DGL.UserName ,DB.UserName ,DA.UserName
 						,SGL.CrDirectGLId,SGL.CrDirectBudgetMasterId,SGL.CrDirectActivityId
@@ -292,6 +297,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
                             LEFT JOIN HKP.Activity CDA ON CDA.Id=SGL.CrDirectActivityId
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=1 and sgl.CrDirectActivityId<>''
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						,SGL.CrDirectGLId,SGL.CrDirectBudgetMasterId,SGL.CrDirectActivityId
@@ -358,6 +364,7 @@ namespace Library.Accounting.Accounts
 						left join ORG.Position PO on PO.Id=MPB.PositionId
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 AND SPL.PlantId='" + plantId + @"'
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
@@ -377,6 +384,7 @@ namespace Library.Accounting.Accounts
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"'  
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=1 AND SPL.PlantId='" + plantId + @"'
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
                         SELECT sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
@@ -393,6 +401,7 @@ namespace Library.Accounting.Accounts
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' 
 
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
@@ -412,6 +421,7 @@ namespace Library.Accounting.Accounts
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         --and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') 
                         and spc.DisbusmentAmount!=0  and  PO.DirectManpowerCost=0 AND sh.HeadType='D'
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         ) x
 						ORDER BY x.HeadType desc,x.[Sequence] asc";
@@ -472,6 +482,7 @@ namespace Library.Accounting.Accounts
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						ORDER BY sh.[Sequence],sh.SalaryHead";
@@ -549,6 +560,7 @@ namespace Library.Accounting.Accounts
 							
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 and sgl.DrInDirectActivityId<>''
+                        and ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId
 						,IGL.AccountCode,IGL.UserName ,IB.UserName ,IA.UserName
                         UNION
@@ -578,6 +590,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.Activity CIA ON CIA.Id=SGL.CrInDirectActivityId
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 and sgl.CrInDirectActivityId<>''
+                        and ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						,SGL.CrInDirectGLId,SGL.CrInDirectBudgetMasterId,SGL.CrInDirectActivityId
                         ,CIGL.AccountCode,CIGL.UserName ,CIB.UserName ,CIA.UserName
@@ -648,6 +661,7 @@ namespace Library.Accounting.Accounts
 						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
                         AND ISNULL(sh.HeadCategory,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='D' 
                         ) x
 						ORDER BY x.HeadType desc,x.[Sequence] asc";
@@ -713,6 +727,7 @@ namespace Library.Accounting.Accounts
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
                         AND ISNULL(sh.HeadCategory,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='D' 
+                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         ) x
 						ORDER BY x.HeadType desc,x.[Sequence] asc";
             return _sqlRepository.GetDataCollection(sql);

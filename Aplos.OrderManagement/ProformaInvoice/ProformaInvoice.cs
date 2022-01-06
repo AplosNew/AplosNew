@@ -208,5 +208,46 @@ namespace Library.OrderManagement.ProformaInvoice
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+
+
+        public IEnumerable<object> GetTermsAndConditionPOPopUp(string TermsAndConditionsPIDetailId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"select * from TermsAndConditionsPIDetails where TermsAndConditionsPIChildId='" + TermsAndConditionsPIDetailId + "' order by sequence";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
+        public string DeletePIDetailPopUp(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TermsAndConditionsPIDetails where Id='" + id + "'");
+
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
     }
 }
