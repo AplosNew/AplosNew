@@ -473,6 +473,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetBOMContractItemListForReport(string ContractId)
+        {
+            Library.OrderManagement.BOM.TemplateAttchment attchment = new Library.OrderManagement.BOM.TemplateAttchment();
+            var jsondata = Json(attchment.GetBOMItemListForReportByContractId(ContractId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
         [HttpGet, Authorize]
         public ActionResult GetBOMReport(string ItemIds, string MasterOrderItemId)
         {
