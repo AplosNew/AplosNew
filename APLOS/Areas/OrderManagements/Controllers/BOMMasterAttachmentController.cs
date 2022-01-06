@@ -325,7 +325,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ExcelEngine excelEngine = new ExcelEngine();
 
                 IWorkbook workbook = attchment.ConevelBOMReport(ContractId);
-                string strFileName = "BOM-" + ContractId + ".xlsx";
+                string strFileName = "BOM Detail-" + ContractId + ".xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
                 //workbookItem.Close();
@@ -352,15 +352,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ExcelEngine excelEngine = new ExcelEngine();
 
                 IWorkbook workbook = attchment.GetMasterOrderByContractReports(ContractId, Library.OrderManagement.BOM.BOMReports.BOMLevel.SO);
-                IWorkbook workbookItem = attchment.GetMasterOrderReports(ContractId, Library.OrderManagement.BOM.BOMReports.BOMLevel.Item);
-                attchment.GetDrawBOMTemplateDataReports(workbookItem.Worksheets[1], ContractId);
-                attchment.GetDrawBOMTemplateDataSubMaterials(workbookItem.Worksheets[2], ContractId);
+                IWorkbook workbookItem = attchment.GetMasterOrderByContractReports(ContractId, Library.OrderManagement.BOM.BOMReports.BOMLevel.Item);
+                attchment.GetDrawBOMTemplateByContractDataReports(workbookItem.Worksheets[1], ContractId);
+                attchment.GetDrawBOMTemplateByContractDataSubMaterials(workbookItem.Worksheets[2], ContractId);
 
                 workbook.Worksheets.AddCopy(workbookItem.Worksheets[0]);
                 workbook.Worksheets.AddCopy(workbookItem.Worksheets[1]);
                 workbook.Worksheets.AddCopy(workbookItem.Worksheets[2]);
 
-                string strFileName = "BOM-" + ContractId + ".xlsx";
+                string strFileName = "BOM Summary-" + ContractId + ".xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
                 workbookItem.Close();
