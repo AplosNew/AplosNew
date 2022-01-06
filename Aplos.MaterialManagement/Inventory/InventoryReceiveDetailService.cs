@@ -1643,9 +1643,8 @@ namespace Library.MaterialManagement.Inventory
                 _unitOfWork.BeginTransaction();
 
                 flag = true;
-                entity.Id = null;
                 entity.GRNType = GRNType;
-                _inventoryReceiveService.Insert(entity);
+                _inventoryReceiveService.Update(entity);
                 if (entity.PurchaseDocumentAcceptanceId != null)
                 {
                     var GRNAcceptance = new GRNAcceptanceMap
@@ -1792,31 +1791,31 @@ namespace Library.MaterialManagement.Inventory
                             itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
 
                         }
-                        if (itemDetail.PurchaseDocumentAcceptanceId == null && itemDetail.PurchaseDocumentAcceptanceDetailId == null)
-                        {
-                            var poDetail = _poDetailRepository.Query(r => r.Id == itemDetail.PODetailsID).Select().FirstOrDefault();
-                            if (poDetail == null)
-                                throw new CustomException("PO Details Or Inventory Details not found!");
+                        //if (itemDetail.PurchaseDocumentAcceptanceId == null && itemDetail.PurchaseDocumentAcceptanceDetailId == null)
+                        //{
+                        //    var poDetail = _poDetailRepository.Query(r => r.Id == itemDetail.PODetailsID).Select().FirstOrDefault();
+                        //    if (poDetail == null)
+                        //        throw new CustomException("PO Details Or Inventory Details not found!");
 
-                            poDetail.GRNRcvQty += itemDetail.TransactionQty;
-                            if (itemDetail.Tolerance == 0)
-                            {
-                                if (poDetail.TransactionQty < poDetail.GRNRcvQty)
-                                    throw new CustomException("Received Qty can not cross balance Qty.");
-                            }
+                        //    poDetail.GRNRcvQty += itemDetail.TransactionQty;
+                        //    if (itemDetail.Tolerance == 0)
+                        //    {
+                        //        if (poDetail.TransactionQty < poDetail.GRNRcvQty)
+                        //            throw new CustomException("Received Qty can not cross balance Qty.");
+                        //    }
 
-                            if (itemDetail.POClosStatus == true)
-                            {
-                                poDetail.QtyStatus = true;
-                            }
-                            else
-                            {
-                                poDetail.QtyStatus = false;
-                            }
-                            AuditService.UpdatedLog(poDetail);
-                            _poDetailRepository.Update(poDetail);
+                        //    if (itemDetail.POClosStatus == true)
+                        //    {
+                        //        poDetail.QtyStatus = true;
+                        //    }
+                        //    else
+                        //    {
+                        //        poDetail.QtyStatus = false;
+                        //    }
+                        //    AuditService.UpdatedLog(poDetail);
+                        //    _poDetailRepository.Update(poDetail);
 
-                        }
+                        //}
 
                         // Insert in receive detail
                         if (string.IsNullOrEmpty(itemDetail.Id))
@@ -1870,8 +1869,8 @@ namespace Library.MaterialManagement.Inventory
                                 IsAsset = itemDetail.IsAsset,
                                 GrossAmount = Math.Round(Convert.ToDecimal(itemDetail.TrnAmount), 2) + Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
                                 DiscountAmount = Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
-                                QualityStatus = itemDetail.QualityStatus
-
+                                QualityStatus = itemDetail.QualityStatus,
+                                MasterOrderItemId=itemDetail.MasterOrderItemId
 
                             };
                             try
@@ -1909,19 +1908,19 @@ namespace Library.MaterialManagement.Inventory
                                 };
                                 AuditService.AddedLog(RejectionDetails);
                                 _gRNRejectionDetailsRepository.Insert(RejectionDetails);
-                                int POGGRNMapId = 1;
-                                var POGGRNMaps = new POGGRNMap
-                                {
-                                    CompanyGroupId = identity.CompanyGroupId,
-                                    CompanyId = identity.CompanyId,
-                                    PlantId = identity.PlantId,
-                                    Id = grndId.ToString() + POGGRNMapId,
-                                    GRNId = entity.Id,
-                                    PoId = receiveDetail.POID,
-                                    PoDetailId = receiveDetail.PODetailsID
-                                };
-                                AuditService.AddedLog(POGGRNMaps);
-                                _POGGRNMapRepository.Insert(POGGRNMaps);
+                                //int POGGRNMapId = 1;
+                                //var POGGRNMaps = new POGGRNMap
+                                //{
+                                //    CompanyGroupId = identity.CompanyGroupId,
+                                //    CompanyId = identity.CompanyId,
+                                //    PlantId = identity.PlantId,
+                                //    Id = grndId.ToString() + POGGRNMapId,
+                                //    GRNId = entity.Id,
+                                //    PoId = receiveDetail.POID,
+                                //    PoDetailId = receiveDetail.PODetailsID
+                                //};
+                                //AuditService.AddedLog(POGGRNMaps);
+                                //_POGGRNMapRepository.Insert(POGGRNMaps);
 
                             }
                             catch (DivideByZeroException ex)

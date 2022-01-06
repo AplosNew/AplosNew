@@ -3907,7 +3907,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
                     }
 
                     if ($scope.GetListForMasterOrder[i].CheckedStatus === true && $scope.GetListForMasterOrder[i].RequiredQtyApproved === 'Yes' && $scope.GetListForMasterOrder[i].IncompleteMaterial === 'No') {
-                        $scope.GetListForMasterOrder[i].check = true;
+                        
                         if ($scope.ActionPOBOQ === 'Save') {
                             if ((parseFloat($scope.GetListForMasterOrder[i].TransactionQty) + parseFloat($scope.GetListForMasterOrder[i].OtherPOQty)) > parseFloat($scope.GetListForMasterOrder[i].RequiredQtyPO)) {
                                 ShowResult('Trasaction qty can not grater than booking Qty', 'failure', 'ListOfPOMaterial');
@@ -3937,6 +3937,8 @@ function FOCController(accountService, addressService, $window, cboService, comm
                             }
 
                             else {
+                                $scope.GetListForMasterOrder[i].check = true;
+                                $scope.GetListForMasterOrder[i].Id = null;
                                 $scope.GetListForMasterOrdernew.push($scope.GetListForMasterOrder[i]);
 
                             }
@@ -3987,6 +3989,8 @@ function FOCController(accountService, addressService, $window, cboService, comm
                             return false;
                         }
                         else {
+                            $scope.GetListForMasterOrder[i].check = true;
+                            $scope.GetListForMasterOrder[i].Id = null;
                             $scope.GetListForMasterOrdernew.push($scope.GetListForMasterOrderUpdate[i]);
                         }
 
@@ -4039,7 +4043,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
                             'receiveTaxList': $scope.taxCategoryList,
                             'chargesListPO': $scope.chargesListPOnew,
                             'POServiceTaxList': $scope.POServiceTaxList,
-                            'GRNType': 'GRNBYFOC',
+                            'GRNType': 'GRN',
                             'AcceptanceId': $scope.AcceptanceId,
                             'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
                             'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
