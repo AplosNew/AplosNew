@@ -89,7 +89,36 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return Json(pi.GetPackingSOData(PackingId), JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize, HttpGet]
+        public JsonResult GetTaxCategoryList(string receiveId, string hsnCodeId, string PODate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(pi.GetTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetSalesServiceData(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_salesService.GetSalesServiceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetSalesTaxData(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(pi.GetSalesTaxData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetMasterOrderSalesMaterialData(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(pi.GetPackingSalesMaterialData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetSalesServiceTaxData(string Ids)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(pi.GetSalesServiceTaxData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, Ids), JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 

@@ -960,7 +960,7 @@ namespace Aplos.MaterialManagement
 									,isnull(PO.PurchaseLCId,'') PurchaseLCId
 									,isnull(PO.ContractId,'') ContractId
                                     ,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
-									,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
+									--,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
 							FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 		                            ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -1065,7 +1065,7 @@ namespace Aplos.MaterialManagement
 									,isnull(PO.PurchaseLCId,'') PurchaseLCId
 									,isnull(PO.ContractId,'') ContractId
                                     ,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
-									,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
+									--,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
 							FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 		                            ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -1171,7 +1171,7 @@ namespace Aplos.MaterialManagement
 									,isnull(PO.PurchaseLCId,'') PurchaseLCId
 									,isnull(PO.ContractId,'') ContractId
                                     ,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
-									,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
+									--,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
 							FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 		                            ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId

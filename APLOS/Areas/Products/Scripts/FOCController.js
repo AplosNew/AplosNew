@@ -3907,6 +3907,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
                     }
 
                     if ($scope.GetListForMasterOrder[i].CheckedStatus === true && $scope.GetListForMasterOrder[i].RequiredQtyApproved === 'Yes' && $scope.GetListForMasterOrder[i].IncompleteMaterial === 'No') {
+                        
                         if ($scope.ActionPOBOQ === 'Save') {
                             if ((parseFloat($scope.GetListForMasterOrder[i].TransactionQty) + parseFloat($scope.GetListForMasterOrder[i].OtherPOQty)) > parseFloat($scope.GetListForMasterOrder[i].RequiredQtyPO)) {
                                 ShowResult('Trasaction qty can not grater than booking Qty', 'failure', 'ListOfPOMaterial');
@@ -3936,6 +3937,8 @@ function FOCController(accountService, addressService, $window, cboService, comm
                             }
 
                             else {
+                                $scope.GetListForMasterOrder[i].check = true;
+                                $scope.GetListForMasterOrder[i].Id = null;
                                 $scope.GetListForMasterOrdernew.push($scope.GetListForMasterOrder[i]);
 
                             }
@@ -3986,6 +3989,8 @@ function FOCController(accountService, addressService, $window, cboService, comm
                             return false;
                         }
                         else {
+                            $scope.GetListForMasterOrder[i].check = true;
+                            $scope.GetListForMasterOrder[i].Id = null;
                             $scope.GetListForMasterOrdernew.push($scope.GetListForMasterOrderUpdate[i]);
                         }
 
@@ -4030,14 +4035,24 @@ function FOCController(accountService, addressService, $window, cboService, comm
 
                     $http({
                         method: 'POST',
-                        url: 'Products/InventoryReceive/detailcreate',
-                        data: {
-                            entity: JSON.stringify($scope.GetListForMasterOrdernew)
-                            , taxCategoryList: $scope.taxCategoryList//$scope.taxCategoryList
-                            , PoId: $scope.productNew.Id
-                            , groupList: JSON.stringify($scope.groupList)
+                        url: 'Products/InventoryReceive/CreateGRNBYFOC',
+                        data:
+                        {
+                            'entity': $scope.productNew,
+                            'entityMatAndImat': JSON.stringify($scope.GetListForMasterOrdernew),
+                            'receiveTaxList': $scope.taxCategoryList,
+                            'chargesListPO': $scope.chargesListPOnew,
+                            'POServiceTaxList': $scope.POServiceTaxList,
+                            'GRNType': 'GRN',
+                            'AcceptanceId': $scope.AcceptanceId,
+                            'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
+                            'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
                         },
                         dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+
+
+
                     }).then(function successCallback(response) {
                         if (response.data.Error === true)
                             ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
@@ -4059,18 +4074,21 @@ function FOCController(accountService, addressService, $window, cboService, comm
                 if (!$scope.UOMValidation()) {
                     $http({
                         method: 'POST',
-                        url: 'Products/PurchaseOrder/detailPOUpdateForBOQ',
-                        data: {
-                            //entity: $scope.GetListForMasterOrdernew
-                            //, taxCategoryList: $scope.taxCategoryList
-                            //, PoId: $scope.productNew.Id
-                            //, groupList: $scope.groupList
-                            entity: JSON.stringify($scope.GetListForMasterOrdernew)
-                            , taxCategoryList: $scope.taxCategoryList
-                            , PoId: $scope.productNew.Id
-                            , groupList: JSON.stringify($scope.groupList)
+                        url: 'Products/InventoryReceive/UpdateGRNBYFOC',
+                        data:
+                        {
+                            'entity': $scope.productNew,
+                            'entityMatAndImat': JSON.stringify($scope.GetListForMasterOrdernew),
+                            'receiveTaxList': $scope.taxCategoryList,
+                            'chargesListPO': $scope.chargesListPOnew,
+                            'POServiceTaxList': $scope.POServiceTaxList,
+                            'GRNType': 'GRNBYFOC',
+                            'AcceptanceId': $scope.AcceptanceId,
+                            'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
+                            'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
                         },
                         dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
                     }).then(function successCallback(response) {
                         if (response.data.Error === true)
                             ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial1');
