@@ -131,25 +131,55 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetAllCharacteristicsValueByMaterial(string MaterialMasterId)
+        public JsonResult GetAllCharacteristicsValueByMaterial(string MaterialMasterId, string SP1, string SP2)
         {
-            return Json(_sqlRepository.GetDataCollection(@"SELECT * FROM HKP.CharacteristicsValue WHERE MaterialMasterId='" + MaterialMasterId + "'"), JsonRequestBehavior.AllowGet);
+            string sql = string.Empty;
+            if (SP1 == "Specific" && SP2 == "General") 
+            {
+                sql = @"SELECT * FROM HKP.CharacteristicsValue WHERE SourceType='Specific' AND MaterialMasterId='"+ MaterialMasterId + @"'
+                        UNION 
+                        SELECT * FROM HKP.CharacteristicsValue WHERE SourceType='General'";
+            }
+            else if (SP1 == "Specific")
+            {
+                sql = @"SELECT * FROM HKP.CharacteristicsValue WHERE SourceType='Specific' AND MaterialMasterId='"+ MaterialMasterId + "'";
+            }
+            else
+            {
+                sql = @"SELECT * FROM HKP.CharacteristicsValue WHERE SourceType='General'";
+            }
+            
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public JsonResult GetSavedCharacteristicsValueByMaterial(string BOMDetailId)
         {
-            return Json(_sqlRepository.GetDataCollection(@"Select B.* from BOMSKUMapping B
+            //return Json(_sqlRepository.GetDataCollection(@"Select B.* from BOMSKUMapping B
+            //    LEFT JOIN hkp.CharacteristicsValue CV1 ON CV1.Id=B.RMFirstCharacteristicsValueId
+            //    Where B.BOMDetailId='"+ BOMDetailId + @"' AND ISNULL(B.RMFirstCharacteristicsValueId,'')<>''
+            //    UNION 
+            //    Select B.* from BOMSKUMapping B
+            //    LEFT JOIN hkp.CharacteristicsValue CV2 ON CV2.Id=B.RMSecondCharacteristicsValueId
+            //    Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMSecondCharacteristicsValueId,'')<>''
+            //    UNION 
+            //    Select B.* from BOMSKUMapping B
+            //    LEFT JOIN hkp.CharacteristicsValue CV3 ON CV3.Id=B.RMThirdCharacteristicsValueId
+            //    Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMThirdCharacteristicsValueId,'')<>''"), JsonRequestBehavior.AllowGet);
+
+            return Json(_sqlRepository.GetDataCollection(@"Select A.* from (
+				Select B.RMFirstCharacteristicsValueId ValueId from BOMSKUMapping B
                 LEFT JOIN hkp.CharacteristicsValue CV1 ON CV1.Id=B.RMFirstCharacteristicsValueId
-                Where B.BOMDetailId='"+ BOMDetailId + @"' AND ISNULL(B.RMFirstCharacteristicsValueId,'')<>''
-                UNION 
-                Select B.* from BOMSKUMapping B
+                Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMFirstCharacteristicsValueId,'')<>''
+                UNION ALL
+                Select B.RMSecondCharacteristicsValueId ValueId from BOMSKUMapping B
                 LEFT JOIN hkp.CharacteristicsValue CV2 ON CV2.Id=B.RMSecondCharacteristicsValueId
                 Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMSecondCharacteristicsValueId,'')<>''
-                UNION 
-                Select B.* from BOMSKUMapping B
+                UNION ALL
+                Select B.RMThirdCharacteristicsValueId ValueId from BOMSKUMapping B
                 LEFT JOIN hkp.CharacteristicsValue CV3 ON CV3.Id=B.RMThirdCharacteristicsValueId
-                Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMThirdCharacteristicsValueId,'')<>''"), JsonRequestBehavior.AllowGet);
+                Where B.BOMDetailId='" + BOMDetailId + @"' AND ISNULL(B.RMThirdCharacteristicsValueId,'')<>''
+				)A"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
