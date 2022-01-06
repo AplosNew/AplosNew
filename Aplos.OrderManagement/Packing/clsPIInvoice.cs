@@ -163,6 +163,7 @@ namespace Library.OrderManagement.Packing
                                         	,p.Rate
                                         	,p.Amount
                                         	,p.Amount NetAmount
+                                            ,SUM(cit.Amount)TaxAmount
                                             ,p.HSNCodeId
                                             ,c.Id
                                             ,c.CommercialInvoiceMasterId
@@ -172,7 +173,10 @@ namespace Library.OrderManagement.Packing
                                         INNER JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id = p.MaterialGroupMasterId
                                         INNER JOIN scs.UnitOfMeasurement AS uom ON uom.Id = p.UoMId
                                         LEFT JOIN CommercialInvoicePIMaterial c ON c.PIPackingListMaterialId=m.Id
-                                        WHERE PM.Id " + PackingId + "";
+                                        LEFT JOIN CommercialInvoiceTaxes AS cit ON cit.CommercialInvoicePIMaterialId=c.Id
+                                        WHERE PM.Id " + PackingId + @" 
+                                        GROUP BY M.Id,p.Id,MGM.UserName,p.[Description],p.DeliveryDate,p.Quantity,uom.UserName 
+                                        ,p.Rate,p.Amount,p.HSNCodeId,c.Id,c.CommercialInvoiceMasterId";
                 return _sqlRepository.GetDataCollection(_sql);
             }
             catch (Exception ex)
@@ -180,39 +184,23 @@ namespace Library.OrderManagement.Packing
                 throw ex;
             }
         }
-        public IEnumerable<object> GetTaxCategoryList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string PODate)
+        public IEnumerable<object> GetTaxCategoryList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string PODate,string Id)
         {
             try
             {
-                var sql = @"DECLARE @receiveId varchar(100)='" + receiveId + @"'
-                                  , @partyState varchar(30)
-                                  , @partyCountry varchar(10)
-                                  , @plantState varchar(30)
-                                  , @plantCountry varchar(10)
-                                  , @plantId varchar(30)='" + plantId + @"'
-                                  , @hsnCodeId varchar(30)='" + hsnCodeId + @"'
-                    SET @partyCountry =(SELECT AM.CountryId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id WHERE PP.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
-                    SET @partyState =(SELECT AM.StateId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id WHERE PP.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
-
-                    SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
-                    SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
-                    SELECT ct.Id, TVD.TaxCategoryId, HP.HSNCodeId, HN.Code AS HSNCode, TC.UserName, HP.[Percentage] AS [Percentage], NULL TotalAmount
-                    FROM [MST].[TaxVariantDetail] AS TVD
-                    JOIN [MST].[TaxVariant] AS TV ON TVD.TaxVariantId=TV.Id
-                    JOIN [MST].[TaxCategory] AS TC ON TVD.TaxCategoryId=TC.Id
-                    --LEFT JOIN (SELECT * FROM [MST].[HSNTaxPercentage] WHERE HSNCodeId=@hsnCodeId) AS HP ON HP.TaxCategoryId=TC.Id
-					LEFT JOIN (SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY TaxCategoryId, HSNCodeId ORDER BY EffectiveDate DESC) AS RN
-								FROM [MST].[HSNTaxPercentage] WHERE CountryId=@plantCountry AND HSNCodeId=@hsnCodeId AND convert(DATE, EffectiveDate)<='" + PODate + @"') AS TBL WHERE RN=1) AS HP ON HP.TaxCategoryId=TC.Id
-
-                    LEFT JOIN [HKP].[HSNCode] AS HN ON HP.HSNCodeId=HN.Id
-                    LEFT JOIN CommercialInvoiceTaxes ct ON ct.TaxCategoryId = HP.TaxCategoryId AND ct.HSNCodeId=HN.Id
-                    WHERE TV.CompanyGroupId='" + companyGroupId + @"' AND TV.CountryId=@plantCountry --AND HP.HSNCodeId=@hsnCodeId
-                    AND TV.TaxFor=CASE WHEN @partyCountry=@plantCountry THEN '" + TaxFor.DomesticSales + @"'
-				                        WHEN @partyCountry<>@plantCountry THEN '" + TaxFor.OverseasSales + @"' END
-                    AND (TV.Different=CASE WHEN @partyCountry=@plantCountry AND @partyState=@plantState AND TV.DifferentIn='State' THEN 'Same'
-					                       WHEN @partyCountry=@plantCountry AND @partyState<>@plantState AND TV.DifferentIn='State' THEN 'Different' END
-	                    OR TV.Different IS NULL)
-                    ORDER BY TC.[Sequence]";
+                var sql = @"SELECT HN.Code HSNCode
+                                	,t.HSNCodeId
+                                	,t.Id
+                                	,t.Percentage
+                                	,t.TaxCategoryId
+                                	,0 TotalAmount
+                                	,TC.UserName
+                                	,t.CommercialInvoicePIMaterialId
+                                FROM CommercialInvoiceTaxes t
+                                LEFT JOIN CommercialInvoicePIMaterial AS M ON M.Id = t.CommercialInvoicePIMaterialId
+                                LEFT JOIN [HKP].[HSNCode] AS HN ON HN.Id = t.HSNCodeId
+                                JOIN [MST].[TaxCategory] AS TC ON TC.Id = T.TaxCategoryId
+                                WHERE M.Id = '"+ Id + @"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -230,7 +218,7 @@ namespace Library.OrderManagement.Packing
         }
         public List<Dictionary<string, object>> GetSalesServiceTaxData(string companyGroupId, string companyId, string plantId, string salesId)
         {
-            var cmdText = @"SELECT ST.Id, ST.CommercialInvoiceMasterId, ST.CommercialInvoiceChargesId, ST.TaxCategoryId, TC.UserName AS TaxCategory,ST.HSNCodeId, HC.Code, ST.[Percentage], ST.Amount
+            var cmdText = @"SELECT ST.Id, ST.CommercialInvoiceMasterId, ST.CommercialInvoiceChargesId, ST.TaxCategoryId, TC.UserName AS TaxCategory,ST.HSNCodeId, HC.Code HSNCode, ST.[Percentage], ST.Amount
 								FROM CommercialInvoiceTaxes AS ST 
 								LEFT JOIN CommercialInvoiceCharges AS SM ON SM.Id=ST.CommercialInvoiceChargesId
 								LEFT JOIN CommercialInvoiceMaster AS SA ON SA.Id=ST.CommercialInvoiceMasterId
@@ -515,7 +503,15 @@ namespace Library.OrderManagement.Packing
                         {
                             dr = dsCharges.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
+                            dr["ServiceMasterId"] = Charge[i].ServiceMasterId;
+                            dr["VoucherDetailId"] = DBNull.Value;
+                            dr["Amount"] = Charge[i].Amount;
+                            dr["TaxAmount"] = Charge[i].TaxAmount;
+                            dr["NetAmount"] = Charge[i].NetAmount;
 
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
                             dr.EndEdit();
                         }
                     }
@@ -613,7 +609,14 @@ namespace Library.OrderManagement.Packing
                             {
                                 dr = dsTaxes.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
+                                dr["TaxCategoryId"] = x.TaxCategoryId;
+                                dr["HSNCodeId"] = x.HSNCodeId;
+                                dr["Percentage"] = x.Percentage;
+                                dr["Amount"] = x.Amount;
 
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = DateTime.Now;
+                                dr["UpdatedFromIP"] = identity.IPAddress;
                                 dr.EndEdit();
                             }
                         }

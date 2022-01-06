@@ -3939,6 +3939,8 @@ function FOCController(accountService, addressService, $window, cboService, comm
                             else {
                                 $scope.GetListForMasterOrder[i].check = true;
                                 $scope.GetListForMasterOrder[i].Id = null;
+                                $scope.GetListForMasterOrder[i].NetQty = $scope.GetListForMasterOrder[i].TransactionQty;
+                                $scope.GetListForMasterOrder[i].BaseQty = $scope.GetListForMasterOrder[i].TransactionQty;
                                 $scope.GetListForMasterOrdernew.push($scope.GetListForMasterOrder[i]);
 
                             }
@@ -3991,6 +3993,8 @@ function FOCController(accountService, addressService, $window, cboService, comm
                         else {
                             $scope.GetListForMasterOrder[i].check = true;
                             $scope.GetListForMasterOrder[i].Id = null;
+                            $scope.GetListForMasterOrder[i].NetQty = $scope.GetListForMasterOrder[i].TransactionQty;
+                            $scope.GetListForMasterOrder[i].BaseQty = $scope.GetListForMasterOrder[i].TransactionQty;
                             $scope.GetListForMasterOrdernew.push($scope.GetListForMasterOrderUpdate[i]);
                         }
 
