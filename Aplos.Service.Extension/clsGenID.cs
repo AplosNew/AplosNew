@@ -3,7 +3,7 @@ using System.Data;
 
 namespace Library.Service.Extension
 {
-	public class clsGenID
+    public class clsGenID
     {
         public clsGenID()
         {
@@ -26,7 +26,7 @@ namespace Library.Service.Extension
             try
             {
                 //by Monir
-                strEntryDate=clsWebLib.AppDateConvert(strEntryDate,"MM/dd/yyyy",clsWebLib.getUserDateFormat()).ToShortDateString();
+                strEntryDate = clsWebLib.AppDateConvert(strEntryDate, "MM/dd/yyyy", clsWebLib.getUserDateFormat()).ToShortDateString();
                 //strEntryDate = clsWebLib.AppDateConvert(strEntryDate, clsWebLib.getUserDateFormat(), "MM/dd/yyyy").ToString("MM/dd/yyyy");
                 strSql = "SELECT [Field], [Dates], [LastNumber], Year(Dates) as YearNo FROM Signature WHERE Field ='" + strFieldName.Trim() + "' and Year(Dates) = '" + Convert.ToDateTime(strEntryDate).Year.ToString() + "'";
 
@@ -64,7 +64,7 @@ namespace Library.Service.Extension
                 }
                 objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
                 //strID = strID + "-" + (int)LastNumber;
-                strID = strID +  (int)LastNumber;
+                strID = strID + (int)LastNumber;
 
             }
             catch (Exception ex)
@@ -99,7 +99,7 @@ namespace Library.Service.Extension
                 //SB = new System.Text.StringBuilder(strEntryDate);
                 // strID = SB.Replace(clsWebLib.getUserDateSeparator().ToString(), "").ToString();
 
-               
+
                 objCoManager = new ConnectionManager.DAL.ConManager("1");
                 objCoManager.OpenDataSetThroughAdapter(strSql, out dsLocal, false, false, "", "1");
                 dtLocal = dsLocal.Tables[0];
@@ -259,7 +259,7 @@ namespace Library.Service.Extension
                     drLocal.EndEdit();
                 }
                 objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
-                strID = /*strID + "-" +*/ (int)LastNumber + "";
+                strID = System.DateTime.Now.Year.ToString() + "" + LastNumber + "";
 
             }
             catch (Exception ex)
@@ -318,7 +318,7 @@ namespace Library.Service.Extension
 
                     LastNumber = Convert.ToDecimal(clsWebLib.GetNumData(("" + drLocal["LastNumber"].ToString())));
                     LastNumberR = LastNumber + 1;
-                    LastNumber = LastNumber + Count+1;
+                    LastNumber = LastNumber + Count + 1;
 
                     drLocal.BeginEdit();
                     drLocal["Dates"] = strEntryDate.Trim();
@@ -394,7 +394,7 @@ namespace Library.Service.Extension
                 }
                 objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
                 strID = /*strID + "-" +*/ (int)LastNumber + "";
-                strID =DateTime.Now.ToString("yyyy")+"-"+ strID;
+                strID = DateTime.Now.ToString("yyyy") + "-" + strID;
 
             }
             catch (Exception ex)
@@ -648,7 +648,7 @@ namespace Library.Service.Extension
         public void GenerateIDYearly(string strEntryDate, string strFieldName, out string strID)
         {
             ConnectionManager.DAL.ConManager objCoManager;
-            
+
             string strSql = "";
             DataSet dsLocal = null;
             DataTable dtLocal = null;
@@ -664,11 +664,11 @@ namespace Library.Service.Extension
                 //strEntryDate = clsWebLib.AppDateConvert(strEntryDate, clsWebLib.getUserDateFormat(), "MM/dd/yyyy").ToString("MM/dd/yyyy");
                 //strSql = "SELECT [Field], [Dates], [LastNumber], Year(Dates) as YearNo FROM Signature WHERE Field ='" + strFieldName.Trim() + "' and Year(Dates) = '" + Convert.ToDateTime(strEntryDate).Year.ToString() + "'";
                 string period = Convert.ToDateTime(strEntryDate).Year.ToString();
-                strSql = "SELECT Id, Period, FieldName, MaxNumber,UpdatedDate FROM ACS.PKGenerator WHERE FieldName ='" + strFieldName.Trim() + @"'  AND Period='"+ period + "'";
+                strSql = "SELECT Id, Period, FieldName, MaxNumber,UpdatedDate FROM ACS.PKGenerator WHERE FieldName ='" + strFieldName.Trim() + @"'  AND Period='" + period + "'";
 
                 objCoManager = new ConnectionManager.DAL.ConManager("1");
                 objCoManager.OpenDataSetThroughAdapter(strSql, out dsLocal, false, false, "", "1");
-               
+
 
                 dtLocal = dsLocal.Tables[0];
                 dvLocal = new DataView(dtLocal);
@@ -698,7 +698,7 @@ namespace Library.Service.Extension
                     drLocal["UpdatedDate"] = DateTime.Now;
                     drLocal.EndEdit();
                 }
-              
+
                 objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
                 strID = /*strID + "-" +*/ (int)MaxNumber + "";
                 strID = DateTime.Now.ToString("yy") + strID;

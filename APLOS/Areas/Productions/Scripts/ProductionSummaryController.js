@@ -451,7 +451,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             //}
 
             $scope.productionSummaryNew.ProductLibraryId = soitem.ProductLibraryId;
-            $scope.productionSummaryNew.ProductCode = soitem.ProductCode
+            $scope.productionSummaryNew.ProductCode = soitem.ProductCode;
             $scope.productionSummaryNew.MasterOrderItemId = soitem.MasterOrderItemId;
             $scope.productionSummaryNew.SalesOrderId = soitem.SOId;
           
@@ -521,6 +521,12 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
     $scope.SetPrOData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
+
+        $scope.productionSummaryNew.ProductLibraryId = null;
+        $scope.productionSummaryNew.ProductCode = null;
+        $scope.productionSummaryNew.MasterOrderItemId = null;
+        $scope.productionSummaryNew.SalesOrderId = null;
+
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
         $scope.GetTotalProductionBookingQty();
         $scope.getLotNumberCbo();
