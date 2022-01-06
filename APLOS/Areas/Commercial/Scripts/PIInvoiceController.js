@@ -236,7 +236,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }).then(function (response) {
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].Amount);
+                getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].Id, $scope.salesOrderList[i].Amount);
 
             }
         });
@@ -245,12 +245,12 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     function getTaxCategoryList(hsnCodeId, soId, transactionAmount) {
         $http({
             method: 'GET',
-            url: 'Commercial/PIInvoice/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+            url: 'Commercial/PIInvoice/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate + '&Id=' + soId
         }).then(function (response) {
             $scope.materialtaxCategoryList = response.data;
 
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                if ($scope.salesOrderList[i].HSNCodeId === hsnCodeId) {
+                if ($scope.salesOrderList[i].Id === soId) {
                     $scope.salesOrderList[i].TaxList = $scope.materialtaxCategoryList;
                     for (var j = 0; j < $scope.salesOrderList[i].TaxList.length; j++) {
                         $scope.calculateHSNTaxAmount($scope.salesOrderList[i].TaxList[j], transactionAmount);
@@ -487,7 +487,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
     //#endregion
 
     //#region Page Function
-        
+
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
         $scope.tranCurrencyList = result;
     });
@@ -591,7 +591,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }
         // data.Amount = Math.round($scope.serviceModel.Amount * data.Percentage) / 100;
         data.Amount = parseFloat(($scope.serviceModel.Amount * data.Percentage) / 100).toFixed(2);
-        data.TaxAndTotal = parseFloat($scope.serviceModel.Amount)+parseFloat(data.Amount);
+        data.TaxAndTotal = parseFloat($scope.serviceModel.Amount) + parseFloat(data.Amount);
         $scope.calculateSvcTaxCategory();
     };
 
@@ -718,6 +718,9 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         data.NetAmount = parseFloat(data.Amount) + parseFloat(data.TaxAmount);
         data.TaxAndTotal = parseFloat(data.Amount + data.TaxAmount).toFixed(2);
     };
+
+    $scope.serId = null;
+    $scope.serIndex = null;
     $scope.removeServiceRow = function (Id, index) {
         if (Id === null) {
             $(this).remove();
@@ -745,7 +748,11 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             data.Percentage = 0;
         }
         data.Amount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
-        
+
+    };
+    $scope.calculateTaxAmount = function (data) {
+
+        data.TotalAmount = parseFloat($scope.taxAbleAmnt * data.Percentage / 100).toFixed(2);
     };
     //#endregion
 
@@ -927,7 +934,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.uoMList = [];
         $http({
             method: "GET",
-            url: "Productions/PackingInvoice/GetMasterOrderSalesMaterialData?salesId=" + salesId
+            url: "Commercial/PIInvoice/GetMasterOrderSalesMaterialData?salesId=" + salesId
         }).then(function (response) {
             $scope.salesMaterialList = response.data;
 
@@ -942,7 +949,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             //$scope.TotalSumAfterTCS();
         });
     };
-    
+
     $scope.getAllTransactionUoM = function (materialMasterId) {
         var mmId = [];
         mmId.push(materialMasterId);
@@ -980,15 +987,17 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }).then(function (response) {
             var Id = "";
             $scope.chargesList = response.data;
-            for (var i = 0; i < $scope.chargesList.length; i++) {
-                if (Id == "") {
-                    Id = "'" + $scope.chargesList[i]["Id"] + "'";
+            if ($scope.chargesList.length != 0) {
+                for (var i = 0; i < $scope.chargesList.length; i++) {
+                    if (Id == "") {
+                        Id = "'" + $scope.chargesList[i]["Id"] + "'";
+                    }
+                    else {
+                        Id += ",'" + $scope.chargesList[i]["Id"] + "'";
+                    }
                 }
-                else {
-                    Id += ",'" + $scope.chargesList[i]["Id"] + "'";
-                }
+                $scope.GetSalesServiceTaxData(Id);
             }
-            $scope.GetSalesServiceTaxData(Id);
         });
     };
     $scope.GetSalesServiceTaxData = function (Id) {
@@ -1147,7 +1156,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
             $http({
                 method: 'POST',
                 url: $scope.path + 'Create',
-                data: { 'MasterData': $scope.salesVM, 'CommercialInvoicePackingList': $scope.selectedPackingList, 'CommercialInvoicePIMaterial': $scope.salesOrderList, 'taxList': TaxLists, 'Charge': $scope.chargesList,'ChargeTax': ChargeTax  },
+                data: { 'MasterData': $scope.salesVM, 'CommercialInvoicePackingList': $scope.selectedPackingList, 'CommercialInvoicePIMaterial': $scope.salesOrderList, 'taxList': TaxLists, 'Charge': $scope.chargesList, 'ChargeTax': ChargeTax },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1178,4 +1187,168 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }
     }
     //#endregion
+
+    //#region Delete Part ALL
+
+    $scope.metTaxId = null;
+    $scope.smetTaxIndex = null;
+    $scope.taxDel = function (Id, index) {
+        if (Id === null) {
+            $(this).remove();
+            $scope.receiveTaxList.splice(index);
+            return false;
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#confirmTaxCodeDelPopUp')).modal('show');
+            $scope.metTaxId = Id;
+            $scope.smetTaxIndex = index;
+        }
+    };
+
+    $scope.removeTaxCodeRow = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Commercial/PIInvoice/DeleteTaxRow?Id=' + $scope.metTaxId,
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.metTaxId = null;
+                    $scope.receiveTaxList.splice($scope.smetTaxIndex, 1);
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+    $scope.mateId = null;
+    $scope.mateIndex = null;
+    $scope.removeMaterialRow = function (Id, index) {
+        if (baseService.isUndefinedOrNull(Id)) {
+            $scope.salesOrderList.splice(index, 1);
+            return false;
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#removerPopUp')).modal('show');
+            $scope.mateId = Id;
+            $scope.mateIndex = index;
+        }
+    };
+
+    $scope.detailDelete = function () {
+        try {
+
+            if (!baseService.isUndefinedOrNull($scope.mateId)) {
+                $http({
+                    method: 'POST',
+                    url: 'Commercial/PIInvoice/DeleteSalesMaterial?Id=' + $scope.mateId,
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true)
+                        ShowResult("Delete material tax..", 'failure');
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.mateId = null;
+                        $scope.salesMaterialList.splice($scope.mateIndex, 1);
+                        //$scope.getData();
+                        //$scope.Clear();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            } else {
+                $scope.salesMaterialList.splice($scope.mateIndex, 1);
+            }
+
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+    $scope.serviceDelete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Commercial/PIInvoice/DeleteSalesService?Id=' + $scope.serId,
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult("Delete Charge Tax..", 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.serId = null;
+                    $scope.chargesList.splice($scope.serIndex, 1);
+                    //$scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+    $scope.serTaxId = null;
+    $scope.serTaxIndex = null;
+    $scope.DelCharge = function (Id, index) {
+        if (Id === null) {
+            $(this).remove();
+            $scope.receiveTaxList.splice(index);
+            return false;
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#removeServiceTaxPopUp')).modal('show');
+            $scope.serTaxId = Id;
+            $scope.serTaxIndex = index;
+        }
+    };
+    $scope.serviceTaxDelete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Commercial/PIInvoice/DeleteTaxSalesService?Id=' + $scope.serId,
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult("Delete Charge Tax..", 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.serId = null;
+                    $scope.chargesList.splice($scope.serIndex, 1);
+                    //$scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+    $scope.Delete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Commercial/PIInvoice/DeleteMaster?Id=' + $scope.salesVM.Id,
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult("Delete Charge Tax..", 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');                    
+                    $scope.GetMasterData();
+                    $scope.Clear();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+    //#endregion
+
 }
