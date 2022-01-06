@@ -554,11 +554,11 @@ namespace Aplos.Areas.Products.Controllers
 
 				}
 			}
-			bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
-			if (_returnRes == true)
-			{
-				throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
-			}
+			//bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+			//if (_returnRes == true)
+			//{
+			//	throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+			//}
 
 			DetailFOCCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
 			ServiceChargesFOCCreate(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
@@ -568,7 +568,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult DetailFOCCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+			_inventoryDetailService.InsertFOCDetail(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
 			return Json(new { Message = AplosMessage.Success });
 		}
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
@@ -655,7 +655,7 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult DetailFOCEdits(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			_inventoryDetailService.InsertOrUpdateGraphNewEdits(entity, entityMatAndImat, taxCategoryList, id, MaterialStorageId, GRNType);
+			_inventoryDetailService.UpdateFOCDetail(entity, entityMatAndImat, taxCategoryList, id, MaterialStorageId, GRNType);
 			return Json(new { Message = AplosMessage.Success });
 		}
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
@@ -870,11 +870,11 @@ namespace Aplos.Areas.Products.Controllers
 					throw new CustomException("Enter Reason!");
 				}
 			}
-			bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
-			if (_returnRes == true)
-			{
-				throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
-			}
+			//bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+			//if (_returnRes == true)
+			//{
+			//	throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+			//}
 			_inventoryReveiveService.Update(entity);
 			return Json(new { Message = AplosMessage.Updated });
 		}
