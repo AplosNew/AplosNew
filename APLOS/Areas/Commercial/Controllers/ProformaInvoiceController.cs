@@ -44,6 +44,7 @@ namespace Aplos.Areas.Commercial.Controllers
         #endregion -- Constructor
         TermsAndConditionsService tg = new TermsAndConditionsService();
         ProformaInvoice PI = new ProformaInvoice();
+        bplib.clsGenID objGenID = new bplib.clsGenID();
         #region Pages
 
         [Authorize]
@@ -96,7 +97,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         throw new Exception("Please select UoM.");
                     if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(MaterialData[i]["DeliveryDate"])))
                         throw new Exception("Please select delivery date.");
-                    if (Convert.ToDateTime( HeaderData["PIDate"]) < Convert.ToDateTime( MaterialData[i]["DeliveryDate"].ToString()))
+                    if (Convert.ToDateTime(HeaderData["PIDate"]) < Convert.ToDateTime(MaterialData[i]["DeliveryDate"].ToString()))
                         throw new Exception("Delivery date must less than PI date.");
                     if (string.IsNullOrEmpty(clsStaticInfo.nullrecorder(clsStaticInfo.dbl(MaterialData[i]["Amount"].ToString()))))
                         throw new Exception("Please enter amount.");
@@ -105,7 +106,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 conPIMaster.OpenDataSetThroughAdapter("select * from PIMaster where RefNo='" + HeaderData["RefNo"] + "' AND Id<>'" + HeaderData["Id"] + @"' ", out DataSet dsRef, false, "1");
 
-                if (dsRef.Tables[0].Rows.Count>0)
+                if (dsRef.Tables[0].Rows.Count > 0)
                     throw new Exception("PI Ref No. already exists.");
 
                 conPIMaster.OpenDataSetThroughAdapter("select * from PIMaster where Id='" + HeaderData["Id"] + "'", out DataSet dsPIMaster, false, "1");
@@ -141,7 +142,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     string _IdV = "";
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("PIVersion", out _IdV);
-                    PIVersionId = "PV"+"-"+ _IdV;
+                    PIVersionId = "PV" + "-" + _IdV;
                     DataRow drVersion = dsPIVersion.Tables[0].NewRow();
 
                     drVersion["Id"] = PIVersionId;
@@ -224,7 +225,12 @@ namespace Aplos.Areas.Commercial.Controllers
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsPIMaster, dsPIVersion, dsPIMaterial);
+                if (!string.IsNullOrEmpty(HeaderData["TermsAndConditionsId"].ToString()))
+                {
+                    SaveTermsData(HeaderData["TermsAndConditionsId"].ToString(), HeaderData["Id"].ToString());
+                }
                 return Json(new { Error = false, Data = HeaderData, Message = AplosMessage.Insert });
+
 
             }
             catch (Exception ex)
@@ -233,7 +239,112 @@ namespace Aplos.Areas.Commercial.Controllers
                 //return Json(new { Error = true, Message = ex.Message });
             }
         }
+        public void SaveTermsData(string TermsAndConditionsId, string PIMasterId)
+        {
+            DataSet dsToSalesOrder;
+            DataSet dsToFirstCharacteristics;
+            try
+            {
+                string Id = "";
+                DataSet dsSOId;
 
+                string NewSoId = string.Empty;
+                DataSet dsDetail;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                //con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE POId='" + POId + "'", out dsDetail, false, "1");
+                //if (dsDetail.Tables[0].Rows.Count > 0)
+                //{
+                //    if (dsDetail.Tables[0].Rows[0]["TermsAndConditionsMasterId"].ToString() != TitleId)
+                //    {
+
+                TnCDeleteDetail(PIMasterId);
+
+                //    }
+                //}
+                con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPIChild WHERE 1=2", out dsToSalesOrder, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPIDetails WHERE 1=2", out dsToFirstCharacteristics, false, "1");
+
+                DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM  TermsAndConditionsChild WHERE TermsAndConditionsMasterId='" + TermsAndConditionsId + "'");
+                DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TermsAndConditionsDetails Where TermsAndConditionsChildId IN(Select Id from TermsAndConditionsChild Where TermsAndConditionsMasterId='" + TermsAndConditionsId + "')");
+
+                int SCount = 0;
+                objGenID.GenerateIDAuto("dbo.TermsAndConditionsPIChild", out Id);
+
+                for (int m = 0; m < dtFromMaster.Rows.Count; m++)
+                {
+                    SCount++;
+                    DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
+                    CopyRow(dtFromMaster.Rows[m], ref drSalesOrder);
+                    drSalesOrder["Id"] = TermsAndConditionsId + Convert.ToInt32(Id) + SCount;
+                    NewSoId = drSalesOrder["Id"].ToString();
+                    // drSalesOrder["TermsAndConditionsMasterId"] = TitleId;
+                    drSalesOrder["PIMasterId"] = PIMasterId;
+                    dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
+
+                    dtFromFirstCharacteristics.DefaultView.RowFilter = "TermsAndConditionsChildId='" + dtFromMaster.Rows[m]["Id"].ToString() + "'";
+                    for (int i = 0; i < dtFromFirstCharacteristics.DefaultView.Count; i++)
+                    {
+                        DataRow drFirstCharacteristics = dsToFirstCharacteristics.Tables[0].NewRow();
+                        CopyRow(dtFromFirstCharacteristics.DefaultView[i].Row, ref drFirstCharacteristics);
+                        drFirstCharacteristics["Id"] = NewSoId + (i + 1);
+                        drFirstCharacteristics["TermsAndConditionsPIChildId"] = NewSoId;
+
+                        dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsToSalesOrder, dsToFirstCharacteristics);
+                //return Json(new { Error = false, Message = AplosMessage.Insert });
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
+
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
+        public void TnCDeleteDetail(string PIMasterId)
+        {
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            string strSQLDetail = "DELETE FROM TermsAndConditionsPIDetails Where TermsAndConditionsPIChildId IN(SELECT ID FROM TermsAndConditionsPIChild WHERE PIMasterId='" + PIMasterId + "')";
+            string strSQLChild = "DELETE FROM TermsAndConditionsPIChild WHERE PIMasterId='" + PIMasterId + "'";
+            con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenConnection("1");
+            con.BeginTransaction();
+            con.ExecuteNonQueryWrapper(strSQLDetail, true, "1");
+            con.ExecuteNonQueryWrapper(strSQLChild, true, "1");
+            con.CommitTransaction();
+        }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -310,7 +421,7 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 							,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-							,C.Code Currency,B.UserName Buyer,P.UserName Customer
+							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.TermsAndConditionsId
 							 FROM PIMaster PM 
 							LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
@@ -500,7 +611,7 @@ ROUND(p.Amount, 2) Amount,
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsPINewVersion, dsPINewMaterial);
 
-                return Json(new { Error = false,VersionId= _VersionId, Message = AplosMessage.Insert });
+                return Json(new { Error = false, VersionId = _VersionId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -544,6 +655,39 @@ ROUND(p.Amount, 2) Amount,
             }
         }
 
+        public ActionResult DeleteTitle(string id)
+        {
+            try
+            {
+
+                string ret = PI.DeletePITitle(id);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+        string TableName = "hkp.TermsAndConditions";
+        private double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+            return 1;
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetTermsAndConditionsPIList(string TermsAndConditionMasterId, string PIMasterId)
         {
@@ -574,13 +718,11 @@ left outer join TermsAndConditionsPIChild TC on TC.Id=TCD.TermsAndConditionsPICh
             {
                 throw (ex);
             }
-
         }
         public ActionResult DeletePIDetailPOPup(string id)
         {
             try
             {
-
                 string ret = PI.DeletePIDetailPopUp(id);
 
                 if (ret == "Success")
@@ -595,12 +737,60 @@ left outer join TermsAndConditionsPIChild TC on TC.Id=TCD.TermsAndConditionsPICh
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
             }
+        }
 
+        [HttpPost]
+        public JsonResult SaveData(Dictionary<string, object> GridData, string TermsAndConditionPIChildId)
+        {
+            try
+            {
+                DataSet dsGrid;
+                ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
+                conBin.OpenDataSetThroughAdapter("select top 1 Sequence from dbo.TermsAndConditionsPIDetails where TermsAndConditionsPIChildId='" + TermsAndConditionPIChildId + "' order by AddedDate desc", out DataSet dsGridSeq, false, "1");
+                conBin.OpenDataSetThroughAdapter("select * from dbo.TermsAndConditionsPIDetails where TermsAndConditionsPIChildId='" + TermsAndConditionPIChildId + "'", out dsGrid, false, "1");
+                string DetailId = "";
+                int count = 0;
+                DataView dv = new DataView(dsGrid.Tables[0]);
+                dv.RowFilter = "Id='" + GridData["Id"] + "'";
 
+                if (dv.Count == 0)
+                {
+                    if (DetailId == "")
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.TermsAndConditionsPIDetails", out DetailId);
+                    }
+                    if (dsGridSeq.Tables[0].Rows.Count == 0)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        count = (int)clsStaticInfo.dbl(dsGridSeq.Tables[0].Rows[0]["Sequence"].ToString()) + 1;
+                    }
+                    DataRow dr = dsGrid.Tables[0].NewRow();
+
+                    GridData["Id"] = "TD-" + DetailId;
+                    GridData["TermsAndConditionsPIChildId"] = TermsAndConditionPIChildId;
+                    GridData["Sequence"] = count;
+                    AddNewRow(dsGrid.Tables[0], GridData);
+                }
+                else
+                {
+                    DataRow drmo = dv[0].Row;
+                    EditRow(drmo, GridData);
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsGrid);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
         }
     }
 }
