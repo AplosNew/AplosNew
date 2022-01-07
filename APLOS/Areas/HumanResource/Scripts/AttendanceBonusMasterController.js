@@ -19,9 +19,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
     };  
      
      
-    //*********************  Operations Staring for the Pages  ******************************\\
-
-    //Getting the Master Grid
     $scope.masterList = [];
     $scope.getMaster = function () {
         $http({
@@ -49,11 +46,8 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         })
     }
 
-
-    //*********************  Operations for the Master Tab  *************************\\
     $scope.saveMaster = function () {
         $scope.$broadcast('show-errors-check-validity');
-        allValidations();
         if ($scope.MasterForm2.$valid) {
             $http({
                 method: 'POST',
@@ -66,49 +60,20 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    //$scope.Child.MasterId = response.data.Data.Id;
+                    $scope.Child.MasterId = response.data.Data.Id;
                     $scope.Master.Id = response.data.Data.Id;
                     $scope.getMaster();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-
             }
         }
     }
-
-    
-    //For Deleting of A Master
-    $scope.Delete = function () {
-       //
-
-        $http({
-            method: 'POST',
-            url: $scope.path + 'deleteMaster',
-            data: { 'id': $scope.Master.Id }
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.getMaster();
-                $scope.Clear();
-                if ($rootScope.isCollapsed) {
-                    $rootScope.toggle();
-                }
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    }
-
-    // ****************************************** Main Page Operations ******************************************** \\ 
-
+        
+   
     var j = document.getElementById("tab_show");
     j.style.display = "none";
-    //Showing the Childs
+
     function showTabs() {
         if ($scope.Header.Id != null) {
             j.style.display = "block";
@@ -180,8 +145,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
                     $scope.Header = response.data.Data;
                     $scope.DayChild.HeaderId = response.data.Data.Id;
                     $scope.Child.HeaderId = response.data.Data.Id;
-                    showTabs();
-                    LoadLeaveDayType();
+                    showTabs();                   
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -251,25 +215,26 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         }
     }
 
-    // Validations for the Day Child Values
+    function CheckField(fieldname, field) {
+        try {
+            if (baseService.isUndefinedOrNull(field)) {
+                throw "[" + fieldname + "] can not be blank...";
+            }
+        } catch (ex) {
+            throw ex;
+        }
+    }
+
+
     function allValidations() {
 
         allZeros();
 
-        if (parseFloat($scope.RuleMaster.LateValue) > 1 ) {
-            ShowResult("Please check Late Value. It cannot be more than 1!", 'failure');
-            throw ("Error");
-        }
+        CheckField("Late Value", $scope.RuleMaster.LateValue);
+        CheckField("Absent Value", $scope.RuleMaster.AbsentValue);
+        CheckField("Leave Value", $scope.RuleMaster.LeaveValue);
+        CheckField("Amount", $scope.RuleMaster.Amount);
 
-        if (parseFloat($scope.RuleMaster.AbsentValue) > 1) {
-            ShowResult("Please check Absent Value. It cannot be more than 1!", 'failure');
-            throw ("Error");
-        }
-
-        if (parseFloat($scope.RuleMaster.LeaveValue) > 1) {
-            ShowResult("Please check Leave Value. It cannot be more than 1!", 'failure');
-            throw ("Error");
-        }        
     };
 
     function allZeros() {
@@ -316,36 +281,11 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
     }
 
     //Double Click the Day Type Child Grid
-    $scope.getDayTypeChildDetails = function (e) {
-        $scope.DayChild = e.data;
-        for (var i = 0; i < $scope.EmployeesList.length; i++)
-        {
-            if ($scope.EmployeesList[i].SystemId == $scope.DayChild.ResponsiblePersonId) {
-                $scope.RespPerson = $scope.EmployeesList[i].EmployeeName;
-            }
-        }
-        LoadLeaveDayType();
-        $scope.DayChild.OverStayLimit = String(e.data.OverStayLimit);
-        $scope.DayChild.OTApplicable = String(e.data.OTApplicable);
-        $scope.DayChild.GoodWorkApplicable = String(e.data.GoodWorkApplicable);
-        $scope.DayChild.SandwichStatusFlag = String(e.data.SandwichStatusFlag);
-        $scope.DayChild.OTCalculation = String(e.data.OTCalculation);
-        $scope.DayChild.OTMultiplier = String(e.data.OTMultiplier);
-        $scope.DayChild.OTHourLimit = String(e.data.OTHourLimit);
-        $scope.DayChild.ApplicableWM = String(e.data.ApplicableWM);
-        $scope.DayChild.OTConfirmation = String(e.data.OTConfirmation);
-        $scope.DayChild.DisplayInOutTime = String(e.data.DisplayInOutTime);
-        $scope.DayChild.OTCategory = String(e.data.OTCategory);
+    $scope.getRuleChildDetails = function (e) {
+        $scope.RuleMaster = e.data;
     }
 
-    //Delete Day Status
-    $scope.DeleteDT = function () {
-        console.log("Delete DT");
-    }
-       
-   
-    // ********************************************** Plant EmpType Child
-
+      
     $scope.Child = {
         Id: null,
         HeaderId: null,
@@ -355,8 +295,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
    
     $scope.EmpTypeList = [];
-
-    // Getting the Plants and the Company List
 
     $scope.PlantList = [];
     $scope.getPlants = function () {
