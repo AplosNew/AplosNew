@@ -36,7 +36,7 @@ function WasteTransactionReportController(cboService, commonMessage, $scope, $ro
         $http({
             method: 'POST',
             url: $scope.path + 'getData',
-            data: {'EntityId':$scope.EntityId , 'ToDate':$scope.ToDate , 'FromDate':$scope.FromDate},
+            data: {'EntityId':$scope.EntityId, 'ToDate':$scope.ToDate , 'FromDate':$scope.FromDate},
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
@@ -79,6 +79,37 @@ function WasteTransactionReportController(cboService, commonMessage, $scope, $ro
     }
 
 
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.getWasteReport = function () {
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            ShowResult("Please Select the Entity!", 'failure');
+            throw ('Invalid Request!!');
+        }
+        if (angular.isUndefinedOrNull($scope.FromDate) || angular.isUndefinedOrNull($scope.ToDate)) {
+            ShowResult("Please Select the Date Range!", 'failure');
+            throw ('Invalid Request!!');
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetWasteReport",
+
+            data: {
+                'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate,
+                'EntityId': $scope.EntityId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 
    
 

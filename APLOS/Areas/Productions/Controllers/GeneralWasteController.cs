@@ -8,13 +8,24 @@ using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
 using Library.Service.Setups;
+using Library.OrderManagement.Production;
 using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Web.Mvc;
-using Library.OrderManagement.Production;
+using Syncfusion.XlsIO;
+using Library.Service.Helpers;
+using System.IO;
+using Syncfusion.DocIO.DLS;
+using Syncfusion.DocIO;
+using System.Text.RegularExpressions;
+using Syncfusion.DocToPDFConverter;
+using Syncfusion.Pdf;
+using Aplos.Areas.Commercial.Controllers;
+using System.Drawing;
+
 
 #endregion Using
 
@@ -32,6 +43,7 @@ namespace Aplos.Areas.Productions.Controllers
         public GeneralWasteController(ISqlRepository R)
         {
             _sqlRepository = R;
+          
         }
 
         #endregion Constructor
@@ -40,7 +52,6 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
-        
 
         [Authorize, HttpPost]
         public ActionResult getProcess()
@@ -105,11 +116,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> datas , List<string> budgets)
+        public JsonResult Create( List<Dictionary<string, object>> Data )
         {
             try
             {
-                var data = ws.Create(datas , budgets);
+                var data = ws.Create(Data);
                 return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
@@ -150,5 +161,7 @@ namespace Aplos.Areas.Productions.Controllers
 
             return 1;
         }
+
     }
 }
+

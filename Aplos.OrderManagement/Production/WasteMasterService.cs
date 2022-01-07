@@ -17,6 +17,7 @@ namespace Library.OrderManagement.Production
         public WasteMasterService()
         {
             _sqlRepository = new SqlRepository();
+
         }
         #endregion Constructor
 
@@ -446,10 +447,12 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select wtd.Id as WTDId ,format(wtd.Date , 'dd-MMM-yyyy' ) as Dates, wm.ItemName,wm.Category,wm.SubCategory,wtd.Quantity , wtd.AddedBy
+                var str = @"Select wtd.Id as WTDId ,format(wtd.Date , 'dd-MMM-yyyy' ) as Dates, wm.ItemName,wm.Category,wm.SubCategory,wtd.Quantity
+                           , wtd.AddedBy , e.UserName as EntityName
                             from dbo.WasteTransactionData wtd
                             left join dbo.WasteMaster wm on wm.Id = wtd.WasteMasterId
-                            where wtd.Date between '"+FromDate+"' and '"+ToDate+"' and wm.EntityId = '"+EntityId+"'";
+                            left join org.Entity e on e.Id=wtd.EntityId
+                             where wtd.Date between '" + FromDate + "' and '" + ToDate + "' and wtd.EntityId = '" + EntityId+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch(Exception ex)
@@ -492,6 +495,23 @@ namespace Library.OrderManagement.Production
             catch(Exception ex)
             {
                 throw ex;
+            }
+        }
+        public DataTable getGroupWasteReport(string EntityId, string FromDate, string ToDate)
+        {
+            try
+            {
+                var str = @"Select wtd.Id as WTDId ,format(wtd.Date , 'dd-MMM-yyyy' ) as Dates, wm.ItemName,wm.Category,wm.SubCategory,wtd.Quantity , wtd.Remarks
+                           , wtd.AddedBy , e.UserName as EntityName
+                            from dbo.WasteTransactionData wtd
+                            left join dbo.WasteMaster wm on wm.Id = wtd.WasteMasterId
+                            left join org.Entity e on e.Id=wtd.EntityId
+                             where wtd.Date between '" + FromDate + "' and '" + ToDate + "' and wtd.EntityId = '" + EntityId + "'";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }
