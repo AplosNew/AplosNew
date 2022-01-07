@@ -78,6 +78,7 @@
                 </ul>
             </div>
             <div class="tab-content">
+              
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="row">
                         <div ng-form name="DayTypeChild">
@@ -160,21 +161,7 @@
                                     <div class="col-sm-8">
                                         <input type="text" ng-model="DayChild.SubCategory" class="form-control" maxlength="100" tabindex="2">
                                     </div>
-                                </div>
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-                                    <div class="col-sm-6 show-message">
-
-                                        <input type="text" name="Responsible Person" ng-model="RespPerson" ng-click="selectRespPerson()" class="form-control" maxlength="200" tabindex="15" required>
-
-                                        
-
-                                    </div>
-
-                                    <div class="col-sm-1">
-                                        <button ng-click="selectRespPerson()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                                    </div>
-                                </div>
+                                </div>                              
 
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Active</label>
@@ -803,6 +790,7 @@
                         </div>
                     </div>
                 </div>
+               
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                     <div class="row" ng-form name="DayStatusForm">
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -1004,6 +992,7 @@
 
 
                 </div>
+                
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                     <div class="row" ng-form name="ChildForm" id="Allowed">
                         <div class="row" style="padding:10px;">
@@ -1084,59 +1073,7 @@
 
 
                 </div>
-                @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                    <div class="row" ng-form name="LeaveForm" id="NonAllowed">
-                        <div class="row" style="padding:10px;">
-                            <div class="col-xs-6 col-lg-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Header Id</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" ng-model="LeaveDt.HeaderId" class="form-control" maxlength="100" tabindex="2" readonly>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-xs-6">
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Day Type With Value<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="LeaveDt.DayTypeWithValue" ng-click="selectLeaveDayType()" class="form-control" maxlength="100" tabindex="2">
-                                    </div>
-                                </div>
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li> <button ng-click="saveLeaveDayType()" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Save </button></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-sm-12">
-                                <div style="color:black;" id="LeaveDayTypeGrid" ej-grid e-datasource="LeaveList"
-                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
-                                     e-allowselection="true" e-filtersettings-filterType="excel"
-                                     e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
-                                    <div e-columns>
-
-                                        <div e-column e-field="Leave" e-headertext="Leave" e-width="100"></div>
-                                        <div e-column e-headertext="Earn Value" e-template="#eVal" e-textalign="center" e-width="80"></div>
-                                        <div e-column e-headertext="Availed Value" e-template="#aVal" e-textalign="center" e-width="80"></div>
-
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <script type="text/template" id="eVal">
-                            <input type="number" ng-model="data.EarnValue" style="color:black; text-align:center" />
-                        </script>
-                        <script type="text/template" id="aVal">
-                            <input type="number" ng-model="data.AvailedValue" style="color:black; text-align:center" />
-                        </script>
-                    </div>
-
-
-                </div>*@
+               
             </div>
         </div>
     </div>
@@ -1235,41 +1172,6 @@
                             <div e-column e-field="Description" e-headertext="Description" e-width="120"></div>
                             <div e-column e-field="Category" e-headertext="Category" e-width="120"></div>
                             <div e-column e-field="OriginalDayType" e-headertext="Original Day Type" e-width="120"></div>
-
-                        </div>
-                    </div>
-
-
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<div class="modal fade site-modal in" id="RespPersonModal">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button class="close" data-dismiss="modal">&times;</button>
-                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Responsible Person</h1>
-            </div>
-            <div class="modal-body" style="min-height:300px; min-width:100%;">
-                <div class="row" style="margin: 20px; font-style:italic"> </div>
-                <p style="margin:10px;">
-                    Select the Responsible Person by Double Clicking.
-                <p>
-
-                    <div id="getRespPerson" ej-grid e-datasource="EmployeesList"
-                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
-                         e-recorddoubleclick="doubleRespPerson">
-                        <div e-columns>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
 
                         </div>
                     </div>
