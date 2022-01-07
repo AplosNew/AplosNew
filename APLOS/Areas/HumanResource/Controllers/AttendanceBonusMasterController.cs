@@ -145,11 +145,11 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         // Saving the Day Type With Values
         [HttpPost]
-        public ActionResult saveDayTypeChild(Dictionary<string, object> DayTypeChild , List<Dictionary<string,object>> Leave)
+        public ActionResult SaveRuleMaster(Dictionary<string, object> RuleMasterData)
         {
             try
             {
-                var id = ds.saveDayTypeChild(DayTypeChild , Leave);
+                var id = ds.SaveRuleMaster(RuleMasterData);
                 return Json(new { Error = false, Data = id, Message = AplosMessage.Success });
 
             }
