@@ -544,6 +544,14 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         return $scope.tab === tabNum;
     };
 
+    $scope.rmchar1 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
+    $scope.rmchar2 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
+    $scope.rmchar3 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
+
+    $scope.char1 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
+    $scope.char2 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
+    $scope.char3 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
+
     $scope.getAutoSequence = function (BOMMasterId) {
         $http.get("OrderManagements/BOMMaster/GetAutoSequence?BOMMasterId=" + BOMMasterId)
             .then(
@@ -607,9 +615,9 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         $scope.rmchar2.FreeText = $scope.bomDetailNew.SKU2;
         $scope.rmchar3.FreeText = $scope.bomDetailNew.SKU3;
 
-        $scope.rmchar1.ValueAssignmentLevel = $scope.bomDetailNew.C1ValueAssignmentLevel;
-        $scope.rmchar2.ValueAssignmentLevel = $scope.bomDetailNew.C2ValueAssignmentLevel;
-        $scope.rmchar3.ValueAssignmentLevel = $scope.bomDetailNew.C3ValueAssignmentLevel;
+        //$scope.rmchar1.ValueAssignmentLevel = $scope.bomDetailNew.C1ValueAssignmentLevel;
+        //$scope.rmchar2.ValueAssignmentLevel = $scope.bomDetailNew.C2ValueAssignmentLevel;
+        //$scope.rmchar3.ValueAssignmentLevel = $scope.bomDetailNew.C3ValueAssignmentLevel;
 
         $scope.rmchar1.MaterialMasterId = $scope.bomDetailNew.RMMaterialMasterId;
         $scope.rmchar2.MaterialMasterId = $scope.bomDetailNew.RMMaterialMasterId;
@@ -617,8 +625,6 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
 
         $scope.getRMCharacteristicsCboList($scope.bomDetailNew.RMMaterialMasterId);
         $scope.GetAllCharacteristicsValueByMaterial($scope.bomDetailNew.Id);
-        $scope.GetAllCharacteristicsValueListByMaterial($scope.bomDetailNew.RMMaterialMasterId);
-
 
         var DropDownListObj = $("#destinationList").data("ejDropDownList");
         DropDownListObj.uncheckAll();
@@ -628,7 +634,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
 
     $scope.GetAllCharacteristicsValueListByMaterial = function (MaterialMasterId) {
         $scope.CharacteristicsValueByNewMaterialList = [];
-        $http.get('OrderManagements/BOMMaster/GetAllCharacteristicsValueByMaterial?MaterialMasterId=' + MaterialMasterId)
+        $http.get('OrderManagements/BOMMaster/GetAllCharacteristicsValueByMaterial?MaterialMasterId=' + MaterialMasterId + '&SP1=' + $scope.rmchar1.ValueAssignmentLevel + '&SP2=' + $scope.rmchar2.ValueAssignmentLevel)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -667,14 +673,6 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             }
         });
     };
-
-    $scope.rmchar1 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
-    $scope.rmchar2 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
-    $scope.rmchar3 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
-
-    $scope.char1 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
-    $scope.char2 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
-    $scope.char3 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
 
     $scope.ClearDetail = function () {
         $scope.bomDetailNew = { Id: null, BOMMasterId: null, Sequence: 0, RMMaterialMasterId: null, RMArticleId: null, Description: null, CustomerSpec: null, VendorSpec: null, Consumption: 0, UoMId: null, ProcessId: null, VendorId: null, WastagePer: 0, FirstCharacteristicsId: null, SecondCharacteristicsId: null, ThirdCharacteristicsId: null, FirstCharacteristicsValueId: null, SecondCharacteristicsValueId: null, ThirdCharacteristicsValueId: null, IsSKUCommon: true, WithSKU: false, IsConsumptionDetail: false, SKUMatrix: false, Specific: true, IsDestinationSpecific: false, IsPOSpecific: false, ConsumptionSpecificToSKU1: false, ConsumptionSpecificToSKU2: false, ConsumptionSpecificToSKU3: false, SalesOrderSpecificMaterial: true };
@@ -737,6 +735,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                             $scope.rmchar2.ValueAssignmentLevel = response.data[i].ValueAssignmentLevel;
                         }
                     }
+                    $scope.GetAllCharacteristicsValueListByMaterial($scope.bomDetailNew.RMMaterialMasterId);
                 }
             });
         });
@@ -1073,7 +1072,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             $scope.bomDetailNew.RMMaterialMaster = ob.MaterialMasterName;
             $scope.bomDetailNew.RMArticleId = ob.Id;
             $scope.bomDetailNew.RMArticle = ob.StandardName;
-            $scope.GetAllCharacteristicsValueByNewMaterial($scope.bomDetailNew.RMMaterialMasterId);
+            //$scope.GetAllCharacteristicsValueByNewMaterial($scope.bomDetailNew.RMMaterialMasterId);
             angular.element(document.querySelector('#rarticleSearchPop')).modal('hide');
         } catch (e) {
             ShowResult(e, '', 'rarticleSearchPop');
@@ -1211,30 +1210,91 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
     function CheckChacValuesBeforeSave() {
         if (baseService.arrayLength($scope.CharacteristicsValueByMaterialList) > 0) {
             for (var i = 0; i < $scope.CharacteristicsValueByMaterialList.length; i++) {
-                if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMFirstCharacteristicsValueId)) {
+                if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].ValueId)) {
 
-                    var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].RMFirstCharacteristicsValueId });
-                    if (getRow.length==0) {
-                        throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
-                    }
-                }
-                if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMSecondCharacteristicsValueId)) {
-                    
-                    var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].RMSecondCharacteristicsValueId });
+                    var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].ValueId });
                     if (getRow.length == 0) {
                         throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
                     }
                 }
-                if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMThirdCharacteristicsValueId)) {
-                    var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].RMThirdCharacteristicsValueId });
-                    if (getRow.length == 0) {
-                        throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
-                    }
-                }
+                //if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].ValueId)) {
+
+                //    var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].ValueId });
+                //    if (getRow.length == 0) {
+                //        throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                //    }
+                //}
+                //if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].ValueId)) {
+                //    var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].ValueId });
+                //    if (getRow.length == 0) {
+                //        throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                //    }
+                //}
             }
         }
     }
 
+    function CheckChacValues() {
+        try {
+            if (baseService.arrayLength($scope.CharacteristicsValueByMaterialList) > 0) {
+                for (var i = 0; i < $scope.CharacteristicsValueByMaterialList.length; i++) {
+                    if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].ValueId)) {
+
+                        var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].ValueId });
+                        if (getRow.length == 0) {
+                            throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                        }
+                    }
+                    //if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].ValueId)) {
+                    //    var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].ValueId });
+                    //    if (getRow.length == 0) {
+                    //        throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                    //    }
+                    //}
+                    //if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].ValueId)) {
+                    //    var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].ValueId });
+                    //    if (getRow.length == 0) {
+                    //        throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
+                    //    }
+                    //}
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure', 'detailpopup');
+        }
+    }
+
+    $scope.CharacteristicsValueByMaterialList = [];
+    $scope.GetAllCharacteristicsValueByMaterial = function (Id) {
+        $scope.CharacteristicsValueByMaterialList = [];
+        $http.get('OrderManagements/BOMMaster/GetSavedCharacteristicsValueByMaterial?BOMDetailId=' + Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.CharacteristicsValueByMaterialList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
+    $scope.CharacteristicsValueByNewMaterialList = [];
+    $scope.GetAllCharacteristicsValueByNewMaterial = function (MaterialMasterId) {
+        $scope.CharacteristicsValueByNewMaterialList = [];
+        $http.get('OrderManagements/BOMMaster/GetAllCharacteristicsValueByMaterial?MaterialMasterId=' + MaterialMasterId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.CharacteristicsValueByNewMaterialList = response.data;
+
+                        CheckChacValues();
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
 
     $scope.SaveDetail = function () {
         try {
@@ -1686,7 +1746,6 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         });
 
     };
-
 
     //#region Consumption
 
@@ -2352,8 +2411,6 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             $scope.msg = "has no";
         }
 
-        //UomCboByMaterialMaster($scope.detailConsumption.RMMaterialMasterId);
-
         ConsumptionUomCboByMaterialMaster($scope.detailConsumption.RMMaterialMasterId);
 
         if ($scope.detailConsumption.IsSKUCommon === true) {
@@ -2757,7 +2814,6 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
 
     //#endregion  DetailConsumtionSKUMapping
 
-
     // #region Characteristics
 
     $scope.findCharValueSearchData = function (data, searchFor) {
@@ -2876,6 +2932,10 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             , IsDefault: false
             , Active: true
         };
+        if ($scope.SKULevel == 'General') {
+            $scope.characteristicsValue.MaterialMasterId = null;
+        }
+
         $scope.characteristicsvalueNew = angular.copy($scope.characteristicsValue);
         $scope.GetMaterialMasterCharacteristicsValueSequence();
         angular.element(document.querySelector('#SKUpopup')).modal('show');
@@ -2907,8 +2967,10 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
         }
     }
 
+    $scope.skubtn = false;
     $scope.SaveBOMSKU = function () {
         try {
+            $scope.skubtn = true;
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.skuForm.$valid) {
                 $http({
@@ -2919,6 +2981,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure', 'SKUpopup');
+                        $scope.skubtn = false;
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'SKUpopup');
@@ -2948,9 +3011,9 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                             $scope.rmchar3.CharacteristicsValueId = $scope.bomDetailNew.ThirdCharacteristicsValueId;
                         }
 
-
                         $scope.clearMasterCharacteristicsValue();
                         angular.element(document.querySelector('#SKUpopup')).modal('hide');
+                        $scope.skubtn = false;
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure', 'SKUpopup');
@@ -3198,69 +3261,6 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
     };
 
     //#endregion 
-
-    $scope.CharacteristicsValueByMaterialList = [];
-    $scope.GetAllCharacteristicsValueByMaterial = function (Id) {
-        $scope.CharacteristicsValueByMaterialList = [];
-        $http.get('OrderManagements/BOMMaster/GetSavedCharacteristicsValueByMaterial?BOMDetailId=' + Id)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.CharacteristicsValueByMaterialList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    };
-
-    function CheckChacValues() {
-        try {
-            if (baseService.arrayLength($scope.CharacteristicsValueByMaterialList) > 0) {
-                for (var i = 0; i < $scope.CharacteristicsValueByMaterialList.length; i++) {
-                    if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMFirstCharacteristicsValueId)) {
-                        
-                        var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].RMFirstCharacteristicsValueId });
-                        if (getRow.length == 0) {
-                            throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
-                        }
-                    }
-                    if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMSecondCharacteristicsValueId)) {
-                        var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].RMSecondCharacteristicsValueId });
-                        if (getRow.length == 0) {
-                            throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
-                        }
-                    }
-                    if (!baseService.isUndefinedOrNull($scope.CharacteristicsValueByMaterialList[i].RMThirdCharacteristicsValueId)) {
-                        var getRow = $filter("filter")($scope.CharacteristicsValueByNewMaterialList, { "Id": $scope.CharacteristicsValueByMaterialList[i].RMThirdCharacteristicsValueId });
-                        if (getRow.length == 0) {
-                            throw "SKU Matrix data doesn't matching!!!. Please delete Matrix data";
-                        }
-                    }
-                }
-            }
-        } catch (e) {
-            ShowResult(e, 'failure', 'detailpopup');
-        }
-    }
-
-    $scope.CharacteristicsValueByNewMaterialList = [];
-    $scope.GetAllCharacteristicsValueByNewMaterial = function (MaterialMasterId) {
-        $scope.CharacteristicsValueByNewMaterialList = [];
-        $http.get('OrderManagements/BOMMaster/GetAllCharacteristicsValueByMaterial?MaterialMasterId=' + MaterialMasterId)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.CharacteristicsValueByNewMaterialList = response.data;
-
-                        CheckChacValues();
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    };
-
 
     $scope.AttahedBoMIList = [];
     $scope.GetAttahedBoMInfo = function (obj) {

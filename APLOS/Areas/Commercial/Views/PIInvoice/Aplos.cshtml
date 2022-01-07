@@ -164,7 +164,7 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                             <div ng-form="tabForm1">
-                                <div class="clearfix"></div>
+                                @*<div class="clearfix"></div>*@
                                 <div class="table-responsive modal-table" ng-show="salesOrderList.length>0">
                                     <table class="table table-striped">
                                         <thead>
@@ -176,7 +176,9 @@
                                                 <th class="text-right">Qty</th>
                                                 <th class="text-right">UOM</th>
                                                 <th class="text-right">Amount</th>
-                                                
+                                                <th class="text-right">Tax</th>
+                                                <th class="text-right">Service Charge</th>
+                                                <th class="text-right">Service Tax</th>
                                                 <th class="text-right">Total Amount  </th>
                                                 <th>Action</th>
                                             </tr>
@@ -190,7 +192,9 @@
                                                 <td class="text-right">{{x.Quantity | number:2}}</td>
                                                 <td class="text-right">{{x.UOM}}</td>
                                                 <td class="text-right">{{x.Amount | number:2}}</td>
-                                                
+                                                <td class="text-right">{{x.TaxAmount | number:2}}</td>
+                                                <td class="text-right">{{x.ServiceCharge | number:2}}</td>
+                                                <td class="text-right">{{x.ServiceTax | number:2}}</td>                                                
                                                 <td class="text-right">{{x.NetAmount | number:2}}</td>
                                                 <td class="text-right">
                                                     <ul class="list-inline action-list">
@@ -204,23 +208,14 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="9" class="text-right">
+                                                <td colspan="3" class="text-right">
                                                     <strong>Total : </strong>
                                                 </td>
                                                 <td></td>
-                                                <td class="text-right">
-                                                    <strong>{{salesOrderList | sumByKey : 'TransactionQty'| setDecimal:2 | number:2}}</strong>
-                                                </td>
-
-                                                @*<td class="text-right">
-                                                        <strong>{{salesOrderList | sumByKey : 'Balance'| setDecimal:2 | number:2}}</strong>
-                                                    </td>*@
-                                                <td class="text-right">
-                                                    <strong>{{salesOrderList | sumByKey : 'TransactionAmount'| setDecimal:2 | number:2}}</strong>
-                                                </td>
-                                                <td class="text-right">
-                                                    <strong>{{salesOrderList | sumByKey : 'TaxAmount'| setDecimal:2 | number:2}}</strong>
-                                                </td>
+                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'Quantity'| setDecimal:2 | number:2}}</strong></td>
+                                                <td></td>
+                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'Amount'| setDecimal:2 | number:2}}</strong></td>
+                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'TaxAmount'| setDecimal:2 | number:2}}</strong></td>
                                                 <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision | number}}</strong></td>
                                                 <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
                                                 <td class="text-right">
@@ -264,11 +259,11 @@
                                                     </div>
                                                 </td>
                                                 <td class="text-right">{{x.TaxAmount| number:2}}</td>
-                                                <td class="text-right">{{x.x.Amount +x.TaxAmount | number:2}}</td>
+                                                <td class="text-right">{{x.TaxAndTotal}}</td>
                                                 <td class="text-right">
                                                     <ul class="list-inline action-list">
                                                         <li>
-                                                            <button ng-click="getServiceTaxList(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
+                                                            <button ng-click="getServiceTaxList(x, false,x.ServiceMasterId,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
                                                         </li>
                                                         <li>
                                                             <button ng-click="removeServiceRow(x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
@@ -287,7 +282,7 @@
                                                     <strong>{{chargesList | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong>
                                                 </td>
                                                 <td class="text-right">
-                                                    <strong>{{chargesList | sumByKey : 'NetAmount'| setDecimal:2| number:2 }}</strong>
+                                                    <strong>{{chargesList | sumByKey : 'TaxAndTotal'| setDecimal:2| number:2 }}</strong>
                                                 </td>
                                                 <td class="text-right"></td>
                                             </tr>
@@ -1041,6 +1036,7 @@
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removeServicePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removeServiceTaxPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceTaxDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmTaxServiceDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeServiceTaxRow()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(salesdb)"></confirm-archive-generic>

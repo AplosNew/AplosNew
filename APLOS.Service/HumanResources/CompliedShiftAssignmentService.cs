@@ -937,12 +937,9 @@ namespace Library.Service.HumanResources
             ParaMontlyAttendance objm = new ParaMontlyAttendance();
 
             string m = reportUtility.GetMonthName(monthId);
-            dtFrmDt = Convert.ToDateTime("01-" + m + "-" + yearId);
+            dtFrmDt =new DateTime((int)clsStaticInfo.dbl(yearId), (int)clsStaticInfo.dbl(monthId), 1);
+            dtEndDate = dtFrmDt.AddMonths(1).AddDays(-1);
 
-            if (Convert.ToInt32(DateTime.Now.Month) != Convert.ToInt32(monthId))
-            {
-                dtEndDate = dtFrmDt.AddMonths(1).AddDays(-1);
-            }
             ExcelEngine excelEngine = null;
             IApplication application = null;
             IWorkbook workbook = null;
@@ -1010,12 +1007,12 @@ namespace Library.Service.HumanResources
                 {
                     excelEngine = new ExcelEngine();
                     application = excelEngine.Excel;
-                    
+                    application.DefaultVersion = ExcelVersion.Excel2016;
                     workbook = application.Workbooks.Create(1);
 
                     sheet1 = workbook.Worksheets[0];
                     sheet1.IsGridLinesVisible = true;
-
+                    workbook.Version = ExcelVersion.Excel2016;
                     xlsRow = 5;
 
                     #region Variables              
@@ -1860,7 +1857,7 @@ namespace Library.Service.HumanResources
                                 WHERE AD.PlantID = '" + objm.PlantId + @"' AND AD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' 
                                 AND (E.EmployeeStatus='Active' or E.dos>'" + objm.FDate + @"' or e.dos is null)          
                                                                 group by   e.SystemID,Lt.Code,E.EmployeeCode    
-                                order by e.EmployeeCode,Lt.Code    
+                                order by e.SystemID    
                                    ";
 
             DataTable dt = _sqlRepository.GetDataTable(strSql);

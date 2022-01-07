@@ -68,6 +68,17 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         angular.element(document.querySelector("#autoLoanPopUp")).modal("show");
 
     };
+    $scope.AutoLoanPostableDetailDataList = [];
+    $scope.getAutoLoanPostableDetailList = function (LoanAgainstAcceptanceMasterId, SourceType) {
+        $scope.AutoLoanPostableDetailDataList = [];
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: "Commercial/AutoLoan/GetAutoLoanPostableDetailList?LoanAgainstAcceptanceMasterId=" + LoanAgainstAcceptanceMasterId + '&SourceType=' + SourceType,
+        }).then(function successCallback(response) {
+            $scope.AutoLoanPostableDetailDataList = response.data;
+        });
+    };
     $scope.selectAutoLoan = function (x) {
         var autoLoandata = x.data;
         $scope.voucher.BankMasterId = autoLoandata.BankMasterId;
@@ -95,7 +106,10 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         $scope.voucher.AcceptanceNo = autoLoandata.AcceptanceNo;
         $scope.voucher.PINo = autoLoandata.PINo;
         $scope.voucher.IsPayment = true;
+        $scope.voucher.SourceType = autoLoandata.SourceType;
+        $scope.voucher.SettlementType = autoLoandata.SourceType;
         $scope.getPartyPlantList(autoLoandata.PartyId);
+        $scope.getAutoLoanPostableDetailList(autoLoandata.LoanAgainstAcceptanceId, autoLoandata.SourceType);
         $scope.closeAutoLoanPopUp();
     }
     $scope.closeAutoLoanPopUp = function () {
@@ -322,6 +336,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
                     url: "Commercial/AutoLoan/AutoLoanPost",
                     data: {
                         "voucherVM": $scope.voucher,
+                        "voucherDetailVMList": $scope.AutoLoanPostableDetailDataList,
                         "existingLoanList": $scope.ExistingLoanList,
                         "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
                     },
@@ -454,6 +469,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         $scope.currencyExchangeRate = [];
         $scope.getCboVoucherTypeLoanList();
         $scope.loanRepaymentSchedulelist = [];
+        $scope.AutoLoanPostableDetailDataList = [];
         $("#loanDetails").children().remove();
         $scope.isReadOnly = false;
     };

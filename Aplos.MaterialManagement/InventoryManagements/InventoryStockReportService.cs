@@ -376,9 +376,9 @@ namespace Library.MaterialManagement.InventoryManagements
 									    FROM TRN.InventoryIssueDetail IID  
 									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-									    WHERE convert(Date,II.IssueDate) < '" + fromDate + @"'  AND II.PlantId='" + plantId + @"'   
+									    WHERE convert(Date,II.IssueDate) < '" + fromDate + @"'  AND II.PlantId='" + plantId + @"'  " + assetIssuInvStatus + @"   
 									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
-									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId "+assetIssuInvStatus+ @"
+									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId
                                     -- InventorySales OB 
 								    Left join (select ISD.InventoryMaterialId,ISD.IsAsset,ISH.InventoryReceiveDetailId, Ins.MaterialStorageId,sum(ISNULL(ISH.Qty,0)) Qty,sum(ISH.BaseRate) Rate, (sum(ISNULL(ISH.BooksCurrencyBaseAmount,0))) InventorySalesAmount 
 					                 from [TRN].[InventorySalesHistory] ISH
@@ -464,13 +464,13 @@ namespace Library.MaterialManagement.InventoryManagements
 									 WHERE convert(Date,ISC.ScrapDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND ISC.PlantId='" + plantId + @"' GROUP BY ISCD.InventoryMaterialId
 								 )InventoryScrapData ON InventoryScrapData.InventoryMaterialId=IM.Id   
 					--InventoryTransfer
-								Left join ( select IRD.InventoryMaterialId,sum(IRD.InventoryTransferQty) Qty,sum(IRD.MaterialTranRate) Rate, (sum(IRD.InventoryTransferQty)*sum(IRD.MaterialTranRate)) InventoryTransferAmount 
+								Left join ( select IRD.InventoryMaterialId,IRD.MaterialStorageId,sum(IRD.InventoryTransferQty) Qty,sum(IRD.MaterialTranRate) Rate, (sum(IRD.InventoryTransferQty)*sum(IRD.MaterialTranRate)) InventoryTransferAmount 
 					                 from [TRN].[InventoryTransferHistory] ITH
 									 Left JOIN [TRN].[InventoryReceiveDetail] IRD on IRD.Id=ITH.InventoryReceiveDetailId
 									 Left join [TRN].[InventoryReceive] IR on IR.Id=IRD.InventoryReceiveId
 									 WHERE convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND IR.PlantId='" + plantId + @"'
-									 GROUP BY IRD.InventoryMaterialId
-								 )InventoryTransferData ON InventoryTransferData.InventoryMaterialId=IM.Id      
+									 GROUP BY IRD.InventoryMaterialId,IRD.MaterialStorageId
+								 )InventoryTransferData ON InventoryTransferData.InventoryMaterialId=IM.Id  and IRS.MaterialStorageId= InventoryTransferData.MaterialStorageId    
                                  where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X 
                                  WHERE X.OpeningBalance+X.ReceivedForThePeriod+X.IssueForThePeriod+X.Closing>0";
                 }
@@ -808,13 +808,13 @@ namespace Library.MaterialManagement.InventoryManagements
 									 WHERE convert(Date,ISC.ScrapDate) <= '" + toDate + @"' AND ISC.PlantId='" + plantId + @"' GROUP BY ISCD.InventoryMaterialId
 								 )InventoryScrapData ON InventoryScrapData.InventoryMaterialId=IM.Id   
 					--InventoryTransfer
-								Left join ( select IRD.InventoryMaterialId,sum(IRD.InventoryTransferQty) Qty,sum(IRD.MaterialTranRate) Rate, (sum(IRD.InventoryTransferQty)*sum(IRD.MaterialTranRate)) InventoryTransferAmount 
+								Left join ( select IRD.InventoryMaterialId,IRD.MaterialStorageId,sum(IRD.InventoryTransferQty) Qty,sum(IRD.MaterialTranRate) Rate, (sum(IRD.InventoryTransferQty)*sum(IRD.MaterialTranRate)) InventoryTransferAmount 
 					                 from [TRN].[InventoryTransferHistory] ITH
 									 Left JOIN [TRN].[InventoryReceiveDetail] IRD on IRD.Id=ITH.InventoryReceiveDetailId
 									 Left join [TRN].[InventoryReceive] IR on IR.Id=IRD.InventoryReceiveId
 									 WHERE convert(Date,IR.GRNDate) <= '" + toDate + @"' AND IR.PlantId='" + plantId + @"'
-									 GROUP BY IRD.InventoryMaterialId
-								 )InventoryTransferData ON InventoryTransferData.InventoryMaterialId=IM.Id      
+									 GROUP BY IRD.InventoryMaterialId,IRD.MaterialStorageId
+								 )InventoryTransferData ON InventoryTransferData.InventoryMaterialId=IM.Id   and IRS.MaterialStorageId= InventoryTransferData.MaterialStorageId   
                                  where   IM.PlantId='" + plantId + @"' AND MM.UserName is not null ) X";
                 }
                 #endregion

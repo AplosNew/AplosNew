@@ -551,6 +551,19 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
         });
     }
 
+    $scope.ContractItemDataList = [];
+    $scope.GetContractBOMReportByMaterial = function (data) {
+        $scope.AttachmentSelectedBOMRow = data;
+        $rootScope.openPopup('dialogBOMMasterOrderItemSelectionForReport');
+        $http({
+            method: 'POST',
+            data: { 'ContractId': data.ContractId },
+            url: $scope.Attachmentpath + "GetBOMContractItemListForReport"
+        }).then(function successCallback(response) {
+            $scope.ContractItemDataList = response.data;
+        });
+    }
+
     $scope.refreshTemplateItem = function (args) {
         if (args.rowIndex == 0) {
             $("#headchkItem").ejCheckBox({ "change": CheckAllItem });

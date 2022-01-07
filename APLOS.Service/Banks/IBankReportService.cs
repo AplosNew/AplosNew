@@ -1,5 +1,6 @@
 ﻿using Library.Model.Enums;
 using Syncfusion.XlsIO;
+using System.Collections.Generic;
 
 namespace Library.Service.Banks
 {
@@ -18,5 +19,7 @@ namespace Library.Service.Banks
 
 
         IWorkbook GetPaymentByBankReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, SourceType sourceType);
+        void CRReconcileReport(string BankMasterID, string fromDate, string toDate);
+        void DRReconcileReport(string BankMasterID, string fromDate, string toDate, string cutOffDate);
     }
 }

@@ -6,6 +6,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
     $scope.path = 'Commercial/ProformaInvoice/';
+    $scope.saveGridUrl = $scope.path + 'SaveData';
     $scope.CostingPath = 'Costings/costingItem/';
     $scope.Deletepath = $scope.path + 'DeletePI';
     $scope.saveUrl = $scope.path + 'create';
@@ -60,6 +61,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         , PartyAccountGroupId: null
         , IsPaymentTermChangeable: null
         , PaymentTermId: null
+        , TermsAndConditionsId: null
     };
     $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
 
@@ -128,7 +130,10 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
     $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
     $scope.SumAmount = function (item)
     {
-        item.Amount = parseFloat(item.Quantity) * parseFloat(item.Rate);
+
+       // item.Amount = parseFloat(item.Quantity) * parseFloat(item.Rate);
+        item.Amount = parseFloat(parseFloat(item.Quantity) * parseFloat(item.Rate)).toFixed(2);
+        
     }
 
     $scope.SubmitH = function (data) {
@@ -477,6 +482,8 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
                     ShowResult(response.data.Message, 'success');
                     $scope.PImodelNew.Id = response.data.Data.Id;
                     $scope.LoadPISearchList();
+                    $scope.LoadTermsAndConditionGrid($scope.PImodelNew.TermsAndConditionsId, $scope.PImodelNew.Id);
+                    $scope.LoadTermsAndConditionDetailGrid();
 
                 }
             }), function errorCallBack(response) {
@@ -488,6 +495,30 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         }
 
     };
+    $scope.TermsAndConditionDetailGridList = [];
+    $scope.LoadTermsAndConditionDetailGrid = function () {
+        $scope.TermsAndConditionDetailGridList = [];
+
+        $scope.termandconditiondetailURL = $scope.path + "GetTermsAndConditionsPIDetailList";
+
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.termandconditiondetailURL,
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.TermsAndConditionDetailGridList = [];
+                $scope.TermsAndConditionDetailGridList = response.data;
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+
+
+        }
+    }
+    $scope.LoadTermsAndConditionDetailGrid();
 
     cboService.getCboTransactionCurrencyByCompany('', function (result) {
         $scope.currencyList = [];
@@ -621,4 +652,143 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         });
 
     };
+
+    //Terms&Condition
+    $scope.TermsAndConditionsList = [];
+    $scope.TermsAndConditions = function () {
+
+        $http({
+            method: 'GET',
+            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+            url: 'Commercial/ProformaInvoice/TermsAndConditions'
+        }).then(function successCallback(response) {
+            $scope.TermsAndConditionsList = response.data;
+            //$scope.TermsAndCondition.TermsAndConditions = response.data[0].TermsAndConditions;
+
+        });
+    }
+    $scope.TermsAndConditions();
+    $scope.TermsAndConditionGridList = [];
+    $scope.LoadTermsAndConditionGrid = function (TermsAndConditionId, PIMasterId) {
+        $scope.TermsAndConditionGridList = [];
+
+        $scope.termandconditionURL = $scope.path + "GetTermsAndConditionsPIList";
+
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.termandconditionURL,
+                data: { 'TermsAndConditionMasterId': TermsAndConditionId, 'PIMasterId': PIMasterId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.TermsAndConditionGridList = [];
+                $scope.TermsAndConditionGridList = response.data;
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+
+
+        }
+    }
+    $scope.TermsAndConditions = {
+        Id: null
+        , Description: null
+        , TermsAndConditions: null
+    };
+    $scope.TitleModel = {
+        Id: null,
+        TermsAndConditionsMasterId: $scope.PImodelNew.TermsAndConditionsId,
+        Title: null,
+        Sequence: 0
+    }
+    $scope.showTermsAndConditionDetailPopUp = function (args) {
+        $scope.TermsAndConditionPIChildId = args.TermsAndConditionPIChildId;
+        $scope.POPupList = [];
+        $scope.GetRemarksByMaster($scope.TermsAndConditionPIChildId);
+        angular.element(document.querySelector('#GridPopUp')).modal('show');
+    }
+    $scope.DeletePITitle = function (obj) {
+        $scope.TitleModel = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.TitleModel.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.TitleModel.Title + ' ]';
+        angular.element(document.querySelector('#confirmPITitleDeletePopUp')).modal('show');
+    }
+
+    $scope.DeleteTitle = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/ProformaInvoice/DeleteTitle?id=' + $scope.TitleModel.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadTermsAndConditionGrid($scope.PImodelNew.TermsAndConditionsId, $scope.PImodelNew.Id);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+    $scope.closeRemarksPopUp = function () {
+
+        angular.element(document.querySelector('#GridPopUp')).modal('hide');
+    }
+
+    $scope.POPupList = [];
+
+    $scope.GetRemarksByMaster = function (id) {
+        $scope.POPupList = [];
+        $http.get('Commercial/ProformaInvoice/GetPopUp?TermsAndConditionsPIDetailId=' + id)
+            .then(function successCallback(response) {
+                $scope.POPupList = response.data;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            })
+    }
+    $scope.SaveGrid = function (model) {
+        //$scope.TitleModel.TermsAndConditionsMasterId = $scope.ModelNew.Id;
+        $scope.$broadcast('show-errors-check-validity');
+        $http({
+            method: 'POST',
+            url: $scope.saveGridUrl,
+            data: { 'GridData': model.data, 'TermsAndConditionPIChildId': $scope.TermsAndConditionPIChildId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetRemarksByMaster($scope.TermsAndConditionPIChildId);
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+    $scope.DeletePODetailPOPUp = function (model) {
+        try {
+
+            $http({
+                method: 'POST',
+                url: 'Commercial/ProformaInvoice/DeletePIDetailPOPup',
+                data: { id: model.data.Id }
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetRemarksByMaster($scope.TermsAndConditionPIChildId);
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
 }

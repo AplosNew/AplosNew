@@ -26,12 +26,6 @@
                             </div>
                         </div>
                     </div>
-                    @*<div class="form-group">
-            <label class="col-sm-4 control-label"><span style="font-weight:bold">Address :</span></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Invoicing by address" ng-model="PImodelNew.InvoicingByAddress" class="form-control" maxlength="15" required tabindex="5">
-            </div>
-        </div>*@
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
@@ -52,6 +46,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">T & C</span></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select id="TypeId" class="form-control" name="Terms And Conditions" ng-model="PImodelNew.TermsAndConditionsId" ng-change="LoadTermsAndConditionGrid();" tabindex="12" @*required*@>
+                                    <option ng-repeat="option in TermsAndConditionsList" value="{{option.Id}}">{{option.TermsAndConditions}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
 
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
@@ -106,7 +112,7 @@
                                         <th>{{$index>0?'':''}}</th>
                                         <td>
                                             <div class="col-sm-12 show-message">
-                                                <input id="{{'MG'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupList" e-change="OnUOMChange"  e-enablefiltersearch="true" e-value="item.MaterialGroupMasterId" e-fields-value="Id" e-fields-text="MaterialGroup" e-width="100%" />
+                                                <input id="{{'MG'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupList" e-change="OnUOMChange" e-enablefiltersearch="true" e-value="item.MaterialGroupMasterId" e-fields-value="Id" e-fields-text="MaterialGroup" e-width="100%" />
                                             </div>
                                         </td>
                                         <td><input type="text" ng-model="item.Description" class="form-control" @*ng-disabled="DataList.length>1"*@ /></td>
@@ -115,8 +121,8 @@
                                                 <input id="{{'HS'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="HSNCodeList" e-enablefiltersearch="true" e-value="item.HSNCodeId" e-fields-value="Id" e-fields-text="HSNCode" e-width="100%" />
                                             </div>
                                         </td>
-                                        <td><input type="number" ng-model="item.Quantity" @*n-decimals="2"*@ ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
-                                        <td><input type="number" ng-model="item.Rate" @*n-decimals="4"*@ ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                        <td><input type="text" ng-model="item.Quantity" n-decimals="2" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                        <td><input type="text" ng-model="item.Rate" n-decimals="4" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
                                         <td style="width:100px;">
                                             <div class="select-style">
                                                 <select ng-model="item.UoMId">
@@ -126,7 +132,7 @@
                                         </td>
                                         <td><input type="text" ng-model="item.DeliveryDate" datepicker class="form-control" /></td>
 
-                                        <td><input type="number" ng-disabled="true" ng-model="item.Amount" class="form-control" /></td>
+                                        <td><input type="text" ng-disabled="true" ng-model="item.Amount" class="form-control" /></td>
                                         <td class="text-right">
                                             <ul class="list-inline">
                                                 <li><button ng-click="SubmitH(item);" ng-hide="$index<DataList.length-1" class="btn btn-action "><i class="glyphicon glyphicon-plus" style="color: limegreen;"></i></button></li>
@@ -135,9 +141,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-
                             </table>
-
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
@@ -145,6 +149,46 @@
                                 <li> <button ng-click="Clear();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                 <li> <button ng-click="DeletePI();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                             </ul>
+                        </div>
+                        <div class="col-sm-12 container-fluid" ng-show="TermsAndConditionGridList.length>0">
+                            <div style="color:black;" id="GridTermsAndConditions" ej-grid e-datasource="TermsAndConditionGridList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" 
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" 
+                                 e-allowselection="false">
+                                <div e-columns>
+                                    <div e-column e-field="TermsAndConditionPIChildId" e-headertext="TermsAndConditionsPIChildId" e-visible="false"></div>
+                                    <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="420"></div>
+                                    <div e-column e-template="#ShowDetails" e-headertext="" e-width="70"></div>
+                                </div>
+                                <script type="text/ng-template" id="ShowDetails">
+                                    <div class="common-btn">
+                                        <ul class="list-inline ">
+                                            <li>
+                                                <button ng-click="$parent.showTermsAndConditionDetailPopUp(data);" title="Edit" class="btn small" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@>
+                                                    <i class="glyphicon glyphicon-edit"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="$parent.DeletePITitle(this);@*$parent.ClearTitle();*@" class="btn small tooltip-here" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@ title="Delete">
+                                                    <i class="glyphicon glyphicon-trash" style="color: orangered;"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </script>
+                                <script id="tabGridContentsTitle" type="text/x-jsrender">
+                                    <div class="tabcontrol" id="Test">
+                                        <ul>
+                                            <li><a href="#gridTabTitle{{:Id}}">Details</a></li>
+
+                                        </ul>
+                                        <div id="gridTabTitle{{:Id}}">
+                                            <div id="detailGridTitle"></div>
+                                        </div>
+
+                                    </div>
+                                </script>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -195,14 +239,14 @@
                 <div e-column e-type="number" e-field="POQuantity" e-format="{0:N2}" e-headertext="PO Tagged Quantity" e-width="100"></div>
                 <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="120"></div>
                 <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
-                <div e-column e-type="string" e-field="InvoicingByAddress" e-headertext="InvoicingByAddress" e-width="100"></div>
-                <div e-column e-type="string" e-field="DeliveryByAddress" e-headertext="DeliveryByAddress" e-width="100"></div>
+                @*<div e-column e-type="string" e-field="InvoicingByAddress" e-headertext="InvoicingByAddress" e-width="100"></div>
+                <div e-column e-type="string" e-field="DeliveryByAddress" e-headertext="DeliveryByAddress" e-width="100"></div>*@
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="CustomerPopUpNew" role="dialog" data-backdrop="static">
+<div class="modal site-modal" id="CustomerPopUpNew" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg ">
         <div class="modal-content">
             <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closeCustomerPopUpNew();">&times;</button></div>
@@ -253,7 +297,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
+<div class="modal site-modal" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header"> Invoicing Party<button type="button" class="close" ng-click="closeInvoicingPartyPopUp();">&times;</button></div>
@@ -308,3 +352,32 @@
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmPIDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmMaterialPopUp" title="Confirmation" message={{message_Materialconfirmation}} data-ng-click-right-button="DeletePIMaterial();"></confirm-archive-generic>
+
+<div class="row">
+    <div class="modal fade site-modal in" id="GridPopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">Details<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div style="color:black;" id="gridTermsAndCondition" ej-grid e-datasource="POPupList" e-allowsorting="true" e-allowscrolling="true"
+                             e-allowfiltering="true" e-gridlines="vertical" e-allowResizing="true" e-allowrowdraganddrop="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionComplete" e-allowselection="true"
+                             e-endadd="SaveGrid" e-endedit="SaveGrid" e-enddelete="DeletePODetailPOPUp" e-editsettings-allowediting="true" e-editsettings-allowadding="true" e-editsettings-allowdeleting="true"
+                             e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Add, ej.Grid.ToolBarItems.Edit, ej.Grid.ToolBarItems.Delete, ej.Grid.ToolBarItems.Update, ej.Grid.ToolBarItems.Cancel]">
+
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-isprimarykey="true"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-visible="false"></div>
+                                <div e-column e-field="TermsAndConditionsPIChildId" e-headertext="TermsAndConditionsPIChildId" e-visible="false"></div>
+                                <div e-column e-field="HeaderCaption" e-headertext="Header" e-width="5"></div>
+                                <div e-column e-field="Description" e-headertext="Description" e-width="5"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmPITitleDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteTitle();"></confirm-archive-generic>

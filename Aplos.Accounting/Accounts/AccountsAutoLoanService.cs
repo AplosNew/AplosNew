@@ -151,8 +151,57 @@ namespace Library.Accounting.Accounts
 
 		public IEnumerable<object> GetAutoLoanPostableList(string plantId)
         {
-			var sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.*, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
-						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.CompanyCurrencyRate,BM.AccountTitle 
+			var sql = @"SELECT * FROM
+						(SELECT 'Acceptance' SourceType,LAA.Id LoanAgainstAcceptanceId,LAA.Id, LAA.CompanyGroupId, LAA.CompanyId, LAA.PlantId, LAA.EntityId, LAA.CurrencyId, 
+						LAA.VoucherId, LAA.PartyType, LAA.PartyId, LAA.PartyPlantId, LAA.TransactionType, LAA.PaymentSource, LAA.LoanDate, 
+						LAA.LoanNo, LAA.Amount, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
+						,(SELECT TOP 1  LAAD.BankMasterId
+						FROM LoanAgainstAcceptanceDetail LAAD 
+						LEFT JOIN TRN.PurchasedocAcceptance AS PDA ON PDA.Id=LAAD.PurchasedocAcceptanceId
+						WHERE LAAD.LoanAgainstAcceptanceMasterId=LAA.Id) BankMasterId
+						,(SELECT TOP 1  BM.AccountTitle 
+						FROM LoanAgainstAcceptanceDetail LAAD 
+						LEFT JOIN TRN.PurchasedocAcceptance AS PDA ON PDA.Id=LAAD.PurchasedocAcceptanceId
+						LEFT JOIN MST.BankMaster BM ON BM.Id=LAAD.BankMasterId
+						WHERE LAAD.LoanAgainstAcceptanceMasterId=LAA.Id)AccountTitle
+						,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														LEFT JOIN LoanAgainstAcceptanceDetail LAAD ON XP.Id=LAAD.PurchaseDocAcceptanceId
+													where	LAAD.LoanAgainstAcceptanceMasterId=LAA.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,PINo= STUFF((select distinct ','+XVD.PINo from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														LEFT JOIN LoanAgainstAcceptanceDetail LAAD ON XP.Id=LAAD.PurchaseDocAcceptanceId
+													where	LAAD.LoanAgainstAcceptanceMasterId=LAA.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						
+						FROM LoanAgainstAcceptanceMaster LAA 
+						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
+						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
+						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
+						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
+						WHERE LAA.IsPark=1  AND LAA.VoucherId IS NULL
+						UNION ALL
+						SELECT 'Invoice' SourceType, LAA.Id LoanAgainstAcceptanceId,LAA.Id, LAA.CompanyGroupId, LAA.CompanyId, LAA.PlantId, LAA.EntityId, LAA.CurrencyId, LAA.VoucherId, 'Vendor' PartyType,LAA.PartyId, LAA.PartyPlantId,'LoanTaken' TransactionType,'Bank' PaymentSource , LAA.LoanDate, LAA.LoanNo, LAA.Amount, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
+						,LAA.BankMasterId, BM.AccountTitle, XVD.LCRef  PurchaseLCNo,XVD.PINo
+						FROM InvoiceTaggingWithLCMaster LAA 
+						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
+						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
+						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
+						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
+						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
+						LEFT JOIN dbo.PurchaseLC XVD ON XVD.Id=LAA.PurchaseLCId
+						WHERE --LAA.IsPark=1 AND 
+						 LAA.VoucherId IS NULL)X
+						WHERE X.PlantId='" + plantId + "' ";
+			return _sqlRepository.GetDataCollection(sql);
+		}
+		public IEnumerable<object> GetAutoLoanPostableDetailList(string plantId ,string LoanAgainstAcceptanceMasterId, string SourceType)
+		{
+			string sql = string.Empty;
+			if(SourceType== "Acceptance")
+            {
+				sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
+						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
+						,IV.CompanyCurrencyRate,BM.AccountTitle 
 						,PDA.AcceptanceNo,PDA.AcceptanceDate,LAAD.BankMasterId
 						,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
@@ -176,7 +225,26 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN TRN.Invoice IV ON IV.PurchaseDocAcceptanceId=LAAD.PurchaseDocAcceptanceId
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
-						WHERE LAA.IsPark=1 AND LAA.PlantId='" + plantId + "'  AND LAA.VoucherId IS NULL";
+						WHERE LAA.IsPark=1 AND LAA.PlantId='" + plantId + "' AND LAAD.LoanAgainstAcceptanceMasterId='" + LoanAgainstAcceptanceMasterId + "'  AND LAA.VoucherId IS NULL";
+			}
+			else
+            {
+				sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
+						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
+						,IV.CompanyCurrencyRate,BM.AccountTitle 
+						,IV.DocRefNo  AcceptanceNo,LAA.BankMasterId
+						FROM InvoiceTaggingWithLCMaster LAA 
+						LEFT JOIN InvoiceTaggingWithLCDetail LAAD ON LAA.Id=LAAD.InvoiceTaggingWithLCMasterId
+						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
+						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
+						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
+						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
+						LEFT JOIN TRN.Invoice IV ON IV.Id=LAAD.InvoiceId
+						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
+						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
+						WHERE LAA.PlantId='" + plantId + "' AND LAAD.InvoiceTaggingWithLCMasterId='" + LoanAgainstAcceptanceMasterId + "'  AND LAA.VoucherId IS NULL";
+			}
+			
 			return _sqlRepository.GetDataCollection(sql);
 		}
 		public IEnumerable<object> GetMaster(string CompanyGroupId, string CompanyId, string PlantId)

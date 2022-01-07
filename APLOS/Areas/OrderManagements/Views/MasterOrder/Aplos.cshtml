@@ -2787,7 +2787,7 @@
     </div>
 </div>
 <!-- #endregion QBOQ-->
-<ej-dialog id="dialogViewTNADetail" title=" TNA" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ganttContainer" e-minwidth="1000" e-minheight="570" e-open="enableBtn">
+<ej-dialog id="dialogViewTNADetail" title=" TNA" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ganttContainer" e-minwidth="1100" e-minheight="570" e-open="enableBtn">
     <div class="col-xs-12">
         <div id="Tab" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
             <ul>
@@ -3678,7 +3678,7 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li><button ng-click="SaveSOSKU();" class="btn" tabindex="38"><i class="glyphicon glyphicon-plus"></i> Save</button></li>
+                            <li><button ng-click="SaveSOSKU();" ng-disabled="skubtn" class="btn" tabindex="38"><i class="glyphicon glyphicon-plus"></i> Save</button></li>
                             <li><button ng-click="clearMasterCharacteristicsValue();" class="btn" tabindex="39"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             <li><button ng-click="CloseCharacteristicsValuePopUp1();" class="btn" tabindex="40"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                         </ul>

@@ -472,7 +472,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                         if(x>0)
                         {
-                            SaveLog("Sandwich DayStaus Updated ...", PlantId, false);
+                            SaveLog("Sandwich DayStatus Updated ...", PlantId, false);
                             clsStaticInfo info = new clsStaticInfo();
                             info.SaveDataSets(dsMaster);                           
                         }
@@ -492,6 +492,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
+                SaveLog(ex.Message, PlantId, true);
                 throw ex;
             }
         }       
