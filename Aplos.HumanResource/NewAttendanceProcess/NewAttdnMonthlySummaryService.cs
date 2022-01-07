@@ -2846,8 +2846,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-
-        // ********************************** The DataBase Operations 
+        #region Add/Edit Section
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -2888,8 +2887,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             dr.EndEdit();
         }
-
        
+        #endregion
+
         public Dictionary<string, object> saveChild(Dictionary<string, object> Child)
         {
             try
@@ -2958,9 +2958,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             return 1;
         }
-
-
-        //******************************************* New Operations 
 
         //Getting the Header
         public IEnumerable<object> getHeader()
@@ -3053,13 +3050,11 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        // Saving the Day Type With Values
-
-        public Dictionary<string, object> saveDayTypeChild(Dictionary<string, object> Header, List<Dictionary<string, object>> Leave)
+        public Dictionary<string, object> SaveRuleMaster(Dictionary<string, object> Header)
         {
             try
             {
-                string TableName = "dbo.DayTypeWithValues";
+                string TableName = "dbo.AttdnBonusRuleChild";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId='" + Header["HeaderId"] + "' and DayType='" + Header["DayType"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");

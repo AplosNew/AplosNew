@@ -7,7 +7,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
     $scope.getSeqUrl = $scope.path + 'getautosequence';
 
   
-    // The Tab Switching Code
+    // The Tab Switching Code    
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -36,7 +36,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
     $scope.getMasterDetails = function (e) {
         $scope.Master = e.data;
-        $scope.ConvertBool();
         $http({
             method: 'POST',
             url: $scope.path + 'getChildData',
@@ -55,7 +54,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
     $scope.saveMaster = function () {
         $scope.$broadcast('show-errors-check-validity');
         allValidations();
-        $scope.ConvertBits();
         if ($scope.MasterForm2.$valid) {
             $http({
                 method: 'POST',
@@ -65,19 +63,16 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
 
-                    $scope.ConvertBool();
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
                     //$scope.Child.MasterId = response.data.Data.Id;
                     $scope.Master.Id = response.data.Data.Id;
                     $scope.getMaster();
-                    $scope.ConvertBool();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
 
-                $scope.ConvertBool();
             }
         }
     }
@@ -102,112 +97,11 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
                 if ($rootScope.isCollapsed) {
                     $rootScope.toggle();
                 }
-                $scope.ConvertBool();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
         });
-    }
-
-    //All the Validation Functions
-  
-    $scope.ConvertBits = function () {
-        if ($scope.Master.FirstSource == "Yes") {
-            $scope.Master.FirstSource = true;
-        }
-        else {
-            $scope.Master.FirstSource = false;
-        } 
-
-        if ($scope.Master.ManualAuto == "Yes") {
-            $scope.Master.ManualAuto = true;
-        }
-        else {
-            $scope.Master.ManualAuto = false;
-        }
-
-      
-        
-        if ($scope.Master.CompensatoryApplicable == "Yes") {
-            $scope.Master.CompensatoryApplicable = true;
-        }
-        else {
-            $scope.Master.CompensatoryApplicable = false;
-        }
-
-        if ($scope.Master.GoodWorkApplicable == "Yes") {
-            $scope.Master.GoodWorkApplicable = true;
-        }
-        else {
-            $scope.Master.GoodWorkApplicable = false;
-        }
-
-        if ($scope.Master.ToCheck == "Yes") {
-            $scope.Master.ToCheck = true;
-        }
-        else {
-            $scope.Master.ToCheck = false;
-        }
-    }
-
-    //Converting To Yes/No from True/False
-    $scope.ConvertBool = function () {
-        if ($scope.Master.FirstSource == true) {
-            $scope.Master.FirstSource = "Yes";
-        }
-        else {
-            $scope.Master.FirstSource = "No";
-        }
-
-        if ($scope.Master.ManualAuto == true) {
-            $scope.Master.ManualAuto = "Yes";
-        }
-        else {
-            $scope.Master.ManualAuto = "No";
-        }
-
-        if ($scope.Master.InStatusApplicable == true) {
-            $scope.Master.InStatusApplicable = "Yes";
-        }
-        else {
-            $scope.Master.InStatusApplicable = "No";
-        }
-
-        if ($scope.Master.OutStatusApplicable == true) {
-            $scope.Master.OutStatusApplicable = "Yes";
-        }
-        else {
-            $scope.Master.OutStatusApplicable = "No";
-        }
-
-        if ($scope.Master.DurationApplicable == true) {
-            $scope.Master.DurationApplicable = "Yes";
-        }
-        else {
-            $scope.Master.DurationApplicable = "No";
-        }
-
-        if ($scope.Master.WorkingDayOTApplicable == true) {
-            $scope.Master.WorkingDayOTApplicable = "Yes";
-        }
-        else {
-            $scope.Master.WorkingDayOTApplicable = "No";
-        }
-
-        if ($scope.Master.NonWorkingDayOTApplicable == true) {
-            $scope.Master.NonWorkingDayOTApplicable = "Yes";
-        }
-        else {
-            $scope.Master.NonWorkingDayOTApplicable = "No";
-        }
-
-        if ($scope.Master.ToCheck == true) {
-            $scope.Master.ToCheck = "Yes";
-        }
-        else {
-            $scope.Master.ToCheck = "No";
-        }
     }
 
     // ****************************************** Main Page Operations ******************************************** \\ 
@@ -231,10 +125,10 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
             $rootScope.toggle();
         }
 
-        $scope.ClearDayTypeChild();
-        $scope.DayChild.HeaderId = e.data.Id;
+        $scope.ClearRuleMaster();
+        $scope.RuleMaster.HeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
-        $scope.getDayTypeChild();
+        $scope.getRulesList();
         updateChild();
         showTabs();
         
@@ -320,7 +214,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
     }
 
-    $scope.DayChild = {
+    $scope.RuleMaster = {
         Id: null,
         HeaderId: null,
         ShortName: null,
@@ -332,26 +226,24 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         AbsentValue: 0,
         LateValue: 0,
         Amount:0
-    };
-      
+    };     
 
-   
-    //Saving of the Day Type With Values
-    $scope.saveDayTypeChild = function () {
+
+    $scope.SaveRuleMaster = function () {
         $scope.$broadcast('show-errors-check-validity');
         allValidations();
-        if ($scope.DayTypeChild.$valid) {
+        if ($scope.RuleMaster.$valid) {
             $http({
                 method: 'POST',
-                url: $scope.path + 'saveDayTypeChild',
-                data: { 'DayTypeChild': $scope.DayChild , 'Leave' : $scope.LeaveList }
+                url: $scope.path + 'SaveRuleMaster',
+                data: { 'RuleMasterData': $scope.RuleMaster }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.getDayTypeChild();
+                    $scope.getRulesList();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -364,26 +256,20 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
         allZeros();
 
-        if (parseFloat($scope.DayChild.TotalWorkingDay) > 1 || parseFloat($scope.DayChild.ActualWorkingDay) > 1) {
-            ShowResult("Please check Working Day Value. It cannot be more than 1!", 'failure');
+        if (parseFloat($scope.RuleMaster.LateValue) > 1 ) {
+            ShowResult("Please check Late Value. It cannot be more than 1!", 'failure');
             throw ("Error");
         }
 
-        if ((parseFloat($scope.DayChild.PayDay) + parseFloat($scope.DayChild.NonPayDay)) > 1) {
-            ShowResult("Please check Pay Day Value. Total cannot be more than 1!", 'failure');
-            throw ("Error");
-        }
-        if ((parseFloat($scope.DayChild.PayDay) + parseFloat($scope.DayChild.NonPayDay)) != 1) {
-            ShowResult("Please check Pay Day Value. Total should be 1!", 'failure');
+        if (parseFloat($scope.RuleMaster.AbsentValue) > 1) {
+            ShowResult("Please check Absent Value. It cannot be more than 1!", 'failure');
             throw ("Error");
         }
 
-        if (parseFloat($scope.DayChild.OTConsider) > 1 || parseFloat($scope.DayChild.CompensatoryApplicable) > 1 || parseFloat($scope.DayChild.AttendanceBonus) > 1) {
-            ShowResult("Please check Other. None Of the Values can be more than 1!", 'failure');
+        if (parseFloat($scope.RuleMaster.LeaveValue) > 1) {
+            ShowResult("Please check Leave Value. It cannot be more than 1!", 'failure');
             throw ("Error");
-        }
-
-        
+        }        
     };
 
     function allZeros() {
@@ -396,9 +282,9 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         }
     };
 
-    //Clearing of the Day Type Child
-    $scope.ClearDayTypeChild = function () {
-        $scope.DayChild = {
+    //Clearing The Rule Master
+    $scope.ClearRuleMaster = function () {
+        $scope.RuleMaster = {
             Id: null,
             HeaderId: null,
             ShortName: null,
@@ -411,21 +297,21 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
             LateValue: 0,
             Amount:0
         };
-        $scope.DayChild.HeaderId = $scope.Header.Id;
+        $scope.RuleMaster.HeaderId = $scope.Header.Id;
         
     }
 
-    $scope.DayTypeChildList = [];
+    $scope.RulesList = [];
     //Getting the Day Type Child Grid
-    $scope.getDayTypeChild = function () {
+    $scope.getRulesList = function () {
         $http({
             method: 'POST',
             url: $scope.path + "getRulesList",
             data: { 'Id': $scope.Header.Id},
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.DayTypeChildList = [];
-            $scope.DayTypeChildList = response.data;
+            $scope.RulesList = [];
+            $scope.RulesList = response.data;
         });
     }
 
