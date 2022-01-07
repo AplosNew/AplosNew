@@ -143,21 +143,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         /// ************************** New Operations 
-        /// Getting the Employee List
-        [Authorize, HttpGet]
-        public ActionResult getEmployees()
-        {
-            try
-            {
-                return Json(ds.getEmployees(), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-
+      
         /// Header Get
         [HttpGet, Authorize]
         public ActionResult getHeader()
@@ -236,13 +222,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
 
-        }
-
-        //Getting the Day Status Child
-        [HttpPost, Authorize]
-        public ActionResult getDayStatusChild(string HeaderId)
-        {
-            return Json(ds.getDayStatusChild(HeaderId), JsonRequestBehavior.AllowGet);
         }
 
         // ********************************************* Leave Day

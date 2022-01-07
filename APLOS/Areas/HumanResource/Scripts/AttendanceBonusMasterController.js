@@ -130,7 +130,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
  
 
-    //All the Validation Funcitons
+    //All the Validation Functions
 
   
     $scope.ConvertBits = function () {
@@ -294,19 +294,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         else {
             j.style.display = "none";
         }
-    }
-
-
-    // The List for the Responsible Person
-    $scope.EmployeesList = [];
-    $http({
-        method: 'GET',
-        url: $scope.path + "getEmployees",
-        dataType: 'JSON'
-    }).then(function successCallback(response) {
-        $scope.EmployeesList = [];
-        $scope.EmployeesList = response.data;
-    });
+    }   
 
     // Double Click the Main Header Grid
     $scope.getHeaderDetails = function (e) {
@@ -504,31 +492,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
     $scope.getOTRateList();
 
-    //Seleting the Current Day Status Starts
-    $scope.selectCurrDayStatus = function () {
-        angular.element(document.querySelector('#CurrDayStatusModal')).modal('show');
-    }
-
-    $scope.doubleCurrDayStatus = function (e) {
-        $scope.DayChild.DayType = e.data.DayType;
-        angular.element(document.querySelector('#CurrDayStatusModal')).modal('hide');
-    }
-    // Ends here
-
-    //To Select the Responsible Person Starts
-    $scope.selectRespPerson = function () {
-        angular.element(document.querySelector('#RespPersonModal')).modal('show');
-    }
-
-    $scope.RespPerson = null;
-
-    $scope.doubleRespPerson = function (e) {
-        $scope.RespPerson = e.data.EmployeeName;
-        $scope.DayChild.ResponsiblePersonId = e.data.SystemId;
-        angular.element(document.querySelector('#RespPersonModal')).modal('hide');
-    }
-    /// End Here
-
+   
     //Saving of the Day Type With Values
     $scope.saveDayTypeChild = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -719,125 +683,8 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
     $scope.DeleteDT = function () {
         console.log("Delete DT");
     }
-
-     //// ************************************* Day Status ************************************* ////
-    $scope.DayS = {
-        Id: null,
-        HeaderId: null,
-        DayTypeWithValuesId: null,
-        Category: null,
-        SubCategory: null,
-        Sequence: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Code: null,
-        Remarks: null,
-        Active: false,
-        FirstSource: false,
-        MaunalAuto: null,
-        InStatusApplicable: false,
-        OutStatusApplicable: false,
-        DurationApplicable: false,
-    };
-
-    $scope.selectStatusDayType = function () {
-        angular.element(document.querySelector('#DayStatusDayType')).modal('show');
-    }
-
-    $scope.DayStatusType = null;
-
-    $scope.doubleDayStatusType = function (e) {
-        $scope.DayStatusType = e.data.DayType;
-        $scope.DayS.DayTypeWithValuesId = e.data.Id;
-        angular.element(document.querySelector('#DayStatusDayType')).modal('hide');
-    }
-
-    //Get Auto Sequence for the Day Status Child
-    $scope.GetSequenceDayStatus = function () {
-        cboService.getSequence($scope.path + 'GetAutoSequenceDayStatus', function (data) {
-            $scope.DayS.Sequence = data;
-        });
-    };
-
-    //Clear Day Status Child
-    $scope.ClearDayStatus = function()
-    {
-        $scope.DayS = {
-            Id: null,
-            HeaderId: null,
-            DayTypeWithValuesId: null,
-            Category: null,
-            SubCategory: null,
-            Sequence: null,
-            ShortName: null,
-            StandardName: null,
-            UserName: null,
-            Code: null,
-            Remarks: null,
-            Active: false,
-            FirstSource: false,
-            MaunalAuto: null,
-            InStatusApplicable: false,
-            OutStatusApplicable: false,
-            DurationApplicable: false,
-        };
-        $scope.DayS.HeaderId = $scope.Header.Id;
-        $scope.GetSequenceDayStatus();
-        $scope.DayStatusType = null;
-    }
-
-    //Saving of the Day Status Child
-    $scope.saveDayStatus = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.DayStatusForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.path + 'saveDayStatusChild',
-                data: { 'DaystatusChild': $scope.DayS }
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.ClearDayStatus();
-                    $scope.getDaystatusChild();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        }
-    }
-
-    //Getting The Day Status Grid
-    $scope.DayStatusList = [];
-    $scope.getDaystatusChild = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'getDayStatusChild',
-            data: {'HeaderId':$scope.DayS.HeaderId}
-        }).then(function succ(resp) {
-            $scope.DayStatusList = [];
-            $scope.DayStatusList = resp.data;
-        })
-    }
-
-    //Double Click on the Day Status Child Grid
-    $scope.doubleDayStatusChild = function (e) {
-        $scope.DayS = e.data;
-        for (var i = 0; i < $scope.DayTypeChildList.length; i++) {
-            if ($scope.DayTypeChildList[i].Id == $scope.DayS.DayTypeWithValuesId) {
-                $scope.DayStatusType = $scope.DayTypeChildList[i].DayType;
-            }
-        }
-    }
-
-    //Delete Day Status
-    $scope.DeleteDS = function () {
-        console.log("Delete DS");
-    }
-
+       
+   
     // ********************************************** Plant EmpType Child
 
     $scope.Child = {
@@ -1003,22 +850,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         });
     }
     
-    //$scope.doubleLeaveDayType = function (e) {
-    //    $scope.LeaveDt.DayTypeWithValue = e.data.DayType;
-    //    $scope.LeaveDt.DayTypeWithValuesId = e.data.Id;
-
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getleaveDayTypes',
-    //        data: { 'DayTypeWithValuesId': $scope.LeaveDt.DayTypeWithValuesId }
-    //    }).then(function succ(resp) {
-    //        $scope.LeaveList = [];
-    //        $scope.LeaveList = resp.data;
-    //    });
-
-    //    angular.element(document.querySelector('#LeaveDayType')).modal('hide');
-    //}
-
     $scope.saveLeaveDayType = function ()
     {
             $http({
@@ -1044,7 +875,5 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
                 ShowResult(response.data.Message, 'failure');
             }
         
-    }
-
-      
+    }      
 }

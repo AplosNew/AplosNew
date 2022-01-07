@@ -2807,19 +2807,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             return _sqlRepository.GetDataCollection(str);
         }
 
-        public IEnumerable<object> getEmployees()
-        {
-            try
-            {
-                var str = @"select EmployeeCode , SystemId , EmployeeName from dbo.EmployeeInformation";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
+       
         public IEnumerable<object> getEmpType()
         {
             try
@@ -2903,9 +2891,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
             dt.Rows.Add(dr);
         }
 
@@ -3304,21 +3289,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 throw e;
             }
-        }
-
-        // Getting the Day Status Child Data
-        public IEnumerable<object> getDayStatusChild(string HeaderId)
-        {
-            try
-            {
-                var str = @"Select * from dbo.DayStatus where HeaderId='" + HeaderId + "'";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
+        }      
 
         // ********************************************* Leave Day Type
 
