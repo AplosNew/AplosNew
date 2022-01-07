@@ -1,4 +1,5 @@
-﻿using Library.Crosscutting.Security;
+﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Service.Helpers;
 using OTSBD;
@@ -15,13 +16,15 @@ namespace Library.OrderManagement.ProformaInvoice
     {
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
+        Dictionary<string, List<Factors>> MaterialGroupMasterUOMList = new Dictionary<string, List<Factors>>();
 
         public ProformaInvoice()
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
-        }
 
+        }
+        DataSet dsConversion;
         public string Save(Dictionary<string, object> PIPackingListMasterData, Dictionary<string, object> MaterialData, List<Dictionary<string, object>> DataList)
         {
             try
@@ -104,6 +107,7 @@ namespace Library.OrderManagement.ProformaInvoice
 
                 if (DataList != null)
                 {
+                    GetAllUOMConversionData();
                     for (int i = 0; i < dsPIDetail.Tables[0].Rows.Count; i++)
                     {
                         var item = DataList.Where(x => x["PODetailId"].ToString() == dsPIDetail.Tables[0].Rows[i]["PODetailId"].ToString()).FirstOrDefault();
@@ -114,6 +118,10 @@ namespace Library.OrderManagement.ProformaInvoice
                     }
                     foreach (var item in DataList)
                     {
+                        GetUOMConversionAtMaterialGroupMasterData(item["MaterialGroupMasterId"].ToString(), out dsConversion);
+
+                        double conversiongroupListData = ConvertUoM(item["MaterialGroupMasterId"].ToString(), item["POUoMId"].ToString(), item["PIUoMId"].ToString(), Convert.ToDouble(item["DistributeQTY"]));
+                        decimal BaseQty = Convert.ToDecimal(conversiongroupListData);
                         dsPIDetail.Tables[0].DefaultView.RowFilter = "PODetailId='" + clsStaticInfo.nullrecorder(item["PODetailId"]) + "'";
 
                         DataView dv = new DataView(dsPIDetail.Tables[0]);
@@ -125,7 +133,7 @@ namespace Library.OrderManagement.ProformaInvoice
                             DataRow drmo = dv[0].Row;
                             drmo.BeginEdit();
                             drmo["Quantity"] = clsStaticInfo.dbl(item["DistributeQTY"]);
-
+                            drmo["QuantityAtPIUoM"] = BaseQty;
                             drmo["UpdatedBy"] = identity.Name;
                             drmo["UpdatedDate"] = System.DateTime.Now.ToString();
                             drmo["UpdatedFromIP"] = identity.IPAddress;
@@ -147,14 +155,13 @@ namespace Library.OrderManagement.ProformaInvoice
 
                             drmo["PIMaterialId"] = MaterialData["Id"];
                             drmo["Quantity"] = clsStaticInfo.dbl(item["DistributeQTY"]);
+                            drmo["QuantityAtPIUoM"] = BaseQty;
                             drmo["PIPackingListMasterId"] =_Id;
                             drmo["PIPackingListMaterialId"] = _IdM;
-                            
 
                         }
                     }
                 }
-
 
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
@@ -170,6 +177,107 @@ namespace Library.OrderManagement.ProformaInvoice
             return null;
         }
 
+        public double ConvertUoM(string MaterialGroupMasterId, string FromUOM, string ToUOM, double Value)
+        {
+
+            //If source and target uom are same, no need conversion
+            if (FromUOM == ToUOM)
+                return Value;
+
+            List<Factors> AltUOM = MaterialGroupMasterUOMList[MaterialGroupMasterId].Where(ee => ee.AlternativeUOMId == FromUOM).ToList();
+
+            //means, need to convert the source UOM to target UOM
+            if (AltUOM.Count > 0)
+            {
+                //converting to base
+                Value = Value * AltUOM[0].AltToBaseUOMFactor;
+                //and if target uom is also base;no need to further conversion
+                if (AltUOM[0].BaseUOMId == ToUOM)
+                    return Value;//because we have already converted the source value to base UOM. no need to further conversion
+
+                //second step conversion from base value to alternative target value
+                AltUOM = MaterialGroupMasterUOMList[MaterialGroupMasterId].Where(ee => ee.AlternativeUOMId == ToUOM).ToList();
+                if (AltUOM.Count > 0)
+                {
+                    //convert base value to alternative uom using basetoaltuomfactor
+                    return Value = Value * AltUOM[0].BaseToAltUOMFactor;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+
+            return 0;
+        }
+        public void GetUOMConversionAtMaterialGroupMasterData(string MaterialGroupMasterId, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT UOM.MaterialGroupMasterId, UOM.AlternativeUOMId, UOM.BaseUOMId,
+       CONVERT(decimal(18,8),UOM.AltToBaseUOMFactor) AS AltToBaseUOMFactor,  convert(decimal(18,8),UOM.BaseToAltUOMFactor) AS BaseToAltUOMFactor, 
+       UOM.UOMType FROM (
+                    SELECT mm.Id AS MaterialGroupMasterId, mm.BaseUOMId AS AlternativeUOMId,mm.BaseUOMId,
+                    1 AS AltToBaseUOMFactor,1 AS BaseToAltUOMFactor,
+                    'BASE' AS UOMType FROM mst.MaterialGroupMaster AS mm
+					WHERE mm.Id='" + MaterialGroupMasterId + @"'
+                    UNION ALL
+                    SELECT mmau.MaterialGroupMasterId, mmau.AlternativeUOMId, mmau.BaseUOMId,
+                    mmau.BaseUOMFactor/mmau.AlternativeUOMFactor AS AltToBaseUOMFactor,mmau.AlternativeUOMFactor/mmau.BaseUOMFactor AS AltToBaseUOMFactor,
+                    'ALT' AS UOMType FROM  mst.MaterialGroupAlternativeUoM AS mmau
+					WHERE mmau.MaterialGroupMasterId='" + MaterialGroupMasterId + @"'
+                    ) AS UOM
+                    ORDER BY UOM.MaterialGroupMasterId";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+        public void GetAllUOMConversionData()
+        {
+            // _sqlRepository = new SqlRepository();
+
+            MakeMaterialCluster(_sqlRepository.GetModelCollection<Factors>(@"SELECT UOM.MaterialGroupMasterId, UOM.AlternativeUOMId, UOM.BaseUOMId,
+       CONVERT(decimal(18,8),UOM.AltToBaseUOMFactor) AS AltToBaseUOMFactor,  convert(decimal(18,8),UOM.BaseToAltUOMFactor) AS BaseToAltUOMFactor, 
+       UOM.UOMType FROM (
+                    SELECT mm.Id AS MaterialGroupMasterId, mm.BaseUOMId AS AlternativeUOMId,mm.BaseUOMId,
+                    1 AS AltToBaseUOMFactor,1 AS BaseToAltUOMFactor,
+                    'BASE' AS UOMType FROM mst.MaterialGroupMaster AS mm
+                    UNION ALL
+                    SELECT mmau.MaterialGroupMasterId, mmau.AlternativeUOMId, mmau.BaseUOMId,
+                    mmau.BaseUOMFactor/mmau.AlternativeUOMFactor AS AltToBaseUOMFactor,mmau.AlternativeUOMFactor/mmau.BaseUOMFactor AS AltToBaseUOMFactor,
+                    'ALT' AS UOMType FROM  mst.MaterialGroupAlternativeUoM AS mmau
+                    ) AS UOM
+                    ORDER BY UOM.MaterialGroupMasterId"));
+        }
+        private void MakeMaterialCluster(List<Factors> UOMData)
+        {
+            MaterialGroupMasterUOMList = new Dictionary<string, List<Factors>>();
+            List<Factors> _list = new List<Factors>();
+            string MaterialGroupMasterId = "";
+            foreach (Factors item in UOMData)
+            {
+                if (MaterialGroupMasterId != item.MaterialGroupMasterId)
+                {
+                    _list = new List<Factors>();
+                    MaterialGroupMasterUOMList.Add(item.MaterialGroupMasterId, _list);
+                }
+
+                _list.Add(item);
+
+                MaterialGroupMasterId = item.MaterialGroupMasterId;
+            }
+        }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -248,6 +356,40 @@ namespace Library.OrderManagement.ProformaInvoice
 
             }
         }
+        public string DeletePITitle(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
 
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TermsAndConditionsPIDetails where TermsAndConditionsPIChildid='" + id + "'");
+                con.executeQuery("delete from TermsAndConditionsPIChild where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
+
+        class Factors : BaseModel
+        {
+
+            public string MaterialGroupMasterId { get; set; }
+            public string AlternativeUOMId { get; set; }
+            public string BaseUOMId { get; set; }
+            public double AltToBaseUOMFactor { get; set; }
+            public double BaseToAltUOMFactor { get; set; }
+            public string UOMType { get; set; }
+        }
     }
 }

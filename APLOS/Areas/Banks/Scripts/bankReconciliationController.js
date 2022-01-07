@@ -193,7 +193,9 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
                         $scope.getIssuedReconList();
                         $scope.getReceivedReconList();
                         $scope.getBankCrReconList();
+                        $scope.getBankCrReconListSyncfusion();
                         $scope.getBankDrReconList();
+                        $scope.getBankDrReconListSyncfusion();
                         $scope.getBankReconDrCrTotalAmount($scope.bankReconciliationNew.BankMasterId, $scope.bankReconciliationNew.FromDate, $scope.bankReconciliationNew.ToDate);
 
                     }
@@ -250,11 +252,21 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
         try {
             if (new Date($scope.bankReconciliationNew.FromDate) > new Date(data.EncashmentDate) ||
                 new Date($scope.bankReconciliationNew.ToDate) < new Date(data.EncashmentDate)) {
-                $scope[list][index].EncashmentDate = null;
+                for (var i = 0; i < $scope[list].length; i++) {
+                    if ($scope[list][i].VoucherDetailId === data.VoucherDetailId) {
+                        $scope[list][i].EncashmentDate = null;
+                    }
+                }
+                //$scope[list][index].EncashmentDate = null;
                 throw "Encashment date is out of date range..............!";
             }
             if (new Date(data.PostingDate) > new Date(data.EncashmentDate)) {
-                $scope[list][index].EncashmentDate = null;
+                for (var i = 0; i < $scope[list].length; i++) {
+                    if ($scope[list][i].VoucherDetailId === data.VoucherDetailId) {
+                        $scope[list][i].EncashmentDate = null;
+                    }
+                }
+                //$scope[list][index].EncashmentDate = null;
                 throw "Encashment date can not be less then posting date [" + data.PostingDate + "]";
             }
         } catch (e) {
@@ -389,7 +401,30 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
         search: null,
         serverPagination: true
     };
+    $scope.bankCrReconDataListSyncfusion = [];
+    $scope.getBankCrReconListSyncfusion = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetBankCrReconListSyncfusion",
+                data: {
+                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
+                    fromDate: $scope.bankReconciliationNew.FromDate,
+                    toDate: $scope.bankReconciliationNew.ToDate
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.bankCrReconDataListSyncfusion = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
 
+        catch (e) {
+
+        }
+    }
     $scope.getBankCrReconList = function () {
         $scope.bankCrReconParameters.bankMasterId = $scope.bankReconciliationNew.BankMasterId;
         $scope.bankCrReconParameters.fromDate = $scope.bankReconciliationNew.FromDate;
@@ -429,7 +464,31 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
         search: null,
         serverPagination: true
     };
+    $scope.bankDrReconDataListSyncfusion = [];
+    $scope.getBankDrReconListSyncfusion = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetBankDrReconListSyncfusion",
+                data: {
+                    cutOffDate: $scope.cutOffDate,
+                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
+                    fromDate: $scope.bankReconciliationNew.FromDate,
+                    toDate: $scope.bankReconciliationNew.ToDate
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.bankDrReconDataListSyncfusion = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
 
+        catch (e) {
+
+        }
+    }
     $scope.getBankDrReconList = function () {
         $scope.bankDrReconParameters.cutOffDate = $scope.cutOffDate;
         $scope.bankDrReconParameters.bankMasterId = $scope.bankReconciliationNew.BankMasterId;
@@ -489,7 +548,7 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
         }
     };
 
-
+   
     function afterAmountCalculate(list) {
         try {
             var afterAmount = list[0].After === "" ? 0 : Math.round(parseFloat(list[0].After) * 10000 + Number.EPSILON) / 10000,

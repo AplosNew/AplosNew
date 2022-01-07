@@ -703,17 +703,36 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         Sequence: 0
     }
     $scope.showTermsAndConditionDetailPopUp = function (args) {
-        $scope.TitleId = args.TermsAndConditionPIChildId;
+        $scope.TermsAndConditionPIChildId = args.TermsAndConditionPIChildId;
         $scope.POPupList = [];
-        $scope.GetRemarksByMaster($scope.TitleId);
+        $scope.GetRemarksByMaster($scope.TermsAndConditionPIChildId);
         angular.element(document.querySelector('#GridPopUp')).modal('show');
     }
-    $scope.removeBoMDetail = function (obj) {
+    $scope.DeletePITitle = function (obj) {
         $scope.TitleModel = obj.data;
         if (!baseService.isUndefinedOrNull($scope.TitleModel.Id))
             $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.TitleModel.Title + ' ]';
-        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+        angular.element(document.querySelector('#confirmPITitleDeletePopUp')).modal('show');
     }
+
+    $scope.DeleteTitle = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/ProformaInvoice/DeleteTitle?id=' + $scope.TitleModel.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadTermsAndConditionGrid($scope.PImodelNew.TermsAndConditionsId, $scope.PImodelNew.Id);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
     $scope.closeRemarksPopUp = function () {
 
         angular.element(document.querySelector('#GridPopUp')).modal('hide');
@@ -736,7 +755,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         $http({
             method: 'POST',
             url: $scope.saveGridUrl,
-            data: { 'GridData': model.data, 'TitleId': $scope.TitleId },
+            data: { 'GridData': model.data, 'TermsAndConditionPIChildId': $scope.TermsAndConditionPIChildId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -744,7 +763,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetRemarksByMaster($scope.TitleId);
+                $scope.GetRemarksByMaster($scope.TermsAndConditionPIChildId);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -761,7 +780,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetRemarksByMaster($scope.TitleId);
+                    $scope.GetRemarksByMaster($scope.TermsAndConditionPIChildId);
                 }
                 else {
                     ShowResult(response.data.Message, 'failure');

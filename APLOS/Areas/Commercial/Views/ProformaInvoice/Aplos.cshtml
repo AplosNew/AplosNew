@@ -141,9 +141,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-
                             </table>
-
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
@@ -152,47 +150,45 @@
                                 <li> <button ng-click="DeletePI();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                             </ul>
                         </div>
-                        <div style="color:black;" id="GridTermsAndConditions" ej-grid e-datasource="TermsAndConditionGridList" @*e-rowdatabound="rowDataBoundOrder"*@
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false"
-                             e-allowselection="false" @*e-detailstemplate="detailTempTitle" e-detailsdatabound="detailgridTitle" e-templaterefresh="refreshTemplateMasterOrderOperation"*@>
-
-                            <div e-columns>
-                                <div e-column e-field="TermsAndConditionPIChildId" e-headertext="TermsAndConditionsPIChildId" e-visible="false"></div>
-                                <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="420"></div>
-
-                                <div e-column e-template="#ShowDetails" e-headertext="" e-width="70"></div>
-
-
-                            </div>
-                            <script type="text/ng-template" id="ShowDetails">
-                                <div class="common-btn">
-                                    <ul class="list-inline ">
-                                        <li>
-                                            <button ng-click="$parent.showTermsAndConditionDetailPopUp(data);" title="Edit" class="btn small" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@>
-                                                <i class="glyphicon glyphicon-edit"></i>
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button ng-click="$parent.removeBoMDetail(this);@*$parent.ClearTitle();*@" class="btn small tooltip-here" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@ title="Delete">
-                                                <i class="glyphicon glyphicon-trash" style="color: orangered;"></i>
-                                            </button>
-                                        </li>
-                                    </ul>
+                        <div class="col-sm-12 container-fluid" ng-show="TermsAndConditionGridList.length>0">
+                            <div style="color:black;" id="GridTermsAndConditions" ej-grid e-datasource="TermsAndConditionGridList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" 
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" 
+                                 e-allowselection="false">
+                                <div e-columns>
+                                    <div e-column e-field="TermsAndConditionPIChildId" e-headertext="TermsAndConditionsPIChildId" e-visible="false"></div>
+                                    <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="420"></div>
+                                    <div e-column e-template="#ShowDetails" e-headertext="" e-width="70"></div>
                                 </div>
-                            </script>
-                            <script id="tabGridContentsTitle" type="text/x-jsrender">
-                                <div class="tabcontrol" id="Test">
-                                    <ul>
-                                        <li><a href="#gridTabTitle{{:Id}}">Details</a></li>
-
-                                    </ul>
-                                    <div id="gridTabTitle{{:Id}}">
-                                        <div id="detailGridTitle"></div>
+                                <script type="text/ng-template" id="ShowDetails">
+                                    <div class="common-btn">
+                                        <ul class="list-inline ">
+                                            <li>
+                                                <button ng-click="$parent.showTermsAndConditionDetailPopUp(data);" title="Edit" class="btn small" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@>
+                                                    <i class="glyphicon glyphicon-edit"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button ng-click="$parent.DeletePITitle(this);@*$parent.ClearTitle();*@" class="btn small tooltip-here" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@ title="Delete">
+                                                    <i class="glyphicon glyphicon-trash" style="color: orangered;"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
                                     </div>
+                                </script>
+                                <script id="tabGridContentsTitle" type="text/x-jsrender">
+                                    <div class="tabcontrol" id="Test">
+                                        <ul>
+                                            <li><a href="#gridTabTitle{{:Id}}">Details</a></li>
 
-                                </div>
-                            </script>
+                                        </ul>
+                                        <div id="gridTabTitle{{:Id}}">
+                                            <div id="detailGridTitle"></div>
+                                        </div>
+
+                                    </div>
+                                </script>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -243,8 +239,8 @@
                 <div e-column e-type="number" e-field="POQuantity" e-format="{0:N2}" e-headertext="PO Tagged Quantity" e-width="100"></div>
                 <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="120"></div>
                 <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
-                <div e-column e-type="string" e-field="InvoicingByAddress" e-headertext="InvoicingByAddress" e-width="100"></div>
-                <div e-column e-type="string" e-field="DeliveryByAddress" e-headertext="DeliveryByAddress" e-width="100"></div>
+                @*<div e-column e-type="string" e-field="InvoicingByAddress" e-headertext="InvoicingByAddress" e-width="100"></div>
+                <div e-column e-type="string" e-field="DeliveryByAddress" e-headertext="DeliveryByAddress" e-width="100"></div>*@
             </div>
         </div>
     </div>
@@ -384,4 +380,4 @@
         </div>
     </div>
 </div>
-<confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteBomDetail();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPITitleDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteTitle();"></confirm-archive-generic>

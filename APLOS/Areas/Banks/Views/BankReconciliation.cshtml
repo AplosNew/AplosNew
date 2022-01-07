@@ -200,68 +200,116 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class="row">
-                    <div class="table-responsive  modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th style="text-align: center;">Id</th>
-                                    <th style="text-align: center;">Voucher No</th>
-                                    <th style="text-align: center;">Voucher Date</th>
-                                    <th style="text-align: center;">Posting Date</th>
-                                    <th style="text-align: center;">Doc Ref No</th>
-                                    <th style="text-align: center;">Party Type</th>
-                                    <th style="text-align: center;">Narration</th>
-                                    <th style="text-align: center;">Amount</th>
-                                    <th style="text-align: center;" class="col-sm-2">CheckNo</th>
-                                    <th style="text-align: center;" class="col-sm-2">Encashment Date (as per statement)</th>
-                                    <th class="col-md-1">Reconciled</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr dir-paginate="x in bankCrReconDataList|itemsPerPage:bankCrReconParameters.pageSize"
-                                    total-items="bankCrReconParameters.total_count" pagination-id="metaData.name + 'bankCrReconDataList'">
-                                    <td ng-show="hh.Value!='Flag' && hh.Value!='EncashmentDate'" ng-repeat="hh in bankCrReconList">{{x[hh.Value]}}</td>
-                                    <td>
-                                        <div>
-                                            <input type="text" ng-model="x.EncashmentDate" datepicker class="form-control" placeholder="dd-MMM-yyyy"
-                                                   ng-change="validDateRange(x,'bankCrReconDataList',$index);encashmentDateUpdate(x)">@*ng-disabled="x.Flag"*@
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="isReconciled($event,x,3,'bankCrReconAmount');asignInTempList($event,x,'Dr','bankCrTempList');listMerge($event,x);">
-                                                    @*ng-disabled="x.EncashmentDate==''"*@
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="6" class="text-right"><b>Total :</b></td>
-                                        <td> <b>{{bankCrAmmount}}</b></td>
-                                        <td colspan="2"><b>Reconciled Amount : {{bankCrReconAmount==0?'':bankCrReconAmount}}</b></td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <dir-pagination-controls max-size="10"
-                                                     pagination-id="metaData.name + 'bankCrReconDataList'"
-                                                     direction-links="true"
-                                                     boundary-links="true"
-                                                     on-page-change="getBankCrReconData(newPageNumber)">
-                            </dir-pagination-controls>
+                    @*<div class="table-responsive  modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th style="text-align: center;">Id</th>
+                        <th style="text-align: center;">Voucher No</th>
+                        <th style="text-align: center;">Voucher Date</th>
+                        <th style="text-align: center;">Posting Date</th>
+                        <th style="text-align: center;">Doc Ref No</th>
+                        <th style="text-align: center;">Party Type</th>
+                        <th style="text-align: center;">Narration</th>
+                        <th style="text-align: center;">Amount</th>
+                        <th style="text-align: center;" class="col-sm-2">CheckNo</th>
+                        <th style="text-align: center;" class="col-sm-2">Encashment Date (as per statement)</th>
+                        <th class="col-md-1">Reconciled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr dir-paginate="x in bankCrReconDataList|itemsPerPage:bankCrReconParameters.pageSize"
+                        total-items="bankCrReconParameters.total_count" pagination-id="metaData.name + 'bankCrReconDataList'">
+                        <td ng-show="hh.Value!='Flag' && hh.Value!='EncashmentDate'" ng-repeat="hh in bankCrReconList">{{x[hh.Value]}}</td>
+                        <td>
+                            <div>
+                                <input type="text" ng-model="x.EncashmentDate" datepicker class="form-control" placeholder="dd-MMM-yyyy"
+                                       ng-change="validDateRange(x,'bankCrReconDataList',$index);encashmentDateUpdate(x)">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="isReconciled($event,x,3,'bankCrReconAmount');asignInTempList($event,x,'Dr','bankCrTempList');listMerge($event,x);">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="text-right"><b>Total :</b></td>
+                        <td> <b>{{bankCrAmmount}}</b></td>
+                        <td colspan="2"><b>Reconciled Amount : {{bankCrReconAmount==0?'':bankCrReconAmount}}</b></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            <dir-pagination-controls max-size="10"
+                                     pagination-id="metaData.name + 'bankCrReconDataList'"
+                                     direction-links="true"
+                                     boundary-links="true"
+                                     on-page-change="getBankCrReconData(newPageNumber)">
+            </dir-pagination-controls>
+        </div>*@
+                    <div class="col-md-12">
+                        <div style="color:black;" id="GridbankCrReconList"
+                             ej-grid e-datasource="bankCrReconDataListSyncfusion"
+                             e-allowfiltering="true"
+                             e-allowpaging="true"
+                             e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel"
+                             e-enabletouch="false"
+                             e-allowresizing="true"
+                             e-allowselection="false"
+                             e-allowsorting="true">
+                            <div e-columns>
+                                <div e-column e-field="VoucherDetail" e-headertext="Id" e-width="50" e-textalign="center"></div>
+                                <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="50" e-textalign="center"></div>
+                                <div e-column e-field="VoucherDate" e-headertext="Voucher Date" e-width="50" e-textalign="center"></div>
+                                <div e-column e-field="PostingDate" e-headertext="Posting Date" e-width="50" e-textalign="center"></div>
+                                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="40" e-textalign="center"></div>
+                                <div e-column e-field="PartyType" e-headertext="Party Type" e-width="80" e-textalign="center"></div>
+                                <div e-column e-field="Narration" e-headertext="Narration" e-width="80" e-textalign="center"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                <div e-column e-field="CheckNo" e-headertext="CheckNo" e-width="80" e-textalign="center"></div>
+                                <div e-column e-headertext="Encashment Date as per statement" e-template="#encashmentDatebankCrRecon" e-width="50" e-textalign="center"></div>
+                                <div e-column e-headertext="Reconciled" e-template="#checkbankCrRecon" e-textalign="center" e-width="30"></div>
+                            </div>
                         </div>
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li> <button ng-click="CRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
-                            </ul>
-                        </div>
+                        <script type="text/template" id="encashmentDatebankCrRecon">
+                            <input type="text" ng-model="data.EncashmentDate" datepicker class="form-control" ng-change="$parent.validDateRange(data,'bankCrReconDataListSyncfusion',$index);$parent.encashmentDateUpdate(data);">
+                        </script>
+                        <script type="text/template" id="checkbankCrRecon">
+                            <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.isReconciled($event,data,3,'bankCrReconAmount');$parent.asignInTempList($event,data,'Dr','bankCrTempList');$parent.listMerge($event,data);">
+                        </script>
+                        
                     </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <fieldset>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Total</label>
+                                <label class="col-sm-7 control-label">: {{bankCrAmmount}}</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <fieldset>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Reconciled Amount </label>
+                                <label class="col-sm-7 control-label">: {{bankCrReconAmount}}</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
+                        </ul>
+                    </div>
+                </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
                     <div class="row">
-                        <div class="table-responsive modal-table">
+                        @*<div class="table-responsive modal-table">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
@@ -285,39 +333,87 @@
                                         <td>
                                             <div>
                                                 <input type="text" ng-model="x.EncashmentDate" datepicker class="form-control" placeholder="dd-MMM-yyyy"
-                                                       ng-change="validDateRange(x,'bankDrReconDataList',$index);encashmentDateUpdate(x)">@*ng-disabled="x.Flag"*@
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="checkbox-site">
-                                                    <label>
-                                                        <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="isReconciled($event,x,4,'bankDrReconAmount');asignInTempList($event,x,'Cr','bankDrTempList');listMerge($event,x);">
-                                                        @*ng-disabled="x.EncashmentDate==''"*@
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="6" class="text-right"><b>Total :</b></td>
-                                            <td><b>{{bankDrAmmount}}</b></td>
-                                            <td colspan="2"><b>Reconciled Amount : {{bankDrReconAmount==0.00?'':bankDrReconAmount}}</b></td>
-                                            <td></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'bankDrReconDataList'"
-                                                         direction-links="true"
-                                                         boundary-links="true"
-                                                         on-page-change="getBankDrReconData(newPageNumber)">
-                                </dir-pagination-controls>
+                                                       ng-change="validDateRange(x,'bankDrReconDataList',$index);encashmentDateUpdate(x)">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="isReconciled($event,x,4,'bankDrReconAmount');asignInTempList($event,x,'Cr','bankDrTempList');listMerge($event,x);">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="6" class="text-right"><b>Total :</b></td>
+                                        <td><b>{{bankDrAmmount}}</b></td>
+                                        <td colspan="2"><b>Reconciled Amount : {{bankDrReconAmount==0.00?'':bankDrReconAmount}}</b></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'bankDrReconDataList'"
+                                                     direction-links="true"
+                                                     boundary-links="true"
+                                                     on-page-change="getBankDrReconData(newPageNumber)">
+                            </dir-pagination-controls>
+                        </div>*@
+                        <div class="col-md-12">
+                            <div style="color:black;" id="GridbankDrReconList"
+                                 ej-grid e-datasource="bankDrReconDataListSyncfusion"
+                                 e-allowfiltering="true"
+                                 e-allowpaging="true"
+                                 e-gridlines="vertical" e-allowscrolling="true"
+                                 e-filtersettings-filterType="excel"
+                                 e-enabletouch="false"
+                                 e-allowresizing="true"
+                                 e-allowselection="false"
+                                 e-allowsorting="true">
+                                <div e-columns>
+                                    <div e-column e-field="VoucherDetail" e-headertext="Id" e-width="50" e-textalign="center"></div>
+                                    <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="50" e-textalign="center"></div>
+                                    <div e-column e-field="VoucherDate" e-headertext="Voucher Date" e-width="50" e-textalign="center"></div>
+                                    <div e-column e-field="PostingDate" e-headertext="Posting Date" e-width="50" e-textalign="center"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="40" e-textalign="center"></div>
+                                    <div e-column e-field="PartyType" e-headertext="Party Type" e-width="80" e-textalign="center"></div>
+                                    <div e-column e-field="Narration" e-headertext="Narration" e-width="80" e-textalign="center"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-field="CheckNo" e-headertext="CheckNo" e-width="80" e-textalign="center"></div>
+                                    <div e-column e-headertext="Encashment Date as per statement" e-template="#encashmentDatebankDrRecon" e-width="50" e-textalign="center"></div>
+                                    <div e-column e-headertext="Reconciled" e-template="#checkbankDrRecon" e-textalign="center" e-width="30"></div>
+                                </div>
                             </div>
-                            <div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li> <button ng-click="DRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
-                                </ul>
-                            </div>
+                            <script type="text/template" id="encashmentDatebankDrRecon">
+                                <input type="text" ng-model="data.EncashmentDate" datepicker class="form-control" ng-change="$parent.validDateRange(data,'bankDrReconDataListSyncfusion',$index);$parent.encashmentDateUpdate(data);">
+                            </script>
+                            <script type="text/template" id="checkbankDrRecon">
+                                <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.isReconciled($event,data,4,'bankDrReconAmount');$parent.asignInTempList($event,data,'Cr','bankDrTempList');$parent.listMerge($event,data);">
+                            </script>
+
                         </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Total</label>
+                                    <label class="col-sm-7 control-label">: {{bankDrAmmount}}</label>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Reconciled Amount </label>
+                                    <label class="col-sm-7 control-label">: {{bankDrReconAmount}}</label>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="DRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
+                            </ul>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>

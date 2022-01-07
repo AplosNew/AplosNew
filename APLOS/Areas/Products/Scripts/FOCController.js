@@ -308,13 +308,14 @@ function FOCController(accountService, addressService, $window, cboService, comm
         , SystemFileName: null
         , Description: null
         , Remarks: null
-        , PODate: null
+        , GRN: null
         , Tolerance: 0
         , TermsAndConditionsId: null
         , IsTradingPO: false
         , IsFOC : true
     };
     $scope.productNew = Object.assign({}, $scope.product);
+
     $scope.productDocMap = {
         Id: null
         , CompanyGroupId: null
@@ -631,7 +632,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
             $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
             $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
             //$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
-            $scope.modelValidation('div_PODate', 'productNew', 'PODate', 'PO Entry Date');
+            $scope.modelValidation('div_PODate', 'productNew', 'GRNDate', 'GRN Entry Date');
             //if ($scope.Action === 'Update')
             //    $scope.modelValidation('div_grnNo', 'productNew', 'Id');
             //$scope.modelValidation('div_grnDate', 'productNew', 'GRNDate');
@@ -656,7 +657,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
                 if ($scope.productNew.OrderSpecific == 'No') {
                     $scope.productNew.ContractId = null;
                 }
-                if (new Date($scope.productNew.PODate) < new Date($scope.productNew.DocDate))
+                if (new Date($scope.productNew.GRNDate) < new Date($scope.productNew.DocDate))
                     return manualValidation('div_PODate', true, "PO date can't be less than Doc entry date");
                 else
                     manualValidation('div_PODate', false);
@@ -1835,7 +1836,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         $scope.taxCategoryList = [];
         $http({
             method: 'GET'
-            , url: $scope.path + 'GetReceiveTaxList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.productNew.PODate
+            , url: $scope.path + 'GetReceiveTaxList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.productNew.GRN
         }).then(function (response) {
             $scope.taxCategoryList = response.data;
             for (var i = 0; i < $scope.taxCategoryList.length; i++) {
@@ -2408,6 +2409,11 @@ function FOCController(accountService, addressService, $window, cboService, comm
         var Id = x.data.Id;
         $scope.Currency = $("#currency option:selected").text();
         $scope.productNew = x.data;
+
+        if (baseService.isUndefinedOrNull($scope.productNew.IsTradingPO)) {
+            $scope.productNew.IsTradingPO = false;
+        }
+
         $scope.Id = $scope.productNew.Id;
         $scope.productNew.PODate = x.data.PODate1;
         //getPartyPlantList();
@@ -3119,7 +3125,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
             $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
             $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
             //$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
-            $scope.modelValidation('div_PODate', 'productNew', 'PODate', 'PO Entry Date');
+            $scope.modelValidation('div_PODate', 'productNew', 'GRNDate', 'GRN Entry Date');
             $scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
             if ($scope.productNew.CurrencyId !== $scope.productNew.BaseCurrencyId)
                 $scope.manualValidationAddRemove('div_rate  ', 'productNew', 'ToCurrencyRate');
@@ -3128,7 +3134,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
 
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.productNewForm.$valid) {
-                if (new Date($scope.productNew.PODate) < new Date($scope.productNew.DocDate))
+                if (new Date($scope.productNew.GRNDate) < new Date($scope.productNew.DocDate))
                     return manualValidation('div_PODate', true, "PO date can't be less than Doc entry date");
                 else
                     manualValidation('div_PODate', false);
