@@ -16,25 +16,9 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
     };
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
-    };
-
-   
-
-    // Functions for the Current Day Status
-    $scope.DayTypesList = [];
-    function getDayTypes() {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getDayTypes',
-        }).then(function succ(resp) {
-            $scope.DayTypesList = resp.data;
-        });
-    };
-
-    getDayTypes();
-
-    
-
+    };  
+     
+     
     //*********************  Operations Staring for the Pages  ******************************\\
 
     //Getting the Master Grid
@@ -58,9 +42,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
             url: $scope.path + 'getChildData',
             data: {'MasterId': $scope.Master.Id}
         }).then(function success(resp){
-            //$scope.childDataList = [];
-            //$scope.childDataList = resp.data;
-            //$scope.Child.MasterId = $scope.Master.Id;
+
             $scope.Action = "Update";
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
@@ -128,10 +110,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         });
     }
 
- 
-
     //All the Validation Functions
-
   
     $scope.ConvertBits = function () {
         if ($scope.Master.FirstSource == "Yes") {
@@ -148,44 +127,8 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
             $scope.Master.ManualAuto = false;
         }
 
-        if ($scope.Master.InStatusApplicable == "Yes") {
-            $scope.Master.InStatusApplicable = true;
-        }
-        else {
-            $scope.Master.InStatusApplicable = false;
-        }
-
-        if ($scope.Master.OutStatusApplicable == "Yes") {
-            $scope.Master.OutStatusApplicable = true;
-        }
-        else {
-            $scope.Master.OutStatusApplicable = false;
-        }
-
-        if ($scope.Master.DurationApplicable == "Yes") {
-            $scope.Master.DurationApplicable = true;
-        }
-        else {
-            $scope.Master.DurationApplicable = false;
-        }
-
-
-
-        if ($scope.Master.WorkingDayOTApplicable == "Yes") {
-            $scope.Master.WorkingDayOTApplicable = true;
-        }
-        else {
-            $scope.Master.WorkingDayOTApplicable = false;
-        }
-
-        if ($scope.Master.NonWorkingDayOTApplicable == "Yes") {
-            $scope.Master.NonWorkingDayOTApplicable = true;
-        }
-        else {
-            $scope.Master.NonWorkingDayOTApplicable = false;
-        }
-
-
+      
+        
         if ($scope.Master.CompensatoryApplicable == "Yes") {
             $scope.Master.CompensatoryApplicable = true;
         }
@@ -259,21 +202,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
             $scope.Master.NonWorkingDayOTApplicable = "No";
         }
 
-
-        if ($scope.Master.CompensatoryApplicable == true) {
-            $scope.Master.CompensatoryApplicable = "Yes";
-        }
-        else {
-            $scope.Master.CompensatoryApplicable = "No";
-        }
-
-        if ($scope.Master.GoodWorkApplicable == true) {
-            $scope.Master.GoodWorkApplicable = "Yes";
-        }
-        else {
-            $scope.Master.GoodWorkApplicable = "No";
-        }
-
         if ($scope.Master.ToCheck == true) {
             $scope.Master.ToCheck = "Yes";
         }
@@ -304,23 +232,11 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         }
 
         $scope.ClearDayTypeChild();
-        $scope.ClearDayStatus();
-        $scope.LeaveDt = {
-            HeaderId: null,
-            DayTypeWithValuesId: null,
-            DayTypeWithValue: null,
-        };
-        $scope.LeaveList = [];
         $scope.DayChild.HeaderId = e.data.Id;
-        $scope.DayS.HeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
-        $scope.LeaveDt.HeaderId = e.data.Id;
-        $scope.GetSequenceDayStatus();
         $scope.getDayTypeChild();
         updateChild();
-        $scope.getDaystatusChild();
         showTabs();
-        LoadLeaveDayType();
         
     }
 
@@ -369,9 +285,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
                     ShowResult(response.data.Message, 'success');
                     $scope.Header = response.data.Data;
                     $scope.DayChild.HeaderId = response.data.Data.Id;
-                    $scope.DayS.HeaderId = response.data.Data.Id;
                     $scope.Child.HeaderId = response.data.Data.Id;
-                    $scope.LeaveDt.HeaderId = response.data.Data.Id;
                     showTabs();
                     LoadLeaveDayType();
                 }
@@ -406,91 +320,20 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
     }
 
-
-    //// ************************************* Day Types With Values ************************************* ////
-
     $scope.DayChild = {
         Id: null,
         HeaderId: null,
-        Category: null,
-        SubCategory: null,
-        ResponsiblePersonId: null,
         ShortName: null,
         StandardName: null,
-        DayType: null,
         UserName: null,
-        Code: null,
-        ReportCode: null,
         Remarks: null,
         Active: false,
-        TotalWorkingDay: 0,
-        ActualWorkingDay: 0,
-        PayDay: 0,
-        NonPayDay: 0,
-        PresentValuePD: 0,
-        LeaveValueLP: 0,
-        LeaveValueLWP: 0,
-        AbsentValueAB: 0,
-        WeeklyOffWO: 0,
-        HolidayH: 0,
-        Other: 0,
-        AttendanceBonus: 0,
-        OTApplicable: 0,
-        CompensatoryApplicable: false,
-        GoodWorkApplicable: 0,
-        SandwichStatusFlag: 0,
-        ToAudit: false,
-        OTMultiplier: 0,
-        OTHourLimit: 0,
-        OverStayLimit: 0,
-        AttendanceReProcessApplicable: false,
-        OTLimitLockApplicable: false,
-        OTCalculation: 0, 
-        CasualLeaveValueCV: 0,
-        MedicalLeaveValueMV: 0,
-        PriviledgeLeavePL: 0,
-        MaternityLeaveValueMLV: 0,
-        LateValueLV: 0,
-        WeekOffHoliDayWOH: 0,
-        CompAssignLv: 0,
-        ManualStatusAllowed: false,
-        DayStatusChange: false,
-        AutoLock: false,
-        EarnedPL: 0,
-        EarnedCL: 0,
-        IsCreditLimitAllowed: 0,
-        DayLimit :0,
-        Week1Limit: 0,
-        Week2Limit: 0,
-        Week3Limit: 0,
-        Week4Limit: 0,
-        MonthlyLimit: 0,
-        ApplicableWM: null,
-        OTMultiplingFactor: 0,
-        OTRateLegal: null,
-        OTRateExtra: null,
-        OTConfirmation: null,
-        isOTConfirmationAuto: false,
-        DisplayInOutTime: null,
-        AttnBonusAbsent: 0,
-        AttnBonusLate: 0,
-        AttnBonusLeave: 0,
-        OTCategory: null,
+        LeaveValue: 0,
+        AbsentValue: 0,
+        LateValue: 0,
+        Amount:0
     };
-
-    //Getting the OTRate List
-    $scope.OTRateList = [];
-
-    $scope.getOTRateList = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getOTRateList',
-        }).then(function succ(resp) {
-            $scope.OTRateList = resp.data;
-        });
-    }
-
-    $scope.getOTRateList();
+      
 
    
     //Saving of the Day Type With Values
@@ -540,22 +383,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
             throw ("Error");
         }
 
-        if ((parseFloat($scope.DayChild.PresentValuePD) + parseFloat($scope.DayChild.LeaveValueLP) +
-            parseFloat($scope.DayChild.LeaveValueLWP) + parseFloat($scope.DayChild.AbsentValueAB) + parseFloat($scope.DayChild.WeeklyOffWO)
-            + parseFloat($scope.DayChild.HolidayH) + parseFloat($scope.DayChild.Other) + parseFloat($scope.DayChild.LateValueLV)+
-        parseFloat($scope.DayChild.WeekOffHoliDayWOH)+
-        parseFloat($scope.DayChild. CompAssignLv)) > 1) {
-            ShowResult("Please check Day Status Value. Total cannot be more than 1!", 'failure');
-            throw ("Error");
-        }
-        if ((parseFloat($scope.DayChild.PresentValuePD) + parseFloat($scope.DayChild.LeaveValueLP) +
-            parseFloat($scope.DayChild.LeaveValueLWP) + parseFloat($scope.DayChild.AbsentValueAB) + parseFloat($scope.DayChild.WeeklyOffWO)
-            + parseFloat($scope.DayChild.HolidayH) + parseFloat($scope.DayChild.Other) + parseFloat($scope.DayChild.LateValueLV) +
-            parseFloat($scope.DayChild.WeekOffHoliDayWOH) +
-            parseFloat($scope.DayChild.CompAssignLv)) != 1) {
-            ShowResult("Please check Day Status Value. Total should be 1!", 'failure');
-            throw ("Error");
-        }
+        
     };
 
     function allZeros() {
@@ -573,70 +401,15 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         $scope.DayChild = {
             Id: null,
             HeaderId: null,
-            Category: null,
-            SubCategory: null,
-            ResponsiblePersonId: null,
             ShortName: null,
             StandardName: null,
-            DayType: null,
             UserName: null,
-            Code: null,
-            ReportCode: null,
             Remarks: null,
             Active: false,
-            TotalWorkingDay: 0,
-            ActualWorkingDay: 0,
-            PayDay: 0,
-            NonPayDay: 0,
-            PresentValuePD: 0,
-            LeaveValueLP: 0,
-            LeaveValueLWP: 0,
-            AbsentValueAB: 0,
-            WeeklyOffWO: 0,
-            HolidayH: 0,
-            Other: 0,
-            AttendanceBonus: 0,
-            OTApplicable: 0,
-            CompensatoryApplicable: false,
-            GoodWorkApplicable: 0,
-            SandwichStatusFlag: 0,
-            ToAudit: false,
-            OTMultiplier: 0,
-            OTHourLimit: 0,
-            OverStayLimit: 0,
-            AttendanceReProcessApplicable: false,
-            OTLimitLockApplicable: false,
-            OTCalculation: 0,
-            CasualLeaveValueCV: 0,
-            MedicalLeaveValueMV: 0,
-            PriviledgeLeavePL: 0,
-            MaternityLeaveValueMLV: 0,
-            LateValueLV: 0,
-            WeekOffHoliDayWOH: 0,
-            CompAssignLv: 0,
-            ManualStatusAllowed: false,
-            DayStatusChange: false,
-            AutoLock: false,
-            EarnedPL: 0,
-            EarnedCL: 0,
-            IsCreditLimitAllowed: 0,
-            DayLimit: 0,
-            Week1Limit: 0,
-            Week2Limit: 0,
-            Week3Limit: 0,
-            Week4Limit: 0,
-            MonthlyLimit: 0,
-            ApplicableWM: null,
-            OTMultiplingFactor: 0,
-            OTRateLegal: null,
-            OTRateExtra: null,
-            OTConfirmation: null,
-            isOTConfirmationAuto: false,
-            DisplayInOutTime: null,
-            AttnBonusAbsent: 0,
-            AttnBonusLate: 0,
-            AttnBonusLeave: 0,
-            OTCategory: null,
+            LeaveValue: 0,
+            AbsentValue: 0,
+            LateValue: 0,
+            Amount:0
         };
         $scope.DayChild.HeaderId = $scope.Header.Id;
         
@@ -647,7 +420,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
     $scope.getDayTypeChild = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getDayTypeChild",
+            url: $scope.path + "getRulesList",
             data: { 'Id': $scope.Header.Id},
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -764,6 +537,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#confirmPOPUPD')).modal('show');
     }
 
+
     $scope.DeleteChild = function () {
 
         var obj = $scope.DeleteChildData;
@@ -814,66 +588,4 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         }
     }
 
-
-
-    // ********************************************** Leave Day Type Codes
-
-    $scope.LeaveDt = {
-        HeaderId: null,
-        DayTypeWithValuesId: null,
-        DayTypeWithValue: null,
-    };
-
-    //Getting the DayTypeWithValues
-    $scope.LeaveList = [];
-    $scope.selectLeaveDayType = function () {
-
-        $http({
-            method: 'POST',
-            url: $scope.path + 'getleaveDayTypes',
-            data: { 'DayTypeWithValuesId': $scope.DayChild.Id }
-        }).then(function succ(resp) {
-            $scope.LeaveList = [];
-            $scope.LeaveList = resp.data;
-        });
-        angular.element(document.querySelector('#LeaveDayType')).modal('show');
-    }
-
-    function LoadLeaveDayType () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'getleaveDayTypes',
-            data: { 'DayTypeWithValuesId': $scope.DayChild.Id }
-        }).then(function succ(resp) {
-            $scope.LeaveList = [];
-            $scope.LeaveList = resp.data;
-        });
-    }
-    
-    $scope.saveLeaveDayType = function ()
-    {
-            $http({
-                method: 'POST',
-                url: $scope.path + 'saveLeaveDayType',
-                data: { 'Data': $scope.LeaveList, 'DayTypeWithValuesId': $scope.LeaveDt.DayTypeWithValuesId }
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $http({
-                        method: 'POST',
-                        url: $scope.path + 'getleaveDayTypes',
-                        data: { 'DayTypeWithValuesId': $scope.LeaveDt.DayTypeWithValuesId }
-                    }).then(function succ(resp) {
-                        $scope.LeaveList = [];
-                        $scope.LeaveList = resp.data;
-                    });
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        
-    }      
-}
+ }

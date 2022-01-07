@@ -69,49 +69,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return Json(ds.getChildData(MasterId), JsonRequestBehavior.AllowGet);
         }
-
-        [HttpGet, Authorize]
-        public ActionResult getDayTypes()
-        {
-            return Json(ds.getDayTypes(), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult getDefaultDayStatus()
-        {
-            return Json(ds.getDefaultDayStatus(), JsonRequestBehavior.AllowGet);
-        }
-
-        //[HttpPost]
-        //public ActionResult saveMaster(Dictionary<string, object> Master)
-        //{
-        //    try
-        //    {
-        //        var id = ds.saveMaster(Master);
-        //        return Json(new { Error = false, Data = id,  Message = AplosMessage.Success });
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { Error = true, Message = ex.Message });
-        //    }
-            
-        //}
-
-        //[HttpPost]
-        //public ActionResult deleteMaster(string id)
-        //{
-        //    string jj = ds.deleteMaster(id);
-        //    if (jj == "Success")
-        //    {
-        //        return Json(new { Error = false, Data = id, Message = AplosMessage.Updated });
-        //    }
-        //    else
-        //    {
-        //        return Json(new { Error = true, Data = id, Message = jj });
-        //    }
-        //}
-
+        
         [HttpPost]
         public ActionResult DeleteChild(string id)
         {
@@ -176,13 +134,15 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
 
-        // ********************************************* Day Type With Values Functions
-        //Getting The Day Type Child List
+        #region Rules Screen Functions
+
+        //Getting The RulesList
         [HttpPost, Authorize]
-        public ActionResult getDayTypeChild(string Id)
+        public ActionResult getRulesList(string Id)
         {
-            return Json(ds.getDayTypeChild(Id), JsonRequestBehavior.AllowGet);
+            return Json(ds.getRulesList(Id), JsonRequestBehavior.AllowGet);
         }
+
         // Saving the Day Type With Values
         [HttpPost]
         public ActionResult saveDayTypeChild(Dictionary<string, object> DayTypeChild , List<Dictionary<string,object>> Leave)
@@ -200,58 +160,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
-        //Sequence for the Day Status Child
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequenceDayStatus()
-        {
-            return Json(ds.GetAutoSequenceDayStatus(), JsonRequestBehavior.AllowGet);
-        }
+        #endregion
 
-        //Saving of the Day status Child
-        [HttpPost]
-        public ActionResult saveDayStatusChild(Dictionary<string, object> DaystatusChild)
-        {
-            try
-            {
-                var id = ds.saveDayStatusChild(DaystatusChild);
-                return Json(new { Error = false, Data = id, Message = AplosMessage.Success });
-
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-
-        }
-
-        // ********************************************* Leave Day
-
-        [HttpPost, Authorize]
-        public ActionResult getleaveDayTypes(string DayTypeWithValuesId)
-        {
-            return Json(ds.getleaveDayTypes(DayTypeWithValuesId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult getOTRateList()
-        {
-            return Json(ds.getOTRateList(), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost]
-        public ActionResult saveLeaveDayType(List<Dictionary<string, object>> Data , string DayTypeWithValuesId)
-        {
-            try
-            {
-                ds.saveLeaveDayType(Data, DayTypeWithValuesId);
-                return Json(new { Error = false,  Message = AplosMessage.Success });
-
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-
-        }
     }
 }
