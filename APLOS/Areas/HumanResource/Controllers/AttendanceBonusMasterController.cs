@@ -24,7 +24,7 @@ namespace Aplos.Areas.HumanResource.Controllers
     {
         #region Constructor
 
-        DayStatusService ds = new DayStatusService();
+        AttdnBonusMasterService ds = new AttdnBonusMasterService();
         public AttendanceBonusMasterController()
         {
         }
