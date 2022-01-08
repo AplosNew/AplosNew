@@ -99,7 +99,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         });
 
     }
-
     $scope.getHeader();
 
 

@@ -39,18 +39,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #endregion -- Pages
 
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
-        {
-            return Json(ds.GetSequence(), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult getMaster()
-        {
-            return Json(ds.getMaster(), JsonRequestBehavior.AllowGet);
-        }
-
+     
         #region PlantChild Actions
 
         [HttpPost, Authorize]
@@ -91,21 +80,32 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #endregion
 
-        /// Header Get
+        #region Header Functions
+
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence()
+        {
+            return Json(ds.GetSequence(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getMaster()
+        {
+            return Json(ds.getMaster(), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult getHeader()
         {
             return Json(ds.getHeader(), JsonRequestBehavior.AllowGet);
         }
 
-        /// Header Sequence
         [HttpGet, Authorize]
         public JsonResult GetAutoSequenceHeader()
         {
             return Json(ds.GetSequenceHeader(), JsonRequestBehavior.AllowGet);
         }
 
-        //Header Save
         [HttpPost]
         public ActionResult saveHeader(Dictionary<string, object> Header)
         {
@@ -122,17 +122,16 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+        #endregion
 
         #region Rules Screen Functions
 
-        //Getting The RulesList
         [HttpPost, Authorize]
         public ActionResult getRulesList(string Id)
         {
             return Json(ds.getRulesList(Id), JsonRequestBehavior.AllowGet);
         }
 
-        // Saving the Day Type With Values
         [HttpPost]
         public ActionResult SaveRuleMaster(Dictionary<string, object> RuleMasterData)
         {
