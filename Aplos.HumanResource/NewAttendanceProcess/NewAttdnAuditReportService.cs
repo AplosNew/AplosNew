@@ -446,6 +446,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var iOTDifference = 0;
                 var iLine = 0;
                 var iManualDayStatus = 0;
+                var WorkDate = 0;
                 var iDepartment = 0;
                 var iDayStatus = 0;
                 var iPresentFromEffectiveDate = 0;
@@ -8977,6 +8978,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet31.Range[xlsRow, iDOJ].ColumnWidth = 18;
 
                     xlsCol += 1;
+                    WorkDate = xlsCol;
+                    sheet31.Range[xlsRow, WorkDate].Text = "Work Date";
+                    sheet31.Range[xlsRow, WorkDate].ColumnWidth = 18;
+
+                    xlsCol += 1;
                     iManualDayStatus = xlsCol;
                     sheet31.Range[xlsRow, iManualDayStatus].Text = "ManualDayStaus";
                     sheet31.Range[xlsRow, iManualDayStatus].ColumnWidth = 18;
@@ -9019,6 +9025,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet31.Range[xlsRow, iDOJ].Text = dtManualDayStatusEntry.Rows[i]["DOJ"].ToString();
 
                             sheet31.Range[xlsRow, iManualDayStatus].Text = dtManualDayStatusEntry.Rows[i]["ManualDayStatus"].ToString();
+                            sheet31.Range[xlsRow, WorkDate].Text = dtManualDayStatusEntry.Rows[i]["WorkDate"].ToString();
 
                             xlsRow++;
                             SLNo++;
