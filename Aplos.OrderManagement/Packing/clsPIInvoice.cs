@@ -570,43 +570,46 @@ namespace Library.OrderManagement.Packing
                 {
                     foreach (var item in CommercialInvoicePIMaterial)
                     {
-                        foreach (var y in item.TaxList)
+                        if (item.TaxList != null)
                         {
-                            dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + y.Id + "'  ";
-                            if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                            foreach (var y in item.TaxList)
                             {
-                                dr = dsTaxes.Tables[0].NewRow();
+                                dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + y.Id + "'  ";
+                                if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                                {
+                                    dr = dsTaxes.Tables[0].NewRow();
 
-                                dr["Id"] = "T" + TempId + count++;
-                                dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
-                                dr["CommercialInvoicePIMaterialId"] = item.Id;
-                                dr["CommercialInvoiceChargesId"] = DBNull.Value;
-                                dr["TaxCategoryId"] = y.TaxCategoryId;
-                                dr["HSNCodeId"] = y.HSNCodeId;
-                                dr["Percentage"] = y.Percentage;
-                                dr["Amount"] = y.TotalAmount;
+                                    dr["Id"] = "T" + TempId + count++;
+                                    dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
+                                    dr["CommercialInvoicePIMaterialId"] = item.Id;
+                                    dr["CommercialInvoiceChargesId"] = DBNull.Value;
+                                    dr["TaxCategoryId"] = y.TaxCategoryId;
+                                    dr["HSNCodeId"] = y.HSNCodeId;
+                                    dr["Percentage"] = y.Percentage;
+                                    dr["Amount"] = y.TotalAmount;
 
-                                dr["AddedBy"] = identity.Name;
-                                dr["AddedDate"] = DateTime.Now;
-                                dr["AddedFromIP"] = identity.IPAddress;
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["UpdatedDate"] = DateTime.Now;
-                                dr["UpdatedFromIP"] = identity.IPAddress;
-                                dsTaxes.Tables[0].Rows.Add(dr);
+                                    dr["AddedBy"] = identity.Name;
+                                    dr["AddedDate"] = DateTime.Now;
+                                    dr["AddedFromIP"] = identity.IPAddress;
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = identity.IPAddress;
+                                    dsTaxes.Tables[0].Rows.Add(dr);
 
-                            }
-                            else
-                            {
-                                dr = dsTaxes.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["TaxCategoryId"] = y.TaxCategoryId;
-                                dr["HSNCodeId"] = y.HSNCodeId;
-                                dr["Percentage"] = y.Percentage;
-                                dr["Amount"] = y.TotalAmount;
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["UpdatedDate"] = DateTime.Now;
-                                dr["UpdatedFromIP"] = identity.IPAddress;
-                                dr.EndEdit();
+                                }
+                                else
+                                {
+                                    dr = dsTaxes.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["TaxCategoryId"] = y.TaxCategoryId;
+                                    dr["HSNCodeId"] = y.HSNCodeId;
+                                    dr["Percentage"] = y.Percentage;
+                                    dr["Amount"] = y.TotalAmount;
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = identity.IPAddress;
+                                    dr.EndEdit();
+                                }
                             }
                         }
                     }

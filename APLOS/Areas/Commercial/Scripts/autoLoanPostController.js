@@ -19,7 +19,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
     $controller("cashBaseController", { $scope: $scope, $http: $http });
     $scope.url = "Commercial/AutoLoan";
     $scope.postUrl = "Accounts/Loan/PostLoan";
-    $scope.deleteUrl = "Accounts/Loan/DeleteLoan";
+    $scope.deleteUrl = "Accounts/Loan/DeleteAutoloanPost";
 
     $scope.voucher = {
         Id: null,
