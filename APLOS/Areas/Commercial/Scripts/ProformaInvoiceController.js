@@ -791,4 +791,15 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         }
     }
 
+    $scope.PoformaInvoiceReport = function (args) {
+        try {
+         
+            var file_src = 'Commercial/ProformaInvoice/PoformaInvoiceReport?PIMasterId=' + args.data.Id + '&PIVersionId=' + args.data.PIVersionId
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
 }

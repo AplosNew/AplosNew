@@ -225,7 +225,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsPIMaster, dsPIVersion, dsPIMaterial);
-                if (!string.IsNullOrEmpty(HeaderData["TermsAndConditionsId"].ToString()))
+                if (!string.IsNullOrEmpty(clsStaticInfo.nullrecorder(HeaderData["TermsAndConditionsId"])))
                 {
                     SaveTermsData(HeaderData["TermsAndConditionsId"].ToString(), HeaderData["Id"].ToString());
                 }
@@ -792,5 +792,50 @@ left outer join TermsAndConditionsPIChild TC on TC.Id=TCD.TermsAndConditionsPICh
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+        //public JsonResult PoformaInvoiceReport(string PIMasterId, string PIVersionId)
+        //{
+        //    try
+        //    {
+        //        #region Validations
+        //        //if (DataList.Count == 0)
+        //        //{
+        //        //    throw new Exception("Select from Invoice list ");
+        //        //}
+        //        //for (int i = 0; i < DataList.Count; i++)
+        //        //{
+        //        //    if (DataList[i]["PartyId"].ToString() != LcData["VendorId"].ToString())
+        //        //    {
+        //        //        throw new Exception("Vendor should be matched with Purchase LC for [" + DataList[i]["PartyPlantName"].ToString() + "]");
+        //        //    }
+        //        //    if (DataList[i]["CurrencyId"].ToString() != LcData["CurrencyId"].ToString())
+        //        //    {
+        //        //        throw new Exception("Currency should be matched with Purchase LC for [" + DataList[i]["PartyPlantName"].ToString() + "]");
+        //        //    }
+        //        //}
+        //        #endregion
+        //        string PackingListMasterId = PI.Save(PIPackingListMasterData, MaterialData, DataList);
+        //        return Json(new { Error = false, Message = AplosMessage.Updated, PIPackingListMasterId = PackingListMasterId });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { Error = true, Message = ex.Message });
+        //    }
+        //}
+
+        //[HttpGet, Authorize]
+        //public ActionResult PoformaInvoiceReport(string PIMasterId, string PIVersionId)
+        //{
+        //    try
+        //    {
+        //        PI.PoformaInvoiceReport(PIMasterId, PIVersionId);
+
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
     }
 }
