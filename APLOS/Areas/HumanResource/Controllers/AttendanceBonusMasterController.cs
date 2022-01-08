@@ -43,14 +43,7 @@ namespace Aplos.Areas.HumanResource.Controllers
        public ActionResult getPlants()
         {
             return Json(ds.getPlants(), JsonRequestBehavior.AllowGet);
-        }
-
-
-        [HttpPost, Authorize]
-        public ActionResult getEmpType()
-        {
-            return Json(ds.getEmpType(), JsonRequestBehavior.AllowGet);
-        }
+        }       
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()

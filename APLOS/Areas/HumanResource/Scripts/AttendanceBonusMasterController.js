@@ -46,31 +46,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         })
     }
 
-    $scope.saveMaster = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.MasterForm2.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.path + 'saveMaster',
-                data: {'Master' : $scope.Master}
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.Child.MasterId = response.data.Data.Id;
-                    $scope.Master.Id = response.data.Data.Id;
-                    $scope.getMaster();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        }
-    }
-        
-   
     var j = document.getElementById("tab_show");
     j.style.display = "none";
 
@@ -143,8 +118,9 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.Header = response.data.Data;
-                    $scope.DayChild.HeaderId = response.data.Data.Id;
+                    $scope.RuleMaster.HeaderId = response.data.Data.Id;
                     $scope.Child.HeaderId = response.data.Data.Id;
+                    $scope.getHeader();
                     showTabs();                   
                 }
             }), function errorCallBack(response) {
@@ -228,7 +204,7 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
     function allValidations() {
 
-        allZeros();
+        //allZeros();
 
         CheckField("Late Value", $scope.RuleMaster.LateValue);
         CheckField("Absent Value", $scope.RuleMaster.AbsentValue);
@@ -280,21 +256,17 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         });
     }
 
-    //Double Click the Day Type Child Grid
     $scope.getRuleChildDetails = function (e) {
         $scope.RuleMaster = e.data;
     }
 
-      
+
+    // Plant Tagging Tab Functions
     $scope.Child = {
         Id: null,
         HeaderId: null,
-        PlantId: null,
-        EmpTypeId: null,
-    };
-
-   
-    $scope.EmpTypeList = [];
+        PlantId: null
+    };  
 
     $scope.PlantList = [];
     $scope.getPlants = function () {
@@ -306,7 +278,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
             $scope.PlantList = response.data;
         })
     }
-
 
     $scope.Company = null;
     $scope.CompanyList = [];
@@ -321,25 +292,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
     $scope.getCompany();
 
-
-
-    //Filling of the Employee Type List
-
-    $scope.fillPlantsEmps = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'getEmpType',
-
-        }).then(function success(response) {
-            $scope.EmpTypeList = [];
-            $scope.EmpTypeList = response.data;
-        })
-
-    }
-
-    $scope.fillPlantsEmps();
-
-    // Refreshing The Child Table
     $scope.childDataList = [];
     function updateChild() {
         $http({
@@ -352,15 +304,12 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         });
     }
 
-
-    //Deleting the Child Table
     $scope.DeleteChildData = [];
     $scope.confirmModal = function (data) {
         $scope.DeleteChildData = [];
         $scope.DeleteChildData = data;
         angular.element(document.querySelector('#confirmPOPUPD')).modal('show');
     }
-
 
     $scope.DeleteChild = function () {
 
@@ -385,10 +334,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
             });
         }
     };
-
-
-
-    //Save The Child Data
 
     $scope.saveChild = function () {
         $scope.$broadcast('show-errors-check-validity');
