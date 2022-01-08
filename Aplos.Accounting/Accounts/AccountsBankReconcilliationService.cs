@@ -215,6 +215,77 @@ namespace Library.Accounting.Accounts
             }
         }
 
+        public IEnumerable<object> GetBankCrReconListSyncfusion( string companyGroupId, string companyId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var sql = @"SELECT V.Id AS VoucherId
+	                                         ,VD.Id AS VoucherDetailId
+                                             ,VD.Id AS VoucherDetail
+	                                         ,V.VoucherNo
+	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+                                             ,VD.DocRefNo, VD.PartyType, VD.Narration
+	                                         ,GLT.CrAmount AS Amount --[Add : BanK other Credit]
+	                                         ,'' AS CheckNo
+	                                         ,'' EncashmentDate
+                                       FROM TRN.VoucherDetail AS VD
+                                       INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                       INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                                       WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' AND (ReconcileId IS NULL))
+                                       AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"'  AND V.IsPark=0
+                                       AND (VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
+                                       AND (VD.CrAmount<>0.0000) ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetBankDrReconListSyncfusion(string companyGroupId, string companyId, DateTime cutOffDate, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                string str = "";
+                if (Convert.ToDateTime(cutOffDate).Date == fromDate.Date)
+                {
+                    str = " AND V.[SourceType]<>'OpeningBalance' ";
+                }
+                else
+                {
+                    str = " ";
+                }
+                var sql = @"SELECT V.Id AS VoucherId
+	                                         ,VD.Id AS VoucherDetailId
+                                             ,VD.Id AS VoucherDetail
+	                                         ,V.VoucherNo
+	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+                                             ,VD.DocRefNo, VD.PartyType, VD.Narration
+	                                         ,GLT.DrAmount AS Amount --[Add : BanK other Credit]
+	                                         ,'' AS CheckNo
+	                                         ,'' EncashmentDate 
+                                       FROM TRN.VoucherDetail AS VD
+                                       INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                       INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                                       WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' AND (ReconcileId IS NULL))
+                                       AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"' AND V.IsPark=0
+                                       AND (VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
+                                       AND (VD.DrAmount<>0.0000)" + str;
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
         public GridModel GetBankDrReconList(GridParameter parameters, string companyGroupId, string companyId, DateTime cutOffDate, string bankMasterId, DateTime fromDate, DateTime toDate)
         {
             try

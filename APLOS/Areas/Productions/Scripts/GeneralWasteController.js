@@ -58,7 +58,7 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
 
         $scope.doubleEntity = function (e) {
             $scope.EntityId = e.data.EntityId;
-            $scope.Entity = e.data.Entity;
+            $scope.Entity = e.data.EntityName;
                 angular.element(document.querySelector('#EntityPop')).modal('hide');
          }
 
@@ -85,6 +85,62 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
             
         });
     }
+
+     //$scope.saveAll = function () {
+     //       $http({
+     //           method: 'POST',
+     //           url: $scope.path + "",
+     //           dataType: 'JSON'
+     //       }).then(function successCallback(response) {
+     //           $scope.EntityList = response.data;
+     //       });
+     //}
+
+    $scope.SaveAll = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            ShowResult('Please select Entity !!', 'failure');
+            throw ("Invalid");
+        }
+
+        // [{Quantity} , {} , {}]
+        /*for(var i = 0 ; i< $scope.VGP.length ; i++)
+        {
+            if($scope.VGP[i].Quantity >0)
+            {
+            arr.push($scope.VGp[i]);
+            }
+        }
+        //}*/
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: {'Data':$scope.ViewGridPop},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.ViewGridPop();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        
+    };
+
+
+
+
+       
+       
 
    
         $scope.ModelTemp = {

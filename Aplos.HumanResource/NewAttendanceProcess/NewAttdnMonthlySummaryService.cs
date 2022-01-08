@@ -9,9 +9,13 @@ using Library.Service.Helpers;
 using System.IO;
 using Syncfusion.XlsIO;
 using System.Drawing;
+using Library.Crosscutting.Security;
+using System.Threading;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
+    #region Monthly Attendance Reports 
+   
     public class NewAttdnMonthlySummaryService
     {
         SqlRepository _sqlRepository;
@@ -2776,5 +2780,321 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     }
 
+    #endregion
+
+    public class AttdnBonusMasterService
+    {
+
+        ISqlRepository _sqlRepository;
+        public AttdnBonusMasterService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getPlants()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"Select Username as Text , Id as Value from ORG.Plant --where CompanyId = '" + identity.CompanyId + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }         
+
+       
+        public IEnumerable<object> getEmpType()
+        {
+            try
+            {
+                var str = @"Select Username as Text , Id as Value from hkp.EmployeeCategory";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getMaster()
+        {
+            try
+            {
+                var str = @"Select * from dbo.AttdnBonusHeader";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+
+        public IEnumerable<object> getChildData(string MasterId)
+        {
+            try
+            {
+                var sql = @"Select * from dbo.attdnbonusplantchild where HeaderId ='" + MasterId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #region Add/Edit Section
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dt.Rows.Add(dr);
+        }
+
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+       
+        #endregion
+
+        public Dictionary<string, object> saveChild(Dictionary<string, object> Child)
+        {
+            try
+            {
+                string TableName = "dbo.DayStatusPlantChild";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PlantId ='" + Child["PlantId"] + "' and EmpTypeId ='" + Child["EmpTypeId"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    Child["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], Child);
+                }
+                else
+                {
+                    throw new Exception("Already same Combination is Present!");
+                }
+
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Child;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+      
+        public string DeleteChild(string id)
+        {
+            try
+            {
+                string TableName = "dbo.DayStatusPlantChild";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where Id='" + id + "'");
+                con.CommitTransaction();
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
+        public double GetSequence()
+        {
+            string TableName = "dbo.AttdnBonusHeader";
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        //Getting the Header
+        public IEnumerable<object> getHeader()
+        {
+            try
+            {
+                var str = @"Select * from dbo.AttdnBonusHeader";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        // Saving the New Header
+        public Dictionary<string, object> saveHeader(Dictionary<string, object> Header)
+        {
+            try
+            {
+                string TableName = "dbo.AttdnBonusHeader";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id<>'" + Header["Id"] + "' and UserName='" + Header["UserName"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same UserName is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id<>'" + Header["Id"] + "' and StandardName='" + Header["StandardName"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same StandardName is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Header["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    Header["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], Header);
+                }
+                else
+                {
+                    _Id = Header["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], Header);
+                }
+
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Header;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        //Getting the Header Auto Sequence
+        public double GetSequenceHeader()
+        {
+            string TableName = "dbo.AttdnBonusHeader";
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+
+        // Getting the Day Type Child 
+        public IEnumerable<object> getRulesList(string Id)
+        {
+            try
+            {
+                var str = @"Select * from dbo.AttdnBonusRuleChild where HeaderId ='" + Id + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Dictionary<string, object> SaveRuleMaster(Dictionary<string, object> Header)
+        {
+            try
+            {
+                string TableName = "dbo.AttdnBonusRuleChild";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId='" + Header["HeaderId"] + "' and DayType='" + Header["DayType"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same Day Type is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Header["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    Header["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], Header);
+                }
+                else
+                {
+                    _Id = Header["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], Header);
+                }
+
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Header;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+    }
 }
 

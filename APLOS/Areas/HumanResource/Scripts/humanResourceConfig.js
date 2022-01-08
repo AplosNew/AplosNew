@@ -568,6 +568,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/DayStatusMaster/Aplos',
             controller: 'DayStatusMasterController'
         })
+        .when('/attdn-bonus-master', {
+            templateUrl: 'humanresource/AttendanceBonusMaster/Aplos',
+            controller: 'AttendanceBonusMasterController'
+        })
         .when('/weekly-off', {
             templateUrl: 'humanresource/WeeklyOff/Aplos',
             controller: 'WeeklyOffController'

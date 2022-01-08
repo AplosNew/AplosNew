@@ -587,7 +587,10 @@ namespace Library.Service.Productions
                     ob_fromDB.ResponsiblePersonId = ps.ResponsiblePersonId;
                     ob_fromDB.MentorId = ps.MentorId;
                     ob_fromDB.Quantity = ps.Quantity;
+                    ob_fromDB.ProductionOrderId = ps.ProductionOrderId;
                     ob_fromDB.SalesOrderId = ps.SalesOrderId;
+                    ob_fromDB.MasterOrderItemId = ps.MasterOrderItemId;
+                    ob_fromDB.ProductLibraryId = ps.ProductLibraryId;
 
                     ob_fromDB.InTime = ps.InTime;
                     ob_fromDB.OutTime = ps.OutTime;
@@ -656,8 +659,10 @@ namespace Library.Service.Productions
                     ob_fromDB.ResponsiblePersonId = ps.ResponsiblePersonId;
                     ob_fromDB.MentorId = ps.MentorId;
                     ob_fromDB.Quantity = ps.Quantity;
-                    ob_fromDB.SalesOrderId = ps.SalesOrderId;
                     ob_fromDB.ProductionOrderId = ps.ProductionOrderId;
+                    ob_fromDB.SalesOrderId = ps.SalesOrderId;
+                    ob_fromDB.MasterOrderItemId = ps.MasterOrderItemId;
+                    ob_fromDB.ProductLibraryId = ps.ProductLibraryId;
 
                     ob_fromDB.InTime = ps.InTime;
                     ob_fromDB.OutTime = ps.OutTime;
