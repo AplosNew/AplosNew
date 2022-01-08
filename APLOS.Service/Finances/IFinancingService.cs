@@ -18,6 +18,7 @@ namespace Library.Service.Finances
 
         void InsertFinancingSchedule(Financing financing, FinancingSchedule financingSchedule);
         void DeleteLoan(string companyId, string plantId, string voucherId);
+        void DeleteAutoloanPost(string companyId, string plantId, string voucherId);
         void Post(string financingId);
         void PostFinancingWriteOff(string financingWriteOffId);
         void DeleteLoanPayment(string companyId, string plantId, string voucherId);
