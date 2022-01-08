@@ -398,7 +398,7 @@ namespace Aplos.Areas.Commercial.Controllers
             string sql = @"select top 100 * from (SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 ,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
 ,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId,PV.VersionNo AS LastVersion
-,P2.Amount,p2.POQuantity,PM.AddedDate
+,P2.Amount,p2.POQuantity,PM.AddedDate,PM.TermsAndConditionsId
  FROM PIMaster PM 
 LEFT OUTER JOIN
 (SELECT p.PIMasterId, SUM(p.Amount) Amount,SUM(pmp.POQuantity) POQuantity FROM PIMaterial p

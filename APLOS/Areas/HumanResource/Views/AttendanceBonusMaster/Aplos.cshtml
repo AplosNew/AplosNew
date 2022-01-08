@@ -94,32 +94,32 @@
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Standard Name</label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="RuleMaster.StandardName" name="Standard Name" class="form-control" maxlength="30" tabindex="2" required>
+                                        <input type="text" ng-model="RuleMaster.StandardName" name="Standard Name" class="form-control" maxlength="30" required>
                                     </div>
-                                </div>
-                                                                           
+                                </div>                                                                           
 
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Remarks</label>
                                     <div class="col-sm-8">
-                                        <input type="text" ng-model="RuleMaster.Remarks" class="form-control" maxlength="100" tabindex="2">
+                                        <input type="text" ng-model="RuleMaster.Remarks" class="form-control" maxlength="200">
                                     </div>
                                 </div>
+
                             </div>
 
                             <div class="col-xs-12 col-sm-6 col-md-6">
 
-                                <div class="form-group">
+                                <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">User Name</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" ng-model="RuleMaster.UserName" class="form-control" maxlength="100" tabindex="2" required>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" ng-model="RuleMaster.UserName" class="form-control" maxlength="100" required>
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Short Name</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" ng-model="RuleMaster.ShortName" class="form-control" maxlength="100" tabindex="2" required>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" ng-model="RuleMaster.ShortName" class="form-control" maxlength="100" required>
                                     </div>
                                 </div>                              
                               
@@ -128,12 +128,13 @@
                                     <div class="col-sm-8">
                                         <div class="checkbox-site" style="margin-top:7px;">
                                             <label>
-                                                <input type="checkbox" ng-model="RuleMaster.Active" tabindex="8">
+                                                <input type="checkbox" ng-model="RuleMaster.Active">
                                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                             </label>
                                         </div>
                                     </div>
                                 </div>
+                            
                             </div>
 
                             <div class="col-xs-12">
@@ -143,16 +144,17 @@
                                     <div class="col-xs-12 col-sm-6 col-md-6 ">
 
                                    
-                                        <div class="form-group">
+                                        <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Leave Value </label>
-                                            <div class="col-sm-8">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.LeaveValue" class="form-control" maxlength="100" tabindex="2" required>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.LeaveValue" class="form-control" maxlength="100" required>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+
+                                        <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Late Value </label>
-                                            <div class="col-sm-8">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.LateValue" class="form-control" maxlength="100" tabindex="2" required>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.LateValue" class="form-control" maxlength="100" required>
                                             </div>
                                         </div>
 
@@ -160,17 +162,17 @@
 
                                     <div class="col-xs-12 col-sm-6 col-md-6 ">
 
-                                        <div class="form-group">
+                                        <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Absent value </label>
-                                            <div class="col-sm-8">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.AbsentValue" class="form-control" maxlength="100" tabindex="2" required>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.AbsentValue" class="form-control" maxlength="100" required>
                                             </div>
                                         </div>
                                        
-                                        <div class="form-group">
+                                        <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Amount</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.Amount" class="form-control" maxlength="100" tabindex="2" required>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.Amount" class="form-control" maxlength="100" required>
                                             </div>
                                         </div>
                                     </div>
@@ -200,7 +202,6 @@
                                             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
                                             <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
                                             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
-                                            <div e-column e-field="Code" e-headertext="Code" e-width="120"></div>
                                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                                             <div e-column e-field="Active" e-headertext="Active" e-width="50"></div>
                                           
@@ -229,36 +230,28 @@
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
                                             <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Entity"
-                                                    ng-options="item.Value as item.Text for item in CompanyList" tabindex="2">
+                                                    ng-options="item.Value as item.Text for item in CompanyList" required>
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
+                                
+                            </div>
+                            
+                            <div class="col-lg-6 col-xs-6">
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
                                             <select class="form-control" ng-model="Child.PlantId" name="Plant"
-                                                    ng-options="item.Value as item.Text for item in PlantList" required tabindex="2">
+                                                    ng-options="item.Value as item.Text for item in PlantList" required >
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-lg-6 col-xs-6">
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="Child.EmpTypeId" name="EmpType"
-                                                    ng-options="item.Value as item.Text for item in EmpTypeList" required tabindex="2">
-                                                <option value="">--Select--</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
+
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
                                         <li> <button ng-click="saveChild();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add </button></li>
@@ -266,6 +259,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-xs-12 col-sm-12 col-sm-12">
                                 <div style="color:black;" id="ChildGrid" ej-grid e-datasource="childDataList"
@@ -276,7 +270,6 @@
 
                                         <div e-column e-field="HeaderId" e-headertext="Header Id" e-width="70"></div>
                                         <div e-column e-field="PlantId" e-headertext="Plant Id" e-width="120"></div>
-                                        <div e-column e-field="EmpTypeId" e-headertext="Emp Type Id" e-width="120"></div>
                                         <div e-column e-template="#DeleteFile" e-headertext="" e-width="30"></div>
 
                                     </div>
@@ -291,14 +284,10 @@
                             </div>
                         </div>
                     </div>
-
-
-                </div>
-               
+                </div>               
             </div>
         </div>
     </div>
-
 </div>
 
 <div class="row text-right aplos-grid-toggle">
