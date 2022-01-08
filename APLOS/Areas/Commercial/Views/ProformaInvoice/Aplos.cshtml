@@ -129,6 +129,9 @@
                                                     <option ng-repeat="option in item.MaterialGroupUOMList" value="{{option.Id}}">{{option.userName}}</option>
                                                 </select>
                                             </div>
+                                            @*<div class="col-sm-12 show-message">
+                                                <input id="{{'UOM'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupUOMList" e-enablefiltersearch="true" e-value="item.UoMId" e-fields-value="MaterialGroupMasterId" e-fields-text="userName" e-width="100%" />
+                                            </div>*@
                                         </td>
                                         <td><input type="text" ng-model="item.DeliveryDate" datepicker class="form-control" /></td>
 

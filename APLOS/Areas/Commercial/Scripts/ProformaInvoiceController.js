@@ -208,7 +208,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
                 $scope.ClearGrid();
             $scope.VersionList = $scope.PIVersionModel;
             getPartyPlantList();
-          //  $scope.PIVersionModel["Id"] = $scope.PIVersionModel[0]["Id"];
+            $scope.LoadTermsAndConditionGrid(args.data.TermsAndConditionsId, args.data.Id);
 
         });
         if (!$rootScope.isCollapsed) {
@@ -260,7 +260,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             method: 'GET',
             url: $scope.path + "GetHSNList?MaterialGroupMasterId=" + $scope.DataList[$scope.selectedHSNDataIndex].MaterialGroupMasterId
         }).then(function successCallback(response) {
-            $scope.DataList[$scope.selectedHSNDataIndex].MaterialGroupUOMList = response.data.HSNList;
+            $scope.DataList[$scope.selectedHSNDataIndex].MaterialGroupHSNList = response.data.HSNList;
 
         });
     }

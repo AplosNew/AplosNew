@@ -2803,22 +2803,9 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 throw e;
             }
-        }         
+        }       
 
        
-        public IEnumerable<object> getEmpType()
-        {
-            try
-            {
-                var str = @"Select Username as Text , Id as Value from hkp.EmployeeCategory";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
         public IEnumerable<object> getMaster()
         {
             try
@@ -2894,20 +2881,20 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string TableName = "dbo.DayStatusPlantChild";
+                string TableName = "dbo.attdnbonusplantchild";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PlantId ='" + Child["PlantId"] + "' and EmpTypeId ='" + Child["EmpTypeId"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PlantId ='" + Child["PlantId"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
+                    clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    Child["Id"] = _Id;
+                    Child["Id"] = "PC"+_Id;
                     AddNewRow(dsMaster.Tables[0], Child);
                 }
                 else
@@ -2931,7 +2918,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string TableName = "dbo.DayStatusPlantChild";
+                string TableName = "dbo.attdnbonusplantchild";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
@@ -2959,7 +2946,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             return 1;
         }
 
-        //Getting the Header
         public IEnumerable<object> getHeader()
         {
             try
@@ -3000,10 +2986,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
+                    clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    Header["Id"] = _Id;
+                    Header["Id"] = "BH"+_Id;
                     AddNewRow(dsMaster.Tables[0], Header);
                 }
                 else
