@@ -2837,7 +2837,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var sql = @"Select * from dbo.DayStatusPlantChild where HeaderId ='" + MasterId + "'";
+                var sql = @"Select * from dbo.attdnbonusplantchild where HeaderId ='" + MasterId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
