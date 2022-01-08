@@ -333,8 +333,8 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
         $scope.SumModel.Amount = 0;
         for (var i = 0; i < $scope.PODataList.length; i++) {
             if ($scope.PODataList[i].check) {
-                $scope.SumModel.QTY += $scope.PODataList[i].POQuantity;
-                $scope.SumModel.Amount += $scope.PODataList[i].POAmount;
+                $scope.SumModel.QTY += parseFloat($scope.PODataList[i].QuantityAtPIUoM);
+                $scope.SumModel.Amount += parseFloat($scope.PODataList[i].POAmount);
             }
         }
         $scope.SumModel.QTY= parseFloat($scope.SumModel.QTY).toFixed(2);
@@ -343,7 +343,6 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
 
     $scope.summaryPO = [{
         title: "Total :", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POQuantity", dataMember: "POQuantity", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POAmount", dataMember: "POAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "QuantityAtPIUoM", dataMember: "QuantityAtPIUoM", format: "{0:N2}" }],
         showCaptionSummary: true

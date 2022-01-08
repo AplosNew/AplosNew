@@ -2634,7 +2634,29 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
             report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Remarks", 10, ExcelHAlign.HAlignLeft);
             int ColMPCRemarks = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Buyer", 10, ExcelHAlign.HAlignLeft);
+            int ColBuyer = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Buyer Item", 10, ExcelHAlign.HAlignLeft);
+            int ColBuyItem = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Own item", 10, ExcelHAlign.HAlignLeft);
+            int ColOwnItem = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Buyer Order", 10, ExcelHAlign.HAlignLeft);
+            int ColBuyOrder = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Own Order", 10, ExcelHAlign.HAlignLeft);
+            int ColOwnOrder = MPChildCOL;
             MPChildROW++;
+
+
             MPChildendCol = MPChildCOL;
             #endregion Headers
 
@@ -2668,6 +2690,11 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet[MPChildROW, ColPlanQuantity].Number = clsStaticInfo.dbl(MaterialPlanningChilddata.Rows[i]["PlanQuantity"].ToString());
                 sheet[MPChildROW, ColCustomer].Text = MaterialPlanningChilddata.Rows[i]["Customer"].ToString();
                 sheet[MPChildROW, ColMPCRemarks].Text = MaterialPlanningChilddata.Rows[i]["Remarks"].ToString();
+                sheet[MPChildROW, ColBuyer].Text = MaterialPlanningChilddata.Rows[i]["Buyer"].ToString();
+                sheet[MPChildROW, ColBuyItem].Text = MaterialPlanningChilddata.Rows[i]["BuyerItem"].ToString();
+                sheet[MPChildROW, ColOwnItem].Text = MaterialPlanningChilddata.Rows[i]["OwnItem"].ToString();
+                sheet[MPChildROW, ColBuyOrder].Text = MaterialPlanningChilddata.Rows[i]["BuyerOrder"].ToString();
+                sheet[MPChildROW, ColOwnOrder].Text = MaterialPlanningChilddata.Rows[i]["OwnOrder"].ToString();
 
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderAround(ExcelLineStyle.Hair);
@@ -2756,14 +2783,19 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
         private DataTable GetMaterialPlanningChildReportDataById(string PrintTabId)
         {
-            var sql = @"select owr.*,P.UserName as Customer,mo.MasterOrderNo,mm.UserName as MaterialOrderItem, uom.UserName as UOM 
-                                                    from dbo.OSTransformationPOMasterOrderItem owr left join HKP.Party P on P.Id=owr.CustomerId
-                                                    left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
-													left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
-													left join MST.MaterialMaster mm on mm.Id=moi.MaterialMasterId
-													left join SCS.UnitOfMeasurement uom on uom.Id=owr.OutputMaterialUOMId
-													left join dbo.OSTransformationPODetail mp on mp.Id=owr.OSTransformationPODetailId
-													left join dbo.OSTransformationPO vac on vac.Id=mp.OSTransformationPOId
+            var sql = @"Select  owr.*,P.UserName as Customer,mo.MasterOrderNo,mm.UserName as MaterialOrderItem, uom.UserName as UOM ,
+                                                    b.UserName as Buyer , mo.BuyerReferenceNo as BuyerOrder , mo.OwnReferenceNo as OwnOrder , moi.BuyerReferenceNo as BuyerItem , 
+                                                    moi.OwnReferenceNo as OwnItem
+                                                    from dbo.OSTransformationPOMasterOrderItem owr
+                                                    left join trn.SalesOrder so on so.Id = owr.SalesOrderId
+                                                    left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
+                                                    left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+                                                    left join MST.MaterialMaster mm on mm.Id=moi.MaterialMasterId
+                                                    left join SCS.UnitOfMeasurement uom on uom.Id=owr.OutputMaterialUOMId
+                                                    left join dbo.OSTransformationPODetail mp on mp.Id=owr.OSTransformationPODetailId
+                                                    left join dbo.OSTransformationPO vac on vac.Id=mp.OSTransformationPOId
+                                                    left join HKP.Party P on P.Id=owr.CustomerId
+                                                    left join hkp.Buyer b on b.Id = mo.BuyerId
 													where vac.Id='" + PrintTabId + "' ";
 
             return _sqlRepository.GetDataTable(sql);
@@ -3185,6 +3217,27 @@ namespace Aplos.Areas.Outsourcing.Controllers
             report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Remarks", 10, ExcelHAlign.HAlignLeft);
             int ColMPCRemarks = MPChildCOL;
             MPChildROW++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Buyer", 10, ExcelHAlign.HAlignLeft);
+            //int ColBuyers = MPChildCOL;
+            //MPChildROW++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Buyer Item", 10, ExcelHAlign.HAlignLeft);
+            //int ColBuyItem = MPChildCOL;
+            //MPChildROW++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Own Item", 10, ExcelHAlign.HAlignLeft);
+            //int ColOwnItem = MPChildCOL;
+            //MPChildROW++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Buyer Order", 10, ExcelHAlign.HAlignLeft);
+            //int ColBuyerOrder = MPChildCOL;
+            //MPChildROW++;
+
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Own Order", 10, ExcelHAlign.HAlignLeft);
+            //int ColOwnOrder = MPChildCOL;
+            //MPChildROW++;
+
             MPChildendCol = MPChildCOL;
             #endregion Headers
 
@@ -3218,6 +3271,11 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet[MPChildROW, ColPlanQuantity].Number = clsStaticInfo.dbl(MaterialPlanningChilddata.Rows[i]["OWPlanQuantity"].ToString());
                 sheet[MPChildROW, ColCustomer].Text = MaterialPlanningChilddata.Rows[i]["Customer"].ToString();
                 sheet[MPChildROW, ColMPCRemarks].Text = MaterialPlanningChilddata.Rows[i]["OWRemarks"].ToString();
+                //sheet[MPChildROW, ColBuyers].Text = MaterialPlanningChilddata.Rows[i]["Buyer"].ToString();
+                //sheet[MPChildROW, ColBuyItem].Text = MaterialPlanningChilddata.Rows[i]["BuyerReferenceNo"].ToString();
+                //sheet[MPChildROW, ColOwnItem].Text = MaterialPlanningChilddata.Rows[i]["OwnReferenceNo"].ToString();
+                //sheet[MPChildROW, ColBuyerOrder].Text = MaterialPlanningChilddata.Rows[i]["BuyerOrderNo"].ToString();
+                //sheet[MPChildROW, ColOwnOrder].Text = MaterialPlanningChilddata.Rows[i]["OwnOrderNo"].ToString();
 
                 sheet[MPChildROW, ColBuyer].Text = MaterialPlanningChilddata.Rows[i]["Buyer"].ToString();
                 sheet[MPChildROW, ColSalesOrderId].Text = MaterialPlanningChilddata.Rows[i]["SalesOrderId"].ToString();
