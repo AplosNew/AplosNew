@@ -347,9 +347,9 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
 ,MG.UserName MaterialGroup,MM.UserName Material,MG.Id MaterialGroupMasterId
 ,mma.StandardName Article
 ,cv1.UserName SKU1,cv2.UserName SKU2,cv3.UserName SKU3
-,pod.TransactionQty POQty,ISNULL(pmd.Quantity,pmp.QuantityAtPIUoM) AS  DistributeQTY,pouom.UserName POUoM,pod.TransactionRate PORate,pod.TransactionAmount POAmount,C.code POCurrency
+,pod.TransactionQty POQty,ISNULL(pmd.Quantity,pod.TransactionQty) AS  DistributeQTY,pouom.UserName POUoM,pod.TransactionRate PORate,pod.TransactionAmount POAmount,C.code POCurrency
 ,MG.UserName MaterialGroup,piuom.UserName PIUoM,piuom.Id PIUoMId
-,PMD.Quantity PackingQTY,P.Quantity PIQty,pmp.POQuantity POTaggedQty,pmp.QuantityAtPIUoM ,pouom.Id POUoMId
+,PMD.Quantity PackingQTY,P.Quantity PIQty,pmp.POQuantity POTaggedQty,pmp.QuantityAtPIUoM ,pouom.Id POUoMId,ISNULL(pmd.QuantityAtPIUoM,0)  PackingQtyAtPIUOM
     FROM POMappingWithPI pmp
     LEFT OUTER JOIN PIMaterial p ON pmp.PIMaterialId=p.Id  
     LEFT OUTER JOIN SCS.UnitOfMeasurement AS piuom ON piuom.Id=p.UoMId 
@@ -368,7 +368,8 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
    LEFT OUTER JOIN HKP.CharacteristicsValue AS cv1 ON cv1.Id=pod.FirstCharacteristicsValueId
    LEFT OUTER JOIN HKP.CharacteristicsValue AS cv2 ON cv2.Id=pod.SecondCharacteristicsValueId
    LEFT OUTER JOIN HKP.CharacteristicsValue AS cv3 ON cv3.Id=pod.ThirdCharacteristicsValueId
-    WHERE p.Id='" + PIMaterial + @"' AND p.MaterialGroupMasterId='" + PIMaterialGroup + @"'";
+    WHERE p.Id='" + PIMaterial + @"' AND p.MaterialGroupMasterId='" + PIMaterialGroup + @"'
+ORDER BY convert(bit,CASE WHEN ISNULL(PMD.Id,'')<>'' THEN 1 ELSE 0 END) DESC";
             var PopUp = _sqlRepository.GetDataCollection(sql, null);
 
             return Json(new { data = PopUp }, JsonRequestBehavior.AllowGet);
