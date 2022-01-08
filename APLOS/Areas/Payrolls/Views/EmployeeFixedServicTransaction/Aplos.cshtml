@@ -31,7 +31,7 @@
             <label class="col-sm-4 control-label">Servic Component<sup>*</sup></label>
             <div class="col-sm-8">
                 <div class="select-style">
-                    <select class="form-control" ng-model="SalaryHeadWiseAmountTransactionModel.EmployeeFixedServicId" name="Legal Designation" tabindex="1">
+                    <select class="form-control" ng-model="SalaryHeadWiseAmountTransactionModel.EmployeeFixedServicId" ng-change="GetSalaryHeadWiseAmountSettingDetails()" name="Legal Designation" tabindex="1">
                         <option value=""> </option>
                         <option ng-repeat="option in SalaryHeadWiseAmountSettinglist" value="{{option.Id}}">{{option.ServicComponent+' ('+option.DurationType+')'}}</option>
                     </select>

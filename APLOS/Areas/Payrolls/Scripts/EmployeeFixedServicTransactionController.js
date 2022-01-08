@@ -124,7 +124,7 @@ function EmployeeFixedServicTransactionController(commonMessage, $scope, $rootSc
     $scope.GetSalaryHeadWiseAmountSettingDetails = function () {
         try {
             $scope.SalaryHeadWiseAmountTransactionList = [];
-            $http.get($scope.SalaryHeadWiseAmountTransactionUrl + '?EmpSystemId=' + $scope.EmployeeModel.SystemId)
+            $http.get($scope.SalaryHeadWiseAmountTransactionUrl + '?EmpSystemId=' + $scope.EmployeeModel.SystemId + '&EmpServiceId=' + $scope.SalaryHeadWiseAmountTransactionModel.EmployeeFixedServicId)
                 .then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
