@@ -2886,8 +2886,8 @@ ORDER BY k.Entity,K.WorkCenterMasterId,CONVERT(DATE, K.ProductionDate) ";
 
 
             string sqlWC = @" SELECT wc.Id,WC.Sequence,
-                            CASE WHEN ISNULL(E.StartDate,'')='' THEN wc.UserName+' (Missing Start Date)'  ELSE wc.UserName + ' ('+isnull(ei.NickName,ISNULL(ei.FirstName,''))+')'  END AS UserName
-                              FROM [SCS].[WorkCenterMaster] WC 
+                       CASE WHEN ISNULL(E.StartDate,'')='' THEN wc.UserName+' (Missing Start Date)'  ELSE wc.UserName + ' ('+isnull(ei.EmployeeName, '')+')'  END AS UserName
+                                  FROM [SCS].[WorkCenterMaster] WC 
                             LEFT OUTER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=wc.Id
                             LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId
                              WHERE WC.EntityID='" + entityid
@@ -3033,7 +3033,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
 
 
             string sqlWC = @"  SELECT wc.Id,
-                            CASE WHEN ISNULL(E.StartDate,'')='' THEN wc.UserName+' (Missing Start Date)' ELSE wc.UserName + '('+ei.NickName+')' END AS UserName
+                            CASE WHEN ISNULL(E.StartDate,'')='' THEN wc.UserName+' (Missing Start Date)'  ELSE wc.UserName + ' ('+isnull(ei.EmployeeName, '')+')'  END AS UserName
                               FROM [SCS].[WorkCenterMaster] WC 
                             LEFT OUTER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=wc.Id
                             LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId WHERE WC.EntityID='" + entityid
