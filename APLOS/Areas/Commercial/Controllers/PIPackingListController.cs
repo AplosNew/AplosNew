@@ -455,7 +455,7 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
 
             var PIMaterial = _sqlRepository.GetDataCollection(sql, null);
 
-            return Json(new { ItemData = PIMaterial}, JsonRequestBehavior.AllowGet);
+            return Json(new { ItemData = PIMaterial }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
