@@ -39,12 +39,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #endregion -- Pages
 
-       [HttpPost, Authorize]
-       public ActionResult getPlants()
-        {
-            return Json(ds.getPlants(), JsonRequestBehavior.AllowGet);
-        }       
-
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
@@ -57,13 +51,15 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(ds.getMaster(), JsonRequestBehavior.AllowGet);
         }
 
+        #region PlantChild Actions
+
         [HttpPost, Authorize]
         public ActionResult getChildData (string MasterId)
         {
             return Json(ds.getChildData(MasterId), JsonRequestBehavior.AllowGet);
         }
         
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult DeleteChild(string id)
         {
             string jj = ds.DeleteChild(id);
@@ -93,8 +89,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
-        /// ************************** New Operations 
-      
+        #endregion
+
         /// Header Get
         [HttpGet, Authorize]
         public ActionResult getHeader()

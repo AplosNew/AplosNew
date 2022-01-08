@@ -154,6 +154,8 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
     }
 
+    // #region RuleMaster Functions
+
     $scope.RuleMaster = {
         Id: null,
         HeaderId: null,
@@ -170,9 +172,31 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
 
 
     $scope.SaveRuleMaster = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        allValidations();
-        if ($scope.RuleMaster.$valid) {
+
+        if (baseService.isUndefinedOrNull($scope.RuleMaster.LateValue)) {
+            ShowResult("LateValue can not be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.RuleMaster.Amount)) {
+            ShowResult("Amount can not be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.RuleMaster.AbsentValue)) {
+            ShowResult("AbsentValue can not be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.RuleMaster.LeaveValue)) {
+            ShowResult("LeaveValue can not be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.RuleMaster.StandardName)) {
+            ShowResult("StandardName can not be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.RuleMaster.UserName)) {
+            ShowResult("UserName can not be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.RuleMaster.ShortName)) {
+            ShowResult("ShortName can not be blank...");
+        }
+        else
+        {
+
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveRuleMaster',
@@ -185,45 +209,14 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
                     ShowResult(response.data.Message, 'success');
                     $scope.getRulesList();
                 }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
+            })
+            ,function errorCallBack(response)
+             {
+               ShowResult(response.data.Message, 'failure');
+             }
         }
     }
-
-    function CheckField(fieldname, field) {
-        try {
-            if (baseService.isUndefinedOrNull(field)) {
-                throw "[" + fieldname + "] can not be blank...";
-            }
-        } catch (ex) {
-            throw ex;
-        }
-    }
-
-
-    function allValidations() {
-
-        //allZeros();
-
-        CheckField("Late Value", $scope.RuleMaster.LateValue);
-        CheckField("Absent Value", $scope.RuleMaster.AbsentValue);
-        CheckField("Leave Value", $scope.RuleMaster.LeaveValue);
-        CheckField("Amount", $scope.RuleMaster.Amount);
-
-    };
-
-    function allZeros() {
-        //Print 13 to 24
-        for (var i = 13; i < 25; i++) {
-            if (Object.values($scope.DayChild)[i] == '') {
-                var jj = Object.keys($scope.DayChild)[i];
-                $scope.DayChild[jj] = 0;
-            }
-        }
-    };
-
-    //Clearing The Rule Master
+        
     $scope.ClearRuleMaster = function () {
         $scope.RuleMaster = {
             Id: null,
@@ -243,7 +236,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
     }
 
     $scope.RulesList = [];
-    //Getting the Day Type Child Grid
     $scope.getRulesList = function () {
         $http({
             method: 'POST',
@@ -260,8 +252,10 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         $scope.RuleMaster = e.data;
     }
 
+    //#endregion
 
-    // Plant Tagging Tab Functions
+    // #region Plant Tagging Tab Functions
+
     $scope.Child = {
         Id: null,
         HeaderId: null,
@@ -357,4 +351,6 @@ function AttendanceBonusMasterController(commonMessage, $scope, $rootScope, base
         }
     }
 
- }
+    //#endregion
+
+}
