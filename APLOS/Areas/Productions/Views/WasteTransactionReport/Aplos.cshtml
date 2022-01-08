@@ -36,11 +36,15 @@
         </div>
 
     </div>
+    
+</div>
+<div class="row" style="margin:10px; margin-left:15px;">
     <div class="common-btn">
-        <ul class="list-inline text-right">
+        <ul class="list-inline text-right" >
+
             <li> <button ng-click="getData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View </button></li>
             @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
         </ul>
     </div>
 </div>
@@ -57,10 +61,17 @@
                 <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
                 <div e-column e-field="Quantity" e-headertext="Quantity" e-type="number" e-width="3"></div>
                 <div e-column e-field="AddedBy" e-headertext="Added By" e-width="3"></div>
+                <div e-column e-field="EntityName" e-headertext="Entity" e-width="3"></div>
 
             </div>
         </div>
     </div>
+</div>
+
+<div class="common-btn" style="margin-top:10px;">
+    <ul class="list-inline text-right">
+        <li> <button ng-click="getWasteReport();" class="btn"><i class="glyphicon glyphicon-save"></i> Waste Report </button></li>
+     </ul>
 </div>
 
 <confirm-modal></confirm-modal>

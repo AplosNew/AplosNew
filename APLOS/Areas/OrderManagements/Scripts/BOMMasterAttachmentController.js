@@ -551,6 +551,72 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
         });
     }
 
+    $scope.ContractItemDataList = [];
+    $scope.GetContractBOMReportByMaterial = function (data) {
+        $scope.AttachmentSelectedBOMRow = data;
+        $rootScope.openPopup('dialogBOMContractSelectionForReport');
+        $http({
+            method: 'POST',
+            data: { 'ContractId': data.ContractId },
+            url: $scope.Attachmentpath + "GetBOMContractItemListForReport"
+        }).then(function successCallback(response) {
+            $scope.ContractItemDataList = response.data;
+        });
+    }
+
+    $scope.refreshTemplateContract = function (args) {
+        if (args.rowIndex == 0) {
+            $("#headchkItems").ejCheckBox({ "change": CheckAllContractItem });
+        }
+    }
+
+    function CheckAllContractItem(e) {
+        if (!e.isInteraction)
+            return;
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#BOQContractItems").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ContractItemDataList.length; i++) {
+                $scope.ContractItemDataList[i].Checked = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].Checked = ChkOrUnchk;
+            }
+
+
+        }
+        var gridObj = $("#BOQContractItems").data("ejGrid");
+        gridObj.refreshContent();
+    }
+
+    $scope.getBOMItemContractReport = function () {
+
+        var ContractId = $scope.AttachmentSelectedBOMRow.ContractId;
+        var _itemIds = ej.DataManager($scope.ContractItemDataList).executeLocal(ej.Query().where("Checked", "equal", true));
+        var itemids = getString(_itemIds, "ArticleId");
+
+        try {
+            var file_src = $scope.Attachmentpath + 'GetBOMItemContractReport?ItemIds=' + itemids + '&ContractId=' + ContractId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+
+    }
+
+
+
     $scope.refreshTemplateItem = function (args) {
         if (args.rowIndex == 0) {
             $("#headchkItem").ejCheckBox({ "change": CheckAllItem });

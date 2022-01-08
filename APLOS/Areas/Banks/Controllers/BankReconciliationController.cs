@@ -24,10 +24,12 @@ namespace Aplos.Areas.Banks.Controllers
 
         private readonly IBankReconciliationService _bankReconciliationService;
         private readonly ISqlRepository _sqlRepository;
+        private readonly IBankReportService _bankReportService;
 
-        public BankReconciliationController(IBankReconciliationService bankReconciliationService, ISqlRepository sqlRepository)
+        public BankReconciliationController(IBankReconciliationService bankReconciliationService, ISqlRepository sqlRepository, IBankReportService bankReportService)
         {
             _bankReconciliationService = bankReconciliationService;
+            _bankReportService = bankReportService;
             _sqlRepository = sqlRepository;
         }
 
@@ -35,7 +37,7 @@ namespace Aplos.Areas.Banks.Controllers
 
         #region Aplos
 
-       
+
         public ActionResult BankReconciliation()
         {
             return View("~/Areas/Banks/Views/BankReconciliation.cshtml");
@@ -76,6 +78,27 @@ namespace Aplos.Areas.Banks.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(accountsBankReconcilliationService.GetBankCrReconList(parameters, identity.CompanyGroupId, identity.CompanyId, bankMasterId, fromDate, toDate), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
+        public ActionResult GetBankCrReconListSyncfusion(string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsBankReconcilliationService.GetBankCrReconListSyncfusion(identity.CompanyGroupId, identity.CompanyId, bankMasterId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+            
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetBankDrReconListSyncfusion(DateTime cutOffDate, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsBankReconcilliationService.GetBankDrReconListSyncfusion(identity.CompanyGroupId, identity.CompanyId, cutOffDate, bankMasterId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetBankDrReconList(GridParameter parameters, DateTime cutOffDate, string bankMasterId, DateTime fromDate, DateTime toDate)
@@ -89,9 +112,8 @@ namespace Aplos.Areas.Banks.Controllers
         public JsonResult GetBankReconLastDate(string bankMasterId)
         {
             AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsBankReconcilliationService.GetBankReconLastDate(identity.CompanyGroupId, identity.CompanyId,bankMasterId), JsonRequestBehavior.AllowGet);
+            return Json(accountsBankReconcilliationService.GetBankReconLastDate(identity.CompanyGroupId, identity.CompanyId, bankMasterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -108,6 +130,37 @@ namespace Aplos.Areas.Banks.Controllers
         {
             _bankReconciliationService.InsertBankReconciliation(bankReconciliation, tempList);
             return Json(new { Message = AplosMessage.Insert });
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult CRReconcileReport(string BankMasterID,string fromDate,string toDate)
+        {
+            try
+            {
+                _bankReportService.CRReconcileReport(BankMasterID, fromDate, toDate);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult DRReconcileReport(string BankMasterID, string fromDate, string toDate,string cutOffDate)
+        {
+            try
+            {
+                _bankReportService.DRReconcileReport(BankMasterID, fromDate, toDate, cutOffDate);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
         #endregion Operation

@@ -49,7 +49,7 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             controller: 'recipeOperationController'
         })
         .when('/production-summary', {
-            templateUrl: 'Productions/ProductionSummary/Aplos1',
+            templateUrl: 'Productions/ProductionSummary/Aplos',
             controller: 'ProductionSummaryController'
         })
         .when('/recipe-Material-Grouping-Master', {
@@ -224,7 +224,7 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/GeneralDataOperations/Aplos',
             controller: 'GeneralDataOperationsController'
         })
-        .when('/Waste-transaction', {
+        .when('/waste-transaction', {
             templateUrl: 'Productions/GeneralWaste/Aplos',
             controller: 'GeneralWasteController'
         })

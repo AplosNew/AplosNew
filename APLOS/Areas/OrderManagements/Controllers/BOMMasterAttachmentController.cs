@@ -325,7 +325,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ExcelEngine excelEngine = new ExcelEngine();
 
                 IWorkbook workbook = attchment.ConevelBOMReport(ContractId);
-                string strFileName = "BOM-" + ContractId + ".xlsx";
+                string strFileName = "BOM Detail-" + ContractId + ".xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
                 //workbookItem.Close();
@@ -352,15 +352,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ExcelEngine excelEngine = new ExcelEngine();
 
                 IWorkbook workbook = attchment.GetMasterOrderByContractReports(ContractId, Library.OrderManagement.BOM.BOMReports.BOMLevel.SO);
-                IWorkbook workbookItem = attchment.GetMasterOrderReports(ContractId, Library.OrderManagement.BOM.BOMReports.BOMLevel.Item);
-                attchment.GetDrawBOMTemplateDataReports(workbookItem.Worksheets[1], ContractId);
-                attchment.GetDrawBOMTemplateDataSubMaterials(workbookItem.Worksheets[2], ContractId);
+                IWorkbook workbookItem = attchment.GetMasterOrderByContractReports(ContractId, Library.OrderManagement.BOM.BOMReports.BOMLevel.Item);
+                attchment.GetDrawBOMTemplateByContractDataReports(workbookItem.Worksheets[1], ContractId);
+                attchment.GetDrawBOMTemplateByContractDataSubMaterials(workbookItem.Worksheets[2], ContractId);
 
                 workbook.Worksheets.AddCopy(workbookItem.Worksheets[0]);
                 workbook.Worksheets.AddCopy(workbookItem.Worksheets[1]);
                 workbook.Worksheets.AddCopy(workbookItem.Worksheets[2]);
 
-                string strFileName = "BOM-" + ContractId + ".xlsx";
+                string strFileName = "BOM Summary-" + ContractId + ".xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
                 workbookItem.Close();
@@ -373,6 +373,26 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return null;
         }
 
+
+        [HttpGet, Authorize]
+        public ActionResult GetBOMItemReport(string ItemIds, string MasterOrderId)
+        {
+
+            try
+            {
+                Library.OrderManagement.BOM.TemplateAttchment GetBoMReport = new Library.OrderManagement.BOM.TemplateAttchment();
+
+                GetBoMReport.GetBOMItemReport(ItemIds, MasterOrderId);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+
+        }
 
         [HttpGet, Authorize]
         public ActionResult LoadBomRequiredQty(string MasterOrderItemId)
@@ -473,6 +493,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetBOMContractItemListForReport(string ContractId)
+        {
+            Library.OrderManagement.BOM.TemplateAttchment attchment = new Library.OrderManagement.BOM.TemplateAttchment();
+            var jsondata = Json(attchment.GetBOMItemListForReportByContractId(ContractId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
         [HttpGet, Authorize]
         public ActionResult GetBOMReport(string ItemIds, string MasterOrderItemId)
         {
@@ -495,14 +524,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetBOMItemReport(string ItemIds, string MasterOrderId)
+        public ActionResult GetBOMItemContractReport(string ItemIds, string ContractId)
         {
 
             try
             {
                 Library.OrderManagement.BOM.TemplateAttchment GetBoMReport = new Library.OrderManagement.BOM.TemplateAttchment();
 
-                GetBoMReport.GetBOMItemReport(ItemIds, MasterOrderId);
+                GetBoMReport.GetBOMItemContractReport(ItemIds, ContractId);
 
                 return null;
             }

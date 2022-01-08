@@ -20,19 +20,7 @@ namespace Library.OrderManagement.Production
         }
         #endregion Constructor
 
-        /*public IEnumerable<object> getCompany ()
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = "Select Id as Value , UserName as Text from Org.Company where CompanyGroupId = '" + identity.CompanyGroupId + "'";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }*/
+        
 
         public IEnumerable<object> getProcess ()
         {
@@ -48,18 +36,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-       /* public IEnumerable<object> getEntity(string PlantId)
-        {
-            try
-            {
-                var str = "Select Id as Value , UserName as Text from Org.Entity where PlantId = '" + PlantId + "'";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }*/
+      
 
         public IEnumerable<object> getUOM()
         {
@@ -79,7 +56,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select e.Id as EntityId , e.UserName as Entity , p.UserName as Plant, c.UserName as Company from org.Entity e
+                var str = @"Select e.Id as EntityId, e.UserName as EntityName , p.UserName as Plant, c.UserName as Company from org.Entity e
                                 left join org.Plant p on p.Id = e.PlantId
                                 left join org.Company c on c.Id = p.CompanyId
                         ";
@@ -112,18 +89,31 @@ namespace Library.OrderManagement.Production
                 else
                 {
                     string Bdc = tb.Rows[0]["Id"].ToString();
-                    str = @"Select wm.Id , wm.ProcessId ,p.UserName as process, wm.Category ,
-                                wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom ,wbd.BudgetId , ept.EntityId
+                    str = @"Select wm.Id ,wm.Sequence, wm.ProcessId ,p.UserName as process, wm.Category ,
+                                wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom ,wbd.BudgetId , ept.EntityId,
+								mb.Code as BudgetCode , e.UserName as EntityName
                                 from dbo.WasteMaster wm
                                 left join dbo.WasteBudgetDetail wbd on wbd.WasteMasterId = wm.Id
                                 left join hkp.EntityProcessTag ept on ept.ProcessId = wm.ProcessId
                                 left join hkp.Process p on p.Id = wm.ProcessId
                                 left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId
-                                where ept.EntityId = '"+Id+"' and wbd.BudgetId = '"+Bdc+@"'";
+								left join org.Entity e on e.Id = ept.EntityId
+								left join mst.ManpowerBudget mb on mb.Id = wbd.BudgetId
+                                where ept.EntityId = '" + Id+"' and wbd.BudgetId = '"+Bdc+@"'";
                     
                 }
 
-                return _sqlRepository.GetDataCollection(str);
+                DataTable dt =  _sqlRepository.GetDataTable(str);
+                dt.Columns.Add("Quantity", typeof(double));
+                dt.Columns.Add("Remarks", typeof(string));
+
+                for(int i = 0; i< dt.Rows.Count;i++)
+                {
+                    dt.Rows[i]["Quantity"] = 0;
+                    dt.Rows[i]["Remarks"] ="";
+                }
+
+                return Service.Helpers.DataTableExtensions.DataTableToJson(dt);
             }
             catch (Exception ex)
             {
@@ -177,80 +167,52 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public Dictionary<string, object> Create(Dictionary<string, object> data, List<string> budgets)
+        public List<Dictionary<string, object>> Create(List<Dictionary<string, object>> Data)
         {
             try
             {
-                //Master Table - WasteMaster
-                string TableName = "dbo.WasteMaster";
+                //Master Table - Wastw-Transaction
+                string TableName = "dbo.WasteTransactionData";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ItemName='" + data["ItemName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Item Name already exists!!!");
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2  ", out dsMaster, false, "1");
+                
                 string _Id = "";
 
-                 #region data Master update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-
-                    data["Id"] = "WM" + _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                // Child table - WasteBudgetDetail
-               
-                DataSet dsChild;
-                ConnectionManager.DAL.ConManager conC = new ConnectionManager.DAL.ConManager("1");
-                conC.OpenDataSetThroughAdapter("select * from dbo.WasteBudgetDetail where WastemasterId = '"+ data["Id"].ToString() + "'", out dsChild, false, "1");
-
-                while (dsChild.Tables[0].DefaultView.Count > 0)
-                {
-                    dsChild.Tables[0].DefaultView[0].Delete();
-                }
-
-                string _IdC = "";
+                #region data Upload
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                #region data Child update
-                
-                    for(int i = 0; i < budgets.Count; i++)
+
+
+                for (int i = 0; i < Data.Count; i++)
+                {
+
+                    if( clsStaticInfo.dbl(Data[i]["Quantity"].ToString()) > 0.0)
                     {
-                        DataRow dr = dsChild.Tables[0].NewRow();
+                        DataRow dr = dsMaster.Tables[0].NewRow();
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("dbo.WasteBudgetDetail", out _IdC);
-                        dr["Id"] = "WBD" + _IdC;
-                        dr["WasteMasterId"] = data["Id"].ToString();
-                        dr["BudgetId"] = budgets[i].ToString();
+                        genid.GenID("dbo.WasteTransactionData", out _Id);
+                        dr["Id"] = "WT"+DateTime.Now.Year.ToString()+ '-' + _Id;
+                        dr["WasteMasterId"] = Data[i]["Id"].ToString();
+                        dr["EntityId"] = Data[i]["EntityId"].ToString();
+                        dr["Date"] =DateTime.Now;
+                        dr["Quantity"] = Data[i]["Quantity"].ToString();
+                        dr["Remarks"] = Data[i]["Remarks"].ToString();
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
-                        dsChild.Tables[0].Rows.Add(dr);
+                        dsMaster.Tables[0].Rows.Add(dr);
                     }
-                
-                #endregion data update
-
-
-
+                    
+                }
+                #endregion data Upload
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster , dsChild);
+                _info.SaveDataSets(dsMaster );
 
-                return data;
+                return Data;
 
             }
             catch (Exception ex)
@@ -337,200 +299,4 @@ namespace Library.OrderManagement.Production
 
     }
 
-    //public class WasteDetailTransactionService
-    //{
-    //    SqlRepository _sqlRepository;
-    //    ConnectionManager.clsConnectionManager ConManager;
-
-    //    public WasteDetailTransactionService()
-    //    {
-    //        _sqlRepository = new SqlRepository();
-    //        ConManager = new ConnectionManager.clsConnectionManager();
-    //    }
-
-    //    public IEnumerable<object> GetBudgetInfo(string UserId)
-    //    {
-    //        try
-    //        {
-    //            var sql = @"select distinct u.Id as Value,u.UserId as Text,u.EmployeeId,
-                
-    //            left join EmployeeInformation e on e.SystemId=u.EmployeeId
-               
-    //            where UserId='" + UserId + "'";
-    //            return _sqlRepository.GetDataCollection(sql, null);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            throw ex;
-    //        }
-    //    }
-
-    //    public IEnumerable<object> GetItemName(string Entity,string BudgetId)
-    //    {
-    //        try
-    //        {
-    //            var sql = @"select Id as MasterId,ItemName from WasteMaster where EntityId='"+Entity+ "'";
-    //            return _sqlRepository.GetDataCollection(sql, null);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            throw ex;
-    //        }
-    //    }
-
-    //    public string SaveData(IEnumerable<WasteTransactionModel> DataToSave)
-    //    {
-    //        try
-    //        {
-    //            DataSet dsMaster;
-
-    //            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-    //            if (DataToSave.Count() == 0)
-    //                return "";
-    //            List<WasteTransactionModel> items = DataToSave.ToList();
-
-    //            con.OpenDataSetThroughAdapter("select * from dbo.WasteTransactionData where 1=2", out dsMaster, false, "1");
-
-    //            foreach (WasteTransactionModel item in DataToSave)
-    //            {
-
-    //                if (dsMaster.Tables[0].Rows.Count == 0)
-    //                {
-    //                    DataRow dr = dsMaster.Tables[0].NewRow();
-
-
-    //                    bplib.clsGenID id = new bplib.clsGenID();
-    //                    id.GenIDYearly(DateTime.Now.ToShortDateString(), "WasteTransactionData", out string NewId);
-
-    //                    dr["Id"] = "WT"+ NewId;
-    //                    dr["Date"] = item.Date;
-    //                    dr["EntityId"] = item.EntityId;
-    //                    dr["WasteMasterId"] = item.WasteMasterId;
-    //                    dr["Quantity"] = item.Quantity;
-    //                    dr["Remarks"] = item.Remarks;
-    //                    dr["AddedBy"] = item.AddedBy;
-    //                    dr["AddedDate"] = DateTime.Now.ToString();
-    //                    dr["AddedFromIP"] = item.AddedFromIP;
-
-    //                    dsMaster.Tables[0].Rows.Add(dr);
-
-
-    //                }                   
-
-    //            }
-    //            clsStaticInfo _info = new clsStaticInfo();
-    //            _info.SaveDataSets(dsMaster);
-    //            string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-    //            if(MasterId.Contains("WT"))
-    //            {
-    //                return "true";
-    //            }
-    //            return "false";
-
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return ex.ToString();
-    //        }
-    //    }
-
-
-    //}
-
-
-    //public class WasteTransactionModel
-    //{
-    //    public string Id { get; set; }
-    //    public string WasteMasterId { get; set; }
-    //    public string EntityId { get; set; }
-    //    public string Remarks { get; set; }
-    //    public string Quantity { get; set; }
-    //    public DateTime Date { get; set; }
-    //    public string AddedBy { get; set; }
-    //    public DateTime AddedDate { get; set; }
-    //    public string UpdatedBy { get; set; }
-    //    public DateTime? UpdatedDate { get; set; }
-    //    public string AddedFromIP { get; set; }
-    //    public string UpdatedFromIP { get; set; }
-      
-    //}
-
-
-
-    //public class WasteTransactionReportService
-    //{
-    //    SqlRepository _sqlRepository;
-
-    //    public WasteTransactionReportService()
-    //    {
-    //        _sqlRepository = new SqlRepository();
-    //    }
-
-    //    public IEnumerable<object> getEntity()
-    //    {
-    //        try
-    //        {
-    //            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-    //            var str = "Select Id as Value , UserName as Text from Org.Entity where PlantId = '" + identity.PlantId + "'";
-    //            return _sqlRepository.GetDataCollection(str);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            throw ex;
-    //        }
-    //    }
-
-    //    public IEnumerable<object> getData(string EntityId , string ToDate , string FromDate)
-    //    {
-    //        try
-    //        {
-    //            var str = @"Select wtd.Id as WTDId ,format(wtd.Date , 'dd-MMM-yyyy' ) as Dates, wm.ItemName,wm.Category,wm.SubCategory,wtd.Quantity , wtd.AddedBy
-    //                        from dbo.WasteTransactionData wtd
-    //                        left join dbo.WasteMaster wm on wm.Id = wtd.WasteMasterId
-    //                        where wtd.Date between '"+FromDate+"' and '"+ToDate+"' and wm.EntityId = '"+EntityId+"'";
-    //            return _sqlRepository.GetDataCollection(str);
-    //        }
-    //        catch(Exception ex)
-    //        {
-    //            throw ex;
-    //        }
-    //    }
-
-    //    public IEnumerable<object> getClickedData(string Id)
-    //    {
-    //        try
-    //        {
-    //            var str = @"Select wtd.Id as WTDId ,format(wtd.Date , 'dd-MMM-yyyy' ) as Dates, wm.ItemName,wm.Category,wm.SubCategory,wtd.Quantity , wtd.AddedBy
-    //                        from dbo.WasteTransactionData wtd
-    //                        left join dbo.WasteMaster wm on wm.Id = wtd.WasteMasterId
-    //                        where wtd.Id = '"+Id+"'";
-
-    //            return _sqlRepository.GetDataCollection(str);
-    //        }
-    //        catch(Exception ex)
-    //        {
-    //            throw ex;
-    //        }
-    //    }
-
-    //    public Dictionary<string, object> saveQuantity(Dictionary<string, object> data)
-    //    {
-    //        try
-    //        {
-    //            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-    //            con.BeginTransaction();
-    //            con.executeQuery(@"Update dbo.WasteTransactionData
-
-    //                        Set Quantity = "+clsStaticInfo.dbl(data["Quantity"].ToString())+@"
-
-    //                        where Id = '"+data["WTDId"]+"'");
-    //            con.CommitTransaction();
-    //            return data;
-    //        }
-    //        catch(Exception ex)
-    //        {
-    //            throw ex;
-    //        }
-    //    }
-    //}
 }

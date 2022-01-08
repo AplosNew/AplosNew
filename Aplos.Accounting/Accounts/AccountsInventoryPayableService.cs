@@ -656,8 +656,8 @@ UNION
 						, MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName
 							, MAT.BudgetMasterId, MAT.BudgetCode, MAT.BudgetName
 							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName,NULL Dr
-						,SUM(MAT.Cr) +SUM(ISNULL(TCS.TCSAmount,0)) AS Cr,--+SUM(ISNULL(SRV.TotalTaxAmount,0))
-						SUM(MAT.Cr) +SUM(ISNULL(TCS.TCSAmount,0))  AS Amount --+SUM(ISNULL(SRV.TotalTaxAmount,0))
+						,SUM(MAT.Cr) +ISNULL(TCS.TCSAmount,0) AS Cr,--+SUM(ISNULL(SRV.TotalTaxAmount,0))
+						SUM(MAT.Cr) +ISNULL(TCS.TCSAmount,0) AS Amount --+SUM(ISNULL(SRV.TotalTaxAmount,0))
                         ,0 IsAsset
 						FROM (
 							SELECT IR.Id, 'Vendor' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
@@ -725,7 +725,7 @@ UNION
 						) AS TCS on TCS.InventoryReceiveId=MAT.Id
 
 						GROUP BY  MAT.Id,MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName , MAT.BudgetMasterId, MAT.BudgetCode, MAT.BudgetName
-							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName
+							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName,TCS.TCSAmount
 					) AS T
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId, T.IsAsset
 					UNION

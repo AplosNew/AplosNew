@@ -3759,6 +3759,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
         #endregion
 
         #region BOMReportByContractLevelItemandSalesOrder
+
         public IWorkbook GetMasterOrderByContractReports(string ContractId, BOMLevel Level, bool isMatrix = true)
         {
             ExcelEngine excelEngine = new ExcelEngine();
@@ -4227,6 +4228,660 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                 throw (ex);
 
             }
+        }
+
+        public void GetDrawBOMTemplateByContractDataReports(IWorksheet sheet, string ContractId)
+        {
+            string sql = @"SELECT att.BOMMasterId, b.[Description] AS BOMDesc,mmf.UserName FGMaterial,mmaf.StandardName AS FGArticle, mm.UserName RMMaterial,mma.StandardName AS RMArticle,p.UserName AS Vendor,
+                                    pr.UserName AS Process,uom.UserName AS UOM,bs.[Description] AS SKUDesc,
+                                    bd.[Description], bd.CustomerSpec, bd.VendorSpec, bd.Consumption, bd.WastagePer,
+                                    bd.IsSKUCommon AS RMSKUCommon,
+
+                                    --COMMON RM MAPPING---
+                                    RMC1.UserName AS RM1CHAR,RMC2.UserName AS RM2CHAR,RMC3.UserName AS RM3CHAR,
+                                    RMV1.UserName AS RMV1CHARVAL,RMV2.UserName AS RMV2CHARVAL,RMV3.UserName AS RMV3CHARVAL,
+                                    --FG MAPPING
+                                    FGC1.UserName AS FG1CHAR,FGC2.UserName AS FG2CHAR,FGC3.UserName AS FG3CHAR,
+                                    FGV1.UserName AS FGV1CHARVAL,FGV2.UserName AS FGV2CHARVAL,FGV3.UserName AS FGV3CHARVAL,
+
+                                    BS.IsFirstCharacteristicCommon, BS.IsSecondCharacteristicCommon,BS.IsThirdCharacteristicCommon,
+
+                                    SKUC1.UserName AS SKU1CHAR,SKUC2.UserName AS SKU2CHAR,SKUC3.UserName AS SKU3CHAR,
+                                    SKUV1.UserName AS SKUV1CHARVAL,SKUV2.UserName AS SKUV2CHARVAL,SKUV3.UserName AS SKUV3CHARVAL
+                                    --------------------
+
+                                     FROM BOMMasterAttachmentWithItem AS ATT
+                                    INNER JOIN BOMMaster AS b ON b.Id=att.BOMMasterId
+                                    INNER JOIN BOMAttachmentDetail AS bd ON bd.BOMMasterAttachmentWithItemId=att.Id
+                                    LEFT JOIN BOMAttachmentSKUMapping AS bs ON bs.BOMAttachmentDetailId=bd.Id 
+					                                    AND  isnull(bs.FGFirstCharacteristicsValueId,'') IN (
+						                                    SELECT '' UNION
+					                                    SELECT fc.CharacteristicsValueId FROM trn.FirstCharacteristics AS fc
+					                                    INNER JOIN trn.SalesOrder AS so ON so.Id=fc.SalesOrderId
+					                                    WHERE so.MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"')
+					                                    )
+
+						                                    AND  isnull(bs.FGSecondCharacteristicsValueId,'') IN (
+							                                    SELECT '' UNION
+						                                    SELECT sc.CharacteristicsValueId FROM trn.SecondCharacteristics AS sc 
+						                                    INNER JOIN trn.SalesOrder AS so ON so.Id=sc.SalesOrderId
+						                                    WHERE so.MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"')
+						                                    )
+
+
+					                                    AND  isnull(bs.FGFirstCharacteristicsValueId,'') IN (
+						                                    SELECT '' UNION
+					                                    SELECT fc.CharacteristicsValueId FROM trn.ThirdCharacteristics AS  fc
+					                                    INNER JOIN trn.SalesOrder AS so ON so.Id=fc.SalesOrderId
+					                                    WHERE so.MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"')
+						                                    )
+
+                                    INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=att.MasterOrderItemId
+                                    LEFT OUTER JOIN mst.MaterialMaster AS mmf ON mmf.Id=moi.MaterialMasterId
+                                    LEFT OUTER JOIN mst.MaterialMasterArticle AS mmaf ON mmaf.Id=moi.ArticleId
+
+
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] RMV1 ON RMv1.Id=bd.FirstCharacteristicsValueId
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] RMV2 ON RMv2.Id=bd.SecondCharacteristicsValueId
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] RMV3 ON RMv3.Id=bd.ThirdCharacteristicsValueId
+
+                                    LEFT OUTER JOIN [HKP].[Characteristics] RMC1 ON RMC1.Id=RMV1.CharacteristicsId
+                                    LEFT OUTER JOIN [HKP].[Characteristics] RMC2 ON RMC2.Id=RMV2.CharacteristicsId
+                                    LEFT OUTER JOIN [HKP].[Characteristics] RMC3 ON RMC3.Id=RMV3.CharacteristicsId
+
+
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] FGV1 ON FGv1.Id=bs.FGFirstCharacteristicsValueId
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] FGV2 ON FGv2.Id=bs.FGSecondCharacteristicsValueId
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] FGV3 ON FGv3.Id=bs.FGThirdCharacteristicsValueId
+
+                                    LEFT JOIN BOMAttachmentSKUMapping AS bscf ON bs.BOMAttachmentDetailId=bd.Id AND bscf.id =(SELECT TOP 1 Id FROM BOMAttachmentSKUMapping WHERE BOMAttachmentDetailId=bd.Id AND isnull(IsFirstCharacteristicCommon,0)=1)
+                                    LEFT JOIN BOMAttachmentSKUMapping AS bscs ON bs.BOMAttachmentDetailId=bd.Id AND bscs.id =(SELECT TOP 1 Id FROM BOMAttachmentSKUMapping WHERE BOMAttachmentDetailId=bd.Id AND isnull(IsSecondCharacteristicCommon,0)=1)
+                                    LEFT JOIN BOMAttachmentSKUMapping AS bsct ON bs.BOMAttachmentDetailId=bd.Id AND bsct.id =(SELECT TOP 1 Id FROM BOMAttachmentSKUMapping WHERE BOMAttachmentDetailId=bd.Id AND isnull(IsthirdCharacteristicCommon,0)=1)
+                                    LEFT OUTER JOIN [HKP].[Characteristics] FGC1 ON FGC1.Id=isnull(bscf.FGFirstCharacteristicsId,FGV1.CharacteristicsId)
+                                    LEFT OUTER JOIN [HKP].[Characteristics] FGC2 ON FGC2.Id=isnull(bscs.FGSecondCharacteristicsId,FGV2.CharacteristicsId)
+                                    LEFT OUTER JOIN [HKP].[Characteristics] FGC3 ON FGC3.Id=isnull(bsct.FGThirdCharacteristicsId,FGV3.CharacteristicsId)
+
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] SKUV1 ON SKUv1.Id=bs.RMFirstCharacteristicsValueId
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] SKUV2 ON SKUv2.Id=bs.RMSecondCharacteristicsValueId
+                                    LEFT OUTER JOIN [HKP].[CharacteristicsValue] SKUV3 ON SKUv3.Id=bs.RMThirdCharacteristicsValueId
+
+                                    LEFT OUTER JOIN [HKP].[Characteristics] SKUC1 ON SKUC1.Id=SKUV1.CharacteristicsId
+                                    LEFT OUTER JOIN [HKP].[Characteristics] SKUC2 ON SKUC2.Id=SKUV2.CharacteristicsId
+                                    LEFT OUTER JOIN [HKP].[Characteristics] SKUC3 ON SKUC3.Id=SKUV3.CharacteristicsId
+
+                                    LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=bd.RMMaterialMasterId
+                                    LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=bd.RMArticleId
+                                    LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=BD.UoMId
+                                    LEFT OUTER JOIN HKP.Party P ON p.Id=bd.VendorId
+                                    LEFT JOIN hkp.Process AS pr ON pr.Id=bd.ProcessId
+
+                                    WHERE att.MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"')
+                                    ORDER BY bd.Sequence";
+
+            sheet.Name = "BOM Template";
+
+            DataTable dtData = _sqlRepository.GetDataTable(sql);
+            int ROW = 1;
+            sheet[ROW, 1].Text = "BOM Template Items";
+            sheet.Range[ROW, 1, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet[ROW, 1].CellStyle.Font.Bold = true;
+            ROW++;
+            sheet[ROW, 1].Text = "BOM Id";
+            sheet[ROW, 3].Text = dtData.Rows[0]["BOMMasterId"].ToString();
+            sheet.Range[ROW, 1, ROW, 2].Merge();
+            sheet.Range[ROW, 3, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW++;
+            sheet[ROW, 1].Text = "BOM Desc";
+            sheet[ROW, 3].Text = dtData.Rows[0]["BOMDesc"].ToString();
+            sheet.Range[ROW, 1, ROW, 2].Merge();
+            sheet.Range[ROW, 3, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW++;
+            sheet[ROW, 1].Text = "Material";
+            sheet[ROW, 3].Text = dtData.Rows[0]["FGMaterial"].ToString();
+            sheet.Range[ROW, 1, ROW, 2].Merge();
+            sheet.Range[ROW, 3, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW++;
+            sheet[ROW, 1].Text = "Article";
+            sheet[ROW, 3].Text = dtData.Rows[0]["FGArticle"].ToString();
+            sheet.Range[ROW, 1, ROW, 2].Merge();
+            sheet.Range[ROW, 3, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW += 2;
+            int COL = 1;
+            sheet[ROW, COL].Text = "Sl. No";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 6;
+            int colSlNo = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Material";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colMaterial = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Article";
+            sheet[ROW, COL].ColumnWidth = 40;
+            int colArticle = COL;
+            COL++;
+            sheet[ROW, COL].Text = "RM Desc";
+            sheet[ROW, COL].ColumnWidth = 22;
+            int colRMDescription = COL;
+
+            COL++;
+            sheet[ROW, COL].Text = "Customer Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMCustomerSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMVendorSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU Desc";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUDesc = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Cons.";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colConsumption = COL;
+            COL++;
+            sheet[ROW, COL].Text = "UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Wast.%";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colWastagePer = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Process";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colProcess = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor";
+            sheet[ROW, COL].ColumnWidth = 20;
+            int colVendor = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Common SKU";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMSKUCommon = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMV1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMV2 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMV3 = COL;
+
+            sheet.Range[ROW - 1, colRMV1, ROW - 1, colRMV3].Merge();
+            sheet.Range[ROW - 1, colRMV1, ROW - 1, colRMV3].Text = "COMMON SKU";
+            sheet.Range[ROW - 1, colRMV1, ROW - 1, colRMV3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colRMV1, ROW, colRMV3].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
+
+            COL++;
+            sheet[ROW, COL].Text = "FG SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colFGV1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "RM SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUV1 = COL;
+            sheet.Range[ROW - 1, colFGV1, ROW - 1, colSKUV1].Merge();
+            sheet.Range[ROW - 1, colFGV1, ROW - 1, colSKUV1].Text = "FG SKU-1 MAPPING";
+            sheet.Range[ROW - 1, colFGV1, ROW - 1, colSKUV1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colFGV1, ROW, colSKUV1].CellStyle.Interior.ColorIndex = ExcelKnownColors.LightGreen;
+
+
+
+            COL++;
+            sheet[ROW, COL].Text = "FG SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colFGV2 = COL;
+
+            COL++;
+            sheet[ROW, COL].Text = "RM SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUV2 = COL;
+
+            sheet.Range[ROW - 1, colFGV2, ROW - 1, colSKUV2].Merge();
+            sheet.Range[ROW - 1, colFGV2, ROW - 1, colSKUV2].Text = "FG SKU-2 MAPPING";
+            sheet.Range[ROW - 1, colFGV2, ROW - 1, colSKUV2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colFGV2, ROW, colSKUV2].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+
+
+
+            COL++;
+            sheet[ROW, COL].Text = "FG SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colFGV3 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "RM SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUV3 = COL;
+
+            sheet.Range[ROW - 1, colFGV3, ROW - 1, colSKUV3].Merge();
+            sheet.Range[ROW - 1, colFGV3, ROW - 1, colSKUV3].Text = "FG SKU-3 MAPPING";
+            sheet.Range[ROW - 1, colFGV3, ROW - 1, colSKUV3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colFGV3, ROW, colSKUV3].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_orange;
+
+            sheet.Range[ROW - 1, 1, ROW, COL].CellStyle.Font.Bold = true; //row 19 of heading 
+            sheet.Range[ROW - 1, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, colRMV1 - 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+            int endCol = COL;
+            ROW++;
+
+            int StartRow = ROW; //row 20
+            for (int i = 0; i < dtData.Rows.Count; i++)
+            {
+
+
+                sheet[ROW, colSlNo].Number = (i + 1);
+                sheet[ROW, colMaterial].Text = dtData.Rows[i]["RMMaterial"].ToString();
+                sheet[ROW, colArticle].Text = dtData.Rows[i]["RMArticle"].ToString();
+                sheet[ROW, colRMDescription].Text = dtData.Rows[i]["Description"].ToString();
+
+                sheet[ROW, colRMCustomerSpec].Text = dtData.Rows[i]["CustomerSpec"].ToString();
+                sheet[ROW, colRMVendorSpec].Text = dtData.Rows[i]["VendorSpec"].ToString();
+                sheet[ROW, colSKUDesc].Text = dtData.Rows[i]["SKUDesc"].ToString();
+                sheet[ROW, colVendor].Text = dtData.Rows[i]["Vendor"].ToString();
+                sheet[ROW, colUOM].Text = dtData.Rows[i]["UOM"].ToString();
+                sheet[ROW, colProcess].Text = dtData.Rows[i]["Process"].ToString();
+
+                sheet[ROW, colRMSKUCommon].Text = dtData.Rows[i]["RMSKUCommon"].ToString();
+
+                sheet[ROW, colRMV1].Text = dtData.Rows[i]["RMV1CHARVAL"].ToString();
+                sheet[ROW, colRMV2].Text = dtData.Rows[i]["RMV2CHARVAL"].ToString();
+                sheet[ROW, colRMV3].Text = dtData.Rows[i]["RMV3CHARVAL"].ToString();
+
+
+
+                sheet[ROW, colFGV1].Text = bplib.clsWebLib.GetBoolData(dtData.Rows[i]["IsFirstCharacteristicCommon"].ToString()) == true ? "[ALL " + dtData.Rows[i]["FG1CHAR"].ToString() + "]" : dtData.Rows[i]["FGV1CHARVAL"].ToString();
+                sheet[ROW, colFGV2].Text = bplib.clsWebLib.GetBoolData(dtData.Rows[i]["IsSecondCharacteristicCommon"].ToString()) == true ? "[ALL " + dtData.Rows[i]["FG2CHAR"].ToString() + "]" : dtData.Rows[i]["FGV2CHARVAL"].ToString();
+                sheet[ROW, colFGV3].Text = bplib.clsWebLib.GetBoolData(dtData.Rows[i]["IsThirdCharacteristicCommon"].ToString()) == true ? "[ALL " + dtData.Rows[i]["FG3CHAR"].ToString() + "]" : dtData.Rows[i]["FGV3CHARVAL"].ToString();
+
+
+                sheet[ROW, colSKUV1].Text = dtData.Rows[i]["SKUV1CHARVAL"].ToString();
+                sheet[ROW, colSKUV2].Text = dtData.Rows[i]["SKUV2CHARVAL"].ToString();
+                sheet[ROW, colSKUV3].Text = dtData.Rows[i]["SKUV3CHARVAL"].ToString();
+
+                sheet[ROW, colConsumption].Number = clsStaticInfo.dbl(dtData.Rows[i]["Consumption"].ToString());
+                sheet[ROW, colWastagePer].Number = clsStaticInfo.dbl(dtData.Rows[i]["WastagePer"].ToString());
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            sheet.IsGridLinesVisible = false;
+
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+            sheet.Range[8, 4].FreezePanes();
+
+            sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
+            sheet.Range[StartRow, colConsumption, ROW, colConsumption].NumberFormat = clsStaticInfo.NumberFormat(4);
+            sheet.Range[StartRow, colWastagePer, ROW, colWastagePer].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+        }
+
+        public void GetDrawBOMTemplateByContractDataSubMaterials(IWorksheet sheet, string ContractId)
+        {
+            string sql = @"SELECT att.BOMMasterId, b.[Description] AS BOMDesc, mmf.UserName FGMaterial,mmaf.StandardName AS FGArticle, mm.UserName RMMaterial,mma.StandardName AS RMArticle,
+
+                                        submm.UserName SubRMMaterial,submma.StandardName AS SubRMArticle,subp.UserName AS Vendor,
+                                        subpr.UserName AS Process,subuom.UserName AS UOM,ADCS.[Description] AS SKUDesc,
+                                        adc.[Description], adc.CustomerSpec, adc.VendorSpec, adc.Consumption, adc.WastagePer,
+                                        adc.IsSKUCommon AS RMSKUCommon,
+
+
+
+                                        --COMMON RM MAPPING---
+                                        RMC1.UserName AS RM1CHAR,RMC2.UserName AS RM2CHAR,RMC3.UserName AS RM3CHAR,
+                                        RMV1.UserName AS RMV1CHARVAL,RMV2.UserName AS RMV2CHARVAL,RMV3.UserName AS RMV3CHARVAL,
+
+                                        --ADCS.IsFirstCharacteristicCommon, ADCS.IsSecondCharacteristicCommon,ADCS.IsThirdCharacteristicCommon,
+
+                                        SKUC1.UserName AS SKU1CHAR,SKUC2.UserName AS SKU2CHAR,SKUC3.UserName AS SKU3CHAR,
+                                        SKUV1.UserName AS SKUV1CHARVAL,SKUV2.UserName AS SKUV2CHARVAL,SKUV3.UserName AS SKUV3CHARVAL,
+
+
+                                        --COMMON RM MAPPING FOR SUB MATERIAL---
+                                        SUBRMC1.UserName AS SUBRM1CHAR,SUBRMC2.UserName AS SUBRM2CHAR,SUBRMC3.UserName AS SUBRM3CHAR,
+                                        SUBRMV1.UserName AS SUBRMV1CHARVAL,SUBRMV2.UserName AS SUBRMV2CHARVAL,SUBRMV3.UserName AS SUBRMV3CHARVAL,
+
+                                        ADCS.IsFirstCharacteristicCommon, ADCS.IsSecondCharacteristicCommon,ADCS.IsThirdCharacteristicCommon,
+
+                                        SUBSKUC1.UserName AS SUBSKU1CHAR,SUBSKUC2.UserName AS SUBSKU2CHAR,SUBSKUC3.UserName AS SUBSKU3CHAR,
+                                        SUBSKUV1.UserName AS SUBSKUV1CHARVAL,SUBSKUV2.UserName AS SUBSKUV2CHARVAL,SUBSKUV3.UserName AS SUBSKUV3CHARVAL
+                                        --------------------
+
+                                         FROM BOMMasterAttachmentWithItem AS ATT
+                                        INNER JOIN BOMMaster AS b ON b.Id=att.BOMMasterId
+                                        INNER JOIN BOMAttachmentDetail AS bd ON bd.BOMMasterAttachmentWithItemId=att.Id
+                                        LEFT JOIN BOMAttachmentSKUMapping AS bs ON bs.BOMAttachmentDetailId=bd.Id 
+					                                        AND  isnull(bs.FGFirstCharacteristicsValueId,'') IN (
+						                                        SELECT '' UNION
+					                                        SELECT fc.CharacteristicsValueId FROM trn.FirstCharacteristics AS fc
+					                                        INNER JOIN trn.SalesOrder AS so ON so.Id=fc.SalesOrderId
+					                                        WHERE so.MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"')
+					                                        )
+
+						                                        AND  isnull(bs.FGSecondCharacteristicsValueId,'') IN (
+							                                        SELECT '' UNION
+						                                        SELECT sc.CharacteristicsValueId FROM trn.SecondCharacteristics AS sc 
+						                                        INNER JOIN trn.SalesOrder AS so ON so.Id=sc.SalesOrderId
+						                                        WHERE so.MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"')
+						                                        )
+
+
+					                                        AND  isnull(bs.FGFirstCharacteristicsValueId,'') IN (
+						                                        SELECT '' UNION
+					                                        SELECT fc.CharacteristicsValueId FROM trn.ThirdCharacteristics AS  fc
+					                                        INNER JOIN trn.SalesOrder AS so ON so.Id=fc.SalesOrderId
+					                                        WHERE so.MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"')
+						                                        )
+
+                                        INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=att.MasterOrderItemId
+                                        LEFT OUTER JOIN mst.MaterialMaster AS mmf ON mmf.Id=moi.MaterialMasterId
+                                        LEFT OUTER JOIN mst.MaterialMasterArticle AS mmaf ON mmaf.Id=moi.ArticleId
+
+
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] RMV1 ON RMv1.Id=bd.FirstCharacteristicsValueId
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] RMV2 ON RMv2.Id=bd.SecondCharacteristicsValueId
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] RMV3 ON RMv3.Id=bd.ThirdCharacteristicsValueId
+
+                                        LEFT OUTER JOIN [HKP].[Characteristics] RMC1 ON RMC1.Id=RMV1.CharacteristicsId
+                                        LEFT OUTER JOIN [HKP].[Characteristics] RMC2 ON RMC2.Id=RMV2.CharacteristicsId
+                                        LEFT OUTER JOIN [HKP].[Characteristics] RMC3 ON RMC3.Id=RMV3.CharacteristicsId
+
+                                        LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=bd.RMMaterialMasterId
+                                        LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=bd.RMArticleId
+                                        LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=BD.UoMId
+                                        LEFT OUTER JOIN HKP.Party P ON p.Id=bd.VendorId
+                                        LEFT JOIN hkp.Process AS pr ON pr.Id=bd.ProcessId
+
+                                        JOIN AttachmentDetailConsumption AS adc ON adc.BOMAttachmentDetailId=bd.Id
+                                        LEFT JOIN mst.MaterialMaster AS submm ON submm.Id=adc.RMMaterialMasterId
+                                        LEFT JOIN mst.MaterialMasterArticle AS submma ON submma.Id=adc.RMArticleId
+                                        LEFT JOIN scs.UnitOfMeasurement AS subuom ON subuom.Id=adc.UoMId
+                                        LEFT JOIN HKP.Party subP ON subp.Id=adc.VendorId
+                                        LEFT JOIN hkp.Process AS subpr ON subpr.Id=adc.ProcessId 
+
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] SUBRMV1 ON SUBRMV1.Id=ADC.FirstCharacteristicsValueId
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] SUBRMV2 ON SUBRMV2.Id=ADC.SecondCharacteristicsValueId
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] SUBRMV3 ON SUBRMV3.Id=ADC.ThirdCharacteristicsValueId
+
+                                        LEFT OUTER JOIN [HKP].[Characteristics] SUBRMC1 ON SUBRMC1.Id=SUBRMV1.CharacteristicsId
+                                        LEFT OUTER JOIN [HKP].[Characteristics] SUBRMC2 ON SUBRMC2.Id=SUBRMV2.CharacteristicsId
+                                        LEFT OUTER JOIN [HKP].[Characteristics] SUBRMC3 ON SUBRMC3.Id=SUBRMV3.CharacteristicsId
+
+
+                                        LEFT JOIN AttachmentDetailConsumptionSKUMapping AS adcs ON adcs.AttachmentDetailConsumptionId=adc.Id
+
+
+                                       LEFT OUTER JOIN [HKP].[CharacteristicsValue] SUBSKUV1 ON SUBSKUV1.Id=ADCS.SubFirstCharacteristicsValueId
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] SUBSKUV2 ON SUBSKUV2.Id=ADCS.SubSecondCharacteristicsValueId
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] SUBSKUV3 ON SUBSKUV3.Id=ADCS.SubThirdCharacteristicsValueId
+
+                                        LEFT OUTER JOIN [HKP].[Characteristics] SUBSKUC1 ON SUBSKUC1.Id=SUBSKUV1.CharacteristicsId OR SUBSKUC1.Id=(SELECT TOP 1 RMFirstCharacteristicsId FROM AttachmentDetailConsumptionSKUMapping WHERE AttachmentDetailConsumptionId=adc.Id AND isnull(IsFirstCharacteristicCommon,0)=1)
+                                        LEFT OUTER JOIN [HKP].[Characteristics] SUBSKUC2 ON SUBSKUC2.Id=SUBSKUV2.CharacteristicsId OR SUBSKUC1.Id=(SELECT TOP 1 RMSecondCharacteristicsId FROM AttachmentDetailConsumptionSKUMapping WHERE AttachmentDetailConsumptionId=adc.Id AND isnull(IsSecondCharacteristicCommon,0)=1)
+                                        LEFT OUTER JOIN [HKP].[Characteristics] SUBSKUC3 ON SUBSKUC3.Id=SUBSKUV3.CharacteristicsId OR SUBSKUC1.Id=(SELECT TOP 1 RMThirdCharacteristicsId FROM AttachmentDetailConsumptionSKUMapping WHERE AttachmentDetailConsumptionId=adc.Id AND isnull(IsThirdCharacteristicCommon,0)=1)
+
+
+
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] SKUV1 ON SKUv1.Id=ADCS.RMFirstCharacteristicsValueId
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] SKUV2 ON SKUv2.Id=ADCS.RMSecondCharacteristicsValueId
+                                        LEFT OUTER JOIN [HKP].[CharacteristicsValue] SKUV3 ON SKUv3.Id=ADCS.RMThirdCharacteristicsValueId
+
+                                        LEFT OUTER JOIN [HKP].[Characteristics] SKUC1 ON SKUC1.Id=SKUV1.CharacteristicsId
+                                        LEFT OUTER JOIN [HKP].[Characteristics] SKUC2 ON SKUC2.Id=SKUV2.CharacteristicsId
+                                        LEFT OUTER JOIN [HKP].[Characteristics] SKUC3 ON SKUC3.Id=SKUV3.CharacteristicsId
+
+                                        WHERE att.MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"')
+                                        ORDER BY bd.Sequence";
+
+            sheet.Name = "BOM Template Sub Material";
+
+            DataTable dtData = _sqlRepository.GetDataTable(sql);
+
+            if (dtData.Rows.Count == 0)
+                return;
+
+            int ROW = 1;
+            sheet[ROW, 1].Text = "BOM Template Items (Sub Material)";
+            sheet.Range[ROW, 1, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet[ROW, 1].CellStyle.Font.Bold = true;
+            ROW++;
+            sheet[ROW, 1].Text = "BOM Id";
+            sheet[ROW, 3].Text = dtData.Rows[0]["BOMMasterId"].ToString();
+            sheet.Range[ROW, 1, ROW, 2].Merge();
+            sheet.Range[ROW, 3, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW++;
+            sheet[ROW, 1].Text = "BOM Desc";
+            sheet[ROW, 3].Text = dtData.Rows[0]["BOMDesc"].ToString();
+            sheet.Range[ROW, 1, ROW, 2].Merge();
+            sheet.Range[ROW, 3, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW++;
+            sheet[ROW, 1].Text = "Material";
+            sheet[ROW, 3].Text = dtData.Rows[0]["FGMaterial"].ToString();
+            sheet.Range[ROW, 1, ROW, 2].Merge();
+            sheet.Range[ROW, 3, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW++;
+            sheet[ROW, 1].Text = "Article";
+            sheet[ROW, 3].Text = dtData.Rows[0]["FGArticle"].ToString();
+            sheet.Range[ROW, 1, ROW, 2].Merge();
+            sheet.Range[ROW, 3, ROW, 5].Merge();
+            sheet.Range[ROW, 1, ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW += 2;
+            int COL = 1;
+            sheet[ROW, COL].Text = "Sl. No";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 6;
+            int colSlNo = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Sub Material";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colSubMaterial = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Sub  Article";
+            sheet[ROW, COL].ColumnWidth = 40;
+            int colSubArticle = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Parent Material";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colMaterial = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Parent Article";
+            sheet[ROW, COL].ColumnWidth = 40;
+            int colArticle = COL;
+            COL++;
+            sheet[ROW, COL].Text = "RM Desc";
+            sheet[ROW, COL].ColumnWidth = 22;
+            int colRMDescription = COL;
+
+            COL++;
+            sheet[ROW, COL].Text = "Customer Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMCustomerSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMVendorSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU Desc";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUDesc = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Cons.";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colConsumption = COL;
+            COL++;
+            sheet[ROW, COL].Text = "UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Wast.%";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colWastagePer = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Process";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colProcess = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor";
+            sheet[ROW, COL].ColumnWidth = 20;
+            int colVendor = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Common SKU";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMSKUCommon = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMV1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMV2 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMV3 = COL;
+
+            sheet.Range[ROW - 1, colRMV1, ROW - 1, colRMV3].Merge();
+            sheet.Range[ROW - 1, colRMV1, ROW - 1, colRMV3].Text = "COMMON SKU";
+            sheet.Range[ROW - 1, colRMV1, ROW - 1, colRMV3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colRMV1, ROW, colRMV3].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
+
+            COL++;
+            sheet[ROW, COL].Text = "RM SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colFGV1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SUB RM SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUV1 = COL;
+            sheet.Range[ROW - 1, colFGV1, ROW - 1, colSKUV1].Merge();
+            sheet.Range[ROW - 1, colFGV1, ROW - 1, colSKUV1].Text = "RM SKU-1 MAPPING";
+            sheet.Range[ROW - 1, colFGV1, ROW - 1, colSKUV1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colFGV1, ROW, colSKUV1].CellStyle.Interior.ColorIndex = ExcelKnownColors.LightGreen;
+
+
+
+            COL++;
+            sheet[ROW, COL].Text = "RM SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colFGV2 = COL;
+
+            COL++;
+            sheet[ROW, COL].Text = "SUB RM SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUV2 = COL;
+
+            sheet.Range[ROW - 1, colFGV2, ROW - 1, colSKUV2].Merge();
+            sheet.Range[ROW - 1, colFGV2, ROW - 1, colSKUV2].Text = "RM SKU-2 MAPPING";
+            sheet.Range[ROW - 1, colFGV2, ROW - 1, colSKUV2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colFGV2, ROW, colSKUV2].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+
+
+
+            COL++;
+            sheet[ROW, COL].Text = "RM SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colFGV3 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SUB RM SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUV3 = COL;
+
+            sheet.Range[ROW - 1, colFGV3, ROW - 1, colSKUV3].Merge();
+            sheet.Range[ROW - 1, colFGV3, ROW - 1, colSKUV3].Text = "RM SKU-3 MAPPING";
+            sheet.Range[ROW - 1, colFGV3, ROW - 1, colSKUV3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colFGV3, ROW, colSKUV3].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_orange;
+
+            sheet.Range[ROW - 1, 1, ROW, COL].CellStyle.Font.Bold = true; //row 19 of heading 
+            sheet.Range[ROW - 1, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, colRMV1 - 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+            int endCol = COL;
+            ROW++;
+
+            int StartRow = ROW; //row 20
+            for (int i = 0; i < dtData.Rows.Count; i++)
+            {
+
+
+                sheet[ROW, colSlNo].Number = (i + 1);
+                sheet[ROW, colMaterial].Text = dtData.Rows[i]["RMMaterial"].ToString();
+                sheet[ROW, colArticle].Text = dtData.Rows[i]["RMArticle"].ToString();
+                sheet[ROW, colSubMaterial].Text = dtData.Rows[i]["SubRMMaterial"].ToString();
+                sheet[ROW, colSubArticle].Text = dtData.Rows[i]["SubRMArticle"].ToString();
+                sheet[ROW, colRMDescription].Text = dtData.Rows[i]["Description"].ToString();
+
+                sheet[ROW, colRMCustomerSpec].Text = dtData.Rows[i]["CustomerSpec"].ToString();
+                sheet[ROW, colRMVendorSpec].Text = dtData.Rows[i]["VendorSpec"].ToString();
+                sheet[ROW, colSKUDesc].Text = dtData.Rows[i]["SKUDesc"].ToString();
+                sheet[ROW, colVendor].Text = dtData.Rows[i]["Vendor"].ToString();
+                sheet[ROW, colUOM].Text = dtData.Rows[i]["UOM"].ToString();
+                sheet[ROW, colProcess].Text = dtData.Rows[i]["Process"].ToString();
+
+                sheet[ROW, colRMSKUCommon].Text = dtData.Rows[i]["RMSKUCommon"].ToString();
+
+                sheet[ROW, colRMV1].Text = dtData.Rows[i]["SUBRMV1CHARVAL"].ToString();
+                sheet[ROW, colRMV2].Text = dtData.Rows[i]["SUBRMV2CHARVAL"].ToString();
+                sheet[ROW, colRMV3].Text = dtData.Rows[i]["SUBRMV3CHARVAL"].ToString();
+
+
+
+                sheet[ROW, colFGV1].Text = bplib.clsWebLib.GetBoolData(dtData.Rows[i]["IsFirstCharacteristicCommon"].ToString()) == true ? "[ALL " + dtData.Rows[i]["SUBSKU1CHAR"].ToString() + "]" : dtData.Rows[i]["SKUV1CHARVAL"].ToString();
+                sheet[ROW, colFGV2].Text = bplib.clsWebLib.GetBoolData(dtData.Rows[i]["IsSecondCharacteristicCommon"].ToString()) == true ? "[ALL " + dtData.Rows[i]["SUBSKU2CHAR"].ToString() + "]" : dtData.Rows[i]["SKUV2CHARVAL"].ToString();
+                sheet[ROW, colFGV3].Text = bplib.clsWebLib.GetBoolData(dtData.Rows[i]["IsThirdCharacteristicCommon"].ToString()) == true ? "[ALL " + dtData.Rows[i]["SUBSKU3CHAR"].ToString() + "]" : dtData.Rows[i]["SKUV3CHARVAL"].ToString();
+
+
+                sheet[ROW, colSKUV1].Text = dtData.Rows[i]["SUBSKUV1CHARVAL"].ToString();
+                sheet[ROW, colSKUV2].Text = dtData.Rows[i]["SUBSKUV2CHARVAL"].ToString();
+                sheet[ROW, colSKUV3].Text = dtData.Rows[i]["SUBSKUV3CHARVAL"].ToString();
+
+                sheet[ROW, colConsumption].Number = clsStaticInfo.dbl(dtData.Rows[i]["Consumption"].ToString());
+                sheet[ROW, colWastagePer].Number = clsStaticInfo.dbl(dtData.Rows[i]["WastagePer"].ToString());
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            sheet.IsGridLinesVisible = false;
+
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+            sheet.Range[8, 4].FreezePanes();
+
+            sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
+            sheet.Range[StartRow, colConsumption, ROW, colConsumption].NumberFormat = clsStaticInfo.NumberFormat(4);
+            sheet.Range[StartRow, colWastagePer, ROW, colWastagePer].NumberFormat = clsStaticInfo.NumberFormat(2);
+
         }
         #endregion
 
