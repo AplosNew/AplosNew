@@ -343,7 +343,6 @@ function POMappingWithPIController(commonMessage, $controller, $scope, $rootScop
 
     $scope.summaryPO = [{
         title: "Total :", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POQuantity", dataMember: "POQuantity", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "POAmount", dataMember: "POAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "QuantityAtPIUoM", dataMember: "QuantityAtPIUoM", format: "{0:N2}" }],
         showCaptionSummary: true
