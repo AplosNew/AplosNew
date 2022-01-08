@@ -2791,48 +2791,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> getPlants()
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"Select Username as Text , Id as Value from ORG.Plant --where CompanyId = '" + identity.CompanyId + "'";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }       
-
-       
-        public IEnumerable<object> getMaster()
-        {
-            try
-            {
-                var str = @"Select * from dbo.AttdnBonusHeader";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-
-        public IEnumerable<object> getChildData(string MasterId)
-        {
-            try
-            {
-                var sql = @"Select * from dbo.attdnbonusplantchild where HeaderId ='" + MasterId + "'";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
         #region Add/Edit Section
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -2874,8 +2832,23 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             dr.EndEdit();
         }
-       
+
         #endregion
+
+        #region PlantChild Functions
+      
+        public IEnumerable<object> getChildData(string MasterId)
+        {
+            try
+            {
+                var sql = @"Select * from dbo.attdnbonusplantchild where HeaderId ='" + MasterId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         public Dictionary<string, object> saveChild(Dictionary<string, object> Child)
         {
@@ -2936,6 +2909,9 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        #endregion
+
+        #region Header Functions
         public double GetSequence()
         {
             string TableName = "dbo.AttdnBonusHeader";
@@ -2945,7 +2921,18 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             return 1;
         }
-
+        public IEnumerable<object> getMaster()
+        {
+            try
+            {
+                var str = @"Select * from dbo.AttdnBonusHeader";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         public IEnumerable<object> getHeader()
         {
             try
@@ -2958,8 +2945,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
-
-        // Saving the New Header
         public Dictionary<string, object> saveHeader(Dictionary<string, object> Header)
         {
             try
@@ -3009,8 +2994,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
-
-        //Getting the Header Auto Sequence
         public double GetSequenceHeader()
         {
             string TableName = "dbo.AttdnBonusHeader";
@@ -3021,8 +3004,9 @@ namespace Library.HumanResource.NewAttendanceProcess
             return 1;
         }
 
+        #endregion
 
-        // Getting the Day Type Child 
+        #region Rules Functions
         public IEnumerable<object> getRulesList(string Id)
         {
             try
@@ -3043,10 +3027,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string TableName = "dbo.AttdnBonusRuleChild";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId='" + Header["HeaderId"] + "' and DayType='" + Header["DayType"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId='" + Header["HeaderId"] + "' and UserName='" + Header["UserName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    throw new Exception("Same Day Type is Already Present");
+                    throw new Exception("Same UserName is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId='" + Header["HeaderId"] + "' and StandardName='" + Header["StandardName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same StandardName is Already Present");
                 }
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Header["Id"] + "'", out dsMaster, false, "1");
@@ -3059,7 +3050,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    Header["Id"] = _Id;
+                    Header["Id"] ="RC"+ _Id;
                     AddNewRow(dsMaster.Tables[0], Header);
                 }
                 else
@@ -3081,6 +3072,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        #endregion
     }
 }
 
