@@ -532,6 +532,13 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         angular.forEach($scope.receiveTaxList, function (item) {
             $scope.chargesList[$scope.currentServiceRow].TaxAmount += parseFloat(item.Amount);
         });
+
+        for (var i = 0; i < $scope.chargesList.length; i++) {
+            if ($scope.chargesList[i].ServiceTaxList.length ==0) {
+                $scope.chargesList[i].ServiceTaxList = $scope.receiveTaxList;
+            } 
+        }
+
         $scope.chargesList[$scope.currentServiceRow].TaxAndTotal = parseFloat($scope.chargesList[$scope.currentServiceRow].NetAmount) + parseFloat($scope.chargesList[$scope.currentServiceRow].TaxAmount);
         angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
     };
@@ -875,6 +882,8 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.GetCurrencyExchangeRateList();
         $scope.GetListData($scope.salesVM.Id);
         $scope.GetSalesServiceData($scope.salesVM.Id);
+        $scope.getTaxCodeByTaxYearWithhold($scope.salesVM.InvoiceDate);
+        $scope.GetAdvanceTaxInfo($scope.salesVM.Id);
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -1386,5 +1395,179 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }
     };
     //#endregion
+
+    //#region Additional TAX Code
+    $scope.advanceTax = { TotalSumAfterTCSVal: 0 };
+    $scope.advanceTaxesList = [];
+    $scope.additionalTax = function () {
+        for (var i = 0; i < $scope.advanceTaxesList.length; i++) {
+            if ($scope.advanceTaxesList[i].TaxCodeId === $scope.advanceTax.TaxCodeId) {
+                ShowResult("Tax Already Added");
+                return false;
+            }
+
+        }
+
+        if (manualValidation("td_TaxCode", baseService.isUndefinedOrNull($scope.advanceTax.TaxCodeId), "Tax Code is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TaxCodeAmount", baseService.isUndefinedOrNull($scope.advanceTax.TaxAmount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TaxCodeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.advanceTax.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.advanceTax.TaxName = $.grep($scope.taxCodCboListWithhold, function (item) {
+                return item.Id === $scope.advanceTax.TaxCodeId;
+            })[0].UserName;
+
+            $scope.advanceTaxesList.push($scope.advanceTax);
+            $scope.advanceTax = {};
+            $scope.TotalSumAfterTCS();
+        }
+
+    };
+
+    $scope.taxCodCboListWithhold = [];
+    $scope.taxcodelistMessage = "";
+    $scope.getTaxCodeByTaxYearWithhold = function (date) {
+        $scope.salesVM.TaxOptionAddiTax = 'Yes';
+        $http({
+            method: "Get",
+            url: "accounts/TaxCode/GetAdditionalTaxOutputCbo?postingDate=" + $filter("dateFiltering")(date)
+        }).then(
+            function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.taxcodelistMessage = response.data.Message;
+                }
+                else {
+                    $scope.taxCodCboListWithhold = response.data;;
+                }
+            },
+            function errorCallback(response) {
+            });
+    };
+    //$scope.getTaxCodeByTaxYearWithhold($filter("dateFiltering")(Date.now()));
+    $scope.selectadditionalTax = function () {
+        $scope.advanceTax.ValueOfFixed = $.grep($scope.taxCodCboListWithhold, function (item) {
+            return item.Id === $scope.advanceTax.TaxCodeId;
+        })[0].ValueOfFixed;
+        $scope.advanceTax.Type = $.grep($scope.taxCodCboListWithhold, function (item) {
+            return item.Id === $scope.advanceTax.TaxCodeId;
+        })[0].Type;
+        $scope.advanceTax.TaxCategoryId = $.grep($scope.taxCodCboListWithhold, function (item) {
+            return item.Id === $scope.advanceTax.TaxCodeId;
+        })[0].TaxCategoryId;
+
+        if ($scope.advanceTax.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.advanceTax.ValueOfFixed)) {//* $scope.advanceTax.ValueOfFixed / 100
+
+            $scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceTax"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
+            //$scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceCharge"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
+        }
+        else {
+            $scope.advanceTax.TaxAmount = $scope.advanceTax.ValueOfFixed;
+        }
+        $scope.TotalSumAfterTCS();
+    }
+
+    $scope.SaveAdditinalTax = function () {
+        try {
+            if ($scope.salesVM.IsPark == 0) {
+                throw "Posted data cann't save";
+            }
+            if (baseService.arrayLength($scope.advanceTaxesList) == 0) {
+                throw "Add row for Additional Tax.";
+            }
+            $http({
+                method: 'POST',
+                url: 'Commercial/PIInvoice/SaveAdditinalTax',
+                data:
+                {
+                    'salesId': $scope.salesVM.Id,
+                    'BooksCurrencyBaseRate': $scope.salesVM.CompanyCurrencyRate,
+                    'UserSendData': $scope.advanceTaxesList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.TotalSumAfterTCS();
+
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.GetAdvanceTaxInfo = function (Id) {
+
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Commercial/PIInvoice/GetAdvanceTaxInfo?SalesId=' + Id,
+        }).then(function successCallback(response) {
+            $scope.advanceTaxesList = response.data;
+
+            $scope.advanceTax.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+
+        });
+
+    }
+    $scope.removeTaxesRow = function (Id, index) {
+        if (baseService.isUndefinedOrNull(Id)) {
+            $scope.advanceTaxesList.splice(index, 1);
+
+        }
+        else {
+            $scope.DeleteAdditinalTax(Id);
+            $scope.GetAdvanceTaxInfo($scope.salesVM.Id);
+        }
+    };
+    $scope.DeleteAdditinalTax = function (Id) {
+        $http({
+            method: 'POST',
+            url: 'Commercial/PIInvoice/AdditionalTaxDelete?Id=' + Id,
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true)
+                ShowResult(response.data.Message, 'failure');
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+    $scope.TaxOptionAdditax = function (data) {
+        $scope.salesVM.TaxOptionAddiTax = data;
+    };
+
+    $scope.calculateTaxAmountForAdditionalTax = function (data) {
+        $scope.TaxAmountVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceTax"))).toFixed(2);
+        //$scope.TaxAmountVal = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceCharge"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
+        $scope.advanceTax.TaxAmount = (($scope.TaxAmountVal * data) / 100).toFixed(2);
+
+    };
+    $scope.checkRowValidationSdditionalTax = function (data) {
+
+        $scope.TaxAmountVal1 = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceTax"))).toFixed(2);
+        $scope.advanceTax.ValueOfFixed = ((data / $scope.TaxAmountVal1) * 100).toFixed(4);
+    }
+    //$scope.TotalSumAfterTCSVal = "";
+    $scope.TotalSumAfterTCS = function () {
+
+        $scope.advanceTax.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TransactionAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "TaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.salesOrderList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+    }
+
+    //#endregion
+
 
 }

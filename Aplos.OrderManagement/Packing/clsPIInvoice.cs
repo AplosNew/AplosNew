@@ -680,6 +680,69 @@ namespace Library.OrderManagement.Packing
             }
         }
 
+        public void SaveAdditinalTax(string MasterId, decimal BooksCurrencyBaseRate, OTSBD.IdentityParameter para, List<Dictionary<string, object>> UserSendData)
+        {
+
+            try
+            {
+                string sql = "select * from CommercialInvoiceAdditionalTax where CommercialInvoiceMasterId='" + MasterId + "'";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
+
+                for (int i = 0; i < UserSendData.Count; i++)
+                {
+                    dsDetail.Tables[0].DefaultView.RowFilter = "TaxCodeId='" + UserSendData[i]["TaxCodeId"].ToString() + "'";
+                    if (dsDetail.Tables[0].DefaultView.Count == 0)
+                    {
+
+                        DataRow dr = dsDetail.Tables[0].NewRow();
+                        dr["Id"] = GetAddiTaxId();
+                        dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
+                        dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
+                        dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
+                        dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
+                        dr["BooksCurrencyTaxAmount"] = Math.Round(Convert.ToDecimal(UserSendData[i]["TaxAmount"]) * BooksCurrencyBaseRate, 2);
+                        dr["AddedBy"] = para.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = para.AddedFromIP;
+                        dr["CommercialInvoiceMasterId"] = MasterId.ToString();
+                        dsDetail.Tables[0].Rows.Add(dr);
+                    }
+
+                }
+
+
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsDetail);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private string GetAddiTaxId()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CommercialInvoiceAdditionalTax", out sID);
+            return sID;
+        }
+        public IEnumerable<object> GetAdvanceTaxInfo(string SalesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
+                sql = @"Select a.Id,a.TaxCodeId,a.Percentage ValueOfFixed,a.TaxAmount,a.AddedBy,a.AddedDate,a.AddedFromIP,b.UserName TaxName,CommercialInvoiceMasterId
+						from CommercialInvoiceAdditionalTax a
+						left join [mst].[TAXCode] b ON b.Id=a.TaxCodeId where a.CommercialInvoiceMasterId='" + SalesId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
 

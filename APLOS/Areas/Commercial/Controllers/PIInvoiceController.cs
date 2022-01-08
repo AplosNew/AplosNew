@@ -75,7 +75,7 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return Json(pi.GetSelectedPackingData(CommercialInvoiceMasterId), JsonRequestBehavior.AllowGet);
         }
-
+        #region Save
         [HttpPost]
         public JsonResult Create(Dictionary<string,object> MasterData,List<Dictionary<string, object>> CommercialInvoicePackingList,List<CommercialInvoiceModel> CommercialInvoicePIMaterial,List<Dictionary<string,object>> taxList,List<ChargeModel> Charge,List<Dictionary<string,object>> ChargeTax)
         {
@@ -84,6 +84,37 @@ namespace Aplos.Areas.Commercial.Controllers
             return Json(new { Data = MasterData, Message = AplosMessage.Insert + "Invoice No: " + MasterData["Id"] + "" });
         }
 
+        [Authorize, HttpPost]//
+        public ActionResult SaveAdditinalTax(string salesId, decimal BooksCurrencyBaseRate, List<Dictionary<string, object>> UserSendData)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                OTSBD.IdentityParameter para = new OTSBD.IdentityParameter
+                {
+                    CompanyGroupId = identity.CompanyGroupId,
+                    CompanyId = identity.CompanyId,
+                    PlantId = identity.PlantId,
+                    AddedBy = identity.Name,
+                    AddedDate = DateTime.Now,
+                    AddedFromIP = identity.IPAddress,
+                    UpdatedBy = identity.Name,
+                    UpdatedDate = DateTime.Now,
+                    UpdatedFromIP = identity.IPAddress
+                };
+
+                pi.SaveAdditinalTax(salesId, BooksCurrencyBaseRate, para, UserSendData);
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+        #endregion
         [HttpGet, Authorize]
         public JsonResult GetPackingSOData(string PackingId)
         {
@@ -120,6 +151,20 @@ namespace Aplos.Areas.Commercial.Controllers
             return Json(pi.GetSalesServiceTaxData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, Ids), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetAdvanceTaxInfo(string SalesId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(pi.GetAdvanceTaxInfo(SalesId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [HttpPost]
         public ActionResult DeleteTaxRow(string id)
         {
@@ -130,6 +175,23 @@ namespace Aplos.Areas.Commercial.Controllers
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from CommercialInvoiceTaxes where Id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        public ActionResult AdditionalTaxDelete(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from CommercialInvoiceAdditionalTax where Id='" + id + "'");
                 con.CommitTransaction();
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
