@@ -353,6 +353,80 @@ namespace Library.Service.Finances
             }
         }
 
+        public void DeleteAutoloanPost(string companyId, string plantId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+
+                // Delete Loan
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherRepository.Find(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+
+                vendorAdWrsql = @"delete from TRN.FinancingSubsequentTransaction where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+
+
+                vendorAdWrsql = @"delete from trn.GLTransactionDetail where VoucherDetailId in (select Id from TRN.VoucherDetail  where VoucherId in (select Id from TRN.Voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+
+                vendorAdWrsql = @"update TRN.InvoiceDetail set WrittenOffAmount=0,IsWrittenOff=0 where InvoiceId in(select InvoiceId from TRN.InvoiceWriteOffDetail where InvoiceWriteOffId in (select Id from TRN.InvoiceWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"update TRN.Invoice set WrittenOffAmount=0,IsWrittenOff=0 where Id in(select InvoiceId from TRN.InvoiceWriteOffDetail where InvoiceWriteOffId in (select Id from TRN.InvoiceWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.InvoiceWriteOffDetail where InvoiceWriteOffId in (select Id from TRN.InvoiceWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.InvoiceWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+
+                vendorAdWrsql = @"delete from TRN.FinancingSchedule where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.FinancingDetail where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+
+                vendorAdWrsql = @"update LoanAgainstAcceptanceMaster set VoucherId=null where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"update InvoiceTaggingWithLCMaster set VoucherId=null where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+
+                vendorAdWrsql = @"delete trn.voucher  where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.AutoLoan.ToString() + "' AND Id = '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         public void DeleteLoanPayment(string companyId, string plantId, string voucherId)
         {
             var flag = false;

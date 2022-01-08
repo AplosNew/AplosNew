@@ -187,7 +187,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpGet]
-        public ActionResult GetSalaryHeadWiseAmountTransaction(string EmpSystemId)
+        public ActionResult GetSalaryHeadWiseAmountTransaction(string EmpSystemId , string EmpServiceId)
         {
            
         
@@ -202,7 +202,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                                               ,shwas.ServicComponent
                                                         FROM EmployeeFixedServiceTransaction SHWT
                                                         LEFT JOIN EmployeeFixedServiceMaster AS shwas ON shwas.Id = SHWT.EmployeeFixedServicId
-                                                        WHERE  SHWT.EmpSystemId='" + EmpSystemId + @"' AND SHWT.Active=1";
+                                                        WHERE  SHWT.EmpSystemId='" + EmpSystemId + @"' and SHWT.EmployeeFixedServicId = '"+EmpServiceId+"' AND SHWT.Active=1";
 
 
             var data = _sqlRepository.GetDataCollection(sqlSalaryHeadWiseAmountTransaction);
