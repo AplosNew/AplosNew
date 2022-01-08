@@ -420,3 +420,61 @@
         </div>
     </div>
 </ej-dialog>
+
+<ej-dialog id="dialogBOMContractSelectionForReport" title="BOM Items" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+    <div class="row" style="padding-bottom:10px;">
+        <div class="col-xs-1 small text-nowrap">BOM Id</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMMasterId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Bom Desc</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BomDesc}}</span></div>
+        <div class="col-xs-1 small text-nowrap">BOM Material</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMMaterial}}</span></div>
+        <div class="col-xs-1 small text-nowrap">BOM Article</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMArticle}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Mast.Ord r#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.MasterOrderId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Mast.Ord Item Id</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.MasterOrderItemId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BuyerItemNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Own Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.OwnItemNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BuyerOrderNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Own Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.OwnOrderNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Prod. Cat</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.ProductCategory}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Product</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Product}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Material</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Material}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Article</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Article}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Buyer}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Customer</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Customer}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Contract#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.ContractNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">LC#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.LCRef}}</span></div>
+        <div class="col-xs-1 small text-nowrap" style="color:blue;">Consignment</div><div class="col-xs-2 small text-nowrap"><span style="color:blue;">:{{AttachmentSelectedBOMRow.Consignment?'YES':'NO'}}</span></div>
+        <div class="col-xs-1 small text-nowrap" style="color:blue;">Pur. Auth</div><div class="col-xs-2 small text-nowrap"><span style="color:blue;">:{{AttachmentSelectedBOMRow.PurchaseAuthority}}</span></div>
+        <div class="col-xs-1 small text-nowrap" style="color:blue;">Prod. Auth</div><div class="col-xs-2 small text-nowrap"><span style="color:blue;">:{{AttachmentSelectedBOMRow.ProductionAuthority}}</span></div>
+        <div class="col-xs-1 small text-nowrap" style="color:blue;">Type</div><div class="col-xs-2 small text-nowrap"><span style="color:blue;">:{{AttachmentSelectedBOMRow.Type}}</span></div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div id="BOQContractItems" ej-grid e-datasource="ContractItemDataList" e-allowsorting="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowresizing="true"
+                 e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-templaterefresh="refreshTemplateContract"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateContractItems" e-template="#checkboxTemplateContractItemSearchs" e-textalign="center" e-width="20"></div>
+                    <div e-column e-type="string" e-field="MaterialGroup" e-headertext="Material Group" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="150"></div>
+                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="200"></div>
+                    <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="100"></div>
+
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplateContractItemSearchs">
+                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
+
+            </script>
+            <script type="text/x-jsrender" id="headerTemplateContractItems">
+                <input type="checkbox" id="headchkItems" />
+            </script>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="getBOMItemContractReport();" class="btn">Report</button></li>
+                <li> <button ng-click="closePopup('dialogBOMContractSelectionForReport');" class="btn">Cancel</button></li>
+            </ul>
+        </div>
+    </div>
+</ej-dialog>
