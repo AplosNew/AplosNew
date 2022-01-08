@@ -140,6 +140,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         UNION 
                         SELECT * FROM HKP.CharacteristicsValue WHERE SourceType='General'";
             }
+            else if (SP1 == "General" && SP2 == "Specific")
+            {
+                sql = @"SELECT * FROM HKP.CharacteristicsValue WHERE SourceType='Specific' AND MaterialMasterId='" + MaterialMasterId + @"'
+                        UNION 
+                        SELECT * FROM HKP.CharacteristicsValue WHERE SourceType='General'";
+            }
             else if (SP1 == "Specific")
             {
                 sql = @"SELECT * FROM HKP.CharacteristicsValue WHERE SourceType='Specific' AND MaterialMasterId='"+ MaterialMasterId + "'";
