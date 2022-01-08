@@ -6,6 +6,9 @@
     .modellgModify1 {
         width: 1200px;
     }
+    .modal {
+        overflow-y: auto;
+    }
 </style>
 <togglable name="FOC"></togglable>@*PO Without Requisition*@
 
@@ -357,7 +360,7 @@
 </div>
 @*End Index Grid*@
 @*Master Data Entry*@
-<div class="form-horizontal form-elements" ng-form="productNewForm">
+<div class="form-horizontal form-elements" ng-form="productNewForm" id="MainDiv">
     <div class="col-md-12">
         <ul class="common-btn list-inline text-right">
             <li><button ng-click="GetBOQItemsDetailsData();" ng-hide="productNew.OrderSpecific==='No'" class="btn"><i class="glyphicon glyphicon-list"></i> Material Info</button></li>
@@ -1092,10 +1095,11 @@
 </div>
 @*End Vendor List Invoicing Party*@
 @*Detail Data Entry*@
-<div class="modal fade site-modal in " style="overflow:scroll" id="detailPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+
+<div class="modal fade site-modal in" id="detailPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg"> 
         <div class="modal-content">
-            <div class="modal-header">PO Details Data Entry</div> @*<button type="button" class="close" ng-click="closeDetaiPopUp();">&times;</button>*@
+            <div class="modal-header"> Detail Data Entry<button type="button" class="close" ng-click="closeDetaiPopUp();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border"> Material</legend>
@@ -1135,11 +1139,19 @@
                             <label class="col-sm-4 control-label">Prd Master</label>
                             <label class="col-sm-8 control-label">{{detailModel.ProductMasterName}}</label>
                         </div>
+                        <div class="form-group" id="div_storage">
+                            <label class="col-sm-4 col-md-4 control-label">Storage Location</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Storage Location" ng-model="detailModel.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList"></select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group" id="div_country">
                             <label class="col-sm-4 col-md-4 control-label">Country<sup ng-show="detailModel.IsOriginApplicable">*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select name="Country" id="Country" ng-disabled="!detailModel.IsOriginApplicable" ng-model="detailModel.CountryId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in countryList">
+                                    <select name="Country" ng-disabled="!detailModel.IsOriginApplicable" ng-model="detailModel.CountryId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in countryList">
                                         <option value=""></option>
                                     </select>
                                 </div>
@@ -1149,13 +1161,6 @@
                             <label class="col-sm-4 control-label">Description</label>
                             <div class="col-sm-8">
                                 <textarea maxlength="250" name="Description" class="form-control" rows="2" ng-model="detailModel.Description" tabindex="7"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="number" ng-disabled="productNew.Tolerance===null|| productNew.Tolerance==='undefined'" name="Tolerance1" ng-model="detailModel.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                             </div>
                         </div>
                     </div>
@@ -1175,19 +1180,100 @@
                                        ng-keyup="calculateTaxCategory();" />
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Delivery Date<sup>*</sup></label>
+
+                        <div class="form-group" id="div_qtyLotNo">
+                            <label class="col-sm-4 control-label">Lot No</label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="DeliveryDate" ng-model="detailModel.DeliveryDate" datepicker class="form-control" required>
+                                <input type="text" name="LotNo" maxlength="200" ng-model="detailModel.LotNo" class="form-control text-left">
                             </div>
+
                         </div>
+
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Refference No</label>
-                            <div class="col-sm-8">
-                                <textarea maxlength="1000" name="RefferenceNo" class="form-control" rows="2" ng-model="detailModel.RefferenceNo" tabindex="7"></textarea>
+                            <label class="col-sm-4 control-label" title="Contract" ng-hide="productNew.OrderSpecific==='No'">Master Order</label>
+                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                <input type="text" name="Contract" ng-model="detailModel.MasterOrderId" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
+                                <span class="input-group-btn">
+                                    <button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="ClearMasterOrder()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    @*<button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>*@
+                                </span>
                             </div>
                         </div>
+
                     </div>
+                    @*<div class="clearfix"></div>
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueLot ===false">
+                            <div class="form-group" ng-hide="detailModel.TypeValueLot ===false">
+                                <label class="col-sm-4 control-label">Is Lot Number</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="TypeValue" ng-model="detailModel.TypeValueLot" tabindex="16" ng-disabled="true">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueLot ===false">
+                            <div class="form-group" id="div_qty">
+                                <label class="col-sm-4 control-label">Lot Number</label>
+                                <div class="col-sm-8 show-message" style="padding-right:0px;">
+                                    <input type="text" name="LotNumber" maxlength="200" ng-model="detailModel.LotNumber" class="form-control text-left" ng-hide="detailModel.TypeValueLot ===false">
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueDiameter ===false">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Is Diameter</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="TypeValue" ng-model="detailModel.TypeValueDiameter" tabindex="16" ng-disabled="true">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueDiameter ===false">
+                            <div class="form-group" id="div_qty">
+                                <label class="col-sm-4 control-label" ng-hide="detailModel.TypeValueDiameter ===false">Diameter</label>
+                                <div class="col-sm-8 show-message" style="padding-right:0px;">
+                                    <input type="text" name="LotNumber" maxlength="200" ng-model="detailModel.Diameter" class="form-control text-left" ng-hide="detailModel.TypeValueDiameter ===false">
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" ng-hide="detailModel.TypeValueType ===false">Is Type</label>
+                                <div class="col-sm-8" ng-hide="detailModel.TypeValueType ===false">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="TypeValue" ng-model="detailModel.TypeValueType" tabindex="16" ng-hide="detailModel.TypeValueType ===false">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" id="div_qty">
+                                <label class="col-sm-4 control-label" ng-hide="detailModel.TypeValueType ===false">Type</label>
+                                <div class="col-sm-8 show-message" style="padding-right:0px;">
+                                    <input type="text" name="LotNumber" maxlength="200" ng-model="detailModel.Type" class="form-control text-left" ng-hide="detailModel.TypeValueType ===false">
+                                </div>
+
+                            </div>
+                        </div>*@
                 </fieldset>
                 <!--detailModel Entry Right-->
                 <hr ng-show="char1.CharacteristicsId.length>0;" />
@@ -1239,13 +1325,14 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="clearfix"></div>
                 <hr style="width:100%;" />
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" id="div_qty">
                         <label class="col-sm-4 control-label">Transaction Qty<sup>*</sup></label>
                         <div class="col-sm-4 show-message" style="padding-right:0px;">
-                            <input type="text" n-decimals="2" name="Transaction Qty" maxlength="18" ng-model="detailModel.TransactionQty" class="form-control text-right" autocomplete="off" ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_qty', 'detailModel','TransactionQty');">
+                            <input type="text" n-decimals="{{currencyPrecision}}" name="Transaction Qty" maxlength="18" ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_qty', 'detailModel','TransactionQty');calculateAmountPOPUP();">
                         </div>
                         <div class="col-sm-4 show-message" style="padding-left:0px;">
                             <div class="select-style">
@@ -1256,26 +1343,61 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" id="div_Rt">
-                        <label class="col-sm-5 control-label">Unit Rate<sup>*</sup></label>
-                        @*<label class="col-sm-6 control-label">{{detailModel.TransactionRate| number:2}} {{detailModel.CurrencyName}}</label>*@
-                        <div class="col-sm-7 show-message">
-                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="Rate" n-decimals="4" ng-model="detailModel.TransactionRate" class="form-control text-right" autocomplete="off" placeholder="0.00"
-                                       ng-keyup="calculateTaxCategoryRate();manualValidationAddRemove('div_Rt', 'detailModel','TransactionRate'); " />
-                            </div>
+                    <div class="form-group" id="div_Shortageqty">
+                        <label class="col-sm-4 control-label">Shortage Qty<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" n-decimals="{{currencyPrecision}}" name="Shortage Qty" maxlength="18" ng-model="detailModel.ShortageQty" class="form-control text-right" ng-keyup="calculateAmountPOPUP();">
                         </div>
+
                     </div>
                 </div>
+
                 <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" id="div_tamnt">
-                        <label class="col-sm-5 control-label" data-placement="top" title="Cost and Manufacture">Total Amount<sup>*</sup></label>
-                        <div class="col-sm-7 show-message">
+                    <div class="form-group" id="div_Rejectionqty">
+                        <label class="col-sm-4 control-label">Rejection Qty<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" n-decimals="{{currencyPrecision}}" name="Rejection Qty" maxlength="18" ng-model="detailModel.RejectionQty" class="form-control text-right" ng-keyup="calculateAmountPOPUP();">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_Shortageqty">
+                        <label class="col-sm-4 control-label">Valid Qty<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" n-decimals="{{currencyPrecision}}" name="Valid Qty" maxlength="18" ng-model="detailModel.ApprovedQty" class="form-control text-right" ng-disabled="true">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_Rejectionqty">
+                        <label class="col-sm-4 control-label">Net Qty<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" n-decimals="{{currencyPrecision}}" name="Net Qty" maxlength="18" ng-model="detailModel.NetQty" class="form-control text-right" ng-disabled="true">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Unit Rate<sup>*</sup></label>
+                        <label class="col-sm-6 control-label">{{detailModel.TransactionRate| number}} {{detailModel.CurrencyName}}</label>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_tamnt1">
+                        <label class="col-sm-4 control-label" data-placement="top" title="Gross Amount">Gross Amount<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
                             <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                @*{{currencyPrecision}}*@
-                                <input type="text" name="Amount" n-decimals="4" ng-model="detailModel.TransactionAmount" class="form-control text-right" placeholder=""
-                                       ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" disabled />
+                                <input type="text" name="GrossAmount" n-decimals="2" ng-model="detailModel.GrossAmount" class="form-control text-right" placeholder="0.00"
+                                       ng-keyup="CalculateRateAndAmount();calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
                             </div>
                             <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
                                 <input type="text" ng-model="detailModel.CurrencyName" class="form-control" disabled />
@@ -1283,28 +1405,128 @@
                         </div>
                     </div>
                 </div>
-                <fieldset class="scheduler-border" ng-show="detailModel.MaterialMasterName">
-                    <legend class="scheduler-border"> Material Tax</legend>
-                    <div class="col-md-12 modal-table table-responsive" style="padding-top: 5px;" ng-show="taxCategoryList.length>0">
-                        @*<button type="button" class="btn btn-action" ng-click="addTax();">Add Tax</button>*@
-                        <div class="col-xs-12 col-sm-4 col-md-4" ng-show="detailModel.MaterialMasterName">
-                            <div class="form-group">
-                                <label class="col-sm-6 control-label">If Percentage Applicable</label>
-                                <div class="col-sm-6">
-                                    <div class="radio">
-                                        <label>
-                                            <input type="radio" name="TaxOptionMat" ng-model="productNew.TaxOptionMat" value="Yes" ng-click="TaxOptionMat('Yes');" checked="checked"> @*ng-hide="HSNCode !=null"*@
-                                            <span class="cr"><i class="cr-icon"></i></span>Yes
-                                        </label>
-                                        <label>
-                                            <input type="radio" name="TaxOptionMat" ng-model="productNew.TaxOptionMat" value="No" ng-click="TaxOptionMat('No');">@*ng-hide="HSNCode !=null"*@
-                                            <span class="cr"><i class="cr-icon"></i></span>No
-                                        </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_tamnt2">
+                        <label class="col-sm-4 control-label" data-placement="top" title="Discount Amount">Discount Amount<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                <input type="text" name="DiscountAmount" n-decimals="2" ng-model="detailModel.DiscountAmount" class="form-control text-right"
+                                       ng-keyup="CalculateRateAndAmount();calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
+                            </div>
+                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
+                                <input type="text" ng-model="detailModel.CurrencyName" class="form-control" disabled />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_tamnt">
+                        <label class="col-sm-4 control-label" data-placement="top" title="Net Amount">Net Amount<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                <input type="text" name="Amount" n-decimals="2" ng-model="detailModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
+                                       ng-keyup="calculateTaxCategory();" ng-disabled="true" />@*manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');*@
+                                </div>
+                                <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
+                                    <input type="text" ng-model="detailModel.CurrencyName" class="form-control" disabled />
                                 </div>
                             </div>
                         </div>
-                        <div class="clearfix"></div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group" id="div_storage1">
+                            <label class="col-sm-4 control-label" data-placement="top" title="Quality Status">Quality Status<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Quality Status" ng-model="detailModel.QualityStatus" class="form-control" required>
+                                        <option value=""></option>
+                                        <option value="Approved">Approved</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Reject">Reject</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                @*<div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group" id="div_tamnt">
+                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Shortage Qty<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.ShortageQty" class="form-control text-right" placeholder="0.00"
+                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','ShortageQty');" />
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group" id="div_tamnt">
+                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Rejection Qty<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.RejectionQty" class="form-control text-right" placeholder="0.00"
+                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','RejectionQty');" />
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group" id="div_tamnt">
+                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Approved Qty<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.ApprovedQty" class="form-control text-right" placeholder="0.00"
+                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group" id="div_tamnt">
+                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Net Qty<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
+                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>*@
+
+                <div class="clearfix"></div>
+
+
+
+                <fieldset class="scheduler-border" ng-show="detailModel.MaterialMasterName">
+                    <legend class="scheduler-border"> Material Tax</legend>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-6 control-label">If Percentage Applicable</label>
+                            <div class="col-sm-6">
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="TaxOptionMat" ng-model="productNew.TaxOptionMat" value="Yes" ng-click="TaxOptionMat('Yes');" checked="checked"> @*ng-hide="HSNCode !=null"*@
+                                        <span class="cr"><i class="cr-icon"></i></span>Yes
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="TaxOptionMat" ng-model="productNew.TaxOptionMat" value="No" ng-click="TaxOptionMat('No');">@*ng-hide="HSNCode !=null"*@
+                                        <span class="cr"><i class="cr-icon"></i></span>No
+                                    </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <div class="col-md-12 modal-table table-responsive" style="padding-top: 13px;" ng-show="taxCategoryList.length>0">
                         <table class="table table-striped" ng-show="detailModel.MaterialMasterName">
                             <thead>
                                 <tr>
@@ -1320,32 +1542,35 @@
                                     <td>{{x.HSNCode}}</td>
                                     @*<td class="text-right">{{x.Percentage}}</td>*@
                                     <td class="text-right">
-                                        <input type="text" n-decimals="{{4}}" ng-disabled="productNew.TaxOptionMat==='No'" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForMat(x);" class="form-control text-right" />
+                                        <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForMat(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionMat==='No'" />
                                     </td>
                                     <td class="text-right">
-                                        <input type="text" n-decimals="{{2}}" ng-disabled="productNew.TaxOptionMat==='Yes'" ng-model="x.TaxAmount" ng-keyup="checkRowValidationMat(x);" class="form-control text-right" />
+                                        <input type="text" n-decimals="2" ng-model="x.TaxAmount" ng-keyup="checkRowValidationMat(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionMat==='Yes'" />
                                     </td>
                                 </tr>
-
                                 <tr>
                                     <td colspan="3" class="text-right">Total Tax (BC)</td>
-                                    <td class="text-right">{{detailModel.TotalTaxAmount| number:2}}</td>
+                                    @*<td class="text-right">{{detailModel.TotalTaxAmount| setDecimal:currencyPrecision}}</td>*@
+                                    <td class="text-right"><strong>{{taxCategoryList | sumByKey : 'TaxAmount'| setDecimal:2 }}</strong></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </fieldset>
                 <div class="clearfix"></div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li><button ng-click="detailSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{detailModel.Id.length>0?'Update':'Save'}}</button></li>
-                        <li><button ng-click="closeDetaiPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                    </ul>
+
+                <div class="modal-footer">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="detailSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{detailModel.Id.length>0?'Update':'Save'}}</button></li>
+                            <li><button ng-click="closeDetaiPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        </ul>
+                    </div>
+                    <div class="clearfix"></div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 @*END Detail Data Entry*@
 

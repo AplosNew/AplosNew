@@ -154,6 +154,9 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                         var ob = {};
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
+                        ob.Entity = $scope.PackingList[i].Entity;
+                        ob.Description = $scope.PackingList[i].Description;
+                        ob.Remarks = $scope.PackingList[i].Remarks;
                         ob.Id = null;
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         $scope.salesVM.PackingId = $scope.PackingList[i].PackingId;
@@ -527,7 +530,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         var salesData = $scope.chargesList[$scope.currentServiceRow];
         $scope.chargesList[$scope.currentServiceRow].TaxAmount = 0;
         angular.forEach($scope.receiveTaxList, function (item) {
-            $scope.chargesList[$scope.currentServiceRow].TaxAmount += item.Amount;
+            $scope.chargesList[$scope.currentServiceRow].TaxAmount += parseFloat(item.Amount);
         });
         $scope.chargesList[$scope.currentServiceRow].TaxAndTotal = parseFloat($scope.chargesList[$scope.currentServiceRow].NetAmount) + parseFloat($scope.chargesList[$scope.currentServiceRow].TaxAmount);
         angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
@@ -869,11 +872,8 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.salesVM = obj.data;
 
         $scope.getPartyPlant();
-        //$scope.changePaymentTerm($scope.salesVM.PaymentTermId);
         $scope.GetCurrencyExchangeRateList();
-        //$scope.GetSalesMaterialData($scope.salesVM.Id);
         $scope.GetListData($scope.salesVM.Id);
-
         $scope.GetSalesServiceData($scope.salesVM.Id);
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
@@ -1216,6 +1216,13 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                     ShowResult(response.data.Message, 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
+                    for (var i = 0; i < $scope.salesOrderList.length; i++) {
+                        for (var j = 0; j < $scope.salesOrderList[i].TaxList.length; j++) {
+                            if ($scope.salesOrderList[i].TaxList[j].Id == $scope.metTaxId ) {
+                                $scope.salesOrderList[i].TaxList.splice(j, 1);
+                            }
+                        }
+                    }
                     $scope.metTaxId = null;
                     $scope.receiveTaxList.splice($scope.smetTaxIndex, 1);
                 }
@@ -1310,14 +1317,27 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         try {
             $http({
                 method: 'POST',
-                url: 'Commercial/PIInvoice/DeleteTaxSalesService?Id=' + $scope.serId,
+                url: 'Commercial/PIInvoice/DeleteTaxSalesService?Id=' + $scope.serTaxId,
             }).then(function successCallback(response) {
                 if (response.data.Error === true)
                     ShowResult("Delete Charge Tax..", 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.serId = null;
-                    $scope.chargesList.splice($scope.serIndex, 1);
+                    var tax = 0;
+                    for (var i = 0; i < $scope.chargesList.length; i++) {
+                        for (var j = 0; j < $scope.chargesList[i].ServiceTaxList.length; j++) {
+                            if ($scope.chargesList[i].ServiceTaxList[j].Id == $scope.serTaxId) {
+                                $scope.chargesList[i].ServiceTaxList.splice(j, 1);
+                            }
+                            else {
+                                tax += $scope.chargesList[i].ServiceTaxList[j].Amount;
+                            }
+                        }
+                        $scope.chargesList[i].TaxAmount = tax;
+                    }
+
+                    $scope.serTaxId = null;
+                    $scope.receiveTaxList.splice($scope.serTaxIndex, 1);
                     //$scope.getData();
                 }
             }), function errorCallBack(response) {
@@ -1349,6 +1369,22 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         }
     };
 
+    $scope.onchangeFunction1 = function (id) {
+        $scope.TaxCategoryId = id;
+
+        var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": id });
+        if (getRow.length === 2) {
+            ShowResult("You can't add Same Tax two times", 'failure', 'receiveTaxPopUp');
+        }
+    };
+    $scope.onchangeFunction = function (id) {
+        $scope.TaxCategoryId = id;
+
+        var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": id });
+        if (getRow.length === 2) {
+            ShowResult("You can't add Same Tax two times", 'failure', 'ServiceChargeTaxPopUp');
+        }
+    };
     //#endregion
 
 }

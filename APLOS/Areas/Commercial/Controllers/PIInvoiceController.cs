@@ -177,11 +177,15 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             try
             {
+                var sql = @"SELECT CommercialInvoiceChargesId FROM CommercialInvoiceTaxes WHERE id = '" + Id + @"'";
+
+               var ChargeId = _sqlRepository.GetDataCollection(sql);
                 if (string.IsNullOrEmpty(Id))
                     throw new Exception("Select Id first");
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from CommercialInvoiceTaxes where Id='" + Id + "'");
+                con.executeQuery("UPDATE CommercialInvoiceCharges SET TaxAmount = ( SELECT SUM(Amount)TaxAmount FROM CommercialInvoiceTaxes  WHERE CommercialInvoiceChargesId  = '" + ChargeId[0]["CommercialInvoiceChargesId"] + "') WHERE Id ='" + ChargeId[0]["CommercialInvoiceChargesId"] + "'");
                 con.CommitTransaction();
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
