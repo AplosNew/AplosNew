@@ -69,7 +69,7 @@ namespace Aplos.Areas.Commercial.Controllers
       
 
         [HttpGet, Authorize]
-        public ActionResult InvoiceTaggedWithLCReportExcel(ReportFormat reportFormat, string FromDate, string ToDate, bool DateRange)
+        public ActionResult InvoiceTaggedWithLCReportExcelFormat(ReportFormat reportFormat, string FromDate, string ToDate, bool DateRange)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -101,7 +101,7 @@ namespace Aplos.Areas.Commercial.Controllers
             sheet.Name = "InvoiceTaggedWithLC";
 
 
-            int ROW = 6;
+            int ROW = 5;
             int endCol = 1;
             int COL = 1;
 
@@ -156,9 +156,6 @@ namespace Aplos.Areas.Commercial.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Source Type", 12, ExcelHAlign.HAlignLeft);
             int ColSourceType = COL;
-            COL++;
-
-           
 
             endCol = COL;
             #endregion Headers
