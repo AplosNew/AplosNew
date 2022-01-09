@@ -217,7 +217,8 @@ namespace Aplos.Areas.Commercial.Controllers
 
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity, p.Amount, p.UoMId,UoM.UserName AS MaterialGroupUOM,
 							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId
-							   ,mgm.UserName AS MaterialGroup,SUM(isnull(MAP.POQuantity,0)) POTaggedQuantity,SUM(isnull(PD.TransactionAmount,0)) POTaggedAmount
+							   ,mgm.UserName AS MaterialGroup,SUM(isnull(PD.TransactionAmount,0)) POTaggedAmount,SUM(isnull(MAP.QuantityAtPIUoM,0)) POTaggedQuantity
+							   --,SUM(isnull(MAP.POQuantity,0)) POTaggedQuantity
 							  FROM PIMaterial AS p
 							  LEFT JOIN POMappingWithPI MAP ON MAP.PIMaterialID=P.Id
 							  LEFT JOIN TRN.PurchaseOrderDetail PD ON PD.Id=MAP.PODetailId

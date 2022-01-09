@@ -14,7 +14,7 @@ namespace Library.Service.IssueTracker
     {
         void Delete(string Id);
         IEnumerable<object> GetCbo();
-        GridModel Query(GridParameter parameters);
+        GridModel Query(GridParameter parameters, string companyId);
         decimal GetAutoSequence();
         List<Dictionary<string, object>> GetById(string issueTransactionId);
         GridModel GetListIssueTransaction(GridParameter parameters);

@@ -3737,11 +3737,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             // getRow.TransactionQty = $filter('sumByKey')($filter('filter')(oldlist), 'TaxAmount');
             if (ExistingRow.length === 0) {
                 if (!baseService.isUndefinedOrNull(getRow[0].MaterialMasterId)) {
-
                     newlist.push(getRow[0]);
                 }
-            }
+                 
 
+            }
             var getRowWithoutMaterial = $filter("filter")(oldlist, { "MaterialDetail": oldlist[i].MaterialDetail, "RequisitionDetailId": oldlist[i].RequisitionDetailId });
 
             if (getRowWithoutMaterial.length === 1) {
@@ -3753,6 +3753,18 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
         }
         return newlist;
     };
+    $scope.trnRateDiff = function () {
+        var newRate = $scope.GetListForMasterOrdernew[0].TransactionRate;
+
+        for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
+            if (newRate != $scope.GetListForMasterOrdernew[i].TransactionRate) {
+                ShowResult('Transaction Rate msut be same !', 'failure', 'ListOfPOMaterial1');
+                return true;
+            }
+        }
+        
+        return false;
+    }
     $scope.materialValidationForBOQItem = function () {
         for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
             var getRow3 = $filter("filter")($scope.inventoryMaterialList, { "InventoryMaterialId": $scope.GetListForMasterOrdernew[i].MaterialMasterId, "ArticleId": $scope.GetListForMasterOrdernew[i].ArticleId, "FirstCharacteristicsValueId": $scope.GetListForMasterOrdernew[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.GetListForMasterOrdernew[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.GetListForMasterOrdernew[i].ThirdCharacteristicsValueId });
@@ -3915,7 +3927,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                             ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial1');
                             return false;
                         }
-                        if ($scope.GetListForMasterOrder[i].GetListForMasterOrderUpdate < 0) {
+                        if ($scope.GetListForMasterOrderUpdate[i].TransactionQty < 0) {
                             ShowResult('Negative Qty  not allowed', 'failure', 'ListOfPOMaterial');
                             return false;
                         }
@@ -3971,6 +3983,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             $scope.UOMValidation();
             $scope.groupList = [];
             $scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
+
             for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
                 $scope.GetListForMasterOrdernew[i].Tolerance = $scope.productNew.Tolerance;
             }
@@ -3981,7 +3994,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
             if ($scope.ActionPOBOQ === 'Save') {
                 $scope.materialValidationForBOQItem();
-                if (!$scope.UOMValidation()) {//$scope.invalid && 
+                if (!$scope.UOMValidation()) {//$scope.invalid &&
 
                     $http({
                         method: 'POST',
@@ -4011,7 +4024,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
             else if ($scope.ActionPOBOQ === "Update") {
                 $scope.materialValidationForBOQItem();
-                if (!$scope.UOMValidation()) {
+                if (!$scope.UOMValidation() && !$scope.trnRateDiff()) {
                     $http({
                         method: 'POST',
                         url: 'Products/PurchaseOrder/detailPOUpdateForBOQ',

@@ -160,9 +160,15 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             _financingService.DeleteLoan(identity.CompanyId, identity.PlantId, voucherId);
-            return Json(new { Message = AplosMessage.Posted });
+            return Json(new { Message = AplosMessage.Deleted });
         }
-
+        [HttpPost]
+        public JsonResult DeleteAutoloanPost(string financingId, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _financingService.DeleteAutoloanPost(identity.CompanyId, identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
 
         [HttpGet, Authorize]
         public ActionResult LoanReport(ReportFormat reportFormat, string voucherId)

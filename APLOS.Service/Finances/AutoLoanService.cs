@@ -98,6 +98,7 @@ namespace Library.Service.Finances
                 FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
                 TaxYearId = voucherVM.TaxYearId,
                 TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                VoucherId = voucherVM.VoucherId,
                 VoucherTypeId = voucherVM.VoucherTypeId,
                 CurrencyId = voucherVM.CurrencyId,
                 SourceType = voucherVM.SourceType,
@@ -204,6 +205,7 @@ namespace Library.Service.Finances
                 voucherVM.AddedBy = voucher.AddedBy;
                 voucherVM.AddedDate = voucher.AddedDate;
                 voucherVM.AddedFromIP = voucher.AddedFromIP;
+                voucherVM.VoucherId = voucher.Id;
                 var invoiceWriteOff = InsertInvoiceWriteOff(voucherVM);
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -573,6 +575,7 @@ namespace Library.Service.Finances
                 voucherVM.AddedBy = voucher.AddedBy;
                 voucherVM.AddedDate = voucher.AddedDate;
                 voucherVM.AddedFromIP = voucher.AddedFromIP;
+                voucherVM.VoucherId = voucher.Id;
                 var invoiceWriteOff = InsertInvoiceWriteOff(voucherVM);
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

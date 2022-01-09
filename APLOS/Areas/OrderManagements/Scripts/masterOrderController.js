@@ -2550,6 +2550,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
                         $scope.char1Id = $scope.characteristicsList[0].Value;
                         $scope.char2Id = $scope.characteristicsList[1].Value;
+                        $scope.char1ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
+                        $scope.char2ValueAssignmentLevel = $scope.characteristicsList[1].ValueAssignmentLevel;
 
                         angular.element(document.querySelector('#firstPopup')).modal('hide');
                         angular.element(document.querySelector('#thirdPopup')).modal('hide');
@@ -2706,7 +2708,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
                         $scope.char1Id = $scope.characteristicsList[0].Value;
                         $scope.char2Id = $scope.characteristicsList[1].Value;
-                        $scope.ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
+
+                        $scope.char1ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
+                        $scope.char2ValueAssignmentLevel = $scope.characteristicsList[1].ValueAssignmentLevel;
 
                         //angular.element(document.querySelector('#firstPopup')).modal('hide');
                         //angular.element(document.querySelector('#secondPopup')).modal('show');
@@ -4728,15 +4732,18 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.GetMaterialMasterCharacteristicsValueSequence();
     }
 
-
+    $scope.ValueAssign = null;
     $scope.AddSOSKU = function (sku) {
+        $scope.skubtn = false;
         if (sku == 1) {
             $scope.charId = $scope.char1Id;
             $scope.charName = $scope.rowName;
+            $scope.ValueAssign = $scope.char1ValueAssignmentLevel;
         }
         else {
             $scope.charId = $scope.char2Id;
             $scope.charName = $scope.columnName;
+            $scope.ValueAssign = $scope.char2ValueAssignmentLevel;
         }
 
         $scope.characteristicsValue = {
@@ -4748,13 +4755,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShortName: null
             , StandardName: null
             , UserName: null
-            , SourceType: $scope.ValueAssignmentLevel
+            , SourceType: $scope.ValueAssign
             , Description: null
             , Remarks: null
             , IsDefault: false
             , Active: true
         };
-        if ($scope.ValueAssignmentLevel =='General') {
+        if ($scope.ValueAssign =='General') {
             $scope.characteristicsValue.MaterialMasterId = null;
         }
         $scope.characteristicsvalueNew = angular.copy($scope.characteristicsValue);

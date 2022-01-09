@@ -36,12 +36,19 @@ namespace Library.OrderManagement.Packing
                                 		,c.Id CurrencyId
                                 		,FORMAT(plm.AddedDate, 'dd-MMM-yyyy') AddedDate
                                         ,e.UserName Entity
+                                        ,pm.RefNo
+                                        ,B.UserName Buyer
+                                        ,PM.ShippingMark
+                                        ,PM.InvoicingByAddress
+                                        ,PM.DeliveryByAddress
+                                        ,FORMAT(PM.PIDate,'dd-MMM-yyyy')PIDate
                                 	FROM PIPackingListMaster AS plm
                                 	LEFT JOIN PIMaster AS pm ON pm.Id = plm.PImasterId
                                 	LEFT JOIN hkp.Party p ON p.Id = pm.CustomerId
                                 	LEFT JOIN [SCS].[Currency] AS C ON C.Id = pm.CurrencyId
                                 	LEFT JOIN CommercialInvoicePackingList IPL ON IPL.PIPackingListMasterId = PLM.Id
                                     LEFT JOIN ORG.Entity AS e ON e.Id=plm.EntityId
+									LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
                                 	) d
                                 WHERE d.Id IS NULL";
 
@@ -570,43 +577,46 @@ namespace Library.OrderManagement.Packing
                 {
                     foreach (var item in CommercialInvoicePIMaterial)
                     {
-                        foreach (var y in item.TaxList)
+                        if (item.TaxList != null)
                         {
-                            dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + y.Id + "'  ";
-                            if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                            foreach (var y in item.TaxList)
                             {
-                                dr = dsTaxes.Tables[0].NewRow();
+                                dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + y.Id + "'  ";
+                                if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                                {
+                                    dr = dsTaxes.Tables[0].NewRow();
 
-                                dr["Id"] = "T" + TempId + count++;
-                                dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
-                                dr["CommercialInvoicePIMaterialId"] = item.Id;
-                                dr["CommercialInvoiceChargesId"] = DBNull.Value;
-                                dr["TaxCategoryId"] = y.TaxCategoryId;
-                                dr["HSNCodeId"] = y.HSNCodeId;
-                                dr["Percentage"] = y.Percentage;
-                                dr["Amount"] = y.TotalAmount;
+                                    dr["Id"] = "T" + TempId + count++;
+                                    dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
+                                    dr["CommercialInvoicePIMaterialId"] = item.Id;
+                                    dr["CommercialInvoiceChargesId"] = DBNull.Value;
+                                    dr["TaxCategoryId"] = y.TaxCategoryId;
+                                    dr["HSNCodeId"] = y.HSNCodeId;
+                                    dr["Percentage"] = y.Percentage;
+                                    dr["Amount"] = y.TotalAmount;
 
-                                dr["AddedBy"] = identity.Name;
-                                dr["AddedDate"] = DateTime.Now;
-                                dr["AddedFromIP"] = identity.IPAddress;
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["UpdatedDate"] = DateTime.Now;
-                                dr["UpdatedFromIP"] = identity.IPAddress;
-                                dsTaxes.Tables[0].Rows.Add(dr);
+                                    dr["AddedBy"] = identity.Name;
+                                    dr["AddedDate"] = DateTime.Now;
+                                    dr["AddedFromIP"] = identity.IPAddress;
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = identity.IPAddress;
+                                    dsTaxes.Tables[0].Rows.Add(dr);
 
-                            }
-                            else
-                            {
-                                dr = dsTaxes.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["TaxCategoryId"] = y.TaxCategoryId;
-                                dr["HSNCodeId"] = y.HSNCodeId;
-                                dr["Percentage"] = y.Percentage;
-                                dr["Amount"] = y.TotalAmount;
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["UpdatedDate"] = DateTime.Now;
-                                dr["UpdatedFromIP"] = identity.IPAddress;
-                                dr.EndEdit();
+                                }
+                                else
+                                {
+                                    dr = dsTaxes.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["TaxCategoryId"] = y.TaxCategoryId;
+                                    dr["HSNCodeId"] = y.HSNCodeId;
+                                    dr["Percentage"] = y.Percentage;
+                                    dr["Amount"] = y.TotalAmount;
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = identity.IPAddress;
+                                    dr.EndEdit();
+                                }
                             }
                         }
                     }

@@ -347,9 +347,9 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
 ,MG.UserName MaterialGroup,MM.UserName Material,MG.Id MaterialGroupMasterId
 ,mma.StandardName Article
 ,cv1.UserName SKU1,cv2.UserName SKU2,cv3.UserName SKU3
-,pod.TransactionQty POQty,ISNULL(pmd.Quantity,pmp.QuantityAtPIUoM) AS  DistributeQTY,pouom.UserName POUoM,pod.TransactionRate PORate,pod.TransactionAmount POAmount,C.code POCurrency
+,pod.TransactionQty POQty,ISNULL(pmd.Quantity,pod.TransactionQty) AS  DistributeQTY,pouom.UserName POUoM,pod.TransactionRate PORate,pod.TransactionAmount POAmount,C.code POCurrency
 ,MG.UserName MaterialGroup,piuom.UserName PIUoM,piuom.Id PIUoMId
-,PMD.Quantity PackingQTY,P.Quantity PIQty,pmp.POQuantity POTaggedQty,pmp.QuantityAtPIUoM ,pouom.Id POUoMId
+,PMD.Quantity PackingQTY,P.Quantity PIQty,pmp.POQuantity POTaggedQty,pmp.QuantityAtPIUoM ,pouom.Id POUoMId,ISNULL(pmd.QuantityAtPIUoM,0)  PackingQtyAtPIUOM
     FROM POMappingWithPI pmp
     LEFT OUTER JOIN PIMaterial p ON pmp.PIMaterialId=p.Id  
     LEFT OUTER JOIN SCS.UnitOfMeasurement AS piuom ON piuom.Id=p.UoMId 
@@ -368,7 +368,8 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
    LEFT OUTER JOIN HKP.CharacteristicsValue AS cv1 ON cv1.Id=pod.FirstCharacteristicsValueId
    LEFT OUTER JOIN HKP.CharacteristicsValue AS cv2 ON cv2.Id=pod.SecondCharacteristicsValueId
    LEFT OUTER JOIN HKP.CharacteristicsValue AS cv3 ON cv3.Id=pod.ThirdCharacteristicsValueId
-    WHERE p.Id='" + PIMaterial + @"' AND p.MaterialGroupMasterId='" + PIMaterialGroup + @"'";
+    WHERE p.Id='" + PIMaterial + @"' AND p.MaterialGroupMasterId='" + PIMaterialGroup + @"'
+ORDER BY convert(bit,CASE WHEN ISNULL(PMD.Id,'')<>'' THEN 1 ELSE 0 END) DESC";
             var PopUp = _sqlRepository.GetDataCollection(sql, null);
 
             return Json(new { data = PopUp }, JsonRequestBehavior.AllowGet);
@@ -383,7 +384,7 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
 
             sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 							,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-							,C.Code Currency,B.UserName Buyer,P.UserName Customer
+							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.ShippingMark
 							 FROM PIMaster PM 
 							LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
@@ -395,15 +396,15 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity AllocatedQty, p.Quantity, p.Amount, p.UoMId,uom.UserName UoM,NULL AS MaterialGroupUOMList,
 							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup ,
 							   c.Code Currency
-							   ,PLM.Quantity PackingQTY,pmp.POQuantity  POTaggedQty
-							   ,PLM.QuantityAtPIUoM
+							   ,PLM.QuantityAtPIUoM PackingQTY,pmp.POQuantity  POTaggedQty,PLM.QuantityAtPIUoM
+
 						  FROM PIMaterial AS p
 						  LEFT JOIN PIMaster AS p2 ON p2.Id=p.PIMasterId
 						  LEFT JOIN SCS.Currency AS c ON c.Id=p2.CurrencyId
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 						  LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
 						  LEFT OUTER JOIN (SELECT PLM.PIMaterialId,SUM(PLM.Quantity) Quantity,SUM(PLM.QuantityAtPIUoM) QuantityAtPIUoM FROM PIPackingListDetail PLM GROUP BY PLM.PIMaterialId) PLM ON PLM.PIMaterialId=p.Id
-						  LEFT OUTER JOIN(SELECT pmp.PIMaterialId,SUM(pmp.POQuantity) POQuantity FROM POMappingWithPI AS pmp GROUP BY pmp.PIMaterialId) pmp ON pmp.PIMaterialId=p.Id
+						  LEFT OUTER JOIN(SELECT pmp.PIMaterialId,SUM(pmp.QuantityAtPIUoM) POQuantity FROM POMappingWithPI AS pmp GROUP BY pmp.PIMaterialId) pmp ON pmp.PIMaterialId=p.Id
 
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
 
@@ -441,15 +442,16 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
             string sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity AllocatedQty, p.Quantity, p.Amount, p.UoMId,uom.UserName UoM,NULL AS MaterialGroupUOMList,
 							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup ,
 							   c.Code Currency
-							   ,PLM.Quantity PackingQTY,pmp.POQuantity  POTaggedQty
+							   ,PLM.QuantityAtPIUoM PackingQTY,pmp.POQuantity  POTaggedQty,PLM.QuantityAtPIUoM
 
 						  FROM PIMaterial AS p
 						  LEFT JOIN PIMaster AS p2 ON p2.Id=p.PIMasterId
 						  LEFT JOIN SCS.Currency AS c ON c.Id=p2.CurrencyId
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 						  LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
-						  LEFT OUTER JOIN (SELECT PLM.PIMaterialId,SUM(PLM.Quantity) Quantity FROM PIPackingListDetail PLM GROUP BY PLM.PIMaterialId) PLM ON PLM.PIMaterialId=p.Id
-						  LEFT OUTER JOIN(SELECT pmp.PIMaterialId,SUM(pmp.POQuantity) POQuantity FROM POMappingWithPI AS pmp GROUP BY pmp.PIMaterialId) pmp ON pmp.PIMaterialId=p.Id
+						  LEFT OUTER JOIN (SELECT PLM.PIMaterialId,SUM(PLM.Quantity) Quantity,SUM(PLM.QuantityAtPIUoM) QuantityAtPIUoM FROM PIPackingListDetail PLM GROUP BY PLM.PIMaterialId) PLM ON PLM.PIMaterialId=p.Id
+						  LEFT OUTER JOIN(SELECT pmp.PIMaterialId,SUM(pmp.QuantityAtPIUoM) POQuantity FROM POMappingWithPI AS pmp GROUP BY pmp.PIMaterialId) pmp ON pmp.PIMaterialId=p.Id
+						  
 
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
 
@@ -468,7 +470,7 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
 
             sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 							,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-							,C.Code Currency,B.UserName Buyer,P.UserName Customer
+							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.ShippingMark
 							 FROM PIMaster PM 
 							LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
@@ -480,7 +482,7 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
             sql = @"SELECT p.Id, p.PIMasterId, p.PIVersionId, p.Rate, p.Quantity AllocatedQty, p.Quantity, p.Amount, p.UoMId,uom.UserName UoM,NULL AS MaterialGroupUOMList,
 							   p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup ,
 							   c.Code Currency
-							   ,PLM.Quantity PackingQTY,pmp.POQuantity  POTaggedQty,PLM.QuantityAtPIUoM
+							   ,PLM.QuantityAtPIUoM PackingQTY,pmp.POQuantity  POTaggedQty,PLM.QuantityAtPIUoM
 
 						  FROM PIMaterial AS p
 						  LEFT JOIN PIMaster AS p2 ON p2.Id=p.PIMasterId
@@ -488,7 +490,7 @@ WHERE plm.Id='" + PIPackingMaterId + @"'";
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 						  LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
 						  LEFT OUTER JOIN (SELECT PLM.PIMaterialId,SUM(PLM.Quantity) Quantity,SUM(PLM.QuantityAtPIUoM) QuantityAtPIUoM FROM PIPackingListDetail PLM GROUP BY PLM.PIMaterialId) PLM ON PLM.PIMaterialId=p.Id
-						  LEFT OUTER JOIN(SELECT pmp.PIMaterialId,SUM(pmp.POQuantity) POQuantity FROM POMappingWithPI AS pmp GROUP BY pmp.PIMaterialId) pmp ON pmp.PIMaterialId=p.Id
+						  LEFT OUTER JOIN(SELECT pmp.PIMaterialId,SUM(pmp.QuantityAtPIUoM) POQuantity FROM POMappingWithPI AS pmp GROUP BY pmp.PIMaterialId) pmp ON pmp.PIMaterialId=p.Id
 
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + VersionId + @"'";
 
