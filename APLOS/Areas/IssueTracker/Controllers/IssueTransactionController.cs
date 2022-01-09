@@ -82,7 +82,7 @@ namespace Aplos.Areas.IssueTracker.Controllers
         }
         #region -- Pages
 
-        [Authorize]
+       
         public ActionResult Aplos()
         {
             return View();

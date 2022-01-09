@@ -1021,6 +1021,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
                 , WorkCenterMasterId: $scope.masterId
                 , StartDate: endDate
                 , EndDate: null
+                ,Hour:null
             });
         }
         else
@@ -1029,6 +1030,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
                 , WorkCenterMasterId: $scope.masterId
                 , StartDate: new Date()
                 , EndDate: null
+                ,Hour:null
             });
     }
     // #endregion
@@ -1376,6 +1378,9 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
 
                 if (t !== $scope.effectiveDateList.length - 1) //end date can be null when new entry
                     if (new Date(row.StartDate) > new Date(row.EndDate)) throw 'Start date ' + row.StartDate + ' must be less than end date ' + row.EndDate;
+                if (baseService.isUndefinedOrNull(row.Hour)) {
+                    throw 'Hour is required.';
+                }
             }
             $http({
                 method: 'POST',
