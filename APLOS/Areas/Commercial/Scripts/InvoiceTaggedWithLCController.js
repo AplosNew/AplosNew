@@ -161,7 +161,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         var reportFormat = "Excel";
         try {
             //var url = 'IE/bulletintemplate/GetBulletinTamplateIndexReport?reportFormat=' + reportFormat;
-            var url = $scope.path + 'InvoiceTaggedWithLCReportExcel?reportFormat=' + reportFormat + '&FromDate=' + $scope.AutoLoanNew.FromDate + '&ToDate=' + $scope.AutoLoanNew.ToDate + '&DateRange=' + $scope.AutoLoanNew.DateRange;
+            var url = $scope.path + 'InvoiceTaggedWithLCReportExcelFormat?reportFormat=' + reportFormat + '&FromDate=' + $scope.AutoLoanNew.FromDate + '&ToDate=' + $scope.AutoLoanNew.ToDate + '&DateRange=' + $scope.AutoLoanNew.DateRange;
 
             $rootScope.report(url);
         } catch (e) {

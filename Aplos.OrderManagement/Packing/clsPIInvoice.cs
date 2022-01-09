@@ -36,12 +36,19 @@ namespace Library.OrderManagement.Packing
                                 		,c.Id CurrencyId
                                 		,FORMAT(plm.AddedDate, 'dd-MMM-yyyy') AddedDate
                                         ,e.UserName Entity
+                                        ,pm.RefNo
+                                        ,B.UserName Buyer
+                                        ,PM.ShippingMark
+                                        ,PM.InvoicingByAddress
+                                        ,PM.DeliveryByAddress
+                                        ,FORMAT(PM.PIDate,'dd-MMM-yyyy')PIDate
                                 	FROM PIPackingListMaster AS plm
                                 	LEFT JOIN PIMaster AS pm ON pm.Id = plm.PImasterId
                                 	LEFT JOIN hkp.Party p ON p.Id = pm.CustomerId
                                 	LEFT JOIN [SCS].[Currency] AS C ON C.Id = pm.CurrencyId
                                 	LEFT JOIN CommercialInvoicePackingList IPL ON IPL.PIPackingListMasterId = PLM.Id
                                     LEFT JOIN ORG.Entity AS e ON e.Id=plm.EntityId
+									LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
                                 	) d
                                 WHERE d.Id IS NULL";
 

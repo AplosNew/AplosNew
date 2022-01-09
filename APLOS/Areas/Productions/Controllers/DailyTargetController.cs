@@ -398,7 +398,7 @@ prs.username as ProcessName,resp.EmployeeName as ResponsiblePersonName,pbt.Id Pr
             string sql = @"
                         SELECT  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
                         ISNULL(PO.Qty,0) AS POQuantity,ISNULL(PO.PlannedQty,0) AS SOQuantity,ISNULL(SO.Qty,0) AS SavedQuantity,t1.Color,FORMAT(t1.LSD,'dd-MMM-yyyy') AS LSD,FORMAT(t1.CommitmentDate,'dd-MMM-yyyy') AS CommitmentDate,t1.TargetPerDay
-                                ,T1.ProductionPriority ,so.Material,so.Article,so.MaterialMasterId,so.ArticleId, so.Product,t1.Qty,
+                                ,T1.ProductionPriority ,so.Material,so.Article,so.MaterialMasterId,so.ArticleId, so.Product,t1.Qty,t1.SPT,
                                 so.ProductCategory, so.FirstShipmentDate,
                                 so.LastShipmentDate, so.buyer, so.BuyerRefNo,
                                 so.OwnRefNo, so.StyleNo, so.OwnStyleNo, so.SONo,

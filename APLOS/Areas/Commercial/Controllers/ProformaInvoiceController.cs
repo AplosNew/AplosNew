@@ -421,8 +421,8 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 							,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.TermsAndConditionsId
-							 FROM PIMaster PM 
+							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.TermsAndConditionsId,PM.ShippingMark
+FROM PIMaster PM 
 							LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
 							LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
