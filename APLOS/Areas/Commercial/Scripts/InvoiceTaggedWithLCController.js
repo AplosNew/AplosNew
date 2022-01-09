@@ -9,8 +9,8 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.saveChargesUrl = $scope.path + 'CreateCharge';
     $scope.deleteUrl = $scope.path + 'delete/';
     
-
     //#region Page Loading ...
+
     $scope.AutoLoanAvailableDataList = [];
     $scope.fromDateTitle = "As On Date";
     $scope.toDateShow = false;
@@ -46,7 +46,11 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
             $scope.AutoLoanAvailableDataList = response.data;
         });
     }
-
+    $scope.ChangeValue = function () {
+        $scope.LcModel.LoanAmount = null;
+        $scope.LcModel.LoanNo = null;
+        $scope.LcModel.LoanDate = null;
+    };
     //#endregion
 
     //#region Clear
@@ -59,7 +63,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         };
         $scope.AutoLoanAvailableDataList = [];
         $scope.fromDateTitle = "As On Date";
-        $scope.LcModel = { LoanAmount:0};
+        $scope.LcModel = { LoanAmount: 0, IsLoan: 'true'};
     }
     //#endregion
 
@@ -85,9 +89,11 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("show");
     }
 
-    $scope.LcModel = { LoanAmount:0};
+    $scope.LcModel = { LoanAmount: 0, IsLoan: 'true'};
     $scope.SetDetails = function (args) {
+        var tempValue = $scope.LcModel.IsLoan;
         $scope.LcModel = Object.assign({}, args.data);
+        $scope.LcModel.IsLoan = tempValue;
         $scope.LcModel.LoanAmount = 0;
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("hide");
     }
@@ -128,7 +134,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
 
     //#endregion
 
-    //#region SaveDataList
+    //#region Get SaveDataList
 
     $scope.SaveDataList = [];
     $scope.getData = function () {

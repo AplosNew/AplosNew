@@ -267,9 +267,9 @@ namespace Library.Service.IssueTracker
             }
         }
 
-        public GridModel Query(GridParameter parameters)
+        public GridModel Query(GridParameter parameters,string companyId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            
             try
             {
                 parameters.CmdText = @"
@@ -301,7 +301,7 @@ namespace Library.Service.IssueTracker
 						LEFT JOIN [HKP].TaskSubCategory AS tsc ON its.TaskSubCategoryId = tsc.Id
 						LEFT JOIN IssueGroup AS ig ON ig.Id = its.IssueGroupId
 						left join hkp.Party p on p.Id = its.CustomerId
-                        WHERE its.AddedBy = '" + identity.UserId + "'";
+                        WHERE its.CompanyId = '" + companyId + "'";
 
                 return _sqlRepository.GetGridData(parameters);
             }

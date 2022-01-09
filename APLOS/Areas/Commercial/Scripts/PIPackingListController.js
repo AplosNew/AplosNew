@@ -335,6 +335,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             $scope.TotalPIQty = args.data.Quantity;
             $scope.PIPackingListMaterialTemp = args.data;
             $scope.PopUpDataList(args.data.Id, args.data.MaterialGroupMasterId);
+            $scope.ASSSSDFG();
             angular.element(document.querySelector('#QTYAllocation')).modal('show');
         } catch (e) {
             ShowResult(e, 'info');

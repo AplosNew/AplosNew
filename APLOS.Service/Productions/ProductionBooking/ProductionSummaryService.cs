@@ -631,20 +631,42 @@ namespace Library.Service.Productions
                 var ob_fromDB = Find(ps.Id);
                 if (ob_fromDB == null)
                 {
-                    ps.Id = "PS" + GetPK();
-                    ps.AddedDate = DateTime.Now;
-                    if (string.IsNullOrEmpty(ps.ProductionBookingPeriodId))
-                    {
-                        var pp = GetProductionPeriodData(ps.AddedDate);
+                    //ps.Id = "PS" + GetPK();
+                    //ps.AddedDate = DateTime.Now;
+                    //if (string.IsNullOrEmpty(ps.ProductionBookingPeriodId))
+                    //{
+                    //    var pp = GetProductionPeriodData(ps.AddedDate);
 
+                    //    if (pp.Tables[0].Rows.Count > 0)
+                    //    {
+                    //        ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
+                    //    } 
+                    //}
+
+                    //ps.ModelState = ModelState.Added;
+                    //AuditService.AddedLog(ps);
+                    //base.Insert(ps);
+                    ps.Id = "PS" + GetPK();
+                    ps.ModelState = ModelState.Added;
+                    AuditService.AddedLog(ps);
+                    var pp = GetProductionPeriodData(ps.AddedDate);
+
+                    if (pp.Tables[0].Rows.Count > 1)
+                    {
+                        throw new CustomException("Production Booking Period can not assign in multiple time.");
+                    }
+                    else
+                    {
                         if (pp.Tables[0].Rows.Count > 0)
                         {
                             ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
-                        } 
+                        }
+                        else
+                        {
+                            throw new CustomException("There is no Production Booking Period.");
+                        }
                     }
 
-                    ps.ModelState = ModelState.Added;
-                    AuditService.AddedLog(ps);
                     base.Insert(ps);
                 }
                 else

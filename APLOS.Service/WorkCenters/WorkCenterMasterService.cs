@@ -1106,7 +1106,7 @@ namespace Library.Service.WorkCenters
             try
             {
                 var sql = @"SELECT A.Id, A.WorkCenterMasterId, StartDate=REPLACE(CONVERT(CHAR(11), A.StartDate, 106),' ','-')
-                            , EndDate=REPLACE(CONVERT(CHAR(11), A.EndDate, 106),' ','-') FROM SCS.WorkCenterMasterEffectiveDate AS A
+                            , EndDate=REPLACE(CONVERT(CHAR(11), A.EndDate, 106),' ','-'),A.Hour FROM SCS.WorkCenterMasterEffectiveDate AS A
                             WHERE A.WorkCenterMasterId='" + masterId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
