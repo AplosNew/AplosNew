@@ -637,7 +637,8 @@ namespace Aplos.Areas.IssueTracker.Controllers
         [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters)
         {
-            return Json(_issueTransactionService.Query(parameters), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueTransactionService.Query(parameters,identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -686,6 +687,9 @@ namespace Aplos.Areas.IssueTracker.Controllers
         [HttpPost, Authorize]
         public JsonResult IssueTransactionCreate(IssueTransaction issueTransactionNew, List<Dictionary<string, object>> buyers)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            issueTransactionNew.CompanyId = identity.CompanyId;
             issueTransactionNew.Priority = 4.5M;
             if (issueTransactionNew.Id == null)
             {

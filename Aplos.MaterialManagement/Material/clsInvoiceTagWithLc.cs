@@ -377,10 +377,19 @@ namespace Library.MaterialManagement.Material
 					drMSave["PurchaseLcId"] = LcData["Id"];
 					drMSave["VoucherId"] = DBNull.Value;
 					drMSave["BankMasterId"] = LcData["OpeningBankMasterId"];
-
-					drMSave["LoanDate"] = LcData["LoanDate"];
-                    drMSave["LoanNo"] = LcData["LoanNo"];
-                    drMSave["Amount"] = LcData["LoanAmount"];
+                    if (Convert.ToBoolean(LcData["IsLoan"]))
+                    {
+						drMSave["LoanDate"] = LcData["LoanDate"];
+						drMSave["LoanNo"] = LcData["LoanNo"];
+						drMSave["Amount"] = LcData["LoanAmount"];
+					}
+                    else
+                    {
+						drMSave["LoanDate"] = DBNull.Value;
+						drMSave["LoanNo"] = DBNull.Value;
+						drMSave["Amount"] = DBNull.Value;
+					}
+                    drMSave["IsLoan"] = LcData["IsLoan"];
 
                     drMSave["AddedBy"] = identity.Name;
                     drMSave["AddedDate"] = DateTime.Now;
