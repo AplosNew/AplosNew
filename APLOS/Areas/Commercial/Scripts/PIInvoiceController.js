@@ -157,6 +157,10 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                         ob.Entity = $scope.PackingList[i].Entity;
                         ob.Description = $scope.PackingList[i].Description;
                         ob.Remarks = $scope.PackingList[i].Remarks;
+                        ob.PIDate = $scope.PackingList[i].PIDate;
+                        ob.RefNo = $scope.PackingList[i].RefNo;
+                        ob.Buyer = $scope.PackingList[i].Buyer;
+                        ob.ShippingMark = $scope.PackingList[i].ShippingMark;
                         ob.Id = null;
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         $scope.salesVM.PackingId = $scope.PackingList[i].PackingId;
