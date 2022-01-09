@@ -686,6 +686,9 @@ namespace Aplos.Areas.IssueTracker.Controllers
         [HttpPost, Authorize]
         public JsonResult IssueTransactionCreate(IssueTransaction issueTransactionNew, List<Dictionary<string, object>> buyers)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            issueTransactionNew.CompanyId = identity.CompanyId;
             issueTransactionNew.Priority = 4.5M;
             if (issueTransactionNew.Id == null)
             {

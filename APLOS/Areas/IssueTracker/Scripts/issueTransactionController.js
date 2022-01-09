@@ -2,7 +2,8 @@
 issueTransactionController.$inject = ['cboService', 'commonMessage', '$window', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'fileReader'];
 function issueTransactionController(cboService, commonMessage, $window, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, fileReader) {
 
-
+    $scope.CompanyName = $rootScope.companyName;
+    alert($scope.CompanyName);
     $rootScope.title = 'Issue Transaction';
     $scope.Action = 'Save';
     $scope.index = -1;
