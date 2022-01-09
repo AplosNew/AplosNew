@@ -6271,7 +6271,7 @@ ORDER BY tg.[Sequence]";
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Qty");
             range.ApplyCharacterFormat(FontBold);
-            int colBaseQty = COL; COL++;
+            int colBaseQty = COL; /*COL++;*/
             wTable.Rows[ROW].Cells[colBaseQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
 
 
@@ -6813,7 +6813,7 @@ ORDER BY tg.[Sequence]";
                                Inner join trn.InventoryReceiveTax IRT ON IRT.InventoryReceiveId = PO.Id and IRT.InventoryReceiveDetailId = IRD.Id
                                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
                                  WHERE PO.Id='" + OrderMasterID + @"' 
-         and InventoryReceiveDetailId  is not null and  InventoryServiceId is null 
+         and InventoryReceiveDetailId is not null and  InventoryServiceId is null 
          ORDER BY tg.[Sequence] ";
 
                 return _sqlRepository.GetDataTable(strSQL);

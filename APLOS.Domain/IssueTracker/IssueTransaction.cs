@@ -131,6 +131,7 @@ namespace Library.Model.IssueTracker
         #endregion Audit Properties
 
         #region Navigation properties
+        public string CompanyId { get; set; }
         public string IssueStandardId { get; set; }
         //public IssueStandard IssueStandard { get; set; }
 

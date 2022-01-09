@@ -327,7 +327,7 @@ namespace bplib
                     drLocal.EndEdit();
                 }
                 objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
-                strID = /*strID + "-" +*/ (int)LastNumber + "";
+                strID = System.DateTime.Now.ToString("yyyy").Substring(2, 2) + ((int)LastNumber).ToString() + "";
 
             }
             catch (Exception ex)
@@ -395,7 +395,8 @@ namespace bplib
                 }
                 objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
                 //strID = /*strID + "-" +*/ (int)LastNumber + "";
-                strID = (int)LastNumberR + "";
+                //strID = (int)LastNumberR + "";
+                strID = System.DateTime.Now.Year.ToString() + ((int)LastNumberR).ToString() + "";
 
             }
             catch (Exception ex)

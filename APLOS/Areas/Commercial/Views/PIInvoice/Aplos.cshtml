@@ -27,25 +27,27 @@
                                     <thead>
                                         <tr>
                                             <th>Packing Id</th>
+                                            <th>Ref No</th>
                                             <th>Entity</th>
                                             <th>Customer</th>
-                                            <th>Storage Location</th>
-                                            <th>By Whom</th>
-                                            <th>Despatch Responsible Person</th>
-                                            <th>Created Date</th>
-                                            <th>InActive Date</th>
+                                            <th>Description</th>
+                                            <th>Remarks</th>
+                                            <th>PI Date</th>
+                                            <th>Buyer</th>
+                                            <th>ShippingMark</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr ng-repeat="x in selectedPackingList ">
                                             <td>{{x.PackingId}}</td>
+                                            <td>{{x.RefNo}}</td>
                                             <td>{{x.Entity}}</td>
                                             <td>{{x.Customer}}</td>
-                                            <td>{{x.StorageLoc}}</td>
-                                            <td>{{x.ByWhom}}</td>
-                                            <td>{{x.DRespPerson}}</td>
-                                            <td>{{x.AddedDate}}</td>
-                                            <td>{{x.InActiveDate}}</td>
+                                            <td>{{x.Description}}</td>
+                                            <td>{{x.Remarks}}</td>
+                                            <td>{{x.PIDate}}</td>
+                                            <td>{{x.Buyer}}</td>
+                                            <td>{{x.ShippingMark}}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -259,7 +261,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="text-right">{{x.TaxAmount| number:2}}</td>
-                                                <td class="text-right">{{x.TaxAndTotal}}</td>
+                                                <td class="text-right">{{x.TaxAndTotal | number:2}}</td>
                                                 <td class="text-right">
                                                     <ul class="list-inline action-list">
                                                         <li>
@@ -1037,9 +1039,9 @@
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removeServicePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removeServiceTaxPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceTaxDelete();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmTaxServiceDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeServiceTaxRow()"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(salesdb)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmTaxServiceDelPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="removeServiceTaxRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="post(salesdb)"></confirm-archive-generic>
 
 
 <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
@@ -1246,22 +1248,21 @@
                 <div class="col-md-12">
                     <div id="GridPacking" ej-grid e-datasource="PackingList" e-templaterefresh="refreshPackingTemplate"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel">
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-scrolling="true">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
-                            @*<div e-column e-field="Id" e-type="string" e-headertext="PI PackingList Master Id" e-width="80"></div>*@
-                            @*<div e-column e-field="Description" e-type="string" e-headertext="PI PackingList Master Description" e-width="80"></div>
-                                <div e-column e-field="Remarks" e-type="string" e-headertext="PI PackingList Master Remarks" e-width="80"></div>*@
                             <div e-column e-field="PackingId" e-type="string" e-headertext="Packing Id" e-width="80"></div>
+                            <div e-column e-field="RefNo" e-type="string" e-headertext="RefNo" e-width="80"></div>
                             <div e-column e-field="Entity" e-type="string" e-headertext="Entity" e-width="80"></div>
+                            <div e-column e-field="Description" e-type="string" e-headertext="Description" e-width="80"></div>
+                            <div e-column e-field="Remarks" e-type="string" e-headertext="Remarks" e-width="80"></div>
                             <div e-column e-field="Customer" e-type="string" e-headertext="Customer" e-width="100"></div>
                             <div e-column e-field="Currency" e-type="string" e-headertext="Currency" e-width="100"></div>
-                            @*<div e-column e-field="StorageLoc" e-type="string" e-headertext="Storage Location" e-width="80"></div>
-                                <div e-column e-field="ByWhom" e-type="string" e-headertext="By Whom" e-width="80"></div>
-                                <div e-column e-field="DRespPerson" e-type="string" e-headertext="Despatch Responsible Person" e-width="80"></div>*@
-                            <div e-column e-field="AddedDate" e-type="date" e-headertext="Created Date" e-width="80"></div>
-                            @*<div e-column e-field="InActiveDate" e-type="date" e-headertext="Inactive Date" e-width="80"></div>*@
-
+                            <div e-column e-field="PIDate" e-type="date" e-headertext="PI Date" e-width="80"></div>
+                            <div e-column e-field="DeliveryByAddress" e-type="string" e-headertext="Delivery Address" e-width="80"></div>
+                            <div e-column e-field="InvoicingByAddress" e-type="string" e-headertext="Invoicing Address" e-width="80"></div>
+                            <div e-column e-field="Buyer" e-type="string" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-field="ShippingMark" e-type="string" e-headertext="Shipping Mark" e-width="80"></div>
                         </div>
                     </div>
                     <script type="text/template" id="checkboxTemplateMaster">

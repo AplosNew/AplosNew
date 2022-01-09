@@ -62,6 +62,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         , IsPaymentTermChangeable: null
         , PaymentTermId: null
         , TermsAndConditionsId: null
+        , ShippingMark: null
     };
     $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
 
@@ -162,7 +163,13 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             ShowResult(e, 'failure');
         }
     };
-
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
     $scope.Remove = function (index) {
         var removed = $scope.DataList.splice(index, 1);
         $scope.Detail = removed;
@@ -208,7 +215,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
                 $scope.ClearGrid();
             $scope.VersionList = $scope.PIVersionModel;
             getPartyPlantList();
-          //  $scope.PIVersionModel["Id"] = $scope.PIVersionModel[0]["Id"];
+            $scope.LoadTermsAndConditionGrid(args.data.TermsAndConditionsId, args.data.Id);
 
         });
         if (!$rootScope.isCollapsed) {
@@ -260,7 +267,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             method: 'GET',
             url: $scope.path + "GetHSNList?MaterialGroupMasterId=" + $scope.DataList[$scope.selectedHSNDataIndex].MaterialGroupMasterId
         }).then(function successCallback(response) {
-            $scope.DataList[$scope.selectedHSNDataIndex].MaterialGroupUOMList = response.data.HSNList;
+            $scope.DataList[$scope.selectedHSNDataIndex].MaterialGroupHSNList = response.data.HSNList;
 
         });
     }
@@ -788,6 +795,17 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             });
         } catch (e) {
             ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.PoformaInvoiceReport = function (args) {
+        try {
+         
+            var file_src = 'Commercial/ProformaInvoice/PoformaInvoiceReport?PIMasterId=' + args.data.Id + '&PIVersionId=' + args.data.PIVersionId
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
         }
     }
 

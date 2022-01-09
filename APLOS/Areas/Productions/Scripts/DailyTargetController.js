@@ -236,6 +236,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 $scope.DailyTargetList[i].MaterialMasterArticleId = args.data.ArticleId;
                 $scope.DailyTargetList[i].CustomerPONo = args.data.CustomerPONo;
                 $scope.DailyTargetList[i].BuyerItemNo = args.data.BuyerItemNo;
+                $scope.DailyTargetList[i].SMV = args.data.SPT;
                 angular.element(document.querySelector('#POItemPopup')).modal('hide');
                 break;
             }

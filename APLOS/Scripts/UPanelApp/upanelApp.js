@@ -764,7 +764,7 @@ var upanelApp = angular
     .controller("interCompanyPartyController", InterCompanyPartyController)
     .controller('EmployeePlantTransferController', EmployeePlantTransferController)
     .controller('EmployeePlantTransferNewController', EmployeePlantTransferNewController)
-   .controller('CompanyWiseEmployeePlantTransferController', CompanyWiseEmployeePlantTransferController)
+    .controller('CompanyWiseEmployeePlantTransferController', CompanyWiseEmployeePlantTransferController)
     .controller("inventoryTransferJournalController", inventoryTransferJournalController)
     //.controller("jobWorkItemController", JobWorkItemController)
     .controller("checkVoidController", checkVoidController)
@@ -962,7 +962,7 @@ var upanelApp = angular
     .controller('ProductionTargetReportController', ProductionTargetReportController)
     .controller('FabricRollController', FabricRollController)
     .controller('FinalDeductionReportController', FinalDeductionReportController)
-   
+
 
     .controller("PostInvoiceController", PostInvoiceController)
 
@@ -977,7 +977,7 @@ var upanelApp = angular
     .controller('SandwichProcessController', SandwichProcessController)
     .controller('JobWorkTransformationPOController', JobWorkTransformationPOController)
     .controller('AssetWIPStatusController', AssetWIPStatusController)
-    .controller('OTConfirmationProcessController' , OTConfirmationProcessController)
+    .controller('OTConfirmationProcessController', OTConfirmationProcessController)
     .controller("multipleResignationApprovalNewController", multipleResignationApprovalNewController)
     .controller('JWIssueReturnController', JWIssueReturnController)
     .controller('MachineLayoutReportController', MachineLayoutReportController)
@@ -995,7 +995,9 @@ var upanelApp = angular
 
     .controller('POMappingWithPIController', POMappingWithPIController)
     .controller('GeneralWasteController', GeneralWasteController)
-    
+    .controller("issueTransactionController", issueTransactionController)
+
+
     .config(AccessControllerConfig)
     .config(accountConfig)
     .config(bankConfig)
@@ -1072,350 +1074,351 @@ var upanelApp = angular
     }])
     .run(["$rootScope", "$cookies", "$window", "$location", "$filter", "baseService", "$http", '$sce', 'SignalRInit',
         function ($rootScope, $cookies, $window, $location, $filter, baseService, $http, $sce, SignalRInit) {
-        function getCookie(cname) {
-            var name = cname + "=";
-            var decodedCookie = decodeURIComponent(document.cookie);
-            var ca = decodedCookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) === ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) === 0)
-                    return c.substring(name.length, c.length);
-            }
-            return "";
-        }
-
-        function isImage(src) {
-
-            var deferred = $q.defer();
-
-            var image = new Image();
-            image.onerror = function () {
-                deferred.resolve(false);
-            };
-            image.onload = function () {
-                deferred.resolve(true);
-            };
-            image.src = src;
-
-            return deferred.promise;
-        }
-        $rootScope.ShowHomeButton = true;
-        $rootScope.FormTitle = "Application";
-        $rootScope.FormIcon = null;
-        $rootScope.NotificationMessage = '';
-        $rootScope.plantName = $cookies.get("plantName");
-        $rootScope.bootPoint = "#!/";
-        $window.companyGroupId = $cookies.get("groupId");
-        $window.authenticationToken = $cookies.get("authToken");
-        $window.companyId = $cookies.get("companyId");
-        $window.plantId = $cookies.get("plantId");
-        $window.employeeId = $cookies.get("employeeId");
-        $rootScope.CompanyLogo = null;
-        $rootScope.CompanyFullName = null;
-        $rootScope.companyGroupLogo = virtualPath.LogoOrImage + $cookies.get("gImage");
-        $rootScope.userImage = virtualPath.EmployeeImage + $cookies.get("userImage");
-        $rootScope.showMenu = "Module";
-        $rootScope.menuModuleId = null;
-        $rootScope.isLeftMenuHide = $rootScope.plantName === null || $rootScope.plantName === undefined ? true : false;
-        $rootScope.ShowFavouriteMenu = $rootScope.isLeftMenuHide;
-        SignalRInit.connect();
-        
-        $rootScope.moduleShowHide = function () {
-
-            $rootScope.menuModuleName = null;
-            if ($rootScope.showMenu === "Menu")
-                $rootScope.showMenu = "Module";
-        };
-        $rootScope.getPageTitle = function (name) {
-            $rootScope.FormTitle = name;
-        };
-
-        $rootScope.CurrentMenuMasterId = null;
-        $rootScope.CurrentHref = '';
-        $rootScope.$on('$routeChangeStart', function ($event, next, current) {
-            try {
-                var href = next.$$route.originalPath;
-                $rootScope.FormIcon = null;
-                $rootScope.ChangeHref(href);
-            } catch (e) {
-
-            }
-
-        });
-
-        $rootScope.$on('$viewContentLoaded', function () {
-            //Here, our content is fully loaded !!
-            if ($rootScope.ListMenuSearch.length > 0)
-                if ('/' + $window.location.href.substr(window.location.href.lastIndexOf('/') + 1).toLowerCase() != $rootScope.CurrentHref.toLowerCase())
-                    $rootScope.ChangeHref('/' + $window.location.href.substr(window.location.href.lastIndexOf('/') + 1));
-
-
-            if ($("h3 .glyphicon").hasClass('glyphicon')) {
-                $("h3 .glyphicon").removeAttr('class');
-                $("h3").css("padding-left", "4px");
-            }
-        });
-
-        setInterval(function () {
-            if ($rootScope.ListMenuSearch.length > 0)
-                if ('/' + $window.location.href.substr(window.location.href.lastIndexOf('/') + 1).toLowerCase() != $rootScope.CurrentHref.toLowerCase())
-                    $rootScope.ChangeHref('/' + $window.location.href.substr(window.location.href.lastIndexOf('/') + 1));
-            //if ($("h3 .glyphicon").hasClass('glyphicon')) {
-            //    $("h3 .glyphicon").removeAttr('class');
-            //    $("h3").css("padding-left", "4px");
-            //}
-
-
-        }, 200);
-        $rootScope.SelectedHref = null;
-        $rootScope.ChangeHref = function (href) {
-            try {
-
-
-                if (!$rootScope.ListMenuSearch || $rootScope.ListMenuSearch.length == 0) {
-                    try {
-                        $rootScope.SelectedHref = $cookies.get("upanelMenuHelpDocInternalName");
-                        $rootScope.CurrentMenuMasterId = $cookies.get("MenuMasterId");
-                    } catch (e) {
-
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) === ' ') {
+                        c = c.substring(1);
                     }
+                    if (c.indexOf(name) === 0)
+                        return c.substring(name.length, c.length);
+                }
+                return "";
+            }
+
+            function isImage(src) {
+
+                var deferred = $q.defer();
+
+                var image = new Image();
+                image.onerror = function () {
+                    deferred.resolve(false);
+                };
+                image.onload = function () {
+                    deferred.resolve(true);
+                };
+                image.src = src;
+
+                return deferred.promise;
+            }
+            $rootScope.ShowHomeButton = true;
+            $rootScope.FormTitle = "Application";
+            $rootScope.FormIcon = null;
+            $rootScope.NotificationMessage = '';
+            $rootScope.plantName = $cookies.get("plantName");
+            $rootScope.companyName = $cookies.get("CompanyFullName");
+            $rootScope.bootPoint = "#!/";
+            $window.companyGroupId = $cookies.get("groupId");
+            $window.authenticationToken = $cookies.get("authToken");
+            $window.companyId = $cookies.get("companyId");
+            $window.plantId = $cookies.get("plantId");
+            $window.employeeId = $cookies.get("employeeId");
+            $rootScope.CompanyLogo = null;
+            $rootScope.CompanyFullName = null;
+            $rootScope.companyGroupLogo = virtualPath.LogoOrImage + $cookies.get("gImage");
+            $rootScope.userImage = virtualPath.EmployeeImage + $cookies.get("userImage");
+            $rootScope.showMenu = "Module";
+            $rootScope.menuModuleId = null;
+            $rootScope.isLeftMenuHide = $rootScope.plantName === null || $rootScope.plantName === undefined ? true : false;
+            $rootScope.ShowFavouriteMenu = $rootScope.isLeftMenuHide;
+            SignalRInit.connect();
+
+            $rootScope.moduleShowHide = function () {
+
+                $rootScope.menuModuleName = null;
+                if ($rootScope.showMenu === "Menu")
+                    $rootScope.showMenu = "Module";
+            };
+            $rootScope.getPageTitle = function (name) {
+                $rootScope.FormTitle = name;
+            };
+
+            $rootScope.CurrentMenuMasterId = null;
+            $rootScope.CurrentHref = '';
+            $rootScope.$on('$routeChangeStart', function ($event, next, current) {
+                try {
+                    var href = next.$$route.originalPath;
+                    $rootScope.FormIcon = null;
+                    $rootScope.ChangeHref(href);
+                } catch (e) {
 
                 }
-                else {
-                    $rootScope.FormTitle = $rootScope.title;
-                    $rootScope.SelectedHref = null;
-                    for (var i = 0; i < $rootScope.ListMenuSearch.length; i++) {
-                        if ('/' + $rootScope.ListMenuSearch[i].Href == href) {
-                            $rootScope.SelectedHref = $rootScope.ListMenuSearch[i].MenuHelpDocInternalName;
-                            $rootScope.CurrentMenuMasterId = $rootScope.ListMenuSearch[i].Href;
-                            $cookies.put("upanelMenuHelpDocInternalName", $rootScope.ListMenuSearch[i].MenuHelpDocInternalName);
-                            $cookies.put("MenuMasterId", $rootScope.ListMenuSearch[i].Href);
+
+            });
+
+            $rootScope.$on('$viewContentLoaded', function () {
+                //Here, our content is fully loaded !!
+                if ($rootScope.ListMenuSearch.length > 0)
+                    if ('/' + $window.location.href.substr(window.location.href.lastIndexOf('/') + 1).toLowerCase() != $rootScope.CurrentHref.toLowerCase())
+                        $rootScope.ChangeHref('/' + $window.location.href.substr(window.location.href.lastIndexOf('/') + 1));
 
 
-                            $rootScope.CurrentHref = href;
-                            $rootScope.FormTitle = $rootScope.ListMenuSearch[i].Remarks;
-
-                            var svg = $($rootScope.ListMenuSearch[i].Image)[0];
-                            svg.setAttribute('viewBox', '0 0 10 10');
-                            svg.setAttribute('height', '24');
-                            svg.setAttribute('width', '24');
-                            svg.setAttribute('style', 'background-color:black;-webkit-filter: invert(100%);filter: invert(100%);');
-
-
-                            $rootScope.FormIcon = $sce.trustAsHtml(svg.outerHTML);
-
-                            break;
-                        }
-                    }
+                if ($("h3 .glyphicon").hasClass('glyphicon')) {
+                    $("h3 .glyphicon").removeAttr('class');
+                    $("h3").css("padding-left", "4px");
                 }
-            } catch (e) {
-
-            }
-        }
-
-        $rootScope.DownloadDocumentationFile = function () {
-            if (!$rootScope.SelectedHref)
-                return;
-
-            try {
-                var file_src = 'OrderManagements/productionOrderReports/LoadPdfDocumentation?href=' + $rootScope.SelectedHref
-                $rootScope.report(file_src);
-
-            } catch (e) {
-
-            }
-
-        }
-
-
-
-        /////////////////favorite menu///////////////////// 
-        var BlankMenuIconForFavorite = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="10pt" height="10pt" viewBox="0 0 10 10" version="1.1"><g id="surface1"><path style=" stroke:none;fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;" d="M 0.9375 1.617188 L 0.9375 8.386719 C 0.9375 8.757812 1.242188 9.0625 1.617188 9.0625 L 8.386719 9.0625 C 8.757812 9.0625 9.0625 8.761719 9.0625 8.386719 L 9.0625 1.617188 C 9.0625 1.242188 8.761719 0.9375 8.386719 0.9375 L 1.617188 0.9375 C 1.242188 0.9375 0.9375 1.242188 0.9375 1.617188 Z M 2.679688 7.417969 C 2.425781 7.453125 2.210938 7.234375 2.242188 6.980469 C 2.265625 6.808594 2.40625 6.664062 2.578125 6.644531 C 2.835938 6.613281 3.050781 6.828125 3.015625 7.082031 C 2.996094 7.257812 2.855469 7.398438 2.679688 7.417969 Z M 2.679688 5.386719 C 2.425781 5.421875 2.210938 5.203125 2.242188 4.949219 C 2.265625 4.773438 2.40625 4.632812 2.578125 4.613281 C 2.835938 4.582031 3.050781 4.796875 3.015625 5.050781 C 2.996094 5.226562 2.855469 5.367188 2.679688 5.386719 Z M 2.679688 3.355469 C 2.425781 3.390625 2.210938 3.171875 2.242188 2.917969 C 2.265625 2.742188 2.40625 2.601562 2.578125 2.582031 C 2.835938 2.550781 3.050781 2.765625 3.015625 3.019531 C 2.996094 3.195312 2.855469 3.335938 2.679688 3.355469 Z M 7.515625 7.304688 L 4 7.304688 C 3.847656 7.304688 3.726562 7.179688 3.726562 7.03125 C 3.726562 6.882812 3.847656 6.757812 4 6.757812 L 7.515625 6.757812 C 7.664062 6.757812 7.789062 6.882812 7.789062 7.03125 C 7.789062 7.179688 7.664062 7.304688 7.515625 7.304688 Z M 7.515625 5.273438 L 4 5.273438 C 3.847656 5.273438 3.726562 5.148438 3.726562 5 C 3.726562 4.851562 3.847656 4.726562 4 4.726562 L 7.515625 4.726562 C 7.664062 4.726562 7.789062 4.851562 7.789062 5 C 7.789062 5.148438 7.664062 5.273438 7.515625 5.273438 Z M 7.515625 3.242188 L 4 3.242188 C 3.847656 3.242188 3.726562 3.117188 3.726562 2.96875 C 3.726562 2.820312 3.847656 2.695312 4 2.695312 L 7.515625 2.695312 C 7.664062 2.695312 7.789062 2.820312 7.789062 2.96875 C 7.789062 3.117188 7.664062 3.242188 7.515625 3.242188 Z M 7.515625 3.242188 "/></g></svg>';
-
-        $rootScope.ShowFavouriteMenu = false;
-
-        $rootScope.ShowHideFavouriteMenu = function () {
-            if ($rootScope.ShowFavouriteMenu == true)
-                $rootScope.ShowFavouriteMenu = false;
-            else
-                $rootScope.ShowFavouriteMenu = true;
-
-            $http({
-                method: 'GET',
-                url: 'Securities/User/SaveShowHideFavouriteMenu?ShowFavouriteMenu=' + $rootScope.ShowFavouriteMenu
-            }).then(function successCallback(response) {
-                if ($rootScope.ShowFavouriteMenu)
-                    $rootScope.GetFavouriteMenu();
             });
 
-        }
+            setInterval(function () {
+                if ($rootScope.ListMenuSearch.length > 0)
+                    if ('/' + $window.location.href.substr(window.location.href.lastIndexOf('/') + 1).toLowerCase() != $rootScope.CurrentHref.toLowerCase())
+                        $rootScope.ChangeHref('/' + $window.location.href.substr(window.location.href.lastIndexOf('/') + 1));
+                //if ($("h3 .glyphicon").hasClass('glyphicon')) {
+                //    $("h3 .glyphicon").removeAttr('class');
+                //    $("h3").css("padding-left", "4px");
+                //}
 
-        $rootScope.GetShowHideFavouriteMenu = function () {
-            if ($rootScope.plantName) {
-                $http({
-                    method: 'GET',
-                    url: 'Securities/User/ShowHideFavouriteMenu'
-                }).then(function successCallback(response) {
-                    if (response.data)
-                        $rootScope.ShowFavouriteMenu = response.data.ShowFavoriteMenu;
 
-                    if ($rootScope.ShowFavouriteMenu)
-                        $rootScope.GetFavouriteMenu();
-                });
-            }
-        }
-        $rootScope.FavouriteModuleData = [];
+            }, 200);
+            $rootScope.SelectedHref = null;
+            $rootScope.ChangeHref = function (href) {
+                try {
 
-        $rootScope.SaveFavouriteMenu = function () {
-            $http({
-                method: 'GET',
-                url: 'Securities/User/SaveFavorite?MenuMasterId=' + $rootScope.CurrentMenuMasterId
-            }).then(function successCallback(response) {
-                $rootScope.GetFavouriteMenu();
-            });
-        }
-        $rootScope.DeleteFavouriteMenu = function (href) {
-            $http({
-                method: 'GET',
-                url: 'Securities/User/DeleteFavorite?MenuMasterId=' + href
-            }).then(function successCallback(response) {
-                $rootScope.GetFavouriteMenu();
-            });
-        }
-        $rootScope.GetFavouriteMenu = function () {
-            $http({
-                method: 'GET',
-                url: 'Securities/User/UserFavoriteMenu'
-            }).then(function successCallback(response) {
-                for (var i = 0; i < response.data.length; i++) {
-                    for (var k = 0; k < response.data[i].MenuList.length; k++) {
+
+                    if (!$rootScope.ListMenuSearch || $rootScope.ListMenuSearch.length == 0) {
                         try {
-                            if (response.data[i].MenuList[k].Image)
-                                response.data[i].MenuList[k].Image = $sce.trustAsHtml(response.data[i].MenuList[k].Image);
-                            else {
-                                response.data[i].MenuList[k].Image = $sce.trustAsHtml(BlankMenuIconForFavorite);
-                            }
-
+                            $rootScope.SelectedHref = $cookies.get("upanelMenuHelpDocInternalName");
+                            $rootScope.CurrentMenuMasterId = $cookies.get("MenuMasterId");
                         } catch (e) {
 
                         }
 
                     }
+                    else {
+                        $rootScope.FormTitle = $rootScope.title;
+                        $rootScope.SelectedHref = null;
+                        for (var i = 0; i < $rootScope.ListMenuSearch.length; i++) {
+                            if ('/' + $rootScope.ListMenuSearch[i].Href == href) {
+                                $rootScope.SelectedHref = $rootScope.ListMenuSearch[i].MenuHelpDocInternalName;
+                                $rootScope.CurrentMenuMasterId = $rootScope.ListMenuSearch[i].Href;
+                                $cookies.put("upanelMenuHelpDocInternalName", $rootScope.ListMenuSearch[i].MenuHelpDocInternalName);
+                                $cookies.put("MenuMasterId", $rootScope.ListMenuSearch[i].Href);
+
+
+                                $rootScope.CurrentHref = href;
+                                $rootScope.FormTitle = $rootScope.ListMenuSearch[i].Remarks;
+
+                                var svg = $($rootScope.ListMenuSearch[i].Image)[0];
+                                svg.setAttribute('viewBox', '0 0 10 10');
+                                svg.setAttribute('height', '24');
+                                svg.setAttribute('width', '24');
+                                svg.setAttribute('style', 'background-color:black;-webkit-filter: invert(100%);filter: invert(100%);');
+
+
+                                $rootScope.FormIcon = $sce.trustAsHtml(svg.outerHTML);
+
+                                break;
+                            }
+                        }
+                    }
+                } catch (e) {
+
                 }
-                $rootScope.FavouriteModuleData = response.data;
-            });
-        }
-        $rootScope.GetShowHideFavouriteMenu();
-
-
-
-        $rootScope.isCompanyImageFound = function () {
-            var img = new Image();
-            var imgUrl = "POPResources/Organizations/" + $cookies.get("CompanyImage");
-            img.src = imgUrl;
-            img.onload = function () {
-                $rootScope.CompanyLogo = $cookies.get("CompanyImage");
-                $rootScope.CompanyFullName = null;
             }
-            img.onerror = function () {
-                $rootScope.CompanyFullName = $cookies.get("CompanyFullName");
-                $rootScope.CompanyLogo = null;
 
-            }
-        }
-        $rootScope.isCompanyImageFound();
-
-
-        $rootScope.ResetMenu = function () {
-            $rootScope.menuModuleName = '';
-            $rootScope.showMenu = 'Module';
-            $rootScope.menuFrames = [];
-        }
-
-
-
-        $rootScope.mpanelMenu = function (id, name) {
-            $rootScope.showMenu = "Menu";
-            $rootScope.menuModuleId = id;
-            $rootScope.menuModuleName = name;
-            $rootScope.menuFrames = $filter("filter")($rootScope.menuFrameList, { ModuleId: id }, true);
-            setTimeout(function () {
-                $rootScope.$apply(function () {
-                    angular.element(".main-nav").vmenuModule({
-                        Speed: 400,
-                        autostart: false,
-                        autohide: true
-                    });
-                });
-            }, 100);
-        };
-        angular.isUndefinedOrNull = function (val) {
-            return angular.isUndefined(val) || val === null || val === "";
-        };
-
-        $rootScope.template =
-            '<div class="row" style="display:inline-box;">'
-            + '    <div style="float:left;padding-left:10px;" class="glyphicon glyphicon-list"> '
-            + '    </div>                                                                              '
-            + '    <div style="float:left;padding-left:10px;">                                          '
-            + '        ${Item}                                                                        '
-            + '        </div>                                                                          '
-            + '</div>                                                                                  ';
-        $rootScope.tocode = function (args) {
-            location.href = $rootScope.bootPoint + args.item.Href;
-            $("#AutoCompleteMenuSearch").ejAutocomplete("clearText");
-        }
-
-        $rootScope.report = function (file_src) {
-            $("#iframe_div_for_report").empty();
-            var frame = $('<iframe id="report">')
-                .attr('height', '0px')
-                .attr('visibility', 'hidden')
-                .attr('width', '0px');
-            frame.on('load', function () {
+            $rootScope.DownloadDocumentationFile = function () {
+                if (!$rootScope.SelectedHref)
+                    return;
 
                 try {
-                    var text = angular.fromJson($('#report')[0].contentDocument.body.innerText);
+                    var file_src = 'OrderManagements/productionOrderReports/LoadPdfDocumentation?href=' + $rootScope.SelectedHref
+                    $rootScope.report(file_src);
 
-                    if (text.hasOwnProperty('Message')) {
-                        if (angular.isUndefinedOrNull(text.Message) === false) {
+                } catch (e) {
+
+                }
+
+            }
+
+
+
+            /////////////////favorite menu///////////////////// 
+            var BlankMenuIconForFavorite = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="10pt" height="10pt" viewBox="0 0 10 10" version="1.1"><g id="surface1"><path style=" stroke:none;fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;" d="M 0.9375 1.617188 L 0.9375 8.386719 C 0.9375 8.757812 1.242188 9.0625 1.617188 9.0625 L 8.386719 9.0625 C 8.757812 9.0625 9.0625 8.761719 9.0625 8.386719 L 9.0625 1.617188 C 9.0625 1.242188 8.761719 0.9375 8.386719 0.9375 L 1.617188 0.9375 C 1.242188 0.9375 0.9375 1.242188 0.9375 1.617188 Z M 2.679688 7.417969 C 2.425781 7.453125 2.210938 7.234375 2.242188 6.980469 C 2.265625 6.808594 2.40625 6.664062 2.578125 6.644531 C 2.835938 6.613281 3.050781 6.828125 3.015625 7.082031 C 2.996094 7.257812 2.855469 7.398438 2.679688 7.417969 Z M 2.679688 5.386719 C 2.425781 5.421875 2.210938 5.203125 2.242188 4.949219 C 2.265625 4.773438 2.40625 4.632812 2.578125 4.613281 C 2.835938 4.582031 3.050781 4.796875 3.015625 5.050781 C 2.996094 5.226562 2.855469 5.367188 2.679688 5.386719 Z M 2.679688 3.355469 C 2.425781 3.390625 2.210938 3.171875 2.242188 2.917969 C 2.265625 2.742188 2.40625 2.601562 2.578125 2.582031 C 2.835938 2.550781 3.050781 2.765625 3.015625 3.019531 C 2.996094 3.195312 2.855469 3.335938 2.679688 3.355469 Z M 7.515625 7.304688 L 4 7.304688 C 3.847656 7.304688 3.726562 7.179688 3.726562 7.03125 C 3.726562 6.882812 3.847656 6.757812 4 6.757812 L 7.515625 6.757812 C 7.664062 6.757812 7.789062 6.882812 7.789062 7.03125 C 7.789062 7.179688 7.664062 7.304688 7.515625 7.304688 Z M 7.515625 5.273438 L 4 5.273438 C 3.847656 5.273438 3.726562 5.148438 3.726562 5 C 3.726562 4.851562 3.847656 4.726562 4 4.726562 L 7.515625 4.726562 C 7.664062 4.726562 7.789062 4.851562 7.789062 5 C 7.789062 5.148438 7.664062 5.273438 7.515625 5.273438 Z M 7.515625 3.242188 L 4 3.242188 C 3.847656 3.242188 3.726562 3.117188 3.726562 2.96875 C 3.726562 2.820312 3.847656 2.695312 4 2.695312 L 7.515625 2.695312 C 7.664062 2.695312 7.789062 2.820312 7.789062 2.96875 C 7.789062 3.117188 7.664062 3.242188 7.515625 3.242188 Z M 7.515625 3.242188 "/></g></svg>';
+
+            $rootScope.ShowFavouriteMenu = false;
+
+            $rootScope.ShowHideFavouriteMenu = function () {
+                if ($rootScope.ShowFavouriteMenu == true)
+                    $rootScope.ShowFavouriteMenu = false;
+                else
+                    $rootScope.ShowFavouriteMenu = true;
+
+                $http({
+                    method: 'GET',
+                    url: 'Securities/User/SaveShowHideFavouriteMenu?ShowFavouriteMenu=' + $rootScope.ShowFavouriteMenu
+                }).then(function successCallback(response) {
+                    if ($rootScope.ShowFavouriteMenu)
+                        $rootScope.GetFavouriteMenu();
+                });
+
+            }
+
+            $rootScope.GetShowHideFavouriteMenu = function () {
+                if ($rootScope.plantName) {
+                    $http({
+                        method: 'GET',
+                        url: 'Securities/User/ShowHideFavouriteMenu'
+                    }).then(function successCallback(response) {
+                        if (response.data)
+                            $rootScope.ShowFavouriteMenu = response.data.ShowFavoriteMenu;
+
+                        if ($rootScope.ShowFavouriteMenu)
+                            $rootScope.GetFavouriteMenu();
+                    });
+                }
+            }
+            $rootScope.FavouriteModuleData = [];
+
+            $rootScope.SaveFavouriteMenu = function () {
+                $http({
+                    method: 'GET',
+                    url: 'Securities/User/SaveFavorite?MenuMasterId=' + $rootScope.CurrentMenuMasterId
+                }).then(function successCallback(response) {
+                    $rootScope.GetFavouriteMenu();
+                });
+            }
+            $rootScope.DeleteFavouriteMenu = function (href) {
+                $http({
+                    method: 'GET',
+                    url: 'Securities/User/DeleteFavorite?MenuMasterId=' + href
+                }).then(function successCallback(response) {
+                    $rootScope.GetFavouriteMenu();
+                });
+            }
+            $rootScope.GetFavouriteMenu = function () {
+                $http({
+                    method: 'GET',
+                    url: 'Securities/User/UserFavoriteMenu'
+                }).then(function successCallback(response) {
+                    for (var i = 0; i < response.data.length; i++) {
+                        for (var k = 0; k < response.data[i].MenuList.length; k++) {
+                            try {
+                                if (response.data[i].MenuList[k].Image)
+                                    response.data[i].MenuList[k].Image = $sce.trustAsHtml(response.data[i].MenuList[k].Image);
+                                else {
+                                    response.data[i].MenuList[k].Image = $sce.trustAsHtml(BlankMenuIconForFavorite);
+                                }
+
+                            } catch (e) {
+
+                            }
+
+                        }
+                    }
+                    $rootScope.FavouriteModuleData = response.data;
+                });
+            }
+            $rootScope.GetShowHideFavouriteMenu();
+
+
+
+            $rootScope.isCompanyImageFound = function () {
+                var img = new Image();
+                var imgUrl = "POPResources/Organizations/" + $cookies.get("CompanyImage");
+                img.src = imgUrl;
+                img.onload = function () {
+                    $rootScope.CompanyLogo = $cookies.get("CompanyImage");
+                    $rootScope.CompanyFullName = null;
+                }
+                img.onerror = function () {
+                    $rootScope.CompanyFullName = $cookies.get("CompanyFullName");
+                    $rootScope.CompanyLogo = null;
+
+                }
+            }
+            $rootScope.isCompanyImageFound();
+
+
+            $rootScope.ResetMenu = function () {
+                $rootScope.menuModuleName = '';
+                $rootScope.showMenu = 'Module';
+                $rootScope.menuFrames = [];
+            }
+
+
+
+            $rootScope.mpanelMenu = function (id, name) {
+                $rootScope.showMenu = "Menu";
+                $rootScope.menuModuleId = id;
+                $rootScope.menuModuleName = name;
+                $rootScope.menuFrames = $filter("filter")($rootScope.menuFrameList, { ModuleId: id }, true);
+                setTimeout(function () {
+                    $rootScope.$apply(function () {
+                        angular.element(".main-nav").vmenuModule({
+                            Speed: 400,
+                            autostart: false,
+                            autohide: true
+                        });
+                    });
+                }, 100);
+            };
+            angular.isUndefinedOrNull = function (val) {
+                return angular.isUndefined(val) || val === null || val === "";
+            };
+
+            $rootScope.template =
+                '<div class="row" style="display:inline-box;">'
+                + '    <div style="float:left;padding-left:10px;" class="glyphicon glyphicon-list"> '
+                + '    </div>                                                                              '
+                + '    <div style="float:left;padding-left:10px;">                                          '
+                + '        ${Item}                                                                        '
+                + '        </div>                                                                          '
+                + '</div>                                                                                  ';
+            $rootScope.tocode = function (args) {
+                location.href = $rootScope.bootPoint + args.item.Href;
+                $("#AutoCompleteMenuSearch").ejAutocomplete("clearText");
+            }
+
+            $rootScope.report = function (file_src) {
+                $("#iframe_div_for_report").empty();
+                var frame = $('<iframe id="report">')
+                    .attr('height', '0px')
+                    .attr('visibility', 'hidden')
+                    .attr('width', '0px');
+                frame.on('load', function () {
+
+                    try {
+                        var text = angular.fromJson($('#report')[0].contentDocument.body.innerText);
+
+                        if (text.hasOwnProperty('Message')) {
+                            if (angular.isUndefinedOrNull(text.Message) === false) {
+                                $('<div id="message">').attr('height', '0px')
+                                    .attr('visibility', 'hidden')
+                                    .attr('width', '0px').appendTo('#iframe_div_for_report');
+                                $("#message").ejDialog({
+                                    title: "Error"
+                                });
+                                $("#message").ejDialog("setContent", text.Message);
+
+                            }
+                        }
+                        else {
+                            var text1 = $('#report')[0].contentDocument.body.innerText;
+
                             $('<div id="message">').attr('height', '0px')
                                 .attr('visibility', 'hidden')
                                 .attr('width', '0px').appendTo('#iframe_div_for_report');
                             $("#message").ejDialog({
                                 title: "Error"
                             });
-                            $("#message").ejDialog("setContent", text.Message);
-
+                            $("#message").ejDialog("setContent", text1);
                         }
-                    }
-                    else {
-                        var text1 = $('#report')[0].contentDocument.body.innerText;
 
-                        $('<div id="message">').attr('height', '0px')
-                            .attr('visibility', 'hidden')
-                            .attr('width', '0px').appendTo('#iframe_div_for_report');
-                        $("#message").ejDialog({
-                            title: "Error"
-                        });
-                        $("#message").ejDialog("setContent", text1);
+                    } catch (e) {
+
+
                     }
 
-                } catch (e) {
+                });
 
 
-                }
-
-            });
-
-
-            frame.attr('src', file_src);
-            frame.appendTo('#iframe_div_for_report');
-        };
-    }])
+                frame.attr('src', file_src);
+                frame.appendTo('#iframe_div_for_report');
+            };
+        }])
     .filter("unique", unique)
     .filter("dateFilter", dateFilter)
     .filter("dateFiltering", dateFiltering)
