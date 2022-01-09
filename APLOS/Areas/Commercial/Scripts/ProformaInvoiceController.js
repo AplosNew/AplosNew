@@ -62,6 +62,7 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         , IsPaymentTermChangeable: null
         , PaymentTermId: null
         , TermsAndConditionsId: null
+        , ShippingMark: null
     };
     $scope.PImodelNew = Object.assign({}, $scope.PIHeaderModel);
 
@@ -162,7 +163,13 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
             ShowResult(e, 'failure');
         }
     };
-
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
     $scope.Remove = function (index) {
         var removed = $scope.DataList.splice(index, 1);
         $scope.Detail = removed;
