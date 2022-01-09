@@ -225,7 +225,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsPIMaster, dsPIVersion, dsPIMaterial);
-                if (!string.IsNullOrEmpty(HeaderData["TermsAndConditionsId"].ToString()))
+                if (!string.IsNullOrEmpty(clsStaticInfo.nullrecorder(HeaderData["TermsAndConditionsId"])))
                 {
                     SaveTermsData(HeaderData["TermsAndConditionsId"].ToString(), HeaderData["Id"].ToString());
                 }
@@ -398,7 +398,7 @@ namespace Aplos.Areas.Commercial.Controllers
             string sql = @"select top 100 * from (SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 ,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
 ,C.Code Currency,B.UserName Buyer,P.UserName Customer,pv.Id PIVersionId,PV.VersionNo AS LastVersion
-,P2.Amount,p2.POQuantity,PM.AddedDate,PM.TermsAndConditionsId
+,P2.Amount,p2.POQuantity,PM.AddedDate,PM.TermsAndConditionsId,PM.ShippingMark
  FROM PIMaster PM 
 LEFT OUTER JOIN
 (SELECT p.PIMasterId, SUM(p.Amount) Amount,SUM(pmp.POQuantity) POQuantity FROM PIMaterial p
@@ -421,8 +421,8 @@ LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 I
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 							,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.TermsAndConditionsId
-							 FROM PIMaster PM 
+							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.TermsAndConditionsId,PM.ShippingMark
+FROM PIMaster PM 
 							LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
 							LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
@@ -792,5 +792,50 @@ left outer join TermsAndConditionsPIChild TC on TC.Id=TCD.TermsAndConditionsPICh
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+        //public JsonResult PoformaInvoiceReport(string PIMasterId, string PIVersionId)
+        //{
+        //    try
+        //    {
+        //        #region Validations
+        //        //if (DataList.Count == 0)
+        //        //{
+        //        //    throw new Exception("Select from Invoice list ");
+        //        //}
+        //        //for (int i = 0; i < DataList.Count; i++)
+        //        //{
+        //        //    if (DataList[i]["PartyId"].ToString() != LcData["VendorId"].ToString())
+        //        //    {
+        //        //        throw new Exception("Vendor should be matched with Purchase LC for [" + DataList[i]["PartyPlantName"].ToString() + "]");
+        //        //    }
+        //        //    if (DataList[i]["CurrencyId"].ToString() != LcData["CurrencyId"].ToString())
+        //        //    {
+        //        //        throw new Exception("Currency should be matched with Purchase LC for [" + DataList[i]["PartyPlantName"].ToString() + "]");
+        //        //    }
+        //        //}
+        //        #endregion
+        //        string PackingListMasterId = PI.Save(PIPackingListMasterData, MaterialData, DataList);
+        //        return Json(new { Error = false, Message = AplosMessage.Updated, PIPackingListMasterId = PackingListMasterId });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { Error = true, Message = ex.Message });
+        //    }
+        //}
+
+        //[HttpGet, Authorize]
+        //public ActionResult PoformaInvoiceReport(string PIMasterId, string PIVersionId)
+        //{
+        //    try
+        //    {
+        //        PI.PoformaInvoiceReport(PIMasterId, PIVersionId);
+
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
     }
 }

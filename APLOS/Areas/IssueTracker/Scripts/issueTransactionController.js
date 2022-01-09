@@ -1987,7 +1987,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
 
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2067,7 +2067,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2088,7 +2088,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2109,7 +2109,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2130,7 +2130,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2151,7 +2151,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2172,7 +2172,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2193,7 +2193,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2214,7 +2214,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;

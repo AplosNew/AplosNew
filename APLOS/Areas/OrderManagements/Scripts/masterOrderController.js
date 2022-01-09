@@ -4734,6 +4734,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.ValueAssign = null;
     $scope.AddSOSKU = function (sku) {
+        $scope.skubtn = false;
         if (sku == 1) {
             $scope.charId = $scope.char1Id;
             $scope.charName = $scope.rowName;

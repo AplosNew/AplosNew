@@ -995,7 +995,9 @@ var upanelApp = angular
 
     .controller('POMappingWithPIController', POMappingWithPIController)
     .controller('GeneralWasteController', GeneralWasteController)
-    
+    .controller("issueTransactionController", issueTransactionController)
+
+
     .config(AccessControllerConfig)
     .config(accountConfig)
     .config(bankConfig)
