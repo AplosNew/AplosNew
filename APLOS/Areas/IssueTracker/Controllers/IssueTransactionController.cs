@@ -637,7 +637,8 @@ namespace Aplos.Areas.IssueTracker.Controllers
         [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters)
         {
-            return Json(_issueTransactionService.Query(parameters), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueTransactionService.Query(parameters,identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
