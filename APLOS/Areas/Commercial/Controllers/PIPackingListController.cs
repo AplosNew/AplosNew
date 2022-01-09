@@ -384,7 +384,7 @@ ORDER BY convert(bit,CASE WHEN ISNULL(PMD.Id,'')<>'' THEN 1 ELSE 0 END) DESC";
 
             sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 							,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-							,C.Code Currency,B.UserName Buyer,P.UserName Customer
+							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.ShippingMark
 							 FROM PIMaster PM 
 							LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
@@ -470,7 +470,7 @@ ORDER BY convert(bit,CASE WHEN ISNULL(PMD.Id,'')<>'' THEN 1 ELSE 0 END) DESC";
 
             sql = @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
 							,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress,PM.RevisionNo
-							,C.Code Currency,B.UserName Buyer,P.UserName Customer
+							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.ShippingMark
 							 FROM PIMaster PM 
 							LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId

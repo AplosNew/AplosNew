@@ -327,7 +327,7 @@ namespace bplib
                     drLocal.EndEdit();
                 }
                 objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
-                strID = System.DateTime.Now.Year.ToString() +( (int) LastNumber).ToString() + "";
+                strID = System.DateTime.Now.ToString("yyyy").Substring(2, 2) + ((int)LastNumber).ToString() + "";
 
             }
             catch (Exception ex)
