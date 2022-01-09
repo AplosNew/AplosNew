@@ -16,7 +16,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("partyBaseController", partyBaseController)
     .controller("employeeJobDescriptionController", employeeJobDescriptionController)
     .controller("taskListController", taskListController)
-    .controller("issueTransactionController", issueTransactionController)
+    //.controller("issueTransactionController", issueTransactionController)
     .controller("taskScheduleController", taskScheduleController)
     .controller("employeeAdvanceRequisitionController", employeeAdvanceRequisitionController)
     .controller("employeeAdvanceRequisitionEditController", employeeAdvanceRequisitionEditController)
@@ -122,10 +122,10 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 templateUrl: 'TaskManagement/TaskList/',
                 controller: 'taskListController'
             })
-            .when('/issue-transaction', {
-                templateUrl: 'IssueTracker/IssueTransaction/Aplos',
-                controller: "issueTransactionController"
-            })
+            //.when('/issue-transaction', {
+            //    templateUrl: 'IssueTracker/IssueTransaction/Aplos',
+            //    controller: "issueTransactionController"
+            //})
 
 
 
