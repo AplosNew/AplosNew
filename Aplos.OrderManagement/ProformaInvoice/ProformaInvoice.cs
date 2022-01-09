@@ -381,6 +381,244 @@ namespace Library.OrderManagement.ProformaInvoice
         }
 
 
+        //private string PIMasterSql(string PIMasterId, string PIVersionId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return @"SELECT V.Id AS VoucherId
+	       //                                  ,VD.Id AS VoucherDetailId
+	       //                                  ,V.VoucherNo
+	       //                                  ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+	       //                                  ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+        //                                     ,VD.DocRefNo, VD.PartyType, VD.Narration
+	       //                                  ,GLT.CrAmount AS Amount --[Add : BanK other Credit]
+	       //                                  ,'' AS CheckNo
+	       //                                  ,'' EncashmentDate
+        //                               FROM TRN.VoucherDetail AS VD
+        //                               INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+        //                               INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+        //                               WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + BankMasterID + @"' AND (ReconcileId IS NULL))
+        //                               AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'  AND V.IsPark=0
+        //                               AND (VD.BankMasterId='" + BankMasterID + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
+        //                               AND (VD.CrAmount<>0.0000)";
+        //}
+
+        //private string PIMaterialSql(string PIMasterId, string PIVersionId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return @"SELECT V.Id AS VoucherId
+	       //                                  ,VD.Id AS VoucherDetailId
+	       //                                  ,V.VoucherNo
+	       //                                  ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+	       //                                  ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+        //                                     ,VD.DocRefNo, VD.PartyType, VD.Narration
+	       //                                  ,GLT.CrAmount AS Amount --[Add : BanK other Credit]
+	       //                                  ,'' AS CheckNo
+	       //                                  ,'' EncashmentDate
+        //                               FROM TRN.VoucherDetail AS VD
+        //                               INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+        //                               INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+        //                               WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + BankMasterID + @"' AND (ReconcileId IS NULL))
+        //                               AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'  AND V.IsPark=0
+        //                               AND (VD.BankMasterId='" + BankMasterID + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
+        //                               AND (VD.CrAmount<>0.0000)";
+        //}
+        //public void PoformaInvoiceReport(string PIMasterId, string PIVersionId)
+        //{
+        //    try
+        //    {
+        //        string HeaderSql = PIMasterSql(PIMasterId, PIVersionId);
+        //        string MaterialSql = PIMaterialSql(PIMasterId, PIVersionId);
+
+        //        //Instantiate the Excel application object
+        //        DataTable dtHeader = _sqlRepository.GetDataTable(HeaderSql);
+        //        DataTable dtMaterial = _sqlRepository.GetDataTable(MaterialSql);
+        //        if (dtHeader.Rows.Count == 0)
+        //            throw new Exception("No data found");
+        //        ExcelEngine excelEngine = new ExcelEngine();
+        //        IApplication application = excelEngine.Excel;
+
+        //        //Set the default application version
+        //        application.DefaultVersion = ExcelVersion.Excel2013;
+        //        IWorkbook workbook = application.Workbooks.Create(1);
+        //        IWorksheet sheet = workbook.Worksheets[0];
+
+        //        sheet.Name = "Cr. Reconcile Pending Report";
+
+        //        int ROW = 6;
+        //        int COL = 1;
+
+        //        #region Header
+
+        //        int StartRow = ROW;
+        //        sheet[ROW, COL].Text = "Bank :";
+        //        sheet[ROW, COL].ColumnWidth = 10;
+        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
+
+        //        int colBank = COL;
+        //        ROW++;
+        //        sheet[ROW, COL].Text = "Branch :";
+        //        sheet[ROW, COL].ColumnWidth = 10;
+        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
+        //        int colBranch = COL;
+        //        ROW++;
+        //        sheet[ROW, COL].Text = "From Date :";
+        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
+        //        sheet[ROW, COL].ColumnWidth = 10;
+        //        int colFromDate = COL;
+        //        ROW = StartRow;
+        //        COL = 4;
+        //        sheet[ROW, COL].Text = "Account :";
+        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
+        //        sheet[ROW, COL].ColumnWidth = 10;
+        //        int colAccount = COL;
+        //        ROW++;
+        //        sheet[ROW, COL].Text = "Bank GL :";
+        //        sheet[ROW, COL].ColumnWidth = 10;
+        //        int colBankGL = COL;
+        //        ROW++;
+        //        sheet[ROW, COL].Text = "To Date :";
+        //        sheet[ROW, COL].ColumnWidth = 10;
+        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
+        //        int colToDate = COL;
+        //        ROW = StartRow;
+        //        COL = 7;
+        //        sheet[ROW, COL].Text = "Bank Currency :";
+        //        sheet[ROW, COL].ColumnWidth = 13;
+        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
+        //        int colBankCurrency = COL;
+        //        // Headerdata
+        //        ROW = 6;
+        //        sheet[ROW, colBank + 1].Text = dtBank.Rows[0]["BankName"].ToString();
+        //        ROW++;
+        //        sheet[ROW, colBranch + 1].Text = dtBank.Rows[0]["BankBranchName"].ToString();
+        //        ROW++;
+        //        sheet[ROW, colFromDate + 1].Text = fromDate;
+        //        ROW = StartRow;
+        //        sheet[ROW, colAccount + 1].Text = dtBank.Rows[0]["AccountTitle"].ToString();
+        //        ROW++;
+
+        //        sheet[ROW, colBankGL + 1].Text = dtBank.Rows[0]["GLGeneralInfoId"].ToString() + "-" + dtBank.Rows[0]["GLGeneralInfoName"].ToString();
+
+        //        ROW++;
+        //        sheet[ROW, colToDate + 1].Text = toDate;
+        //        ROW = StartRow;
+        //        sheet[ROW, colBankCurrency + 1].Text = dtBank.Rows[0]["CurrencyCode"].ToString();
+
+        //        sheet.Range[StartRow, colBank + 1, StartRow, colBank + 2].Merge();
+        //        sheet.Range[StartRow + 1, colBranch + 1, StartRow + 1, colBranch + 2].Merge();
+        //        sheet.Range[StartRow + 2, colFromDate + 1, StartRow + 2, colFromDate + 2].Merge();
+        //        sheet.Range[StartRow, colAccount + 1, StartRow, colAccount + 2].Merge();
+        //        sheet.Range[StartRow + 1, colBankGL + 1, StartRow + 1, colBankGL + 2].Merge();
+        //        sheet.Range[StartRow + 2, colToDate + 1, StartRow + 2, colToDate + 2].Merge();
+        //        sheet.Range[StartRow, colBankCurrency + 1, StartRow, colBankCurrency + 2].Merge();
+        //        sheet.Range[StartRow, colBank, StartRow + 3, colBankCurrency + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
+
+        //        ROW = 10;
+        //        COL = 1;
+        //        #endregion
+        //        sheet[ROW, COL].Text = "Id";
+        //        sheet[ROW, COL].ColumnWidth = 12;
+        //        int colId = COL;
+        //        COL++;
+        //        sheet[ROW, COL].Text = "Voucher No";
+        //        sheet[ROW, COL].ColumnWidth = 18;
+        //        int colVoucherNo = COL;
+        //        COL++;
+        //        sheet[ROW, COL].Text = "Voucher Date";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        int colVoucherDate = COL;
+        //        COL++;
+        //        sheet[ROW, COL].Text = "Posting Date";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        int colPostingDate = COL;
+        //        COL++;
+        //        sheet[ROW, COL].Text = "Doc Ref No.";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        int colDocRefNo = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Party Type";
+        //        sheet[ROW, COL].ColumnWidth = 20;
+        //        int colPartyType = COL;
+        //        COL++;
+        //        sheet[ROW, COL].Text = "Narration";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        int colNarration = COL;
+        //        COL++;
+        //        sheet[ROW, COL].Text = "Amount";
+        //        sheet[ROW, COL].ColumnWidth = 12;
+        //        int colAmount = COL;
+
+        //        COL++;
+        //        sheet[ROW, COL].Text = "Check No.";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        int colCheckNo = COL;
+
+
+        //        int endCol = COL;
+        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+        //        ROW++;
+
+        //        StartRow = ROW; //row 20
+        //        for (int i = 0; i < dtCRBR.Rows.Count; i++)
+        //        {
+
+        //            sheet[ROW, colId].Text = dtCRBR.Rows[i]["VoucherDetailId"].ToString();
+        //            sheet[ROW, colVoucherNo].Text = dtCRBR.Rows[i]["VoucherNo"].ToString();
+        //            sheet[ROW, colVoucherDate].Text = dtCRBR.Rows[i]["VoucherDate"].ToString();
+
+        //            sheet[ROW, colPostingDate].Text = dtCRBR.Rows[i]["PostingDate"].ToString();
+        //            sheet[ROW, colDocRefNo].Text = dtCRBR.Rows[i]["DocRefNo"].ToString();
+        //            sheet[ROW, colNarration].Text = dtCRBR.Rows[i]["PartyType"].ToString();
+        //            sheet[ROW, colPartyType].Text = dtCRBR.Rows[i]["Narration"].ToString();
+        //            sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtCRBR.Rows[i]["Amount"].ToString());
+        //            sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+        //            sheet[ROW, colCheckNo].Text = dtCRBR.Rows[i]["CheckNo"].ToString();
+
+
+        //            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+        //            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+        //            ROW++;
+
+        //        }
+        //        sheet[ROW, 1].Text = "Total:";
+        //        sheet[ROW, 1].CellStyle.Font.Bold = true;
+        //        int colTotal = COL;
+        //        var reportUtility = new ReportUtility();
+        //        sheet.Range[ROW, colAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + (ROW - 1) + ")";
+        //        sheet.Range[ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+        //        sheet.IsGridLinesVisible = false;
+        //        sheet.UsedRange.WrapText = true;
+        //        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+        //        sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+        //        sheet[ROW, 1].CellStyle.Font.Size = 9;
+
+        //        sheet["A" + StartRow.ToString()].FreezePanes();
+
+
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        reportUtility.PlantHeader(ref sheet, endCol, "Cr. Reconcile Pending Report", identity.PlantId);
+        //        reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+        //        sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+        //        string strFileName = "CRReconcilePendingReport.xlsx";
+        //        workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+        //        workbook.Close();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
+
         class Factors : BaseModel
         {
 
@@ -390,6 +628,8 @@ namespace Library.OrderManagement.ProformaInvoice
             public double AltToBaseUOMFactor { get; set; }
             public double BaseToAltUOMFactor { get; set; }
             public string UOMType { get; set; }
+
+           
         }
     }
 }
