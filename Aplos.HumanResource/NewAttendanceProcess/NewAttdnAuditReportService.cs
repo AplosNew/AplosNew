@@ -9304,8 +9304,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             ,KK.Duration
 							 AS WorkDuration
                             ,KK.OverStay AS WorkTimeDifferent,
-                            convert(int,KK.ShiftDuration/60) as ShiftDurationHour                            ,DATEDIFF(HOUR,KK.InTime ,KK.OutTime )WorkDurationHour
-							,Convert(int,KK.OverStay/60) AS WorkTimeDifferentHour
+                            convert(int,KK.ShiftDuration/60) as ShiftDurationHour    
+                            ,Convert(int,KK.OverStay/60) AS WorkTimeDifferentHour
+                           ,Convert(int,KK.Duration/60) AS WorkDurationHour
                             , KK.OTHr OverStay
                             , KK.TotalOTHr ConfirmedOT
                             ,IsOTEntitled= CASE WHEN KK.IsOTEntitled=1 THEN 'Yes' else 'No'END
@@ -9314,7 +9315,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 								    DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),O.WorkDate))  AS ShiftInTime,
 		                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),o.WorkDate))  AS ShiftOutTime,
 		                            O.InTime, O.IsManualInTime,
-		                            O.OutTime, O.IsManualOutTime, 
+		                            O.OutTime, O.IsManualOutTime,
                                     emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,
 		                            O.PunchInTime,O.PunchOutTime,O.OVERSTAY,
 		                            O.DayStatus, O.OTHr, O.IsOTComfirm,
