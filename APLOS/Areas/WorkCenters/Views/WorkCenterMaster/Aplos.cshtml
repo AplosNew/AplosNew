@@ -435,6 +435,7 @@
                                             <th class="col-sm-1">Action</th>
                                             <th>Start Date</th>
                                             <th>End Date</th>
+                                            <th>Hour</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -446,6 +447,7 @@
                                             </td>
                                             <td><input type="text" ng-model="x.StartDate" datepicker class="form-control" placeholder="dd-mm-yyyy"></td>
                                             <td><input type="text" ng-model="x.EndDate" datepicker class="form-control" placeholder="dd-mm-yyyy"></td>
+                                            <td><input type="text" only-numbers ng-model="x.Hour" class="form-control"></td>
                                         </tr>
                                     </tbody>
                                 </table>

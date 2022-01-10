@@ -656,8 +656,8 @@ UNION
 						, MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName
 							, MAT.BudgetMasterId, MAT.BudgetCode, MAT.BudgetName
 							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName,NULL Dr
-						,SUM(MAT.Cr) +TCS.TCSAmount AS Cr,--+SUM(ISNULL(SRV.TotalTaxAmount,0))
-						SUM(MAT.Cr) +TCS.TCSAmount AS Amount --+SUM(ISNULL(SRV.TotalTaxAmount,0))
+						,SUM(MAT.Cr) +ISNULL(TCS.TCSAmount,0) AS Cr,--+SUM(ISNULL(SRV.TotalTaxAmount,0))
+						SUM(MAT.Cr) +ISNULL(TCS.TCSAmount,0) AS Amount --+SUM(ISNULL(SRV.TotalTaxAmount,0))
                         ,0 IsAsset
 						FROM (
 							SELECT IR.Id, 'Vendor' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId

@@ -375,6 +375,26 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         [HttpGet, Authorize]
+        public ActionResult GetBOMItemReport(string ItemIds, string MasterOrderId)
+        {
+
+            try
+            {
+                Library.OrderManagement.BOM.TemplateAttchment GetBoMReport = new Library.OrderManagement.BOM.TemplateAttchment();
+
+                GetBoMReport.GetBOMItemReport(ItemIds, MasterOrderId);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+
+        }
+
+        [HttpGet, Authorize]
         public ActionResult LoadBomRequiredQty(string MasterOrderItemId)
         {
             try
@@ -504,14 +524,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetBOMItemReport(string ItemIds, string MasterOrderId)
+        public ActionResult GetBOMItemContractReport(string ItemIds, string ContractId)
         {
 
             try
             {
                 Library.OrderManagement.BOM.TemplateAttchment GetBoMReport = new Library.OrderManagement.BOM.TemplateAttchment();
 
-                GetBoMReport.GetBOMItemReport(ItemIds, MasterOrderId);
+                GetBoMReport.GetBOMItemContractReport(ItemIds, ContractId);
 
                 return null;
             }

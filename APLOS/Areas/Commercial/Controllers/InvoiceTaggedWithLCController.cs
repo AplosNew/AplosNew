@@ -13,8 +13,10 @@ using Library.Model.Enums;
 using Library.Model.Parties;
 using Library.Security.Core;
 using Library.Service.Finances;
+using Library.Service.Helpers;
 using Library.ViewModel.Accounts;
 using Library.ViewModel.Vouchers;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -28,21 +30,18 @@ namespace Aplos.Areas.Commercial.Controllers
     public class InvoiceTaggedWithLCController : BaseController
     {
         #region Constructor
-        private readonly ISqlRepository _sqlRepository;
+        private readonly SqlRepository _sqlRepository;
         private readonly IAutoLoanService _autoLoanService;
         clsInvoiceTagWithLc ep = new clsInvoiceTagWithLc();
-        public InvoiceTaggedWithLCController( ISqlRepository R
-           , IAutoLoanService autoLoanService
-            )
-        {
-            _sqlRepository = R;
-            _autoLoanService = autoLoanService;
-        }
-        #endregion
+		public InvoiceTaggedWithLCController()
+		{
+			_sqlRepository = new SqlRepository();
+		}
+		#endregion
 
-        #region -- Pages
-       
-        public ActionResult Aplos()
+		#region -- Pages
+
+		public ActionResult Aplos()
         {
             return View();
 		}
@@ -67,12 +66,478 @@ namespace Aplos.Areas.Commercial.Controllers
 			}
         }
 
+      
+
         [HttpGet, Authorize]
-        public ActionResult purchaseLCList()
+        public ActionResult InvoiceTaggedWithLCReportExcelFormat(ReportFormat reportFormat, string FromDate, string ToDate, bool DateRange)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "Invoice Tagged With LC";
+            var workbook = GetInvoiceTaggedWithLCReportWorkSheet(identity.CompanyGroupId, identity.CompanyId, FromDate, ToDate, DateRange);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetInvoiceTaggedWithLCReportWorkSheet(string companyGroupId, string companyId, string FromDate, string ToDate, bool DateRange)
+        {
+
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            sheet.Name = "InvoiceTaggedWithLC";
+
+
+            int ROW = 5;
+            int endCol = 1;
+            int COL = 1;
+
+
+            DataTable data = InvoiceWithTaggedLCList(companyGroupId, companyId, FromDate, ToDate, DateRange);
+
+            #region Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "Voucher No", 12, ExcelHAlign.HAlignLeft);
+            int ColVoucherNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 12, ExcelHAlign.HAlignLeft);
+            int ColPostingDate = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "DocRefNo", 15, ExcelHAlign.HAlignLeft);
+            int ColDocRefNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Vendor", 25, ExcelHAlign.HAlignLeft);
+            int ColPartyPlantName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "DueDate BaseOn", 10, ExcelHAlign.HAlignLeft);
+            int ColBaseOnDueDate = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "DueDate", 10, ExcelHAlign.HAlignLeft);
+            int ColActualDueDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "NoOfDays", 8, ExcelHAlign.HAlignLeft);
+            int ColBaseNoOfDays = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Currency", 8, ExcelHAlign.HAlignLeft);
+            int ColCurrencyCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Receivable", 15, ExcelHAlign.HAlignRight);
+            int ColReceivable = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Received", 15, ExcelHAlign.HAlignRight);
+            int ColReceived = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance", 15, ExcelHAlign.HAlignRight);
+            int ColBalance = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Source Type", 12, ExcelHAlign.HAlignLeft);
+            int ColSourceType = COL;
+
+            endCol = COL;
+            #endregion Headers
+
+            var startRow = 0;
+
+            int RowIndex = ROW;
+            startRow = ROW;
+            ROW++;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+                sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+                sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+                sheet[ROW, ColPartyPlantName].Text = data.Rows[i]["PartyPlantName"].ToString();
+                sheet[ROW, ColBaseOnDueDate].Text = data.Rows[i]["BaseOnDueDate"].ToString();
+
+                sheet[ROW, ColActualDueDate].Text = data.Rows[i]["ActualDueDate"].ToString();
+                sheet[ROW, ColBaseNoOfDays].Text = data.Rows[i]["BaseNoOfDays"].ToString();
+
+                sheet[ROW, ColCurrencyCode].Text = data.Rows[i]["CurrencyCode"].ToString();
+
+                sheet[ROW, ColReceivable].Number = Convert.ToDouble(data.Rows[i]["Receivable"].ToString());
+				sheet[ROW, ColReceivable].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+				sheet[ROW, ColReceivable].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				sheet[ROW, ColReceivable].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+				sheet[ROW, ColReceived].Number = Convert.ToDouble(data.Rows[i]["Received"].ToString());
+				sheet[ROW, ColReceived].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+				sheet[ROW, ColReceived].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				sheet[ROW, ColReceived].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+				sheet[ROW, ColBalance].Number = Convert.ToDouble(data.Rows[i]["Balance"].ToString());
+                sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                sheet[ROW, ColSourceType].Text = data.Rows[i]["SourceType"].ToString();
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.NumberFormat = "#,##0.00";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            report.CompanyHeader(ref sheet, endCol, "Invoice Tagged With LC", identity.CompanyId);
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+		public DataTable InvoiceWithTaggedLCList(string companyGroupId, string companyId, string FromDate, string ToDate, bool DateRange)
+		{
+			try
+			{
+				string DatewiseData = "";
+				if (DateRange)
+				{
+					DatewiseData = "AND IV.ActualDueDate between '" + FromDate + @"' And '" + ToDate + @"'";
+
+				}
+				else
+				{
+					DatewiseData = "AND IV.ActualDueDate <= '" + FromDate + @"'";
+				}
+				string strSQL = string.Empty;
+				strSQL = @" SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId
+									,GLGI.AccountCode AS GLGeneralInfoCode
+									,GLGI.UserName AS GLGeneralInfoName
+									,IVD.BudgetMasterId
+									,B.UserName AS BudgetName
+									,IVD.ActivityId
+									,EN.UserName AS EntityName
+									,A.UserName AS ActivityName
+									,V.VoucherNo
+									,Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate
+									,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate
+									,IV.DocRefNo
+									,IV.Narration
+									,IV.Id AS InvoiceId
+									,EN.Id EntityId
+									,VD.PlantId
+									,IVD.Id AS InvoiceDetailId
+									,IV.VoucherId
+									,Replace(CONVERT(VARCHAR(11),IV.ActualDueDate, 106), ' ', '-') ActualDueDate
+									,Replace(CONVERT(VARCHAR(11),IV.BaseOnDueDate, 106), ' ', '-') BaseOnDueDate
+									,IV.BaseNoOfDays, CASE WHEN  IV.SourceType = 'VendorInvoice' THEN 'Inbound Invoice'  
+															WHEN  IV.SourceType = 'InventoryPayable' THEN  'GRN' 
+															WHEN  IV.SourceType = 'PostInvoice' THEN  'Post Invoice' 
+														END SourceType
+									,VD.Id AS VoucherDetailId
+									,IV.CurrencyId
+									,C.Code AS CurrencyCode
+									,IV.PartyId
+									,IVD.Amount AS Receivable
+									,V.ExchangeType
+									,0 ExchangeAmount
+									,IVD.WrittenOffAmount AS Received
+									,IVD.Amount - IVD.WrittenOffAmount AS Balance
+									,IV.PartyPlantId
+									,PP.UserName AS PartyPlantName
+									,CC.CompanyCurrencyId
+									,CC.CompanyFromCurrencyId
+									,CC.ToCurrencyId
+									,CC.CompanyCurrencyRate
+									,CC.CompanyCurrencyConversion
+									,GC.CompanyGroupCurrencyId
+									,GC.CompanyGroupFromCurrencyId
+									,GC.CompanyGroupCurrencyRate
+									,GC.CompanyGroupCurrencyConversion
+									,HC.HardCurrencyId
+									,HC.HardFromCurrencyId
+									,HC.HardCurrencyRate
+									,HC.HardCurrencyConversion
+									,Particular = REPLACE(REPLACE(STUFF((
+													SELECT DISTINCT ',' + xpo.UserName
+													FROM hkp.Activity xpo
+													INNER JOIN TRN.VoucherDetail xPDAMAP ON xpo.id = xPDAMAP.ActivityId
+													WHERE VD.ActivityId != xPDAMAP.ActivityId
+														AND xPDAMAP.VoucherId = V.Id
+													FOR XML path('')
+														,TYPE
+													).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
+									,AcceptanceNo = STUFF((
+											SELECT DISTINCT ',' + XPDA.AcceptanceNo
+											FROM TRN.PurchaseDocAcceptance XPDA
+											LEFT JOIN TRN.Voucher XV ON XV.Id = XPDA.VoucherId
+											WHERE XV.Id = V.Id
+											FOR XML path('')
+												,TYPE
+											).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,LCRef = STUFF((
+											SELECT DISTINCT ',' + XLC.LCRef
+											FROM dbo.PurchaseLC XLC
+											LEFT JOIN TRN.PurchaseDocAcceptance XPDA ON XPDA.PurchaseLCId = XLC.Id
+											LEFT JOIN TRN.Voucher XV ON XV.Id = XPDA.VoucherId
+											WHERE XV.Id = V.Id
+											FOR XML path('')
+												,TYPE
+											).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,ContractNo = STUFF((
+											SELECT DISTINCT ',' + XC.ContractNo
+											FROM dbo.PurchaseLC XLC
+											JOIN TRN.PurchaseDocAcceptance XPDA ON XPDA.PurchaseLCId = XLC.Id
+											LEFT JOIN dbo.Contract XC ON XC.Id = XLC.ContractId
+											LEFT JOIN TRN.Voucher XV ON XV.Id = XPDA.VoucherId
+											WHERE XV.Id = V.Id
+											FOR XML path('')
+												,TYPE
+											).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,Customer = STUFF((
+											SELECT DISTINCT ',' + XP.UserName
+											FROM dbo.PurchaseLC XLC
+											JOIN TRN.PurchaseDocAcceptance XPDA ON XPDA.PurchaseLCId = XLC.Id
+											LEFT JOIN dbo.Contract XC ON XC.Id = XLC.ContractId
+											LEFT JOIN HKP.Party XP ON XP.Id = XC.CustomerId
+											LEFT JOIN TRN.Voucher XV ON XV.Id = XPDA.VoucherId
+											WHERE XV.Id = V.Id
+											FOR XML path('')
+												,TYPE
+											).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,MasterLCNo = STUFF((
+											SELECT DISTINCT ',' + MLC.LCRef
+											FROM dbo.PurchaseLC XLC
+											JOIN TRN.PurchaseDocAcceptance XPDA ON XPDA.PurchaseLCId = XLC.Id
+											LEFT JOIN dbo.Contract XC ON XC.Id = XLC.ContractId
+											LEFT JOIN dbo.MasterLC MLC ON MLC.Id = XC.MasterLCId
+											LEFT JOIN TRN.Voucher XV ON XV.Id = XPDA.VoucherId
+											WHERE XV.Id = V.Id
+											FOR XML path('')
+												,TYPE
+											).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								FROM [TRN].[InvoiceDetail] AS IVD
+								LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId = IV.Id
+								LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id = IV.PartyPlantId
+								LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId = IVD.Id
+								LEFT JOIN [TRN].[Voucher] AS V ON V.Id = IV.VoucherId
+								LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id = IVD.GLGeneralInfoId
+								LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id = IVD.BudgetMasterId
+								LEFT JOIN [HKP].[Budget] AS B ON B.Id = BM.BudgetId
+								LEFT JOIN [HKP].[Activity] AS A ON A.Id = IVD.ActivityId
+								LEFT JOIN [SCS].[Currency] AS C ON C.Id = IV.CurrencyId
+								LEFT JOIN [ORG].[Entity] AS EN ON EN.Id = IV.EntityId
+								LEFT JOIN (
+									SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId
+										,VDC.FromCurrencyId AS CompanyFromCurrencyId
+										,VDC.ToCurrencyId
+										,VDC.ToCurrencyRate AS CompanyCurrencyRate
+										,VDC.ToCurrencyConversion AS CompanyCurrencyConversion
+										,VDC.DrAmount AS CompanyCurrencyAmount
+										,VDC.VoucherDetailId
+									FROM [TRN].[VoucherDetailCurrency] AS VDC
+									JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId = VDC.ParallelCurrencyId
+									WHERE CPC.ParallelCurrencyType = 'CompanyCurrency'
+										AND CPC.CompanyId = '" + companyId + @"'
+									) AS CC ON CC.VoucherDetailId = VD.Id
+								LEFT JOIN (
+									SELECT VDC.ParallelCurrencyId AS CompanyGroupCurrencyId
+										,VDC.FromCurrencyId AS CompanyGroupFromCurrencyId
+										,VDC.ToCurrencyId
+										,VDC.ToCurrencyRate AS CompanyGroupCurrencyRate
+										,VDC.ToCurrencyConversion AS CompanyGroupCurrencyConversion
+										,VDC.DrAmount AS CompanyGroupCurrencyAmount
+										,VDC.VoucherDetailId
+									FROM [TRN].[VoucherDetailCurrency] AS VDC
+									JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId = VDC.ParallelCurrencyId
+									WHERE CPC.ParallelCurrencyType = 'CompanyGroupCurrency'
+										AND CPC.CompanyId = '" + companyId + @"'
+									) AS GC ON GC.VoucherDetailId = VD.Id
+								LEFT JOIN (
+									SELECT VDC.ParallelCurrencyId AS HardCurrencyId
+										,VDC.FromCurrencyId AS HardFromCurrencyId
+										,VDC.ToCurrencyId
+										,VDC.ToCurrencyRate AS HardCurrencyRate
+										,VDC.ToCurrencyConversion AS HardCurrencyConversion
+										,VDC.DrAmount AS HardCurrencyAmount
+										,VDC.VoucherDetailId
+									FROM [TRN].[VoucherDetailCurrency] AS VDC
+									JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId = VDC.ParallelCurrencyId
+									WHERE CPC.ParallelCurrencyType = 'HardCurrency'
+										AND CPC.CompanyId = '" + companyId + @"'
+									) AS HC ON HC.VoucherDetailId = VD.Id
+								WHERE IV.Archive = 0
+									AND IV.IsWrittenOff = 0
+									AND IVD.IsWrittenOff = 0
+									AND V.IsPark = 0
+									AND IVD.IsBlock = 0
+									AND IV.SourceType IN (
+										'" + SourceType.VendorInvoice + @"'
+										,'" + SourceType.SuspensePayable + @"'
+										,'" + SourceType.ServicePayable + @"'
+										,'" + SourceType.EmployeePayable + @"'
+										,'" + SourceType.PostInvoice + @"'
+										)
+									AND IV.CompanyGroupId = '" + companyGroupId + @"'
+									AND IV.CompanyId = '" + companyId + @"'
+									" + DatewiseData + @"
+								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
+								UNION ALL
+								
+								SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId
+									,GLGI.AccountCode AS GLGeneralInfoCode
+									,GLGI.UserName AS GLGeneralInfoName
+									,IVD.BudgetMasterId
+									,B.UserName AS BudgetName
+									,IVD.ActivityId
+									,EN.UserName AS EntityName
+									,A.UserName AS ActivityName
+									,V.VoucherNo
+									,Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate
+									,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate
+									,IV.DocRefNo
+									,IV.Narration
+									,IV.Id AS InvoiceId
+									,EN.Id EntityId
+									,VD.PlantId
+									,IVD.Id AS InvoiceDetailId
+									,IV.VoucherId
+									,Replace(CONVERT(VARCHAR(11),IV.ActualDueDate, 106), ' ', '-') ActualDueDate
+									,Replace(CONVERT(VARCHAR(11),IV.BaseOnDueDate, 106), ' ', '-') BaseOnDueDate
+									,IV.BaseNoOfDays, CASE WHEN  IV.SourceType = 'VendorInvoice' THEN 'Inbound Invoice'  WHEN  IV.SourceType = 'InventoryPayable' THEN  'GRN' END SourceType
+									,VD.Id AS VoucherDetailId
+									,IV.CurrencyId
+									,C.Code AS CurrencyCode
+									,IV.PartyId
+									,IVD.NetAmount AS Receivable
+									,V.ExchangeType
+									,0 ExchangeAmount
+									,IVD.WrittenOffAmount AS Received
+									,IVD.NetAmount - IVD.WrittenOffAmount AS Balance
+									, IV.PartyPlantId
+									,PP.UserName AS PartyPlantName
+									,CC.CompanyCurrencyId
+									,CC.CompanyFromCurrencyId
+									,CC.ToCurrencyId
+									,CC.CompanyCurrencyRate
+									,CC.CompanyCurrencyConversion
+									,GC.CompanyGroupCurrencyId
+									,GC.CompanyGroupFromCurrencyId
+									,GC.CompanyGroupCurrencyRate
+									,GC.CompanyGroupCurrencyConversion
+									,HC.HardCurrencyId
+									,HC.HardFromCurrencyId
+									,HC.HardCurrencyRate
+									,HC.HardCurrencyConversion
+									,Particular = REPLACE(REPLACE(STUFF((
+													SELECT DISTINCT ',' + xpo.UserName
+													FROM hkp.Activity xpo
+													INNER JOIN TRN.VoucherDetail xPDAMAP ON xpo.id = xPDAMAP.ActivityId
+													WHERE VD.ActivityId != xPDAMAP.ActivityId
+														AND xPDAMAP.VoucherId = V.Id
+													FOR XML path('')
+														, TYPE
+													).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
+									,NULL AcceptanceNo
+									, NULL LCRef
+									,NULL ContractNo
+									, NULL Customer
+									,NULL MasterLCNo
+								FROM[TRN].[InvoiceDetail] AS IVD
+								LEFT JOIN[TRN].[Invoice] AS IV ON IVD.InvoiceId = IV.Id
+								LEFT JOIN[HKP].[PartyPlant] AS PP ON PP.Id = IV.PartyPlantId
+								LEFT JOIN[TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId = IVD.Id
+								LEFT JOIN[TRN].[Voucher] AS V ON V.Id = VD.VoucherId
+								LEFT JOIN[HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id = IVD.GLGeneralInfoId
+								LEFT JOIN[MST].[BudgetMaster] AS BM ON BM.Id = IVD.BudgetMasterId
+								LEFT JOIN[HKP].[Budget] AS B ON B.Id = BM.BudgetId
+								LEFT JOIN[HKP].[Activity] AS A ON A.Id = IVD.ActivityId
+								LEFT JOIN[SCS].[Currency] AS C ON C.Id = IV.CurrencyId
+								LEFT JOIN[ORG].[Entity] AS EN ON EN.Id = IV.EntityId
+								LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IV.InventoryReceiveId
+								LEFT JOIN(
+									SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId
+										, VDC.FromCurrencyId AS CompanyFromCurrencyId
+										, VDC.ToCurrencyId
+										, VDC.ToCurrencyRate AS CompanyCurrencyRate
+										, VDC.ToCurrencyConversion AS CompanyCurrencyConversion
+										, VDC.DrAmount AS CompanyCurrencyAmount
+										, VDC.VoucherDetailId
+									FROM [TRN].[VoucherDetailCurrency] AS VDC
+									JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId = VDC.ParallelCurrencyId
+									WHERE CPC.ParallelCurrencyType = 'CompanyCurrency'
+										AND CPC.CompanyId = '" + companyId + @"'
+									) AS CC ON CC.VoucherDetailId = VD.Id
+								LEFT JOIN(
+									SELECT VDC.ParallelCurrencyId AS CompanyGroupCurrencyId
+										, VDC.FromCurrencyId AS CompanyGroupFromCurrencyId
+										, VDC.ToCurrencyId
+										, VDC.ToCurrencyRate AS CompanyGroupCurrencyRate
+										, VDC.ToCurrencyConversion AS CompanyGroupCurrencyConversion
+										, VDC.DrAmount AS CompanyGroupCurrencyAmount
+										, VDC.VoucherDetailId
+									FROM [TRN].[VoucherDetailCurrency] AS VDC
+									JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId = VDC.ParallelCurrencyId
+									WHERE CPC.ParallelCurrencyType = 'CompanyGroupCurrency'
+										AND CPC.CompanyId = '" + companyId + @"'
+									) AS GC ON GC.VoucherDetailId = VD.Id
+								LEFT JOIN(
+									SELECT VDC.ParallelCurrencyId AS HardCurrencyId
+										, VDC.FromCurrencyId AS HardFromCurrencyId
+										, VDC.ToCurrencyId
+										, VDC.ToCurrencyRate AS HardCurrencyRate
+										, VDC.ToCurrencyConversion AS HardCurrencyConversion
+										, VDC.DrAmount AS HardCurrencyAmount
+										, VDC.VoucherDetailId
+									FROM [TRN].[VoucherDetailCurrency] AS VDC
+									JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId = VDC.ParallelCurrencyId
+									WHERE CPC.ParallelCurrencyType = 'HardCurrency'
+										AND CPC.CompanyId = '" + companyId + @"'
+									) AS HC ON HC.VoucherDetailId = VD.Id
+								WHERE IV.Archive = 0
+									AND IV.IsWrittenOff = 0
+									AND IVD.IsWrittenOff = 0
+									AND V.IsPark = 0
+									AND IVD.IsBlock = 0
+									AND IV.SourceType IN('" + SourceType.InventoryPayable + @"')
+									AND IV.CompanyGroupId = '" + companyGroupId + @"'
+									AND IV.CompanyId = '" + companyId + @"'
+									AND IR.PurchaseDocumentAcceptanceId IS NULL
+									" + DatewiseData + @"
+								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)";
+				return _sqlRepository.GetDataTable(strSQL);
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+			}
+
+		}
+
+
+		[HttpGet, Authorize]
+        public ActionResult GetpurchaseLCList()
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 string sql = @"
                         SELECT 
@@ -92,7 +557,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						LEFT JOIN SCS.Currency CN ON CN.Id=PLC.CurrencyId
 						LEFT JOIN [dbo].[PurchaseLCVersion] PLCV ON PLCV.PurchaseLCId=PLC.Id  
 						AND PLCV.Id=(SELECT TOP 1 Id FROM [dbo].[PurchaseLCVersion] WHERE PurchaseLCId=PLC.Id  ORDER BY [Version] ASC) Where PLC.PlantId='" + identity.PlantId + "'   ORDER BY PLC.AddedDate DESC";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(_sqlRepository.GetDataCollection(sql,null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

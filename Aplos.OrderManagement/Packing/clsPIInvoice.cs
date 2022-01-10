@@ -28,7 +28,7 @@ namespace Library.OrderManagement.Packing
             {
                 var str = @"SELECT *
                                 FROM (
-                                	SELECT IPL.CommercialInvoiceMasterId Id
+                                	SELECT IPL.CommercialInvoiceMasterId Id,plm.[Description],plm.Remarks
                                 		,plm.Id PackingId
                                 		,p.UserName Customer
                                 		,p.id CustomerId
@@ -36,12 +36,19 @@ namespace Library.OrderManagement.Packing
                                 		,c.Id CurrencyId
                                 		,FORMAT(plm.AddedDate, 'dd-MMM-yyyy') AddedDate
                                         ,e.UserName Entity
+                                        ,pm.RefNo
+                                        ,B.UserName Buyer
+                                        ,PM.ShippingMark
+                                        ,PM.InvoicingByAddress
+                                        ,PM.DeliveryByAddress
+                                        ,FORMAT(PM.PIDate,'dd-MMM-yyyy')PIDate,pm.PINo
                                 	FROM PIPackingListMaster AS plm
                                 	LEFT JOIN PIMaster AS pm ON pm.Id = plm.PImasterId
                                 	LEFT JOIN hkp.Party p ON p.Id = pm.CustomerId
                                 	LEFT JOIN [SCS].[Currency] AS C ON C.Id = pm.CurrencyId
                                 	LEFT JOIN CommercialInvoicePackingList IPL ON IPL.PIPackingListMasterId = PLM.Id
                                     LEFT JOIN ORG.Entity AS e ON e.Id=plm.EntityId
+									LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
                                 	) d
                                 WHERE d.Id IS NULL";
 
@@ -58,18 +65,19 @@ namespace Library.OrderManagement.Packing
             {
                 var str = @"SELECT *
                                 FROM (
-                                	SELECT IPL.CommercialInvoiceMasterId ,IPL.Id
+                                	SELECT IPL.CommercialInvoiceMasterId ,IPL.Id,plm.[Description],plm.Remarks
                                 		,plm.Id PackingId
                                 		,p.UserName Customer
                                 		,p.id CustomerId
                                 		,c.Code Currency
-                                		,c.Id CurrencyId
+                                		,c.Id CurrencyId,e.UserName Entity
                                 		,FORMAT(plm.AddedDate, 'dd-MMM-yyyy') AddedDate
                                 	FROM PIPackingListMaster AS plm
                                 	LEFT JOIN PIMaster AS pm ON pm.Id = plm.PImasterId
                                 	LEFT JOIN hkp.Party p ON p.Id = pm.CustomerId
                                 	LEFT JOIN [SCS].[Currency] AS C ON C.Id = pm.CurrencyId
                                 	LEFT JOIN CommercialInvoicePackingList IPL ON IPL.PIPackingListMasterId = PLM.Id
+                                    LEFT JOIN ORG.Entity AS e ON e.Id=plm.EntityId
                                 	) d
                                 WHERE d.CommercialInvoiceMasterId = '" + CommercialInvoiceMasterId + @"' ";
 
@@ -158,11 +166,11 @@ namespace Library.OrderManagement.Packing
                                         	,MGM.UserName AS MaterialGroup
                                         	,p.[Description]
                                         	,FORMAT(p.DeliveryDate, 'dd-MMM-yyyy') DeliveryDate
-                                        	,p.Quantity
+                                        	,M.PIQuantity Quantity
                                         	,uom.UserName AS UOM
                                         	,p.Rate
-                                        	,p.Amount
-                                        	,p.Amount NetAmount
+                                        	,(M.PIQuantity*p.Rate) Amount
+                                        	,(M.PIQuantity*p.Rate) NetAmount
                                             ,SUM(cit.Amount)TaxAmount
                                             ,p.HSNCodeId
                                             ,c.Id
@@ -175,7 +183,7 @@ namespace Library.OrderManagement.Packing
                                         LEFT JOIN CommercialInvoicePIMaterial c ON c.PIPackingListMaterialId=m.Id
                                         LEFT JOIN CommercialInvoiceTaxes AS cit ON cit.CommercialInvoicePIMaterialId=c.Id
                                         WHERE PM.Id " + PackingId + @" 
-                                        GROUP BY M.Id,p.Id,MGM.UserName,p.[Description],p.DeliveryDate,p.Quantity,uom.UserName 
+                                        GROUP BY M.Id,p.Id,MGM.UserName,p.[Description],p.DeliveryDate,M.PIQuantity,uom.UserName 
                                         ,p.Rate,p.Amount,p.HSNCodeId,c.Id,c.CommercialInvoiceMasterId";
                 return _sqlRepository.GetDataCollection(_sql);
             }
@@ -184,11 +192,46 @@ namespace Library.OrderManagement.Packing
                 throw ex;
             }
         }
-        public IEnumerable<object> GetTaxCategoryList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string PODate,string Id)
+        public IEnumerable<object> GetTaxCategoryList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string PODate, string Id)
         {
             try
             {
-                var sql = @"SELECT HN.Code HSNCode
+                var sql = "";
+                if (string.IsNullOrEmpty(Id) || Id == "null")
+                {
+                    sql = @"DECLARE @receiveId varchar(100)='" + receiveId + @"'
+                                  , @partyState varchar(30)
+                                  , @partyCountry varchar(10)
+                                  , @plantState varchar(30)
+                                  , @plantCountry varchar(10)
+                                  , @plantId varchar(30)='" + plantId + @"'
+                                  , @hsnCodeId varchar(30)='" + hsnCodeId + @"'
+                    SET @partyCountry =(SELECT AM.CountryId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id WHERE PP.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @partyState =(SELECT AM.StateId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id WHERE PP.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+
+                    SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SELECT ct.Id, TVD.TaxCategoryId, HP.HSNCodeId, HN.Code AS HSNCode, TC.UserName, HP.[Percentage] AS [Percentage], NULL TotalAmount
+                    FROM [MST].[TaxVariantDetail] AS TVD
+                    JOIN [MST].[TaxVariant] AS TV ON TVD.TaxVariantId=TV.Id
+                    JOIN [MST].[TaxCategory] AS TC ON TVD.TaxCategoryId=TC.Id
+                    --LEFT JOIN (SELECT * FROM [MST].[HSNTaxPercentage] WHERE HSNCodeId=@hsnCodeId) AS HP ON HP.TaxCategoryId=TC.Id
+					LEFT JOIN (SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY TaxCategoryId, HSNCodeId ORDER BY EffectiveDate DESC) AS RN
+								FROM [MST].[HSNTaxPercentage] WHERE CountryId=@plantCountry AND HSNCodeId=@hsnCodeId AND convert(DATE, EffectiveDate)<='" + PODate + @"') AS TBL WHERE RN=1) AS HP ON HP.TaxCategoryId=TC.Id
+
+                    LEFT JOIN [HKP].[HSNCode] AS HN ON HP.HSNCodeId=HN.Id
+                    LEFT JOIN CommercialInvoiceTaxes ct ON ct.TaxCategoryId = HP.TaxCategoryId AND ct.HSNCodeId=HN.Id
+                    WHERE TV.CompanyGroupId='" + companyGroupId + @"' AND TV.CountryId=@plantCountry --AND HP.HSNCodeId=@hsnCodeId
+                    AND TV.TaxFor=CASE WHEN @partyCountry=@plantCountry THEN '" + TaxFor.DomesticSales + @"'
+				                        WHEN @partyCountry<>@plantCountry THEN '" + TaxFor.OverseasSales + @"' END
+                    AND (TV.Different=CASE WHEN @partyCountry=@plantCountry AND @partyState=@plantState AND TV.DifferentIn='State' THEN 'Same'
+					                       WHEN @partyCountry=@plantCountry AND @partyState<>@plantState AND TV.DifferentIn='State' THEN 'Different' END
+	                    OR TV.Different IS NULL)
+                    ORDER BY TC.[Sequence]";
+                }
+                else
+                {
+                    sql = @"SELECT HN.Code HSNCode
                                 	,t.HSNCodeId
                                 	,t.Id
                                 	,t.Percentage
@@ -200,7 +243,9 @@ namespace Library.OrderManagement.Packing
                                 LEFT JOIN CommercialInvoicePIMaterial AS M ON M.Id = t.CommercialInvoicePIMaterialId
                                 LEFT JOIN [HKP].[HSNCode] AS HN ON HN.Id = t.HSNCodeId
                                 JOIN [MST].[TaxCategory] AS TC ON TC.Id = T.TaxCategoryId
-                                WHERE M.Id = '"+ Id + @"'";
+                                WHERE M.Id = '" + Id + @"'";
+                }
+
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -210,7 +255,7 @@ namespace Library.OrderManagement.Packing
         }
         public List<Dictionary<string, object>> GetSalesTaxData(string companyGroupId, string companyId, string plantId, string salesId)
         {
-            var cmdText = @"SELECT c.Id,c.CommercialInvoiceMasterId,c.ServiceMasterId,sm.UserName ChargeName ,c.Amount,c.TaxAmount,(c.Amount+c.TaxAmount)TaxAndTotal,c.Amount TransactionAmount
+            var cmdText = @"SELECT c.Id,c.CommercialInvoiceMasterId,c.ServiceMasterId,sm.UserName ChargeName ,c.Amount,c.TaxAmount,(c.Amount+c.TaxAmount)TaxAndTotal,c.Amount TransactionAmount,c.Amount NetAmount
                                 FROM  CommercialInvoiceCharges c 
                                 LEFT JOIN HKP.ServiceMaster AS sm ON sm.Id=c.ServiceMasterId
 								WHERE c.CommercialInvoiceMasterId='" + salesId + @"' ";
@@ -532,43 +577,46 @@ namespace Library.OrderManagement.Packing
                 {
                     foreach (var item in CommercialInvoicePIMaterial)
                     {
-                        foreach (var y in item.TaxList)
+                        if (item.TaxList != null)
                         {
-                            dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + y.Id + "'  ";
-                            if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                            foreach (var y in item.TaxList)
                             {
-                                dr = dsTaxes.Tables[0].NewRow();
+                                dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + y.Id + "'  ";
+                                if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                                {
+                                    dr = dsTaxes.Tables[0].NewRow();
 
-                                dr["Id"] = "T" + TempId + count++;
-                                dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
-                                dr["CommercialInvoicePIMaterialId"] = item.Id;
-                                dr["CommercialInvoiceChargesId"] = DBNull.Value;
-                                dr["TaxCategoryId"] = y.TaxCategoryId;
-                                dr["HSNCodeId"] = y.HSNCodeId;
-                                dr["Percentage"] = y.Percentage;
-                                dr["Amount"] = y.TotalAmount;
+                                    dr["Id"] = "T" + TempId + count++;
+                                    dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
+                                    dr["CommercialInvoicePIMaterialId"] = item.Id;
+                                    dr["CommercialInvoiceChargesId"] = DBNull.Value;
+                                    dr["TaxCategoryId"] = y.TaxCategoryId;
+                                    dr["HSNCodeId"] = y.HSNCodeId;
+                                    dr["Percentage"] = y.Percentage;
+                                    dr["Amount"] = y.TotalAmount;
 
-                                dr["AddedBy"] = identity.Name;
-                                dr["AddedDate"] = DateTime.Now;
-                                dr["AddedFromIP"] = identity.IPAddress;
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["UpdatedDate"] = DateTime.Now;
-                                dr["UpdatedFromIP"] = identity.IPAddress;
-                                dsTaxes.Tables[0].Rows.Add(dr);
+                                    dr["AddedBy"] = identity.Name;
+                                    dr["AddedDate"] = DateTime.Now;
+                                    dr["AddedFromIP"] = identity.IPAddress;
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = identity.IPAddress;
+                                    dsTaxes.Tables[0].Rows.Add(dr);
 
-                            }
-                            else
-                            {
-                                dr = dsTaxes.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["TaxCategoryId"] = y.TaxCategoryId;
-                                dr["HSNCodeId"] = y.HSNCodeId;
-                                dr["Percentage"] = y.Percentage;
-                                dr["Amount"] = y.TotalAmount;
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["UpdatedDate"] = DateTime.Now;
-                                dr["UpdatedFromIP"] = identity.IPAddress;
-                                dr.EndEdit();
+                                }
+                                else
+                                {
+                                    dr = dsTaxes.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["TaxCategoryId"] = y.TaxCategoryId;
+                                    dr["HSNCodeId"] = y.HSNCodeId;
+                                    dr["Percentage"] = y.Percentage;
+                                    dr["Amount"] = y.TotalAmount;
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = identity.IPAddress;
+                                    dr.EndEdit();
+                                }
                             }
                         }
                     }
@@ -580,44 +628,49 @@ namespace Library.OrderManagement.Packing
                 {
                     foreach (var item in Charge)
                     {
-                        foreach (var x in item.ServiceTaxList)
+                        if (item.ServiceTaxList != null)
                         {
-                            dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + x.Id + "'  ";
-                            if (dsTaxes.Tables[0].DefaultView.Count == 0)
+
+
+                            foreach (var x in item.ServiceTaxList)
                             {
-                                dr = dsTaxes.Tables[0].NewRow();
-                                dr["Id"] = "T" + TempId + count++;
-                                dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
-                                dr["CommercialInvoicePIMaterialId"] = DBNull.Value;
-                                dr["CommercialInvoiceChargesId"] = item.Id;
-                                dr["TaxCategoryId"] = x.TaxCategoryId;
-                                dr["HSNCodeId"] = x.HSNCodeId;
-                                dr["Percentage"] = x.Percentage;
-                                dr["Amount"] = x.Amount;
+                                dsTaxes.Tables[0].DefaultView.RowFilter = "Id = '" + x.Id + "'  ";
+                                if (dsTaxes.Tables[0].DefaultView.Count == 0)
+                                {
+                                    dr = dsTaxes.Tables[0].NewRow();
+                                    dr["Id"] = "T" + TempId + count++;
+                                    dr["CommercialInvoiceMasterId"] = item.CommercialInvoiceMasterId;
+                                    dr["CommercialInvoicePIMaterialId"] = DBNull.Value;
+                                    dr["CommercialInvoiceChargesId"] = item.Id;
+                                    dr["TaxCategoryId"] = x.TaxCategoryId;
+                                    dr["HSNCodeId"] = x.HSNCodeId;
+                                    dr["Percentage"] = x.Percentage;
+                                    dr["Amount"] = x.Amount;
 
-                                dr["AddedBy"] = identity.Name;
-                                dr["AddedDate"] = DateTime.Now;
-                                dr["AddedFromIP"] = identity.IPAddress;
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["UpdatedDate"] = DateTime.Now;
-                                dr["UpdatedFromIP"] = identity.IPAddress;
-                                dsTaxes.Tables[0].Rows.Add(dr);
+                                    dr["AddedBy"] = identity.Name;
+                                    dr["AddedDate"] = DateTime.Now;
+                                    dr["AddedFromIP"] = identity.IPAddress;
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = identity.IPAddress;
+                                    dsTaxes.Tables[0].Rows.Add(dr);
 
-                            }
+                                }
 
-                            else
-                            {
-                                dr = dsTaxes.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["TaxCategoryId"] = x.TaxCategoryId;
-                                dr["HSNCodeId"] = x.HSNCodeId;
-                                dr["Percentage"] = x.Percentage;
-                                dr["Amount"] = x.Amount;
+                                else
+                                {
+                                    dr = dsTaxes.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["TaxCategoryId"] = x.TaxCategoryId;
+                                    dr["HSNCodeId"] = x.HSNCodeId;
+                                    dr["Percentage"] = x.Percentage;
+                                    dr["Amount"] = x.Amount;
 
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["UpdatedDate"] = DateTime.Now;
-                                dr["UpdatedFromIP"] = identity.IPAddress;
-                                dr.EndEdit();
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = identity.IPAddress;
+                                    dr.EndEdit();
+                                }
                             }
                         }
                     }
@@ -637,6 +690,69 @@ namespace Library.OrderManagement.Packing
             }
         }
 
+        public void SaveAdditinalTax(string MasterId, decimal BooksCurrencyBaseRate, OTSBD.IdentityParameter para, List<Dictionary<string, object>> UserSendData)
+        {
+
+            try
+            {
+                string sql = "select * from CommercialInvoiceAdditionalTax where CommercialInvoiceMasterId='" + MasterId + "'";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
+
+                for (int i = 0; i < UserSendData.Count; i++)
+                {
+                    dsDetail.Tables[0].DefaultView.RowFilter = "TaxCodeId='" + UserSendData[i]["TaxCodeId"].ToString() + "'";
+                    if (dsDetail.Tables[0].DefaultView.Count == 0)
+                    {
+
+                        DataRow dr = dsDetail.Tables[0].NewRow();
+                        dr["Id"] = GetAddiTaxId();
+                        dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
+                        dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
+                        dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
+                        dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
+                        dr["BooksCurrencyTaxAmount"] = Math.Round(Convert.ToDecimal(UserSendData[i]["TaxAmount"]) * BooksCurrencyBaseRate, 2);
+                        dr["AddedBy"] = para.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = para.AddedFromIP;
+                        dr["CommercialInvoiceMasterId"] = MasterId.ToString();
+                        dsDetail.Tables[0].Rows.Add(dr);
+                    }
+
+                }
+
+
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsDetail);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private string GetAddiTaxId()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CommercialInvoiceAdditionalTax", out sID);
+            return sID;
+        }
+        public IEnumerable<object> GetAdvanceTaxInfo(string SalesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
+                sql = @"Select a.Id,a.TaxCodeId,a.Percentage ValueOfFixed,a.TaxAmount,a.AddedBy,a.AddedDate,a.AddedFromIP,b.UserName TaxName,CommercialInvoiceMasterId
+						from CommercialInvoiceAdditionalTax a
+						left join [mst].[TAXCode] b ON b.Id=a.TaxCodeId where a.CommercialInvoiceMasterId='" + SalesId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
 

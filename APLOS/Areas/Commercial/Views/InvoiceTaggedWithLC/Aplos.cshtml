@@ -59,8 +59,8 @@
                         <div e-column e-type="date" e-field="ActualDueDate" e-headertext="DueDate" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
                         <div e-column e-type="string" e-field="BaseNoOfDays" e-headertext="NoOfDays" e-width="80"></div>
                         <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
-                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Receivable" e-headertext="Amount" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Received" e-headertext="SetOff" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Receivable" e-headertext="Receivable" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Received" e-headertext="Received" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="string" e-field="SourceType" e-headertext="Source Type" e-width="100"></div>
                     </div>
@@ -68,11 +68,33 @@
                 <script type="text/template" id="checkMasterLC">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-enabled="{{data.Received == 0.00?'true':'false'}}" e-change="$parent.Calculate" e-checked="data.isSelected" />
                 </script>
+
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        @*<li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>*@
+                        <li><button ng-click="InvoiceTaggedWithLCReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    </ul>
+                </div>
             </div>
 
         </div>
         <br />
         <div class="row">
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group">
+                    <div class="col-sm-12 radio">
+                        <label>
+                            <input type="radio" name="IsLoan" ng-model="LcModel.IsLoan" value=true ng-change="Calculate()">
+                            <span class="cr" tabindex="1"><i class="cr-icon"></i></span>With Loan
+                        </label>
+                        <label>
+                            <input type="radio" name="IsLoan" ng-model="LcModel.IsLoan" value=false ng-change="ChangeValue()">
+                            <span class="cr" tabindex="2"><i class="cr-icon"></i></span>Without Loan
+                        </label>
+                    </div>
+                </div>
+
+            </div>
             <div class="col-md-12">
                 <div class="col-md-4">
                     <div class="form-group">
@@ -102,7 +124,7 @@
                             <input type="text" ng-disabled="true" ng-model="LcModel.LCDate" class="form-control" maxlength="100" tabindex="2">
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" ng-show="LcModel.IsLoan=='true'">
                         <label class="col-sm-4 control-label">Loan Amount</label>
                         <div class="col-sm-8">
                             <input type="number" class="input ejinputtext form-control" ng-disabled="true" ng-model="LcModel.LoanAmount" maxlength="100" tabindex="2">
@@ -122,7 +144,7 @@
                             <input type="text" ng-disabled="true" ng-model="LcModel.OpeningBank" class="form-control" maxlength="100" tabindex="2">
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" ng-show="LcModel.IsLoan=='true'">
                         <label class="col-sm-4 control-label">Loan No</label>
                         <div class="col-sm-8">
                             <input type="text" class="input ejinputtext form-control" ng-model="LcModel.LoanNo" maxlength="100" tabindex="2">
@@ -142,7 +164,7 @@
                             <input type="text" ng-disabled="true" ng-model="LcModel.Amount" class="form-control" maxlength="100" tabindex="2">
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" ng-show="LcModel.IsLoan=='true'">
                         <label class="col-sm-4 control-label">Loan Date</label>
                         <div class="col-sm-8">
                             <input type="text" class="datepicker form-control" datepicker ng-model="LcModel.LoanDate" width="80" />
@@ -156,6 +178,7 @@
                     </ul>
                 </div>
             </div>
+            
         </div>
     </div>
 

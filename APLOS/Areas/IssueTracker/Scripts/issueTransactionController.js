@@ -2,7 +2,7 @@
 issueTransactionController.$inject = ['cboService', 'commonMessage', '$window', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'fileReader'];
 function issueTransactionController(cboService, commonMessage, $window, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, fileReader) {
 
-
+    $scope.CompanyName = $rootScope.companyName;
     $rootScope.title = 'Issue Transaction';
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -1987,7 +1987,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
 
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2067,7 +2067,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2088,7 +2088,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2109,7 +2109,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2130,7 +2130,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2151,7 +2151,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2172,7 +2172,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2193,7 +2193,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2214,7 +2214,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'employees/EmployeeInformation/GetEmployeeListByCompany';
+                url = 'employees/EmployeeInformation/GetEmployeeListByCompanyGroup';
             }
             else {
                 url = $scope.employeeUrl;
@@ -2392,6 +2392,21 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
 
 
     // #region Customer popup
+    $scope.partySearchByList = [
+        {
+            'name': 'Customer',
+            'value': 'PartyName'
+        },
+        {
+            'name': 'Account Group',
+            'value': 'PartyAccountGroupName'
+        },
+        {
+            'name': 'Currency',
+            'value': 'CurrencyCode'
+        }
+    ];
+
     $scope.partyType = 'Customer';
     $scope.partyParameters = {
         limit: 10
@@ -2408,7 +2423,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
     $scope.showPartyPopUp = function () {
         $scope.partyList = [];
         $scope.getPartyList = function (pageno) {
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList/' + 'GetCompanyPartyDataList?companyId=' + $window.companyId + '&PlantId=' + $window.plantId + '&partyType=' + $scope.partyType;
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList?companyId=' + $window.companyId + '&PlantId=' + $window.plantId + '&partyType=' + $scope.partyType;
             baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
                 .then(function (result) {
                     $scope.partyList = result.Rows;
@@ -2439,17 +2454,6 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         $scope.selectedParty = id;
     };
     //#endregion 
-
-    //$scope.filedata = [];
-    //$("#uploadBtn").change(function () {
-    //    $scope.filedata = this.files[0];
-    //});
-
-    //document.getElementById("uploadBtn").onchange = function () {
-    //    var filename = document.getElementById("uploadFile").value = this.value;
-    //    var res = filename.replace(/C:\\fakepath\\/i, '');
-    //    document.getElementById("uploadFile").value = res;
-    //};
 
 
     $scope.issueTransactionDocuments = [];

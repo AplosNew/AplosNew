@@ -14,6 +14,7 @@ namespace Library.Service.Banks
         IWorkbook GetCashLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string cashMasterId, string fromDate, string toDate);
 
         IWorkbook GetCashBookReport(string companyGroupId, string companyId, string plantId, string plantName, string cashMasterId, string fromDate, string toDate);
+        
         IWorkbook GetAdvanceCashBookReport(string companyGroupId, string companyId, string plantId, string plantName, string cashMasterId, string fromDate, string toDate);
 
         IWorkbook GetCashReceiptPaymentReport(string companyGroupId, string companyId, string plantId, string plantName, string cashMasterId, string fromDate, string toDate);
