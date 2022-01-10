@@ -651,20 +651,28 @@ namespace Library.Service.Productions
                     AuditService.AddedLog(ps);
                     var pp = GetProductionPeriodData(ps.AddedDate);
 
-                    if (pp.Tables[0].Rows.Count > 1)
+                    //if (pp.Tables[0].Rows.Count > 1)
+                    //{
+                    //    throw new CustomException("Production Booking Period can not assign in multiple time.");
+                    //}
+                    //else
+                    //{
+                    //    if (pp.Tables[0].Rows.Count > 0)
+                    //    {
+                    //        ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
+                    //    }
+                    //    else
+                    //    {
+                    //        throw new CustomException("There is no Production Booking Period.");
+                    //    }
+                    //}
+                    if (pp.Tables[0].Rows.Count > 0)
                     {
-                        throw new CustomException("Production Booking Period can not assign in multiple time.");
+                        ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
                     }
                     else
                     {
-                        if (pp.Tables[0].Rows.Count > 0)
-                        {
-                            ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
-                        }
-                        else
-                        {
-                            throw new CustomException("There is no Production Booking Period.");
-                        }
+                        throw new CustomException("There is no Production Booking Period.");
                     }
 
                     base.Insert(ps);
