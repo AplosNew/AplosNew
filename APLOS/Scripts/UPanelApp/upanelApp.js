@@ -996,6 +996,7 @@ var upanelApp = angular
     .controller('POMappingWithPIController', POMappingWithPIController)
     .controller('GeneralWasteController', GeneralWasteController)
     .controller("issueTransactionController", issueTransactionController)
+    .controller("EmployeeShiftUpdatesController", EmployeeShiftUpdatesController)
 
 
     .config(AccessControllerConfig)
