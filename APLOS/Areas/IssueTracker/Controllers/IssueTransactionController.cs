@@ -684,7 +684,7 @@ namespace Aplos.Areas.IssueTracker.Controllers
         //}
         #endregion end issuetransactionCreation
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult IssueTransactionCreate(IssueTransaction issueTransactionNew, List<Dictionary<string, object>> buyers)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1517,7 +1517,7 @@ namespace Aplos.Areas.IssueTracker.Controllers
             return Json(_issueTransactionService.GetById(issueTransactionId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult Edit(IssueTransaction model)
         {
             issueTransactionId = model.Id;
@@ -1525,7 +1525,7 @@ namespace Aplos.Areas.IssueTracker.Controllers
             return Json(new { IssueTransaction = model, Message = AplosMessage.Updated });
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult Delete(string id)
         {
 

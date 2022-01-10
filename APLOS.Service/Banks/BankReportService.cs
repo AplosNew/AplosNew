@@ -1101,7 +1101,11 @@ namespace Library.Service.Banks
                     if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
                         reportUtility.SetText(ref sheet, row, 10, Convert.ToDouble(obVal[0]["CompanyCurrencyOB"]), true);
                     sheet.Range[row, 10].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                    colLast = 11;
+                    colLast = 8;
+                    if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
+                    {
+                        colLast = 11;
+                    }
                     sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
                 }
                 sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -1145,7 +1149,7 @@ namespace Library.Service.Banks
                         }
                         sheet.Range[row, 7].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(7) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(5) + row + "-" + reportUtility.GetColumnNameForXls(6) + row + ")";
                         sheet.Range[row, 7].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-
+                        colLast = 8;
                         // Base currency checking
                         if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
                         {
@@ -1153,8 +1157,9 @@ namespace Library.Service.Banks
                             reportUtility.SetText(ref sheet, row, 9, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
                             sheet.Range[row, 10].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(10) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(8) + row + "-" + reportUtility.GetColumnNameForXls(9) + row + ")";
                             sheet.Range[row, 10].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                            colLast = 11;
                         }
-                        colLast = 11;
+                        
                         sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
                         sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         sheet.Range[row, colLast].VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -1173,11 +1178,13 @@ namespace Library.Service.Banks
                 sheet.Range[row, 7].Formula = "=" + reportUtility.GetColumnNameForXls(7) + (row - 1);
                 sheet.Range[row, 7].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                 sheet.Range[row, 7].CellStyle.Font.Bold = true;
+                colLast = 8;
                 if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
                 {
                     sheet.Range[row, 10].Formula = "=" + reportUtility.GetColumnNameForXls(10) + (row - 1);
                     sheet.Range[row, 10].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                     sheet.Range[row, 10].CellStyle.Font.Bold = true;
+                    colLast = 11;
                 }
                 sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
                 sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignCenter;

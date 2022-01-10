@@ -436,6 +436,14 @@ namespace Library.Service.Setups
             return _sqlRepository.GetDataCollection(_sql);
         }
 
+        public IEnumerable<object> GetAttdnBonusHeaderData(string plantId)
+        {
+            var _sql = @"SELECT ah.Id,ah.UserName FROM  AttdnBonusPlantChild ac
+            left join AttdnBonusHeader ah on ac.HeaderId=ah.id
+            where ac.PlantId='"+plantId+"'";
+            return _sqlRepository.GetDataCollection(_sql);
+        }
+
         public IEnumerable<object> GetBonusPolicyMasterCbo(string plantId, string companyGroupId)
         {
             
