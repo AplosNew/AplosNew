@@ -326,10 +326,10 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.POQTYAllocation = function (args) {
         try {
             $scope.POPopUpHeader = args.data;
-            //if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.EntityId))
-            //    throw "Please select Entity.";
-            //if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Description))
-            //    throw "Please add Description.";
+            if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.EntityId))
+                throw "Please select Entity.";
+            if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Description))
+                throw "Please add Description.";
             //if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Remarks))
             //    throw "Please add Remarks.";
             $scope.AllocatedPIQty = args.data.AllocatedQty;

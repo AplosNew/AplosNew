@@ -114,7 +114,7 @@
     <Compile Include="InventoryManagements\MaterialMovementPurposeService.cs" />
     <Compile Include="InventoryManagements\InventoryIssueService.cs" />
     <Compile Include="InventoryManagements\RequisitionService.cs" />
-    <Compile Include="InventoryManagements\PurchaseOrderService.cs" />
+    <Compile Include="InventoryManagements\PurchaseOrderQueryService.cs" />
     <Compile Include="InventoryManagements\MaterialCommonService.cs" />
     <Compile Include="InventoryManagements\GatePassAndGateEntryService.cs" />
     <Compile Include="InventoryManagements\InventoryReceiveService.cs" />

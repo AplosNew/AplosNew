@@ -161,8 +161,10 @@
                 <thead>
                     <tr>
                         <th>Leave Name</th>
+                        <th>From</th>
+                        <th>To</th>
                         <th>Brought Forward</th>
-                        <th>Current Year Allocation</th>
+                        <th>Current Period Allocation</th>
                         <th>Leave Days Allowed</th>
                         <th>Applied</th>
                         <th>Availed</th>
@@ -173,6 +175,8 @@
                 <tbody>
                     <tr ng-repeat="x in LeaveBalanceList">
                         <td>{{x.LeaveName}}</td>
+                        <td>{{x.FromDate}}</td>
+                        <td>{{x.ToDate}}</td>
                         <td>{{x.BroughtForward}}</td>
                         <td>{{x.CurrentAllocation}}</td>
                         <td>{{x.LeaveDays}}</td>
