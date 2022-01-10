@@ -101,10 +101,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1 = 2", out dsMaster, false, "1");
 
-                while (dsMaster.Tables[0].DefaultView.Count > 0)
-                {
-                    dsMaster.Tables[0].DefaultView[0].Delete();
-                }
+                //while (dsMaster.Tables[0].DefaultView.Count > 0)
+                //{
+                //    dsMaster.Tables[0].DefaultView[0].Delete();
+                //}
 
                 string _Id = "";
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -116,7 +116,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out _Id);
                         indexa++;
-                        jj["Id"] = indexa;
+                        jj["Id"] = _Id;
 
                         AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate);
                     }
