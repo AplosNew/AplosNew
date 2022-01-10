@@ -9303,9 +9303,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             ,KK.ShiftDuration,KK.ShiftFullDayDuration
                             ,KK.Duration
 							 AS WorkDuration
-                            ,KK.OverStay AS WorkTimeDifferent
-                            ,DATEDIFF(HOUR,KK.ShiftInTime ,KK.ShiftOutTime ) ShiftDurationHour
-                            ,DATEDIFF(HOUR,KK.InTime ,KK.OutTime )WorkDurationHour
+                            ,KK.OverStay AS WorkTimeDifferent,
+                            convert(int,KK.ShiftDuration/60) as ShiftDurationHour                            ,DATEDIFF(HOUR,KK.InTime ,KK.OutTime )WorkDurationHour
 							,Convert(int,KK.OverStay/60) AS WorkTimeDifferentHour
                             , KK.OTHr OverStay
                             , KK.TotalOTHr ConfirmedOT
