@@ -1,6 +1,19 @@
 ﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Bank Ledger</h3>
 <div class="form-elements form-horizontal" ng-form="form0">
     <div class="col-xs-12 col-sm-5 col-md-5">
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Level<sup>*</sup></label>
+            <div class="col-sm-9 radio">
+                <label>
+                    <input type="radio" name="OrganizationType" ng-model="report.OrganizationType" value="Plant">
+                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span>Plant
+                </label>
+                <label>
+                    <input type="radio" name="OrganizationType" ng-model="report.OrganizationType" value="Company">
+                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span>Company
+                </label>
+            </div>
+        </div>
         <div class="form-group" show-errors id="div_Bank">
             <label class="col-sm-3 control-label">Bank<sup>*</sup></label>
             <div class="col-sm-9 show-message">

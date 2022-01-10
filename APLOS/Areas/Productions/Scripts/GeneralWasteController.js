@@ -17,6 +17,7 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
     $scope.View = null;
     $scope.ViewList = [];
     $scope.ViewGridPop = [];
+    $scope.FromDate = null;
 
     $scope.getData = function () {
         $http({
@@ -69,11 +70,21 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult('Please Select an Entity!','failure');
             throw ('Invalid Request!');
         }
+        if (angular.isUndefinedOrNull($scope.FromDate) ) {
+            ShowResult("Please Select the Date in Range!", 'failure');
+            throw ('Invalid Request!!');
+        }
+
+        if (new Date($scope.FromDate) > new Date()) {
+            ShowResult("please Select past and present Date!", 'failure');
+            throw ('Invalid Request');
+        }
 
         $http({
             method: 'POST',
             url: $scope.path + "getView",
-            data: {'Id': $scope.EntityId},
+            data: {
+                'Id': $scope.EntityId, 'FromDate': $scope.FromDate},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

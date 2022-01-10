@@ -238,6 +238,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     };
 
     $scope.GetPIPopUp2 = function (args) {
+        $scope.PIPackingListMasterTemp.Id = null;
         $scope.PIPackingListMasterTemp.EntityId = null;
         $scope.PIPackingListMasterTemp.Remarks = null;
         $scope.PIPackingListMasterTemp.Description = null;
@@ -264,9 +265,9 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.GetMaterialData = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GetMaterialData?PIMasterId=" + $scope.PIMasterId + '&VersionId=' + $scope.SelectedPIVersion,
+            url: $scope.path + "GetMaterialData?PIPackingListMasterId=" + $scope.PIPackingListMasterTemp.Id + "&PIMasterId=" + $scope.PIMasterId + '&VersionId=' + $scope.SelectedPIVersion,
         }).then(function successCallback(response) {
-            if (!baseService.isUndefinedOrNull(response.data)) {             
+            if (!baseService.isUndefinedOrNull(response.data)) {
                 $scope.DataList = response.data.ItemData;
             }
         });
@@ -325,16 +326,17 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.POQTYAllocation = function (args) {
         try {
             $scope.POPopUpHeader = args.data;
-            if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.EntityId))
-                throw "Please select Entity.";
-            if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Description))
-                throw "Please add Description.";
-            if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Remarks))
-                throw "Please add Remarks.";
+            //if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.EntityId))
+            //    throw "Please select Entity.";
+            //if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Description))
+            //    throw "Please add Description.";
+            //if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.Remarks))
+            //    throw "Please add Remarks.";
             $scope.AllocatedPIQty = args.data.AllocatedQty;
             $scope.TotalPIQty = args.data.Quantity;
             $scope.PIPackingListMaterialTemp = args.data;
             $scope.PopUpDataList(args.data.Id, args.data.MaterialGroupMasterId);
+            $scope.ASSSSDFG();
             angular.element(document.querySelector('#QTYAllocation')).modal('show');
         } catch (e) {
             ShowResult(e, 'info');
@@ -346,7 +348,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
 
         $http({
             method: 'GET',
-            url: $scope.path + 'GetPopUp?PIMaterial=' + PIMaterialID + '&PIMaterialGroup=' + PIMaterialGroupID,
+            url: $scope.path + 'GetPopUp?PackingListMasterId=' + $scope.PIPackingListMasterTemp.Id + '&PIMaterial=' + PIMaterialID + '&PIMaterialGroup=' + PIMaterialGroupID,
         }).then(function (response) {
             $scope.PIPackingMaterialPopUpList = response.data.data;
         });
@@ -356,19 +358,19 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         QTY: 0,
         Amount: 0
     };
-
     $scope.ASSSSDFG = function () {
-        $scope.PImodelNew.SumAmount = 0;
-        $scope.PImodelNew.QTY = 0;
+        $scope.SumModel.QTY = 0;
+        $scope.SumModel.Amount = 0;
         for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
             if ($scope.PIPackingMaterialPopUpList[i].Active) {
-                $scope.PImodelNew.SumAmount += $scope.PIPackingMaterialPopUpList[i].POAmount;
-                $scope.PImodelNew.QTY += $scope.PIPackingMaterialPopUpList[i].QuantityAtPIUoM;
+                $scope.SumModel.QTY += parseFloat($scope.PIPackingMaterialPopUpList[i].PackingQtyAtPIUOM);
+                $scope.SumModel.Amount += parseFloat($scope.PIPackingMaterialPopUpList[i].DistributeQTY) * parseFloat($scope.PIPackingMaterialPopUpList[i].PORate);
             }
         }
-        $scope.PImodelNew.SumAmount = parseFloat($scope.PImodelNew.SumAmount).toFixed(2);
-        $scope.PImodelNew.QTY = parseFloat($scope.PImodelNew.QTY).toFixed(2);
+        $scope.SumModel.QTY = parseFloat($scope.SumModel.QTY).toFixed(2);
+        $scope.SumModel.Amount = parseFloat($scope.SumModel.Amount).toFixed(2);
     }
+
     $scope.ClosePopUp = function () {
         $scope.GetMaterialData();
         angular.element(document.querySelector('#QTYAllocation')).modal('hide');
@@ -407,18 +409,18 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             var SaveList = [];
             for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
                 if ($scope.PIPackingMaterialPopUpList[i].Active) {
-                    if ($scope.PIPackingMaterialPopUpList[i].DistributeQTY > $scope.PIPackingMaterialPopUpList[i].POQty) {
-                        throw "Distribution quantity is greater than PO quantity.";
-                    }
-                    if (baseService.isUndefinedOrNull($scope.PIPackingMaterialPopUpList[i].DistributeQTY)) {
-                        throw "Please enter quantity.";
-                    }
+                    //if ($scope.PIPackingMaterialPopUpList[i].DistributeQTY > $scope.PIPackingMaterialPopUpList[i].POQty) {
+                    //    throw "Distribution quantity is greater than PO quantity.";
+                    //}
+                    //if (baseService.isUndefinedOrNull($scope.PIPackingMaterialPopUpList[i].DistributeQTY)) {
+                    //    throw "Please enter quantity.";
+                    //}
                     SaveList.push($scope.PIPackingMaterialPopUpList[i]);
-                    sumQty += $scope.PIPackingMaterialPopUpList[i].DistributeQTY;
+                    //sumQty += $scope.PIPackingMaterialPopUpList[i].DistributeQTY;
                 }
             }
-            if (sumQty > $scope.AllocatedPIQty)
-                throw "Packing quantity shlould less than Allocated quantity.";
+            //if (sumQty > $scope.AllocatedPIQty)
+            //    throw "Packing quantity shlould less than Allocated quantity.";
             $http({
                 method: 'POST',
                 url: $scope.savePIPackingListUrl,

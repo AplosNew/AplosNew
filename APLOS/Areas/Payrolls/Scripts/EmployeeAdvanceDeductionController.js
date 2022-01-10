@@ -223,5 +223,23 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
         }
     };
 
+
+    $scope.EmployeeAdvanceDeductionReportExcel = function () {
+        var reportFormat = "Excel";
+        try {
+            
+            var DropDownListm = $("#ddlMonthList").data("ejDropDownList");
+            $scope.monthname = DropDownListm.selectedTextValue;;
+
+            //alert($scope.monthname);
+            //var url = 'IE/bulletintemplate/GetBulletinTamplateIndexReport?reportFormat=' + reportFormat;
+            var url = $scope.path + 'EmployeeAdvanceDeductionReportExcelFormat?reportFormat=' + reportFormat + '&Year=' + $scope.year + '&Month=' + $scope.month + '&MonthName=' + $scope.monthname;
+
+            $rootScope.report(url);
+        } catch (e) {
+
+        }
+    };
+
     //#endregion
 }

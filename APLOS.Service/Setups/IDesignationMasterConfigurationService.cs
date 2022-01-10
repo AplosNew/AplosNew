@@ -25,7 +25,7 @@ namespace Library.Service.Setups
         IEnumerable<object> GetLeavePolicyCbo(string plantId);
 
         IEnumerable<object> GetBonusPolicyMasterCbo(string plantId, string companyGroupId);
-
+        IEnumerable<object> GetAttdnBonusHeaderData(string plantId);
         IEnumerable<object> GetAttdnBonusPmtPolicyMasterCbo(string plantId);
         IEnumerable<object> GetBonusPolicyMonthlyRetainMasterCbo(string plantId);
         IEnumerable<object> GetSalaryRuleMstHead();

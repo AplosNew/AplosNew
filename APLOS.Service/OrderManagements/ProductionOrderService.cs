@@ -83,7 +83,7 @@ namespace Library.Service.OrderManagements
                 bplib.clsGenID objID = new bplib.clsGenID();
                 objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out systemid);
 
-                master.Id = System.DateTime.Now.ToString("yyyy").Substring(2, 2) + systemid;
+                master.Id = systemid;
 
                 base.InsertGraph(master);
                 InsertUpdateOrDeleteGraph(master.Id, detaillist);

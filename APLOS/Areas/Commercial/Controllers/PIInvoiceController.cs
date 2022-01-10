@@ -84,7 +84,7 @@ namespace Aplos.Areas.Commercial.Controllers
             return Json(new { Data = MasterData, Message = AplosMessage.Insert + "Invoice No: " + MasterData["Id"] + "" });
         }
 
-        [Authorize, HttpPost]//
+        [Authorize, HttpPost]
         public ActionResult SaveAdditinalTax(string salesId, decimal BooksCurrencyBaseRate, List<Dictionary<string, object>> UserSendData)
         {
             try
@@ -165,7 +165,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult DeleteTaxRow(string id)
         {
             try
@@ -183,6 +183,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [Authorize, HttpPost]
         public ActionResult AdditionalTaxDelete(string id)
         {
             try
@@ -200,6 +201,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [Authorize, HttpPost]
         public ActionResult DeleteSalesMaterial(string id)
         {
             try
@@ -217,6 +219,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [Authorize, HttpPost]
         public ActionResult DeleteSalesService(string id)
         {
             try
@@ -234,7 +237,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
+        [Authorize, HttpPost]
         public ActionResult DeleteTaxSalesService(string Id)
         {
             try
@@ -256,6 +259,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [HttpPost]
         public ActionResult DeleteMaster(string Id)
         {
             try
