@@ -89,6 +89,7 @@
     <Compile Include="Accounts\AccountsEmployeePayableService.cs" />
     <Compile Include="Accounts\AccountsInventorySalesService.cs" />
     <Compile Include="Accounts\AccountsInventoryPayableReportService.cs" />
+    <Compile Include="Accounts\AccountsCashReportService.cs" />
     <Compile Include="Accounts\AccountsSalesReportService.cs" />
     <Compile Include="Accounts\AccountsLoanService.cs" />
     <Compile Include="Accounts\AccountsPartyReconciliationService.cs" />

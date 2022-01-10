@@ -159,6 +159,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                         ob.Remarks = $scope.PackingList[i].Remarks;
                         ob.PIDate = $scope.PackingList[i].PIDate;
                         ob.RefNo = $scope.PackingList[i].RefNo;
+                        ob.PINo = $scope.PackingList[i].PINo;
                         ob.Buyer = $scope.PackingList[i].Buyer;
                         ob.ShippingMark = $scope.PackingList[i].ShippingMark;
                         ob.Id = null;
@@ -346,6 +347,30 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         $scope.paymentTermList = response.data;
     });
 
+    $scope.refreshPackingTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllPackingWise });
+    };
+
+    function CheckBoxSelectAllPackingWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridPacking").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.PackingList.length; i++) {
+                $scope.PackingList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Active = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridPacking").data("ejGrid");
+        gridObj.refreshContent();
+    };
 
 
     //#endregion
@@ -538,9 +563,9 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
         });
 
         for (var i = 0; i < $scope.chargesList.length; i++) {
-            if ($scope.chargesList[i].ServiceTaxList.length ==0) {
+            if ($scope.chargesList[i].ServiceTaxList.length == 0) {
                 $scope.chargesList[i].ServiceTaxList = $scope.receiveTaxList;
-            } 
+            }
         }
 
         $scope.chargesList[$scope.currentServiceRow].TaxAndTotal = parseFloat($scope.chargesList[$scope.currentServiceRow].NetAmount) + parseFloat($scope.chargesList[$scope.currentServiceRow].TaxAmount);
@@ -1231,7 +1256,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                     ShowResult(response.data.Message, 'success');
                     for (var i = 0; i < $scope.salesOrderList.length; i++) {
                         for (var j = 0; j < $scope.salesOrderList[i].TaxList.length; j++) {
-                            if ($scope.salesOrderList[i].TaxList[j].Id == $scope.metTaxId ) {
+                            if ($scope.salesOrderList[i].TaxList[j].Id == $scope.metTaxId) {
                                 $scope.salesOrderList[i].TaxList.splice(j, 1);
                             }
                         }
@@ -1370,7 +1395,7 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
                 if (response.data.Error === true)
                     ShowResult("Delete Charge Tax..", 'failure');
                 else {
-                    ShowResult(response.data.Message, 'success');                    
+                    ShowResult(response.data.Message, 'success');
                     $scope.GetMasterData();
                     $scope.Clear();
                 }
@@ -1573,5 +1598,33 @@ function PIInvoiceController(accountService, commonMessage, $scope, $rootScope, 
 
     //#endregion
 
+    //#region Validation
+
+    $scope.Valid = function () {
+        var TempCustomer = "";
+        var TempCurrency = "";
+        try {
+            for (var i = 0; i < $scope.PackingList.length; i++) {
+                if ($scope.PackingList[i].Active) {
+                    if (TempCustomer == "") {
+                        TempCustomer = $scope.PackingList[i].CustomerId;
+                        TempCurrency = $scope.PackingList[i].CurrencyId;
+                    }
+                    else if (TempCustomer != $scope.PackingList[i].CustomerId || TempCurrency != $scope.PackingList[i].CurrencyId) {
+                        $scope.PackingList[i].Active = false;
+
+                        var gridObj = $("#GridPacking").data("ejGrid");
+                        gridObj.refreshContent();
+
+                        throw "Select Same Customer and Currency";
+                    }
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    }
+
+    //#endregion
 
 }
