@@ -5,6 +5,7 @@ function cashLedgerReportController($scope, $rootScope, bankService, $filter, $w
     $scope.report = {
         CashMasterId: null,
         ReportFormat: "Pdf",
+        OrganizationType: "Plant",
         FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now())
     };
@@ -30,8 +31,15 @@ function cashLedgerReportController($scope, $rootScope, bankService, $filter, $w
             manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
         }
         else {
-            var url = "Banks/CashReport/GetCashLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
-            $window.open(url, "_blank");
+            if ($scope.report.OrganizationType === "Company") {
+                var url = "Banks/CashReport/GetCashLedgerReportCompanyLevel?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
+                $window.open(url, "_blank");
+            }
+            else {
+                var url = "Banks/CashReport/GetCashLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&cashMasterId=" + $scope.report.CashMasterId;
+                $window.open(url, "_blank");
+            }
+            
         }
     };
 }

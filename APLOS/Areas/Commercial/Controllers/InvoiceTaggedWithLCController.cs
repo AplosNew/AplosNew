@@ -585,6 +585,17 @@ namespace Aplos.Areas.Commercial.Controllers
                         throw new Exception("Currency should be matched with Purchase LC for [" + DataList[i]["PartyPlantName"].ToString() + "]");
                     }
                 }
+                if (Convert.ToBoolean(LcData["IsLoan"]))
+                {
+                    if (string.IsNullOrEmpty(LcData["LoanNo"].ToString()))
+                    {
+						throw new Exception("Enter Loan No");
+                    }
+					if (string.IsNullOrEmpty(LcData["LoanDate"].ToString()))
+					{
+						throw new Exception("Enter Loan Date");
+					}
+				}
                 #endregion
                 ep.Save(DataList, LcData);
                 return Json(new { Error = false, Message = AplosMessage.Updated });

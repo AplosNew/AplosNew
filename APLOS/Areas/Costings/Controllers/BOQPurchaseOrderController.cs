@@ -58,7 +58,7 @@ namespace Aplos.Areas.Costings.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
                 return Json(obj.GetCostingBOQItems(CostingItemIds, CostingBOQMasterIds, ContractId, VendorId, IsOwnVendor, inveReveiveMasterId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -73,7 +73,7 @@ namespace Aplos.Areas.Costings.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
                 return Json(obj.GetCostingBOQItemsListForUpdate(VendorId, inveReveiveId, inveReveiveMasterId, MaterialMasterId, ArticleId, FirstCharacteristicsValueId, SecondCharacteristicsValueId, ThirdCharacteristicsValueId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

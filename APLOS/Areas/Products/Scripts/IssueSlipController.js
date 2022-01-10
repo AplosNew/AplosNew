@@ -1224,7 +1224,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 
 
 
-    $scope.IssueSlipChecked = function () {
+    $scope.IssueSlipChecked = function (data) {
         //debugger; 
         var str = $scope.podata.SystemId;
 		var Status = $('#combo-default').val();
@@ -1442,13 +1442,13 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 	//	$scope.approvalAlert();
  //   };
 
-    $scope.onClickSave = function (z) {
-        //debugger;
-        var x = "#" + z;
-        var gridObj = $(x).data("ejGrid");
-        $scope.podata = gridObj.getSelectedRecords()[0];
-        $scope.approvalAlert();
-    };
+    //$scope.onClickSave = function (z) {
+    //    //debugger;
+    //    var x = "#" + z;
+    //    var gridObj = $(x).data("ejGrid");
+    //    $scope.podata = gridObj.getSelectedRecords()[0];
+    //    $scope.approvalAlert();
+    //};
 	//$scope.commandpo = [{
 	//	type: "details", buttonOptions: {
 	//		text: "Save",

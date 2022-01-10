@@ -124,7 +124,25 @@ namespace Aplos.Areas.Banks.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+        [HttpGet, Authorize]
+        public ActionResult GetBankLedgerReportCompanyLevel(ReportFormat reportFormat, string bankMasterId, string fromDate, string toDate)
+        {
+            AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsBankService.GetBankLedgerReportCompanyLevel(identity.CompanyGroupId, identity.CompanyId, bankMasterId, fromDate, toDate);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Bank Ledger";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
 
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
 
         public ActionResult BankReconcileReport()
         {
