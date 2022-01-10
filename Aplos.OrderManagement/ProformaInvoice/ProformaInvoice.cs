@@ -60,6 +60,7 @@ namespace Library.OrderManagement.ProformaInvoice
                     PIPackingListID = PIPackingListMasterData["Id"].ToString();
                     AddNewRow(dsMaster.Tables[0], PIPackingListMasterData);
                     dsMaster.Tables[0].Rows[0]["PImasterId"] = MaterialData["PIMasterId"];
+                   
                 }
                 else
                 {
@@ -83,7 +84,7 @@ namespace Library.OrderManagement.ProformaInvoice
 
                     AddNewRow(dsMaterial.Tables[0], MaterialData);
                     dsMaterial.Tables[0].Rows[0]["Id"] = _IdM;
-                    dsMaterial.Tables[0].Rows[0]["PIQuantity"] = MaterialData["Quantity"];
+                    dsMaterial.Tables[0].Rows[0]["PIQuantity"] = MaterialData["AllocatedQty"];
                     dsMaterial.Tables[0].Rows[0]["PIMaterialId"] = MaterialData["Id"];
                     dsMaterial.Tables[0].Rows[0]["PIUoMId"] = MaterialData["UoMId"];
                     dsMaterial.Tables[0].Rows[0]["PIPackingListMasterId"] = _Id;
@@ -92,6 +93,9 @@ namespace Library.OrderManagement.ProformaInvoice
                 {
                     _IdM = dsMaterial.Tables[0].Rows[0]["Id"].ToString();
                     EditRow(dsMaterial.Tables[0].Rows[0], MaterialData);
+                    dsMaterial.Tables[0].Rows[0]["PIQuantity"] = MaterialData["AllocatedQty"];
+                    dsMaterial.Tables[0].Rows[0]["PIMaterialId"] = MaterialData["Id"];
+                    dsMaterial.Tables[0].Rows[0]["PIUoMId"] = MaterialData["UoMId"];
                     dsMaterial.Tables[0].Rows[0]["Id"] = _IdM;
                     dsMaterial.Tables[0].Rows[0]["PIPackingListMasterId"] = _Id;
                 }
