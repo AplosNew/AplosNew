@@ -4290,7 +4290,6 @@ namespace Library.MaterialManagement.InventoryManagements
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
-
            var Sql = @"
 				Select top(100) * from (
 				SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
