@@ -121,6 +121,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(_DesignationMasterConfigurationService.GetAttdnBonusPmtPolicyHead(), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetAttdnBonusHeaderId(string plantId)
+        {
+            return Json(_DesignationMasterConfigurationService.GetAttdnBonusHeaderData(plantId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult Create(IEnumerable<DesignationMasterConfiguration> DesignationMasterConfiguration)
         {

@@ -238,6 +238,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     };
 
     $scope.GetPIPopUp2 = function (args) {
+        $scope.PIPackingListMasterTemp.Id = null;
         $scope.PIPackingListMasterTemp.EntityId = null;
         $scope.PIPackingListMasterTemp.Remarks = null;
         $scope.PIPackingListMasterTemp.Description = null;
@@ -264,9 +265,9 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.GetMaterialData = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GetMaterialData?PIMasterId=" + $scope.PIMasterId + '&VersionId=' + $scope.SelectedPIVersion,
+            url: $scope.path + "GetMaterialData?PIPackingListMasterId=" + $scope.PIPackingListMasterTemp.Id + "&PIMasterId=" + $scope.PIMasterId + '&VersionId=' + $scope.SelectedPIVersion,
         }).then(function successCallback(response) {
-            if (!baseService.isUndefinedOrNull(response.data)) {             
+            if (!baseService.isUndefinedOrNull(response.data)) {
                 $scope.DataList = response.data.ItemData;
             }
         });
@@ -347,7 +348,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
 
         $http({
             method: 'GET',
-            url: $scope.path + 'GetPopUp?PIMaterial=' + PIMaterialID + '&PIMaterialGroup=' + PIMaterialGroupID,
+            url: $scope.path + 'GetPopUp?PackingListMasterId=' + $scope.PIPackingListMasterTemp.Id + '&PIMaterial=' + PIMaterialID + '&PIMaterialGroup=' + PIMaterialGroupID,
         }).then(function (response) {
             $scope.PIPackingMaterialPopUpList = response.data.data;
         });
@@ -363,7 +364,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
             if ($scope.PIPackingMaterialPopUpList[i].Active) {
                 $scope.SumModel.QTY += parseFloat($scope.PIPackingMaterialPopUpList[i].PackingQtyAtPIUOM);
-                $scope.SumModel.Amount += parseFloat($scope.PIPackingMaterialPopUpList[i].DistributeQTY) * parseFloat($scope.PIPackingMaterialPopUpList[i].PORate)  ;
+                $scope.SumModel.Amount += parseFloat($scope.PIPackingMaterialPopUpList[i].DistributeQTY) * parseFloat($scope.PIPackingMaterialPopUpList[i].PORate);
             }
         }
         $scope.SumModel.QTY = parseFloat($scope.SumModel.QTY).toFixed(2);
