@@ -86,119 +86,143 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-sm-12">
-                    <div class="row">
-                        <div class="col-sm-12 table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Material Group</th>
-                                        <th>Description</th>
-                                        <th>HSN Code</th>
-                                        <th>Quantity</th>
-                                        <th>Rate</th>
-                                        <th style="width:100px;">UoM</th>
-                                        <th>Delivery date</th>
-                                        <th>Amount</th>
-                                        <th>Add</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="item in DataList">
-                                        <th>{{$index>0?'':''}}</th>
-                                        <td>
-                                            <div class="col-sm-12 show-message">
-                                                <input id="{{'MG'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupList" e-change="OnUOMChange" e-enablefiltersearch="true" e-value="item.MaterialGroupMasterId" e-fields-value="Id" e-fields-text="MaterialGroup" e-width="100%" />
-                                            </div>
-                                        </td>
-                                        <td><input type="text" ng-model="item.Description" class="form-control" @*ng-disabled="DataList.length>1"*@ /></td>
-                                        <td>
-                                            <div class="col-sm-12 show-message">
-                                                <input id="{{'HS'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="HSNCodeList" e-enablefiltersearch="true" e-value="item.HSNCodeId" e-fields-value="Id" e-fields-text="HSNCode" e-width="100%" />
-                                            </div>
-                                        </td>
-                                        <td><input type="text" ng-model="item.Quantity" n-decimals="2" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
-                                        <td><input type="text" ng-model="item.Rate" n-decimals="4" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
-                                        <td style="width:100px;">
-                                            <div class="select-style">
-                                                <select ng-model="item.UoMId">
-                                                    <option ng-repeat="option in item.MaterialGroupUOMList" value="{{option.Id}}">{{option.userName}}</option>
-                                                </select>
-                                            </div>
-                                            @*<div class="col-sm-12 show-message">
-                                                    <input id="{{'UOM'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupUOMList" e-enablefiltersearch="true" e-value="item.UoMId" e-fields-value="MaterialGroupMasterId" e-fields-text="userName" e-width="100%" />
-                                                </div>*@
-                                        </td>
-                                        <td><input type="text" ng-model="item.DeliveryDate" datepicker class="form-control" /></td>
-
-                                        <td><input type="text" ng-disabled="true" ng-model="item.Amount" class="form-control" /></td>
-                                        <td class="text-right">
-                                            <ul class="list-inline">
-                                                <li><button ng-click="SubmitH(item);" ng-hide="$index<DataList.length-1" class="btn btn-action "><i class="glyphicon glyphicon-plus" style="color: limegreen;"></i></button></li>
-                                                <li><button ng-hide="DataList.length<2" ng-click="Remove($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus" style="color: orangered;"></i></button></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                                <li> <button ng-click="Clear();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                <li> <button ng-click="DeletePI();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                            </ul>
-                        </div>
-                        <div class="col-sm-12 container-fluid" ng-show="TermsAndConditionGridList.length>0">
-                            <div style="color:black;" id="GridTermsAndConditions" ej-grid e-datasource="TermsAndConditionGridList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-                                 e-filtersettings-filterType="excel" e-enabletouch="false"
-                                 e-allowselection="false">
-                                <div e-columns>
-                                    <div e-column e-field="TermsAndConditionPIChildId" e-headertext="TermsAndConditionsPIChildId" e-visible="false"></div>
-                                    <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="420"></div>
-                                    <div e-column e-template="#ShowDetails" e-headertext="" e-width="70"></div>
-                                </div>
-                                <script type="text/ng-template" id="ShowDetails">
-                                    <div class="common-btn">
-                                        <ul class="list-inline ">
-                                            <li>
-                                                <button ng-click="$parent.showTermsAndConditionDetailPopUp(data);" title="Edit" class="btn small" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@>
-                                                    <i class="glyphicon glyphicon-edit"></i>
-                                                </button>
-                                            </li>
-                                            <li>
-                                                <button ng-click="$parent.DeletePITitle(this);@*$parent.ClearTitle();*@" class="btn small tooltip-here" @*style="height: 28px; width: 28px; padding: 0px; margin: 0px;"*@ title="Delete">
-                                                    <i class="glyphicon glyphicon-trash" style="color: orangered;"></i>
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </script>
-                                <script id="tabGridContentsTitle" type="text/x-jsrender">
-                                    <div class="tabcontrol" id="Test">
-                                        <ul>
-                                            <li><a href="#gridTabTitle{{:Id}}">Details</a></li>
-
-                                        </ul>
-                                        <div id="gridTabTitle{{:Id}}">
-                                            <div id="detailGridTitle"></div>
-                                        </div>
-
-                                    </div>
-                                </script>
-                            </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Shipping Mark :</span><sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Ref No." ng-model="PImodelNew.ShippingMark" class="form-control" maxlength="50" required tabindex="5">
                         </div>
                     </div>
                 </div>
             </div>
+
+        </div>
+    </div>
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">T & C</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div ng-form="tabForm1">
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Material Group</th>
+                                <th>Description</th>
+                                <th>HSN Code</th>
+                                <th>Quantity</th>
+                                <th>Rate</th>
+                                <th style="width:100px;">UoM</th>
+                                <th>Delivery date</th>
+                                <th>Amount</th>
+                                <th>Add</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in DataList">
+                                <th>{{$index>0?'':''}}</th>
+                                <td>
+                                    <div class="col-sm-12 show-message">
+                                        <input id="{{'MG'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupList" e-change="OnUOMChange" e-enablefiltersearch="true" e-value="item.MaterialGroupMasterId" e-fields-value="Id" e-fields-text="MaterialGroup" e-width="100%" />
+                                    </div>
+                                </td>
+                                <td><input type="text" ng-model="item.Description" class="form-control" @*ng-disabled="DataList.length>1"*@ /></td>
+                                <td>
+                                    <div class="col-sm-12 show-message">
+                                        <input id="{{'HS'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="HSNCodeList" e-enablefiltersearch="true" e-value="item.HSNCodeId" e-fields-value="Id" e-fields-text="HSNCode" e-width="100%" />
+                                    </div>
+                                </td>
+                                <td><input type="text" ng-model="item.Quantity" n-decimals="2" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                <td><input type="text" ng-model="item.Rate" n-decimals="4" ng-change="SumAmount(item)" class="form-control" @*ng-disabled="$index<DataList.length-1"*@ /></td>
+                                <td style="width:100px;">
+                                    <div class="select-style">
+                                        <select ng-model="item.UoMId">
+                                            <option ng-repeat="option in item.MaterialGroupUOMList" value="{{option.Id}}">{{option.userName}}</option>
+                                        </select>
+                                    </div>
+                                    @*<div class="col-sm-12 show-message">
+                        <input id="{{'UOM'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupUOMList" e-enablefiltersearch="true" e-value="item.UoMId" e-fields-value="MaterialGroupMasterId" e-fields-text="userName" e-width="100%" />
+                    </div>*@
+                                </td>
+                                <td><input type="text" ng-model="item.DeliveryDate" datepicker class="form-control" /></td>
+
+                                <td><input type="text" ng-disabled="true" ng-model="item.Amount" class="form-control" /></td>
+                                <td class="text-right">
+                                    <ul class="list-inline">
+                                        <li><button ng-click="SubmitH(item);" ng-hide="$index<DataList.length-1" class="btn btn-action "><i class="glyphicon glyphicon-plus" style="color: limegreen;"></i></button></li>
+                                        <li><button ng-hide="DataList.length<2" ng-click="Remove($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus" style="color: orangered;"></i></button></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot ng-show="DataList.length">
+                            <tr>
+                                <td colspan="8"><b>Total</b></td>
+                                <td class="text-right"><b>{{ DataList | sumByKey : 'Amount'| setDecimal:2| number:2  }}</b></td>
+                                <td></td>
+                            </tr>
+
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li> <button ng-click="DeletePI();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div style="color:black;" id="GridTermsAndConditions" ej-grid e-datasource="TermsAndConditionGridList"
+                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                 e-filtersettings-filterType="excel" e-enabletouch="false"
+                 e-allowselection="false">
+                <div e-columns>
+                    <div e-column e-field="TermsAndConditionPIChildId" e-headertext="TermsAndConditionsPIChildId" e-visible="false"></div>
+                    <div e-column e-type="string" e-field="Title" e-headertext="Title" e-width="420"></div>
+                    <div e-column e-template="#ShowDetails" e-headertext="" e-width="70"></div>
+                </div>
+                <script type="text/ng-template" id="ShowDetails">
+                    <div class="common-btn">
+                        <ul class="list-inline ">
+                            <li>
+                                <button ng-click="$parent.showTermsAndConditionDetailPopUp(data);" title="Edit" class="btn small"
+                                        style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                    <i class="glyphicon glyphicon-edit"></i>
+                                </button>
+                            </li>
+                            <li>
+                                <button ng-click="$parent.DeletePITitle(this);$parent.ClearTitle();" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;"
+                                        title="Delete">
+                                    <i class="glyphicon glyphicon-trash" style="color: orangered;"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </script>
+                <script id="tabGridContentsTitle" type="text/x-jsrender">
+                    <div class="tabcontrol" id="Test">
+                        <ul>
+                            <li><a href="#gridTabTitle{{:Id}}">Details</a></li>
+                        </ul>
+                        <div id="gridTabTitle{{:Id}}">
+                            <div id="detailGridTitle"></div>
+                        </div>
+                    </div>
+                </script>
+            </div>
         </div>
     </div>
 </div>
+
 
 <div class="aplos-grid-toggle">
     <div class="row">

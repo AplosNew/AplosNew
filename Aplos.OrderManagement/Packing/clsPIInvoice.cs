@@ -36,12 +36,19 @@ namespace Library.OrderManagement.Packing
                                 		,c.Id CurrencyId
                                 		,FORMAT(plm.AddedDate, 'dd-MMM-yyyy') AddedDate
                                         ,e.UserName Entity
+                                        ,pm.RefNo
+                                        ,B.UserName Buyer
+                                        ,PM.ShippingMark
+                                        ,PM.InvoicingByAddress
+                                        ,PM.DeliveryByAddress
+                                        ,FORMAT(PM.PIDate,'dd-MMM-yyyy')PIDate,pm.PINo
                                 	FROM PIPackingListMaster AS plm
                                 	LEFT JOIN PIMaster AS pm ON pm.Id = plm.PImasterId
                                 	LEFT JOIN hkp.Party p ON p.Id = pm.CustomerId
                                 	LEFT JOIN [SCS].[Currency] AS C ON C.Id = pm.CurrencyId
                                 	LEFT JOIN CommercialInvoicePackingList IPL ON IPL.PIPackingListMasterId = PLM.Id
                                     LEFT JOIN ORG.Entity AS e ON e.Id=plm.EntityId
+									LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
                                 	) d
                                 WHERE d.Id IS NULL";
 
@@ -159,11 +166,11 @@ namespace Library.OrderManagement.Packing
                                         	,MGM.UserName AS MaterialGroup
                                         	,p.[Description]
                                         	,FORMAT(p.DeliveryDate, 'dd-MMM-yyyy') DeliveryDate
-                                        	,p.Quantity
+                                        	,M.PIQuantity Quantity
                                         	,uom.UserName AS UOM
                                         	,p.Rate
-                                        	,p.Amount
-                                        	,p.Amount NetAmount
+                                        	,(M.PIQuantity*p.Rate) Amount
+                                        	,(M.PIQuantity*p.Rate) NetAmount
                                             ,SUM(cit.Amount)TaxAmount
                                             ,p.HSNCodeId
                                             ,c.Id
@@ -176,7 +183,7 @@ namespace Library.OrderManagement.Packing
                                         LEFT JOIN CommercialInvoicePIMaterial c ON c.PIPackingListMaterialId=m.Id
                                         LEFT JOIN CommercialInvoiceTaxes AS cit ON cit.CommercialInvoicePIMaterialId=c.Id
                                         WHERE PM.Id " + PackingId + @" 
-                                        GROUP BY M.Id,p.Id,MGM.UserName,p.[Description],p.DeliveryDate,p.Quantity,uom.UserName 
+                                        GROUP BY M.Id,p.Id,MGM.UserName,p.[Description],p.DeliveryDate,M.PIQuantity,uom.UserName 
                                         ,p.Rate,p.Amount,p.HSNCodeId,c.Id,c.CommercialInvoiceMasterId";
                 return _sqlRepository.GetDataCollection(_sql);
             }

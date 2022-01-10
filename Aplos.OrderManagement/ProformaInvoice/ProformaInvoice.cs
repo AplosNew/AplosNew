@@ -381,243 +381,236 @@ namespace Library.OrderManagement.ProformaInvoice
         }
 
 
-        //private string PIMasterSql(string PIMasterId, string PIVersionId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return @"SELECT V.Id AS VoucherId
-	       //                                  ,VD.Id AS VoucherDetailId
-	       //                                  ,V.VoucherNo
-	       //                                  ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
-	       //                                  ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
-        //                                     ,VD.DocRefNo, VD.PartyType, VD.Narration
-	       //                                  ,GLT.CrAmount AS Amount --[Add : BanK other Credit]
-	       //                                  ,'' AS CheckNo
-	       //                                  ,'' EncashmentDate
-        //                               FROM TRN.VoucherDetail AS VD
-        //                               INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
-        //                               INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
-        //                               WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + BankMasterID + @"' AND (ReconcileId IS NULL))
-        //                               AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'  AND V.IsPark=0
-        //                               AND (VD.BankMasterId='" + BankMasterID + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
-        //                               AND (VD.CrAmount<>0.0000)";
-        //}
+        private string PIMasterSql(string PIMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT PM.Id,PM.PINo,PM.RefNo,FORMAT(PM.PIDate,'dd-MMM-yyyy') PIDate,PM.CurrencyId,PM.BuyerId
+							,PM.CustomerId,PM.InvoicingByAddress,PM.DeliveryByAddress
+							,C.Code Currency,B.UserName Buyer,P.UserName Customer,PM.TermsAndConditionsId,PM.ShippingMark,PV.VersionNo LastVersion
+     FROM PIMaster PM 
+							LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
+							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
+							LEFT OUTER JOIN HKP.Party AS p ON p.Id=PM.CustomerId
+							LEFT OUTER JOIN PIVersion AS pv ON PM.Id=pv.PIMasterId and PV.Id=(select top 1 Id from PIVersion where PIMasterId=PM.Id ORDER BY VersionNo DESC)
+						WHERE PM.Id='" + PIMasterId + @"'";
+        }
 
-        //private string PIMaterialSql(string PIMasterId, string PIVersionId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return @"SELECT V.Id AS VoucherId
-	       //                                  ,VD.Id AS VoucherDetailId
-	       //                                  ,V.VoucherNo
-	       //                                  ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
-	       //                                  ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
-        //                                     ,VD.DocRefNo, VD.PartyType, VD.Narration
-	       //                                  ,GLT.CrAmount AS Amount --[Add : BanK other Credit]
-	       //                                  ,'' AS CheckNo
-	       //                                  ,'' EncashmentDate
-        //                               FROM TRN.VoucherDetail AS VD
-        //                               INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
-        //                               INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
-        //                               WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + BankMasterID + @"' AND (ReconcileId IS NULL))
-        //                               AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'  AND V.IsPark=0
-        //                               AND (VD.BankMasterId='" + BankMasterID + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
-        //                               AND (VD.CrAmount<>0.0000)";
-        //}
-        //public void PoformaInvoiceReport(string PIMasterId, string PIVersionId)
-        //{
-        //    try
-        //    {
-        //        string HeaderSql = PIMasterSql(PIMasterId, PIVersionId);
-        //        string MaterialSql = PIMaterialSql(PIMasterId, PIVersionId);
+        private string PIMaterialSql(string PIMasterId, string PIVersionId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT p.Id, p.PIMasterId, p.PIVersionId,
+CAST(ROUND(p.Rate, 4) AS DECIMAL(10,4)) Rate,
+CAST(ROUND(p.Quantity, 2) AS DECIMAL(10,2)) Quantity,
+ROUND(p.Amount, 2) Amount,uom.UserName UoM,
+ CONCAT(mgm.UserName,' - ',p.[Description]) [Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup
+							   ,h.Code HSNCode,p.UoMId
+						  FROM PIMaterial AS p
+						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
+						  LEFT JOIN hkp.HSNCode AS h ON h.Id=p.HSNCodeId
+						  LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
+						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + PIVersionId + @"'";
+        }
+        public void PoformaInvoiceReport(string PIMasterId, string PIVersionId)
+        {
+            try
+            {
+                string HeaderSql = PIMasterSql(PIMasterId);
+                string MaterialSql = PIMaterialSql(PIMasterId, PIVersionId);
 
-        //        //Instantiate the Excel application object
-        //        DataTable dtHeader = _sqlRepository.GetDataTable(HeaderSql);
-        //        DataTable dtMaterial = _sqlRepository.GetDataTable(MaterialSql);
-        //        if (dtHeader.Rows.Count == 0)
-        //            throw new Exception("No data found");
-        //        ExcelEngine excelEngine = new ExcelEngine();
-        //        IApplication application = excelEngine.Excel;
+                //Instantiate the Excel application object
+                DataTable dtHeader = _sqlRepository.GetDataTable(HeaderSql);
+                DataTable dtMaterial = _sqlRepository.GetDataTable(MaterialSql);
+                if (dtHeader.Rows.Count == 0)
+                    throw new Exception("No data found");
+                ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
 
-        //        //Set the default application version
-        //        application.DefaultVersion = ExcelVersion.Excel2013;
-        //        IWorkbook workbook = application.Workbooks.Create(1);
-        //        IWorksheet sheet = workbook.Worksheets[0];
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
 
-        //        sheet.Name = "Cr. Reconcile Pending Report";
+                sheet.Name = "Proforma Invoice Report";
 
-        //        int ROW = 6;
-        //        int COL = 1;
+                int ROW = 6;
+                int COL = 1;
 
-        //        #region Header
+                #region Header
 
-        //        int StartRow = ROW;
-        //        sheet[ROW, COL].Text = "Bank :";
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int StartRow = ROW;
+                sheet[ROW, COL].Text = "PI No.:";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colPINo = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Date :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colDate = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "PI REF# :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPIRef = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Customer :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colCustomer = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Address :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colDeliveryByAddress = COL;
+                ROW = StartRow;
+                COL = 5;
+                sheet[ROW, COL].Text = "Version No.:";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colLastVersion = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Currency :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colCurrency = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Buyer :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colBuyer = COL;
+                ROW = StartRow;
 
-        //        int colBank = COL;
-        //        ROW++;
-        //        sheet[ROW, COL].Text = "Branch :";
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        int colBranch = COL;
-        //        ROW++;
-        //        sheet[ROW, COL].Text = "From Date :";
-        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        int colFromDate = COL;
-        //        ROW = StartRow;
-        //        COL = 4;
-        //        sheet[ROW, COL].Text = "Account :";
-        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        int colAccount = COL;
-        //        ROW++;
-        //        sheet[ROW, COL].Text = "Bank GL :";
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        int colBankGL = COL;
-        //        ROW++;
-        //        sheet[ROW, COL].Text = "To Date :";
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        int colToDate = COL;
-        //        ROW = StartRow;
-        //        COL = 7;
-        //        sheet[ROW, COL].Text = "Bank Currency :";
-        //        sheet[ROW, COL].ColumnWidth = 13;
-        //        sheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        int colBankCurrency = COL;
-        //        // Headerdata
-        //        ROW = 6;
-        //        sheet[ROW, colBank + 1].Text = dtBank.Rows[0]["BankName"].ToString();
-        //        ROW++;
-        //        sheet[ROW, colBranch + 1].Text = dtBank.Rows[0]["BankBranchName"].ToString();
-        //        ROW++;
-        //        sheet[ROW, colFromDate + 1].Text = fromDate;
-        //        ROW = StartRow;
-        //        sheet[ROW, colAccount + 1].Text = dtBank.Rows[0]["AccountTitle"].ToString();
-        //        ROW++;
+                
+                //COL = 7;
+                //sheet[ROW, COL].Text = "Bank Currency :";
+                //sheet[ROW, COL].ColumnWidth = 13;
+                //sheet[ROW, COL].CellStyle.Font.Bold = true;
+                //int colBankCurrency = COL;
+                // Headerdata
+                ROW = 6;
+                sheet[ROW, colPINo + 1].Text = dtHeader.Rows[0]["PINo"].ToString();
+                ROW++;
+                sheet[ROW, colDate + 1].Text = dtHeader.Rows[0]["PIDate"].ToString();
+                ROW++;
+                sheet[ROW, colPIRef + 1].Text = dtHeader.Rows[0]["RefNo"].ToString();
+                ROW++;
+                sheet[ROW, colCustomer + 1].Text = dtHeader.Rows[0]["Customer"].ToString();
+                ROW++;
+                sheet[ROW, colDeliveryByAddress + 1].Text = dtHeader.Rows[0]["DeliveryByAddress"].ToString(); ;
+                ROW = StartRow;
 
-        //        sheet[ROW, colBankGL + 1].Text = dtBank.Rows[0]["GLGeneralInfoId"].ToString() + "-" + dtBank.Rows[0]["GLGeneralInfoName"].ToString();
+                sheet[ROW, colLastVersion + 1].Text = dtHeader.Rows[0]["LastVersion"].ToString();
+                ROW++;
 
-        //        ROW++;
-        //        sheet[ROW, colToDate + 1].Text = toDate;
-        //        ROW = StartRow;
-        //        sheet[ROW, colBankCurrency + 1].Text = dtBank.Rows[0]["CurrencyCode"].ToString();
+                sheet[ROW, colCurrency + 1].Text = dtHeader.Rows[0]["Currency"].ToString();
+                ROW++;
 
-        //        sheet.Range[StartRow, colBank + 1, StartRow, colBank + 2].Merge();
-        //        sheet.Range[StartRow + 1, colBranch + 1, StartRow + 1, colBranch + 2].Merge();
-        //        sheet.Range[StartRow + 2, colFromDate + 1, StartRow + 2, colFromDate + 2].Merge();
-        //        sheet.Range[StartRow, colAccount + 1, StartRow, colAccount + 2].Merge();
-        //        sheet.Range[StartRow + 1, colBankGL + 1, StartRow + 1, colBankGL + 2].Merge();
-        //        sheet.Range[StartRow + 2, colToDate + 1, StartRow + 2, colToDate + 2].Merge();
-        //        sheet.Range[StartRow, colBankCurrency + 1, StartRow, colBankCurrency + 2].Merge();
-        //        sheet.Range[StartRow, colBank, StartRow + 3, colBankCurrency + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
+                sheet[ROW, colBuyer + 1].Text = dtHeader.Rows[0]["Buyer"].ToString();
+                ROW = StartRow;
+                // sheet[ROW, colBankCurrency + 1].Text = dtBank.Rows[0]["CurrencyCode"].ToString();
 
-        //        ROW = 10;
-        //        COL = 1;
-        //        #endregion
-        //        sheet[ROW, COL].Text = "Id";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colId = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Voucher No";
-        //        sheet[ROW, COL].ColumnWidth = 18;
-        //        int colVoucherNo = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Voucher Date";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        int colVoucherDate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Posting Date";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        int colPostingDate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Doc Ref No.";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        int colDocRefNo = COL;
-        //        COL++;
+                sheet.Range[StartRow, colPINo + 1, StartRow, colPINo + 3].Merge();
+                sheet.Range[StartRow + 1, colDate + 1, StartRow + 1, colDate + 3].Merge();
+                sheet.Range[StartRow + 2, colPIRef + 1, StartRow + 2, colPIRef + 3].Merge();
+                sheet.Range[StartRow, colLastVersion + 1, StartRow, colLastVersion + 2].Merge();
+                sheet.Range[StartRow + 1, colCurrency + 1, StartRow + 1, colCurrency + 2].Merge();
+                sheet.Range[StartRow + 2, colBuyer + 1, StartRow + 2, colBuyer + 2].Merge();
+                sheet.Range[StartRow+3, colCustomer + 1, StartRow+3, colCustomer + 3].Merge();
+                sheet.Range[StartRow+4, colDeliveryByAddress + 1, StartRow+4, colDeliveryByAddress + 7].Merge();
+                sheet.Range[StartRow, colPINo, StartRow + 3, colPINo + 6].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
 
-        //        sheet[ROW, COL].Text = "Party Type";
-        //        sheet[ROW, COL].ColumnWidth = 20;
-        //        int colPartyType = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Narration";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        int colNarration = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Amount";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colAmount = COL;
+                ROW = 12;
+                COL = 1;
+                #endregion
+                sheet[ROW, COL].Text = "Description";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int colDescription = COL;
+                COL++;
+                sheet[ROW, COL].Text = "HSN Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colHSNCode = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Qty";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int colQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "UoM";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colUoM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Delivery Date";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colDeliveryDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Rate.";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colRate = COL;
+                COL++;
 
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Check No.";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        int colCheckNo = COL;
+                sheet[ROW, COL].Text = "Total Amount";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colTotalAmount = COL;
+                
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
 
+                StartRow = ROW; //row 20
+                for (int i = 0; i < dtMaterial.Rows.Count; i++)
+                {
 
-        //        int endCol = COL;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //        ROW++;
+                    sheet[ROW, colDescription].Text = dtMaterial.Rows[i]["Description"].ToString();
+                    sheet[ROW, colHSNCode].Text = dtMaterial.Rows[i]["HSNCode"].ToString();
+                    sheet[ROW, colQty].Number =clsStaticInfo.dbl( dtMaterial.Rows[i]["Quantity"].ToString());
+                    sheet[ROW, colUoM].Text = dtMaterial.Rows[i]["UoM"].ToString();
+                    sheet[ROW, colDeliveryDate].Text = dtMaterial.Rows[i]["DeliveryDate"].ToString();
+                    sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtMaterial.Rows[i]["Rate"].ToString());
+                    sheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dtMaterial.Rows[i]["Amount"].ToString());
+           
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
-        //        StartRow = ROW; //row 20
-        //        for (int i = 0; i < dtCRBR.Rows.Count; i++)
-        //        {
+                    ROW++;
 
-        //            sheet[ROW, colId].Text = dtCRBR.Rows[i]["VoucherDetailId"].ToString();
-        //            sheet[ROW, colVoucherNo].Text = dtCRBR.Rows[i]["VoucherNo"].ToString();
-        //            sheet[ROW, colVoucherDate].Text = dtCRBR.Rows[i]["VoucherDate"].ToString();
+                }
+                sheet[ROW, 1].Text = "Total:";
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                int colTotal = COL;
+                var reportUtility = new ReportUtility();
+                sheet.Range[ROW, colTotal].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTotalAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colTotalAmount) + (ROW - 1) + ")";
+                sheet.Range[ROW, colTotal].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colTotal].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-        //            sheet[ROW, colPostingDate].Text = dtCRBR.Rows[i]["PostingDate"].ToString();
-        //            sheet[ROW, colDocRefNo].Text = dtCRBR.Rows[i]["DocRefNo"].ToString();
-        //            sheet[ROW, colNarration].Text = dtCRBR.Rows[i]["PartyType"].ToString();
-        //            sheet[ROW, colPartyType].Text = dtCRBR.Rows[i]["Narration"].ToString();
-        //            sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtCRBR.Rows[i]["Amount"].ToString());
-        //            sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-        //            sheet[ROW, colCheckNo].Text = dtCRBR.Rows[i]["CheckNo"].ToString();
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.IsGridLinesVisible = false;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet[ROW, 1].CellStyle.Font.Size = 9;
 
-
-        //            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-        //            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-
-        //            ROW++;
-
-        //        }
-        //        sheet[ROW, 1].Text = "Total:";
-        //        sheet[ROW, 1].CellStyle.Font.Bold = true;
-        //        int colTotal = COL;
-        //        var reportUtility = new ReportUtility();
-        //        sheet.Range[ROW, colAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + (ROW - 1) + ")";
-        //        sheet.Range[ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //        sheet.IsGridLinesVisible = false;
-        //        sheet.UsedRange.WrapText = true;
-        //        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-        //        sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-        //        sheet[ROW, 1].CellStyle.Font.Size = 9;
-
-        //        sheet["A" + StartRow.ToString()].FreezePanes();
+                sheet["A" + StartRow.ToString()].FreezePanes();
 
 
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        reportUtility.PlantHeader(ref sheet, endCol, "Cr. Reconcile Pending Report", identity.PlantId);
-        //        reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                reportUtility.PlantHeader(ref sheet, endCol, "Proforma Invoice Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-        //        string strFileName = "CRReconcilePendingReport.xlsx";
-        //        workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-        //        workbook.Close();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
+                string strFileName = "ProformaInvoiceReport.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-        //}
+        }
 
         class Factors : BaseModel
         {
