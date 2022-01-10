@@ -1,5 +1,7 @@
 ﻿using Aplos.Controllers;
+using Library.Accounting.Accounts;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Service.Banks;
 using Syncfusion.XlsIO;
@@ -12,10 +14,11 @@ namespace Aplos.Areas.Banks.Controllers
     public class CashReportController : BaseController
     {
         private readonly ICashReportService _cashReportService;
-
-        public CashReportController(ICashReportService cashReportService)
+        private readonly ISqlRepository _sqlRepository;
+        public CashReportController(ICashReportService cashReportService, ISqlRepository sqlRepository)
         {
             _cashReportService = cashReportService;
+            _sqlRepository = sqlRepository;
         }
 
       
@@ -100,6 +103,25 @@ namespace Aplos.Areas.Banks.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = _cashReportService.GetCashBookReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, cashMasterId, fromDate, toDate);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Cash Ledger";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetCashLedgerReportCompanyLevel(ReportFormat reportFormat, string cashMasterId, string fromDate, string toDate)
+        {
+            AccountsCashReportService accountsCashReportService = new AccountsCashReportService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsCashReportService.GetCashBookReportCompanyLevel(identity.CompanyGroupId, identity.CompanyId, cashMasterId, fromDate, toDate);
             var reportFileName = DateTime.Now.ToString("yyMMdd") + " Cash Ledger";
             switch (reportFormat)
             {
