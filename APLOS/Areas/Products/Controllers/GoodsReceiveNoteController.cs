@@ -3870,7 +3870,8 @@ UNION ALL
             }
 
 
-            JWDetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatByProduct1);
+            //JWDetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatByProduct1);
+            _inventoryDetailService.JWInsertOrUpdateGraphNew(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatByProduct1);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
         public JsonResult JWDetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct)

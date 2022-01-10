@@ -60,12 +60,20 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
                     if (EmpIdLoop == "")
                     {
-                        EmpIdLoop = "" + item + ""; ;
+                        
+                        EmpIdLoop = "" + item + ""; 
                     }
                     
                 }
+                string[] EmpTempList = EmpIdLoop.Split(',');
+                string NewTemp = "''";
+                foreach (string item in EmpTempList)
+                {
+                     NewTemp +=",'"+ item.ToString()+"'";                  
+                }
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = app.GetComplianceJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, EmpIdLoop, fromDate, toDate, chkAdditionInfo);
+                IWorkbook workbook = app.GetComplianceJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, NewTemp, fromDate, toDate, chkAdditionInfo);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
                 switch (reportFormat)
                 {
