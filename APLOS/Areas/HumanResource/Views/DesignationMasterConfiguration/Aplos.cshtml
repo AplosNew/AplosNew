@@ -21,7 +21,7 @@
             <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="designationMasterConfigurationNew.PlantId" ng-change="reSetDesignationList();getSalaryRuleMasterWithPlant();getLeavePolicyMaster();getBonusPolicyMaster();getAttdnBonusPmtPolicyMaster();getBonusPolicyMonthlyRetainMaster();getPFPolicyMaster();getESICPolicyMaster();getOverTimePmtPolicyMaster();GetAdditionalPayDayCbo();"
+                    <select class="form-control" ng-model="designationMasterConfigurationNew.PlantId" ng-change="reSetDesignationList();getSalaryRuleMasterWithPlant();getLeavePolicyMaster();getAttdnBonusHeaderList();getBonusPolicyMaster();getAttdnBonusPmtPolicyMaster();getBonusPolicyMonthlyRetainMaster();getPFPolicyMaster();getESICPolicyMaster();getOverTimePmtPolicyMaster();GetAdditionalPayDayCbo();"
                             ng-options="item.Value as item.Text for item in plantList" id="plantId"
                             name="Plant" required tabindex="1">
                         <option></option>
@@ -61,6 +61,7 @@
                             <th>Holiday Pay Day</th>
                             <th>OT Entitle</th>
                             <th>OT Pmt Policy Master</th>
+                            <th>Attdn Bonus Header</th>
                             <th style="width:10px !important;">Legal Designation</th>
                             <th>Details</th>
                         </tr>
@@ -155,7 +156,7 @@
                             </td>
                             <td>
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="x.HolidayPayDayMasterId" name="Rest Type" ng-options="item.Value as item.Text for item in HolidayPayDayMasterList"  style="width: 100px;">
+                                    <select class="form-control" ng-model="x.HolidayPayDayMasterId" name="Rest Type" ng-options="item.Value as item.Text for item in HolidayPayDayMasterList" style="width: 100px;">
                                         <option value="">--Select--</option>
                                     </select>
                                 </div>
@@ -173,6 +174,15 @@
                                     <select class="form-control" ng-model="x.OverTimePmtPolicyMasterID"
                                             ng-options="item.Value as item.Text for item in OverTimePmtPolicyMasterList" ng-disabled="!x.IsOTEntitled" id="AttdnBonusPmtPolicyMasterId"
                                             name="OverTimePmtPolicyMaster" required tabindex="1">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="x.AttdnBonusHeaderId"
+                                            ng-options="item.Value as item.Text for item in AttdnBonusHeaderList" id="BonusHeaderId"
+                                            name="AttdnBonusHeader" style="width: 140px;">
                                         <option></option>
                                     </select>
                                 </div>
