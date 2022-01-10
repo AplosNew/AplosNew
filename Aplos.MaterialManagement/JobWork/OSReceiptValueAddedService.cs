@@ -386,11 +386,11 @@ namespace Library.MaterialManagement.JobWork
                         --,TotalReceivedQty = ISNULL(kk.TotalReceivedQuantity, '0')
                         --,ToReceive = Sum(mp.Quantity) - ISNULL(kk.TotalReceivedQuantity, '0')
                         --, mp.Quantity AS PlanQuantity
-						,PlanQuantity=case when owr.Id is not null then owr.Quantity else mp.Quantity End
+						,PlanQuantity=case when owr.Id is not null then owr.PlanQuantity else mp.Quantity End
                          , ISNULL(rcvqty.TransactionQty, '0') AS GRNRcvQty
                          ,0 AS TransactionQty
                         -- , ISNULL(mp.Quantity, 0)-ISNULL(rcvqty.TransactionQty, '0') As Balance
-						 ,Balance=case when owr.Id is not null then ISNULL(owr.Quantity, 0)-ISNULL(rcvqty.TransactionQty, '0') else ISNULL(mp.Quantity, 0)-ISNULL(rcvqty.TransactionQty, '0') End
+						 ,Balance=case when owr.Id is not null then ISNULL(owr.PlanQuantity, 0)-ISNULL(rcvqty.TransactionQty, '0') else ISNULL(mp.Quantity, 0)-ISNULL(rcvqty.TransactionQty, '0') End
                            ,null QtyStatus
                          , TransactionUoMId = CASE when mp.OutputMaterialUOMId IS NULL THEN mp.TransactionUoMId ELSE mp.OutputMaterialUOMId END
                           , TransactionUoM = CASE when mp.OutputMaterialUOMId IS NULL then TUoM1.UserName ELSE TUoM.UserName END
@@ -477,9 +477,9 @@ namespace Library.MaterialManagement.JobWork
                         left join(select OSTransformationPODetailId, Sum(isnull(TransactionQty,0)) TransactionQty from trn.InventoryReceiveDetail group by OSTransformationPODetailId)rcvqty ON rcvqty.OSTransformationPODetailId = mp.Id
                         left join(select IID.OSTransformationPOId, II.JWContractId
 
-                                 , sum(IID.PolicyAmount) PolicyAmt, sum(IID.TransactionQty) TQty
-                                 , Rate= round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)), 4)
-                                 , ConsumptionAmount= (round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)), 4) * sum(IID.TransactionQty))
+                                  , sum(ISNULL(IID.PolicyAmount,0)) PolicyAmt, sum(IID.TransactionQty) TQty
+                                 , Rate= round((sum(ISNULL(IID.PolicyAmount,0)) / sum(IID.TransactionQty)), 4)
+                                 , ConsumptionAmount= (round((sum(ISNULL(IID.PolicyAmount,0)) / sum(IID.TransactionQty)), 4) * sum(IID.TransactionQty))
 
                                  FROM trn.InventoryIssueDetail IID
 
@@ -509,7 +509,7 @@ namespace Library.MaterialManagement.JobWork
 								,PM.UserName
 	                            --, MOI.ArticleId, ART.StandardName AS ArticleName
 								,CN.ContractNo,MLC.LCRef, owrUom.UserName,owr.Id, owr.OSTransformationPODetailId, owr.OrderType,owr.Quantity
-								--,owr.PlanQuantity
+								,owr.PlanQuantity
                                 ,mp.BaseUOMId,TUoMM.Id,vvvv.Rate
                                  ";
 
