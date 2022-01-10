@@ -588,7 +588,6 @@ WHERE P.id='" + PIMasterId + @"' Order By tac.Sequence,tacc.Id";
                 StartRow = ROW; //row 20
                 for (int i = 0; i < dtMaterial.Rows.Count; i++)
                 {
-
                     sheet[ROW, colDescription].Text = dtMaterial.Rows[i]["Description"].ToString();
                     sheet[ROW, colHSNCode].Text = dtMaterial.Rows[i]["HSNCode"].ToString();
 
@@ -610,7 +609,6 @@ WHERE P.id='" + PIMasterId + @"' Order By tac.Sequence,tacc.Id";
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
                     ROW++;
-
                 }
                 sheet[ROW, 1].Text = "Total :";
                 sheet[ROW, 1].CellStyle.Font.Bold = true;
