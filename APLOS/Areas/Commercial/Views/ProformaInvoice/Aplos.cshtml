@@ -146,8 +146,8 @@
                                         </select>
                                     </div>
                                     @*<div class="col-sm-12 show-message">
-                        <input id="{{'UOM'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupUOMList" e-enablefiltersearch="true" e-value="item.UoMId" e-fields-value="MaterialGroupMasterId" e-fields-text="userName" e-width="100%" />
-                    </div>*@
+                                            <input id="{{'UOM'+$index}}" ej-dropdownlist e-model-fields-id="$index" e-datasource="MaterialGroupUOMList" e-enablefiltersearch="true" e-value="item.UoMId" e-fields-value="MaterialGroupMasterId" e-fields-text="userName" e-width="100%" />
+                                        </div>*@
                                 </td>
                                 <td><input type="text" ng-model="item.DeliveryDate" datepicker class="form-control" /></td>
 
@@ -275,7 +275,11 @@
     </script>
 
 </div>
-
+<div class="common-btn">
+    <ul class="list-inline text-right">
+        <li> <button ng-click="PIStatusReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> PI Status </button></li>
+    </ul>
+</div>
 <div class="modal site-modal" id="CustomerPopUpNew" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg ">
         <div class="modal-content">
