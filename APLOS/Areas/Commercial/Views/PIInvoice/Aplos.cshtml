@@ -26,7 +26,7 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Packing Id</th>
+                                            <th>PI No</th>
                                             <th>Ref No</th>
                                             <th>Entity</th>
                                             <th>Customer</th>
@@ -39,7 +39,7 @@
                                     </thead>
                                     <tbody>
                                         <tr ng-repeat="x in selectedPackingList ">
-                                            <td>{{x.PackingId}}</td>
+                                            <td>{{x.PINo}}</td>
                                             <td>{{x.RefNo}}</td>
                                             <td>{{x.Entity}}</td>
                                             <td>{{x.Customer}}</td>
@@ -103,7 +103,7 @@
                             <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
                             <div class="col-sm-5 show-message" style="padding-right:0px;">
                                 <div class="select-style">
-                                    <select id="currency" class="form-control" tabindex="5" name="Currency" ng-model="salesVM.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
+                                    <select id="currency" ng-disabled="true" class="form-control" tabindex="5" name="Currency" ng-model="salesVM.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
@@ -724,27 +724,7 @@
         </div>
     </div>
 </div>
-@*<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="$root.parameters.searchBy">
-                            <option ng-repeat="option in searchInvoiceList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
-                </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>*@
+
 <div class="table-responsive aplos-grid-toggle">
     <div ej-grid e-datasource="invoiceList" e-recorddoubleclick="Get"
          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
@@ -1251,7 +1231,7 @@
                          e-allowselection="true" e-filtersettings-filterType="excel" e-scrolling="true">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
-                            <div e-column e-field="PackingId" e-type="string" e-headertext="Packing Id" e-width="80"></div>
+                            <div e-column e-field="PINo" e-type="string" e-headertext="PI No" e-width="80"></div>
                             <div e-column e-field="RefNo" e-type="string" e-headertext="RefNo" e-width="80"></div>
                             <div e-column e-field="Entity" e-type="string" e-headertext="Entity" e-width="80"></div>
                             <div e-column e-field="Description" e-type="string" e-headertext="Description" e-width="80"></div>
@@ -1266,7 +1246,7 @@
                         </div>
                     </div>
                     <script type="text/template" id="checkboxTemplateMaster">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-change="$parent.Valid" e-checked="data.Active" />
                     </script>
                     <script type="text/x-jsrender" id="headerTemplate">
                         <input type="checkbox" id="headchk" />
