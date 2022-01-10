@@ -709,7 +709,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         $scope.DayChild.OTCalculation = String(e.data.OTCalculation);
         $scope.DayChild.OTMultiplier = String(e.data.OTMultiplier);
         $scope.DayChild.OTHourLimit = String(e.data.OTHourLimit);
-        $scope.DayChild.ApplicableWM = String(e.data.ApplicableWM);
+        //$scope.DayChild.ApplicableWM = String(e.data.ApplicableWM);
         $scope.DayChild.OTConfirmation = String(e.data.OTConfirmation);
         $scope.DayChild.DisplayInOutTime = String(e.data.DisplayInOutTime);
         $scope.DayChild.OTCategory = String(e.data.OTCategory);

@@ -229,11 +229,15 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
 
+     
+        
+        
         [HttpGet]
         public ActionResult GetLeaveYearEndProcessSummaryData(string sYearId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = string.Empty;
+            #region obsolete
             sql = @"select EmployeeId, EmployeeCode,EmployeeName,EmployeeCodeNumeric,EmployeeCodePreFix
                                 ,LeaveName
                                 ,OpeningBalance
@@ -326,25 +330,16 @@ namespace Aplos.Areas.Attendances.Controllers
                                 ) x
                                 ORDER BY  x.EmployeeCodePreFix,x.EmployeeCodeNumeric ";
 
-            var data = _sqlRepository.GetDataCollection(sql);
-            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
-            json.MaxJsonLength = int.MaxValue;
-            return json;
+            #endregion obsolete
 
-        }//End Function 
-
-
-        [HttpGet]
-        public ActionResult GetLeaveYearEndProcessSummaryDataIndividual(string ToDate)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = string.Empty;
-            sql = @"select EmployeeId, EmployeeCode,EmployeeName,EmployeeCodeNumeric,EmployeeCodePreFix,FromDate,x.ToDate
+            sql = @"select EmployeeId, EmployeeCode,EmployeeName,EmployeeCodeNumeric,EmployeeCodePreFix,DOJorDOC,FromDate,x.ToDate
                                 ,LeaveName
                                 ,OpeningBalance
                                 ,EarnedDaysOB
-                                ,CalculatedEarningDays
-                                
+                                ,CalculatedEarningDays,
+                                x.IsCarryForward, x.CarryForwardDay,
+                                x.IsMaxEncashment, x.MaxEncashment,
+                                x.IsMaxEncashmentLapse, x.MaxEncashmentLapse
                                 ,Allocation DaysCanBeSanctioned
                                 ,AvailedOB
                                ,availd
@@ -358,20 +353,131 @@ namespace Aplos.Areas.Attendances.Controllers
                                 from
                                 (
                                 SELECT ELS.EmployeeId,FORMAT(els.FromDate,'dd-MMM-yyyy') AS FromDate,FORMAT(els.ToDate,'dd-MMM-yyyy') AS ToDate
-                                ,EI.EmployeeCode
+                                ,EI.EmployeeCode,LvPolicyDetail.IsCarryForward,FORMAT(LvPolicyDetail.DOJorDOC,'dd-MMM-yyyy') AS DOJorDOC,
+                                LvPolicyDetail.CarryForwardDay,
+                                LvPolicyDetail.IsMaxEncashment,
+                                LvPolicyDetail.MaxEncashment,
+                                LvPolicyDetail.IsMaxEncashmentLapse,
+                                LvPolicyDetail.MaxEncashmentLapse
                                 ,EI.EmployeeName,EI.EmployeeCodeNumeric,EI.EmployeeCodePreFix
                                 ,LT.UserName LeaveName
                                 ,LT.LeaveType
                                 --,isnull(CarryForwardOpeningBalance,0) +isnull([BroughtForward],0)  OpeningBalance
-                                ,OpeningBalance=CASE WHEN ELS.IsEncashed =1 THEN ISNULL(ELS.CarryForward, 0)+ISNULL(ELS.EncashedInbetween, 0) ELSE ISNULL(ELS.BroughtForward, 0)+isnull(ELS.CarryForwardOpeningBalance,0) END
+                                ,OpeningBalance=ISNULL(ELS.BroughtForward, 0)+isnull(ELS.CarryForwardOpeningBalance,0)
                                 ,isnull(ELS.CurrentYearEarnedDaysOpeningBalance,0) EarnedDaysOB
                                 ,isnull(ELS.CalculatedEarningDays,0) CalculatedEarningDays
                              
-                                ,Allocation=CASE WHEN LT.LeaveType='Earn' THEN  
-												CASE WHEN LvPolicyDetail.DOJorDOC> els.ToDate then isnull(ELS.CurrentYearAllocation,0)
-													ELSE CASE WHEN ELS.NotEncashedButYearEnded=1 THEN isnull(ELS.CurrentYearAllocation,0) ELSE isnull(ELS.DaysCanBeSanctioned,0) END   
-												END
-                                            ELSE isnull(ELS.DaysCanBeSanctioned,0) END
+                                ,Allocation= isnull(ELS.CurrentYearAllocation,0)
+            
+                                ,isnull(ELS.CurrentYearAvailedOpeningBalance,0) AvailedOB
+                                ,isnull((SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
+                                  INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
+                                  where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
+                                AND m.EmpSystemID=els.EmployeeId AND m.LTSystemID=els.LeaveTypeId),0) availd
+                                ,isnull((SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
+                                  INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
+                                  where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
+                                AND m.EmpSystemID=els.EmployeeId AND m.LTSystemID=els.LeaveTypeId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
+                                ,isnull(ELS.[CarryForward],0) [CarryForward]
+
+
+                                ,isnull(ELS.[YearEndLapse],0) [YearEndLapse]
+                                ,isnull(ELS.[YearEndEncash],0) [YearEndEncash]
+                                ,isnull(ELS.[YearEndEncashCumulative],0) [YearEndEncashCumulative]
+                                ,isnull(ELS.[YearEndLapseCumulative],0) [YearEndLapseCumulative] 
+                                ,isnull(ELS.[IsYearlyProcessed],0) [IsYearlyProcessed]
+                                ,isnull(ELS.DaysCanBeSanctioned,0)   DaysCanBeSanctioned
+                                ,isnull(ELS.EncashedInbetween,0)   EncashedInbetween
+                                FROM [TRN].[EmployeeLeaveSummary] ELS
+                                LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
+                                LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId      
+								INNER JOIN YearlyCalendar AS yc ON yc.Id=els.CalanderYearId   
+
+-------------------------LvPolicyDetail start---------------------------
+							LEFT JOIN ( select lpd.EncashmentBasis,lpd.LTSystemID,lpd.IsCarryForward,
+							                   lpd.CarryForwardDay,IsMaxEncashment,	MaxEncashment,	IsMaxEncashmentLapse,	MaxEncashmentLapse,
+
+                             DOJorDOC=CASE WHEN lpd.LvAvailedOnDOJ=1 THEN                            										 
+                            										 CASE WHEN lpd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  emp.DOJ )
+																	      WHEN lpd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  emp.DOJ )
+																	      WHEN lpd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  emp.DOJ ) END
+										   WHEN  lpd.LvAvailedOnDOC=1 THEN 										   
+										   							 CASE WHEN lpd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	emp.DOC  )
+																		  WHEN lpd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	emp.DOC  )
+																	      WHEN lpd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	emp.DOC  )
+										   						END
+										   	 END
+                            ,emp.SystemID EmpSystemId
+                            from dbo.LeavePolicyDetail as lpd
+                            LEFT JOIN dbo.LeavePolicyMaster as lpm on lpd.LPMSystemID = lpm.SystemID
+                            LEFT JOIN (select * from SCS.DesignationMasterConfiguration where PlantId='" + identity.PlantId + @"') DC on   lpm.SystemID = DC.LeavePolicyMasterId
+                            LEFT JOIN MST.DesignationMaster DM on  DC.DesignationMasterId=DM.Id
+                            LEFT JOIN dbo.EmployeeInformation emp on emp.GivenDesignationId=DM.DesignationId
+							) AS  LvPolicyDetail   ON LvPolicyDetail.LTSystemID=els.LeaveTypeId AND  LvPolicyDetail.IsCarryForward=1  AND LvPolicyDetail.EmpSystemId= ELS.EmployeeId                
+                        
+                             -------------------------LvPolicyDetail end---------------------------
+
+
+                             Where ELS.CalanderYearId='" + sYearId + @"'
+                                --AND ELS.EmployeeId=1800028 
+                                and isnull(ELS.IsEncashed,0)=0
+                                and EI.PlantId='" + identity.PlantId + @"'
+                                AND LvPolicyDetail.EncashmentBasis='CalanderYear'
+                                ) x
+                                ORDER BY  x.EmployeeCodePreFix,x.EmployeeCodeNumeric ";
+            var data = _sqlRepository.GetDataCollection(sql);
+            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+
+        }//End Function 
+        [HttpGet]
+        public ActionResult GetLeaveYearEndProcessSummaryDataIndividual(string ToDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = string.Empty;
+           
+            sql = @"select EmployeeId, EmployeeCode,EmployeeName,EmployeeCodeNumeric,EmployeeCodePreFix,DOJorDOC,FromDate,x.ToDate
+                                ,LeaveName
+                                ,OpeningBalance
+                                ,EarnedDaysOB
+                                ,CalculatedEarningDays,
+                                x.IsCarryForward, x.CarryForwardDay,
+                                x.IsMaxEncashment, x.MaxEncashment,
+                                x.IsMaxEncashmentLapse, x.MaxEncashmentLapse
+                                ,Allocation DaysCanBeSanctioned
+                                ,AvailedOB
+                               ,availd
+                                ,TotalAvailed
+                                ,Balance=OpeningBalance +Allocation - TotalAvailed - EncashedInbetween
+                                ,[CarryForward]
+                                ,[YearEndLapse]
+                                ,[YearEndEncash]
+                                ,[YearEndEncashCumulative]
+                                ,[YearEndLapseCumulative] ,EncashedInbetween
+                                from
+                                (
+                                SELECT ELS.EmployeeId,FORMAT(els.FromDate,'dd-MMM-yyyy') AS FromDate,FORMAT(els.ToDate,'dd-MMM-yyyy') AS ToDate
+                                ,EI.EmployeeCode,LvPolicyDetail.IsCarryForward,FORMAT(LvPolicyDetail.DOJorDOC,'dd-MMM-yyyy') AS DOJorDOC,
+                                LvPolicyDetail.CarryForwardDay,
+                                LvPolicyDetail.IsMaxEncashment,
+                                LvPolicyDetail.MaxEncashment,
+                                LvPolicyDetail.IsMaxEncashmentLapse,
+                                LvPolicyDetail.MaxEncashmentLapse
+                                ,EI.EmployeeName,EI.EmployeeCodeNumeric,EI.EmployeeCodePreFix
+                                ,LT.UserName LeaveName
+                                ,LT.LeaveType
+                                --,isnull(CarryForwardOpeningBalance,0) +isnull([BroughtForward],0)  OpeningBalance
+                                ,OpeningBalance=ISNULL(ELS.BroughtForward, 0)+isnull(ELS.CarryForwardOpeningBalance,0)
+                                ,isnull(ELS.CurrentYearEarnedDaysOpeningBalance,0) EarnedDaysOB
+                                ,isnull(ELS.CalculatedEarningDays,0) CalculatedEarningDays
+                             
+                                ,Allocation= isnull(ELS.CurrentYearAllocation,0)
+            --                    CASE WHEN LT.LeaveType='Earn' THEN  
+												--CASE WHEN LvPolicyDetail.DOJorDOC> els.ToDate then isnull(ELS.CurrentYearAllocation,0)
+												--	ELSE CASE WHEN ELS.NotEncashedButYearEnded=1 THEN isnull(ELS.CurrentYearAllocation,0) ELSE isnull(ELS.DaysCanBeSanctioned,0) END   
+												--END
+            --                                ELSE isnull(ELS.DaysCanBeSanctioned,0) END
                                 
                                 ,isnull(ELS.CurrentYearAvailedOpeningBalance,0) AvailedOB
                                 ,isnull((SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
@@ -401,7 +507,9 @@ namespace Aplos.Areas.Attendances.Controllers
                                 LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId         
 
 -------------------------LvPolicyDetail start---------------------------
-							LEFT JOIN ( select lpd.EncashmentBasis,lpd.LTSystemID,
+							LEFT JOIN ( select lpd.EncashmentBasis,lpd.LTSystemID,lpd.IsCarryForward,
+							                   lpd.CarryForwardDay,IsMaxEncashment,	MaxEncashment,	IsMaxEncashmentLapse,	MaxEncashmentLapse,
+
                              DOJorDOC=CASE WHEN lpd.LvAvailedOnDOJ=1 THEN                            										 
                             										 CASE WHEN lpd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  emp.DOJ )
 																	      WHEN lpd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  emp.DOJ )
@@ -412,7 +520,7 @@ namespace Aplos.Areas.Attendances.Controllers
 																	      WHEN lpd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	emp.DOC  )
 										   						END
 										   	 END
-                            ,emp.SystemID EmpSystemId,lpd.IsCarryForward
+                            ,emp.SystemID EmpSystemId
                             from dbo.LeavePolicyDetail as lpd
                             LEFT JOIN dbo.LeavePolicyMaster as lpm on lpd.LPMSystemID = lpm.SystemID
                             LEFT JOIN (select * from SCS.DesignationMasterConfiguration where PlantId='" + identity.PlantId + @"') DC on   lpm.SystemID = DC.LeavePolicyMasterId
@@ -423,8 +531,9 @@ namespace Aplos.Areas.Attendances.Controllers
                              -------------------------LvPolicyDetail end---------------------------
 
 
-                                Where ELS.ToDate<='" + ToDate + @"' 
+                          Where ELS.ToDate<='" + ToDate + @"' 
                                 and EI.PlantId='" + identity.PlantId + @"'
+                                and isnull(ELS.IsEncashed,0)=0
                                 AND LvPolicyDetail.EncashmentBasis<>'CalanderYear'
                                 ) x
                                 ORDER BY  x.EmployeeCodePreFix,x.EmployeeCodeNumeric ";
@@ -436,93 +545,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }//End Function 
 
-
-        //[HttpGet]
-        //public ActionResult xGetLeaveYearEndProcessSummaryData(string sYearId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    string sql = string.Empty;
-        //    sql = @"select EmployeeId, EmployeeCode,EmployeeName
-        //                        ,LeaveName
-        //                        ,OpeningBalance
-        //                        ,EarnedDaysOB
-        //                        ,CalculatedEarningDays
-        //                        ,Convert(int,Allocation) Allocation
-        //                        ,DaysCanBeSanctioned
-        //                        ,AvailedOB
-        //                        ,Availd
-        //                        ,TotalAvailed
-        //                        ,Balance=OpeningBalance + Convert(int,DaysCanBeSanctioned) - TotalAvailed - EncashedInbetween
-        //                        ,[CarryForward]
-        //                        ,[YearEndLapse]
-        //                        ,[YearEndEncash]
-        //                        ,[YearEndEncashCumulative]
-        //                        ,[YearEndLapseCumulative] ,EncashedInbetween
-        //                        from
-        //                        (
-        //                        SELECT ELS.EmployeeId
-        //                        ,EI.EmployeeCode
-        //                        ,EI.EmployeeName
-        //                        ,LT.UserName LeaveName
-        //                        ,LT.LeaveType
-        //                        ,isnull(CarryForwardOpeningBalance,0) +isnull([BroughtForward],0)  OpeningBalance
-        //                        ,isnull(ELS.CurrentYearEarnedDaysOpeningBalance,0) EarnedDaysOB
-        //                        ,isnull(ELS.CalculatedEarningDays,0) CalculatedEarningDays
-        //                        , Allocation=case when lt.LeaveType='Earn' then ( isnull(CurrentYearEarnedDaysOpeningBalance,0)+ isnull(CalculatedEarningDays,0))/20
-        //                        ELSE isnull(CurrentYearAllocation,0)  end
-        //                        ,isnull(CurrentYearAvailedOpeningBalance,0) AvailedOB
-        //                        ,isnull(tr.totalLeave,0) availd
-        //                        ,isnull(tr.totalLeave,0) + isnull(CurrentYearAvailedOpeningBalance,0) TotalAvailed	
-        //                        ,isnull([CarryForward],0) [CarryForward]
-
-
-        //                        ,isnull([YearEndLapse],0) [YearEndLapse]
-        //                        ,isnull([YearEndEncash],0) [YearEndEncash]
-        //                        ,isnull([YearEndEncashCumulative],0) [YearEndEncashCumulative]
-        //                        ,isnull([YearEndLapseCumulative],0) [YearEndLapseCumulative] 
-        //                        ,isnull([IsYearlyProcessed],0) [IsYearlyProcessed]
-        //                        ,isnull(DaysCanBeSanctioned,0)   DaysCanBeSanctioned
-        //                        ,isnull(EncashedInbetween,0)   EncashedInbetween
-        //                        FROM [TRN].[EmployeeLeaveSummary] ELS
-        //                        LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
-        //                        LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId
-
-        //                        --left join (
-        //                        --SELECT EmpSystemID,LTSystemID,sum(d.d) totalLeave FROM [dbo].[LeaveTransaction] m 
-        //                        --left join (
-        //                        --select sum(LeaveDuration) d,LvTrnsSystemID from [dbo].[LeaveTransactionDetails]
-        //                        --where IsAvailed=1 and WorkDate between '01-jan-2019' and '31-dec-2019' 
-        //                        --group by LvTrnsSystemID
-        //                        --) d on d.LvTrnsSystemID=m.SystemID
-        //                        --where m.GroupID='" + identity.CompanyGroupId + @"' and PlantID='" + identity.PlantId + @"'
-        //                        ---and m.EmpSystemID=1800029
-        //                        --group by EmpSystemID,LTSystemID
-        //                        --) tr on tr.EmpSystemID=ELS.EmployeeId and els.LeaveTypeId=tr.LTSystemID
-
-        //                         left join (
-        //                        SELECT yc.Id AS CalanderYearId, M.EmpSystemID,LTSystemID,sum(d.LeaveDuration) totalLeave                                  
-        //                        FROM [dbo].[LeaveTransaction] m 
-        //                          INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
-        //                          INNER JOIN YearlyCalendar AS yc ON D.WorkDate BETWEEN yc.FromDate and yc.ToDate
-
-
-        //                        WHERE D.IsAvailed=1 AND m.GroupID='" + identity.CompanyGroupId + @"' and m.PlantID='" + identity.PlantId + @"'
-        //                        group by yc.Id,EmpSystemID,LTSystemID
-        //                        ) tr on tr.EmpSystemID=ELS.EmployeeId and els.LeaveTypeId=tr.LTSystemID AND tr.CalanderYearId=ELS.CalanderYearId
-
-        //                        Where ELS.CalanderYearId='" + sYearId + @"'
-        //                        --AND ELS.EmployeeId=1800028 
-        //                        and ELS.PlantId='" + identity.PlantId + @"'
-        //                        ) x
-        //                        ORDER BY Convert(INT, x.EmployeeCode)";
-
-        //    var data = _sqlRepository.GetDataCollection(sql);
-        //    JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
-        //    json.MaxJsonLength = int.MaxValue;
-        //    return json;
-
-        //}//End Function 
-
+      
 
         [HttpGet, Authorize]
         public ActionResult GetMaternityDetailsForOTConfirmation(string EmpId, string WDate)

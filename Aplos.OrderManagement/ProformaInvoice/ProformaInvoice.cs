@@ -60,6 +60,7 @@ namespace Library.OrderManagement.ProformaInvoice
                     PIPackingListID = PIPackingListMasterData["Id"].ToString();
                     AddNewRow(dsMaster.Tables[0], PIPackingListMasterData);
                     dsMaster.Tables[0].Rows[0]["PImasterId"] = MaterialData["PIMasterId"];
+                   
                 }
                 else
                 {
@@ -83,7 +84,7 @@ namespace Library.OrderManagement.ProformaInvoice
 
                     AddNewRow(dsMaterial.Tables[0], MaterialData);
                     dsMaterial.Tables[0].Rows[0]["Id"] = _IdM;
-                    dsMaterial.Tables[0].Rows[0]["PIQuantity"] = MaterialData["Quantity"];
+                    dsMaterial.Tables[0].Rows[0]["PIQuantity"] = MaterialData["AllocatedQty"];
                     dsMaterial.Tables[0].Rows[0]["PIMaterialId"] = MaterialData["Id"];
                     dsMaterial.Tables[0].Rows[0]["PIUoMId"] = MaterialData["UoMId"];
                     dsMaterial.Tables[0].Rows[0]["PIPackingListMasterId"] = _Id;
@@ -92,6 +93,9 @@ namespace Library.OrderManagement.ProformaInvoice
                 {
                     _IdM = dsMaterial.Tables[0].Rows[0]["Id"].ToString();
                     EditRow(dsMaterial.Tables[0].Rows[0], MaterialData);
+                    dsMaterial.Tables[0].Rows[0]["PIQuantity"] = MaterialData["AllocatedQty"];
+                    dsMaterial.Tables[0].Rows[0]["PIMaterialId"] = MaterialData["Id"];
+                    dsMaterial.Tables[0].Rows[0]["PIUoMId"] = MaterialData["UoMId"];
                     dsMaterial.Tables[0].Rows[0]["Id"] = _IdM;
                     dsMaterial.Tables[0].Rows[0]["PIPackingListMasterId"] = _Id;
                 }
@@ -410,16 +414,33 @@ ROUND(p.Amount, 2) Amount,uom.UserName UoM,
 						  LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
 						WHERE p.PIMasterId='" + PIMasterId + @"' AND p.PIVersionId='" + PIVersionId + @"'";
         }
+
+        private string TCSql(string PIMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT  ROW_NUMBER() OVER(ORDER BY tac.Sequence) RoWNo, P.Id PIMasterId
+,tac.Id TermsAndConditionMasterId,tacc.Id TermsAndConditionPIChildId,tacd.id TermsAndConditionPIDetailId,
+tacc.Title,tacd.HeaderCaption,tacd.DESCRIPTION
+FROM PIMaster AS p
+LEFT OUTER JOIN HKP.TermsAndConditions AS tac ON P.TermsAndConditionsId=tac.Id
+LEFT OUTER JOIN TermsAndConditionsPIChild AS tacc ON tacc.PIMasterId=p.Id
+LEFT OUTER JOIN TermsAndConditionsPIDetails AS tacd ON tacd.TermsAndConditionsPIChildId=tacc.Id
+WHERE P.id='" + PIMasterId + @"' Order By tac.Sequence,tacc.Id";
+        }
         public void PoformaInvoiceReport(string PIMasterId, string PIVersionId)
         {
             try
             {
+                var reportUtility = new ReportUtility();
+
                 string HeaderSql = PIMasterSql(PIMasterId);
                 string MaterialSql = PIMaterialSql(PIMasterId, PIVersionId);
+                string TermsAndConditionSql = TCSql(PIMasterId);
 
                 //Instantiate the Excel application object
                 DataTable dtHeader = _sqlRepository.GetDataTable(HeaderSql);
                 DataTable dtMaterial = _sqlRepository.GetDataTable(MaterialSql);
+                DataTable dtTermsAndConditions = _sqlRepository.GetDataTable(TermsAndConditionSql);
                 if (dtHeader.Rows.Count == 0)
                     throw new Exception("No data found");
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -478,24 +499,27 @@ ROUND(p.Amount, 2) Amount,uom.UserName UoM,
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].CellStyle.Font.Bold = true;
                 int colBuyer = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Shipping Mark:";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colShippingMark = COL;
                 ROW = StartRow;
 
-                
-                //COL = 7;
-                //sheet[ROW, COL].Text = "Bank Currency :";
-                //sheet[ROW, COL].ColumnWidth = 13;
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //int colBankCurrency = COL;
                 // Headerdata
                 ROW = 6;
                 sheet[ROW, colPINo + 1].Text = dtHeader.Rows[0]["PINo"].ToString();
                 ROW++;
+
                 sheet[ROW, colDate + 1].Text = dtHeader.Rows[0]["PIDate"].ToString();
                 ROW++;
+
                 sheet[ROW, colPIRef + 1].Text = dtHeader.Rows[0]["RefNo"].ToString();
                 ROW++;
+
                 sheet[ROW, colCustomer + 1].Text = dtHeader.Rows[0]["Customer"].ToString();
                 ROW++;
+
                 sheet[ROW, colDeliveryByAddress + 1].Text = dtHeader.Rows[0]["DeliveryByAddress"].ToString(); ;
                 ROW = StartRow;
 
@@ -504,8 +528,10 @@ ROUND(p.Amount, 2) Amount,uom.UserName UoM,
 
                 sheet[ROW, colCurrency + 1].Text = dtHeader.Rows[0]["Currency"].ToString();
                 ROW++;
-
                 sheet[ROW, colBuyer + 1].Text = dtHeader.Rows[0]["Buyer"].ToString();
+
+                ROW++;
+                sheet[ROW, colShippingMark + 1].Text = dtHeader.Rows[0]["ShippingMark"].ToString();
                 ROW = StartRow;
                 // sheet[ROW, colBankCurrency + 1].Text = dtBank.Rows[0]["CurrencyCode"].ToString();
 
@@ -516,8 +542,9 @@ ROUND(p.Amount, 2) Amount,uom.UserName UoM,
                 sheet.Range[StartRow + 1, colCurrency + 1, StartRow + 1, colCurrency + 2].Merge();
                 sheet.Range[StartRow + 2, colBuyer + 1, StartRow + 2, colBuyer + 2].Merge();
                 sheet.Range[StartRow+3, colCustomer + 1, StartRow+3, colCustomer + 3].Merge();
-                sheet.Range[StartRow+4, colDeliveryByAddress + 1, StartRow+4, colDeliveryByAddress + 7].Merge();
-                sheet.Range[StartRow, colPINo, StartRow + 3, colPINo + 6].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
+                sheet.Range[StartRow + 3, colShippingMark + 1, StartRow+3, colShippingMark + 2].Merge();
+                sheet.Range[StartRow+4, colDeliveryByAddress + 1, StartRow+4, colDeliveryByAddress + 6].Merge();
+                sheet.Range[StartRow, colPINo, 11, colPINo + 6].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
 
                 ROW = 12;
                 COL = 1;
@@ -564,35 +591,85 @@ ROUND(p.Amount, 2) Amount,uom.UserName UoM,
 
                     sheet[ROW, colDescription].Text = dtMaterial.Rows[i]["Description"].ToString();
                     sheet[ROW, colHSNCode].Text = dtMaterial.Rows[i]["HSNCode"].ToString();
+
                     sheet[ROW, colQty].Number =clsStaticInfo.dbl( dtMaterial.Rows[i]["Quantity"].ToString());
+                    sheet[ROW, colQty].NumberFormat = "#,##0.00;(#,##0.00)";
+
                     sheet[ROW, colUoM].Text = dtMaterial.Rows[i]["UoM"].ToString();
                     sheet[ROW, colDeliveryDate].Text = dtMaterial.Rows[i]["DeliveryDate"].ToString();
+
                     sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtMaterial.Rows[i]["Rate"].ToString());
+                    sheet[ROW, colRate].NumberFormat = "#,##0.00;(#,##0.00)";
+
                     sheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dtMaterial.Rows[i]["Amount"].ToString());
-           
+                    sheet[ROW, colTotalAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colQty) + ROW + "*" + reportUtility.GetColumnNameForXls(colRate) + (ROW) + ")";
+
+                    sheet[ROW, colTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
                     ROW++;
 
                 }
-                sheet[ROW, 1].Text = "Total:";
+                sheet[ROW, 1].Text = "Total :";
                 sheet[ROW, 1].CellStyle.Font.Bold = true;
                 int colTotal = COL;
-                var reportUtility = new ReportUtility();
+           
                 sheet.Range[ROW, colTotal].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTotalAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colTotalAmount) + (ROW - 1) + ")";
                 sheet.Range[ROW, colTotal].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet[ROW, colTotal].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //sheet[ROW, colTotal].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW , 1, ROW , colTotal- 1].Merge();
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                int TCStartROW = ROW+2;
+                ROW = TCStartROW;
+                COL = 1;
+                int  sl = 1;
+                string CmpTitile ="";
+                sheet[ROW, COL].Text = "Terms & Conditions :";
+                sheet[ROW, COL].CellStyle.Font.Italic = true;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].CellStyle.Font.Underline = ExcelUnderline.Single;
+                ROW++;
+                ROW++;
+                int TitleStartROW = ROW;
+                int colHeaderCaption = 1;
+                int colDes = 3;
+                for (int i = 0; i < dtTermsAndConditions.Rows.Count; i++)
+                {
+                    if (dtTermsAndConditions.Rows[i]["TermsAndConditionPIChildId"].ToString() != CmpTitile)
+                    {
+                        sheet[ROW, COL].Text = dtTermsAndConditions.Rows[i]["Title"].ToString();
+                        sheet.Range[ROW, COL, ROW, COL + 3].Merge();
+                        sheet[ROW, COL].CellStyle.Font.Bold = true;
+                        ROW++;
+                        sl = 1;
+                    }
+                    sheet[ROW, colHeaderCaption].Text = sl + "." + dtTermsAndConditions.Rows[i]["HeaderCaption"].ToString();
+                    sheet.Range[ROW, colHeaderCaption, ROW, colHeaderCaption+1].Merge();
+
+                    sheet[ROW, colDes].Text = dtTermsAndConditions.Rows[i]["DESCRIPTION"].ToString();
+                    sheet.Range[ROW, colDes, ROW, colDes+1].Merge();
+                    sl++;
+                    sheet.Range[ROW, colHeaderCaption, ROW, colDes + 1].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, colHeaderCaption, ROW, colDes + 1].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+                    CmpTitile = dtTermsAndConditions.Rows[i]["TermsAndConditionPIChildId"].ToString();
+                }
+                sheet.Range[TitleStartROW, 1, ROW, 4].BorderAround(ExcelLineStyle.Thin);
+
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 9f;
                 sheet[ROW, 1].CellStyle.Font.Size = 9;
+                sheet[TCStartROW, 1].CellStyle.Font.Size = 12;
 
-                sheet["A" + StartRow.ToString()].FreezePanes();
+                // sheet["A" + StartRow.ToString()].FreezePanes();
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -600,6 +677,8 @@ ROUND(p.Amount, 2) Amount,uom.UserName UoM,
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet[ROW, colTotal].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
 
                 string strFileName = "ProformaInvoiceReport.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);

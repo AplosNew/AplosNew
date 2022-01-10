@@ -86,10 +86,12 @@ namespace Library.OrderManagement.Production
                 {
                     throw new Exception("You are not an Employee with a Budget Code!");
                 }
+                
+
                 else
                 {
                     string Bdc = tb.Rows[0]["Id"].ToString();
-                    str = @"Select wm.Id ,wm.Sequence, wm.ProcessId ,p.UserName as process, wm.Category ,
+                    str = @"Select wm.Id ,wm.Sequence, wm.ProcessId ,p.UserName as process, wm.ItemName, wm.Category ,
                                 wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom ,wbd.BudgetId , ept.EntityId,
 								mb.Code as BudgetCode , e.UserName as EntityName
                                 from dbo.WasteMaster wm
@@ -102,8 +104,7 @@ namespace Library.OrderManagement.Production
                                 where ept.EntityId = '" + Id+"' and wbd.BudgetId = '"+Bdc+@"'";
                     
                 }
-
-                DataTable dt =  _sqlRepository.GetDataTable(str);
+                  DataTable dt =  _sqlRepository.GetDataTable(str);
                 dt.Columns.Add("Quantity", typeof(double));
                 dt.Columns.Add("Remarks", typeof(string));
 
