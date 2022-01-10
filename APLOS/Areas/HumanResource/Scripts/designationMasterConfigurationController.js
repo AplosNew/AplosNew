@@ -26,7 +26,8 @@ function DesignationMasterConfigurationController(commonMessage, $window, $scope
         OverTimePmtPolicyMasterID: null,
         BnsPlcMthRetainID: null,
         OverTimePmtPolicyMasterId: null,
-        HolidayPayDayMasterId:null,
+        HolidayPayDayMasterId: null,
+        AttdnBonusHeaderId: null,
         IsOTEntitled: true,
         AddedBy: null,
         AddedDate: new Date(),
@@ -73,6 +74,14 @@ function DesignationMasterConfigurationController(commonMessage, $window, $scope
                 $scope.LeavePolicyMasterList = response.data;
             });
     }
+    $scope.AttdnBonusHeaderList = [];
+    $scope.getAttdnBonusHeaderList = function () {
+        $http.get($scope.path + 'GetAttdnBonusHeaderId?plantId=' + $scope.designationMasterConfigurationNew.PlantId)
+            .then(function (response) {
+                $scope.AttdnBonusHeaderList = response.data;
+            });
+    }
+
     $scope.BonusPolicyMasterList = [];
     $scope.getBonusPolicyMaster = function () {
         $http.get('HumanResource/DesignationMasterConfiguration/GetBonusPolicyMasterCbo?plantId=' + $scope.designationMasterConfigurationNew.PlantId)
@@ -206,6 +215,7 @@ function DesignationMasterConfigurationController(commonMessage, $window, $scope
             RecruitmentProcessSetId: null,
             SalaryRuleMasterId: null,
             LeavePolicyMasterId: null,
+            AttdnBonusHeaderId:null,
             IsOTEntitled: true,
             AddedBy: null,
             AddedDate: new Date(),
