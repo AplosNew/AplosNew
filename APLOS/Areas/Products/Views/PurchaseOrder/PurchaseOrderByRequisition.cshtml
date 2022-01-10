@@ -35,7 +35,7 @@
                     <li role="presentation" ng-class="{ active: isSetCheckedHR(2) }"><a ng-click="setTabCheckedHR(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked(Hold / Reject)</a></li>
                     <li role="presentation" ng-class="{ active: isSetChecked(3) }"><a ng-click="setTabChecked(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked</a></li>
                     <li role="presentation" ng-class="{ active: isSetApprovedHR(4) }"><a ng-click="setTabApprovedHR(4)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved(Hold / Reject)</a></li>
-                    <li role="presentation" ng-class="{ active: isSetIndex1(5) }"><a ng-click="setTabIndex1(5)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved</a></li>
+                    <li role="presentation" ng-class="{ active: isSetApproved(5) }"><a ng-click="setTabApproved(5)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved</a></li>
 
                 </ul>
             </div>
@@ -311,14 +311,35 @@
                     </fieldset>
                 </div>
 
-                <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIndex1(5), active: isSetIndex1(5) }">
+                <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetApproved(5), active: isSetApproved(5) }">
                     <fieldset class="scheduler-border">
                         <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                        <div class="row text-right">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div class="search-form">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-3 col-md-3">
+                                            <div class="select-style">
+                                                <select ng-model="searchByAppPO">
+                                                    <option ng-repeat="option in searchByAppPOList" value="{{option.value}}">{{option.name}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-7 col-md-7">
+                                            <input type="text" class="form-control" placeholder="Search" ng-model="searchPO" ng-enter="getallApprovedData();">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <button type="button" ng-click="getallApprovedData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div>
                             @*<div id='Grid'></div>*@
                             <div class="content-container-fluid" style="color:black;">
                                 @*e-allowselection="true"*@
-                                <div style="color:black;" id="GridApp" ej-grid e-datasource="GriddataIndexApp"
+                                <div style="color:black;" id="GridApp" ej-grid e-datasource="ApprovedPOList"
                                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                      e-recorddoubleclick="" e-filtersettings-filterType="excel" e-enabletouch="true"
                                      e-allowselection="true" e-allowResizing="true"
@@ -349,22 +370,23 @@
                                 </div>
                             </div>
                             <script id="tabGridContents" type="text/x-jsrender">
-								<div class="tabcontrol" id="Test">
-									<ul>
-										<li><a href="#gridTab{{:Id}}">PO Details</a></li>
-										<li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-									</ul>
-									<div id="gridTab{{:Id}}">
-										<div id="detailGrid"></div>
-									</div>
-								
-									<div id="gridTab1{{:Id}}">
-										<div id="detailGrid1" style="width:800px;"></div>
-									</div>
+                                <div class="tabcontrol" id="Test">
+                                    <ul>
+                                        <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
+                                    </ul>
+                                    <div id="gridTab{{:Id}}">
+                                        <div id="detailGrid"></div>
+                                    </div>
 
-								</div>
+                                    <div id="gridTab1{{:Id}}">
+                                        <div id="detailGrid1" style="width:800px;"></div>
+                                    </div>
+
+                                </div>
                             </script>
                         </div>
+                        <i>**Showing top 100 Posted GRN  order by PostingDate</i>
                     </fieldset>
                 </div>
             </div>

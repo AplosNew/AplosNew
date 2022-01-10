@@ -1405,7 +1405,7 @@ namespace Aplos.Areas.Products.Controllers
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
 				return Json(obj.GRNDocumentMapData(POID), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -1423,7 +1423,7 @@ namespace Aplos.Areas.Products.Controllers
 			var fileName = "";
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
 
 				var directory = ResourcesPathReader.GetGRNPath();
 				var path = Path.Combine(directory);

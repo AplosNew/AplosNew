@@ -7026,59 +7026,9 @@ ORDER BY IR.ID DESC";
             {
 
 
-                //Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                //                     SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
-                //                                , REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
-                //                                --,IR.PODate
-                //                                , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-                //                       , CP.UserName AS PartyAccountGroupName
-                //                             , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                //                             --, IR.GateEntryNo
-                //                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
-                //                                , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-                //                             , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-                //                             , IR.FixedAssetOrInventory, IR.PODepended
-                //                                --, IR.AlongwithInvoice
-                //                                --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-                //                             , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-                //                             , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-                //                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-                //					, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-                //                                ,pgl.CtnId
-                //                                ,IR.AddedBy
-                //                                ,IR.CheckedByStatus AS CheckedByStatus,PT.PaymentMode
-                //                       ,IR.AuthorizedByStatus AS AuthorizedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,eI2.EmployeeName As Addedby
-                //                    FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                //                    LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-                //                       ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-
-
-                //                    LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
-                //                    LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
-                //	  LEFT JOIN dbo.EmployeeInformation eI2 ON eI2.SystemId=IR.AddedBy
-
-                //                    JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                //                    JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-                //                    LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-                //                    LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-                //                    LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-                //                    LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-                //                    LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-                //                    LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-                //                    LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
-                //                    LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
-                //		LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-                //                    LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-                //                          JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                //                    LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
-                //                          WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                //                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-                //                    LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-                //                    WHERE  IR.POType='POByReq' AND IR.PlantId='" + plantId + "' AND IR.CheckedBy IS NOT NULL AND IR.CheckedByStatus='Checked' AND IR.AuthorizedBy IS NOT NULL AND IR.AuthorizedByStatus='Approval' AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' AND
-
-
+               
                 Sql = @"--DECLARE @plantId VARCHAR(10)='20171';
-				Select * from (
+				Select top(600) * from (
 				SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
 						, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
 						--,IR.PODate
@@ -7269,7 +7219,7 @@ ORDER BY IR.ID DESC";
 				AND IR.AuthorizedByStatus IS NULL
 				AND isnull(IR.IsClosed,0)=0 
 				)x
-				Order by PODate ASC";
+				Order by  CONVERT(datetime,X.PODate) desc";
 
             }
             else
