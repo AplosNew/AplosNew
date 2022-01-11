@@ -325,6 +325,8 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
 
     $scope.POQTYAllocation = function (args) {
         try {
+            $scope.SumModel.QTY = 0;
+            $scope.SumModel.Amount = 0;
             $scope.POPopUpHeader = args.data;
             if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.EntityId))
                 throw "Please select Entity.";
@@ -336,7 +338,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             $scope.TotalPIQty = args.data.Quantity;
             $scope.PIPackingListMaterialTemp = args.data;
             $scope.PopUpDataList(args.data.Id, args.data.MaterialGroupMasterId);
-            $scope.ASSSSDFG();
+           
             angular.element(document.querySelector('#QTYAllocation')).modal('show');
         } catch (e) {
             ShowResult(e, 'info');
@@ -351,6 +353,15 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             url: $scope.path + 'GetPopUp?PackingListMasterId=' + $scope.PIPackingListMasterTemp.Id + '&PIMaterial=' + PIMaterialID + '&PIMaterialGroup=' + PIMaterialGroupID,
         }).then(function (response) {
             $scope.PIPackingMaterialPopUpList = response.data.data;
+
+            for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
+                if ($scope.PIPackingMaterialPopUpList[i].Active) {
+                    $scope.SumModel.QTY += parseFloat($scope.PIPackingMaterialPopUpList[i].PackingQtyAtPIUOM);
+                    $scope.SumModel.Amount += parseFloat($scope.PIPackingMaterialPopUpList[i].DistributeQTY) * parseFloat($scope.PIPackingMaterialPopUpList[i].PORate);
+                }
+            }
+            $scope.SumModel.QTY = parseFloat($scope.SumModel.QTY).toFixed(2);
+            $scope.SumModel.Amount = parseFloat($scope.SumModel.Amount).toFixed(2);
         });
         angular.element(document.querySelector('#QTYAllocation')).modal('show');
     }
