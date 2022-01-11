@@ -26,6 +26,8 @@ using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Library.OrderManagement.ShipmentControl;
 using Library.OrderManagement.TermsAndConditions;
+using Library.MaterialManagement.InventoryManagements;
+
 namespace Aplos.Areas.Products.Controllers
 {
 	public class PurchaseOrderController : Controller
@@ -941,6 +943,16 @@ namespace Aplos.Areas.Products.Controllers
 			return Json(_purchaseOrderService.GetListForPOBYReq1(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
 		}
 
+	
+
+		[Authorize, HttpPost]
+		public JsonResult GetApprovedListForPOBYReq(string column, string value)
+		{
+			PurchaseOrderQueryService purchaseOrderService = new PurchaseOrderQueryService();
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			return Json(purchaseOrderService.GetApprovedListForPOBYReq(identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+		}
+
 		[Authorize, HttpGet]
 		public ActionResult GetListForRequisition()
 		{
@@ -1310,7 +1322,7 @@ namespace Aplos.Areas.Products.Controllers
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.GetListForServiceRequisition(Id), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4319,7 +4331,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			//return Json(_inventoryReveiveService.getPendingList(identity.PlantId), JsonRequestBehavior.AllowGet);
-			Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+			PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 			//obj.getPendingList(identity.PlantId);
 			return Json(obj.getPendingList(identity.PlantId), JsonRequestBehavior.AllowGet);
 			//return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
@@ -4335,7 +4347,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			//return Json(_inventoryReveiveService.getCheckedList(identity.PlantId), JsonRequestBehavior.AllowGet);
-			Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+			PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 			//obj.getCheckedList(identity.PlantId);
 			//return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
 			return Json(obj.getCheckedList(identity.PlantId), JsonRequestBehavior.AllowGet);
@@ -4383,7 +4395,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				
 				var jsondata = Json(obj.GetBOQItems(ContractId, VendorId, IsOwnVendor, inveReveiveMasterId, istradingPO), JsonRequestBehavior.AllowGet);
 				jsondata.MaxJsonLength = int.MaxValue;
@@ -4402,7 +4414,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+                PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 
                 var jsondata = Json(obj.GetBOQItemsDetailsData(), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -4415,8 +4427,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 
         }
 
-        //public JsonResult detailPOSaveForBOQ(IEnumerable<InventoryMaterialViewModel> entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
-        //[HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+       
         [HttpPost, Authorize]
 		public JsonResult detailPOSaveForBOQ(string entity, string groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
 		{
@@ -4427,20 +4438,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			}
 			else
 			{
-				//foreach (var item in groupList)
-				//{
-				//    double conversiongroupListData = conversion.Convert(item.MaterialMasterId, item.TransactionUoMId, item.BaseUOMId.ToString(), Convert.ToDouble(item.TransactionQty));
-				//    item.BaseQtyNew = Convert.ToDecimal(conversiongroupListData);
-				//    double conversiongroupListData1 = conversion.Convert(item.MaterialMasterId, item.TransactionUoMId, item.POUoMId.ToString(), Convert.ToDouble(item.TransactionQty));
-				//    item.POBOQQty = Convert.ToDecimal(conversiongroupListData1);
-				//}
-				//foreach (var item1 in entity)
-				//{
-				//    double conversionentityData = conversion.Convert(item1.MaterialMasterId, item1.TransactionUoMId, item1.BaseUOMId.ToString(), Convert.ToDouble(item1.TransactionQty));
-				//    item1.BaseQtyNew = Convert.ToDecimal(conversionentityData);
-				//    double conversionentityData1 = conversion.Convert(item1.MaterialMasterId, item1.TransactionUoMId, item1.POUoMId.ToString(), Convert.ToDouble(item1.TransactionQty));
-				//    item1.POBOQQty = Convert.ToDecimal(conversionentityData1); 
-				//}
+				
 				List<InventoryMaterialViewModel> entityDetailVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entity);
 				List<InventoryMaterialViewModel> groupListDetailVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(groupList);
 				_purchseOrderDetailService.InsertOrUpdateGraphPoForBOQItem(entityDetailVM, groupListDetailVM, taxCategoryList, PoId);
@@ -4455,7 +4453,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 
 				var jsondata = Json(obj.GetBOQItemsListForUpdate(ContractId, VendorId, inveReveiveId, inveReveiveMasterId, MaterialMasterId, ArticleId, FirstCharacteristicsValueId, SecondCharacteristicsValueId, ThirdCharacteristicsValueId), JsonRequestBehavior.AllowGet);
 				jsondata.MaxJsonLength = int.MaxValue;
@@ -4515,7 +4513,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.ContractWiseData(ContractId), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4570,7 +4568,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.PODocumentMapData(POID), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4588,7 +4586,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			var fileName = "";
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 
 				var directory = ResourcesPathReader.GetPurchaseOrderPath();
 				var path = Path.Combine(directory);
@@ -4631,7 +4629,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.PODocumentMapDataAll(POID), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4679,7 +4677,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.ServicePODocumentMap(POID), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4697,7 +4695,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			var fileName = "";
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 
 				var directory = ResourcesPathReader.GetServicePOPath();
 				var path = Path.Combine(directory);
@@ -4740,7 +4738,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.ServicePODocumentMapDataAll(POID), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4792,7 +4790,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.ServicePOAckDocumentMap(POID), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4810,7 +4808,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			var fileName = "";
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 
 				var directory = ResourcesPathReader.GetServicePOAckPath();
 				var path = Path.Combine(directory);
@@ -4853,7 +4851,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.ServicePOAckDocumentMapDataAll(POID), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4872,7 +4870,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.getServicePOTaxForAckSave(POID), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4888,7 +4886,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.getServicePOAckTax(Id), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4902,7 +4900,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		{
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				obj.UpdateServicePOAckTax(ServiceAcknowledgementMasterId, UserSendData);
 				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
 			}
@@ -4922,7 +4920,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		{
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				obj.ServiceAcknowledgementAdditionalTax(InventoryReceiveId, UserSendData);
 				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
 			}
@@ -4939,7 +4937,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.GetServiceAcknowledgementAdditionalTaxInfo(ServicePOAckMasterId), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4953,7 +4951,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				obj.ServiceAcknowledgementAdditionalTaxDelete(Id);
 				return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 			}
@@ -4978,7 +4976,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.getPOCheckedListData(identity.PlantId), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -4992,7 +4990,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				return Json(obj.getPOApprovedListData(identity.PlantId), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -5007,7 +5005,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		{
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				obj.POUncheckUpdate(InventoryReceiveId, UserSendData);
 				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
 			}
@@ -5022,7 +5020,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		{
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				obj.POUnapprovedUpdate(InventoryReceiveId, UserSendData);
 				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
 			}
@@ -5039,14 +5037,8 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		[Authorize, HttpGet]
 		public JsonResult GetTaxCategoryListForSalesMaterial(string companyGroupId, string plantId, string partyPlantId, string hsnCodeId, string InventorySalesDate)
 		{
-			// var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			//return Json(_inventoryReveiveService.GetTaxCategoryListForSalesService(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, InventorySalesDate), JsonRequestBehavior.AllowGet);
-			//Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
-			//obj.GetTaxCategoryListForSalesMaterial(identity.CompanyGroupId, identity.PlantId, partyPlantId, hsnCodeId, InventorySalesDate);
-			//return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+			PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 			return Json(obj.GetTaxCategoryListForSalesMaterial(identity.CompanyGroupId, identity.PlantId, partyPlantId, hsnCodeId, InventorySalesDate), JsonRequestBehavior.AllowGet);
 		}
 		#region -- P O  ROLL BACK BY SAAD
@@ -5073,7 +5065,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		{
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				obj.PORollBackChecked(InventoryReceiveId, UserSendData);
 				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
 			}
@@ -5089,7 +5081,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		{
 			try
 			{
-				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
 				obj.PORollBackUnApproved(InventoryReceiveId, UserSendData);
 				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
 			}

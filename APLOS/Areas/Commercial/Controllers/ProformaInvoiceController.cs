@@ -809,5 +809,20 @@ left outer join TermsAndConditionsPIChild TC on TC.Id=TCD.TermsAndConditionsPICh
                 throw ex;
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult PIStatusReport()
+        {
+            try
+            {
+                PI.PIStatusReport();
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

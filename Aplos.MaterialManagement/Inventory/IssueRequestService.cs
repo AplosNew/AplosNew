@@ -757,36 +757,7 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
 		{
 			if (IssueStatus == "ForChecked")
 			{
-				//sql = @" select x.Id ,x.PreparedBy,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,x.CheckedBy from
-				//    (
-				//        SELECT IRM.Id
-				//        ,CC.UserName AS CostCenterName
-				//     ,B.UserName ActivityName      
-				//     ,IR.RequisitionId
-				//        ,IR.RequisitionDetailId                           
-				//     ,EI.EmployeeName  PreparedBy	                          
-				//        ,IRM.AddedBy
-				//        ,IRM.AddedDate
-				//        ,IRM.AddedFromIP
-				//        ,IRM.UpdatedBy
-				//        ,IRM.UpdatedDate
-				//        ,IRM.UpdatedFromIP	  
-				//       -- ,IRM.Preparedby
-				//        ,IRM.CheckedBy
-				//        ,IRM.CheckedByStatus
-				//        ,IRM.AuthorizedBy
-				//        ,IRM.AuthorizedByStatus
-				//     ,RequestedQty
-				//    ,RejectedQty
-				//    FROM TRN.IssueRequestMaster IRM
-				//    Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-				//    Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-				//    Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-				//    LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-				//     Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.AuthorizedBy IS null  AND IRM.IssueSlipType='InventorySlip' And IRM.PreparedBy='" + identity.EmployeeId + @"'
-				//    )x 
-				//    Group by Id ,x.PreparedBy,x.AddedDate,x.CheckedBy                            
-				//  ";
+			
 				sql = @" select x.Id 
                                  ,x.PreparedBy
                                  ,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate
@@ -1052,118 +1023,6 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
 
 
 		}
-
-		//else
-		//{
-		//    if(IssueSlipType == "AssetSlip" || IssueSlipType == "undefined")
-
-		//    {
-		//        if (IssueStatus == "ForChecked")
-		//        {
-		//            sql = @" select x.Id ,x.PreparedBy,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
-		//            (
-		//                SELECT IRM.Id
-		//                ,CC.UserName AS CostCenterName
-		//             ,B.UserName ActivityName      
-		//             ,IR.RequisitionId
-		//                ,IR.RequisitionDetailId                           
-		//             ,EI.EmployeeName  PreparedBy	                          
-		//                ,IRM.AddedBy
-		//                ,IRM.AddedDate
-		//                ,IRM.AddedFromIP
-		//                ,IRM.UpdatedBy
-		//                ,IRM.UpdatedDate
-		//                ,IRM.UpdatedFromIP	  
-		//               -- ,IRM.Preparedby
-		//                ,IRM.CheckedBy
-		//                ,IRM.CheckedByStatus
-		//                ,IRM.AuthorizedBy
-		//                ,IRM.AuthorizedByStatus
-		//             ,RequestedQty
-		//            ,RejectedQty
-		//            FROM TRN.IssueRequestMaster IRM
-		//            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-		//            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-		//            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-		//            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-		//             Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.IssueSlipType='AssetSlip' AND IRM.AuthorizedBy IS null And IRM.PreparedBy='" + identity.EmployeeId + @"'
-		//            )x 
-		//            Group by Id ,x.PreparedBy,x.AddedDate                             
-		//          ";
-		//        }
-		//        else if (IssueStatus == "HoldReject")
-		//        {
-		//            sql = @" select x.Id ,x.PreparedBy,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
-		//            (
-		//                SELECT IRM.Id
-		//                ,CC.UserName AS CostCenterName
-		//             ,B.UserName ActivityName      
-		//             ,IR.RequisitionId
-		//                ,IR.RequisitionDetailId                           
-		//             ,EI.FirstName  PreparedBy	                          
-		//                ,IRM.AddedBy
-		//                ,IRM.AddedDate
-		//                ,IRM.AddedFromIP
-		//                ,IRM.UpdatedBy
-		//                ,IRM.UpdatedDate
-		//                ,IRM.UpdatedFromIP	  
-		//               -- ,IRM.Preparedby
-		//                ,IRM.CheckedBy
-		//                ,IRM.CheckedByStatus
-		//                ,IRM.AuthorizedBy
-		//                ,IRM.AuthorizedByStatus
-		//             ,RequestedQty
-		//            ,RejectedQty
-		//            FROM TRN.IssueRequestMaster IRM
-		//            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-		//            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-		//            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-		//            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-		//         Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='Hold'OR IRM.CheckedByStatus='Reject' AND IRM.AuthorizedByStatus IS NULL  AND IRM.IssueSlipType='AssetSlip'  AND IRM.AuthorizedBy IS null And IRM.PreparedBy='" + identity.EmployeeId + @"'
-		//            )x 
-		//            Group by Id ,x.PreparedBy,x.AddedDate                             
-		//          ";
-
-		//        }
-		//        else
-		//        {
-		//            sql = @" select x.Id ,x.PreparedBy,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
-		//            (
-		//                SELECT IRM.Id
-		//                ,CC.UserName AS CostCenterName
-		//             ,B.UserName ActivityName      
-		//             ,IR.RequisitionId
-		//                ,IR.RequisitionDetailId                           
-		//             ,EI.FirstName  PreparedBy	                          
-		//                ,IRM.AddedBy
-		//                ,IRM.AddedDate
-		//                ,IRM.AddedFromIP
-		//                ,IRM.UpdatedBy
-		//                ,IRM.UpdatedDate
-		//                ,IRM.UpdatedFromIP	  
-		//               -- ,IRM.Preparedby
-		//                ,IRM.CheckedBy
-		//                ,IRM.CheckedByStatus
-		//                ,IRM.AuthorizedBy
-		//                ,IRM.AuthorizedByStatus
-		//             ,RequestedQty
-		//            ,RejectedQty
-		//            FROM TRN.IssueRequestMaster IRM
-		//            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-		//            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-		//            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-		//            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-		//            Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='Checked' AND IRM.AuthorizedByStatus IS NULL  AND IRM.IssueSlipType='AssetSlip' AND IRM.AuthorizedBy IS not null And IRM.PreparedBy='" + identity.EmployeeId + @"'
-
-		//            )x 
-		//            Group by Id ,x.PreparedBy,x.AddedDate                             
-		//          ";
-
-		//        }
-		//    }
-
-		//}
-
 
 		return _sqlRepository.GetDataCollection(sql);
 	}
@@ -2124,7 +1983,7 @@ public IEnumerable<object> IssueSlipUnChecked(string IssuStatus)
 		}
 		else if (IssuStatus == "HoldReject")
 		{
-			sql = @" select x.Id ,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
+			sql = @" select x.Id ,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,NULL AuthorizedBy from
                             (
                                 SELECT IRM.Id
                                 ,EI.SystemId

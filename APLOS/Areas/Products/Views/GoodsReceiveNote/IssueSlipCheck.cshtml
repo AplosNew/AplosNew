@@ -283,7 +283,7 @@
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Un Checked" ng-click="$parent.onClickSave('GridISUnchecked3');" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridISUnchecked3');" style="margin: -6px;"></i></button>
                                 </div>
-                                <div e-column e-template="#ToBeApprovedBy1" e-headertext="To Be Approved By" e-width="150"></div>
+                                <div e-column e-template="#ToBeApprovedByRejectTab" e-headertext="To Be Approved By" e-width="150"></div>
                                 <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="150" style="height: 20px;"></div>
                                 <div e-column e-template="#CheckedStatus1" e-headertext="Checked Status" e-width="150"></div>
 
@@ -309,7 +309,7 @@
                 </div>
             </fieldset>
         </div>
-        <script type="text/template" id="ToBeApprovedBy1">
+        <script type="text/template" id="ToBeApprovedByRejectTab">
             <div class="">
                 <div id="control">
                     <input ej-dropdownlist e-datasource="$parent.IssueSlipAppList" e-value="data.AuthorizedBy" e-fields-text="Text" e-fields-value="Value" e-width="100%" />

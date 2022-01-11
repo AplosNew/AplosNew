@@ -446,8 +446,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
         $scope.popUpDataList = [];
         $scope.popUpList = [];
-        //$scope.popUpParameters.sort = 'Code';
-        //$scope.popUpParameters.searchBy = 'Code';
+        $scope.popUpParameters.sort = 'Code';
+        $scope.popUpParameters.searchBy = 'Code';
         $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist';
         baseService.setCurrentPage('dataList');
         $scope.getPopUpData = function (pageno) {

@@ -4299,8 +4299,8 @@ namespace Library.MaterialManagement.Inventory
 
                         foreach (var itemDetail in entityMat)
                         {
-                            if (itemDetail.ArticleId.IsNotNull())
-                            {
+                            //if (itemDetail.ArticleId.IsNotNull())
+                            //{
                                 itemDetail.CompanyGroupId = identity.CompanyGroupId;
                                 itemDetail.CompanyId = identity.CompanyId;
                                 itemDetail.PlantId = identity.PlantId;
@@ -4564,7 +4564,7 @@ namespace Library.MaterialManagement.Inventory
                                     }
                                 }
 
-                            }
+                            //}
 
                         }
                     }
@@ -4860,8 +4860,8 @@ namespace Library.MaterialManagement.Inventory
 
                         foreach (var itemDetail in entityMat)
                         {
-                            if (itemDetail.ArticleId.IsNotNull())
-                            {
+                            //if (itemDetail.ArticleId.IsNotNull())
+                            //{
                                 itemDetail.CompanyGroupId = identity.CompanyGroupId;
                                 itemDetail.CompanyId = identity.CompanyId;
                                 itemDetail.PlantId = identity.PlantId;
@@ -5110,7 +5110,7 @@ namespace Library.MaterialManagement.Inventory
                                 }
 
 
-                            }
+                            //}
                         }
                     }
 

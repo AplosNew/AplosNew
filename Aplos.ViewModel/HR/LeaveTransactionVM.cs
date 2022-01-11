@@ -25,5 +25,7 @@ namespace Library.ViewModel.HR
         public decimal BroughtForward { get; set; }
         public decimal EncashedInbetween { get; set; }
         public bool IsExceptionAllowed { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
     }
 }

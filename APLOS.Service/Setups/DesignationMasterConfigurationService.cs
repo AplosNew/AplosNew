@@ -438,9 +438,9 @@ namespace Library.Service.Setups
 
         public IEnumerable<object> GetAttdnBonusHeaderData(string plantId)
         {
-            var _sql = @"SELECT ah.Id,ah.UserName FROM  AttdnBonusPlantChild ac
+            var _sql = @"SELECT ah.Id as Value,ah.UserName as Text FROM  AttdnBonusPlantChild ac
             left join AttdnBonusHeader ah on ac.HeaderId=ah.id
-            where ac.PlantId='"+plantId+"'";
+            where ac.PlantId='" + plantId+"'";
             return _sqlRepository.GetDataCollection(_sql);
         }
 
