@@ -11,6 +11,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.Deletepath = $scope.path + 'DeletePI';
     $scope.saveUrl = $scope.path + 'create';
     $scope.savePIPackingListUrl = $scope.path + 'savePIPackingList';
+    $scope.updatePIPackingListUrl = $scope.path + 'UpdatePIPackingList';
     $scope.newVersionUrl = $scope.path + 'NewVersion';
     $scope.deleteUrl = $scope.path + 'delete/';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
@@ -455,6 +456,33 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             ShowResult(e, "failure");
         }
     };
+    $scope.UpdatePIPackingListData = function () {
+        try {
+            
+            $http({
+                method: 'POST',
+                url: $scope.updatePIPackingListUrl,
+                data: { 'PIPackingListMasterData': $scope.PIPackingListMasterTemp, 'MaterialData': $scope.DataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.PIPackingListMasterTemp.Id = response.data.PIPackingListMasterId;
+                    $scope.GetMaterialData();
+                    $scope.LoadPIPackingList();
+                    $scope.ClosePopUp();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
 
 
     $scope.GetAllVersionData = function () {
@@ -497,6 +525,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         $scope.DataList = [];
         $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
         $scope.VersionList = [];
+        $scope.PIPackingListMasterTemp = Object.assign({}, $scope.PIPackingListMaster);
         // $scope.VersionList.push(Object.assign({}, $scope.PIVersionModel));
 
     };

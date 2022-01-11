@@ -658,6 +658,38 @@ namespace Aplos.Areas.Products.Controllers
 			_inventoryDetailService.UpdateFOCDetail(entity, entityMatAndImat, taxCategoryList, id, MaterialStorageId, GRNType);
 			return Json(new { Message = AplosMessage.Success });
 		}
+		
+		[HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+		public JsonResult FOCMaterialInsert(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			entity.CompanyGroupId = identity.CompanyGroupId;
+			entity.CompanyId = identity.CompanyId;
+			entity.PlantId = identity.PlantId;
+			entity.ShortRejFlag = false;
+			entity.BaseRate = 0;
+			entity.TotalMaterialBooksCurrencyAmount = 0;
+			entity.TrnCurrencyBaseRate = 0;
+			if (entity != null)
+			{
+				if (entity.TransactionUoMId == null || entity.TransactionUoMId == "")
+				{
+					throw new CustomException("Please select UOM!");
+				}
+				else if (entity.MaterialMasterId == null || entity.MaterialMasterId == "")
+				{
+					if (entity.Description == null || entity.Description == "")
+					{
+						throw new CustomException("Enter The Material Description!");
+					}
+
+
+				}
+			}
+			_inventoryDetailService.InsertFOCMaterial(entity, taxCategoryList);
+			return Json(new { entity.Id, Message = AplosMessage.Success });
+		}
+
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
 		public JsonResult ServiceChargesCreateNewEdit(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id)
 		{
