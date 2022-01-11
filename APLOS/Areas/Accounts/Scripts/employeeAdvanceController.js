@@ -279,7 +279,20 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
             url: "accounts/Advance/GetAdvanceReqSchedule?Id=" + Id
         }).then(function successCallback(response) {
             $scope.DetailsList = response.data;
+            $scope.voucher.ProfitRate = 0;
+            $scope.TotalInterestPaid = 0;
+            $scope.voucher.RepaymentStartDate = $scope.DetailsList[0].InstallmentDate;
+            $scope.voucher.TotalNoOfInstallment = $scope.DetailsList.length;
+            $scope.voucher.NoOfInstallmentPerYear = $scope.DetailsList.length;
+            for (var i = 0; i < $scope.DetailsList.length; i++) {
+                $scope.TotalPayments += $scope.DetailsList[i].PrincipalAmount;
+            }
+
         });
+    }
+
+    $scope.InstallValidation = function () {
+
     }
 
     $scope.advanceId = null;
@@ -470,31 +483,45 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
                 return true;
             }
             else if ($scope.Action === "Update") {
-                $http({
-                    method: "POST",
-                    url: $scope.updateUrl,
-                    data: {
-                        "advanceVM": $scope.advance,
-                        "advanceDetailVMList": $scope.advanceDetailList,
-                        'DetailsList': $scope.DetailsList
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
+
+                var Total = 0;
+                try {
+                    for (var i = 0; i < $scope.DetailsList.length; i++) {
+                        Total += parseFloat($scope.DetailsList[i].InstallmentAmount);
                     }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.clear();
+                    if ($scope.TotalPayments < Total) {
+                        throw "Installment amount cannot exceed [Total Payments]";
                     }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
+
+
+                    $http({
+                        method: "POST",
+                        url: $scope.updateUrl,
+                        data: {
+                            "advanceVM": $scope.advance,
+                            "advanceDetailVMList": $scope.advanceDetailList,
+                            'DetailsList': $scope.DetailsList
+                        },
+                        dataType: "JSON"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, "failure");
+                        }
+                        else {
+                            ShowResult(response.data.Message, "success");
+                            $scope.getData();
+                            $scope.clear();
+                        }
+                    }, function errorCallback(response) {
+                        ShowResult(response.status.Message, "failure");
+                    });
+                } catch (e) {
+                    ShowResult(e, 'info');
+                }
             }
-            return true;
+           
         }
-        return true;
+        
     };
 
     $scope.post = function (advanceId) {

@@ -105,6 +105,26 @@ namespace Aplos.Areas.Securities
         }
     }
 
+    public class TPanelAreaRegistration : AreaRegistration
+    {
+        public override string AreaName
+        {
+            get
+            {
+                return "tpanel";
+            }
+        }
+
+        public override void RegisterArea(AreaRegistrationContext context)
+        {
+            context.MapRoute(
+                "tpanel",
+                "tpanel/{controller}/{action}/{id}",
+                new { controller = "MyTeacher", action = "tlayout", id = UrlParameter.Optional },
+                new string[] { "Aplos.Controllers" });
+        }
+    }
+
     public class SecuritiesAreaRegistration : AreaRegistration
     {
         public override string AreaName
