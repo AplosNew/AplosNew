@@ -264,6 +264,23 @@
     </div>
     @*hr*@
 
+    <div class="col-md-12" ng-show="Action=='Update'">
+        <div id="GridPacking" ej-grid e-datasource="DetailsList"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-scrolling="true">
+            <div e-columns>
+                <div e-column e-field="InstallmentDate" e-type="date" e-headertext="Installment Date" e-width="80"></div>
+                <div e-column e-field="InstallmentNo" e-type="number" e-headertext="Installment No" e-width="80"></div>
+                <div e-column e-template="#InstallmentAmount" e-headertext="Installment Amount" e-width="80"></div>
+                <div e-column e-field="ProfitAmount" e-type="number" e-headertext="Profit Amount" e-width="80"></div>
+                <div e-column e-field="PrincipalAmount" e-type="number" e-headertext="Principal Amount" e-width="80"></div>
+                <div e-column e-field="Balance" e-type="number" e-headertext="Balance" e-width="80"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/template" id="InstallmentAmount">
+        <input type="text" name="InstallmentAmount" ng-model="data.InstallmentAmount" class="form-control">
+    </script>
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>

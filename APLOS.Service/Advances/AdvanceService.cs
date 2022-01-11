@@ -84,7 +84,7 @@ namespace Library.Service.Advances
         private readonly IRepositoryAsync<EmployeeSalaryAdvance> _employeeSalaryAdvanceRepository;
         private readonly IRepositoryAsync<AdvanceReqSchedule> _advanceReqScheduleRepository;
         private readonly IEmployeePayableWriteOffService _employeePayableWriteOffService;
-       
+
 
         public AdvanceService(
               IRepositoryAsync<Advance> advanceRepository
@@ -502,7 +502,7 @@ namespace Library.Service.Advances
                         LEFT JOIN [HKP].[Party] AS P ON P.Id=AM.PartyId
                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
                         WHERE AM.Archive=0 AND AM.IsPark=0 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType='DebitNote'
-                        AND AM.CompanyGroupId='"+companyGroupId+"' AND AM.CompanyId='"+companyId+"' AND AM.PlantId='"+plantId+"' AND AM.PartyId='"+partyId+@"'
+                        AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "' AND AM.PartyId='" + partyId + @"'
                         GROUP BY P.UserName, PP.UserName";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -545,8 +545,8 @@ namespace Library.Service.Advances
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
-       
-       
+
+
         public GridModel GetCustomerPaymentList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id As AdvanceId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -561,8 +561,8 @@ namespace Library.Service.Advances
             return _sqlRepository.GetGridData(parameters);
         }
 
-       
-       
+
+
         public Dictionary<string, object> Query(string companyGroupId, string companyId, string plantId, string partyId, string advanceId, SourceType sourceType)
         {
             var cmdText = @"SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId, VD.EntityId
@@ -1867,7 +1867,7 @@ namespace Library.Service.Advances
                 advance.AdvanceNo = voucher.VoucherNo;
 
 
-               
+
                 var currentVoucherDetailId = 0;
                 var currentAdvanceDetaiId = 0;
                 // Set Dr/Cr amount to local variable.
@@ -1917,8 +1917,8 @@ namespace Library.Service.Advances
                         EntityId = voucherVM.EntityId,
                         VoucherTypeId = voucherVM.VoucherTypeId,
                         AdvanceId = advance.Id,
-                        EmployeeId= advance.EmployeeId,
-                        EmployeeTransactionTypeId= advance.EmployeeTransactionTypeId,
+                        EmployeeId = advance.EmployeeId,
+                        EmployeeTransactionTypeId = advance.EmployeeTransactionTypeId,
                         AdvanceWriteOffId = null,
                         EmployeePayableId = null,
                         PartyType = advance.PartyType,
@@ -1935,8 +1935,8 @@ namespace Library.Service.Advances
                         IsPark = voucherVM.IsPark,
                         Id = "ES" + GetEmployeeSubsequentTransactionPK(),
                         VoucherId = voucher.Id,
-                        VoucherDetailId= voucherDetail.Id,
-                        PaymentSource=voucherVM.PaymentSource,
+                        VoucherDetailId = voucherDetail.Id,
+                        PaymentSource = voucherVM.PaymentSource,
                     };
                     AuditService.AddedLog(EmployeeSubsequentAdvance);
                     _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvance);
@@ -2534,7 +2534,7 @@ namespace Library.Service.Advances
             }
         }
 
-        public string UpdateEmployeeAdvance(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList)
+        public string UpdateEmployeeAdvance(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<AdvanceReqSchedule> DetailsList)
         {
             var flag = false;
             try
@@ -2838,6 +2838,13 @@ namespace Library.Service.Advances
 
                 if (totalCurrencyAmountCr != totalCurrencyAmountDr)
                     throw new CustomException("Dr and Cr amount is not equal.");
+                if (null != DetailsList && DetailsList.Count() > 0)
+                {
+                    foreach (var item in DetailsList)
+                    {
+                        _advanceReqScheduleRepository.Update(item);
+                    }
+                }
 
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -2887,18 +2894,18 @@ namespace Library.Service.Advances
 
                 // INSERT INTO Voucher
 
-               
+
                 var voucher = _voucherService.InsertVoucher(voucherVM);
                 var NewemployeeSalaryAdvance = new EmployeeSalaryAdvance();
                 // Set to Advance
                 var advance = new Advance();
                 if (voucherVM.JournalType != AdvanceType.Salary.ToString())
                 {
-                     advance = InsertAdvance(voucherVM);
+                    advance = InsertAdvance(voucherVM);
                     advance.VoucherId = voucher.Id;
                     advance.AdvanceNo = voucher.VoucherNo;
                 }
-               
+
 
                 var currentVoucherDetailId = 0;
                 var currentAdvanceDetaiId = 0;
@@ -3083,7 +3090,7 @@ namespace Library.Service.Advances
                     }
                 }
 
-             
+
 
                 // INSERT INTO VoucherDetail
                 var bankVoucherDetail = new VoucherDetail
@@ -3152,7 +3159,7 @@ namespace Library.Service.Advances
                 if (totalCurrencyAmountCr != totalCurrencyAmountDr)
                     throw new CustomException("Dr and Cr amount is not equal.");
 
-                if (advanceSalarySchedulelist!=null)
+                if (advanceSalarySchedulelist != null)
                 {
                     foreach (var item in advanceSalarySchedulelist)
                     {
@@ -3165,8 +3172,8 @@ namespace Library.Service.Advances
                             ProfitAmount = item.ProfitAmount,
                             ScheduleNo = item.ScheduleNo,
                             Balance = item.Balance,
-                            YearNo= item.InstallmentDate.Year,
-                            MonthNo=item.InstallmentDate.Month
+                            YearNo = item.InstallmentDate.Year,
+                            MonthNo = item.InstallmentDate.Month
                         };
                         InsertAdvanceReqSchedule(NewemployeeSalaryAdvance, advanceReqSchedule, voucherVM.RequisitionId);
                     }
@@ -3193,7 +3200,7 @@ namespace Library.Service.Advances
                     _unitOfWork.Rollback();
             }
         }
-        public void InsertAdvanceReqSchedule(EmployeeSalaryAdvance employeeSalaryAdvance, AdvanceReqSchedule financingSchedule,string requisitionId)
+        public void InsertAdvanceReqSchedule(EmployeeSalaryAdvance employeeSalaryAdvance, AdvanceReqSchedule financingSchedule, string requisitionId)
         {
             financingSchedule.Id = MakePK(employeeSalaryAdvance.Id, financingSchedule.InstallmentNo, 3);
             financingSchedule.RequisitionId = requisitionId;
@@ -3238,29 +3245,29 @@ namespace Library.Service.Advances
             }
         }
 
-        public void PostEmployeeAdvanceRequisition(string advanceId,string voucherId)
+        public void PostEmployeeAdvanceRequisition(string advanceId, string voucherId)
         {
             var flag = false;
             try
             {
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var advance = Query(r=>r.VoucherId== voucherId).Select().FirstOrDefault();
-                var salaryadvance = _employeeSalaryAdvanceRepository.Query(r=>r.VoucherId== voucherId).Select().FirstOrDefault();
+                var advance = Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                var salaryadvance = _employeeSalaryAdvanceRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
                 if (advance != null)
                 {
-                CheckIsPosted(advance);
+                    CheckIsPosted(advance);
                     advance.IsPosted = true;
                     advance.IsPark = false;
                     base.UpdateGraph(advance);
                 }
-                if(salaryadvance != null)
+                if (salaryadvance != null)
                 {
                     salaryadvance.IsPark = false;
                     salaryadvance.IsPosted = true;
                     _employeeSalaryAdvanceRepository.Update(salaryadvance);
                 }
-                
+
                 _voucherService.PostVoucher(voucherId);
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -4472,7 +4479,7 @@ namespace Library.Service.Advances
                             DocRefNo = voucher.DocRefNo,
                             Narration = voucher.Narration,
                             DrAmount = voucherVM.ExchangeAmount,
-                            PartyType=voucherVM.ExchangeType
+                            PartyType = voucherVM.ExchangeType
                         };
                         totalAmountDr += voucherDtEx.DrAmount;
 
@@ -5475,8 +5482,8 @@ namespace Library.Service.Advances
 
                     if (voucherVM.JournalType == JournalType.Payable.ToString())
                     {
-                        var employeeTransactionGL = _employeeTransactionTypeGLRepository.Query(r => r.EmployeeTransactionTypeId == voucherVM.EmployeeTransactionTypeId && r.IsExpensesBooking==true).Select().FirstOrDefault();
-                       
+                        var employeeTransactionGL = _employeeTransactionTypeGLRepository.Query(r => r.EmployeeTransactionTypeId == voucherVM.EmployeeTransactionTypeId && r.IsExpensesBooking == true).Select().FirstOrDefault();
+
                         if (null == employeeTransactionGL)
                             throw new CustomException("Employee Transaction GL not found!");
 
@@ -5521,8 +5528,8 @@ namespace Library.Service.Advances
                             PartyType = advance.PartyType,
                             PartyId = voucherVM.PartyId,
                             PartyPlantId = voucherVM.PartyPlantId,
-                            EmployeeId= advance.EmployeeId,
-                            AdvanceDetailId= advanceDetail.Id
+                            EmployeeId = advance.EmployeeId,
+                            AdvanceDetailId = advanceDetail.Id
                         };
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
@@ -5721,7 +5728,7 @@ namespace Library.Service.Advances
 
                     if (voucherVM.JournalType == JournalType.Payable.ToString())
                     {
-                        
+
                         var partyType = PartyType.Vendor.ToString();
                         var companyParty = _companyPartyRepository.Query(r => r.CompanyId == advance.CompanyId && r.PlantId == advance.PlantId && r.PartyId == advance.PartyId && r.PartyType == partyType).Select().FirstOrDefault();
                         if (null == companyParty)
@@ -5734,7 +5741,7 @@ namespace Library.Service.Advances
                         var advanceGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == downGL);
                         if (null == advanceGL)
                             throw new CustomException("Party DownPayment GL not found!");
-                        
+
 
 
                         var advanceDetail = new AdvanceDetail
@@ -5759,44 +5766,44 @@ namespace Library.Service.Advances
                             BudgetMasterId = advanceGL.BudgetMasterId,
                             ActivityId = advanceGL.ActivityId
                         };
-                       
+
                         InsertAdvanceDetail(advance, advanceDetail, currentAdvanceDetaiId);
 
                         // INSERT INTO VoucherDetail
                         var voucherDetailCr = new VoucherDetail
-                            {
-                                VoucherId = voucher.Id,
-                                //InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id,
-                                GLGeneralInfoId = advanceDetail.GLGeneralInfoId,
-                                BudgetMasterId = advanceDetail.BudgetMasterId,
-                                ActivityId = advanceDetail.ActivityId,
-                                CurrencyId = voucher.CurrencyId,
-                                DrAmount = advanceDetail.Amount,
-                                DocDate = voucherVM.DocDate,
-                                DocRefNo = voucherVM.DocRefNo,
-                                Narration = voucherVM.Narration,
-                                PartyType = advance.PartyType,
-                                PartyId = voucherVM.PartyId,
-                                PartyPlantId = voucherVM.PartyPlantId,
-                                AdvanceDetailId= advanceDetail.Id
+                        {
+                            VoucherId = voucher.Id,
+                            //InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id,
+                            GLGeneralInfoId = advanceDetail.GLGeneralInfoId,
+                            BudgetMasterId = advanceDetail.BudgetMasterId,
+                            ActivityId = advanceDetail.ActivityId,
+                            CurrencyId = voucher.CurrencyId,
+                            DrAmount = advanceDetail.Amount,
+                            DocDate = voucherVM.DocDate,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherVM.Narration,
+                            PartyType = advance.PartyType,
+                            PartyId = voucherVM.PartyId,
+                            PartyPlantId = voucherVM.PartyPlantId,
+                            AdvanceDetailId = advanceDetail.Id
 
                         };
-                            currentVoucherDetailId++;
-                            _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
 
-                            totalAmountDr += voucherDetailCr.DrAmount;
-                            totalAmountCr += voucherDetailCr.CrAmount;
+                        totalAmountDr += voucherDetailCr.DrAmount;
+                        totalAmountCr += voucherDetailCr.CrAmount;
 
-                            // INSERT INTO VoucherDetailCurrency
-                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
-                            {
-                                ParallelCurrencyId = companyCurrencyId,
-                                FromCurrencyId = voucherDetailCr.CurrencyId,
-                                ToCurrencyId = companyCurrencyId,
-                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                DrAmount = voucherDetailCr.DrAmount * voucherVM.CompanyCurrencyRate,
-                            });
+                        // INSERT INTO VoucherDetailCurrency
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailCr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            DrAmount = voucherDetailCr.DrAmount * voucherVM.CompanyCurrencyRate,
+                        });
 
                         decimal totalCharges = 0;
                         decimal taxDrAmount = 0;
@@ -5922,8 +5929,8 @@ namespace Library.Service.Advances
                             PaymentSource = advance.PaymentSource,
 
                         };
-                        if(null != taxDetailVMList && taxDetailVMList.Count() > 0)
-                        bankVoucherDetail.CrAmount = advance.Amount- taxDetailVMList.Sum(r=>r.TaxAmount);
+                        if (null != taxDetailVMList && taxDetailVMList.Count() > 0)
+                            bankVoucherDetail.CrAmount = advance.Amount - taxDetailVMList.Sum(r => r.TaxAmount);
                         else
                             bankVoucherDetail.CrAmount = advance.Amount;
 
@@ -8213,46 +8220,46 @@ namespace Library.Service.Advances
             }
         }
 
-        public void DeleteVendorAdvance(string companyId,string plantId, string voucherId)
+        public void DeleteVendorAdvance(string companyId, string plantId, string voucherId)
         {
             var flag = false;
             try
             {
-                
-                    
-                        // Delete Loan
-                        _unitOfWork.BeginTransaction();
-                        flag = true;
-                        var vendorAdWr = new System.Text.StringBuilder();
-                        var vendorAdWrsql = "";
 
-                        vendorAdWrsql = @"delete trn.voucherdetailcurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "'))";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"delete trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"delete trn.InvoiceTaxDetail where InvoiceTaxId in (select Id from trn.InvoiceTax where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "'))";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"delete trn.InvoiceTax where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"delete TRN.AdvanceDetail where AdvanceId in (select Id from TRN.Advance where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "'))";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"delete TRN.BankCharge where AdvanceId in (select Id from TRN.Advance where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "'))";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"delete TRN.Advance where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        vendorAdWrsql = @"delete trn.voucher where Id in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
-                        vendorAdWr.Append(vendorAdWrsql);
-                        _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
-                        _unitOfWork.SaveChanges();
-                        flag = false;
-                        _unitOfWork.Commit();
-                  
+
+                // Delete Loan
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+
+                vendorAdWrsql = @"delete trn.voucherdetailcurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.InvoiceTaxDetail where InvoiceTaxId in (select Id from trn.InvoiceTax where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.InvoiceTax where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete TRN.AdvanceDetail where AdvanceId in (select Id from TRN.Advance where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete TRN.BankCharge where AdvanceId in (select Id from TRN.Advance where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete TRN.Advance where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.voucher where Id in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
             }
             catch (CustomException)
             {
@@ -8297,14 +8304,14 @@ namespace Library.Service.Advances
 
                 foreach (var item in voucherdetail)
                 {
-                        var gltransactionDetail = _gLTransactionDetailRepository.Find(item.Id);
-                        if (gltransactionDetail != null)
-                            _gLTransactionDetailRepository.Delete(gltransactionDetail.Id);
+                    var gltransactionDetail = _gLTransactionDetailRepository.Find(item.Id);
+                    if (gltransactionDetail != null)
+                        _gLTransactionDetailRepository.Delete(gltransactionDetail.Id);
                     _voucherDetailRepository.Delete(item.Id);
                 }
 
-               
-                if (employeePayableWriteOff !=null)
+
+                if (employeePayableWriteOff != null)
                 {
                     var employeePayableWriteOffDetail = _employeePayableWriteOffDetailRepository.Query(r => r.EmployeePayableWriteOffId == employeePayableWriteOff.Id).Select().ToList();
                     foreach (var item in employeePayableWriteOffDetail)
@@ -8323,8 +8330,8 @@ namespace Library.Service.Advances
                     }
                     _employeePayableWriteOffRepository.Delete(employeePayableWriteOff.Id);
                 }
-               
-                if (advanceWriteOffDetail !=null)
+
+                if (advanceWriteOffDetail != null)
                 {
                     foreach (var item in advanceWriteOffDetail)
                     {
@@ -8342,7 +8349,7 @@ namespace Library.Service.Advances
                     }
                     _advanceWriteOffRepository.Delete(advanceWriteOff.Id);
                 }
-               
+
                 _voucherRepository.Delete(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;

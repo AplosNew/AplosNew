@@ -75,7 +75,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Remarks :</span><sup>*</sup></label>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Remarks :</span></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Remarks" ng-model="PIPackingListMasterTemp.Remarks" class="form-control" maxlength="100" required tabindex="5">
                         </div>
@@ -118,6 +118,12 @@
                 </div>
             </div>
 
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="UpdatePIPackingListData();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Clear</button></li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
