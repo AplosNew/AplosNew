@@ -3461,20 +3461,20 @@ namespace Library.MaterialManagement.Inventory
                             BaseQty = Convert.ToDecimal(itemDetail.BaseQty),
                             BaseUOMId = itemDetail.BaseUOMId,
                             BaseUoMFactor = Convert.ToDecimal(itemDetail.BaseUoMFactor),
-                            MaterialTranRate = Math.Round(Convert.ToDecimal(itemDetail.TransactionRate), 4),
-                            MaterialTranAmount = Math.Round((Convert.ToDecimal(itemDetail.TransactionRate) * itemDetail.NetQty), 2),//Convert.ToDecimal(itemDetail.TransactionAmount),
+                            MaterialTranRate = 0,
+                            MaterialTranAmount = 0,//Convert.ToDecimal(itemDetail.TransactionAmount),
 
-                            TotalMaterialTranAmount = Math.Round(Convert.ToDecimal(itemDetail.TotalMaterialTranAmount), 2),
-                            TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(itemDetail.TotalMaterialBooksCurrencyAmount), 2),
-                            TotalTaxAmount = Math.Round(Convert.ToDecimal(itemDetail.TotalTaxAmount), 2),
+                            TotalMaterialTranAmount = 0,
+                            TotalMaterialBooksCurrencyAmount = 0,
+                            TotalTaxAmount = 0,
 
                             IssueQty = null,
                             BaseIssueQty = 0,
                             Description = itemDetail.Description,
-                            ChargesTranAmount = Math.Round(Convert.ToDecimal(itemDetail.ChargesTranAmount), 2),
-                            ChargesTaxTranAmount = Math.Round(Convert.ToDecimal(itemDetail.ChargesTaxTranAmount), 2),
-                            TrnCurrencyBaseRate = Math.Round(Convert.ToDecimal(itemDetail.TrnCurrencyBaseRate), 4),
-                            BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(itemDetail.BooksCurrencyBaseRate), 4),
+                            ChargesTranAmount = 0,
+                            ChargesTaxTranAmount = 0,
+                            TrnCurrencyBaseRate = 0,
+                            BooksCurrencyBaseRate = 0,
                             PurchaseReturnQty = 0,
                             IssueReturnQty = 0,
                             ReductionByAdjustmentQty = 0,
@@ -3508,12 +3508,12 @@ namespace Library.MaterialManagement.Inventory
                         AuditService.AddedLog(receiveDetail);
 
                         itemDetail.TotalQty = ((Convert.ToDecimal(itemDetail.TotalQty + itemDetail.BaseQty + itemDetail.IssueReturnQty)) - (Convert.ToDecimal(itemDetail.IssueQty) + Convert.ToDecimal(itemDetail.PurchaseReturnQty) + Convert.ToDecimal(itemDetail.ReductionByAdjustmentQty) + Convert.ToDecimal(itemDetail.InventorySalesQty) + Convert.ToDecimal(itemDetail.InventoryScrapQty) + Convert.ToDecimal(itemDetail.InventoryTransferQty)));
-                        itemDetail.AvgRate = Convert.ToDecimal((totalAmount + receiveDetail.TotalMaterialBooksCurrencyAmount) / itemDetail.TotalQty);//TotalMaterialTranAmount
+                        itemDetail.AvgRate = 0;//TotalMaterialTranAmount
 
                         _inventoryMaterialMasterService.InsertOrUpdateFromReceive(itemDetail);
                         receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                         InsertGraph(receiveDetail);
-                        UpdateInventoryDetail(receiveDetail, ratio, ratioServiceTax, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
+                        UpdateFOCInventoryDetail(receiveDetail, ratio, ratioServiceTax, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
                     }
 
                     // insert in receive tax
@@ -3758,6 +3758,57 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        private void UpdateFOCInventoryDetail(InventoryReceiveDetail detail, decimal ratio, decimal ratioServiceTax, decimal currencyRate, bool isNonCreditable)
+        {
+            var detailList = Query(t => t.InventoryReceiveId == detail.InventoryReceiveId).Select().ToList();// && t.Id != detail.Id
+            if (detailList.IsNotNull())
+            {
+                int i = 0;
+                decimal Tax = 0;
+                decimal serviceCN = 0;
+                decimal Tax1 = 0;
+                decimal serviceCN1 = 0;
+                int detailCount = detailList.Count;
+                decimal tempserAmt = 0;
+                decimal tempserTax = 0;
+                var serviceex = _inventoryServiceRepository.Query(r => r.InventoryReceiveId == detail.InventoryReceiveId).Select().ToList();
+                if (serviceex != null)
+                {
+                    Tax1 = serviceex.Sum(r => r.TotalTaxAmount);
+                    serviceCN1 = serviceex.Sum(r => r.Amount);
+                }
+                foreach (var item in detailList)
+                {
+                    i++;
+
+                    if (serviceex != null)
+                    {
+                        if (detailCount > i)
+                        {
+                            item.ChargesTaxTranAmount = Math.Round(item.MaterialTranAmount * ratioServiceTax, 2);
+                            item.ChargesTranAmount = Math.Round(item.MaterialTranAmount * ratio, 2);
+                            tempserAmt += item.ChargesTranAmount;
+                            tempserTax += item.ChargesTaxTranAmount;
+                        }
+                        else if (detailCount == i)
+                        {
+                            item.ChargesTranAmount = Math.Round(serviceCN1 - (tempserAmt + detail.ChargesTranAmount), 2);
+                            item.ChargesTaxTranAmount = Math.Round(Tax1 - (tempserTax + detail.ChargesTaxTranAmount), 2);
+
+                        }
+                    }
+
+                    item.TotalMaterialTranAmount = 0;
+                    item.TotalMaterialBooksCurrencyAmount =0;
+                    item.TrnCurrencyBaseRate = 0;
+                    item.BooksCurrencyBaseRate = 0;
+
+                    item.ModelState = ModelState.Modified;
+                    AuditService.UpdatedLog(item);
+                    UpdateGraph(item);
+                }
+            }
+        }
         private bool CheckItemExist(InventoryMaterialViewModel entity)
         {
             try
