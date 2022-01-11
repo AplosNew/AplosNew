@@ -848,6 +848,9 @@ namespace OTSBD.clsLeave
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+
+
+
                 strSQL = @"SELECT EmpSystemID,LTSystemID,sum(d.d) totalLeave FROM [dbo].[LeaveTransaction] m   
                             left join  (
                             select sum(LeaveDuration) d,LvTrnsSystemID from [dbo].[LeaveTransactionDetails]
@@ -907,6 +910,73 @@ namespace OTSBD.clsLeave
             }
         }//End Function
          //(sPlantID, EmpSystemId, LeaveTypeId, BroughtForwardOLd, DaysCanBeSanctioned, CurrentYearAvailedOpeningBalance, sdsLeaveTranInfo);
+
+
+        public void GetLeaveTranInfoNew(string sGroupID, string sPlantID, string sFromDate, string sToDate, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+
+
+
+                strSQL = @"SELECT EmpSystemID,LTSystemID,sum(APD.LvValue) totalLeave FROM AttdnProcessData APD
+                                            where  WorkDate between '"+ sFromDate + @"' and '" + sToDate + @"' 
+                             and PlantID='" + sPlantID + @"'
+                          AND apd.LvValue>0
+                            group by EmpSystemID,LTSystemID  ";
+
+
+
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+        public void GetLeaveTranInfoIndividualNew(string sPlantID, string ToDate, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT s.EmployeeId AS EmpSystemID,s.LeaveTypeId AS LTSystemID,
+                                        ISNULL( (SELECT sum(m.LvValue) FROM AttdnProcessData m 
+                                        where m.WorkDate BETWEEN SE.FromDate and SE.ToDate
+                                AND m.EmpSystemID=SE.EmployeeId AND m.PlantID=se.PlantId AND m.LTSystemID=SE.LeaveTypeId),0) AS totalLeave 
+                                from [TRN].[EmployeeLeaveSummary] S
+                                JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
+                                select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
+                                --join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
+                                where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
+                                AND X.ToDate<='" + ToDate + @"'
+                                ORDER BY x.FromDate DESC
+                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId
+                                JOIN LeaveType AS lt ON lt.Id=se.LeaveTypeId
+                            WHERE SE.PlantId='" + sPlantID + @"'  ";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
 
         public CarryForword CheckLeavePolicyDetails_backup(string sPlantID, string sEmployeeId, string LeaveTypeId, decimal BroughtForwardOLd, decimal CarryforwardOB, decimal CarryforwardOld, decimal DaysCanBeSanctioned, decimal CurrentYearAllocation, decimal CurrentYearAvailedOpeningBalance, decimal CurrentYearEncashed, decimal CurrentYearEncashedInbetween, DataSet sdsLeaveTranInfo, DateTime PDate, bool NotEncashedButYearEnded, bool IsEncashed, out string CarryForwardBasedOn, Dictionary<string, DataRow> dsLeavePld)
         {
