@@ -120,7 +120,7 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
         $scope.advance.DocDate = $scope.advance.PostingDate;
     };
 
-    
+
 
     cboService.getCboEmployeeTransactionType(function (result) {
         $scope.employeeTransactionTypeList = result;
@@ -265,12 +265,22 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
                 $scope.advance.ResponsiblePersonName = rescode + ' - ' + resName;
             }
             $scope.getTransactionTypeGL($scope.advance.EmployeeTransactionTypeId);
+            $scope.GetAdvanceReqSchedule($scope.advance.Id);
             $scope.Action = 'Update';
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
         });
     };
+    $scope.DetailsList = [];
+    $scope.GetAdvanceReqSchedule = function (Id) {
+        $http({
+            method: "GET",
+            url: "accounts/Advance/GetAdvanceReqSchedule?Id=" + Id
+        }).then(function successCallback(response) {
+            $scope.DetailsList = response.data;
+        });
+    }
 
     $scope.advanceId = null;
     $scope.confirmPost = function (advanceId) {
@@ -442,7 +452,7 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
                     data: {
                         "voucherVM": $scope.advance,
                         "voucherDetailVMList": $scope.advanceDetailList,
-                         "advanceSalarySchedulelist": $scope.loanRepaymentSchedulelist
+                        "advanceSalarySchedulelist": $scope.loanRepaymentSchedulelist
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -465,7 +475,8 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
                     url: $scope.updateUrl,
                     data: {
                         "advanceVM": $scope.advance,
-                        "advanceDetailVMList": $scope.advanceDetailList
+                        "advanceDetailVMList": $scope.advanceDetailList,
+                        'DetailsList': $scope.DetailsList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -544,7 +555,7 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
                 ShowResult("Cash GL not found!", "failure", "bankPopUp");
                 return;
             }
-            else if ( baseService.isUndefinedOrNull(cash.BudgetMasterId)) {
+            else if (baseService.isUndefinedOrNull(cash.BudgetMasterId)) {
                 ShowResult("Cash Budget not found!", "failure", "bankPopUp");
                 return;
             }
