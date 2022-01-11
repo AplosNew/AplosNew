@@ -180,6 +180,91 @@ namespace Library.OrderManagement.ProformaInvoice
             }
             return null;
         }
+        public string Update(Dictionary<string, object> PIPackingListMasterData, List<Dictionary<string, object>> MaterialData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conPIMaster = new ConnectionManager.DAL.ConManager("1");
+                conPIMaster.OpenDataSetThroughAdapter("SELECT * FROM PIPackingListMaster where Id='" + PIPackingListMasterData["Id"] + "'", out DataSet dsMaster, false, "1");
+                string _Id = "";
+                string PIPackingListID = "";
+                string PIPackingListMaterialID = "";
+
+                ConnectionManager.DAL.ConManager conPIVersion = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("PIPackingListMaster", out _Id);
+                    _Id = "PPL" + "-" + _Id;
+                    PIPackingListMasterData["Id"] = _Id;
+                    //PIPackingListMasterData["Id"] = _Id;
+                    PIPackingListID = PIPackingListMasterData["Id"].ToString();
+                    AddNewRow(dsMaster.Tables[0], PIPackingListMasterData);
+                    dsMaster.Tables[0].Rows[0]["PImasterId"] = PIPackingListMasterData["PImasterId"].ToString();
+
+                }
+                else
+                {
+                    //PIMasterId = PIPackingListMasterData["Id"].ToString();
+                    _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], PIPackingListMasterData);
+                    dsMaster.Tables[0].Rows[0]["Id"] = _Id;
+                }
+
+                ConnectionManager.DAL.ConManager conPIMaterial = new ConnectionManager.DAL.ConManager("1");
+                conPIMaterial.OpenDataSetThroughAdapter("SELECT * FROM PIPackingListMaterial where PIPackingListMasterId='" + _Id + "' ", out DataSet dsMaterial, false, "1");
+                string _IdM = "";
+
+
+                for (int i = 0; i < MaterialData.Count; i++)
+                {
+                    dsMaterial.Tables[0].DefaultView.RowFilter = "PIMaterialId='" + MaterialData[i]["Id"] + "'";
+
+
+
+                    if (dsMaterial.Tables[0].DefaultView.Count == 0)
+                    {
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("PIPackingListMaterial", out _IdM);
+                        _IdM = "PLM" + "-" + _IdM;
+
+
+                        AddNewRow(dsMaterial.Tables[0], MaterialData[i]);
+                        dsMaterial.Tables[0].Rows[dsMaterial.Tables[0].Rows.Count - 1]["Id"] = _IdM;
+                        dsMaterial.Tables[0].Rows[dsMaterial.Tables[0].Rows.Count - 1]["PIQuantity"] = MaterialData[i]["AllocatedQty"];
+                        dsMaterial.Tables[0].Rows[dsMaterial.Tables[0].Rows.Count - 1]["PIMaterialId"] = MaterialData[i]["Id"];
+                        dsMaterial.Tables[0].Rows[dsMaterial.Tables[0].Rows.Count - 1]["PIUoMId"] = MaterialData[i]["UoMId"];
+                        dsMaterial.Tables[0].Rows[dsMaterial.Tables[0].Rows.Count - 1]["PIPackingListMasterId"] = _Id;
+                    }
+                    else
+                    {
+                        _IdM = dsMaterial.Tables[0].DefaultView[0]["Id"].ToString();
+                        EditRow(dsMaterial.Tables[0].DefaultView[0].Row, MaterialData[i]);
+                        dsMaterial.Tables[0].DefaultView[0]["PIQuantity"] = MaterialData[i]["AllocatedQty"];
+                        dsMaterial.Tables[0].DefaultView[0]["PIMaterialId"] = MaterialData[i]["Id"];
+                        dsMaterial.Tables[0].DefaultView[0]["PIUoMId"] = MaterialData[i]["UoMId"];
+                        dsMaterial.Tables[0].DefaultView[0]["Id"] = _IdM;
+                        dsMaterial.Tables[0].DefaultView[0]["PIPackingListMasterId"] = _Id;
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsMaterial);
+
+                return _Id;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+                //return Json(new { Error = true, Message = ex.Message });
+            }
+            return null;
+        }
 
         public double ConvertUoM(string MaterialGroupMasterId, string FromUOM, string ToUOM, double Value)
         {
@@ -399,7 +484,7 @@ namespace Library.OrderManagement.ProformaInvoice
 						WHERE PM.Id='" + PIMasterId + @"'";
         }
 
-        private string PIMaterialSql(string PIMasterId)
+        private string PIMaterialSql(string PIMasterId, string PIVersionId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"SELECT p.Id, p.PIMasterId, p.PIVersionId,
@@ -412,7 +497,7 @@ ROUND(p.Amount, 2) Amount,uom.UserName UoM,
 						  LEFT JOIN mst.MaterialGroupMaster AS mgm ON mgm.Id=p.MaterialGroupMasterId
 						  LEFT JOIN hkp.HSNCode AS h ON h.Id=p.HSNCodeId
 						  LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=p.UoMId
-						WHERE p.PIMasterId='" + PIMasterId + @"'";
+						WHERE p.PIMasterId='" + PIMasterId + @"' AND PIVersionId='" + PIVersionId + "'";
         }
 
         private string TCSql(string PIMasterId)
@@ -434,7 +519,7 @@ WHERE P.id='" + PIMasterId + @"' Order By tac.Sequence,tacc.Id";
                 var reportUtility = new ReportUtility();
 
                 string HeaderSql = PIMasterSql(PIMasterId);
-                string MaterialSql = PIMaterialSql(PIMasterId);
+                string MaterialSql = PIMaterialSql(PIMasterId, PIVersionId);
                 string TermsAndConditionSql = TCSql(PIMasterId);
 
                 //Instantiate the Excel application object
@@ -697,7 +782,7 @@ WHERE P.id='" + PIMasterId + @"' Order By tac.Sequence,tacc.Id";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"
 SELECT  
-p.Id,ISNULL(p.Quantity,0) -ISNULL(PIPM.PackingQty,0) ToPackQty,
+p.Id,ISNULL(p.Quantity,0) -ISNULL(PIPM.PackingQty,0) ToPackQty,pv.VersionNo,
 ISNULL(p.Rate,0) Rate,ISNULL(p.Quantity,0) Quantity,ISNULL(p.Amount,0) Amount
 ,uom.UserName UoM,p.[Description],FORMAT(p.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
  , p.MaterialGroupMasterId,mgm.UserName AS MaterialGroup
@@ -705,6 +790,7 @@ ISNULL(p.Rate,0) Rate,ISNULL(p.Quantity,0) Quantity,ISNULL(p.Amount,0) Amount
  ,pm.PINo,pm.RefNo,FORMAT( pm.PIDate,'dd-MMM-yyyy') PIDate, c.Code Currency, b.UserName Buyer, pr.UserName Customer,
  pm.InvoicingByAddress, pm.DeliveryByAddress,pm.ShippingMark
 FROM PIMaterial AS p
+JOIN PIVersion AS pv ON p.PIVersionId=pv.Id and pv.Id=(SELECT TOP 1 px.Id FROM PIVersion px WHERE px.PIMasterId=p.PIMasterId ORDER BY px.VersionNo desc )
 LEFT JOIN PIMaster AS pm ON pm.id=p.PIMasterId
 	LEFT OUTER JOIN SCS.Currency AS c ON C.Id=PM.CurrencyId
 							LEFT OUTER JOIN hkp.Buyer AS b ON B.Id=PM.BuyerId
@@ -756,6 +842,11 @@ ORDER BY PM.PIDate DESC";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colPIDate = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Rev.";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                int colPIVersion = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Buyer";
                 sheet[ROW, COL].ColumnWidth = 30;
                 int colBuyer = COL;
@@ -763,14 +854,14 @@ ORDER BY PM.PIDate DESC";
                 sheet[ROW, COL].Text = "Customer";
                 sheet[ROW, COL].ColumnWidth = 30;
                 int colCustomer = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Invoicing By Address";
-                sheet[ROW, COL].ColumnWidth = 30;
-                int colInvoicingByAddress = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Delivery By Address";
-                sheet[ROW, COL].ColumnWidth = 30;
-                int colDeliveryByAddress = COL;
+                //COL++;
+                //sheet[ROW, COL].Text = "Invoicing By Address";
+                //sheet[ROW, COL].ColumnWidth = 30;
+                //int colInvoicingByAddress = COL;
+                //COL++;
+                //sheet[ROW, COL].Text = "Delivery By Address";
+                //sheet[ROW, COL].ColumnWidth = 30;
+                //int colDeliveryByAddress = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Shipping Mark";
                 sheet[ROW, COL].ColumnWidth = 14;
@@ -796,7 +887,7 @@ ORDER BY PM.PIDate DESC";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colQty = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Packing Qty";
+                sheet[ROW, COL].Text = "Packed Qty";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colPackingQty = COL;
                 COL++;
@@ -808,7 +899,7 @@ ORDER BY PM.PIDate DESC";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colToPackQty = COL;
                 COL++;
-                sheet[ROW, COL].Text = "UoM";
+                sheet[ROW, COL].Text = "UOM";
                 sheet[ROW, COL].ColumnWidth = 8;
                 int colUoM = COL;
                 COL++;
@@ -824,7 +915,7 @@ ORDER BY PM.PIDate DESC";
                 sheet[ROW, COL].Text = "Currency";
                 sheet[ROW, COL].ColumnWidth = 8;
                 int colCurrency = COL;
-         
+
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
@@ -838,6 +929,9 @@ ORDER BY PM.PIDate DESC";
                     sheet[ROW, colDescription].Text = dtPIMaterialStatus.Rows[i]["Description"].ToString();
                     sheet[ROW, colHSNCode].Text = dtPIMaterialStatus.Rows[i]["HSNCode"].ToString();
 
+                    sheet[ROW, colPIVersion].Number = clsStaticInfo.dbl(dtPIMaterialStatus.Rows[i]["VersionNo"].ToString());
+                    sheet[ROW, colPIVersion].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
                     sheet[ROW, colQty].Number = clsStaticInfo.dbl(dtPIMaterialStatus.Rows[i]["Quantity"].ToString());
                     sheet[ROW, colQty].NumberFormat = "#,##0.00;(#,##0.00)";
 
@@ -846,7 +940,7 @@ ORDER BY PM.PIDate DESC";
 
                     sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtPIMaterialStatus.Rows[i]["Rate"].ToString());
                     sheet[ROW, colRate].NumberFormat = "#,##0.00;(#,##0.00)";
-                    
+
                     sheet[ROW, colPackingQty].Number = clsStaticInfo.dbl(dtPIMaterialStatus.Rows[i]["PackingQty"].ToString());
                     sheet[ROW, colPackingQty].NumberFormat = "#,##0.00;(#,##0.00)";
 
@@ -866,11 +960,11 @@ ORDER BY PM.PIDate DESC";
                     sheet[ROW, colCurrency].Text = dtPIMaterialStatus.Rows[i]["Currency"].ToString();
                     sheet[ROW, colBuyer].Text = dtPIMaterialStatus.Rows[i]["Buyer"].ToString();
                     sheet[ROW, colCustomer].Text = dtPIMaterialStatus.Rows[i]["Customer"].ToString();
-                    sheet[ROW, colInvoicingByAddress].Text = dtPIMaterialStatus.Rows[i]["InvoicingByAddress"].ToString();
-                    sheet[ROW, colDeliveryByAddress].Text = dtPIMaterialStatus.Rows[i]["DeliveryByAddress"].ToString();
+                    //sheet[ROW, colInvoicingByAddress].Text = dtPIMaterialStatus.Rows[i]["InvoicingByAddress"].ToString();
+                    //sheet[ROW, colDeliveryByAddress].Text = dtPIMaterialStatus.Rows[i]["DeliveryByAddress"].ToString();
                     sheet[ROW, colShippingMark].Text = dtPIMaterialStatus.Rows[i]["ShippingMark"].ToString();
                     sheet[ROW, colMaterialGroup].Text = dtPIMaterialStatus.Rows[i]["MaterialGroup"].ToString();
-                    
+
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
@@ -884,8 +978,8 @@ ORDER BY PM.PIDate DESC";
                 //sheet.Range[ROW, colTotal].NumberFormat = clsStaticInfo.NumberFormat(2);
                 //sheet.Range[ROW, 1, ROW, colTotal - 1].Merge();
 
-                sheet.Range[ROW-1, 1, ROW-1, endCol].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW-1, 1, ROW-1, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW - 1, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW - 1, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
 
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.WrapText = true;
