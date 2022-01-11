@@ -1657,6 +1657,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewProcessAttendanceReProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataDeleteNewController.js" />
     <Content Include="Areas\Attendances\Scripts\EmployeeLastPunchReportController.js" />
