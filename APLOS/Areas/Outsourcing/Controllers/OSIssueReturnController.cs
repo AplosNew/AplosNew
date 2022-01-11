@@ -2047,8 +2047,8 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 								,CN.ContractNo,MLC.LCRef MasterLCNo, owrUom.UserName as MasterOrderUoM
                                ,owr.Id as JWOrderWiseId, owr.OSTransformationPODetailId, owr.OrderType,owr.Quantity as OWRQuantity,owr.PlanQuantity
                                ,IssueActive='Active'
-							    ,RequiredQuantity=case when owr.Id is not null then owr.Quantity else vcc.Quantity End
-							   ,BalanceToIssue=case when owr.Id is not null then (owr.Quantity)-(ISNULL(OW.TotalQuantity,'0')) else (vcc.Quantity)-(ISNULL(kk.TotalQuantity,'0')) End
+							    ,RequiredQuantity=case when owr.Id is not null then owr.PlanQuantity else vcc.Quantity End
+							   ,BalanceToIssue=case when owr.Id is not null then (owr.PlanQuantity)-(ISNULL(OW.TotalQuantity,'0')) else (vcc.Quantity)-(ISNULL(kk.TotalQuantity,'0')) End
 								 ,TIRCTotalQty=case when owr.Id is not null then ISNULL(OW.TotalQuantity,'0') else ISNULL(kk.TotalQuantity,'0') End
 								,Sum(0) PlannedQty,0 IssuedQty,0 BalanceQty
                                 ,0 PostingQuantity

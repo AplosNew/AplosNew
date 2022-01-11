@@ -809,4 +809,15 @@ function ProformaInvoiceController(commonMessage, $controller, $scope, $rootScop
         }
     }
 
+    $scope.PIStatusReport = function () {
+        try {
+
+            var file_src = 'Commercial/ProformaInvoice/PIStatusReport'
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
 }

@@ -695,5 +695,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/LeavesChecklistReportNew/Aplos',
             controller: 'LeavesChecklistReportNewController'
         })
+        .when('/employee-shift-updates', {
+            templateUrl: 'humanresource/EmployeeShiftUpdates/Aplos',
+            controller: 'EmployeeShiftUpdatesController'
+        })
+    
         ;
 }
