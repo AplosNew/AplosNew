@@ -943,8 +943,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 as ManualShift,ISNULL(sd.InTime,p.ShiftInTime) as ManualShiftIn,
 				isnull(sd.OutTime,p.ShiftOutTime) as ManualShiftOut,isnull(sd.ShiftDuration,p.ShiftDuration)
 				as ManualDuration,
-                e.ProfileShiftId as ProfileShift,sdx.InTime as ProfileShiftIn,sdx.OutTime as ProfileShiftOut,
-                sdx.ShiftDuration as ProfileDuration,
+                sdmaster.SystemID as ProfileShift,sdmaster.InTime as ProfileShiftIn,sdmaster.OutTime as ProfileShiftOut,
+                sdmaster.ShiftDuration as ProfileDuration,
                 mb.ShiftDefinationId as BudgetedShift,sdy.InTime as BudgetShiftIn,sdy.OutTime as BudgetShiftOut,
                 sdy.ShiftDuration as BudgetDuration,rp.ShiftDefinationID as RosterShift,sdz.InTime as RosterShiftIn,
                 sdz.OutTime as RosterShiftOut,sdz.ShiftDuration as RosterDuration,m.InTime as ManualInTime,m.OutTime as ManualOutTime,
@@ -954,30 +954,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,Op.InPunchStartTime as PlantInPunchStartTime, 
                 FullDayDuration=case when isnull(p.ManualShiftID,'')!='' then
 				isnull(isnull(isnull(sd.FullDayDuration,p.ShiftFullDayDuration),
-				sdx.FullDayDuration),isnull(sdz.FullDayDuration,sdy.FullDayDuration)) 
+				sdmaster.FullDayDuration),isnull(sdz.FullDayDuration,sdy.FullDayDuration)) 
 				else 
-				isnull(isnull(sd.FullDayDuration,sdx.FullDayDuration),
+				isnull(isnull(sd.FullDayDuration,sdmaster.FullDayDuration),
                 isnull(sdz.FullDayDuration,sdy.FullDayDuration))end,				
 				HalfDayDuration=case when isnull(p.ManualShiftID,'')!='' then
-				isnull(isnull(isnull(sd.HalfDayDuration,p.ShiftHalfDayDuration),sdx.HalfDayDuration),
+				isnull(isnull(isnull(sd.HalfDayDuration,p.ShiftHalfDayDuration),sdmaster.HalfDayDuration),
                 isnull(sdz.HalfDayDuration,sdy.HalfDayDuration))
 				else
-				isnull(isnull(sd.HalfDayDuration,sdx.HalfDayDuration),
+				isnull(isnull(sd.HalfDayDuration,sdmaster.HalfDayDuration),
                 isnull(sdz.HalfDayDuration,sdy.HalfDayDuration))
 				end,
 				ShortDuration= case when isnull(p.ManualShiftID,'')!='' then 
-				isnull(isnull(isnull(sd.ShortDuration,p.ShiftShortDuration),sdx.ShortDuration),
+				isnull(isnull(isnull(sd.ShortDuration,p.ShiftShortDuration),sdmaster.ShortDuration),
                 isnull(sdz.ShortDuration,sdy.ShortDuration)) else
-				isnull(isnull(sd.ShortDuration,sdx.ShortDuration),
+				isnull(isnull(sd.ShortDuration,sdmaster.ShortDuration),
                 isnull(sdz.ShortDuration,sdy.ShortDuration)) end,
 				HoursWithoutOT=case when isnull(p.ManualShiftID,'')!='' then 
-				isnull(isnull(isnull(sd.HoursWithoutOT,p.ShiftHoursWithoutOT),sdx.HoursWithoutOT),
+				isnull(isnull(isnull(sd.HoursWithoutOT,p.ShiftHoursWithoutOT),sdmaster.HoursWithoutOT),
                 isnull(sdz.HoursWithoutOT,sdy.HoursWithoutOT)) 
 				else
-				isnull(isnull(sd.HoursWithoutOT,sdx.HoursWithoutOT),
+				isnull(isnull(sd.HoursWithoutOT,sdmaster.HoursWithoutOT),
                 isnull(sdz.HoursWithoutOT,sdy.HoursWithoutOT))end
 		        from EmployeeInformation e 
-                left join ShiftDefination sdx on sdx.SystemID=e.ProfileShiftId
                 left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and
 				m.WorkDate='"+Date+@"'
                 left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
@@ -990,6 +989,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
                 left join org.Plant pl on pl.Id=e.PlantId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
+				left join (select distinct es.EmpSystemId,(Select top 1 ShiftId
+				from dbo.EmployeeProfileShift
+				where EmpSystemId = es.EmpSystemId and EffectiveDate <= '"+Date+@"'
+				order by EffectiveDate desc
+				) as ShiftId 
+				from dbo.EmployeeProfileShift es
+				where EffectiveDate <= '"+Date+@"') as Tablex on Tablex.EmpSystemId=e.SystemId
+				left join ShiftDefination sdmaster on sdmaster.SystemID=Tablex.ShiftId
                 where e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' and
 				E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+@"' OR ISNULL(E.DOS,'') = '' 
 				OR E.DOS = '01/01/1901')";

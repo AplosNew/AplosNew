@@ -671,6 +671,13 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsAdvanceService.GetEmployeeWiseOutstandingAdvance(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, employeeId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult GetAdvanceReqSchedule(string Id)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.GetData(Id), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public JsonResult ParkEmployeeAdvance(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
@@ -701,7 +708,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateEmployeeAdvance(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList)
+        public JsonResult UpdateEmployeeAdvance(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<AdvanceReqSchedule> DetailsList)
         {
             advanceVM.IsPark = true;
             if ((advanceVM.Amount == 0) || (advanceVM.Amount <= 0))
@@ -720,7 +727,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 advanceDetailVM.Narration = advanceVM.Narration;
             }
             advanceVM.PartyType = PartyType.Employee.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _advanceService.UpdateEmployeeAdvance(advanceVM, advanceDetailVMList, bankChargeDetailVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _advanceService.UpdateEmployeeAdvance(advanceVM, advanceDetailVMList, bankChargeDetailVMList, DetailsList)) });
         }
 
         [HttpPost]
@@ -1907,7 +1914,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 advanceDetailVM.Narration = advanceVM.Narration;
             }
             advanceVM.PartyType = PartyType.Employee.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _advanceService.UpdateEmployeeAdvance(advanceVM, advanceDetailVMList, bankChargeDetailVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _advanceService.UpdateEmployeeAdvance(advanceVM, advanceDetailVMList, bankChargeDetailVMList,null)) });
         }
 
         [HttpPost]

@@ -114,6 +114,29 @@ namespace Library.Accounting.Accounts
                                 AND AM.EmployeeId='" + employeeId + "'";
             return _sqlRepository.GetGridData(parameters);
         }
+        public IEnumerable<object> GetData(string Id)
+        {
+            try
+            {
+                var str = @"SELECT a.Id
+                            	,FORMAT(a.InstallmentDate, 'dd-MMM-yyyy') InstallmentDate
+                            	,a.InstallmentNo
+                            	,a.InstallmentAmount
+                            	,a.ProfitAmount
+                            	,a.PrincipalAmount
+                            	,a.Balance
+                            FROM AdvanceReqSchedule a
+                            LEFT JOIN TRN.EmployeeSalaryAdvance e ON e.Id = a.EmployeeSalaryAdvanceId
+                            LEFT JOIN trn.Advance AS ad ON ad.VoucherId = e.VoucherId
+                            WHERE ad.Id = '"+ Id + "'";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         public GridModel GetEmployeeWiseOutstandingAdvance(GridParameter parameters, string companyGroupId, string companyId, string plantId, string employeeId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType,   AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId,  C.Code AS CurrencyCode
