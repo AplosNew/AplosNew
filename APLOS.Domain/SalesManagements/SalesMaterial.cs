@@ -33,6 +33,7 @@ namespace Library.Model.SalesManagements
         public string PostCrBudgetMasterId { get; set; }
 
         public string PostCrActivityId { get; set; }
+        public string GoodsDescription { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
