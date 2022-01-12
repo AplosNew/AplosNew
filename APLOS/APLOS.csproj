@@ -466,6 +466,7 @@
     <Compile Include="Areas\Commercial\Controllers\InvoiceTaggedWithLCController.cs" />
     <Compile Include="Areas\Commercial\Controllers\LcNavigationController.cs" />
     <Compile Include="Areas\Commercial\Controllers\LCReportsController.cs" />
+    <Compile Include="Areas\Commercial\Controllers\CommercialAdditionalInfoController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PostSalesInvoiceController.cs" />
     <Compile Include="Areas\Commercial\Controllers\AutoLoanController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PIInvoiceController.cs" />
@@ -1767,6 +1768,7 @@
     <Content Include="Areas\Commercial\Scripts\LcNavigationController.js" />
     <Content Include="Areas\Commercial\Scripts\LCReportsController.js" />
     <Content Include="Areas\Commercial\Scripts\InvoiceBudgetChargesSettingController.js" />
+    <Content Include="Areas\Commercial\Scripts\CommercialAdditionalInfoController.js" />
     <Content Include="Areas\Commercial\Scripts\PostSalesInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanPostController.js" />
@@ -3929,6 +3931,7 @@
     <Content Include="Areas\Outsourcing\Views\OSIssueReturn\_StockPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\AttendanceBonusMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeShiftUpdates\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\CommercialAdditionalInfo\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

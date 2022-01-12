@@ -130,9 +130,11 @@ namespace Library.Accounting.Accounts
                             	,a.MonthNo
                             	,a.ScheduleNo
                             	,a.Arrear
+                                ,CASE WHEN t.Id IS NULL THEN 'Yes' ELSE 'No' END SaveOrNot
                             FROM AdvanceReqSchedule a
                             LEFT JOIN TRN.EmployeeSalaryAdvance e ON e.Id = a.EmployeeSalaryAdvanceId
                             LEFT JOIN trn.Advance AS ad ON ad.VoucherId = e.VoucherId
+                            LEFT JOIN [TRN].[EmployeeAdvanceDeduction] t ON t.AdvanceId = ad.Id
                             WHERE ad.Id = '" + Id + "' ORDER BY a.InstallmentNo";
 
                 return _sqlRepository.GetDataCollection(str);

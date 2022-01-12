@@ -743,7 +743,43 @@ namespace OTSBD.clsLeave
 
             }
         }
+        public void validateIndividualYearEnd(string sPlantID, string sYearId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            DataSet dsRef;
+            try
+            {
 
+                strSql = @"SELECT TOP 1 els.* FROM trn.EmployeeLeaveSummary AS els 
+JOIN EmployeeInformation AS ei ON ei.SystemId=els.EmployeeId
+JOIN mst.DesignationMasterLegalDesignation AS LD ON ld.LegalDesignationId=ei.LegalDesignationId
+JOIN SCS.DesignationMasterConfiguration dc ON dc.DesignationMasterId=ld.DesignationMasterId AND dc.PlantId=ei.PlantId
+JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dc.LeavePolicyMasterId AND els.LeaveTypeId=lpd.LTSystemID
+WHERE els.ToDate<(SELECT yc.ToDate
+                                                                  FROM YearlyCalendar AS yc WHERE yc.Id='" + sYearId + @"')
+                                                                  AND ISNULL(els.IsYearlyProcessed,0)=0
+                                                                  AND lpd.IsCarryForward=1
+                                                                  AND lpd.EncashmentBasis<>'CalanderYear'
+                                                                  AND els.PlantId='" + sPlantID + @"'";
+
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+                if (dsRef.Tables[0].Rows.Count > 0)
+                    throw new Exception("Individual year end process is incomplete for the selected calendar year");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
+        }
         public void GetNextYearID(string sPlantID, string sYearId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -922,7 +958,7 @@ namespace OTSBD.clsLeave
 
 
                 strSQL = @"SELECT EmpSystemID,LTSystemID,sum(APD.LvValue) totalLeave FROM AttdnProcessData APD
-                                            where  WorkDate between '"+ sFromDate + @"' and '" + sToDate + @"' 
+                                            where  WorkDate between '" + sFromDate + @"' and '" + sToDate + @"' 
                              and PlantID='" + sPlantID + @"'
                           AND apd.LvValue>0
                             group by EmpSystemID,LTSystemID  ";
@@ -1769,7 +1805,7 @@ namespace OTSBD.clsLeave
                                 AND X.ToDate<='" + ToDate + @"'   AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
                                 ORDER BY x.ToDate DESC
                                 ) 
-                         		
+                         		AND ISNULL(S.IsYearlyProcessed,0)=0
                                 and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE  EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
                                     
                                 )";
@@ -1818,7 +1854,7 @@ namespace OTSBD.clsLeave
                                
                                 join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
-                                AND X.ToDate<='" + ToDate + @"'  AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
+                                AND X.ToDate<='" + ToDate + @"'  and ISNULL(X.IsYearlyProcessed,0)=0
                                 ORDER BY x.ToDate DESC
                                 ) 
                                 and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE  EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
