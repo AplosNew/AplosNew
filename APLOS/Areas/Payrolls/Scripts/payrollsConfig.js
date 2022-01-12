@@ -48,19 +48,19 @@
             templateUrl: 'payrolls/SalaryStructureUnApproval/SalaryStructureUnApproval',
             controller: 'SalaryStructureUnApprovalController'
         })
-        .when('/leave-encashment-entry', {
+        .when('/leave-encashment-entry-tobedeleted', {
             templateUrl: 'payrolls/leaveEncashmentEntry/aplos',
             controller: 'LeaveEncashmentEntryController'
         })
-        .when('/multiple-leave-encashment', {
+        .when('/multiple-leave-encashment-tobedeleted', {
             templateUrl: 'payrolls/leaveEncashmentEntry/MultipleLeaveEncashment',
             controller: 'MultipleLeaveEncashmentController'
         })
-        .when('/with-in-year-leave-encashment', {
+        .when('/with-in-year-leave-encashment-tobedeleted', {
             templateUrl: 'payrolls/leaveEncashmentEntry/WithinYearLeaveEncashment',
             controller: 'WithinYearLeaveEncashmentController'
         })
-        .when('/specific-date-leave-encashment', {
+        .when('/specific-date-leave-encashment-tobedeleted', {
             templateUrl: 'payrolls/leaveEncashmentEntry/SpecificDateLeaveEncashment',
             controller: 'SpecificDateLeaveEncashmentController'
         })

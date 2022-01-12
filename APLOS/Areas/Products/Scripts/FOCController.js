@@ -4803,7 +4803,39 @@ function FOCController(accountService, addressService, $window, cboService, comm
         /*,showCaptionSummary: true*/
     }];
 
+    $scope.calculateAmountPOPUP = function () {
+        if (baseService.isUndefinedOrNull($scope.detailModel.ShortageQty)) {
+            $scope.detailModel.ShortageQty = 0;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.RejectionQty)) {
+            $scope.detailModel.RejectionQty = 0;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.DiscountAmount)) {
+            $scope.detailModel.DiscountAmount = 0;
+        }
+        if (isNaN($scope.detailModel.ShortageQty)) {
+            $scope.detailModel.ShortageQty = 0;
+        }
+        if (isNaN($scope.detailModel.RejectionQty)) {
+            $scope.detailModel.RejectionQty = 0;
+        }
+        if (isNaN($scope.detailModel.DiscountAmount)) {
+            $scope.detailModel.DiscountAmount = 0;
+        }
+        if ($scope.detailModel.ShortageQty > $scope.detailModel.TransactionQty) {
+            ShowResult('Shortage quantity can not grater than Transaction qty!', 'failure');
+            return false;
+        }
+        if ($scope.detailModel.RejectionQty > $scope.detailModel.TransactionQty) {
+            ShowResult('Rejection quantity can not grater than Transaction qty!', 'failure');
+            return false;
+        }
 
+        $scope.detailModel.ApprovedQty = ($scope.detailModel.TransactionQty - ($scope.detailModel.ShortageQty + $scope.detailModel.RejectionQty));
+        $scope.detailModel.NetQty = ($scope.detailModel.TransactionQty - $scope.detailModel.ShortageQty);
+        //$scope.detailModel.TransactionAmount
+
+    };
 
 
 }//End Of main

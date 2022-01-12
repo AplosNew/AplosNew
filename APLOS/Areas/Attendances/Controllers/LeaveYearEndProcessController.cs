@@ -90,7 +90,7 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
 
-
+                objLeaveYearEndProcessData.validateIndividualYearEnd(identity.PlantId, YearId);
                 #region Validation
 
 
@@ -101,7 +101,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 objLeaveYearEndProcessData.GetNextYearID(identity.PlantId, YearId.ToString().Trim(), out dsLocal);
-
+             
                 if (dsLocal.Tables[0].Rows.Count > 0)
                 {
 
@@ -122,11 +122,13 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
-                    if (dsOldSummary != null && dsNewSummary != null && dsCalandarYearLocalSummay != null)
-                    {
-                        objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
 
-                    }
+                    foreach (DataRow item in dsOldSummary.Tables[0].Rows)
+                        item["IsYearlyProcessed"] = true;
+
+                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
+
+
                 }
                 else
                 {
@@ -198,11 +200,12 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
-                if (dsOldSummary != null && dsNewSummary != null)
-                {
-                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary);
 
-                }
+                foreach (DataRow item in dsOldSummary.Tables[0].Rows)
+                    item["IsYearlyProcessed"] = true;
+
+                objStatic.SaveDataSets(dsNewSummary, dsOldSummary);
+
 
 
 
@@ -251,7 +254,7 @@ namespace Aplos.Areas.Attendances.Controllers
             //objLeaveServiceAplos = new clsLeaveServiceAplos();
             try
             {
-
+                objLeaveYearEndProcessData.validateIndividualYearEnd(identity.PlantId, YearId);
 
                 #region Validation
 
@@ -284,11 +287,11 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
-                    if (dsOldSummary != null && dsNewSummary != null && dsCalandarYearLocalSummay != null)
-                    {
-                        objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
+                    foreach (DataRow item in dsOldSummary.Tables[0].Rows)
+                        item["IsYearlyProcessed"] = true;
+                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
 
-                    }
+
                 }
                 else
                 {
@@ -360,11 +363,14 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
-                if (dsOldSummary != null && dsNewSummary != null)
-                {
-                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary);
 
-                }
+
+                foreach (DataRow item in dsOldSummary.Tables[0].Rows)
+                    item["IsYearlyProcessed"] = true;
+
+                objStatic.SaveDataSets(dsNewSummary, dsOldSummary);
+
+
 
 
 
@@ -596,7 +602,7 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = string.Empty;
-           
+
             sql = @"select EmployeeId, EmployeeCode,EmployeeName,EmployeeCodeNumeric,EmployeeCodePreFix,DOJorDOC,FromDate,x.ToDate
                                 ,LeaveName
                                 ,OpeningBalance
@@ -694,6 +700,7 @@ namespace Aplos.Areas.Attendances.Controllers
                           Where ELS.ToDate<='" + ToDate + @"' 
                                 and EI.PlantId='" + identity.PlantId + @"'
                                 and isnull(ELS.IsEncashed,0)=0
+                                AND ISNULL(els.IsYearlyProcessed,0)=0
                                 AND LvPolicyDetail.EncashmentBasis<>'CalanderYear'
                                 ) x
                                 ORDER BY  x.EmployeeCodePreFix,x.EmployeeCodeNumeric ";
@@ -705,7 +712,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }//End Function 
 
-      
+
 
         [HttpGet, Authorize]
         public ActionResult GetMaternityDetailsForOTConfirmation(string EmpId, string WDate)

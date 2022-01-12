@@ -4,6 +4,7 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Model.Currencies;
+using Library.Service.Core;
 using Library.Service.Currencies;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,8 @@ namespace Aplos.Areas.Currencies.Controllers
         {
             try
             {
+                var comparallelcu = new CompanyParallelCurrency();
+                AuditService.AddedLog(comparallelcu);
                 var comparallellist = new List<CompanyParallelCurrency>();
                 {
                     comparallellist.Add(
@@ -47,6 +50,9 @@ namespace Aplos.Areas.Currencies.Controllers
                             ParallelCurrencyType = comcurType,
                             CurrencyId = comcurId,
                             Active = true,
+                            AddedBy= comparallelcu.AddedBy,
+                            AddedDate= comparallelcu.AddedDate,
+                            AddedFromIP= comparallelcu.AddedFromIP
                         });
                     if (GroCurType != "" && groupcurId != "")
                     {

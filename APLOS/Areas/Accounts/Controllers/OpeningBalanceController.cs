@@ -9,7 +9,9 @@ using Library.Model.Enums;
 using Library.Model.OpeningBalances;
 using Library.Model.Parties;
 using Library.Model.Vouchers;
+using Library.Security.Core;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.Service.OpeningBalances;
 using Library.Service.Vouchers;
@@ -2412,10 +2414,6 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-
-
-
-
         #region Opening Balance Report code  
         public ActionResult OpeningBalanceReportExcel()
         {
@@ -2851,5 +2849,491 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion Opening Balance Report code  
 
+        #region Opening Balance Report by Aakash  
+        [HttpGet, Authorize]
+        public ActionResult MaterialMasterOpenningBalanceReport(string OpenningBalanceId)
+        {
+            try
+            {
+                CreatMaterialMasterOpenningBalanceReport(OpenningBalanceId);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private string OpenningBalanceSql(string OpenningBalanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"DECLARE @companyId VARCHAR(10)='" + identity.CompanyId + "',@plantId VARCHAR(10)='" + identity.PlantId + @"';
+                          SELECT 
+									distinct IM.Id as InventoryReceivedId
+									,FOBD.Id,IRDD.Id InventoryReceiveDetailId, FOBD.OpeningBalanceId,AGL.AccountCode+' - '+AGL.UserName AS AssetGLName, ACGL.AccountCode+' - '+ACGL.UserName AS AccDepreciation
+							       ,FOBD.AccumulatedDepreciationGLId,FOBD.AccumulatedDepreciationBudgetMasterId,FOBD.AccumulatedDepreciationActivityId,AB.UserName BudgetName,AC.UserName AssetActivityName,BM.BudgetCategoryId,BM.BudgetSubCategoryId,ACB.UserName ACUBudgetName
+								   ,FOBD.FixedAssetMasterId,FOBD.AssetBudgetMasterId,FOBD.AssetActivityId, FAM.UserName AS FixedAssetMasterName, FOBD.MaterialMasterId MMID, FOBD.BaseUOMId, UOM.UserName AS BaseUoM, FOBD.AssetGLId, FOBD.CurrencyId, FOBD.Quantity,FOBD.Quantity QuantityOld
+                                    ,CC.CompanyCurrencyId,CC.Currency CompanyCurrency, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.FACompanyCurrencyRate, CC.FACompanyCurrencyAmount,CC.FACompanyCurrencyAmount FACompanyCurrencyAmountOld, ADCC.ADCompanyCurrencyRate, ADCC.ADCompanyCurrencyAmount,
+                                    GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.FACompanyGroupCurrencyRate, GC.FACompanyGroupCurrencyAmount, ADGC.ADCompanyGroupCurrencyRate, ADGC.ADCompanyGroupCurrencyAmount,
+                                    HC.HardCurrencyId, HC.HardFromCurrencyId, HC.FAHardCurrencyRate, HC.FAHardCurrencyAmount, ADHC.ADHardCurrencyRate, ADHC.ADHardCurrencyAmount
+									,CCD.FACompanyCurrencyDirectRate, CCD.FACompanyCurrencyDirectAmount
+									,CCID.FACompanyCurrencyInDirectRate, CCID.FACompanyCurrencyInDirectAmount
+									,GCD.FACompanyGroupCurrencyDirectRate, GCD.FACompanyGroupCurrencyDirectAmount
+									,GCID.FACompanyGroupCurrencyInDirectRate, GCID.FACompanyGroupCurrencyInDirectAmount
+									,HCD.FAHardCurrencyDirectRate, HCD.FAHardCurrencyDirectAmount
+									,HCID.FAHardCurrencyInDirectRate, HCID.FAHardCurrencyInDirectAmount
+									,ADCCD.ADCompanyCurrencyDirectRate, ADCCD.ADCompanyCurrencyDirectAmount
+									,ADCCID.ADCompanyCurrencyInDirectRate, ADCCID.ADCompanyCurrencyInDirectAmount
+									,ADGCD.ADCompanyGroupCurrencyDirectRate, ADGCD.ADCompanyGroupCurrencyDirectAmount
+									,ADGCID.ADCompanyGroupCurrencyInDirectRate, ADGCID.ADCompanyGroupCurrencyInDirectAmount
+									,ADHCD.ADHardCurrencyDirectRate, ADHCD.ADHardCurrencyDirectAmount
+									,ADHCID.ADHardCurrencyInDirectRate, ADHCID.ADHardCurrencyInDirectAmount
+									,FOBD.MaterialMasterId, MM.UserName MaterialMasterName,FOBD.ArticleId, MMA.StandardName ArticleName,FOBD.MaterialStorageId,FOBD.FirstCharacteristicsId,FOBD.FirstCharacteristicsValueId,FOBD.SecondCharacteristicsId,FOBD.SecondCharacteristicsValueId
+									
+									, FC.UserName AS FirstCharacteristics
+									
+									, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+
+									
+									, FC.UserName AS SecondCharacteristics
+									
+									, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+
+									, FOBD.ThirdCharacteristicsId
+									, FC.UserName AS ThirdCharacteristics
+									, FOBD.ThirdCharacteristicsValueId
+									, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue,FOBD.LotNumber,FOBD.Diameter,FOBD.Type
+                                    FROM [TRN].[MaterialMasterOpeningBalanceDetail] AS FOBD
+                                    LEFT JOIN [TRN].[OpeningBalance] AS FOB ON FOBD.OpeningBalanceId=FOB.Id
+                                    --LEFT JOIN MST.MaterialMaster AS FAT ON FAT.Id = FOBD.MaterialMasterId
+                                    LEFT JOIN MST.FixedAssetMaster AS FAM ON FAM.Id=FOBD.FixedAssetMasterId
+									LEFT JOIN [SCS].[UnitOfMeasurement] AS UOM ON UOM.Id=FOBD.BaseUOMId
+									LEFT JOIN HKP.GLGeneralInfo AGL ON FOBD.AssetGLId=AGL.Id
+									LEFT JOIN HKP.GLGeneralInfo ACGL ON FOBD.AccumulatedDepreciationGLId=ACGL.Id
+									LEFT JOIN MST.BudgetMaster BM ON FOBD.AssetBudgetMasterId=BM.Id
+									LEFT JOIN HKP.Budget AB ON BM.BudgetId=AB.Id
+									LEFT JOIN MST.BudgetMaster ACBBM ON FOBD.AccumulatedDepreciationBudgetMasterId=ACBBM.Id
+									LEFT JOIN HKP.Budget ACB ON ACBBM.BudgetId=ACB.Id
+                                    LEFT JOIN HKP.Activity AC ON FOBD.AssetActivityId=AC.Id
+									LEFT JOIN MST.MaterialMaster MM ON FOBD.MaterialMasterId=MM.Id
+									LEFT JOIN MST.MaterialMasterArticle MMA ON FOBD.ArticleId = MMA.Id
+                                    LEFT JOIN HKP.Characteristics AS FC ON FOBD.FirstCharacteristicsId=FC.Id
+									LEFT JOIN HKP.Characteristics AS SC ON FOBD.SecondCharacteristicsId=SC.Id
+									LEFT JOIN HKP.Characteristics AS TC ON FOBD.ThirdCharacteristicsId=TC.Id
+									LEFT JOIN HKP.CharacteristicsValue AS FCV ON FOBD.FirstCharacteristicsValueId=FCV.Id
+									LEFT JOIN HKP.CharacteristicsValue AS SCV ON FOBD.SecondCharacteristicsValueId=SCV.Id
+									LEFT JOIN HKP.CharacteristicsValue AS TCV ON FOBD.ThirdCharacteristicsValueId=TCV.Id
+                                    LEFT OUTER JOIN (
+	                                     SELECT OBDC.ParallelCurrencyId AS CompanyCurrencyId, OBDC.FromCurrencyId AS CompanyFromCurrencyId, OBDC.ToCurrencyId,c.Code Currency,
+	                                    OBDC.ToCurrencyRate AS FACompanyCurrencyRate, OBDC.Amount AS FACompanyCurrencyAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailCurrency] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    LEFT JOIN scs.Currency AS c ON c.Id=cpc.CurrencyId
+	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                                    ) AS CC ON CC.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+                                    LEFT OUTER JOIN (
+                                    SELECT OBDC.ParallelCurrencyId AS CompanyGroupCurrencyId, OBDC.FromCurrencyId AS CompanyGroupFromCurrencyId,
+	                                    OBDC.ToCurrencyRate AS FACompanyGroupCurrencyRate, OBDC.Amount AS FACompanyGroupCurrencyAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailCurrency] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId=@companyId
+                                    ) AS GC ON GC.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+                                    LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS HardCurrencyId, OBDC.FromCurrencyId AS HardFromCurrencyId,
+	                                    OBDC.ToCurrencyRate AS FAHardCurrencyRate, OBDC.Amount AS FAHardCurrencyAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailCurrency] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId
+                                    ) AS HC ON HC.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+                                    LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS CompanyCurrencyId, OBDC.FromCurrencyId AS CompanyFromCurrencyId, OBDC.ToCurrencyId AS CompanyToCurrencyId,
+	                                    OBDC.ToCurrencyRate AS ADCompanyCurrencyRate, OBDC.Amount AS ADCompanyCurrencyAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailCurrency] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='AD' AND CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                                    ) AS ADCC ON ADCC.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+                                    LEFT OUTER JOIN (
+                                    SELECT OBDC.ParallelCurrencyId AS CompanyGroupCurrencyId, OBDC.FromCurrencyId AS CompanyGroupFromCurrencyId,
+	                                    OBDC.ToCurrencyRate AS ADCompanyGroupCurrencyRate, OBDC.Amount AS ADCompanyGroupCurrencyAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailCurrency] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='AD' AND CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId=@companyId
+                                    ) AS ADGC ON ADGC.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+                                    LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS HardCurrencyId, OBDC.FromCurrencyId AS HardFromCurrencyId,
+	                                    OBDC.ToCurrencyRate AS ADHardCurrencyRate, OBDC.Amount AS ADHardCurrencyAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailCurrency] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='AD' AND CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId
+                                    ) AS ADHC ON ADHC.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									--DirectInDirect
+									 LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS CompanyCurrencyId, OBDC.FromCurrencyId AS CompanyFromCurrencyId, OBDC.ToCurrencyId,
+	                                    OBDC.ToCurrencyRate AS FACompanyCurrencyDirectRate, OBDC.Amount AS FACompanyCurrencyDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+										,OBDC.Quantity DirectQuantity
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='Direct'
+                                    ) AS CCD ON CCD.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS CompanyCurrencyId, OBDC.FromCurrencyId AS CompanyFromCurrencyId, OBDC.ToCurrencyId,
+	                                    OBDC.ToCurrencyRate AS FACompanyCurrencyInDirectRate, OBDC.Amount AS FACompanyCurrencyInDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+										,OBDC.Quantity InDirectQuantity
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='InDirect'
+                                    ) AS CCID ON CCID.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									 LEFT OUTER JOIN (
+                                    SELECT OBDC.ParallelCurrencyId AS CompanyGroupCurrencyId, OBDC.FromCurrencyId AS CompanyGroupFromCurrencyId,
+	                                    OBDC.ToCurrencyRate AS FACompanyGroupCurrencyDirectRate, OBDC.Amount AS FACompanyGroupCurrencyDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+										,OBDC.Quantity DirectQuantity
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='Direct'
+                                    ) AS GCD ON GCD.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									LEFT OUTER JOIN (
+                                    SELECT OBDC.ParallelCurrencyId AS CompanyGroupCurrencyId, OBDC.FromCurrencyId AS CompanyGroupFromCurrencyId,
+	                                    OBDC.ToCurrencyRate AS FACompanyGroupCurrencyInDirectRate, OBDC.Amount AS FACompanyGroupCurrencyInDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+										,OBDC.Quantity InDirectQuantity
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='InDirect'
+                                    ) AS GCID ON GCID.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									 LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS HardCurrencyId, OBDC.FromCurrencyId AS HardFromCurrencyId
+	                                    ,OBDC.Quantity DirectQuantity,OBDC.ToCurrencyRate AS FAHardCurrencyDirectRate, OBDC.Amount AS FAHardCurrencyDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='Direct'
+                                    ) AS HCD ON HCD.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+																		 LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS HardCurrencyId, OBDC.FromCurrencyId AS HardFromCurrencyId
+	                                    ,OBDC.Quantity InDirectQuantity,OBDC.ToCurrencyRate AS FAHardCurrencyInDirectRate, OBDC.Amount AS FAHardCurrencyInDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='InDirect'
+                                    ) AS HCID ON HCID.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS CompanyCurrencyId, OBDC.FromCurrencyId AS CompanyFromCurrencyId, OBDC.ToCurrencyId,
+	                                    OBDC.ToCurrencyRate AS ADCompanyCurrencyDirectRate, OBDC.Amount AS ADCompanyCurrencyDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+										,OBDC.Quantity DirectQuantity
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='AD' AND CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='Direct'
+                                    ) AS ADCCD ON ADCCD.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS CompanyCurrencyId, OBDC.FromCurrencyId AS CompanyFromCurrencyId, OBDC.ToCurrencyId,
+	                                    OBDC.ToCurrencyRate AS ADCompanyCurrencyInDirectRate, OBDC.Amount AS ADCompanyCurrencyInDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+										,OBDC.Quantity InDirectQuantity
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='AD' AND CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='InDirect'
+                                    ) AS ADCCID ON ADCCID.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									 LEFT OUTER JOIN (
+                                    SELECT OBDC.ParallelCurrencyId AS CompanyGroupCurrencyId, OBDC.FromCurrencyId AS CompanyGroupFromCurrencyId,
+	                                    OBDC.ToCurrencyRate AS ADCompanyGroupCurrencyDirectRate, OBDC.Amount AS ADCompanyGroupCurrencyDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+										,OBDC.Quantity DirectQuantity
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='AD' AND CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='Direct'
+                                    ) AS ADGCD ON ADGCD.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									LEFT OUTER JOIN (
+                                    SELECT OBDC.ParallelCurrencyId AS CompanyGroupCurrencyId, OBDC.FromCurrencyId AS CompanyGroupFromCurrencyId,
+	                                    OBDC.ToCurrencyRate AS ADCompanyGroupCurrencyInDirectRate, OBDC.Amount AS ADCompanyGroupCurrencyInDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+										,OBDC.Quantity InDirectQuantity
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='AD' AND CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='InDirect'
+                                    ) AS ADGCID ON ADGCID.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									 LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS HardCurrencyId, OBDC.FromCurrencyId AS HardFromCurrencyId
+	                                    ,OBDC.Quantity DirectQuantity,OBDC.ToCurrencyRate AS ADHardCurrencyDirectRate, OBDC.Amount AS ADHardCurrencyDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='AD' AND CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='Direct'
+                                    ) AS ADHCD ON ADHCD.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+																		 LEFT OUTER JOIN (
+	                                    SELECT OBDC.ParallelCurrencyId AS HardCurrencyId, OBDC.FromCurrencyId AS HardFromCurrencyId
+	                                    ,OBDC.Quantity InDirectQuantity,OBDC.ToCurrencyRate AS ADHardCurrencyInDirectRate, OBDC.Amount AS ADHardCurrencyInDirectAmount, OBDC.MaterialMasterOpeningBalanceDetailId
+	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailDirectIndirect] AS OBDC
+	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    WHERE OBDC.GLType='AD' AND CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId AND OBDC.Type='InDirect'
+                                    ) AS ADHCID ON ADHCID.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+                                    LEFT JOIN TRN.InventoryReceive IR ON IR.OpeningBalanceId=FOB.Id
+									--LEFT JOIN (select Distinct IM.Id,IM.MaterialMasterId  
+									--		from TRN.InventoryReceiveDetail IRD  									
+									--		left JOIN TRN.InventoryReceive IR ON IR.id = IRD.InventoryReceiveId
+									--		LEft JOIn TRN.InventoryMaterial IM ON IM.id = IRD.InventoryMaterialId 
+									--		--LEFT JOIN  trn.InventoryReceiveDetail IRD1 On IRD1.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									--		ANd IR.OpeningBalanceId='20191')IRD1  ON IRD1.MaterialMasterId = MM.Id 
+
+									left join trn.InventoryReceiveDetail IRDD ON IRDD.MaterialMasterOpeningBalanceDetailId=FOBD.Id
+									Left join trn.InventoryMaterial IM ON IM.Id=IRDD.InventoryMaterialId
+									WHERE FOB.CompanyId=@companyId AND FOB.PlantId=@plantId AND FOB.Id='" + OpenningBalanceId + "'  Order BY FOBD.Id ASC";
+        }
+
+        private string OpenningBalanceHeaderSql(string OpenningBalanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT OB.Id, OB.CompanyGroupId, OB.CompanyId, OB.PlantId, OB.EntityId, E.UserName AS EntityName, OB.VoucherId, VD.VoucherNo, OB.EmployeeTransactionTypeId,
+OB.FinancingTypeId,
+                                OB.SourceType, OB.PartyType,FORMAT( OB.PostingDate,'dd-MMM-yyyy') PostingDate, FORMAT( OB.DocDate,'dd-MMM-yyyy') DocDate
+                                ,CASE WHEN OB.IsFinancial=0 THEN 'No' ELSE 'Yes' END FinancialImplication , OB.DocRefNo, OB.Narration, OB.IsPark, OB.IsPosted, OB.[AddedBy], OB.[AddedDate], OB.[AddedFromIP]
+                                , X.Amount,OB.MaterialStorageId,MS.UserName MaterialStorage
+                                FROM [TRN].[OpeningBalance] AS OB
+								LEFT JOIN [TRN].[Voucher] AS VD ON VD.Id=OB.VoucherId
+                                LEFT JOIN [ORG].[Entity] AS E ON E.Id=OB.EntityId
+                                LEFT JOIN  [HKP].[MaterialStorage] MS ON MS.Id=ob.MaterialStorageId
+                                LEFT JOIN( SELECT OBDC.OpeningBalanceId, SUM(OBDC.Amount) AS Amount FROM [TRN].[MaterialMasterOpeningBalanceDetailCurrency] AS OBDC
+								INNER JOIN [ORG].[Company] AS C ON C.BaseCurrencyId=OBDC.ParallelCurrencyId
+	WHERE OBDC.GLType='FA' AND C.Id='" + identity.CompanyId + @"'
+                                GROUP BY OBDC.OpeningBalanceId
+								) AS X ON X.OpeningBalanceId=OB.Id
+                                WHERE OB.Archive=0 AND OB.SourceType='MaterialMaster' AND OB.CompanyGroupId='" + identity.CompanyGroupId +@"' AND OB.CompanyId='" + identity.CompanyId +@"' AND OB.PlantId='" + identity.PlantId +@"'
+                                AND ob.Id = '"+ OpenningBalanceId +@"'";
+        }
+        public void CreatMaterialMasterOpenningBalanceReport(string OpenningBalanceId)
+        {
+            try
+            {
+                var reportUtility = new ReportUtility();
+
+                string HeaderSql = OpenningBalanceHeaderSql(OpenningBalanceId);
+                string MMOBRSql = OpenningBalanceSql(OpenningBalanceId);
+                //Instantiate the Excel application object
+
+                DataTable dtHeader = _sqlRepository.GetDataTable(HeaderSql);
+                DataTable dtOpenningBalance = _sqlRepository.GetDataTable(MMOBRSql);
+              //  DataTable dtTermsAndConditions = _sqlRepository.GetDataTable(TermsAndConditionSql);
+                if (dtOpenningBalance.Rows.Count == 0)
+                    throw new Exception("No data found");
+                ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+
+                sheet.Name = "Material Master Openning Balance Report";
+
+                int ROW = 6;
+                int COL = 1;
+
+                #region Header
+
+                int StartRow = ROW;
+                sheet[ROW, COL].Text = "Posting Date:";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colPostingDate = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Doc Ref#:";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colDocRef = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Storage Location:";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colStorageLocation  = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Narration :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colNarration = COL;
+                ROW = StartRow;
+                COL =6;
+                sheet[ROW, COL].Text = "Doc Date :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colDocDate = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Entity :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colEntity = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Financial Implication :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colFinancialImplication = COL;
+
+                sheet.Range[StartRow, colDocDate, StartRow, colDocDate + 1].Merge();
+                sheet.Range[StartRow+1, colEntity, StartRow+1, colFinancialImplication + 1].Merge();
+                sheet.Range[StartRow+2, colFinancialImplication, StartRow+2, colFinancialImplication + 1].Merge();
+                
+
+                // Headerdata
+                ROW = 6;
+                sheet[ROW, colPostingDate + 1].Text = dtHeader.Rows[0]["PostingDate"].ToString();
+                ROW++;
+
+                sheet[ROW, colDocRef + 1].Text = dtHeader.Rows[0]["DocRefNo"].ToString();
+                ROW++;
+
+                sheet[ROW, colStorageLocation + 1].Text = dtHeader.Rows[0]["MaterialStorage"].ToString();
+                ROW++;
+
+                sheet[ROW, colNarration + 1].Text = dtHeader.Rows[0]["Narration"].ToString();
+                ROW = StartRow;
+
+                sheet[ROW, colDocDate + 2].Text = dtHeader.Rows[0]["DocDate"].ToString();
+                ROW++;
+
+                sheet[ROW, colEntity + 2].Text = dtHeader.Rows[0]["EntityName"].ToString();
+                ROW++;
+
+                sheet[ROW, colFinancialImplication + 2].Text = dtHeader.Rows[0]["FinancialImplication"].ToString();
+                ROW = StartRow;
+            
+
+                sheet.Range[StartRow, colPostingDate + 1, StartRow, colPostingDate + 4].Merge();
+                sheet.Range[StartRow+1, colDocRef + 1, StartRow+1, colDocRef + 4].Merge();
+                sheet.Range[StartRow+2, colStorageLocation + 1, StartRow+2, colStorageLocation + 4].Merge();
+                sheet.Range[StartRow+3, colNarration +1, StartRow+3, colNarration + 4].Merge();
+                sheet.Range[StartRow, colDocDate + 2, StartRow, colDocDate + 6].Merge();
+                sheet.Range[StartRow + 1, colEntity + 2, StartRow + 1, colEntity + 6].Merge();
+                sheet.Range[StartRow + 2, colFinancialImplication + 2, StartRow+2, colFinancialImplication + 6].Merge();
+
+
+                sheet.Range[StartRow, colPostingDate, StartRow+4, colFinancialImplication + 6].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
+
+                ROW = 11;
+                COL = 1;
+                #endregion
+                sheet[ROW, COL].Text = "Material Master";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colMaterialMaster = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Article Name";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colArticleName = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sku1";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int colSku1 = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sku2";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int colSku2 = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sku3";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int colSku3 = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Quantity";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colQuantity = COL;
+                COL++;
+                sheet[ROW, COL].Text = "UoM";
+                sheet[ROW, COL].ColumnWidth = 7;
+                int colBaseUoM = COL;
+                
+                COL++;
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colAmount = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colCurrency = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Lot Number";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colLotNumber = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Diameter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colDiameter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Type";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colType = COL;
+                //COL++;
+
+                //sheet[ROW, COL].Text = "Total Amount";
+                //sheet[ROW, COL].ColumnWidth = 20;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colTotalAmount = COL;
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
+
+                StartRow = ROW; //row 20
+                for (int i = 0; i < dtOpenningBalance.Rows.Count; i++)
+                {
+                    sheet[ROW, colMaterialMaster].Text = dtOpenningBalance.Rows[i]["MaterialMasterName"].ToString();
+                    sheet[ROW, colArticleName].Text = dtOpenningBalance.Rows[i]["ArticleName"].ToString();
+                    sheet[ROW, colSku1].Text = dtOpenningBalance.Rows[i]["FirstCharacteristicsValue"].ToString();
+                    sheet[ROW, colSku2].Text = dtOpenningBalance.Rows[i]["SecondCharacteristicsValue"].ToString();
+                    sheet[ROW, colSku3].Text = dtOpenningBalance.Rows[i]["ThirdCharacteristicsValue"].ToString();
+
+                    sheet[ROW, colQuantity].Number = clsStaticInfo.dbl(dtOpenningBalance.Rows[i]["Quantity"].ToString());
+                    sheet[ROW, colQuantity].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtOpenningBalance.Rows[i]["FACompanyCurrencyAmount"].ToString());
+                    sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colCurrency].Text = dtOpenningBalance.Rows[i]["CompanyCurrency"].ToString();
+                    sheet[ROW, colDiameter].Text = dtOpenningBalance.Rows[i]["Diameter"].ToString();
+                    sheet[ROW, colLotNumber].Text = dtOpenningBalance.Rows[i]["LotNumber"].ToString();
+                    sheet[ROW, colType].Text = dtOpenningBalance.Rows[i]["Type"].ToString();
+                    sheet[ROW, colBaseUoM].Text = dtOpenningBalance.Rows[i]["BaseUoM"].ToString();
+                    
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+                }
+                sheet[ROW, 1].Text = "Total :";
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                int colTotal = colAmount;
+
+                sheet.Range[ROW, colTotal].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + (ROW - 1) + ")";
+                //sheet.Range[ROW, colTotal].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet[ROW, colTotal].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, 1, ROW, colTotal - 1].Merge();
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+
+                sheet.IsGridLinesVisible = false;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet[ROW, 1].CellStyle.Font.Size = 9;
+
+                // sheet["A" + StartRow.ToString()].FreezePanes();
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                reportUtility.PlantHeader(ref sheet, endCol, "Material Master Openning Balance Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet[ROW, colTotal].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                string strFileName = "MaterialMasterOpenningBalanceReport.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        #endregion Opening Balance Report by Aakash 
     }
 }

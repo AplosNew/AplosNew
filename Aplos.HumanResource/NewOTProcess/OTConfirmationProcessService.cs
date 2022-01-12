@@ -12,8 +12,9 @@ using bplib;
 using Newtonsoft.Json;
 using System.Collections.Specialized;
 using System.Collections;
+using Library.HumanResource.NewAttendanceProcess;
 
-namespace Library.HumanResource.NewAttendanceProcess
+namespace Library.HumanResource.NewOTProcess
 
 {
     public class OTConfirmationProcessService

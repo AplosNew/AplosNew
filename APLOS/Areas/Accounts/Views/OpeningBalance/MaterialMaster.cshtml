@@ -371,7 +371,7 @@
 			<thead>
 				<tr>
 					<th>Material Master</th>
-					<th>ArticleName</th>
+					<th>Article Name</th>
 					<th>Sku1</th>
 					<th>Sku2</th>
 					<th>Sku3</th>
@@ -455,28 +455,34 @@
 <div class="table-responsive modal-table aplos-grid-toggle">
 	<table class="table table-striped">
 		<thead>
-			<tr>
-				<th>Entity</th>
-				<th>VoucherNo</th>
-				<th>Posting Date</th>
-				<th>Doc Date</th>
-				<th>Doc Ref</th>
-				<th>Financial Implication</th>
-				<th>Amount</th>
-				<th>Status</th>
-			</tr>
+            <tr>
+                <th>Entity</th>
+                <th>VoucherNo</th>
+                <th>Posting Date</th>
+                <th>Doc Date</th>
+                <th>Doc Ref</th>
+                <th>Financial Implication</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
 		</thead>
 		<tbody>
-			<tr dir-paginate="x in openingBalanceList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById($index);">
-				<td>{{x.EntityName}}</td>
-				<td>{{x.VoucherNo}}</td>
-				<td>{{x.PostingDate | dateFiltering}}</td>
-				<td>{{x.DocDate | dateFiltering}}</td>
-				<td>{{x.DocRefNo}}</td>
-				<td>{{x.IsFinancial?'Yes':'No'}}</td>
-				<td class="text-right">{{x.Amount | number:4}}</td>
-				<td>{{x.IsPark?'Park':'Post'}}</td>
-			</tr>
+            <tr dir-paginate="x in openingBalanceList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById($index);">
+                <td>{{x.EntityName}}</td>
+                <td>{{x.VoucherNo}}</td>
+                <td>{{x.PostingDate | dateFiltering}}</td>
+                <td>{{x.DocDate | dateFiltering}}</td>
+                <td>{{x.DocRefNo}}</td>
+                <td>{{x.IsFinancial?'Yes':'No'}}</td>
+                <td class="text-right">{{x.Amount | number:4}}</td>
+                <td>{{x.IsPark?'Park':'Post'}}</td>
+                <td class="text-right">
+                    <ul class="list-inline">
+                        <li><button ng-click="MaterialMasterOpenningBalanceReport(this);" class="btn btn-action "><i class="glyphicon glyphicon-cloud-download" style="color: limegreen;"></i></button></li>
+                    </ul>
+                </td>
+            </tr>
 		</tbody>
 	</table>
 	<dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="loadOPData(newPageNumber)"></dir-pagination-controls>
