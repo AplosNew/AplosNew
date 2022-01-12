@@ -148,6 +148,8 @@ namespace Aplos.Areas.Commercial.Controllers
                     drVersion["Id"] = PIVersionId;
                     drVersion["VersionNo"] = 1;
                     drVersion["PIMasterId"] = PIMasterId;
+                    drVersion["VersionRefNo"] = "VR"+"-"+ PIVersionId;
+                    drVersion["VersionDate"] = System.DateTime.Now.ToString(); 
 
                     drVersion["AddedBy"] = identity.Name;
                     drVersion["AddedDate"] = System.DateTime.Now.ToString();
@@ -565,8 +567,8 @@ ROUND(p.Amount, 2) Amount,
                     drVersion["Id"] = _VersionId;
                     drVersion["PIMasterId"] = dsPIVersion.Tables[0].Rows[i]["PIMasterId"];
                     drVersion["VersionNo"] = count + 1;
-                    drVersion["VersionRefNo"] = dsPIVersion.Tables[0].Rows[i]["VersionRefNo"];
-                    drVersion["VersionDate"] = dsPIVersion.Tables[0].Rows[i]["VersionDate"];
+                    drVersion["VersionRefNo"] ="VR"+"-"+ _VersionId;
+                    drVersion["VersionDate"] = System.DateTime.Now.ToString();
                     drVersion["AddedBy"] = identity.Name;
                     drVersion["AddedDate"] = System.DateTime.Now.ToString();
                     drVersion["AddedFromIP"] = identity.IPAddress;

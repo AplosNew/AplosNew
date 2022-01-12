@@ -1384,55 +1384,9 @@
                     </div>
                 </div>
 
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group">
-                        <label class="col-sm-6 control-label">Unit Rate<sup>*</sup></label>
-                        <label class="col-sm-6 control-label">{{detailModel.TransactionRate| number}} {{detailModel.CurrencyName}}</label>
-                    </div>
-                </div>
+                
                 <div class="clearfix"></div>
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" id="div_tamnt1">
-                        <label class="col-sm-4 control-label" data-placement="top" title="Gross Amount">Gross Amount<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="GrossAmount" n-decimals="2" ng-model="detailModel.GrossAmount" class="form-control text-right" placeholder="0.00"
-                                       ng-keyup="CalculateRateAndAmount();calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
-                            </div>
-                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" ng-model="detailModel.CurrencyName" class="form-control" disabled />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" id="div_tamnt2">
-                        <label class="col-sm-4 control-label" data-placement="top" title="Discount Amount">Discount Amount<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="DiscountAmount" n-decimals="2" ng-model="detailModel.DiscountAmount" class="form-control text-right"
-                                       ng-keyup="CalculateRateAndAmount();calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
-                            </div>
-                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" ng-model="detailModel.CurrencyName" class="form-control" disabled />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" id="div_tamnt">
-                        <label class="col-sm-4 control-label" data-placement="top" title="Net Amount">Net Amount<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="Amount" n-decimals="2" ng-model="detailModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
-                                       ng-keyup="calculateTaxCategory();" ng-disabled="true" />@*manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');*@
-                                </div>
-                                <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
-                                    <input type="text" ng-model="detailModel.CurrencyName" class="form-control" disabled />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                
                     <div class="clearfix"></div>
                     <div class="col-xs-4 col-sm-4 col-md-4">
                         <div class="form-group" id="div_storage1">
