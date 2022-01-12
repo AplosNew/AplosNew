@@ -224,6 +224,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     MaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
                     MinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
 
+                    SaveLog("Min-Max Date Found ...", PlantId, false);
+
                     #endregion
 
 
@@ -286,11 +288,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                             #endregion
 
                             #region To Change Value of Flag in Next Day Row
-
-                            SandwichData.DefaultView.RowFilter = @"PrevRowId='" + RowId + "' ";
-                            if (SandwichData.DefaultView.Count > 0)
+                            if (ActualFlag != ChangedFlag)
                             {
-                                if (ActualFlag != ChangedFlag)
+                                SandwichData.DefaultView.RowFilter = @"PrevRowId='" + RowId + "' ";
+                                if (SandwichData.DefaultView.Count > 0)
                                 {
                                     DataRow drx = SandwichData.DefaultView[0].Row;
                                     drx.BeginEdit();
