@@ -1,7 +1,7 @@
 ﻿'use strict';
 TaxSavingGroupController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function TaxSavingGroupController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Tax Saing Group';
+    $rootScope.title = 'Tax Saving Group';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Payrolls/TaxSavingGroup/';

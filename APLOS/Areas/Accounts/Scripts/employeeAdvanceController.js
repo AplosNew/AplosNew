@@ -120,7 +120,7 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
         $scope.advance.DocDate = $scope.advance.PostingDate;
     };
 
-    
+
 
     cboService.getCboEmployeeTransactionType(function (result) {
         $scope.employeeTransactionTypeList = result;
@@ -265,12 +265,35 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
                 $scope.advance.ResponsiblePersonName = rescode + ' - ' + resName;
             }
             $scope.getTransactionTypeGL($scope.advance.EmployeeTransactionTypeId);
+            $scope.GetAdvanceReqSchedule($scope.advance.Id);
             $scope.Action = 'Update';
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
         });
     };
+    $scope.DetailsList = [];
+    $scope.GetAdvanceReqSchedule = function (Id) {
+        $http({
+            method: "GET",
+            url: "accounts/Advance/GetAdvanceReqSchedule?Id=" + Id
+        }).then(function successCallback(response) {
+            $scope.DetailsList = response.data;
+            $scope.voucher.ProfitRate = 0;
+            $scope.TotalInterestPaid = 0;
+            $scope.voucher.RepaymentStartDate = $scope.DetailsList[0].InstallmentDate;
+            $scope.voucher.TotalNoOfInstallment = $scope.DetailsList.length;
+            $scope.voucher.NoOfInstallmentPerYear = $scope.DetailsList.length;
+            for (var i = 0; i < $scope.DetailsList.length; i++) {
+                $scope.TotalPayments += $scope.DetailsList[i].PrincipalAmount;
+            }
+
+        });
+    }
+
+    $scope.InstallValidation = function () {
+
+    }
 
     $scope.advanceId = null;
     $scope.confirmPost = function (advanceId) {
@@ -434,56 +457,75 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();
-        if ($scope.form0.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidEntity && !$scope.invalidPostingDate) {
-            if ($scope.Action === "Save") {
-                $http({
-                    method: "POST",
-                    url: $scope.saveUrl,
-                    data: {
-                        "voucherVM": $scope.advance,
-                        "voucherDetailVMList": $scope.advanceDetailList,
-                         "advanceSalarySchedulelist": $scope.loanRepaymentSchedulelist
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
+        try {            
+            if ($scope.form0.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidEntity && !$scope.invalidPostingDate) {
+                if ($scope.Action === "Save") {
+                    $http({
+                        method: "POST",
+                        url: $scope.saveUrl,
+                        data: {
+                            "voucherVM": $scope.advance,
+                            "voucherDetailVMList": $scope.advanceDetailList,
+                            "advanceSalarySchedulelist": $scope.loanRepaymentSchedulelist
+                        },
+                        dataType: "JSON"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, "failure");
+                        }
+                        else {
+                            ShowResult(response.data.Message, "success");
+                            $scope.getData();
+                            $scope.clear();
+                        }
+                    }, function errorCallback(response) {
+                        ShowResult(response.status.Message, "failure");
+                    });
+                    return true;
+                }
+                else if ($scope.Action === "Update") {
+                    if ($scope.advance.IsPark == true) {
+                        var Total = 0;
+
+                        for (var i = 0; i < $scope.DetailsList.length; i++) {
+                            Total += parseFloat($scope.DetailsList[i].InstallmentAmount);                            
+                        }
+                        if ($scope.TotalPayments != Total) {
+                            throw "Installment amount cannot exceed or Less than [Total Payments]";
+                        }
+
+
+                        $http({
+                            method: "POST",
+                            url: $scope.updateUrl,
+                            data: {
+                                "advanceVM": $scope.advance,
+                                "advanceDetailVMList": $scope.advanceDetailList,
+                                'DetailsList': $scope.DetailsList
+                            },
+                            dataType: "JSON"
+                        }).then(function successCallback(response) {
+                            if (response.data.Error === true) {
+                                ShowResult(response.data.Message, "failure");
+                            }
+                            else {
+                                ShowResult(response.data.Message, "success");
+                                $scope.getData();
+                                $scope.clear();
+                            }
+                        }, function errorCallback(response) {
+                            ShowResult(response.status.Message, "failure");
+                        });
+
                     }
                     else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.clear();
+                        throw "In Post Mood";
                     }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-                return true;
+                }
             }
-            else if ($scope.Action === "Update") {
-                $http({
-                    method: "POST",
-                    url: $scope.updateUrl,
-                    data: {
-                        "advanceVM": $scope.advance,
-                        "advanceDetailVMList": $scope.advanceDetailList
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.getData();
-                        $scope.clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-            }
-            return true;
+        } catch (e) {
+            ShowResult(e, 'info');
         }
-        return true;
     };
 
     $scope.post = function (advanceId) {
@@ -544,7 +586,7 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
                 ShowResult("Cash GL not found!", "failure", "bankPopUp");
                 return;
             }
-            else if ( baseService.isUndefinedOrNull(cash.BudgetMasterId)) {
+            else if (baseService.isUndefinedOrNull(cash.BudgetMasterId)) {
                 ShowResult("Cash Budget not found!", "failure", "bankPopUp");
                 return;
             }
@@ -804,6 +846,15 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
             else {
                 $scope.isVisibleInstallment = false;
             }
+        }
+    }
+    $scope.ValueChange = function (data, index) {
+        data.PrincipalAmount = parseFloat(data.InstallmentAmount);
+        if (data.InstallmentNo == 1) {
+            data.Balance = $scope.TotalPayments - data.PrincipalAmount;
+        }
+        else {
+            data.Balance = ($scope.DetailsList[index - 1].Balance - data.PrincipalAmount);
         }
     }
 }

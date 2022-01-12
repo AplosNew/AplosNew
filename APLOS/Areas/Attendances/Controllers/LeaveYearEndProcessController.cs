@@ -90,7 +90,7 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
 
-
+                objLeaveYearEndProcessData.validateIndividualYearEnd(identity.PlantId, YearId);
                 #region Validation
 
 
@@ -101,7 +101,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 objLeaveYearEndProcessData.GetNextYearID(identity.PlantId, YearId.ToString().Trim(), out dsLocal);
-
+             
                 if (dsLocal.Tables[0].Rows.Count > 0)
                 {
 
@@ -122,11 +122,13 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
-                    if (dsOldSummary != null && dsNewSummary != null && dsCalandarYearLocalSummay != null)
-                    {
-                        objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
 
-                    }
+                    foreach (DataRow item in dsOldSummary.Tables[0].Rows)
+                        item["IsYearlyProcessed"] = true;
+
+                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
+
+
                 }
                 else
                 {
@@ -198,11 +200,12 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
-                if (dsOldSummary != null && dsNewSummary != null)
-                {
-                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary);
 
-                }
+                foreach (DataRow item in dsOldSummary.Tables[0].Rows)
+                    item["IsYearlyProcessed"] = true;
+
+                objStatic.SaveDataSets(dsNewSummary, dsOldSummary);
+
 
 
 
@@ -229,9 +232,172 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
 
-     
-        
-        
+
+        [HttpGet]
+        public ActionResult LeaveYearEndProcessNew(string YearId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            clsStaticInfo objStatic = null;
+            objStatic = new clsStaticInfo();
+            DataSet dsLocal = null;
+            DataSet dsCalandarYearLocal = null;
+            DataSet dsOldSummary = null;
+
+            DataSet dsNewSummary = null;
+            DataSet dsLeaveTranInfo = null;
+            DataSet dsCalandarYearLocalSummay = null;
+
+            clsLeaveYearEndProcess objLeaveYearEndProcessData;
+            objLeaveYearEndProcessData = new clsLeaveYearEndProcess();
+            //clsLeaveServiceAplos objLeaveServiceAplos;
+            //objLeaveServiceAplos = new clsLeaveServiceAplos();
+            try
+            {
+                objLeaveYearEndProcessData.validateIndividualYearEnd(identity.PlantId, YearId);
+
+                #region Validation
+
+
+                if (string.IsNullOrEmpty(YearId.ToString().Trim()) == true)
+                {
+                    Exception ex = new Exception("Select Year First...");
+                    throw (ex);
+                }
+
+                objLeaveYearEndProcessData.GetNextYearID(identity.PlantId, YearId.ToString().Trim(), out dsLocal);
+
+                if (dsLocal.Tables[0].Rows.Count > 0)
+                {
+
+                    objLeaveYearEndProcessData.GetYearlyCalendarsFromDateAndToDateForLeaveYearEndProcess(identity.CompanyGroupId, identity.PlantId, YearId.ToString().Trim(), out dsCalandarYearLocal);
+                    DataView dv = new DataView(dsCalandarYearLocal.Tables[0]);
+                    dv.RowFilter = "IsYearEndClosed=1 ";
+                    if (dv.Count > 0)
+                    {
+                        Exception ex = new Exception("Year End Closed for this Calendar Year.");
+                        throw (ex);
+                    }
+
+
+
+                    objLeaveYearEndProcessData.GetLeaveTranInfoNew(identity.CompanyGroupId, identity.PlantId, dsCalandarYearLocal.Tables[0].Rows[0]["FromDate"].ToString(), dsCalandarYearLocal.Tables[0].Rows[0]["ToDate"].ToString(), out dsLeaveTranInfo);
+                    objLeaveYearEndProcessData.LeaveYearEndProcess(Convert.ToDateTime(dsCalandarYearLocal.Tables[0].Rows[0]["ToDate"].ToString()), identity.CompanyGroupId, identity.PlantId, YearId.ToString().Trim(), dsLocal.Tables[0].Rows[0]["Id"].ToString(), dsLeaveTranInfo, out dsNewSummary, out dsOldSummary);
+                    objLeaveYearEndProcessData.YearlyCalendarsYearEndClosedProcess(identity.CompanyGroupId, identity.PlantId, YearId.ToString().Trim(), out dsCalandarYearLocalSummay);
+
+
+
+                    foreach (DataRow item in dsOldSummary.Tables[0].Rows)
+                        item["IsYearlyProcessed"] = true;
+                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
+
+
+                }
+                else
+                {
+
+                    //Exception ex = new Exception("Calendar Year " + (Convert.ToInt32(ddlYear.Items[ddlYear.SelectedIndex].Text) + 1).ToString()+" Not found ");
+                    Exception ex = new Exception("Calendar Year Not found after ");
+                    throw (ex);
+                }
+
+
+                #endregion Validation
+                //-----
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+
+
+            //var data = _sqlRepository.GetDataCollection(sql);
+            //JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            //json.MaxJsonLength = int.MaxValue;
+            //return json;
+
+
+
+            return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult LeaveYearEndProcessIndividualNew(string ToDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            clsStaticInfo objStatic = null;
+            objStatic = new clsStaticInfo();
+            DataSet dsOldSummary = null;
+
+            DataSet dsNewSummary = null;
+            DataSet dsLeaveTranInfo = null;
+
+            clsLeaveYearEndProcess objLeaveYearEndProcessData;
+            objLeaveYearEndProcessData = new clsLeaveYearEndProcess();
+            //clsLeaveServiceAplos objLeaveServiceAplos;
+            //objLeaveServiceAplos = new clsLeaveServiceAplos();
+            try
+            {
+
+
+                #region Validation
+
+
+                if (string.IsNullOrEmpty(ToDate.ToString().Trim()) == true)
+                {
+                    Exception ex = new Exception("Select date First...");
+                    throw (ex);
+                }
+
+
+
+
+
+
+                objLeaveYearEndProcessData.GetLeaveTranInfoIndividualNew(identity.PlantId, ToDate, out dsLeaveTranInfo);
+                objLeaveYearEndProcessData.LeaveYearEndProcessIndividual(identity.PlantId, ToDate.ToString().Trim(), dsLeaveTranInfo, out dsNewSummary, out dsOldSummary);
+
+
+
+
+
+                foreach (DataRow item in dsOldSummary.Tables[0].Rows)
+                    item["IsYearlyProcessed"] = true;
+
+                objStatic.SaveDataSets(dsNewSummary, dsOldSummary);
+
+
+
+
+
+                #endregion Validation
+                //-----
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+
+
+            //var data = _sqlRepository.GetDataCollection(sql);
+            //JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            //json.MaxJsonLength = int.MaxValue;
+            //return json;
+
+
+
+            return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpGet]
         public ActionResult GetLeaveYearEndProcessSummaryData(string sYearId)
         {
@@ -436,7 +602,7 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = string.Empty;
-           
+
             sql = @"select EmployeeId, EmployeeCode,EmployeeName,EmployeeCodeNumeric,EmployeeCodePreFix,DOJorDOC,FromDate,x.ToDate
                                 ,LeaveName
                                 ,OpeningBalance
@@ -534,6 +700,7 @@ namespace Aplos.Areas.Attendances.Controllers
                           Where ELS.ToDate<='" + ToDate + @"' 
                                 and EI.PlantId='" + identity.PlantId + @"'
                                 and isnull(ELS.IsEncashed,0)=0
+                                AND ISNULL(els.IsYearlyProcessed,0)=0
                                 AND LvPolicyDetail.EncashmentBasis<>'CalanderYear'
                                 ) x
                                 ORDER BY  x.EmployeeCodePreFix,x.EmployeeCodeNumeric ";
@@ -545,7 +712,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }//End Function 
 
-      
+
 
         [HttpGet, Authorize]
         public ActionResult GetMaternityDetailsForOTConfirmation(string EmpId, string WDate)

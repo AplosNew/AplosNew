@@ -2,7 +2,7 @@
 using System.Web.Mvc;
 using Aplos.Controllers;
 using System.Collections.Generic;
-using Library.HumanResource.NewAttendanceProcess;
+using Library.HumanResource.NewOTProcess;
 using Syncfusion.XlsIO;
 using Library.Service.Helpers;
 using System.Data;

@@ -11,6 +11,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
     $scope.Deletepath = $scope.path + 'DeletePI';
     $scope.saveUrl = $scope.path + 'create';
     $scope.savePIPackingListUrl = $scope.path + 'savePIPackingList';
+    $scope.updatePIPackingListUrl = $scope.path + 'UpdatePIPackingList';
     $scope.newVersionUrl = $scope.path + 'NewVersion';
     $scope.deleteUrl = $scope.path + 'delete/';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
@@ -325,6 +326,8 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
 
     $scope.POQTYAllocation = function (args) {
         try {
+            $scope.SumModel.QTY = 0;
+            $scope.SumModel.Amount = 0;
             $scope.POPopUpHeader = args.data;
             if (baseService.isUndefinedOrNull($scope.PIPackingListMasterTemp.EntityId))
                 throw "Please select Entity.";
@@ -336,7 +339,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             $scope.TotalPIQty = args.data.Quantity;
             $scope.PIPackingListMaterialTemp = args.data;
             $scope.PopUpDataList(args.data.Id, args.data.MaterialGroupMasterId);
-            $scope.ASSSSDFG();
+           
             angular.element(document.querySelector('#QTYAllocation')).modal('show');
         } catch (e) {
             ShowResult(e, 'info');
@@ -351,6 +354,15 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             url: $scope.path + 'GetPopUp?PackingListMasterId=' + $scope.PIPackingListMasterTemp.Id + '&PIMaterial=' + PIMaterialID + '&PIMaterialGroup=' + PIMaterialGroupID,
         }).then(function (response) {
             $scope.PIPackingMaterialPopUpList = response.data.data;
+
+            for (var i = 0; i < $scope.PIPackingMaterialPopUpList.length; i++) {
+                if ($scope.PIPackingMaterialPopUpList[i].Active) {
+                    $scope.SumModel.QTY += parseFloat($scope.PIPackingMaterialPopUpList[i].PackingQtyAtPIUOM);
+                    $scope.SumModel.Amount += parseFloat($scope.PIPackingMaterialPopUpList[i].DistributeQTY) * parseFloat($scope.PIPackingMaterialPopUpList[i].PORate);
+                }
+            }
+            $scope.SumModel.QTY = parseFloat($scope.SumModel.QTY).toFixed(2);
+            $scope.SumModel.Amount = parseFloat($scope.SumModel.Amount).toFixed(2);
         });
         angular.element(document.querySelector('#QTYAllocation')).modal('show');
     }
@@ -444,6 +456,33 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
             ShowResult(e, "failure");
         }
     };
+    $scope.UpdatePIPackingListData = function () {
+        try {
+            
+            $http({
+                method: 'POST',
+                url: $scope.updatePIPackingListUrl,
+                data: { 'PIPackingListMasterData': $scope.PIPackingListMasterTemp, 'MaterialData': $scope.DataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.PIPackingListMasterTemp.Id = response.data.PIPackingListMasterId;
+                    $scope.GetMaterialData();
+                    $scope.LoadPIPackingList();
+                    $scope.ClosePopUp();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
 
 
     $scope.GetAllVersionData = function () {
@@ -486,6 +525,7 @@ function PIPackingListController(commonMessage, $controller, $scope, $rootScope,
         $scope.DataList = [];
         $scope.DataList.push(Object.assign({}, $scope.PIGridModel));
         $scope.VersionList = [];
+        $scope.PIPackingListMasterTemp = Object.assign({}, $scope.PIPackingListMaster);
         // $scope.VersionList.push(Object.assign({}, $scope.PIVersionModel));
 
     };
