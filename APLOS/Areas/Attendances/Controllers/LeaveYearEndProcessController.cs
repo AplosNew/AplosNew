@@ -759,10 +759,10 @@ namespace Aplos.Areas.Attendances.Controllers
                                 ,isnull(ELS.CurrentYearAvailedOpeningBalance,0) AvailedOB
                                 ,isnull((SELECT sum(d.LvValue) FROM AttdnProcessData D 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId D.PlantID=els.PlantId),0) availd
+                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId and D.PlantID=els.PlantId),0) availd
                                 ,isnull((SELECT sum(d.LvValue) FROM AttdnProcessData D 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId D.PlantID=els.PlantId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
+                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId and D.PlantID=els.PlantId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
                                 ,isnull(ELS.[CarryForward],0) [CarryForward]
 
 
@@ -867,10 +867,10 @@ namespace Aplos.Areas.Attendances.Controllers
                                 ,isnull(ELS.CurrentYearAvailedOpeningBalance,0) AvailedOB
                                 ,isnull((SELECT sum(d.LvValue) FROM AttdnProcessData D 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId D.PlantID=els.PlantId),0) availd
+                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId AND D.PlantID=els.PlantId),0) availd
                                 ,isnull((SELECT sum(d.LvValue) FROM AttdnProcessData D 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId D.PlantID=els.PlantId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
+                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId AND D.PlantID=els.PlantId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
                                 ,isnull(ELS.[CarryForward],0) [CarryForward]
 
 
