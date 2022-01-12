@@ -33,7 +33,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 int dd = 01;
                 string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
                 string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
-               
+                string ToDate = Convert.ToDateTime(date).AddDays(32).ToString("dd-MMM-yyyy");
+
+
                 var sql = @"select EmpSystemID,e.EmployeeCode,p.UserName as Plant,p.Id as PlantId,
                             format(WorkDate,'dd-MMM-yyyy')WorkDate,DayStatus,dp.UserName
                             as Department,s.UserName as Section,
@@ -47,7 +49,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 LEFT JOIN ORG.Department DP ON DP.Id = E.DepartmentId
                 LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = E.SubSectionID
                 left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
-                where a.WorkDate between '" + date+@"' and GETDATE() and
+                where a.WorkDate between '" + date+@"' and '"+ToDate+@"' and
                 SandwichReprocess=1 order by EmpSystemID,Workdate,SandwichFlag asc";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -57,7 +59,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
-
         public DataTable SandWichDataTable(string PlantId, string month, string year)
         {
             try
@@ -65,6 +66,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 int dd = 01;
                 string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
                 string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
+                string ToDate = Convert.ToDateTime(date).AddDays(32).ToString("dd-MMM-yyyy");
+                
                 var str = @"select dd.* from (
                 select EmpSystemID,a.RowId,format(WorkDate, 'dd-MMM-yyyy')WorkDate,
                 SandwichFlag,SandwichReprocess,
@@ -78,7 +81,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 and a.PlantID = '"+PlantId+@"')PrevRowId
                 from attdnprocessdata a
                 left join EmployeeInformation e on e.SystemId = a.EmpSystemID
-                where a.WorkDate between '" + date+@"' and GETDATE() and
+                where a.WorkDate between '" + date+@"' and '"+ToDate+@"' and
                 SandwichReprocess = 1 and e.PlantID = '"+PlantId+@"' )as dd				
 				where dd.PrevDayFlag is not null
 				order by dd.WorkDate,dd.EmpSystemID asc";
@@ -91,7 +94,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
-
         public DataTable RecallUpdatedDataTable(string PlantId, string month, string year)
         {
             try
@@ -99,6 +101,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 int dd = 01;
                 string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
                 string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
+                string ToDate = Convert.ToDateTime(date).AddDays(32).ToString("dd-MMM-yyyy");
+
                 var str = @"select dd.* from (
                 select EmpSystemID,a.RowId,format(WorkDate, 'dd-MMM-yyyy')WorkDate,
                 DayStatus,SandwichFlag,a.ProcessFinalDayStatus,
@@ -111,7 +115,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 and EmpSystemID = a.EmpSystemID
                 and a.PlantID = '" + PlantId + @"')PrevWkDate
                 from attdnprocessdata a
-                where a.WorkDate between '" + date + @"' and GETDATE() and
+                where a.WorkDate between '" + date + @"' and '"+ToDate+@"' and
                 SandwichReprocess = 1 and PlantID = '" + PlantId + @"' )as dd				
 				where dd.PrevDayFlag is not null
 				order by dd.WorkDate,dd.EmpSystemID asc";
@@ -124,7 +128,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
-
         public void UpdatePayDayValues(string MinDate,string MaxDate,string Plant)
         {
 
@@ -170,7 +173,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
 
         }
-
         public static void SaveLog(string Message, string UserName, bool isError = false)
         {
             if (Message.Length > 2000)
@@ -306,7 +308,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 #endregion
 
-                #region Save Data in APD 
+                #region Flag Changing Logic 
 
                 SaveLog("SandwichData Saving in APD Start ...", PlantId, false);
 
