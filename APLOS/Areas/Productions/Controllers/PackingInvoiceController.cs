@@ -327,5 +327,156 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
 
+        private string GetAdditionalInfoPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ContractTermsAndConditions", out sID);
+            return sID;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetAdditionalInfoList(string salesId)
+        {
+            string sql = @"SELECT CT.*,TC.Sequence,TC.Code,TC.ShortName,TC.StandardName,TC.UserName,TC.Description  FROM [dbo].[CommercialInvoiceAdditionalInfo] CT
+                            LEFT JOIN dbo.CommercialAdditionalInfo TC ON TC.Id=CT.AdditionalInfoId
+                            WHERE CT.SalesId='" + salesId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateAdditionalInfo(List<Dictionary<string, object>> data, string salesId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.CommercialInvoiceAdditionalInfo where  SalesId='" + salesId + "'", out dsChild, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = GetAdditionalInfoPK();
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsChild);
+                }
+
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteCommercialInvoiceAdditionalInfo(string id)
+        {
+            DeleteCommercialInvoiceAdditionalInfoData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteCommercialInvoiceAdditionalInfoData(string id)
+        {
+            string strSQL, strDSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[CommercialInvoiceAdditionalInfo] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
     }
 }
