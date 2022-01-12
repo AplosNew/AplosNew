@@ -309,6 +309,7 @@ namespace Library.Service.SalaryDisbursement
                                 if (isAdvance)
                                 {
                                     var advanceWriteOff = InsertAdvanceWriteOff(directdata);
+                                    decimal directAmount = 0;
                                     foreach (var item in directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"))
                                     {
 
@@ -372,7 +373,7 @@ namespace Library.Service.SalaryDisbursement
                                                 AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
                                                 PartyType = "Employee"
                                             }, currentVoucherDetailId);
-
+                                            directAmount += directVoucherDetailDr.CrAmount;
                                             // INSERT INTO VoucherDetailCurrency
                                             _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDr, new VoucherDetailCurrency
                                             {
@@ -418,35 +419,35 @@ namespace Library.Service.SalaryDisbursement
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
                                         }
-                                        else
-                                        {
-                                            currentVoucherDetailId++;
-                                            // INSERT INTO VoucherDetail Debit or Credit
-                                            var directVoucherDetailDr = _voucherService.InsertVoucherDetail(voucherdirect, new VoucherDetail
-                                            {
-                                                GLGeneralInfoId = directVoucherDetailVM.GLGeneralInfoId,
-                                                BudgetMasterId = directVoucherDetailVM.BudgetMasterId,
-                                                ActivityId = directVoucherDetailVM.ActivityId,
-                                                DrAmount = directVoucherDetailVM.DrAmount,
-                                                CrAmount = item.Amount,
-                                                EmployeeId = item.EmployeeId,
-                                                TrnNature = directVoucherDetailVM.SalaryHead,
-                                                PartyType = "Employee"
-                                            }, currentVoucherDetailId);
 
-                                            // INSERT INTO VoucherDetailCurrency
-                                            _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDr, new VoucherDetailCurrency
-                                            {
-                                                ParallelCurrencyId = companyCurrencyId,
-                                                FromCurrencyId = directVoucherDetailDr.CurrencyId,
-                                                ToCurrencyId = companyCurrencyId,
-                                                ToCurrencyRate = directVoucherData.CompanyCurrencyRate,
-                                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(directVoucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                                DrAmount = directVoucherData.CompanyCurrencyRate * directVoucherDetailDr.DrAmount,
-                                                CrAmount = directVoucherData.CompanyCurrencyRate * directVoucherDetailDr.CrAmount
-                                            });
-                                        }
                                     }
+                                    if (directdata.Amount - directAmount > 0)
+                                    {
+                                        currentVoucherDetailId++;
+                                        var directVoucherDetailDrAdd = _voucherService.InsertVoucherDetail(voucherdirect, new VoucherDetail
+                                        {
+                                            GLGeneralInfoId = directVoucherDetailVM.GLGeneralInfoId,
+                                            BudgetMasterId = directVoucherDetailVM.BudgetMasterId,
+                                            ActivityId = directVoucherDetailVM.ActivityId,
+                                            DrAmount = directVoucherDetailVM.DrAmount,
+                                            CrAmount = directVoucherDetailVM.CrAmount - directAmount,
+                                            TrnNature = directVoucherDetailVM.SalaryHead
+                                        }, currentVoucherDetailId);
+
+                                        // INSERT INTO VoucherDetailCurrency
+                                        _voucherService.InsertVoucherDetailCompanyCurrency(directVoucherDetailDrAdd, new VoucherDetailCurrency
+                                        {
+                                            ParallelCurrencyId = companyCurrencyId,
+                                            FromCurrencyId = directVoucherDetailDrAdd.CurrencyId,
+                                            ToCurrencyId = companyCurrencyId,
+                                            ToCurrencyRate = directVoucherData.CompanyCurrencyRate,
+                                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(directVoucherDetailDrAdd.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                            DrAmount = directVoucherData.CompanyCurrencyRate * directVoucherDetailDrAdd.DrAmount,
+                                            CrAmount = directVoucherData.CompanyCurrencyRate * directVoucherDetailDrAdd.CrAmount
+                                        });
+                                    }
+
+
                                 }
                                 else
                                 {
@@ -598,6 +599,7 @@ namespace Library.Service.SalaryDisbursement
                                 if (isAdvance)
                                 {
                                     var indirectadvanceWriteOff = InsertAdvanceWriteOff(indirectdata);
+                                    decimal indirectAdvanceAmountTemp = 0;
                                     foreach (var item in indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"))
                                     {
 
@@ -643,7 +645,7 @@ namespace Library.Service.SalaryDisbursement
                                             advanceDetail.UpdatedDate = advance.AddedDate;
                                             advanceDetail.UpdatedFromIP = advance.AddedFromIP;
                                             _advanceService.UpdateAdvanceDetail(advanceDetail);
-
+                                            currentVoucherDetailId++;
                                             // INSERT INTO VoucherDetail Debit or Credit
                                             var VoucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
                                             {
@@ -657,8 +659,8 @@ namespace Library.Service.SalaryDisbursement
                                                 AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
                                                 PartyType = "Employee"
                                             }, currentVoucherDetailId);
+                                            indirectAdvanceAmountTemp += VoucherDetailDr.CrAmount;
 
-                                            currentVoucherDetailId++;
                                             // INSERT INTO VoucherDetailCurrency
                                             _voucherService.InsertVoucherDetailCompanyCurrency(VoucherDetailDr, new VoucherDetailCurrency
                                             {
@@ -704,34 +706,33 @@ namespace Library.Service.SalaryDisbursement
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
                                         }
-                                        else
+                                        
+                                    }
+                                    
+                                        if (indirectdata.Amount - indirectAdvanceAmountTemp > 0)
                                         {
                                             // If no advance found against employee then only voucher will save. Advance SetOff will not occur.
-                                            var VoucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
+                                            var voucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
                                             {
                                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                                 BudgetMasterId = voucherDetailVM.BudgetMasterId,
                                                 ActivityId = voucherDetailVM.ActivityId,
                                                 DrAmount = voucherDetailVM.DrAmount,
-                                                CrAmount = item.Amount,
-                                                EmployeeId = item.EmployeeId,
-                                                TrnNature = voucherDetailVM.SalaryHead,
-                                                PartyType = "Employee"
+                                                CrAmount = voucherDetailVM.CrAmount - indirectAdvanceAmountTemp,
+                                                TrnNature = voucherDetailVM.SalaryHead
                                             }, currentVoucherDetailId);
 
-                                            currentVoucherDetailId++;
                                             // INSERT INTO VoucherDetailCurrency
-                                            _voucherService.InsertVoucherDetailCompanyCurrency(VoucherDetailDr, new VoucherDetailCurrency
+                                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
                                             {
                                                 ParallelCurrencyId = companyCurrencyId,
-                                                FromCurrencyId = VoucherDetailDr.CurrencyId,
+                                                FromCurrencyId = voucherDetailDr.CurrencyId,
                                                 ToCurrencyId = companyCurrencyId,
-                                                ToCurrencyRate = directVoucherData.CompanyCurrencyRate,
-                                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(VoucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                                DrAmount = directVoucherData.CompanyCurrencyRate * VoucherDetailDr.DrAmount,
-                                                CrAmount = directVoucherData.CompanyCurrencyRate * VoucherDetailDr.CrAmount
+                                                ToCurrencyRate = InDirectVoucherData.CompanyCurrencyRate,
+                                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                                DrAmount = InDirectVoucherData.CompanyCurrencyRate * voucherDetailDr.DrAmount,
+                                                CrAmount = InDirectVoucherData.CompanyCurrencyRate * voucherDetailDr.CrAmount
                                             });
-                                        }
                                     }
                                 }
                                 else

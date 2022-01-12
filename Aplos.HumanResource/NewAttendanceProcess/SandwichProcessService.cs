@@ -384,7 +384,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     int counter = 0;
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
+                    var sqlx = @"select * from AttdnProcessData where EmpSystemId IN("+EmpMaster+") and PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -520,7 +520,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         int x = 0;
                         ConnectionManager.DAL.ConManager newcon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
+                        var sqlx = @"select * from AttdnProcessData where EmpSystemId In("+EmpMaster+") and PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
 
                         newcon.OpenDataSetThroughAdapter(sqlx, out DataSet dsMaster, false, false, "", "1");
 
