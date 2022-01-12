@@ -1855,6 +1855,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 					) TAxInfo3 ON TAxInfo3.ServicePODetailId=IM.Id
 
+
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 					FROM [TRN].[ServicePOTax] A
 					LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
