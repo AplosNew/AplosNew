@@ -204,7 +204,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     SaveLog("Sandwich Process Start ...", PlantId, false);
 
-                    #region DataTable Generation 
+                    #region Min Max Date Finding Generation 
 
                     StringCollection StrDistinctWorkDate = new StringCollection();
                     StringCollection StrDistinctEmployee = new StringCollection();
@@ -246,6 +246,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         {
 
                             #region Flag Changing Logic
+                           
                             string ActualFlag = "", ChangedFlag="";
                             SandwichData.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate =#" + WkDate + "# ";
                             if (SandwichData.DefaultView.Count > 0)
@@ -288,6 +289,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             #endregion
 
                             #region To Change Value of Flag in Next Day Row
+                            
                             if (ActualFlag != ChangedFlag)
                             {
                                 SandwichData.DefaultView.RowFilter = @"PrevRowId='" + RowId + "' ";
