@@ -13,7 +13,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
     $scope.updateUrl = $scope.path + 'edit';
     $scope.updateUrlFG = $scope.path + 'FGMasterOrderedit';
     $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.detailSaveUrl = $scope.path + 'detailcreate';
+    $scope.detailSaveUrl = $scope.path + 'FOCMaterialInsert';
     $scope.detailDeleteUrl = $scope.path + 'DetailDelete?receiveDetailId=';
     $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
     $scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
@@ -1545,6 +1545,9 @@ function FOCController(accountService, addressService, $window, cboService, comm
             $scope.validation();
            
             $scope.detailModel.InventoryReceiveId = $scope.productNew.Id;
+            $scope.detailModel.TransactionRate = 0;
+            $scope.detailModel.TransactionAmount = 0;
+            $scope.detailModel.TotalMaterialTranAmount = 0;
             if ($scope.char1.CharacteristicsId === undefined) {
                 $scope.char1.CharacteristicsId = null;
 
@@ -1673,9 +1676,6 @@ function FOCController(accountService, addressService, $window, cboService, comm
         if ($scope.hasArticle) $scope.modelValidation('div_ar', 'detailModel', 'ArticleName');
         $scope.manualValidationAddRemove('div_qty', 'detailModel', 'TransactionQty');
         $scope.modelValidation('div_qty', 'detailModel', 'TransactionUoMId', 'UoM is required');
-        if ($scope.detailModel.TransactionAmount === 0)
-            throw manualValidation('div_tamnt', true, 'Total amount is required.');
-        $scope.manualValidationAddRemove('div_tamnt', 'detailModel', 'TransactionAmount');
         if ($scope.detailModel.IsOriginApplicable)
             $scope.manualValidationAddRemove('div_country', 'detailModel', 'CountryId');
 
@@ -4803,7 +4803,39 @@ function FOCController(accountService, addressService, $window, cboService, comm
         /*,showCaptionSummary: true*/
     }];
 
+    $scope.calculateAmountPOPUP = function () {
+        if (baseService.isUndefinedOrNull($scope.detailModel.ShortageQty)) {
+            $scope.detailModel.ShortageQty = 0;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.RejectionQty)) {
+            $scope.detailModel.RejectionQty = 0;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.DiscountAmount)) {
+            $scope.detailModel.DiscountAmount = 0;
+        }
+        if (isNaN($scope.detailModel.ShortageQty)) {
+            $scope.detailModel.ShortageQty = 0;
+        }
+        if (isNaN($scope.detailModel.RejectionQty)) {
+            $scope.detailModel.RejectionQty = 0;
+        }
+        if (isNaN($scope.detailModel.DiscountAmount)) {
+            $scope.detailModel.DiscountAmount = 0;
+        }
+        if ($scope.detailModel.ShortageQty > $scope.detailModel.TransactionQty) {
+            ShowResult('Shortage quantity can not grater than Transaction qty!', 'failure');
+            return false;
+        }
+        if ($scope.detailModel.RejectionQty > $scope.detailModel.TransactionQty) {
+            ShowResult('Rejection quantity can not grater than Transaction qty!', 'failure');
+            return false;
+        }
 
+        $scope.detailModel.ApprovedQty = ($scope.detailModel.TransactionQty - ($scope.detailModel.ShortageQty + $scope.detailModel.RejectionQty));
+        $scope.detailModel.NetQty = ($scope.detailModel.TransactionQty - $scope.detailModel.ShortageQty);
+        //$scope.detailModel.TransactionAmount
+
+    };
 
 
 }//End Of main

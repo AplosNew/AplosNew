@@ -179,7 +179,7 @@
     @*hr*@
     <div class="col-md-12 col-sm-12 col-xs-12">
         @*<div class="form-group" ng-show="true">*@
-        <fieldset class="scheduler-border" ng-show="isVisibleInstallment">
+        <fieldset class="scheduler-border" ng-show="isVisibleInstallment" ng-disabled="Action == 'Update'">
             <legend class="scheduler-border">Advance Schedule</legend>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div id="div_DocDate" class="form-group" show-errors>
@@ -263,24 +263,31 @@
     <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails">
     </div>
     @*hr*@
-
-    <div class="col-md-12" ng-show="Action=='Update'">
-        <div id="GridPacking" ej-grid e-datasource="DetailsList"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-scrolling="true">
-            <div e-columns>
-                <div e-column e-field="InstallmentDate" e-type="date" e-headertext="Installment Date" e-width="80"></div>
-                <div e-column e-field="InstallmentNo" e-type="number" e-headertext="Installment No" e-width="80"></div>
-                <div e-column e-template="#InstallmentAmount" e-headertext="Installment Amount" e-width="80"></div>
-                <div e-column e-field="ProfitAmount" e-type="number" e-headertext="Profit Amount" e-width="80"></div>
-                <div e-column e-field="PrincipalAmount" e-type="number" e-headertext="Principal Amount" e-width="80"></div>
-                <div e-column e-field="Balance" e-type="number" e-headertext="Balance" e-width="80"></div>
-            </div>
-        </div>
+    <div class="clearfix"> </div>
+    <div class="table-responsive modal-table" ng-show="Action=='Update' && DetailsList.length>0">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Installment Date</th>
+                    <th>Installment No</th>
+                    <th>Installment Amount</th>
+                    <th>Profit Amount</th>
+                    <th>Principal Amount</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in DetailsList">
+                    <td>{{x.InstallmentDate}}</td>
+                    <td>{{x.InstallmentNo}}</td>
+                    <td><input type="text" name="InstallmentAmount" ng-model="x.InstallmentAmount" class="form-control" ng-keyup="$parent.ValueChange(x,$index)"></td>
+                    <td>{{x.ProfitAmount}}</td>
+                    <td>{{x.PrincipalAmount}}</td>
+                    <td>{{x.Balance}}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <script type="text/template" id="InstallmentAmount">
-        <input type="text" name="InstallmentAmount" ng-model="data.InstallmentAmount" class="form-control">
-    </script>
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>

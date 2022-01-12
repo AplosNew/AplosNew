@@ -710,24 +710,39 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost]
         public JsonResult UpdateEmployeeAdvance(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<AdvanceReqSchedule> DetailsList)
         {
-            advanceVM.IsPark = true;
-            if ((advanceVM.Amount == 0) || (advanceVM.Amount <= 0))
-                throw new CustomException(" Amount should more than 0");
-            if ((advanceVM.PaymentSource == "Bank") && (advanceVM.BankMasterId == null))
-                throw new CustomException(Resources.SelectBank);
-            if ((advanceVM.PaymentSource == "Cash") && (advanceVM.CashMasterId == null))
-                throw new CustomException(Resources.SelectCash);
-            if ((advanceVM.Amount == 0) || (advanceVM.Amount <= 0))
+            try
             {
-                throw new CustomException(" Amount should more than 0");
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [TRN].[EmployeeAdvanceDeduction] where AdvanceId='" + advanceVM.Id + "' ", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("This Advanced already used in Salary Payable");
+
+                advanceVM.IsPark = true;
+                if ((advanceVM.Amount == 0) || (advanceVM.Amount <= 0))
+                    throw new CustomException(" Amount should more than 0");
+                if ((advanceVM.PaymentSource == "Bank") && (advanceVM.BankMasterId == null))
+                    throw new CustomException(Resources.SelectBank);
+                if ((advanceVM.PaymentSource == "Cash") && (advanceVM.CashMasterId == null))
+                    throw new CustomException(Resources.SelectCash);
+                if ((advanceVM.Amount == 0) || (advanceVM.Amount <= 0))
+                {
+                    throw new CustomException(" Amount should more than 0");
+                }
+                foreach (var advanceDetailVM in advanceDetailVMList)
+                {
+                    advanceDetailVM.Amount = advanceVM.Amount;
+                    advanceDetailVM.Narration = advanceVM.Narration;
+                }
+                advanceVM.PartyType = PartyType.Employee.ToString();
+                return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _advanceService.UpdateEmployeeAdvance(advanceVM, advanceDetailVMList, bankChargeDetailVMList, DetailsList)) });
             }
-            foreach (var advanceDetailVM in advanceDetailVMList)
+            catch (Exception ex)
             {
-                advanceDetailVM.Amount = advanceVM.Amount;
-                advanceDetailVM.Narration = advanceVM.Narration;
+
+                return Json(new { Error = true, Message = ex.Message });
             }
-            advanceVM.PartyType = PartyType.Employee.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _advanceService.UpdateEmployeeAdvance(advanceVM, advanceDetailVMList, bankChargeDetailVMList, DetailsList)) });
+            
         }
 
         [HttpPost]

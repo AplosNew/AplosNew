@@ -82,6 +82,25 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+        public JsonResult UpdatePIPackingList(Dictionary<string, object> PIPackingListMasterData, List<Dictionary<string, object>> MaterialData)
+        {
+            try
+            {
+                if (MaterialData == null || MaterialData.Count == 0)
+                    throw new Exception("No material was found");
+                if (clsStaticInfo.nullrecorder(MaterialData[0]["PIMasterId"])=="")
+                    throw new Exception("No pi was selected");
+                PIPackingListMasterData["PImasterId"] = clsStaticInfo.nullrecorder(MaterialData[0]["PIMasterId"]);
+                string _Id = PI.Update(PIPackingListMasterData, MaterialData);
+                return Json(new { Error = false, Message = AplosMessage.Updated, PIPackingListMasterId = _Id });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [HttpPost]
         public JsonResult create(Dictionary<string, object> HeaderData, List<Dictionary<string, object>> MaterialData, string PIMasterId, string PIVersionId)
         {
