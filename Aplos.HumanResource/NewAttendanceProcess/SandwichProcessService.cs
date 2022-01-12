@@ -59,7 +59,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
-        public DataTable SandWichDataTable(string PlantId, string month, string year)
+        public DataTable SandWichDataTable(string PlantId, string month, string year,string EmpMaster)
         {
             try
             {
@@ -81,8 +81,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 and a.PlantID = '"+PlantId+@"')PrevRowId
                 from attdnprocessdata a
                 left join EmployeeInformation e on e.SystemId = a.EmpSystemID
-                where a.WorkDate between '" + date+@"' and '"+ToDate+@"' and
-                SandwichReprocess = 1 and e.PlantID = '"+PlantId+@"' )as dd				
+                where a.WorkDate between '" + date+@"' and '"+ToDate+ @"' and
+                SandwichReprocess = 1 and EmpSystemID in ("+EmpMaster+") and e.PlantID = '" + PlantId+@"' )as dd				
 				where dd.PrevDayFlag is not null
 				order by dd.WorkDate,dd.EmpSystemID asc";
 
@@ -94,7 +94,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
-        public DataTable RecallUpdatedDataTable(string PlantId, string month, string year)
+        public DataTable RecallUpdatedDataTable(string PlantId, string month, string year,string EmpMaster)
         {
             try
             {
@@ -115,8 +115,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 and EmpSystemID = a.EmpSystemID
                 and a.PlantID = '" + PlantId + @"')PrevWkDate
                 from attdnprocessdata a
-                where a.WorkDate between '" + date + @"' and '"+ToDate+@"' and
-                SandwichReprocess = 1 and PlantID = '" + PlantId + @"' )as dd				
+                where a.WorkDate between '" + date + @"' and '"+ToDate+ @"' and
+                SandwichReprocess = 1 and EmpSystemID in (" + EmpMaster + ") and PlantID = '" + PlantId + @"' )as dd				
 				where dd.PrevDayFlag is not null
 				order by dd.WorkDate,dd.EmpSystemID asc";
 
@@ -128,7 +128,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw (ex);
             }
         }
-        public void UpdatePayDayValues(string MinDate,string MaxDate,string Plant)
+        public void UpdatePayDayValues(string MinDate,string MaxDate,string Plant,string EmpMaster)
         {
 
             try
@@ -154,8 +154,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                      	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate between '"+MinDate+@"' and '"+MaxDate+@"'
-						and SandwichStatus is not null and ei.PlantId='"+Plant+@"'
+						where WorkDate between '"+MinDate+@"' and '"+MaxDate+ @"'
+						and p.EmpSystemID in (" + EmpMaster + ") and SandwichStatus is not null and ei.PlantId='" + Plant+@"'
 						and dt.DayType=p.DayStatus)	as x where
 						x.rowidx=RowId";
 
@@ -191,6 +191,29 @@ namespace Library.HumanResource.NewAttendanceProcess
             clsStaticInfo info = new clsStaticInfo();
             info.SaveDataSets(dsRef);
         }
+        public DataTable EmpListCount(string PlantId, string month, string year)
+        {
+            try
+            {
+                int dd = 01;
+                string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
+                string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
+                string ToDate = Convert.ToDateTime(date).AddDays(32).ToString("dd-MMM-yyyy");
+
+                var str = @"select distinct EmpSystemID               
+                from attdnprocessdata a
+                left join EmployeeInformation e on e.SystemId = a.EmpSystemID
+                where a.WorkDate between '"+date+@"' and '"+ToDate+@"' and
+                e.PlantID = '"+PlantId+"' and SandwichReprocess = 1";
+
+                DataTable dtTemp = _sqlRepository.GetDataTable(str);
+                return dtTemp;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         #endregion
 
@@ -198,10 +221,55 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                #region Calculations
+                #region 
+                string EmpParameter="''";
+                DataTable EmpListMaster; // Build Employee DataTable For Sandwich Process
+               
+                EmpListMaster = EmpListCount(PlantId, month, year); // Employee FindOut
+                int empCounter = 0;
+                for (int x = 0; x < EmpListMaster.Rows.Count; x++)
+                {                  
+                    empCounter++;
+                    if (empCounter == 100)
+                    {
+                        // Calling Max 100 Employees Every Time
+                        SaveLog("Sandwich Process for 100 Employees...", PlantId, false);
+                        EmpWiseProcess(PlantId, month, year, EmpParameter);
+                        EmpParameter = "''"; 
+                        empCounter = 0;
+                    }
+                    else
+                    {
+                        string EmpId = clsWebLib.RetValidLen(EmpListMaster.Rows[x][@"EmpSystemID"]).ToString();
+                        EmpParameter += ",'" + EmpId + "'";
+                    }
+
+                }
+                if(EmpParameter!="''")
+                {
+                    EmpWiseProcess(PlantId, month, year, EmpParameter);
+                    EmpParameter = "''";
+                }
+                #endregion
+
+
+            }
+            catch (Exception ex)
+            {
+                SaveLog(ex.Message, PlantId, true);
+                throw ex;
+            }
+        }
+
+        public void EmpWiseProcess(string PlantId, string month, string year,string EmpMaster)
+        {
+            try
+            {
+                #region Calculations                
                 string MaxDate = "", MinDate = "";
                 DataTable SandwichData; // Build DataTable For Sandwich Process
-                SandwichData = SandWichDataTable(PlantId, month, year);
+
+                SandwichData = SandWichDataTable(PlantId, month, year, EmpMaster);
                 if (SandwichData.Rows.Count > 0)
                 {
                     SaveLog("Sandwich Process Start ...", PlantId, false);
@@ -247,46 +315,46 @@ namespace Library.HumanResource.NewAttendanceProcess
                         {
 
                             #region Flag Changing Logic                           
-                                string ActualFlag = "", ChangedFlag="";
-                          
-                                DataRow dr = SandwichData.Rows[i];
-                                ActualFlag = SandwichData.Rows[i][@"SandwichFlag"].ToString();
+                            string ActualFlag = "", ChangedFlag = "";
 
-                                dr.BeginEdit();
-                                if (PrevDayFlag == "0" && TodayFlag == "2")
-                                {
-                                    dr["SandwichFlag"] = "0"; //Today Change                                    
-                                    dr["SandwichReprocess"] = false;
-                                }
+                            DataRow dr = SandwichData.Rows[i];
+                            ActualFlag = SandwichData.Rows[i][@"SandwichFlag"].ToString();
 
-                                else if (PrevDayFlag == "1" && TodayFlag == "2")
-                                {
-                                    dr["SandwichFlag"] = "2"; //Today Change
-                                }
+                            dr.BeginEdit();
+                            if (PrevDayFlag == "0" && TodayFlag == "2")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change                                    
+                                dr["SandwichReprocess"] = false;
+                            }
 
-                                else if (PrevDayFlag == "0" && TodayFlag == "3")
-                                {
-                                    dr["SandwichFlag"] = "0"; //Today Change
-                                    dr["SandwichReprocess"] = false;
-                                }
+                            else if (PrevDayFlag == "1" && TodayFlag == "2")
+                            {
+                                dr["SandwichFlag"] = "2"; //Today Change
+                            }
 
-                                else if (PrevDayFlag == "0" && TodayFlag == "4")
-                                {
-                                    dr["SandwichFlag"] = "0"; //Today Change
-                                    dr["SandwichReprocess"] = false;
-                                }
+                            else if (PrevDayFlag == "0" && TodayFlag == "3")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change
+                                dr["SandwichReprocess"] = false;
+                            }
 
-                                else if (PrevDayFlag == "1" && TodayFlag == "3")
-                                {
-                                    dr["SandwichFlag"] = "3"; //Today Change
-                                }
-                                dr.EndEdit();
-                                ChangedFlag = SandwichData.Rows[i][@"SandwichFlag"].ToString();
-                         
+                            else if (PrevDayFlag == "0" && TodayFlag == "4")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change
+                                dr["SandwichReprocess"] = false;
+                            }
+
+                            else if (PrevDayFlag == "1" && TodayFlag == "3")
+                            {
+                                dr["SandwichFlag"] = "3"; //Today Change
+                            }
+                            dr.EndEdit();
+                            ChangedFlag = SandwichData.Rows[i][@"SandwichFlag"].ToString();
+
                             #endregion
 
                             #region To Change Value of Flag in Next Day Row
-                            
+
                             if (ActualFlag != ChangedFlag)
                             {
                                 SandwichData.DefaultView.RowFilter = @"PrevRowId='" + RowId + "' ";
@@ -313,7 +381,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 SaveLog("SandwichData Saving in APD Start ...", PlantId, false);
 
                 if (SandwichData.Rows.Count > 0)
-                {                    
+                {
                     int counter = 0;
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
@@ -340,7 +408,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 counter++;
                                 dr.BeginEdit();
                                 dr["SandwichFlag"] = ChangedFlag;
-                                if(ChangedReprocessFlag != ReProcessFlag)
+                                if (ChangedReprocessFlag != ReProcessFlag)
                                 {
                                     dr["SandwichReprocess"] = ChangedReprocessFlag;
                                 }
@@ -360,9 +428,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #endregion
 
                 #region DayStatus Changing Logic
-              
+
                 DataTable RefreshedDt; // Build DataTable For DayStatus Changing
-                RefreshedDt = RecallUpdatedDataTable(PlantId, month, year);
+                RefreshedDt = RecallUpdatedDataTable(PlantId, month, year,EmpMaster);
                 if (RefreshedDt.Rows.Count > 0)
                 {
                     int ddx = 01;
@@ -392,8 +460,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             if (TodayFlag == "1")
                             {
                                 if (FinalStatus != "")
-                                {                                
-                                      var sqly = @"SELECT * FROM (
+                                {
+                                    var sqly = @"SELECT * FROM (
                                                             select RowId,EmpSystemID,sandwichflag as SandwichMaster,
                                                             CASE WHEN SandwichFlag IN (2,3) THEN 2 ELSE 
                                                             SandwichFlag END SandwichFlag,WorkDate,
@@ -407,7 +475,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                             and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
-                                        var RowData = _sqlRepository.GetDataTable(sqly);
+                                    var RowData = _sqlRepository.GetDataTable(sqly);
                                     if (RowData.Rows.Count > 0)
                                     {
                                         for (int x = 0; x < RowData.Rows.Count; x++)
@@ -436,8 +504,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                 }
                                             }
                                         }
-                                    }                          
-                                                         
+                                    }
+
                                 }
                             }
                         }
@@ -460,7 +528,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         {
                             string IndvRow = clsWebLib.RetValidLen(MasterDataSet.Tables[0].Rows[j][@"RowId"]).ToString();
                             string DayType = clsWebLib.RetValidLen(MasterDataSet.Tables[0].Rows[j][@"DayStatus"]).ToString();
-                          
+
                             dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + IndvRow + "'";
                             if (dsMaster.Tables[0].DefaultView.Count > 0)
                             {
@@ -479,11 +547,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             }
 
                         }
-                        if(x>0)
+                        if (x > 0)
                         {
                             SaveLog("Sandwich DayStatus Updated ...", PlantId, false);
                             clsStaticInfo info = new clsStaticInfo();
-                            info.SaveDataSets(dsMaster);                           
+                            info.SaveDataSets(dsMaster);
                         }
                     }
                     #endregion
@@ -494,7 +562,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #region PayDay Values Change
 
-                UpdatePayDayValues(MinDate, MaxDate, PlantId);
+                UpdatePayDayValues(MinDate, MaxDate, PlantId,EmpMaster);
                 SaveLog("PayDay Values Updated ...", PlantId, false);
 
                 #endregion
@@ -504,8 +572,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 SaveLog(ex.Message, PlantId, true);
                 throw ex;
             }
-        }       
-        
+        }
+
     }
 }
  
