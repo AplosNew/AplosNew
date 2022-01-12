@@ -1685,7 +1685,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-                        ,PLC.LCANo,PLC.LCRef,IR.ContractId,IM.RefferenceNo
+                        ,PLC.LCANo,PLC.LCRef,IR.ContractId,IM.RefferenceNo,''ReceiptQty,''RejectionQty,''ReturnQty,''BalanceQty
 						from TRN.PurchaseOrderDetail AS IM
 						left JOIN MST.MaterialMaster AS MM ON IM.InventoryMaterialId=MM.Id
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -1813,7 +1813,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 					,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 					,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-                    ,'' LCANo,'' LCRef,'' ContractId,'' RefferenceNo
+                    ,'' LCANo,'' LCRef,'' ContractId,'' RefferenceNo,''ReceiptQty,''RejectionQty,''ReturnQty,''BalanceQty
 					from TRN.ServicePODetail AS IM
 					left JOIN hkp.ServiceMaster SM ON SM.Id=IM.ServiceMasterId
 					left jOIN [TRN].ServicePOMaster AS IR ON IR.Id=IM.ServicePOMasterId
@@ -1949,6 +1949,7 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colPONo = sheet1headreColIndex;
             sheet1headreColIndex++;
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRN Date");
             //sheet1headreColIndex++;
@@ -1958,6 +1959,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colPODate = sheet1headreColIndex;
+
             sheet1headreColIndex++;
 
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Type");
@@ -1968,6 +1971,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colPOType = sheet1headreColIndex;
+
             sheet1headreColIndex++;
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Party");
             //sheet1headreColIndex++;
@@ -1977,6 +1982,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colParty = sheet1headreColIndex;
+
             sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "PartyId";
@@ -1984,6 +1991,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colPartyId = sheet1headreColIndex;
+
             sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "InvoicingPartyPlantId";
@@ -1991,6 +2000,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colInvoicingPartyPlantId = sheet1headreColIndex;
+
             sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "InvoicingPartyPlant";
@@ -2142,10 +2153,38 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Receipt Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colReceiptQty = sheet1headreColIndex;
+            sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rejection Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colRejectionQty = sheet1headreColIndex;
+            sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Return Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colReturnQty = sheet1headreColIndex;
+            sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Balance Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colBalanceQty = sheet1headreColIndex;
+            sheet1headreColIndex++;
 
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Rate");
             //sheet1headreColIndex++;
-         
+
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Transaction Rate";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -2463,31 +2502,35 @@ namespace Library.MaterialManagement.InventoryManagements
                 report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
                 report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
                 report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["UOM"].ToString());
-                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionRate"].ToString()));
-                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalTaxAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 25, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceCharge"].ToString()));
-                report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceChargeTax"].ToString()));
-                report.SetText(ref sheet1, _rowL, 27, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ReceiptQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectionQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ReturnQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 25, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BalanceQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 27, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalTaxAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 29, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceCharge"].ToString()));
+                report.SetText(ref sheet1, _rowL, 30, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceChargeTax"].ToString()));
+                report.SetText(ref sheet1, _rowL, 31, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseAmount"].ToString()));
                 //report.SetText(ref sheet1, _rowL, 27, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGST"].ToString()));
-                report.SetText(ref sheet1, _rowL, 29, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 30, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGST"].ToString()));
-                report.SetText(ref sheet1, _rowL, 31, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGSTTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 32, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGST"].ToString()));
-                report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGSTTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 34, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDS"].ToString()));
-                report.SetText(ref sheet1, _rowL, 35, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDSTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 36, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCS"].ToString()));
-                report.SetText(ref sheet1, _rowL, 37, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCSTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
-                report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
-                report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
+                report.SetText(ref sheet1, _rowL, 32, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGST"].ToString()));
+                report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL, 34, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGST"].ToString()));
+                report.SetText(ref sheet1, _rowL, 35, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGSTTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL, 36, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGST"].ToString()));
+                report.SetText(ref sheet1, _rowL, 37, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGSTTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL, 38, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDS"].ToString()));
+                report.SetText(ref sheet1, _rowL, 39, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDSTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL, 40, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCS"].ToString()));
+                report.SetText(ref sheet1, _rowL,41 , clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCSTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL,42 , inventoryMaterialList.Rows[n]["AddedBy"].ToString());
+                report.SetText(ref sheet1, _rowL,43 , inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
+                report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
 
-                report.SetText(ref sheet1, _rowL, 41, inventoryMaterialList.Rows[n]["LCANo"].ToString());
-                report.SetText(ref sheet1, _rowL, 42, inventoryMaterialList.Rows[n]["LCRef"].ToString());
-                report.SetText(ref sheet1, _rowL, 43, inventoryMaterialList.Rows[n]["ContractId"].ToString());
-                report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 45, inventoryMaterialList.Rows[n]["LCANo"].ToString());
+                report.SetText(ref sheet1, _rowL, 46, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 47, inventoryMaterialList.Rows[n]["ContractId"].ToString());
+                report.SetText(ref sheet1, _rowL, 48, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
 
             }
             _rowL++;
@@ -2535,7 +2578,7 @@ namespace Library.MaterialManagement.InventoryManagements
             }
 
             //sheet1.Range[(Row_Total_Start), 22, _rowL, 22].NumberFormat = "#,##0.00;(#,##0.0000)";
-            sheet1.Range[(Row_Total_Start), 22, _rowL, 22].NumberFormat = clsStaticInfo.NumberFormat(4);
+            sheet1.Range[(Row_Total_Start), 26, _rowL, 26].NumberFormat = clsStaticInfo.NumberFormat(4);
             sheet1.Range[(Row_Total_Start), 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 8;
 
             sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
