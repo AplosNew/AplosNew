@@ -192,6 +192,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                                 ob.CustomerId = $scope.PackingList[i].CustomerId;
                                 $scope.salesVM.PartyName = $scope.PackingList[i].Customer;
                                 $scope.salesVM.PartyId = $scope.PackingList[i].CustomerId;
+                                $scope.salesVM.PaymentTermId = $scope.PackingList[i].PaymentTermId;
                                 ob.StorageLoc = $scope.PackingList[i].StorageLoc;
                                 ob.ByWhom = $scope.PackingList[i].ByWhom;
                                 ob.DRespPerson = $scope.PackingList[i].DRespPerson;
@@ -572,6 +573,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.uoMList = [];
         $scope.selectedPackingList = [];
         $scope.salesOrderList = [];
+        $scope.SalesAdditionalInfoList = [];
     }
 
     $scope.serviceChargeTaxPopUp = function () {
@@ -1095,6 +1097,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.getPostSalesData();
 
         $scope.getTaxCodeByTaxYearWithhold($scope.salesVM.InvoiceDate);
+        $scope.GetSalesAdditionalInfoList();
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -1957,7 +1960,179 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         location.href = "SalesManagements/Sales/CommercialInvoice?salesId=" + data.Id;
     };
 
-
     //#endregion
+
+
+    // #region checkbox all for AdditionalInfo
+
+    $scope.SalesAdditionalInfoList = [];
+
+    $scope.GetSalesAdditionalInfoList = function () {
+
+        $http({
+            method: 'GET',
+            url: 'Productions/PackingInvoice/GetAdditionalInfoList?SalesId=' + $scope.salesVM.Id
+        }).then(function successCallback(response) {
+            $scope.SalesAdditionalInfoList = response.data;
+        });
+    }
+
+    $scope.searchdata = [];
+    $scope.GetAdditionalInfoList = function () {
+        $scope.searchdata = [];
+        $http({
+            method: 'GET',
+            url: 'Commercial/CommercialAdditionalInfo/GetCommercialAdditionalInfo'
+        }).then(function successCallback(response) {
+            $scope.searchdata = response.data;
+        });
+    }
+
+    $scope.AddAdditional = function () {
+        $scope.GetAdditionalInfoList();
+        $scope.ShowResultCustom();
+    }
+
+    $scope.ShowResultCustom = function (message, type) {
+        $("#AdditionalInfoPoUp").ejDialog("setTitle", "Terms And Conditions");
+        var eDialog = $("#AdditionalInfoPoUp").data("ejDialog");
+        eDialog.open();
+
+        var gridObj = $("#GridAdditionalInfo").data("ejGrid");
+        gridObj.clearFiltering();  // clears all the filtering
+
+    };
+
+
+    $scope.refreshTemplateAdditionalInfo = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridAdditionalInfo").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.searchdata.length; i++) {
+                $scope.searchdata[i].Flag = ChkOrUnchk;
+            }
+
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridAdditionalInfo").data("ejGrid");
+        gridObj.refreshContent();
+
+    };
+   
+    function MakeAdditionalInfoData() {
+
+        for (var i = 0; i < $scope.searchdata.length; i++) {
+            if ($scope.searchdata[i].Flag == true) {
+                if (checkExists($scope.SalesAdditionalInfoList, $scope.searchdata[i].Id) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.AdditionalInfoId = $scope.searchdata[i].Id;
+                    ob.SalesId = $scope.salesVM.Id;
+                    ob.Sequence = $scope.searchdata[i].Sequence;
+                    ob.Code = $scope.searchdata[i].Code;
+                    ob.ShortName = $scope.searchdata[i].ShortName;
+                    ob.StandardName = $scope.searchdata[i].StandardName;
+                    ob.UserName = $scope.searchdata[i].UserName;
+                    ob.Description = $scope.searchdata[i].Description;
+
+                    $scope.SalesAdditionalInfoList.push(ob);
+                }
+                
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].AdditionalInfoId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.CloseAdditionalInfo = function () {
+        try {
+            MakeAdditionalInfoData();
+            $scope.SaveAdditionalInfo();
+            var eDialog = $("#AdditionalInfoPoUp").data("ejDialog");
+            eDialog.close();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveAdditionalInfo = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Productions/PackingInvoice/CreateAdditionalInfo',
+                data: {
+                    'data': $scope.SalesAdditionalInfoList
+                    , 'salesId': $scope.salesVM.Id
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetContractTermsAndConditionsList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeBoMDetail = function (obj) {
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.UserName + ' ]';
+        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    }
+
+    $scope.DeleteAddInfo = function () {
+        $http({
+            method: 'POST',
+            url: 'Productions/PackingInvoice/DeleteCommercialInvoiceAdditionalInfo?id=' + $scope.bomDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSalesAdditionalInfoList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+    // #endregion checkbox all
+
 
 }

@@ -99,5 +99,9 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/POMappingWithPI/Aplos',
             controller: 'POMappingWithPIController'
         })
+        .when('/commercial-add-info', {
+            templateUrl: 'Commercial/CommercialAdditionalInfo/Aplos',
+            controller: 'CommercialAdditionalInfoController'
+        })
         ;
 }
