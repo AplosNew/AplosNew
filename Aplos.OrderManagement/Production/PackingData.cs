@@ -972,6 +972,7 @@ order by  Assigned, ProductCode , PO
             {
                 var str = @"SELECT Convert(bit,0) Active,PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
                             ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
+                            , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
                             FROM TRN.Packing pk
                             LEFT JOIN hkp.Party p on p.Id = pk.CustomerId
                             LEFT JOIN dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
@@ -979,6 +980,7 @@ order by  Assigned, ProductCode , PO
                             LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                            LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
                             WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)
                             AND pk.PackingId IN(Select distinct pli.PackingId from trn.PackingLineItem pli

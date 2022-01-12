@@ -188,6 +188,7 @@
                         <ul class="nav nav-tabs" role="tablist">
                             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
                             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Charges</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Additional Info</a></li>
                         </ul>
                     </div>
                     <div class="tab-content">
@@ -205,6 +206,7 @@
                                                 <th>Destination</th>
                                                 <th>MaterialMasterName</th>
                                                 <th>Article</th>
+                                                <th>Goods Description</th>
                                                 <th>SKU1</th>
                                                 <th>SKU2</th>
                                                 <th class="text-right">Rate</th>
@@ -227,6 +229,9 @@
                                                 <td>{{x.DestinationName}}</td>
                                                 <td>{{x.MaterialMasterName}}</td>
                                                 <td>{{x.MaterialMasterArticleName}}</td>
+                                                <td>
+                                                    <input type="text" class="form-control" ng-model="x.GoodsDescription" style="width: 230px;">
+                                                </td>
                                                 <td>{{x.SKU1}}</td>
                                                 <td>{{x.SKU2}}</td>
                                                 <td class="text-right">{{x.Rate}}</td>
@@ -339,6 +344,35 @@
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                            <div class="row" id="AddAdditional">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="AddAdditional();" ng-disabled="salesVM.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Additional</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12" ng-show="SalesAdditionalInfoList.length>0">
+                                    <div id="GridAdditional" ej-grid e-datasource="SalesAdditionalInfoList"
+                                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
+                                        <div e-columns>
+                                            <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="20"></div>
+                                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                            <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                                            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
+                                            <div e-column e-field="UserName" e-headertext="User Name" e-width="140"></div>
+                                            <div e-column e-field="Description" e-headertext="Description" e-width="140"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <script type="text/template" id="ShowActionButtonsBOM">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBoMDetail(this);" style="margin: -6px;"></i></button>
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -1466,3 +1500,36 @@
         </div>
     </div>
 </div>
+
+<ej-dialog id="AdditionalInfoPoUp" title="AdditionalInfo" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#AddAdditional"
+           e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
+    <div class="row">
+        <div id="GridAdditionalInfo" ej-grid e-datasource="searchdata" e-templaterefresh="refreshTemplateAdditionalInfo"
+             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
+            <div e-columns>
+                <div e-column e-headertext="" e-headertemplateid="#headerTemplateAdditionalInfo" e-template="#checkboxTemplateAdditionalInfo" e-textalign="center" e-width="30"></div>
+
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
+                <div e-column e-field="UserName" e-headertext="User Name" e-width="140"></div>
+                <div e-column e-field="Description" e-headertext="Description" e-width="140"></div>
+            </div>
+        </div>
+        <script type="text/template" id="checkboxTemplateAdditionalInfo">
+            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+        </script>
+        <script type="text/x-jsrender" id="headerTemplateAdditionalInfo">
+            <input type="checkbox" id="headchk" />
+        </script>
+        <div class="common-btn" style="padding-right: 15px;">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="CloseAdditionalInfo();" class="btn">Done</button></li>
+            </ul>
+        </div>
+    </div>
+</ej-dialog>
+
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteAddInfo();"></confirm-archive-generic>

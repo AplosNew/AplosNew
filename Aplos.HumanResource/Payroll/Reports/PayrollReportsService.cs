@@ -18900,13 +18900,13 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 								                                                                            SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
 								                                                                            from SalaryInfoDefineMaster SDM
 								                                                                            JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
-                                                                                                            WHERE sdm.EmpInfoSystemID IN (" + EmployeeId + @") AND EffectiveDate <=APD.MonthDate AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
+                                                                                                            WHERE sdm.EmpInfoSystemID IN ('" + EmployeeId + @"') AND EffectiveDate <=APD.MonthDate AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
 								                                                                            union ALL
 								                                                                            select SD.SystemID,SDM.PlantID,EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,sd.SequenceNo,sd.SalaryCategory,
 								                                                                            SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
 								                                                                             from SalaryInfoBackMaster SDM
 								                                                                            JOIN SalaryInfoBack AS SD ON sdm.SystemID=SD.SalaryID 
-				                                                                                             WHERE sdm.EmpInfoSystemID IN (" + EmployeeId + @") AND EffectiveDate <=APD.MonthDate AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
+				                                                                                             WHERE sdm.EmpInfoSystemID IN ('" + EmployeeId + @"') AND EffectiveDate <=APD.MonthDate AND SDM.IsApproved=1 AND SD.SalaryHeadID IN (SELECT  S.SalaryHeadID FROM LeaveWithWagesRegisterSalaryHeads AS S WHERE CompanyId='" + identity.CompanyId + @"')
 			                                                                            ) AS SDM
 			
 			                                                                    ) AS SDM where SDM.EmpInfoSystemID=APD.EmpSystemID AND ISNULL(sdm.IsApproved,0)=1 AND EffectiveDate <=APD.MonthDate AND rnk=1 
@@ -18923,10 +18923,9 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"Select L.LeaveTypeId,Lt.LeaveType, CASE WHEN lt.LeaveType='Earn' THEN 0 ELSE  ISNULL(l.CurrentYearAllocation,0) END CurrentYearAllocation,ISNULL(l.BroughtForward,0)+ ISNULL(L.CarryForwardOpeningBalance,0) AS LeaveCount,'OB' AS TransactionType
                                   from EmployeeInformation EI
-                                Join YearlyCalendar AS C ON C.PlantId=EI.PlantId
-                                JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id and L.EmployeeId=EI.SystemId
+                                JOIN trn.EmployeeLeaveSummary L ON L.EmployeeId=EI.SystemId
                                 LEFT JOIN LeaveType AS lt ON lt.Id=l.LeaveTypeId
-                                WHERE L.EmployeeId='" + EmployeeId + @"' AND '" + FromDate + @"' BETWEEN c.FromDate AND c.ToDate AND l.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
+                                WHERE L.EmployeeId='" + EmployeeId + @"' AND '" + FromDate + @"' BETWEEN L.FromDate AND L.ToDate AND l.LeaveTypeId IN (SELECT LeaveTypeId FROM LeaveWithWagesRegisterLeaveTypes where CompanyId='" + identity.CompanyId + @"') 
                                 
                                 UNION ALL
 

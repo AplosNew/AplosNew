@@ -259,7 +259,7 @@ namespace Library.Service.Extension
                     drLocal.EndEdit();
                 }
                 objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
-                strID = System.DateTime.Now.Year.ToString() + "" + LastNumber + "";
+                strID = System.DateTime.Now.Year.ToString() + "" + ((int)LastNumber).ToString() + "";
 
             }
             catch (Exception ex)
