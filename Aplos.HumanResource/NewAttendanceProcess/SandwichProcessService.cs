@@ -237,7 +237,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                         string TodayFlag = clsWebLib.RetValidLen(SandwichData.Rows[i]["SandwichFlag"]).ToString();
                         string PrevDayFlag = clsWebLib.RetValidLen(SandwichData.Rows[i]["PrevDayFlag"]).ToString();
                         string RowId = clsWebLib.RetValidLen(SandwichData.Rows[i]["RowId"]).ToString();
-                        string PrevDayRowId = clsWebLib.RetValidLen(SandwichData.Rows[i]["PrevRowId"]).ToString();
                         string WkDate = clsWebLib.RetValidLen(SandwichData.Rows[i]["WorkDate"]).ToString();
 
                         #endregion
@@ -245,15 +244,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                         if (TodayFlag != "" && PrevDayFlag != "")
                         {
 
-                            #region Flag Changing Logic
-                           
-                            string ActualFlag = "", ChangedFlag="";
-                            SandwichData.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate =#" + WkDate + "# ";
-                            if (SandwichData.DefaultView.Count > 0)
-                            {
-
-                                DataRow dr = SandwichData.DefaultView[0].Row;
-                                ActualFlag = SandwichData.DefaultView[0][@"SandwichFlag"].ToString();
+                            #region Flag Changing Logic                           
+                                string ActualFlag = "", ChangedFlag="";
+                          
+                                DataRow dr = SandwichData.Rows[i];
+                                ActualFlag = SandwichData.Rows[i][@"SandwichFlag"].ToString();
 
                                 dr.BeginEdit();
                                 if (PrevDayFlag == "0" && TodayFlag == "2")
@@ -284,8 +279,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["SandwichFlag"] = "3"; //Today Change
                                 }
                                 dr.EndEdit();
-                                ChangedFlag = SandwichData.DefaultView[0][@"SandwichFlag"].ToString();
-                            }
+                                ChangedFlag = SandwichData.Rows[i][@"SandwichFlag"].ToString();
+                         
                             #endregion
 
                             #region To Change Value of Flag in Next Day Row
@@ -312,10 +307,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #endregion
 
                 #region Save Data in APD 
-                if (SandwichData.Rows.Count > 0)
-                {
-                    SaveLog("SandwichData Saving in APD Start ...", PlantId, false);
 
+                SaveLog("SandwichData Saving in APD Start ...", PlantId, false);
+
+                if (SandwichData.Rows.Count > 0)
+                {                    
                     int counter = 0;
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where PlantId='" + PlantId + "' and SandwichReprocess = 1 and WorkDate between '" + MinDate + "' and '" + MaxDate + "'";
@@ -327,17 +323,25 @@ namespace Library.HumanResource.NewAttendanceProcess
                         // Manipulated DataSet Variables
                         string RowId = SandwichData.Rows[i][@"RowId"].ToString();
                         string ChangedFlag = SandwichData.Rows[i][@"SandwichFlag"].ToString();
+                        string ChangedReprocessFlag = clsWebLib.RetValidLen(SandwichData.Rows[i][@"SandwichReprocess"]).ToString();
+
 
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             string ActualFlag = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
+                            string ReProcessFlag = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichReprocess"]).ToString();
+
                             if (ActualFlag != ChangedFlag)
                             {
                                 counter++;
                                 dr.BeginEdit();
                                 dr["SandwichFlag"] = ChangedFlag;
+                                if(ChangedReprocessFlag != ReProcessFlag)
+                                {
+                                    dr["SandwichReprocess"] = ChangedReprocessFlag;
+                                }
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -362,7 +366,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int ddx = 01;
                     string jj = month.ToString() + "-" + ddx.ToString() + "-" + year.ToString();
                     string TempDate = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
-                    SaveLog("Sandwich DayChanging Logic Start ...", PlantId, false);
+                    SaveLog("Updated DataSet Called ...", PlantId, false);
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet MasterDataSet, false, false, "", "1");
@@ -442,7 +446,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     #region Save Sandwich Status
                     if (MasterDataSet.Tables[0].Rows.Count > 0)
                     {
-                        SaveLog("Sandwich DayChange Saving Logic Start ...", PlantId, false);
+                        SaveLog("BackDate DayStatus Saving Logic Start ...", PlantId, false);
 
                         int x = 0;
                         ConnectionManager.DAL.ConManager newcon = new ConnectionManager.DAL.ConManager("1");
