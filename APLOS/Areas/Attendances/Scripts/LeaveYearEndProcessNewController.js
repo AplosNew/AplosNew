@@ -4,8 +4,8 @@ function LeaveYearEndProcessNewController(cboService, commonMessage, $scope, $ro
     $rootScope.title = 'Leave Year End Process New';
     $scope.path = 'Attendances/LeaveYearEndProcess/';
     $scope.getYearlyCalendarUrl = $scope.path + 'LoadYearlyCalendar';
-    $scope.LeaveYearEndProcessSummaryDataUrl = $scope.path + 'GetLeaveYearEndProcessSummaryData';
-    $scope.LeaveYearEndProcessSummaryDataIndividualUrl = $scope.path + 'GetLeaveYearEndProcessSummaryDataIndividual';
+    $scope.LeaveYearEndProcessSummaryDataUrl = $scope.path + 'GetLeaveYearEndProcessSummaryDataNew';
+    $scope.LeaveYearEndProcessSummaryDataIndividualUrl = $scope.path + 'GetLeaveYearEndProcessSummaryDataIndividualNew';
     $scope.LeaveYearEndProcessUrl = $scope.path + 'LeaveYearEndProcessNew';
     $scope.LeaveYearEndProcessIndividualUrl = $scope.path + 'LeaveYearEndProcessIndividualNew';
     $scope.tab = 1;
