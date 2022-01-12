@@ -102,6 +102,9 @@ function CompanyParallelCurrencyController(commonMessage, $scope, $rootScope, ba
             $scope.pop('error', 'Please select Company  !');
             return false;
         }
+        //if (baseService.isUndefinedOrNull($scope.curcomPara.comparaId)) {
+        //    $scope.curcomPara.comparaId = $scope.curcomPara.CompanyId;
+        //}
         if ($scope.curcomPara.comcurType === "") {
             $scope.checkBaseCurrencyMsg = '';
             $scope.pop('error', 'Please select Company Currency Type !');

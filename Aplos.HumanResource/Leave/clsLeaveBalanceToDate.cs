@@ -944,14 +944,13 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 								SELECT l.EmployeeId, L.LeaveTypeId,Lt.LeaveType,
 								CASE WHEN lt.LeaveType='EARN' THEN 0 ELSE ISNULL(l.CurrentYearAllocation,0) END CurrentYearAllocation,l.BroughtForward,l.CarryForwardOpeningBalance,l.DaysCanBeSanctioned,l.AppliedDays,0 AvailedDays,L.YearEndEncash
                                   from EmployeeInformation EI
-                                Join YearlyCalendar AS C ON C.PlantId=EI.PlantId
-                                JOIN trn.EmployeeLeaveSummary L ON l.CalanderYearId=c.Id and L.EmployeeId=EI.SystemId
+                                JOIN trn.EmployeeLeaveSummary L ON L.EmployeeId=EI.SystemId
                                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
 								LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
 								LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
 								  JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
                                 LEFT JOIN LeaveType AS lt ON lt.Id=lpd.LTSystemID
-                                WHERE  '" + _FromDate + @"' BETWEEN c.FromDate AND c.ToDate
+                                WHERE  '" + _FromDate + @"' BETWEEN L.FromDate AND L.ToDate
                                  AND ei.SystemId='" + EmployeeSystemId + @"'
                                 
                                 UNION ALL
