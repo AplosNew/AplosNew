@@ -575,8 +575,6 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     };
 
-    $scope.TermsAndConditionsList = [];
-
     function MakeData() {
 
         for (var i = 0; i < $scope.searchdata.length; i++) {
@@ -584,12 +582,12 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                 if (checkExists($scope.TermsAndConditionsList, $scope.searchdata[i].Id) === false) {
                     var ob = {};
                     ob.Id = null;
-                    ob.TermsAndConditionsId = $scope.searchdata[i].Id;;
+                    ob.TermsAndConditionsId = $scope.searchdata[i].Id;
                     ob.ContractId = $scope.modelNew.Id;
-                    ob.Sequence = $scope.searchdata[i].Sequence;;
-                    ob.Code = $scope.searchdata[i].Code;;
-                    ob.ShortName = $scope.searchdata[i].ShortName;;
-                    ob.StandardName = $scope.searchdata[i].StandardName;;
+                    ob.Sequence = $scope.searchdata[i].Sequence;
+                    ob.Code = $scope.searchdata[i].Code;
+                    ob.ShortName = $scope.searchdata[i].ShortName;
+                    ob.StandardName = $scope.searchdata[i].StandardName;
                     ob.UserName = $scope.searchdata[i].UserName;
                     ob.Description = $scope.searchdata[i].Description;
 

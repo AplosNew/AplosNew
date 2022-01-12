@@ -3019,6 +3019,7 @@ namespace Library.Service.SalesManagements
                             TaxAmount = salesMaterialVM.TaxAmount,
                             BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
                             NetAmount = salesMaterialVM.NetAmount,
+                            GoodsDescription = salesMaterialVM.GoodsDescription,
                             ModelState = ModelState.Added,
                             AddedBy = sales.AddedBy,
                             AddedDate = sales.AddedDate,
@@ -3353,6 +3354,7 @@ namespace Library.Service.SalesManagements
                                 BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
                                 BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
 
+                                GoodsDescription = salesMaterialVM.GoodsDescription,
                                 ModelState = ModelState.Added,
                                 AddedBy = sales.AddedBy,
                                 AddedDate = sales.AddedDate,
@@ -3433,6 +3435,7 @@ namespace Library.Service.SalesManagements
                                 BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
                                 TaxAmount = salesMaterialVM.TaxAmount,
                                 NetAmount = salesMaterialVM.NetAmount,
+                                GoodsDescription = salesMaterialVM.GoodsDescription,
                                 AddedBy = sales.AddedBy,
                                 AddedDate = sales.AddedDate,
                                 AddedFromIP = sales.AddedFromIP,
