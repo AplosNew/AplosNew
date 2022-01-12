@@ -179,7 +179,7 @@
     @*hr*@
     <div class="col-md-12 col-sm-12 col-xs-12">
         @*<div class="form-group" ng-show="true">*@
-        <fieldset class="scheduler-border" ng-show="isVisibleInstallment">
+        <fieldset class="scheduler-border" ng-show="isVisibleInstallment" ng-disabled="Action == 'Update'">
             <legend class="scheduler-border">Advance Schedule</legend>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div id="div_DocDate" class="form-group" show-errors>
@@ -263,7 +263,31 @@
     <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails">
     </div>
     @*hr*@
-
+    <div class="clearfix"> </div>
+    <div class="table-responsive modal-table" ng-show="Action=='Update' && DetailsList.length>0">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Installment Date</th>
+                    <th>Installment No</th>
+                    <th>Installment Amount</th>
+                    <th>Profit Amount</th>
+                    <th>Principal Amount</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in DetailsList">
+                    <td>{{x.InstallmentDate}}</td>
+                    <td>{{x.InstallmentNo}}</td>
+                    <td><input type="text" name="InstallmentAmount" ng-model="x.InstallmentAmount" class="form-control" ng-keyup="$parent.ValueChange(x,$index)"></td>
+                    <td>{{x.ProfitAmount}}</td>
+                    <td>{{x.PrincipalAmount}}</td>
+                    <td>{{x.Balance}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>

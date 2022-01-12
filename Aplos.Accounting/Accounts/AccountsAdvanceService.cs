@@ -114,6 +114,36 @@ namespace Library.Accounting.Accounts
                                 AND AM.EmployeeId='" + employeeId + "'";
             return _sqlRepository.GetGridData(parameters);
         }
+        public IEnumerable<object> GetData(string Id)
+        {
+            try
+            {
+                var str = @"SELECT a.Id
+                            	,FORMAT(a.InstallmentDate, 'dd-MMM-yyyy') InstallmentDate
+                            	,a.InstallmentNo
+                            	,a.InstallmentAmount
+                            	,a.ProfitAmount
+                            	,a.PrincipalAmount
+                            	,a.Balance
+                            	,a.EmployeeSalaryAdvanceId
+                            	,a.YearNo
+                            	,a.MonthNo
+                            	,a.ScheduleNo
+                            	,a.Arrear
+                                ,CASE WHEN t.Id IS NULL THEN 'Yes' ELSE 'No' END SaveOrNot
+                            FROM AdvanceReqSchedule a
+                            LEFT JOIN TRN.EmployeeSalaryAdvance e ON e.Id = a.EmployeeSalaryAdvanceId
+                            LEFT JOIN trn.Advance AS ad ON ad.VoucherId = e.VoucherId
+                            LEFT JOIN [TRN].[EmployeeAdvanceDeduction] t ON t.AdvanceId = ad.Id
+                            WHERE ad.Id = '" + Id + "' ORDER BY a.InstallmentNo";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         public GridModel GetEmployeeWiseOutstandingAdvance(GridParameter parameters, string companyGroupId, string companyId, string plantId, string employeeId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType,   AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId,  C.Code AS CurrencyCode

@@ -41,6 +41,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/LeaveYearEndProcess/Aplos',
             controller: 'LeaveYearEndProcessController'
         })
+        .when('/leave-year-end-process-new', {
+            templateUrl: 'Attendances/LeaveYearEndProcess/Aplos',
+            controller: 'LeaveYearEndProcessNewController'
+        })
         .when('/shift-roster-creation', {
             templateUrl: 'Attendances/ShiftRosterCreation/Aplos',
             controller: 'ShiftRosterCreationController'

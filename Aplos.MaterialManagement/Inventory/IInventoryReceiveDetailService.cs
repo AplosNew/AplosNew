@@ -14,11 +14,11 @@ namespace Library.MaterialManagement.Inventory
         void UpdateFOCDetail(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType);
         void InsertExtraTax(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList);
 
-		void InsertOrUpdateGraphNewEdits(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId,string GRNType);
+        void InsertOrUpdateGraphNewEdits(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId,string GRNType);
 		void InsertOrUpdateGraphNewEditsOnlyGRN(IEnumerable<InventoryMaterialViewModel> entityMat,string Id);
 		
         void InsertOrUpdateGraph(InventoryMaterialViewModel entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList);
-
+        void InsertFOCMaterial(InventoryMaterialViewModel itemDetail, IEnumerable<InventoryReceiveTax> taxCategoryList);
         void Delete(string receiveDetailId);
         void JWDelete(string receiveDetailId);
         void InsertOrUpdateGraphForPurchaseReturn(PurchaseReturn entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<PurchaseReturnTax> taxCategoryList, string id, string MaterialStorageId, string GRNType,IEnumerable<InventoryMaterialViewModel> chargesList, IEnumerable<PurchaseReturnTax> ServicetaxCategoryList); 

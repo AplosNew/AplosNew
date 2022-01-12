@@ -204,7 +204,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     SaveLog("Sandwich Process Start ...", PlantId, false);
 
-                    #region DataTable Generation 
+                    #region Min Max Date Finding Generation 
 
                     StringCollection StrDistinctWorkDate = new StringCollection();
                     StringCollection StrDistinctEmployee = new StringCollection();
@@ -223,6 +223,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                     MaxDate = StringDates.Max(date => date).ToString("dd-MMM-yyyy");
                     MinDate = StringDates.Min(date => date).ToString("dd-MMM-yyyy");
+
+                    SaveLog("Min-Max Date Found ...", PlantId, false);
 
                     #endregion
 
@@ -244,6 +246,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         {
 
                             #region Flag Changing Logic
+                           
                             string ActualFlag = "", ChangedFlag="";
                             SandwichData.DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' AND WorkDate =#" + WkDate + "# ";
                             if (SandwichData.DefaultView.Count > 0)
@@ -286,11 +289,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             #endregion
 
                             #region To Change Value of Flag in Next Day Row
-
-                            SandwichData.DefaultView.RowFilter = @"PrevRowId='" + RowId + "' ";
-                            if (SandwichData.DefaultView.Count > 0)
+                            
+                            if (ActualFlag != ChangedFlag)
                             {
-                                if (ActualFlag != ChangedFlag)
+                                SandwichData.DefaultView.RowFilter = @"PrevRowId='" + RowId + "' ";
+                                if (SandwichData.DefaultView.Count > 0)
                                 {
                                     DataRow drx = SandwichData.DefaultView[0].Row;
                                     drx.BeginEdit();

@@ -189,7 +189,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
 						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
 						LEFT JOIN dbo.PurchaseLC XVD ON XVD.Id=LAA.PurchaseLCId
-						WHERE --LAA.IsPark=1 AND 
+						WHERE LAA.IsLoan=1 AND  
 						 LAA.VoucherId IS NULL)X
 						WHERE X.PlantId='" + plantId + "' ";
 			return _sqlRepository.GetDataCollection(sql);

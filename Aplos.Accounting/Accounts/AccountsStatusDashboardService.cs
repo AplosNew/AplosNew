@@ -16686,24 +16686,17 @@ union ALL
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,isnull( format(I.BaseOnDueDate,'dd-MMM-yyyy'),'')  AS DueDateBaseON
-							
 							,isnull( format(I.ActualDueDate,'dd-MMM-yyyy'),'')  AS ActualDueDate
-							
 							, NoOfDays=DATEDIFF(DAY, GETDATE(), I.ActualDueDate)
-
 				            ,ISNULL(PDAD.MaterialTranAmount,0) AcceptanceAmount
 							,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
-							 ,ISNULL(I.WrittenOffAmount,0)+ISNULL(LAA.LoanAccAmount,0) SetOff
-							 ,ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0) Balance
-
+							 ,ISNULL(I.WrittenOffAmount,0) SetOff
+							 ,ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0) Balance
 							 ,ISNULL(PDAD.MaterialTranAmount  * AcceptanceRate ,0) BooksAcceptanceAmount
 							 ,ISNULL(PDAD.TotalMaterialTranAmount  * AcceptanceRate ,0) BooksTotalMaterialAmount
-							 ,ISNULL(I.WrittenOffAmount * AcceptanceRate,0)  +  ISNULL(LAA.LoanAccAmount* AcceptanceRate,0)   BooksSetOff
-							 ,ISNULL(I.Amount* AcceptanceRate,0)  - ISNULL(I.WrittenOffAmount * AcceptanceRate,0) -ISNULL(LAA.LoanAccAmount * AcceptanceRate,0)  BooksBalance
-
-
-
-							 ,Amount=ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0),NULL LoanNo,NULL LoanDate
+							 ,ISNULL(I.WrittenOffAmount * AcceptanceRate,0)     BooksSetOff
+							 ,ISNULL(I.Amount* AcceptanceRate,0)  - ISNULL(I.WrittenOffAmount * AcceptanceRate,0)   BooksBalance
+							 ,Amount=ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0),NULL LoanNo,NULL LoanDate
 							 ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -16714,7 +16707,6 @@ union ALL
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,LCAmount
-
 							 ,OpeningBank= STUFF((select distinct ','+xbm.AccountTitle from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														left join MST.BankMaster xbm on xbm.Id=XVD.OpeningBankMasterId
@@ -16768,14 +16760,13 @@ union ALL
 							 LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
                             LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
 							LEFT JOIN TRN.Voucher V ON V.Id=PDA.VoucherId
-							LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id
-							LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(ISNULL(Amount,0)) LoanAccAmount FROM TRN.LoanAgainstAcceptance WHERE ISNULL(VoucherId,'') ='' GROUP BY PurchaseDocAcceptanceId)LAA ON LAA.PurchaseDocAcceptanceId=PDA.Id  
+							LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id 
                             --WHERE PDA.VoucherId <>'' and V.Plantid='" + plantId + "'  " + dateStatus + @"
                             WHERE PDA.VoucherId <>'' and V.Plantid='" + plantId + @"' 
                             and I.PostingDate <= '" + toDate + @"'
-
-                            AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0)>0
-							ORDER BY I.ActualDueDate ASC ";
+                            AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0
+							AND PDA.Id NOT IN(SELECT PurchaseDocAcceptanceId FROM LoanAgainstAcceptanceDetail)
+							ORDER BY I.ActualDueDate ASC  ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
