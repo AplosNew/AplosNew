@@ -951,7 +951,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 								LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
 								  JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
                                 LEFT JOIN LeaveType AS lt ON lt.Id=lpd.LTSystemID
-                                WHERE  '" + _FromDate + @"' BETWEEN c.FromDate AND c.ToDate
+                                WHERE  '" + _FromDate + @"' BETWEEN L.FromDate AND L.ToDate
                                  AND ei.SystemId='" + EmployeeSystemId + @"'
                                 
                                 UNION ALL
