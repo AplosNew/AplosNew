@@ -139,6 +139,7 @@ namespace OTSBD.clsLeave
                 //objLeaveYearEndProcessData.GetEarningDays(sPlantID, dsCalandarYearLocal.Tables[0].Rows[0]["FromDate"].ToString(), dsCalandarYearLocal.Tables[0].Rows[0]["ToDate"].ToString(), out dsAllEmpEarningDaysSummary);
                 //DataView dvAllEmpEarningDaysSummary = null;
                 //DataRow drAllEmpEarningDaysSummary = null;
+                GetCalendar(sNextYearId, out DataTable dtCalendar);
 
 
                 string EarnleaveID = string.Empty;
@@ -327,6 +328,38 @@ namespace OTSBD.clsLeave
                             //drSaveSummary["AddedFromIP"] = "::1";
                             //drSaveSummary["UpdatedFromIP"] = "::1";
                             //dsNewSummary.Tables[0].Rows.Add(drSaveSummary);
+
+
+                            _count++;
+                            drSaveSummary = dsNewSummary.Tables[0].NewRow();
+                            drSaveSummary["Id"] = "LS" + _pks + "-" + _count;
+                            drSaveSummary["EmployeeId"] = EmpSystemId;
+                            drSaveSummary["CalanderYearId"] = sNextYearId;
+                            drSaveSummary["FromDate"] = dtCalendar.Rows[0]["FromDate"].ToString();
+                            drSaveSummary["ToDate"] = dtCalendar.Rows[0]["ToDate"].ToString();
+                            drSaveSummary["PlantId"] = sPlantID;
+                            drSaveSummary["LeaveTypeId"] = LeaveTypeId;
+                            drSaveSummary["CurrentYearAllocation"] = 0;
+                            drSaveSummary["DaysCanBeSanctioned"] = 0;
+                            drSaveSummary["CurrentYearAvailedOpeningBalance"] = 0;
+                            drSaveSummary["CurrentYearEarnedDaysOpeningBalance"] = 0;
+
+                            drSaveSummary["CarryForwardOpeningBalance"] = 0;
+                            drSaveSummary["CarryForward"] = 0;
+                            drSaveSummary["BroughtForward"] = CarryForward;
+                            drSaveSummary["AppliedDays"] = 0;
+                            drSaveSummary["AvailedDays"] = 0;
+                            //drSaveSummary["PreviousYearCarryForward"] = 0;
+                            drSaveSummary["YearEndEncash"] = 0;
+                            drSaveSummary["YearEndLapse"] = 0;
+                            //drSaveSummary["YearEndEncashCumulative"] = 0;
+                            //drSaveSummary["YearEndLapseCumulative"] = 0;
+                            drSaveSummary["AddedBy"] = "Schedule";
+                            drSaveSummary["AddedDate"] = System.DateTime.Now;
+                            drSaveSummary["AddedFromIP"] = "::1";
+                            drSaveSummary["UpdatedFromIP"] = "::1";
+
+                            dsNewSummary.Tables[0].Rows.Add(drSaveSummary);
                         }
                         else
                         {
@@ -1732,6 +1765,33 @@ WHERE els.ToDate<(SELECT yc.ToDate
                 {
                     DicLeavePolicy.Add(item["EmpSystemId"].ToString() + "-" + item["LTSystemID"].ToString(), item);
                 }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
+        }
+        public void GetCalendar(string CalendarId, out DataTable dtCalendar)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+
+
+                strSql = @"SELECT * FROM YearlyCalendar WHERE Id='" + CalendarId + @"'";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out DataSet dsRef, false, false, "", "1");
+
+                dtCalendar = dsRef.Tables[0];
             }
             catch (Exception ex)
             {
