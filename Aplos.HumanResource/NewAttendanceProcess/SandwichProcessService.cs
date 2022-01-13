@@ -25,7 +25,41 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
         #region DataSet Functions
-       
+
+        public IEnumerable<object> GetEmployeeInformationPlantWise(string month, string year,string PlantId)
+        {
+            try
+            {
+                int dd = 01;
+                string jj = month.ToString() + "-" + dd.ToString() + "-" + year.ToString();
+                string date = DateTime.Parse(jj).ToString("dd-MMM-yyyy");
+                string ToDate = Convert.ToDateTime(date).AddDays(32).ToString("dd-MMM-yyyy");
+
+
+                var sql = @"select EmpSystemID,e.EmployeeCode,p.UserName as Plant,p.Id as PlantId,
+                            format(WorkDate,'dd-MMM-yyyy')WorkDate,DayStatus,dp.UserName
+                            as Department,s.UserName as Section,
+                            SuS.UserName as SubSection,ld.UserName as Designation,SandwichFlag as TodayFlag,
+                (select SandwichFlag from AttdnProcessData where WorkDate=DATEADD(day,-1,a.WorkDate) 
+                and EmpSystemID=a.EmpSystemID)PrevDayFlag
+                from attdnprocessdata a
+                left join EmployeeInformation e on e.SystemId=a.EmpSystemID
+                left join org.Plant p on p.Id=e.PlantId
+                left join org.Section s on s.Id=e.SectionId
+                LEFT JOIN ORG.Department DP ON DP.Id = E.DepartmentId
+                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = E.SubSectionID
+                left join hkp.LegalDesignation ld on ld.Id=e.LegalDesignationId
+                where a.PlantId='"+PlantId+"' and a.WorkDate between '" + date + @"' and '" + ToDate + @"' and
+                SandwichReprocess=1 order by EmpSystemID,Workdate,SandwichFlag asc";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         public IEnumerable<object> GetEmployeeInformation(string month, string year)
         {
             try

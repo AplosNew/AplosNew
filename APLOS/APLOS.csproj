@@ -1685,6 +1685,7 @@
     <Content Include="Areas\Attendances\Scripts\ManualOTUploadNewController.js" />
     <Content Include="Areas\Attendances\Scripts\OTManualNewController.js" />
     <Content Include="Areas\Attendances\Scripts\MonthlyLeaveBalanceController.js" />
+    <Content Include="Areas\Attendances\Scripts\SandwichProcessPlantWiseController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportOriginalController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\AdditionalPayDayController.js" />
@@ -3932,6 +3933,7 @@
     <Content Include="Areas\HumanResource\Views\AttendanceBonusMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeShiftUpdates\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\CommercialAdditionalInfo\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\SandwichProcess\PlantWise.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
