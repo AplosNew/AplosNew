@@ -1098,6 +1098,7 @@
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
     <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
+    <Compile Include="Controllers\MyParentsController.cs" />
     <Compile Include="Controllers\MyTeacherController.cs" />
     <Compile Include="Controllers\WasteTransactionController.cs" />
     <Compile Include="Controllers\ManualAttndFromAppController.cs" />
@@ -4284,6 +4285,12 @@
     <Content Include="Scripts\MPanelApp\mpanelLogoutController.js" />
     <Content Include="Scripts\MPanelApp\plantSelectionController.js" />
     <Content Include="Scripts\multi-select-load.js" />
+    <Content Include="Scripts\MyParents\myParentsCalendarController.js" />
+    <Content Include="Scripts\MyParents\parentsPasswordChangeController.js" />
+    <Content Include="Scripts\MyParents\ppanelApp.js" />
+    <Content Include="Scripts\MyParents\ppanelLoginApp.js" />
+    <Content Include="Scripts\MyParents\ppanelLoginController.js" />
+    <Content Include="Scripts\MyParents\ppanelLogoutController.js" />
     <Content Include="Scripts\MyTeacher\teacherPasswordChangeController.js" />
     <Content Include="Scripts\MyTeacher\tpanelApp.js" />
     <Content Include="Scripts\MyTeacher\tpanelLoginApp.js" />
@@ -7031,6 +7038,11 @@
     <Content Include="Views\MyTeacher\Dashboard.cshtml" />
     <Content Include="Views\MyTeacher\TLayout.cshtml" />
     <Content Include="Views\MyTeacher\PasswordChange.cshtml" />
+    <Content Include="Views\MyParents\Aplos.cshtml" />
+    <Content Include="Views\MyParents\Calendar.cshtml" />
+    <Content Include="Views\MyParents\Dashboard.cshtml" />
+    <Content Include="Views\MyParents\PasswordChange.cshtml" />
+    <Content Include="Views\MyParents\PLayout.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
