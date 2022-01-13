@@ -125,6 +125,26 @@ namespace Aplos.Areas.Securities
         }
     }
 
+    public class PPanelAreaRegistration : AreaRegistration
+    {
+        public override string AreaName
+        {
+            get
+            {
+                return "ppanel";
+            }
+        }
+
+        public override void RegisterArea(AreaRegistrationContext context)
+        {
+            context.MapRoute(
+                "ppanel",
+                "ppanel/{controller}/{action}/{id}",
+                new { controller = "MyParents", action = "playout", id = UrlParameter.Optional },
+                new string[] { "Aplos.Controllers" });
+        }
+    }
+
     public class SecuritiesAreaRegistration : AreaRegistration
     {
         public override string AreaName
