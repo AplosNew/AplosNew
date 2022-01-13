@@ -110,7 +110,6 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(accountsSalaryPayableService.GetSalaryLockInDirectCTCDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
-
         [Authorize, HttpGet]
         public JsonResult GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
         {
