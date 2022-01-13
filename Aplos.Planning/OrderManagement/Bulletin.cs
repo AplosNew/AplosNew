@@ -604,6 +604,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
 									  TR.Manpower AllotedWorkstation,
 									 TR.Quantity AS TargetPerDay,
 									 TR.Quantity/tr.TotalHour AS  RequiredStdTarget
+ ,ISNULL(TR.ManPowerWithMachine,0) ManPowerWithMachine,ISNULL(TR.ManPowerWithHand,0) ManPowerWithHand
      FROM scs.WorkCenterMaster as wc 
       JOIN (
      	SELECT p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId
@@ -963,8 +964,8 @@ Item=STUFF((select distinct ','+XMM.UserName from
                     sheet[ROW, colBuyerItemNo].Text = dtProductionInfo.Rows[i]["BuyerItemNo"].ToString();
                     sheet[ROW, colSPT].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["SPT"].ToString());
                     sheet[ROW, colWorkHour].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["PlannedHoursPerDay"].ToString());
-                    sheet[ROW, colRUNmc].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["WithMachine"].ToString());
-                    sheet[ROW, colHel].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["WithoutMachine"].ToString());
+                    sheet[ROW, colRUNmc].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["ManPowerWithMachine"].ToString());
+                    sheet[ROW, colHel].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["ManPowerWithHand"].ToString());
                     sheet[ROW, colTotalMP].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
                     sheet[ROW, colDaysRun].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["DaysRun"].ToString());
 

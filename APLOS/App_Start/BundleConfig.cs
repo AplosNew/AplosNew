@@ -205,31 +205,33 @@ namespace Aplos
                   ));
 
             bundles.Add(new ScriptBundle("~/bundles/tpanellogin").Include(
-                   "~/Scripts/MyTeacher/tpanelLoginController.js",
-                   "~/Scripts/MyTeacher/tpanelLogoutController.js",
-                   "~/Scripts/MyTeacher/tpanelLoginApp.js"));
+                     "~/Scripts/MyTeacher/tpanelLoginController.js",
+                     "~/Scripts/MyTeacher/tpanelLogoutController.js",
+                     "~/Scripts/MyTeacher/tpanelLoginApp.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/tpanel").Include(
-                  "~/Areas/Accounts/Scripts/expenseBookingPotalController.js",
-                  "~/Areas/Accounts/Scripts/expenseBookingApprovalPotalController.js",
-                  "~/Areas/Accounts/Scripts/expenseBookingDepartmentApprovalPotalController.js",
-                  "~/Areas/Employees/Scripts/profileViewController.js",
-                  "~/Areas/Accounts/Scripts/expenseBookingDepartmentApprovalPotalController.js",
-                  "~/Areas/Accounts/Scripts/expenseBookingCheckedByPotalController.js",
-                  "~/Areas/Employees/Scripts/profileViewController.js",
-                  "~/Areas/Employees/Scripts/jobCardInformationController.js",
-                  "~/Areas/Employees/Scripts/leaveApplicationController.js",
-                  "~/Areas/TaskManagement/Scripts/taskMasterController.js",
-                  "~/Areas/Setups/Scripts/tnaSettingMasterController.js",
-                  "~/Areas/Accounts/Scripts/employeeAdvanceRequisitionController.js",
+
                   "~/Scripts/MyTeacher/tpanelLoginController.js",
                   "~/Scripts/MyTeacher/teacherPasswordChangeController.js",
                   "~/Scripts/MyTeacher/tpanelLogoutController.js",
                   "~/Scripts/MyTeacher/myTeacherCalendarController.js",
-                   "~/Areas/Products/Scripts/RequisitionController.js",
-                  "~/Areas/Products/Scripts/InventoryCheckApprovedController.js",
-
+                    "~/Areas/TaskManagement/Scripts/TeacherScheduleController.js",
                   "~/Scripts/MyTeacher/tpanelApp.js"
+                  ));
+
+            bundles.Add(new ScriptBundle("~/bundles/ppanellogin").Include(
+                   "~/Scripts/MyParents/ppanelLoginController.js",
+                   "~/Scripts/MyParents/ppanelLogoutController.js",
+                   "~/Scripts/MyParents/ppanelLoginApp.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/ppanel").Include(
+
+                  "~/Scripts/MyParents/ppanelLoginController.js",
+                  "~/Scripts/MyParents/parentsPasswordChangeController.js",
+                  "~/Scripts/MyParents/ppanelLogoutController.js",
+                  "~/Scripts/MyParents/myParentsCalendarController.js",
+                    "~/Areas/TaskManagement/Scripts/TeacherScheduleController.js",
+                  "~/Scripts/MyParents/ppanelApp.js"
                   ));
 
             bundles.Add(new ScriptBundle("~/bundles/recruitment").Include(
