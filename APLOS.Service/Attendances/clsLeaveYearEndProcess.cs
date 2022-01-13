@@ -139,6 +139,7 @@ namespace OTSBD.clsLeave
                 //objLeaveYearEndProcessData.GetEarningDays(sPlantID, dsCalandarYearLocal.Tables[0].Rows[0]["FromDate"].ToString(), dsCalandarYearLocal.Tables[0].Rows[0]["ToDate"].ToString(), out dsAllEmpEarningDaysSummary);
                 //DataView dvAllEmpEarningDaysSummary = null;
                 //DataRow drAllEmpEarningDaysSummary = null;
+                GetCalendar(sNextYearId, out DataTable dtCalendar);
 
 
                 string EarnleaveID = string.Empty;
@@ -327,6 +328,38 @@ namespace OTSBD.clsLeave
                             //drSaveSummary["AddedFromIP"] = "::1";
                             //drSaveSummary["UpdatedFromIP"] = "::1";
                             //dsNewSummary.Tables[0].Rows.Add(drSaveSummary);
+
+
+                            _count++;
+                            drSaveSummary = dsNewSummary.Tables[0].NewRow();
+                            drSaveSummary["Id"] = "LS" + _pks + "-" + _count;
+                            drSaveSummary["EmployeeId"] = EmpSystemId;
+                            drSaveSummary["CalanderYearId"] = sNextYearId;
+                            drSaveSummary["FromDate"] = dtCalendar.Rows[0]["FromDate"].ToString();
+                            drSaveSummary["ToDate"] = dtCalendar.Rows[0]["ToDate"].ToString();
+                            drSaveSummary["PlantId"] = sPlantID;
+                            drSaveSummary["LeaveTypeId"] = LeaveTypeId;
+                            drSaveSummary["CurrentYearAllocation"] = 0;
+                            drSaveSummary["DaysCanBeSanctioned"] = 0;
+                            drSaveSummary["CurrentYearAvailedOpeningBalance"] = 0;
+                            drSaveSummary["CurrentYearEarnedDaysOpeningBalance"] = 0;
+
+                            drSaveSummary["CarryForwardOpeningBalance"] = 0;
+                            drSaveSummary["CarryForward"] = 0;
+                            drSaveSummary["BroughtForward"] = CarryForward;
+                            drSaveSummary["AppliedDays"] = 0;
+                            drSaveSummary["AvailedDays"] = 0;
+                            //drSaveSummary["PreviousYearCarryForward"] = 0;
+                            drSaveSummary["YearEndEncash"] = 0;
+                            drSaveSummary["YearEndLapse"] = 0;
+                            //drSaveSummary["YearEndEncashCumulative"] = 0;
+                            //drSaveSummary["YearEndLapseCumulative"] = 0;
+                            drSaveSummary["AddedBy"] = "Schedule";
+                            drSaveSummary["AddedDate"] = System.DateTime.Now;
+                            drSaveSummary["AddedFromIP"] = "::1";
+                            drSaveSummary["UpdatedFromIP"] = "::1";
+
+                            dsNewSummary.Tables[0].Rows.Add(drSaveSummary);
                         }
                         else
                         {
@@ -923,7 +956,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                         ISNULL( (SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
                                         INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
                                         where D.WorkDate BETWEEN SE.FromDate and SE.ToDate
-                                AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId),0) AS totalLeave 
+                                AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId  AND m.PlantID=S.PlantId ),0) AS totalLeave 
                                 from [TRN].[EmployeeLeaveSummary] S
                                 JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
                                 select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
@@ -931,7 +964,8 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                 where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
                                 AND X.ToDate<='" + ToDate + @"'
                                 ORDER BY x.FromDate DESC
-                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId ";
+                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId 
+                         WHERE SE.PlantId='" + sPlantID + @"'  ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -960,6 +994,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                 strSQL = @"SELECT EmpSystemID,LTSystemID,sum(APD.LvValue) totalLeave FROM AttdnProcessData APD
                                             where  WorkDate between '" + sFromDate + @"' and '" + sToDate + @"' 
                              and PlantID='" + sPlantID + @"'
+                            --AND apd.EmpSystemID='208458'
                           AND apd.LvValue>0
                             group by EmpSystemID,LTSystemID  ";
 
@@ -1743,6 +1778,33 @@ WHERE els.ToDate<(SELECT yc.ToDate
             }
 
         }
+        public void GetCalendar(string CalendarId, out DataTable dtCalendar)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+
+
+                strSql = @"SELECT * FROM YearlyCalendar WHERE Id='" + CalendarId + @"'";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out DataSet dsRef, false, false, "", "1");
+
+                dtCalendar = dsRef.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
+        }
 
 
 
@@ -1755,7 +1817,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                 strSQL = @"select * from [TRN].[EmployeeLeaveSummary] 
                                     where PlantId='" + plantId + @"'  
                                     and CalanderYearId = '" + calendarYearId + @"' 
-                                    ----AND EmployeeId IN (1800001)
+                                    --AND EmployeeId IN ('208458')
                                     and CompanyGroupId = '" + CompanyGroupId + @"' 
                                     and LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE EncashmentBasis='CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"'   and GroupId = '" + CompanyGroupId + @"'  )";
 

@@ -217,6 +217,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #endregion
 
+        #region Saving Functions
         public void Process(string PlantId, string month, string year)
         {
             try
@@ -260,7 +261,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw ex;
             }
         }
-
         public void EmpWiseProcess(string PlantId, string month, string year,string EmpMaster)
         {
             try
@@ -574,6 +574,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        #endregion
     }
 }
  
