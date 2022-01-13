@@ -2077,7 +2077,7 @@ namespace Aplos.HumanResource
                 string sql = "";
                 if (IsSysAdmin)
                 {
-                    sql = @"SELECT  CheckBoxSelect = Convert(bit, 'True'),
+                    sql = @"SELECT  CheckBoxSelect = Convert(bit, 'False'),
 								   EI.SystemID,EI.EmployeeCode, EI.EmployeeName,
 								   Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,
 								   Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
@@ -2113,7 +2113,7 @@ namespace Aplos.HumanResource
                 }
                 else
                 {
-                    sql = @"SELECT  CheckBoxSelect = Convert(bit, 'True'),
+                    sql = @"SELECT  CheckBoxSelect = Convert(bit, 'False'),
                                     EI.SystemID,EI.EmployeeCode, EI.EmployeeName,
                                     Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,
                                     Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs

@@ -79,6 +79,8 @@ namespace Library.ViewModel.SalesManagements
         public decimal BooksCurrencyTransactionAmount { get; set; }
         public decimal BooksCurrencyBaseRate { get; set; }
         public decimal BooksCurrencyTaxAmount { get; set; }
+        public string GoodsDescription { get; set; }
+
         public ICollection<SalesTaxViewModel> TaxList { get; set; }
 
         #region SalesMaterialSO

@@ -2868,37 +2868,35 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"DECLARE @companyId VARCHAR(10)='" + identity.CompanyId + "',@plantId VARCHAR(10)='" + identity.PlantId + @"';
-                        SELECT 
+                          SELECT 
 									distinct IM.Id as InventoryReceivedId
 									,FOBD.Id,IRDD.Id InventoryReceiveDetailId, FOBD.OpeningBalanceId,AGL.AccountCode+' - '+AGL.UserName AS AssetGLName, ACGL.AccountCode+' - '+ACGL.UserName AS AccDepreciation
 							       ,FOBD.AccumulatedDepreciationGLId,FOBD.AccumulatedDepreciationBudgetMasterId,FOBD.AccumulatedDepreciationActivityId,AB.UserName BudgetName,AC.UserName AssetActivityName,BM.BudgetCategoryId,BM.BudgetSubCategoryId,ACB.UserName ACUBudgetName
-								   ,FOBD.FixedAssetMasterId,FOBD.AssetBudgetMasterId,FOBD.AssetActivityId, FAM.UserName AS FixedAssetMasterName, FOBD.MaterialMasterId, FOBD.BaseUOMId, UOM.UserName AS BaseUoM, FOBD.AssetGLId, FOBD.AccumulatedDepreciationGLId, FOBD.CurrencyId, FOBD.Quantity,FOBD.Quantity QuantityOld
-                                    ,CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.FACompanyCurrencyRate, CC.FACompanyCurrencyAmount,CC.FACompanyCurrencyAmount FACompanyCurrencyAmountOld, ADCC.ADCompanyCurrencyRate, ADCC.ADCompanyCurrencyAmount,
+								   ,FOBD.FixedAssetMasterId,FOBD.AssetBudgetMasterId,FOBD.AssetActivityId, FAM.UserName AS FixedAssetMasterName, FOBD.MaterialMasterId MMID, FOBD.BaseUOMId, UOM.UserName AS BaseUoM, FOBD.AssetGLId, FOBD.CurrencyId, FOBD.Quantity,FOBD.Quantity QuantityOld
+                                    ,CC.CompanyCurrencyId,CC.Currency CompanyCurrency, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.FACompanyCurrencyRate, CC.FACompanyCurrencyAmount,CC.FACompanyCurrencyAmount FACompanyCurrencyAmountOld, ADCC.ADCompanyCurrencyRate, ADCC.ADCompanyCurrencyAmount,
                                     GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.FACompanyGroupCurrencyRate, GC.FACompanyGroupCurrencyAmount, ADGC.ADCompanyGroupCurrencyRate, ADGC.ADCompanyGroupCurrencyAmount,
                                     HC.HardCurrencyId, HC.HardFromCurrencyId, HC.FAHardCurrencyRate, HC.FAHardCurrencyAmount, ADHC.ADHardCurrencyRate, ADHC.ADHardCurrencyAmount
-									,CCD.DirectQuantity,CCD.FACompanyCurrencyDirectRate, CCD.FACompanyCurrencyDirectAmount
-									,CCID.InDirectQuantity,CCID.FACompanyCurrencyInDirectRate, CCID.FACompanyCurrencyInDirectAmount
-									,GCD.DirectQuantity,GCD.FACompanyGroupCurrencyDirectRate, GCD.FACompanyGroupCurrencyDirectAmount
-									,GCID.InDirectQuantity,GCID.FACompanyGroupCurrencyInDirectRate, GCID.FACompanyGroupCurrencyInDirectAmount
-									,HCD.DirectQuantity,HCD.FAHardCurrencyDirectRate, HCD.FAHardCurrencyDirectAmount
-									,HCID.InDirectQuantity,HCID.FAHardCurrencyInDirectRate, HCID.FAHardCurrencyInDirectAmount
-									,ADCCD.DirectQuantity,ADCCD.ADCompanyCurrencyDirectRate, ADCCD.ADCompanyCurrencyDirectAmount
-									,ADCCID.InDirectQuantity,ADCCID.ADCompanyCurrencyInDirectRate, ADCCID.ADCompanyCurrencyInDirectAmount
-									,ADGCD.DirectQuantity,ADGCD.ADCompanyGroupCurrencyDirectRate, ADGCD.ADCompanyGroupCurrencyDirectAmount
-									,ADGCID.InDirectQuantity,ADGCID.ADCompanyGroupCurrencyInDirectRate, ADGCID.ADCompanyGroupCurrencyInDirectAmount
-									,ADHCD.DirectQuantity,ADHCD.ADHardCurrencyDirectRate, ADHCD.ADHardCurrencyDirectAmount
-									,ADHCID.InDirectQuantity,ADHCID.ADHardCurrencyInDirectRate, ADHCID.ADHardCurrencyInDirectAmount
-									,FOBD.MaterialMasterId, MM.UserName MaterialMasterName,FOBD.ArticleId, MMA.StandardName ArticleName,FOBD.MaterialStorageId,FOBD.FirstCharacteristicsId,FOBD.FirstCharacteristicsValueId,FOBD.SecondCharacteristicsId,FOBD.SecondCharacteristicsValueId,FOBD.ThirdCharacteristicsId,FOBD.ThirdCharacteristicsValueId
-									,IR.Id InventoryReceivedId
-									,IR.MaterialStorageId
-                                    , FOBD.FirstCharacteristicsId
+									,CCD.FACompanyCurrencyDirectRate, CCD.FACompanyCurrencyDirectAmount
+									,CCID.FACompanyCurrencyInDirectRate, CCID.FACompanyCurrencyInDirectAmount
+									,GCD.FACompanyGroupCurrencyDirectRate, GCD.FACompanyGroupCurrencyDirectAmount
+									,GCID.FACompanyGroupCurrencyInDirectRate, GCID.FACompanyGroupCurrencyInDirectAmount
+									,HCD.FAHardCurrencyDirectRate, HCD.FAHardCurrencyDirectAmount
+									,HCID.FAHardCurrencyInDirectRate, HCID.FAHardCurrencyInDirectAmount
+									,ADCCD.ADCompanyCurrencyDirectRate, ADCCD.ADCompanyCurrencyDirectAmount
+									,ADCCID.ADCompanyCurrencyInDirectRate, ADCCID.ADCompanyCurrencyInDirectAmount
+									,ADGCD.ADCompanyGroupCurrencyDirectRate, ADGCD.ADCompanyGroupCurrencyDirectAmount
+									,ADGCID.ADCompanyGroupCurrencyInDirectRate, ADGCID.ADCompanyGroupCurrencyInDirectAmount
+									,ADHCD.ADHardCurrencyDirectRate, ADHCD.ADHardCurrencyDirectAmount
+									,ADHCID.ADHardCurrencyInDirectRate, ADHCID.ADHardCurrencyInDirectAmount
+									,FOBD.MaterialMasterId, MM.UserName MaterialMasterName,FOBD.ArticleId, MMA.StandardName ArticleName,FOBD.MaterialStorageId,FOBD.FirstCharacteristicsId,FOBD.FirstCharacteristicsValueId,FOBD.SecondCharacteristicsId,FOBD.SecondCharacteristicsValueId
+									
 									, FC.UserName AS FirstCharacteristics
-									, FOBD.FirstCharacteristicsValueId
+									
 									, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 
-									, FOBD.SecondCharacteristicsId
+									
 									, FC.UserName AS SecondCharacteristics
-									, FOBD.SecondCharacteristicsValueId
+									
 									, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 
 									, FOBD.ThirdCharacteristicsId
@@ -2926,10 +2924,11 @@ namespace Aplos.Areas.Accounts.Controllers
 									LEFT JOIN HKP.CharacteristicsValue AS SCV ON FOBD.SecondCharacteristicsValueId=SCV.Id
 									LEFT JOIN HKP.CharacteristicsValue AS TCV ON FOBD.ThirdCharacteristicsValueId=TCV.Id
                                     LEFT OUTER JOIN (
-	                                    SELECT OBDC.ParallelCurrencyId AS CompanyCurrencyId, OBDC.FromCurrencyId AS CompanyFromCurrencyId, OBDC.ToCurrencyId,
+	                                     SELECT OBDC.ParallelCurrencyId AS CompanyCurrencyId, OBDC.FromCurrencyId AS CompanyFromCurrencyId, OBDC.ToCurrencyId,c.Code Currency,
 	                                    OBDC.ToCurrencyRate AS FACompanyCurrencyRate, OBDC.Amount AS FACompanyCurrencyAmount, OBDC.MaterialMasterOpeningBalanceDetailId
 	                                    FROM [TRN].[MaterialMasterOpeningBalanceDetailCurrency] AS OBDC
 	                                    INNER JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=OBDC.ParallelCurrencyId
+	                                    LEFT JOIN scs.Currency AS c ON c.Id=cpc.CurrencyId
 	                                    WHERE OBDC.GLType='FA' AND CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                                     ) AS CC ON CC.MaterialMasterOpeningBalanceDetailId=FOBD.Id
                                     LEFT OUTER JOIN (
@@ -3072,18 +3071,38 @@ namespace Aplos.Areas.Accounts.Controllers
 									Left join trn.InventoryMaterial IM ON IM.Id=IRDD.InventoryMaterialId
 									WHERE FOB.CompanyId=@companyId AND FOB.PlantId=@plantId AND FOB.Id='" + OpenningBalanceId + "'  Order BY FOBD.Id ASC";
         }
+
+        private string OpenningBalanceHeaderSql(string OpenningBalanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT OB.Id, OB.CompanyGroupId, OB.CompanyId, OB.PlantId, OB.EntityId, E.UserName AS EntityName, OB.VoucherId, VD.VoucherNo, OB.EmployeeTransactionTypeId,
+OB.FinancingTypeId,
+                                OB.SourceType, OB.PartyType,FORMAT( OB.PostingDate,'dd-MMM-yyyy') PostingDate, FORMAT( OB.DocDate,'dd-MMM-yyyy') DocDate
+                                ,CASE WHEN OB.IsFinancial=0 THEN 'No' ELSE 'Yes' END FinancialImplication , OB.DocRefNo, OB.Narration, OB.IsPark, OB.IsPosted, OB.[AddedBy], OB.[AddedDate], OB.[AddedFromIP]
+                                , X.Amount,OB.MaterialStorageId,MS.UserName MaterialStorage
+                                FROM [TRN].[OpeningBalance] AS OB
+								LEFT JOIN [TRN].[Voucher] AS VD ON VD.Id=OB.VoucherId
+                                LEFT JOIN [ORG].[Entity] AS E ON E.Id=OB.EntityId
+                                LEFT JOIN  [HKP].[MaterialStorage] MS ON MS.Id=ob.MaterialStorageId
+                                LEFT JOIN( SELECT OBDC.OpeningBalanceId, SUM(OBDC.Amount) AS Amount FROM [TRN].[MaterialMasterOpeningBalanceDetailCurrency] AS OBDC
+								INNER JOIN [ORG].[Company] AS C ON C.BaseCurrencyId=OBDC.ParallelCurrencyId
+	WHERE OBDC.GLType='FA' AND C.Id='" + identity.CompanyId + @"'
+                                GROUP BY OBDC.OpeningBalanceId
+								) AS X ON X.OpeningBalanceId=OB.Id
+                                WHERE OB.Archive=0 AND OB.SourceType='MaterialMaster' AND OB.CompanyGroupId='" + identity.CompanyGroupId +@"' AND OB.CompanyId='" + identity.CompanyId +@"' AND OB.PlantId='" + identity.PlantId +@"'
+                                AND ob.Id = '"+ OpenningBalanceId +@"'";
+        }
         public void CreatMaterialMasterOpenningBalanceReport(string OpenningBalanceId)
         {
             try
             {
                 var reportUtility = new ReportUtility();
 
-                //string HeaderSql = PIMasterSql(PIMasterId);
+                string HeaderSql = OpenningBalanceHeaderSql(OpenningBalanceId);
                 string MMOBRSql = OpenningBalanceSql(OpenningBalanceId);
-                //string TermsAndConditionSql = TCSql(PIMasterId);
-
                 //Instantiate the Excel application object
-               // DataTable dtHeader = _sqlRepository.GetDataTable(HeaderSql);
+
+                DataTable dtHeader = _sqlRepository.GetDataTable(HeaderSql);
                 DataTable dtOpenningBalance = _sqlRepository.GetDataTable(MMOBRSql);
               //  DataTable dtTermsAndConditions = _sqlRepository.GetDataTable(TermsAndConditionSql);
                 if (dtOpenningBalance.Rows.Count == 0)
@@ -3101,130 +3120,144 @@ namespace Aplos.Areas.Accounts.Controllers
                 int ROW = 6;
                 int COL = 1;
 
-                //#region Header
+                #region Header
 
-                //int StartRow = ROW;
-                //sheet[ROW, COL].Text = "PI No.:";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //int colPINo = COL;
-                //ROW++;
-                //sheet[ROW, COL].Text = "Date :";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //int colDate = COL;
-                //ROW++;
-                //sheet[ROW, COL].Text = "PI REF# :";
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //int colPIRef = COL;
-                //ROW++;
-                //sheet[ROW, COL].Text = "Customer :";
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //int colCustomer = COL;
-                //ROW++;
-                //sheet[ROW, COL].Text = "Address :";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //int colDeliveryByAddress = COL;
-                //ROW = StartRow;
-                //COL = 5;
-                //sheet[ROW, COL].Text = "Version No.:";
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //int colLastVersion = COL;
-                //ROW++;
-                //sheet[ROW, COL].Text = "Currency :";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //int colCurrency = COL;
-                //ROW++;
-                //sheet[ROW, COL].Text = "Buyer :";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //int colBuyer = COL;
-                //ROW++;
-                //sheet[ROW, COL].Text = "Shipping Mark:";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //sheet[ROW, COL].CellStyle.Font.Bold = true;
-                //int colShippingMark = COL;
-                //ROW = StartRow;
+                int StartRow = ROW;
+                sheet[ROW, COL].Text = "Posting Date:";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colPostingDate = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Doc Ref#:";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colDocRef = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Storage Location:";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colStorageLocation  = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Narration :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colNarration = COL;
+                ROW = StartRow;
+                COL =6;
+                sheet[ROW, COL].Text = "Doc Date :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colDocDate = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Entity :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colEntity = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Financial Implication :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colFinancialImplication = COL;
 
-                //// Headerdata
-                //ROW = 6;
-                //sheet[ROW, colPINo + 1].Text = dtHeader.Rows[0]["PINo"].ToString();
-                //ROW++;
+                sheet.Range[StartRow, colDocDate, StartRow, colDocDate + 1].Merge();
+                sheet.Range[StartRow+1, colEntity, StartRow+1, colFinancialImplication + 1].Merge();
+                sheet.Range[StartRow+2, colFinancialImplication, StartRow+2, colFinancialImplication + 1].Merge();
+                
 
-                //sheet[ROW, colDate + 1].Text = dtHeader.Rows[0]["PIDate"].ToString();
-                //ROW++;
+                // Headerdata
+                ROW = 6;
+                sheet[ROW, colPostingDate + 1].Text = dtHeader.Rows[0]["PostingDate"].ToString();
+                ROW++;
 
-                //sheet[ROW, colPIRef + 1].Text = dtHeader.Rows[0]["RefNo"].ToString();
-                //ROW++;
+                sheet[ROW, colDocRef + 1].Text = dtHeader.Rows[0]["DocRefNo"].ToString();
+                ROW++;
 
-                //sheet[ROW, colCustomer + 1].Text = dtHeader.Rows[0]["Customer"].ToString();
-                //ROW++;
+                sheet[ROW, colStorageLocation + 1].Text = dtHeader.Rows[0]["MaterialStorage"].ToString();
+                ROW++;
 
-                //sheet[ROW, colDeliveryByAddress + 1].Text = dtHeader.Rows[0]["DeliveryByAddress"].ToString(); ;
-                //ROW = StartRow;
+                sheet[ROW, colNarration + 1].Text = dtHeader.Rows[0]["Narration"].ToString();
+                ROW = StartRow;
 
-                //sheet[ROW, colLastVersion + 1].Text = dtHeader.Rows[0]["LastVersion"].ToString();
-                //ROW++;
+                sheet[ROW, colDocDate + 2].Text = dtHeader.Rows[0]["DocDate"].ToString();
+                ROW++;
 
-                //sheet[ROW, colCurrency + 1].Text = dtHeader.Rows[0]["Currency"].ToString();
-                //ROW++;
-                //sheet[ROW, colBuyer + 1].Text = dtHeader.Rows[0]["Buyer"].ToString();
+                sheet[ROW, colEntity + 2].Text = dtHeader.Rows[0]["EntityName"].ToString();
+                ROW++;
 
-                //ROW++;
-                //sheet[ROW, colShippingMark + 1].Text = dtHeader.Rows[0]["ShippingMark"].ToString();
-                //ROW = StartRow;
-                //// sheet[ROW, colBankCurrency + 1].Text = dtBank.Rows[0]["CurrencyCode"].ToString();
+                sheet[ROW, colFinancialImplication + 2].Text = dtHeader.Rows[0]["FinancialImplication"].ToString();
+                ROW = StartRow;
+            
 
-                //sheet.Range[StartRow, colPINo + 1, StartRow, colPINo + 3].Merge();
-                //sheet.Range[StartRow + 1, colDate + 1, StartRow + 1, colDate + 3].Merge();
-                //sheet.Range[StartRow + 2, colPIRef + 1, StartRow + 2, colPIRef + 3].Merge();
-                //sheet.Range[StartRow, colLastVersion + 1, StartRow, colLastVersion + 2].Merge();
-                //sheet.Range[StartRow + 1, colCurrency + 1, StartRow + 1, colCurrency + 2].Merge();
-                //sheet.Range[StartRow + 2, colBuyer + 1, StartRow + 2, colBuyer + 2].Merge();
-                //sheet.Range[StartRow + 3, colCustomer + 1, StartRow + 3, colCustomer + 3].Merge();
-                //sheet.Range[StartRow + 3, colShippingMark + 1, StartRow + 3, colShippingMark + 2].Merge();
-                //sheet.Range[StartRow + 4, colDeliveryByAddress + 1, StartRow + 4, colDeliveryByAddress + 6].Merge();
-                //sheet.Range[StartRow, colPINo, 11, colPINo + 6].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
+                sheet.Range[StartRow, colPostingDate + 1, StartRow, colPostingDate + 4].Merge();
+                sheet.Range[StartRow+1, colDocRef + 1, StartRow+1, colDocRef + 4].Merge();
+                sheet.Range[StartRow+2, colStorageLocation + 1, StartRow+2, colStorageLocation + 4].Merge();
+                sheet.Range[StartRow+3, colNarration +1, StartRow+3, colNarration + 4].Merge();
+                sheet.Range[StartRow, colDocDate + 2, StartRow, colDocDate + 6].Merge();
+                sheet.Range[StartRow + 1, colEntity + 2, StartRow + 1, colEntity + 6].Merge();
+                sheet.Range[StartRow + 2, colFinancialImplication + 2, StartRow+2, colFinancialImplication + 6].Merge();
 
-                //ROW = 12;
-                //COL = 1;
-                //#endregion
-                sheet[ROW, COL].Text = "Description";
-                sheet[ROW, COL].ColumnWidth = 30;
-                int colDescription = COL;
+
+                sheet.Range[StartRow, colPostingDate, StartRow+4, colFinancialImplication + 6].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
+
+                ROW = 11;
+                COL = 1;
+                #endregion
+                sheet[ROW, COL].Text = "Material Master";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colMaterialMaster = COL;
                 COL++;
-                sheet[ROW, COL].Text = "HSN Code";
+                sheet[ROW, COL].Text = "Article Name";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colArticleName = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sku1";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int colSku1 = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sku2";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int colSku2 = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sku3";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int colSku3 = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Quantity";
                 sheet[ROW, COL].ColumnWidth = 12;
-                int colHSNCode = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Qty";
-                sheet[ROW, COL].ColumnWidth = 18;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colQty = COL;
+                int colQuantity = COL;
                 COL++;
                 sheet[ROW, COL].Text = "UoM";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int colUoM = COL;
+                sheet[ROW, COL].ColumnWidth = 7;
+                int colBaseUoM = COL;
+                
                 COL++;
-                sheet[ROW, COL].Text = "Delivery Date";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int colDeliveryDate = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Rate.";
-                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colRate = COL;
+                int colAmount = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colCurrency = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Lot Number";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colLotNumber = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Diameter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colDiameter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Type";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colType = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Total Amount";
-                sheet[ROW, COL].ColumnWidth = 20;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colTotalAmount = COL;
+                //sheet[ROW, COL].Text = "Total Amount";
+                //sheet[ROW, COL].ColumnWidth = 20;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colTotalAmount = COL;
 
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
@@ -3233,25 +3266,27 @@ namespace Aplos.Areas.Accounts.Controllers
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 ROW++;
 
-              int  StartRow = ROW; //row 20
+                StartRow = ROW; //row 20
                 for (int i = 0; i < dtOpenningBalance.Rows.Count; i++)
                 {
-                    sheet[ROW, colDescription].Text = dtOpenningBalance.Rows[i]["Description"].ToString();
-                    sheet[ROW, colHSNCode].Text = dtOpenningBalance.Rows[i]["HSNCode"].ToString();
+                    sheet[ROW, colMaterialMaster].Text = dtOpenningBalance.Rows[i]["MaterialMasterName"].ToString();
+                    sheet[ROW, colArticleName].Text = dtOpenningBalance.Rows[i]["ArticleName"].ToString();
+                    sheet[ROW, colSku1].Text = dtOpenningBalance.Rows[i]["FirstCharacteristicsValue"].ToString();
+                    sheet[ROW, colSku2].Text = dtOpenningBalance.Rows[i]["SecondCharacteristicsValue"].ToString();
+                    sheet[ROW, colSku3].Text = dtOpenningBalance.Rows[i]["ThirdCharacteristicsValue"].ToString();
 
-                    sheet[ROW, colQty].Number = clsStaticInfo.dbl(dtOpenningBalance.Rows[i]["Quantity"].ToString());
-                    sheet[ROW, colQty].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colQuantity].Number = clsStaticInfo.dbl(dtOpenningBalance.Rows[i]["Quantity"].ToString());
+                    sheet[ROW, colQuantity].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    sheet[ROW, colUoM].Text = dtOpenningBalance.Rows[i]["UoM"].ToString();
-                    sheet[ROW, colDeliveryDate].Text = dtOpenningBalance.Rows[i]["DeliveryDate"].ToString();
+                    sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtOpenningBalance.Rows[i]["FACompanyCurrencyAmount"].ToString());
+                    sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colCurrency].Text = dtOpenningBalance.Rows[i]["CompanyCurrency"].ToString();
+                    sheet[ROW, colDiameter].Text = dtOpenningBalance.Rows[i]["Diameter"].ToString();
+                    sheet[ROW, colLotNumber].Text = dtOpenningBalance.Rows[i]["LotNumber"].ToString();
+                    sheet[ROW, colType].Text = dtOpenningBalance.Rows[i]["Type"].ToString();
+                    sheet[ROW, colBaseUoM].Text = dtOpenningBalance.Rows[i]["BaseUoM"].ToString();
+                    
 
-                    sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtOpenningBalance.Rows[i]["Rate"].ToString());
-                    sheet[ROW, colRate].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    sheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dtOpenningBalance.Rows[i]["Amount"].ToString());
-                    sheet[ROW, colTotalAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colQty) + ROW + "*" + reportUtility.GetColumnNameForXls(colRate) + (ROW) + ")";
-
-                    sheet[ROW, colTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -3260,9 +3295,9 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 sheet[ROW, 1].Text = "Total :";
                 sheet[ROW, 1].CellStyle.Font.Bold = true;
-                int colTotal = COL;
+                int colTotal = colAmount;
 
-                sheet.Range[ROW, colTotal].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTotalAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colTotalAmount) + (ROW - 1) + ")";
+                sheet.Range[ROW, colTotal].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + (ROW - 1) + ")";
                 //sheet.Range[ROW, colTotal].NumberFormat = clsStaticInfo.NumberFormat(2);
                 //sheet[ROW, colTotal].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[ROW, 1, ROW, colTotal - 1].Merge();
