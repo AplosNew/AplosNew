@@ -983,7 +983,7 @@ namespace Library.Service.Banks
             }
         }
 
-        public IWorkbook GetBankLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string bankMasterId, string fromDate, string toDate)
+        public IWorkbook GetBankLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string bankMasterId, string fromDate, string toDate, bool extended)
         {
             try
             {
@@ -1055,6 +1055,7 @@ namespace Library.Service.Banks
                 {
                     reportUtility.SetHeaderText(ref sheet, row, colLast, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                     sheet.Range[reportUtility.GetColumnNameForXls(colLast) + row + ":" + reportUtility.GetColumnNameForXls(10) + row].Merge();
+                    sheet.Range[row, 8, row, 10].BorderAround(ExcelLineStyle.Thin);
                     colLast = 11;
                 }
 
