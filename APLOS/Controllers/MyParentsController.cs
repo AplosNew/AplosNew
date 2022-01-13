@@ -80,7 +80,7 @@ namespace Aplos.Controllers
 				Dictionary<string, object> empProfile = new Dictionary<string, object>();
 				empProfile = _sqlRepository.GetDataCollection("select * from ParentsInformation where id='" + ViewBag.EmployeeId + "'")[0];
 
-				ViewBag.EmpPicPath = empProfile["EmpPicPath"].ToString();
+				//ViewBag.EmpPicPath = empProfile["EmpPicPath"].ToString();
 
 				return View();
 			}
