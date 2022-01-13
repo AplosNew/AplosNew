@@ -2278,6 +2278,17 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
 
         }
     }
+
+    $scope.LadderPlanStatus = function () {
+        var reportFormat = "Excel";
+        try {
+            var file_src = 'OrderManagements/productionOrderReports/LadderPlanStatus?reportFormat=' + reportFormat + '&entityid=' + $scope.EntityId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
     ////////////////////////CONTINUOUS SNAPSHOT//////////////////////////////////
 
     $scope.snapshotmaster2 = { ID: null, EntityID: null, ProcessID: null, SnapshotName: null, SnapshotDesc: null, SnapshotTakenBy: null };
