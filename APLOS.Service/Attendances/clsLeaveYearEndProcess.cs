@@ -956,7 +956,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                         ISNULL( (SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
                                         INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
                                         where D.WorkDate BETWEEN SE.FromDate and SE.ToDate
-                                AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId),0) AS totalLeave 
+                                AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId  AND m.PlantID=S.PlantId ),0) AS totalLeave 
                                 from [TRN].[EmployeeLeaveSummary] S
                                 JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
                                 select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
@@ -964,7 +964,8 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                 where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
                                 AND X.ToDate<='" + ToDate + @"'
                                 ORDER BY x.FromDate DESC
-                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId ";
+                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId 
+                         WHERE SE.PlantId='" + sPlantID + @"'  ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -993,6 +994,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                 strSQL = @"SELECT EmpSystemID,LTSystemID,sum(APD.LvValue) totalLeave FROM AttdnProcessData APD
                                             where  WorkDate between '" + sFromDate + @"' and '" + sToDate + @"' 
                              and PlantID='" + sPlantID + @"'
+                            --AND apd.EmpSystemID='208458'
                           AND apd.LvValue>0
                             group by EmpSystemID,LTSystemID  ";
 
@@ -1815,7 +1817,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                 strSQL = @"select * from [TRN].[EmployeeLeaveSummary] 
                                     where PlantId='" + plantId + @"'  
                                     and CalanderYearId = '" + calendarYearId + @"' 
-                                    ----AND EmployeeId IN (1800001)
+                                    --AND EmployeeId IN ('208458')
                                     and CompanyGroupId = '" + CompanyGroupId + @"' 
                                     and LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE EncashmentBasis='CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"'   and GroupId = '" + CompanyGroupId + @"'  )";
 
