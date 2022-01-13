@@ -31,6 +31,7 @@ using Library.Service.Productions.ProductionBooking;
 using System.Text.RegularExpressions;
 using Syncfusion.Pdf.Parsing;
 using Library.OrderManagement.Production;
+using Library.Model.Enums;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
@@ -3075,7 +3076,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
                 sheet.IsGridLinesVisible = false;
 
-                
+
 
                 //#endregion ******************Report Header******************
 
@@ -4467,7 +4468,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].Text = "Shift";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colShift = COL;
-                
+
                 COL++;
                 sheet[ROW, COL].Text = "Date";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -4743,7 +4744,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
             }
 
         }
-       
+
 
         [HttpGet, Authorize]
         public ActionResult OS1xls(string entityid)
@@ -5754,7 +5755,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
             //                WHERE os.Id='"+ Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' AND mo.EntityId='" + entityid + @"'
             //ORDER BY b.UserName,so.DeliveryDate,POD.ProductionOrderId,SO.ID";
-            
+
 
             string sql = @" SELECT trkp.UserName AS Plant,trke.UserName AS Entity,trke.Id as EntityId,so.Id AS SalesOrderId, b.UserName AS Buyer,ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,mm.UserName AS Material,
                            OC.UserName AS OrderCategory,os.UserName AS OrderStatus,   MA.StandardName AS Article,                   
@@ -7263,6 +7264,326 @@ TNA.SONo, TNA.PRNo
             return null;
         }
 
+
+        [HttpGet, Authorize]
+        
+        public ActionResult LadderPlanStatus(ReportFormat reportFormat, string entityid)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "Ladder Plan";
+            var workbook = LadderPlanStatusFile(entityid);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+            }
+        }
+
+      
+
+
+        private IWorkbook LadderPlanStatusFile(string entityid)
+        {
+
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            sheet.Name = "LadderPlan";
+
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+
+            DataTable data = getLadderPlanStatusQuery(entityid);
+
+
+            #region Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "PR No", 10, ExcelHAlign.HAlignLeft);
+            int colPRNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Date", 20, ExcelHAlign.HAlignLeft);
+            int colDate = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Work Center", 10, ExcelHAlign.HAlignLeft);
+            int colWorkCenter = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Plan Target", 12, ExcelHAlign.HAlignRight);
+            int colPlanTarget = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Plan Cumilative / Day", 12, ExcelHAlign.HAlignRight);
+            int colPlanCumilativeDay = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Plan Cumilative", 12, ExcelHAlign.HAlignRight);
+            int colPlanCumilative = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Production Quantity", 12, ExcelHAlign.HAlignRight);
+            int colProductionQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Production Cumilative / Day", 12, ExcelHAlign.HAlignRight);
+            int colProductionCumilativeDay = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Production Cumilative", 12, ExcelHAlign.HAlignRight);
+            int colProductionCumilative = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Diff", 12, ExcelHAlign.HAlignRight);
+            int colDiff = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 12, ExcelHAlign.HAlignRight);
+            int colCustomer = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Master Order No", 10, ExcelHAlign.HAlignRight);
+            int colMasterOrderNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer", 12, ExcelHAlign.HAlignRight);
+            int ColBuyer = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer Order No", 10, ExcelHAlign.HAlignRight);
+            int colBuyerOrderNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Own Order No", 12, ExcelHAlign.HAlignRight);
+            int colOwnOrderNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer Line Item", 12, ExcelHAlign.HAlignRight);
+            int colBuyerLineItem = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Own Line Item", 12, ExcelHAlign.HAlignRight);
+            int colOwnLineItem = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SO Ids", 10, ExcelHAlign.HAlignLeft);
+            int colSalesOrderIds = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PONo", 12, ExcelHAlign.HAlignLeft);
+            int colPONo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SO Qty", 12, ExcelHAlign.HAlignRight);
+            int colSOQty = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Plan Qty", 12, ExcelHAlign.HAlignRight);
+            int colPlanQty = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Total Production", 12, ExcelHAlign.HAlignRight);
+            int colTotalProduction = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignRight);
+            int colRemarks = COL;
+
+            endCol = COL;
+            #endregion Headers
+
+            var startRow = 0;
+
+            int RowIndex = ROW;
+            startRow = ROW;
+            ROW++;
+            
+
+            //var PrO = data.Rows[0]["PRNo"].ToString();
+            //var date = data.Rows[0]["Date"].ToString();
+            int StartRow = ROW;
+            int LastRow = ROW + (data.Rows.Count - 1);
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, colPRNo].Text = data.Rows[i]["PRNo"].ToString();
+                sheet[ROW, colDate].Text = GetDate(data.Rows[i]["Date"].ToString());
+                sheet[ROW, colWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
+
+                sheet[ROW, colPlanTarget].Number = clsStaticInfo.dbl(data.Rows[i]["PlanTarget"].ToString());
+                sheet[ROW, colPlanTarget].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colPlanTarget].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colPlanTarget].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                sheet[ROW, colPlanCumilativeDay].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPlanTarget) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colDate) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + ")";
+                sheet[ROW, colPlanCumilativeDay].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colPlanCumilativeDay].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colPlanCumilativeDay].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                sheet[ROW, colPlanCumilative].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPlanTarget) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ")";
+                sheet[ROW, colPlanCumilative].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colPlanCumilative].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colPlanCumilative].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, colProductionQty].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionQuantity"].ToString());
+                sheet[ROW, colProductionQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colProductionQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colProductionQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //SUMIFS($H$3:H14,$B$3:B14, B14,$C$3:C14, C14)
+                sheet[ROW, colProductionCumilativeDay].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colProductionQty) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colProductionQty) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colDate) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + ")";
+                sheet[ROW, colProductionCumilativeDay].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colProductionCumilativeDay].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colProductionCumilativeDay].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //SUMIFS($H$3:H14,$B$3:B14,B14)
+                sheet[ROW, colProductionCumilative].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colProductionQty) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colProductionQty) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() +")";
+                sheet[ROW, colProductionCumilative].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colProductionCumilative].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colProductionCumilative].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                //SUMIFS($E$3:E14,$B$3:B14, B14,$C$3:C14, C14)
+                sheet[ROW, colDiff].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colPlanTarget) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colProductionQty) + ROW.ToString() + ")";
+                sheet[ROW, colDiff].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colDiff].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colDiff].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
+                sheet[ROW, colMasterOrderNo].Text = data.Rows[i]["MasterOrderNo"].ToString();
+                sheet[ROW, ColBuyer].Text = data.Rows[i]["Buyer"].ToString();
+                sheet[ROW, colBuyerOrderNo].Text = data.Rows[i]["BuyerOrder"].ToString();
+                sheet[ROW, colOwnOrderNo].Text = data.Rows[i]["OwnOrder"].ToString();
+                sheet[ROW, colBuyerLineItem].Text = data.Rows[i]["BuyerItem"].ToString();
+                sheet[ROW, colOwnLineItem].Text = data.Rows[i]["OwnItem"].ToString();
+                sheet[ROW, colSalesOrderIds].Text = data.Rows[i]["SOId"].ToString();
+                sheet[ROW, colPONo].Text = data.Rows[i]["PONo"].ToString();
+
+                sheet[ROW, colSOQty].Number = clsStaticInfo.dbl(data.Rows[i]["SOQty"].ToString());
+                sheet[ROW, colSOQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colSOQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colSOQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //SUMIFS($E$3:$E$14,$B$3:$B$14,B3)
+                sheet[ROW, colPlanQty].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + StartRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ")";
+                sheet[ROW, colPlanQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colPlanQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colPlanQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //SUMIFS($H$3:$H$14,$B$3:$B$14,B3)
+                sheet[ROW, colTotalProduction].Formula = "SUMIFS($"+clsStaticInfo.GetxlsCol(colProductionQty)+ "$"+ StartRow.ToString()+":$" + clsStaticInfo.GetxlsCol(colProductionQty) + "$"+ LastRow.ToString()+",$"+clsStaticInfo.GetxlsCol(colPRNo)+"$" + StartRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ")";
+                sheet[ROW, colTotalProduction].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, colTotalProduction].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, colTotalProduction].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, colRemarks].Text = data.Rows[i]["Remarks"].ToString();
+
+                sheet[ROW, colRemarks].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.NumberFormat = "#,##0.00";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            report.CompanyHeader(ref sheet, endCol, "Ladder Plan", identity.CompanyId);
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+
+        public DataTable getLadderPlanStatusQuery(string entityid)
+        {
+            try
+            {
+
+                string strSQL = string.Empty;
+                strSQL = @"select PPL.*,POS.Quantity AS ProductionQuantity,P.UserName Customer,MO.MasterOrderNo,B.UserName Buyer,SO.Id SOId,PO.Id PONo,SO.Qty SOQty,POS.Remarks
+        							,BuyerOrder = REPLACE(REPLACE(
+        										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+        																			trn.MasterOrder XMOI 	 
+        								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+        								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+        								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+        							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+        								                		,'&amp;','&'), 'amp;', '')
+                                        ,OwnOrder =REPLACE(REPLACE(
+        										 STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+        																			trn.MasterOrder XMOI 	 
+        								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+        								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+        								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+        							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+        									                	,'&amp;','&'), 'amp;', '')
+        							 ,BuyerItem=REPLACE(REPLACE(
+        										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+        																			trn.MasterOrderItem XMOI 	  
+        								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+        								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+        							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+        										                ,'&amp;','&'), 'amp;', '')	                                                
+                                      ,OwnItem=REPLACE(REPLACE(
+        										STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+        																			trn.MasterOrderItem XMOI 	  
+        								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+        								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+        							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+        										,'&amp;','&'), 'amp;', '')	 
+
+
+
+        from (select PPT.ProductionOrderID PRNo,PPT.EntityID,PPT.ProductionDate [Date]
+        				,ppt.WorkCenterMasterId,WCM.UserName WorkCenter,SUM(PPT.Quantity) [PlanTarget]
+        				from ProductionPlanningType1 PPT
+        				left join SCS.WorkCenterMaster WCM on WCM.Id=PPT.WorkCenterMasterId
+        				group by PPT.ProductionOrderID ,ppt.WorkCenterMasterId,PPT.ProductionDate,WCM.UserName,PPT.EntityID
+        				union all
+        				select PPS.ProductionOrderID PRNo,PPS.EntityID,PPS.ProductionDate [Date],pps.WorkCenterMasterId,WCM.UserName WorkCenter
+        				,SUM(PPS.Quantity) [PlanTarget]
+        				from ProductionPlanningSnapshot2Type1 PPS
+        				left join SCS.WorkCenterMaster WCM on WCM.Id=PPS.WorkCenterMasterId
+        				group by PPS.ProductionOrderID ,PPS.ProductionDate ,pps.WorkCenterMasterId,WCM.UserName,PPS.EntityID
+        				) PPL 
+        				Left join (select ps.ProductionOrderId PRNo,ps.ProductionDate,ps.WorkCenterMasterId,sum(ps.Quantity) Quantity,ps.Remarks  from trn.ProductionSummary ps 
+        				group by ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.Remarks
+        				) POS on POS.PRNo=PPL.PRNo and pos.ProductionDate=ppl.Date and pos.WorkCenterMasterId=ppl.WorkCenterMasterId
+        				left join TRN.PurchaseOrder PO on PO.Id=POS.PRNo
+        				left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
+        				left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId
+        				left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+        				left join TRN.MasterOrder MO on MO.Id=MOI.MasterOrderId
+        				left join HKP.Party P on P.Id=MO.PartyId
+        				left join HKP.Buyer B on B.Id=MO.BuyerId
+
+
+        				where PPL.EntityID='" + entityid + @"'
+
+        			order by pod.ProductionOrderId,PPL.Date";
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
 
         private class fields
         {

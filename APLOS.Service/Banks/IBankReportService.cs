@@ -11,7 +11,7 @@ namespace Library.Service.Banks
 
         IWorkbook GetBankOpeningBalanceLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string fiscalYearId, bool isCompanyCurrency);
 
-        IWorkbook GetBankLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string bankMasterId, string fromDate, string toDate);
+        IWorkbook GetBankLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string bankMasterId, string fromDate, string toDate, bool extended);
         IWorkbook GetBankReconcileReport(string companyGroupId, string companyId, string plantId, string plantName, string bankMasterId, string fromDate, string toDate);
         IWorkbook xGetBankLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string bankMasterId, string fromDate, string toDate);
 

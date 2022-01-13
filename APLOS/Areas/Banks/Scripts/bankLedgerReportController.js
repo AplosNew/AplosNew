@@ -7,6 +7,7 @@ function bankLedgerReportController($scope, $rootScope, $filter, bankService, $w
         BankMasterId: null,
         ReportFormat: "Pdf",
         OrganizationType: "Plant",
+        Extended: false,
         FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now())
     };
@@ -63,11 +64,11 @@ function bankLedgerReportController($scope, $rootScope, $filter, bankService, $w
         }
         else {
             if ($scope.report.OrganizationType === "Company") {
-                var url = "Banks/BankReport/GetBankLedgerReportCompanyLevel?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&bankMasterId=" + $scope.report.BankMasterId;
+                var url = "Banks/BankReport/GetBankLedgerReportCompanyLevel?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&bankMasterId=" + $scope.report.BankMasterId + "&extended=" + $scope.report.Extended;
                 $window.open(url, "_blank");
             }
             else {
-                var url = "Banks/BankReport/GetBankLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&bankMasterId=" + $scope.report.BankMasterId;
+                var url = "Banks/BankReport/GetBankLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&bankMasterId=" + $scope.report.BankMasterId + "&extended=" + $scope.report.Extended;
                 $window.open(url, "_blank");
             }
             

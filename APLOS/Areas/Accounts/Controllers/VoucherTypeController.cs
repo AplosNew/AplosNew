@@ -92,7 +92,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             if (!string.IsNullOrEmpty(id))
             {
-                _voucherTypeService.Archive(id);
+                _voucherTypeService.Delete(id);
                 return Json(new { Sequence = _voucherTypeService.GetAutoSequence(), Message = AplosMessage.Deleted });
             }
             else
