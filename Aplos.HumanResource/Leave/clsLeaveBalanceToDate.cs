@@ -911,7 +911,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
             {
                 string _FromDate = string.Empty;
                 string _ToDate = string.Empty;
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
                 // var esic = GetESICEligibleEmployee(EmpSystemID);
                 var dsCalYear = GetCalYearInfo(calYearId);
                 if (dsCalYear.Tables[0].Rows.Count > 0)
@@ -921,7 +921,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                 }
                 else
                 {
-
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                     DataTable dtCalendar = _sqlRepository.GetDataTable("select * from YearlyCalendar where YearNo=" + DateTime.Now.Year.ToString() + @" AND PlantId='" + identity.PlantId + "'");
                     if (dtCalendar.Rows.Count > 0)
                     {
@@ -951,7 +951,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 								  JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=dmc.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
                                 LEFT JOIN LeaveType AS lt ON lt.Id=lpd.LTSystemID
                                 WHERE  '" + _FromDate + @"' BETWEEN L.FromDate AND L.ToDate
-                                 AND ei.SystemId='" + EmployeeSystemId + @"' AND L.PlantId='" + identity.PlantId + @"'
+                                 AND ei.SystemId='" + EmployeeSystemId + @"'
                                 
                                 UNION ALL
 
@@ -968,7 +968,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                  JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=apd.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
                                 WHERE 
                                 apd.WorkDate BETWEEN '" + _FromDate + @"' AND '" + _ToDate + @"'
-                                AND ei.SystemId='" + EmployeeSystemId + @"' AND APD.PlantId='" + identity.PlantId + @"'
+                                AND ei.SystemId='" + EmployeeSystemId + @"' 
 								) AS BAL
 								GROUP BY BAL.EmployeeId, BAL.LeaveTypeId
 								
@@ -990,12 +990,12 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                 SELECT T.EmpSystemID,T.LTSystemID,SUM(D.LeaveDuration) AS LeaveDuration FROM LeaveTransaction AS T
                                 JOIN LeaveTransactionDetails AS D ON d.LvTrnsSystemID=t.SystemID
                                 WHERE D.WorkDate>GETDATE() AND D.WorkDate<='" + _ToDate + @"'
-                                AND T.IsApproved=1 AND t.PlantID='" + identity.PlantId + @"'  GROUP BY  T.EmpSystemID,T.LTSystemID
+                                AND T.IsApproved=1 GROUP BY  T.EmpSystemID,T.LTSystemID
                     ) APL ON apl.EmpSystemID=B.EmployeeId AND apl.LTSystemID=B.LeaveTypeId
                     LEFT JOIN (
                                 SELECT T.EmpSystemID,T.LTSystemID,SUM(D.LeaveDuration) AS LeaveDuration FROM LeaveTransaction AS T
                                 JOIN LeaveTransactionDetails AS D ON d.LvTrnsSystemID=t.SystemID
-                                WHERE D.WorkDate>GETDATE() AND t.PlantID='" + identity.PlantId + @"' 
+                                WHERE D.WorkDate>GETDATE()
                                 GROUP BY  T.EmpSystemID,T.LTSystemID
                     ) APP ON APP.EmpSystemID=B.EmployeeId AND APP.LTSystemID=B.LeaveTypeId
                     where LT.UserName NOT LIKE '%Maternity%'

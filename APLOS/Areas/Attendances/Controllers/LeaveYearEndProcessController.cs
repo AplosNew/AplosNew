@@ -291,7 +291,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         item["IsYearlyProcessed"] = true;
                     objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
 
-
+                   
                 }
                 else
                 {
@@ -539,11 +539,11 @@ namespace Aplos.Areas.Attendances.Controllers
                                 ,isnull((SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
                                   INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND m.EmpSystemID=els.EmployeeId AND m.LTSystemID=els.LeaveTypeId AND m.PlantID=els.PlantId),0) availd
+                                AND m.EmpSystemID=els.EmployeeId AND m.LTSystemID=els.LeaveTypeId),0) availd
                                 ,isnull((SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
                                   INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND m.EmpSystemID=els.EmployeeId AND m.LTSystemID=els.LeaveTypeId AND m.PlantID=els.PlantId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
+                                AND m.EmpSystemID=els.EmployeeId AND m.LTSystemID=els.LeaveTypeId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
                                 ,isnull(ELS.[CarryForward],0) [CarryForward]
 
 
@@ -667,7 +667,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                 FROM [TRN].[EmployeeLeaveSummary] ELS
                                
                                 JOIN [TRN].[EmployeeLeaveSummary] ELX ON els.Id=elx.Id and elx.Id=(SELECT TOP 1 Id FROM [TRN].[EmployeeLeaveSummary] X 
-                                                                                                   WHERE x.EmployeeId=els.EmployeeId
+                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId
 																							AND x.LeaveTypeId=els.LeaveTypeId AND X.ToDate<='" + ToDate + @"' ORDER BY x.ToDate DESC )
                                 LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
                                 LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId         
@@ -759,10 +759,10 @@ namespace Aplos.Areas.Attendances.Controllers
                                 ,isnull(ELS.CurrentYearAvailedOpeningBalance,0) AvailedOB
                                 ,isnull((SELECT sum(d.LvValue) FROM AttdnProcessData D 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId and D.PlantID=els.PlantId),0) availd
+                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId),0) availd
                                 ,isnull((SELECT sum(d.LvValue) FROM AttdnProcessData D 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId and D.PlantID=els.PlantId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
+                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
                                 ,isnull(ELS.[CarryForward],0) [CarryForward]
 
 
@@ -867,10 +867,10 @@ namespace Aplos.Areas.Attendances.Controllers
                                 ,isnull(ELS.CurrentYearAvailedOpeningBalance,0) AvailedOB
                                 ,isnull((SELECT sum(d.LvValue) FROM AttdnProcessData D 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId AND D.PlantID=els.PlantId),0) availd
+                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId),0) availd
                                 ,isnull((SELECT sum(d.LvValue) FROM AttdnProcessData D 
                                   where D.WorkDate BETWEEN ELS.FromDate and ELS.ToDate
-                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId AND D.PlantID=els.PlantId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
+                                AND D.EmpSystemID=els.EmployeeId AND D.LTSystemID=els.LeaveTypeId),0) + isnull(ELS.CurrentYearAvailedOpeningBalance,0) TotalAvailed	
                                 ,isnull(ELS.[CarryForward],0) [CarryForward]
 
 
@@ -884,7 +884,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                 FROM [TRN].[EmployeeLeaveSummary] ELS
                                
                                 JOIN [TRN].[EmployeeLeaveSummary] ELX ON els.Id=elx.Id and elx.Id=(SELECT TOP 1 Id FROM [TRN].[EmployeeLeaveSummary] X 
-                                                                                                   WHERE x.EmployeeId=els.EmployeeId
+                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId
 																							AND x.LeaveTypeId=els.LeaveTypeId AND X.ToDate<='" + ToDate + @"' ORDER BY x.ToDate DESC )
                                 LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
                                 LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId         
@@ -946,7 +946,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                 LEFT JOIN EmployeeInformation AS ei ON ei.SystemId = apd.EmpSystemID
                                 LEFT JOIN LeaveTransaction AS lt ON lt.EmpSystemID = ei.SystemId ---AND '13-Oct-2019' BETWEEN lt.FromDate AND lt.FromDate
                                 LEFT JOIN [MST].[MaternityLeavePolicy] as mlp ON mlp.Id = lt.MaternityLeavePolicyId 
-                                WHERE apd.EmpSystemID='" + EmpId + @"' AND apd.WorkDate=" + WDate + @"  AND apd.PlantID='" + identity.PlantId + @"'
+                                WHERE apd.EmpSystemID='" + EmpId + @"' AND apd.WorkDate=" + WDate + @"  AND EI.PlantID='" + identity.PlantId + @"'
                                 AND( DATEADD(DAY
 			                                ,CASE WHEN apd.MaternityStatus='PRE' THEN mlp.MaternityStartDay WHEN apd.MaternityStatus='POST' THEN -mlp.MaternityEndDay ELSE 0 END
 			                                ,apd.WorkDate ) BETWEEN lt.FromDate AND lt.toDate )

@@ -921,12 +921,13 @@ WHERE els.ToDate<(SELECT yc.ToDate
 
 
                 strSQL = @"SELECT EmpSystemID,LTSystemID,sum(d.d) totalLeave FROM [dbo].[LeaveTransaction] m   
+                            join EmployeeInformation EI on EI.SystemId=M.EmpSystemID
                             left join  (
                             select sum(LeaveDuration) d,LvTrnsSystemID from [dbo].[LeaveTransactionDetails]
                             where IsAvailed=1 and WorkDate between '" + sFromDate + "' and '" + sToDate + @"' 
                             group by LvTrnsSystemID
                                 ) d on d.LvTrnsSystemID=m.SystemID
-                            where  m.GroupID='" + sGroupID + "' and PlantID=" + sPlantID + @"
+                            where  EI.PlantID='" + sPlantID + @"'
                             ---and m.EmpSystemID=1800156
                             group by EmpSystemID,LTSystemID ";
 
@@ -956,13 +957,13 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                         ISNULL( (SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
                                         INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
                                         where D.WorkDate BETWEEN SE.FromDate and SE.ToDate
-                                AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId  AND m.PlantID=S.PlantId ),0) AS totalLeave 
+                                AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId ),0) AS totalLeave 
                                 from [TRN].[EmployeeLeaveSummary] S
                                 JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
                                 select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
                                 join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
-                                AND X.ToDate<='" + ToDate + @"'
+                                AND X.ToDate<='" + ToDate + @"' AND X.PlantId=SE.PlantId
                                 ORDER BY x.FromDate DESC
                                 ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId 
                          WHERE SE.PlantId='" + sPlantID + @"'  ";
@@ -991,12 +992,13 @@ WHERE els.ToDate<(SELECT yc.ToDate
 
 
 
-                strSQL = @"SELECT EmpSystemID,LTSystemID,sum(APD.LvValue) totalLeave FROM AttdnProcessData APD
+                strSQL = @"SELECT APD.EmpSystemID,APD.LTSystemID,sum(APD.LvValue) totalLeave FROM AttdnProcessData APD
+                                join EmployeeInformation EI on EI.SystemId=APD.EmpSystemID 
                                             where  WorkDate between '" + sFromDate + @"' and '" + sToDate + @"' 
-                             and PlantID='" + sPlantID + @"'
+                             and EI.PlantID='" + sPlantID + @"'
                             --AND apd.EmpSystemID='208458'
                           AND apd.LvValue>0
-                            group by EmpSystemID,LTSystemID  ";
+                            group by APD.EmpSystemID,APD.LTSystemID  ";
 
 
 
@@ -1023,13 +1025,13 @@ WHERE els.ToDate<(SELECT yc.ToDate
                 strSQL = @"SELECT s.EmployeeId AS EmpSystemID,s.LeaveTypeId AS LTSystemID,
                                         ISNULL( (SELECT sum(m.LvValue) FROM AttdnProcessData m 
                                         where m.WorkDate BETWEEN SE.FromDate and SE.ToDate
-                                AND m.EmpSystemID=SE.EmployeeId AND m.PlantID=se.PlantId AND m.LTSystemID=SE.LeaveTypeId),0) AS totalLeave 
+                                AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId),0) AS totalLeave 
                                 from [TRN].[EmployeeLeaveSummary] S
                                 JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
                                 select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
                                 --join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
-                                AND X.ToDate<='" + ToDate + @"'
+                                AND X.ToDate<='" + ToDate + @"' AND X.PlantId=S.PlantId
                                 ORDER BY x.FromDate DESC
                                 ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId
                                 JOIN LeaveType AS lt ON lt.Id=se.LeaveTypeId
@@ -1752,7 +1754,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                             LEFT JOIN dbo.LeavePolicyDetail as lpd  on lpd.LPMSystemID=lpm.SystemID
                             
                             LEFT JOIN trn.EmployeeLeaveSummary SM ON sm.EmployeeId=emp.SystemId AND sm.LeaveTypeId=lpd.LTSystemID
-                            AND sm.Id=(SELECT TOP 1 Id FROM trn.EmployeeLeaveSummary SMX WHERE SMX.EmployeeId=emp.SystemId AND SMX.LeaveTypeId=lpd.LTSystemID AND smx.ToDate<='" + ToDate + @"' ORDER BY SMX.ToDate DESC)
+                            AND sm.Id=(SELECT TOP 1 Id FROM trn.EmployeeLeaveSummary SMX WHERE SMX.EmployeeId=emp.SystemId AND SMX.PlantId=emp.PlantId AND SMX.LeaveTypeId=lpd.LTSystemID AND smx.ToDate<='" + ToDate + @"' ORDER BY SMX.ToDate DESC)
                            
                             where lpd.IsCarryForward=1 AND emp.PlantId='" + sPlantID + @"'
                             
@@ -1947,9 +1949,9 @@ WHERE els.ToDate<(SELECT yc.ToDate
             try
             {
 
-                strSql = @" select count(EmpSystemID) WorkingDays, EmpSystemID from AttdnProcessData
+                strSql = @" select count(EmpSystemID) WorkingDays, EmpSystemID from AttdnProcessData 
                                     where WorkDate between '" + earnStartDate + @"' and '" + earnEndDate + @"'
-                                    and PlantID='" + PlantID + @"' and DayStatus in
+                                     and DayStatus in
                         (select DayType from LeavePolicyWorkingDays where LPDetailID in (SELECT SystemID FROM [LeavePolicyDetail] WHERE  LTSystemID=(select id from LeaveType where LeaveType='Earn'))) Group By EmpSystemID";
 
 
@@ -2467,163 +2469,6 @@ WHERE els.ToDate<(SELECT yc.ToDate
         }
 
 
-
-        public void GetLeaveYearEndProcessSummaryDataGrid(string sPlantID, string sLeaveTypeId, string sYearId, out DataSet dsRef)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            string strSql = string.Empty;
-
-            try
-            {
-                if (sLeaveTypeId == "All")
-                {
-                    strSql = @"select EmployeeId, EmployeeCode,EmployeeName
-,LeaveName
-,OpeningBalance
-,EarnedDaysOB
-,CalculatedEarningDays
-,Convert(int,Allocation) Allocation
---,DaysCanBeSanctioned
-,AvailedOB
-,Availd
-,TotalAvailed
-,Balance=OpeningBalance + Convert(int,Allocation) - TotalAvailed
-,[CarryForward]
-,[YearEndLapse]
-,[YearEndEncash]
-,[YearEndEncashCumulative]
-,[YearEndLapseCumulative] 
-from
-(
-SELECT ELS.EmployeeId
-,EI.EmployeeCode
-,EI.EmployeeName
-,LT.UserName LeaveName
-,LT.LeaveType
-, CarryForwardOpeningBalance+[BroughtForward] OpeningBalance
-,ELS.CurrentYearEarnedDaysOpeningBalance EarnedDaysOB
-,ELS.CalculatedEarningDays
-, Allocation=case when lt.LeaveType='Earn' then (CurrentYearEarnedDaysOpeningBalance+CalculatedEarningDays)/20
-else CurrentYearAllocation end
-,isnull(CurrentYearAvailedOpeningBalance,0) AvailedOB
-,isnull(tr.totalLeave,0) availd
-,isnull(tr.totalLeave,0) + isnull(CurrentYearAvailedOpeningBalance,0) TotalAvailed	
-,[CarryForward]
-
-
-,[YearEndLapse]
-,[YearEndEncash]
-,[YearEndEncashCumulative]
-,[YearEndLapseCumulative] 
-,[IsYearlyProcessed]
-,DaysCanBeSanctioned
-
-                                FROM [TRN].[EmployeeLeaveSummary] ELS
-                                LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
-                                LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId
-                                left join (
-                                SELECT EmpSystemID,LTSystemID,sum(d.d) totalLeave FROM [dbo].[LeaveTransaction] m 
-                                left join (
-                                select sum(LeaveDuration) d,LvTrnsSystemID from [dbo].[LeaveTransactionDetails]
-                                where IsAvailed=1 and WorkDate between '01-jan-2018' and '31-dec-2018' 
-                                group by LvTrnsSystemID
-                                ) d on d.LvTrnsSystemID=m.SystemID
-                                where m.GroupID='CG20181' and PlantID=20188
-                                --and m.EmpSystemID=1800029
-                                group by EmpSystemID,LTSystemID
-                                ) tr on tr.EmpSystemID=ELS.EmployeeId and els.LeaveTypeId=tr.LTSystemID
-
-
-
-                                Where ELS.CalanderYearId='" + sYearId + @"'
-                                --AND ELS.EmployeeId=1800028 
-                                and ELS.PlantId='" + sPlantID + @"'
-                                ) x
-                                ORDER BY Convert(INT, x.EmployeeCode)";
-                }
-                else
-                {
-                    strSql = @"select EmployeeId, EmployeeCode,EmployeeName
-,LeaveName
-,OpeningBalance
-,EarnedDaysOB
-,CalculatedEarningDays
-,Convert(int,Allocation) Allocation
---,DaysCanBeSanctioned
-,AvailedOB
-,Availd
-,TotalAvailed
-,Balance=OpeningBalance + Convert(int,Allocation) - TotalAvailed
-,[CarryForward]
-,[YearEndLapse]
-,[YearEndEncash]
-,[YearEndEncashCumulative]
-,[YearEndLapseCumulative] 
-from
-(
-SELECT ELS.EmployeeId
-,EI.EmployeeCode
-,EI.EmployeeName
-,LT.UserName LeaveName
-,LT.LeaveType
-, CarryForwardOpeningBalance+[BroughtForward] OpeningBalance
-,ELS.CurrentYearEarnedDaysOpeningBalance EarnedDaysOB
-,ELS.CalculatedEarningDays
-, Allocation=case when lt.LeaveType='Earn' then (CurrentYearEarnedDaysOpeningBalance+CalculatedEarningDays)/20
-else CurrentYearAllocation end
-,isnull(CurrentYearAvailedOpeningBalance,0) AvailedOB
-,isnull(tr.totalLeave,0) availd
-,isnull(tr.totalLeave,0) + isnull(CurrentYearAvailedOpeningBalance,0) TotalAvailed	
-,[CarryForward]
-
-
-,[YearEndLapse]
-,[YearEndEncash]
-,[YearEndEncashCumulative]
-,[YearEndLapseCumulative] 
-,[IsYearlyProcessed]
-,DaysCanBeSanctioned
-                                FROM [TRN].[EmployeeLeaveSummary] ELS
-                                LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
-                                LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId
-                                left join (
-                                SELECT EmpSystemID,LTSystemID,sum(d.d) totalLeave FROM [dbo].[LeaveTransaction] m 
-                                left join (
-                                select sum(LeaveDuration) d,LvTrnsSystemID from [dbo].[LeaveTransactionDetails]
-                                where IsAvailed=1 and WorkDate between '01-jan-2018' and '31-dec-2018' 
-                                group by LvTrnsSystemID
-                                ) d on d.LvTrnsSystemID=m.SystemID
-                                where m.GroupID='CG20181' and PlantID=20188
-                                --and m.EmpSystemID=1800029
-                                group by EmpSystemID,LTSystemID
-                                ) tr on tr.EmpSystemID=ELS.EmployeeId and els.LeaveTypeId=tr.LTSystemID
-
-
-
-                                Where ELS.CalanderYearId='" + sYearId + @"'
-                                --AND ELS.EmployeeId=1800028 
-                                and ELS.LeaveTypeId='" + sLeaveTypeId + @"'
-                                and ELS.PlantId='" + sPlantID + @"'
-                                ) x
-                                ORDER BY Convert(INT, x.EmployeeCode)";
-
-                }
-
-
-
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }//End Function 
     }
 
     public class CarryForword
