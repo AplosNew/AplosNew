@@ -501,6 +501,7 @@ namespace Library.Service.Attendances
                         drx["OriginalManualInTime"] = DateTime.Now.ToString();
                         drx["IsManualInTime"] = true;
                         drx["InTime"]= DateTime.Now.ToString();
+                        drx["ProcessInTime"] = DateTime.Now.ToString();
                     }
 
                     if (string.IsNullOrEmpty(items[0].OutTimeUI) == false)
@@ -509,6 +510,7 @@ namespace Library.Service.Attendances
                         drx["ManualOutTime"] = DateTime.Now.ToString();
                         drx["OriginalManualOutTime"] = DateTime.Now.ToString();
                         drx["IsManualOutTime"] = true;
+                        drx["ProcessOutTime"] = DateTime.Now.ToString();
 
                     }
                     drx["DataSource"] = "MobileAppEntry";
@@ -533,8 +535,6 @@ namespace Library.Service.Attendances
             }
             finally
             {
-
-
 
             }
         }
