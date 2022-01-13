@@ -41,6 +41,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/LeaveYearEndProcess/Aplos',
             controller: 'LeaveYearEndProcessController'
         })
+        .when('/leave-year-end-process-new', {
+            templateUrl: 'Attendances/LeaveYearEndProcess/Aplos',
+            controller: 'LeaveYearEndProcessNewController'
+        })
         .when('/shift-roster-creation', {
             templateUrl: 'Attendances/ShiftRosterCreation/Aplos',
             controller: 'ShiftRosterCreationController'
@@ -405,6 +409,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
         .when('/sandwich-process', {
             templateUrl: 'Attendances/SandwichProcess/Aplos',
             controller: 'SandwichProcessController'
+        })
+        .when('/sandwich-process-plantwise', {
+            templateUrl: 'Attendances/SandwichProcess/PlantWise',
+            controller: 'SandwichProcessPlantWiseController'
         })
         .when('/monthly-leave-balance', {
             templateUrl: 'Attendances/MonthlyLeaveBalance/Aplos',

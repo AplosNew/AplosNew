@@ -587,6 +587,7 @@ var upanelApp = angular
     .controller('leaveWithWagesRegistersForm18Controller', leaveWithWagesRegistersForm18Controller)
 
     .controller('LeaveYearEndProcessController', LeaveYearEndProcessController)
+    .controller('LeaveYearEndProcessNewController', LeaveYearEndProcessNewController)
     .controller('loanInterestPayableController', loanInterestPayableController)
     .controller('loanInterestPayableReverseController', loanInterestPayableReverseController)
     .controller('longAbsenteeismAssignController', longAbsenteeismAssignController)
@@ -975,6 +976,7 @@ var upanelApp = angular
     .controller('SalaryDisbursementReportController', SalaryDisbursementReportController)
     .controller('OSissueRegisterController', OSissueRegisterController)
     .controller('SandwichProcessController', SandwichProcessController)
+    .controller('SandwichProcessPlantWiseController', SandwichProcessPlantWiseController)
     .controller('JobWorkTransformationPOController', JobWorkTransformationPOController)
     .controller('AssetWIPStatusController', AssetWIPStatusController)
     .controller('OTConfirmationProcessController', OTConfirmationProcessController)
@@ -996,6 +998,7 @@ var upanelApp = angular
     .controller('POMappingWithPIController', POMappingWithPIController)
     .controller('GeneralWasteController', GeneralWasteController)
     .controller("issueTransactionController", issueTransactionController)
+    .controller("EmployeeShiftUpdatesController", EmployeeShiftUpdatesController)
 
 
     .config(AccessControllerConfig)

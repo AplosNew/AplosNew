@@ -624,7 +624,7 @@ namespace Aplos.Areas.Materials.Controllers
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
                 return Json(obj.PurchaseOrderRegisterData(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -639,7 +639,7 @@ namespace Aplos.Areas.Materials.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
             var reportFileName = "Purchase Report Register" + fromDate + "To" + toDate + "";
-            Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+            Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
             // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
             var workbook = obj.CreatePurchaseOrderRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
             switch (reportFormat)
@@ -675,7 +675,7 @@ namespace Aplos.Areas.Materials.Controllers
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
                 return Json(obj.ServiceAcknowledgementRegisterGridData(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -690,7 +690,7 @@ namespace Aplos.Areas.Materials.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
             var reportFileName = "Service Acknowledgement Register" + fromDate + "To" + toDate + "";
-            Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+            Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
             // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
             var workbook = obj.CreateServiceAcknowledgementRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
             switch (reportFormat)

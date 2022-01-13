@@ -201,9 +201,37 @@ namespace Aplos
                    "~/Areas/Products/Scripts/RequisitionController.js",
                   "~/Areas/Products/Scripts/InventoryCheckApprovedController.js",
 
-
-
                   "~/Scripts/MyApp/epanelApp.js"
+                  ));
+
+            bundles.Add(new ScriptBundle("~/bundles/tpanellogin").Include(
+                     "~/Scripts/MyTeacher/tpanelLoginController.js",
+                     "~/Scripts/MyTeacher/tpanelLogoutController.js",
+                     "~/Scripts/MyTeacher/tpanelLoginApp.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/tpanel").Include(
+
+                  "~/Scripts/MyTeacher/tpanelLoginController.js",
+                  "~/Scripts/MyTeacher/teacherPasswordChangeController.js",
+                  "~/Scripts/MyTeacher/tpanelLogoutController.js",
+                  "~/Scripts/MyTeacher/myTeacherCalendarController.js",
+                    "~/Areas/TaskManagement/Scripts/TeacherScheduleController.js",
+                  "~/Scripts/MyTeacher/tpanelApp.js"
+                  ));
+
+            bundles.Add(new ScriptBundle("~/bundles/ppanellogin").Include(
+                   "~/Scripts/MyParents/ppanelLoginController.js",
+                   "~/Scripts/MyParents/ppanelLogoutController.js",
+                   "~/Scripts/MyParents/ppanelLoginApp.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/ppanel").Include(
+
+                  "~/Scripts/MyParents/ppanelLoginController.js",
+                  "~/Scripts/MyParents/parentsPasswordChangeController.js",
+                  "~/Scripts/MyParents/ppanelLogoutController.js",
+                  "~/Scripts/MyParents/myParentsCalendarController.js",
+                    "~/Areas/TaskManagement/Scripts/TeacherScheduleController.js",
+                  "~/Scripts/MyParents/ppanelApp.js"
                   ));
 
             bundles.Add(new ScriptBundle("~/bundles/recruitment").Include(

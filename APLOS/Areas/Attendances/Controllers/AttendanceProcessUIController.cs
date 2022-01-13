@@ -137,8 +137,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
-
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+                //return RenderReportAsExcel(workbook, fileName);
+                return Json(new { FileName = fullPath, Error = false }, JsonRequestBehavior.AllowGet);
 
 
             }

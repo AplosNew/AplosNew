@@ -20,12 +20,12 @@ using Library.Service.Helpers;
 
 namespace Library.MaterialManagement.InventoryManagements
 {
-    public class PurchaseOrderService
+    public class PurchaseOrderQueryService
     {
         private readonly SqlRepository _sqlRepository;
 
         #region Constructor
-        public PurchaseOrderService()
+        public PurchaseOrderQueryService()
         {
             _sqlRepository = new SqlRepository();
         }
@@ -1658,7 +1658,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
 						,TUoM.UserName AS UOM
 						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-						,IM.TransactionQty
+						,IM.TransactionQty,ISNULL(IRD.GRNQty,0) ReceiptQty, 0 RejectionQty, 0 ReturnQty,IM.TransactionQty-ISNULL(IRD.GRNQty,0) BalanceQty
 						,ROUND(Isnull(IM.TransactionRate,0),2) TransactionRate
 						,ROUND(Isnull(IM.TransactionAmount,0),2) TransactionAmount
 						,ROUND(Isnull(IM.TotalTaxAmount,0),2) TotalTaxAmount
@@ -1708,7 +1708,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
                         LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
 						left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-
+                        LEFT JOIN (SELECT PODetailsId,SUM(TransactionQty) GRNQty FROM TRN.InventoryReceiveDetail GROUP BY PODetailsId)IRD ON IRD.PODetailsId=IM.Id
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 						FROM [TRN].[PurchaseOrderTax] A
 						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
@@ -1786,7 +1786,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					, '' ThirdCharacteristicsValue
 					,'' UOM
 					,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-					,0 TransactionQty
+					,0 TransactionQty,0 ReceiptQty, 0 RejectionQty, 0 ReturnQty,0 BalanceQty
 					,0 TransactionRate
 					,IM.Amount TransactionAmount
 					,ROUND(Isnull(servicetax.TaxAmount,0),2) TotalTaxAmount
@@ -1854,6 +1854,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					WHERE B.Code='TDS'
 
 					) TAxInfo3 ON TAxInfo3.ServicePODetailId=IM.Id
+
 
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount
 					FROM [TRN].[ServicePOTax] A
@@ -1949,6 +1950,7 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colPONo = sheet1headreColIndex;
             sheet1headreColIndex++;
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRN Date");
             //sheet1headreColIndex++;
@@ -1958,6 +1960,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colPODate = sheet1headreColIndex;
+
             sheet1headreColIndex++;
 
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Type");
@@ -1968,6 +1972,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colPOType = sheet1headreColIndex;
+
             sheet1headreColIndex++;
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Party");
             //sheet1headreColIndex++;
@@ -1977,6 +1983,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colParty = sheet1headreColIndex;
+
             sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "PartyId";
@@ -1984,6 +1992,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colPartyId = sheet1headreColIndex;
+
             sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "InvoicingPartyPlantId";
@@ -1991,6 +2001,8 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colInvoicingPartyPlantId = sheet1headreColIndex;
+
             sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "InvoicingPartyPlant";
@@ -2142,10 +2154,38 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Receipt Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colReceiptQty = sheet1headreColIndex;
+            sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rejection Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colRejectionQty = sheet1headreColIndex;
+            sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Return Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colReturnQty = sheet1headreColIndex;
+            sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Balance Qty";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            int colBalanceQty = sheet1headreColIndex;
+            sheet1headreColIndex++;
 
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Rate");
             //sheet1headreColIndex++;
-         
+
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Transaction Rate";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -2463,31 +2503,35 @@ namespace Library.MaterialManagement.InventoryManagements
                 report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
                 report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
                 report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["UOM"].ToString());
-                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionRate"].ToString()));
-                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalTaxAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 25, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceCharge"].ToString()));
-                report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceChargeTax"].ToString()));
-                report.SetText(ref sheet1, _rowL, 27, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ReceiptQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectionQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ReturnQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 25, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BalanceQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 27, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalTaxAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 29, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceCharge"].ToString()));
+                report.SetText(ref sheet1, _rowL, 30, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceChargeTax"].ToString()));
+                report.SetText(ref sheet1, _rowL, 31, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseAmount"].ToString()));
                 //report.SetText(ref sheet1, _rowL, 27, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGST"].ToString()));
-                report.SetText(ref sheet1, _rowL, 29, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 30, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGST"].ToString()));
-                report.SetText(ref sheet1, _rowL, 31, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGSTTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 32, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGST"].ToString()));
-                report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGSTTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 34, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDS"].ToString()));
-                report.SetText(ref sheet1, _rowL, 35, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDSTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 36, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCS"].ToString()));
-                report.SetText(ref sheet1, _rowL, 37, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCSTaxPercentage"].ToString()));
-                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
-                report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
-                report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
+                report.SetText(ref sheet1, _rowL, 32, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGST"].ToString()));
+                report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL, 34, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGST"].ToString()));
+                report.SetText(ref sheet1, _rowL, 35, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGSTTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL, 36, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGST"].ToString()));
+                report.SetText(ref sheet1, _rowL, 37, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGSTTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL, 38, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDS"].ToString()));
+                report.SetText(ref sheet1, _rowL, 39, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDSTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL, 40, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCS"].ToString()));
+                report.SetText(ref sheet1, _rowL,41 , clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCSTaxPercentage"].ToString()));
+                report.SetText(ref sheet1, _rowL,42 , inventoryMaterialList.Rows[n]["AddedBy"].ToString());
+                report.SetText(ref sheet1, _rowL,43 , inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
+                report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
 
-                report.SetText(ref sheet1, _rowL, 41, inventoryMaterialList.Rows[n]["LCANo"].ToString());
-                report.SetText(ref sheet1, _rowL, 42, inventoryMaterialList.Rows[n]["LCRef"].ToString());
-                report.SetText(ref sheet1, _rowL, 43, inventoryMaterialList.Rows[n]["ContractId"].ToString());
-                report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 45, inventoryMaterialList.Rows[n]["LCANo"].ToString());
+                report.SetText(ref sheet1, _rowL, 46, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 47, inventoryMaterialList.Rows[n]["ContractId"].ToString());
+                report.SetText(ref sheet1, _rowL, 48, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
 
             }
             _rowL++;
@@ -2535,7 +2579,7 @@ namespace Library.MaterialManagement.InventoryManagements
             }
 
             //sheet1.Range[(Row_Total_Start), 22, _rowL, 22].NumberFormat = "#,##0.00;(#,##0.0000)";
-            sheet1.Range[(Row_Total_Start), 22, _rowL, 22].NumberFormat = clsStaticInfo.NumberFormat(4);
+            sheet1.Range[(Row_Total_Start), 26, _rowL, 26].NumberFormat = clsStaticInfo.NumberFormat(4);
             sheet1.Range[(Row_Total_Start), 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 8;
 
             sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
@@ -4283,5 +4327,208 @@ namespace Library.MaterialManagement.InventoryManagements
                 throw ex;
             }
         }
+
+
+        public IEnumerable<object> GetApprovedListForPOBYReq(string plantId, string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+           var Sql = @"
+				Select top(100) * from (
+				SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
+						, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+						--,IR.PODate
+						, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+						, CP.UserName AS PartyAccountGroupName
+						, IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+						--, IR.GateEntryNo
+						--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+						, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+						, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+						, IR.FixedAssetOrInventory, IR.PODepended
+						--, IR.AlongwithInvoice
+						--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+						, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+						, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+						, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+						, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+						,pgl.CtnId
+						--,IR.AddedBy
+						,IR.CheckedByStatus AS CheckedByStatus,PT.PaymentMode
+						,IR.AuthorizedByStatus AS AuthorizedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,eI2.EmployeeName As Addedby,PO.RequisitionId
+				FROM [TRN].[PurchaseOrder] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+				LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+						ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId   
+				LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+				LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+				LEFT JOIN dbo.EmployeeInformation eI2 ON eI2.SystemId=IR.AddedBy
+				LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+				LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+				LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+				LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+				LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+				LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+				LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+				LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+				LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+				LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+				LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+				LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
+						JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+				LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
+						WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+				LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+				LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+                LEFT JOIN(
+											select PDAMAP.InventoryReceiveId
+											,RequisitionId=STUFF((select distinct ','+xpo.Id from
+											trn.MaterialRequsitionMaster xpo
+											INNER JOin TRN.PurchaseOrderDetail xPDAMAP on xpo.Id=xPDAMAP.RequisitionId
+											where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			
+											from  TRN.PurchaseOrderDetail PDAMAP 
+											LEFT JOIN [TRN].MaterialRequsitionMaster IR ON IR.Id = PDAMAP.RequisitionId
+											group by  PDAMAP.InventoryReceiveId		
+								)PO ON PO.InventoryReceiveId = IRD.InventoryReceiveId
+				WHERE  IR.POType='POByReq' 
+				AND IR.PlantId='" + plantId + @"' 
+				AND IR.CheckedBy IS NOT NULL 
+				AND IR.CheckedByStatus='Checked' 
+				AND IR.AuthorizedBy IS NOT NULL 
+				AND IR.AuthorizedByStatus='Approved' 
+				AND isnull(IR.IsClosed,0)=0 
+
+				UNION ALL
+
+				SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
+						, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+						--,IR.PODate
+						, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+						, CP.UserName AS PartyAccountGroupName
+						, IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+						--, IR.GateEntryNo
+						--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+						, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+						, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+						, IR.FixedAssetOrInventory, IR.PODepended
+						--, IR.AlongwithInvoice
+						--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+						, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+						, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+						, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+						, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+						,pgl.CtnId
+						--,IR.AddedBy
+						,IR.CheckedByStatus AS CheckedByStatus,PT.PaymentMode
+						,IR.AuthorizedByStatus AS AuthorizedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,eI2.EmployeeName As Addedby,PO.RequisitionId
+				FROM [TRN].[PurchaseOrder] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+				LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+						ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId   
+				LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+				LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+				LEFT JOIN dbo.EmployeeInformation eI2 ON eI2.SystemId=IR.AddedBy
+				LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+				LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+				LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+				LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+				LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+				LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+				LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+				LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+				LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+				LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+				LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+				LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
+						JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+				LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
+						WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+				LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+				LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+                LEFT JOIN(
+											select PDAMAP.InventoryReceiveId
+											,RequisitionId=STUFF((select distinct ','+xpo.Id from
+											trn.MaterialRequsitionMaster xpo
+											INNER JOin TRN.PurchaseOrderDetail xPDAMAP on xpo.Id=xPDAMAP.RequisitionId
+											where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			
+											from  TRN.PurchaseOrderDetail PDAMAP 
+											LEFT JOIN [TRN].MaterialRequsitionMaster IR ON IR.Id = PDAMAP.RequisitionId
+											group by  PDAMAP.InventoryReceiveId		
+								)PO ON PO.InventoryReceiveId = IRD.InventoryReceiveId
+				WHERE  IR.POType='POByReq' 
+				AND IR.PlantId='" + plantId + @"'
+				AND IR.CheckedByStatus  Is null
+				AND IR.AuthorizedByStatus='Approved'
+				AND isnull(IR.IsClosed,0)=0 
+
+				UNION ALL
+
+				SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
+						, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+						--,IR.PODate
+						, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+						, CP.UserName AS PartyAccountGroupName
+						, IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+						--, IR.GateEntryNo
+						--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+						, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+						, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+						, IR.FixedAssetOrInventory, IR.PODepended
+						--, IR.AlongwithInvoice
+						--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+						, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+						, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+						, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+						, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+						,pgl.CtnId
+						--,IR.AddedBy
+						,IR.CheckedByStatus AS CheckedByStatus,PT.PaymentMode
+						,IR.AuthorizedByStatus AS AuthorizedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,eI2.EmployeeName As Addedby,PO.RequisitionId
+				FROM [TRN].[PurchaseOrder] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+				LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+						ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId   
+				LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+				LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+				LEFT JOIN dbo.EmployeeInformation eI2 ON eI2.SystemId=IR.AddedBy
+				LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+				LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+				LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+				LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+				LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+				LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+				LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+				LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+				LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+				LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+				LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+				LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
+						JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+				LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
+						WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+				LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+				LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+                LEFT JOIN(
+											select PDAMAP.InventoryReceiveId
+											,RequisitionId=STUFF((select distinct ','+xpo.Id from
+											trn.MaterialRequsitionMaster xpo
+											INNER JOin TRN.PurchaseOrderDetail xPDAMAP on xpo.Id=xPDAMAP.RequisitionId
+											where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			
+											from  TRN.PurchaseOrderDetail PDAMAP 
+											LEFT JOIN [TRN].MaterialRequsitionMaster IR ON IR.Id = PDAMAP.RequisitionId
+											group by  PDAMAP.InventoryReceiveId		
+								)PO ON PO.InventoryReceiveId = IRD.InventoryReceiveId
+				WHERE  IR.POType='POByReq' 
+				AND IR.PlantId='" + plantId + @"'
+				AND IR.Id in(Select distinct POId from trn.InventoryReceive where POId is not null)--and RequisitionId='110232'
+				AND IR.CheckedByStatus IS NULL
+				AND IR.AuthorizedByStatus IS NULL
+				AND isnull(IR.IsClosed,0)=0 
+				) AS TEMP WHERE " + strkey + " Order by  CONVERT(datetime,TEMP.PODate) desc";
+
+            return _sqlRepository.GetDataCollection(Sql);
+        }
+
     }
 }

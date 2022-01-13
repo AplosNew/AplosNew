@@ -466,6 +466,7 @@
     <Compile Include="Areas\Commercial\Controllers\InvoiceTaggedWithLCController.cs" />
     <Compile Include="Areas\Commercial\Controllers\LcNavigationController.cs" />
     <Compile Include="Areas\Commercial\Controllers\LCReportsController.cs" />
+    <Compile Include="Areas\Commercial\Controllers\CommercialAdditionalInfoController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PostSalesInvoiceController.cs" />
     <Compile Include="Areas\Commercial\Controllers\AutoLoanController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PIInvoiceController.cs" />
@@ -565,6 +566,7 @@
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\EmployeeShiftUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
@@ -1096,6 +1098,8 @@
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
     <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
+    <Compile Include="Controllers\MyParentsController.cs" />
+    <Compile Include="Controllers\MyTeacherController.cs" />
     <Compile Include="Controllers\WasteTransactionController.cs" />
     <Compile Include="Controllers\ManualAttndFromAppController.cs" />
     <Compile Include="Controllers\EmpUtilityController.cs" />
@@ -1657,6 +1661,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewProcessAttendanceReProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataDeleteNewController.js" />
     <Content Include="Areas\Attendances\Scripts\EmployeeLastPunchReportController.js" />
@@ -1681,6 +1686,7 @@
     <Content Include="Areas\Attendances\Scripts\ManualOTUploadNewController.js" />
     <Content Include="Areas\Attendances\Scripts\OTManualNewController.js" />
     <Content Include="Areas\Attendances\Scripts\MonthlyLeaveBalanceController.js" />
+    <Content Include="Areas\Attendances\Scripts\SandwichProcessPlantWiseController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportOriginalController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\AdditionalPayDayController.js" />
@@ -1764,6 +1770,7 @@
     <Content Include="Areas\Commercial\Scripts\LcNavigationController.js" />
     <Content Include="Areas\Commercial\Scripts\LCReportsController.js" />
     <Content Include="Areas\Commercial\Scripts\InvoiceBudgetChargesSettingController.js" />
+    <Content Include="Areas\Commercial\Scripts\CommercialAdditionalInfoController.js" />
     <Content Include="Areas\Commercial\Scripts\PostSalesInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanPostController.js" />
@@ -1885,6 +1892,7 @@
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeShiftUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
@@ -3924,6 +3932,9 @@
     <Content Include="Areas\Productions\Views\ProductionSummary\Aplos.cshtml" />
     <Content Include="Areas\Outsourcing\Views\OSIssueReturn\_StockPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\AttendanceBonusMaster\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployeeShiftUpdates\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\CommercialAdditionalInfo\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\SandwichProcess\PlantWise.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4276,6 +4287,18 @@
     <Content Include="Scripts\MPanelApp\mpanelLogoutController.js" />
     <Content Include="Scripts\MPanelApp\plantSelectionController.js" />
     <Content Include="Scripts\multi-select-load.js" />
+    <Content Include="Scripts\MyParents\myParentsCalendarController.js" />
+    <Content Include="Scripts\MyParents\parentsPasswordChangeController.js" />
+    <Content Include="Scripts\MyParents\ppanelApp.js" />
+    <Content Include="Scripts\MyParents\ppanelLoginApp.js" />
+    <Content Include="Scripts\MyParents\ppanelLoginController.js" />
+    <Content Include="Scripts\MyParents\ppanelLogoutController.js" />
+    <Content Include="Scripts\MyTeacher\teacherPasswordChangeController.js" />
+    <Content Include="Scripts\MyTeacher\tpanelApp.js" />
+    <Content Include="Scripts\MyTeacher\tpanelLoginApp.js" />
+    <Content Include="Scripts\MyTeacher\tpanelLoginController.js" />
+    <Content Include="Scripts\MyTeacher\tpanelLogoutController.js" />
+    <Content Include="Scripts\MyTeacher\myTeacherCalendarController.js" />
     <Content Include="Scripts\MyApp\empPasswordChangeController.js" />
     <Content Include="Scripts\MyApp\epanelApp.js" />
     <Content Include="Scripts\MyApp\epanelLoginApp.js" />
@@ -7012,6 +7035,16 @@
     <Content Include="Views\PortalExtended\Aplos.cshtml" />
     <Content Include="Views\MyApp\Calendar.cshtml" />
     <Content Include="Views\Prerecruitment\Aplos.cshtml" />
+    <Content Include="Views\MyTeacher\Aplos.cshtml" />
+    <Content Include="Views\MyTeacher\Calendar.cshtml" />
+    <Content Include="Views\MyTeacher\Dashboard.cshtml" />
+    <Content Include="Views\MyTeacher\TLayout.cshtml" />
+    <Content Include="Views\MyTeacher\PasswordChange.cshtml" />
+    <Content Include="Views\MyParents\Aplos.cshtml" />
+    <Content Include="Views\MyParents\Calendar.cshtml" />
+    <Content Include="Views\MyParents\Dashboard.cshtml" />
+    <Content Include="Views\MyParents\PasswordChange.cshtml" />
+    <Content Include="Views\MyParents\PLayout.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

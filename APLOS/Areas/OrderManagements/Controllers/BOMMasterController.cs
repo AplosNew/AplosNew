@@ -836,11 +836,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var CheckFGFirstCharValue = CheckFGFirstCharacteristicsValue(data);
-                if (CheckFGFirstCharValue.Tables[0].Rows.Count > 0)
-                {
-                    throw new CustomException("This value already taken.");
-                }
+                //var CheckFGFirstCharValue = CheckFGFirstCharacteristicsValue(data);
+                //if (CheckFGFirstCharValue.Tables[0].Rows.Count > 0)
+                //{
+                //    throw new CustomException("This value already taken.");
+                //}
 
                 var checkProcess = CheckBOMSKU1Mapping(data);
                 // var checkProcess = CheckBOMSKUMapping(data["Id"], data["FGFirstCharacteristicsId"], data["FGFirstCharacteristicsValueId"], data["FGSecondCharacteristicsId"], data["FGSecondCharacteristicsValueId"]);
@@ -915,11 +915,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var CheckFGSecondCharValue = CheckFGSecondCharacteristicsValue(data);
-                if (CheckFGSecondCharValue.Tables[0].Rows.Count > 0)
-                {
-                    throw new CustomException("This value already taken.");
-                }
+                //var CheckFGSecondCharValue = CheckFGSecondCharacteristicsValue(data);
+                //if (CheckFGSecondCharValue.Tables[0].Rows.Count > 0)
+                //{
+                //    throw new CustomException("This value already taken.");
+                //}
 
                 var checkProcess = CheckBOMSKU2Mapping(data);
                 // var checkProcess = CheckBOMSKUMapping(data["Id"], data["FGFirstCharacteristicsId"], data["FGFirstCharacteristicsValueId"], data["FGSecondCharacteristicsId"], data["FGSecondCharacteristicsValueId"]);

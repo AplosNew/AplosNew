@@ -946,4 +946,14 @@ function materialMasterOpeningBalanceController(cboService, commonMessage, $scop
 		//#endregion
 
 	}
+
+	$scope.MaterialMasterOpenningBalanceReport = function (args) {
+		try {
+			var file_src = 'accounts/OpeningBalance/MaterialMasterOpenningBalanceReport?OpenningBalanceId=' + args.x.Id
+			$rootScope.report(file_src);
+
+		} catch (e) {
+
+		}
+	}
 }

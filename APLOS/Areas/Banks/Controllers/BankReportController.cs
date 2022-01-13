@@ -107,10 +107,10 @@ namespace Aplos.Areas.Banks.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetBankLedgerReport(ReportFormat reportFormat, string bankMasterId, string fromDate, string toDate)
+        public ActionResult GetBankLedgerReport(ReportFormat reportFormat, string bankMasterId, string fromDate, string toDate, bool extended)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _bankReportService.GetBankLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, bankMasterId, fromDate, toDate);
+            var workbook = _bankReportService.GetBankLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, bankMasterId, fromDate, toDate, extended);
             var reportFileName = DateTime.Now.ToString("yyMMdd") + " Bank Ledger";
             switch (reportFormat)
             {
@@ -124,7 +124,25 @@ namespace Aplos.Areas.Banks.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+        [HttpGet, Authorize]
+        public ActionResult GetBankLedgerReportCompanyLevel(ReportFormat reportFormat, string bankMasterId, string fromDate, string toDate, bool extended)
+        {
+            AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsBankService.GetBankLedgerReportCompanyLevel(identity.CompanyGroupId, identity.CompanyId, bankMasterId, fromDate, toDate, extended);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Bank Ledger";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
 
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
 
         public ActionResult BankReconcileReport()
         {

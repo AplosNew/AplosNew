@@ -172,6 +172,7 @@
     <Compile Include="Attendance\DownloadApi.cs" />
     <Compile Include="Employee\EmployeeLastPunchService.cs" />
     <Compile Include="Leave\clsLeaveBalanceToDate.cs" />
+    <Compile Include="NewAttendanceProcess\EmployeeShiftUpdatesService.cs" />
     <Compile Include="NewAttendanceProcess\ILeaveTransactionNewService.cs" />
     <Compile Include="NewAttendanceProcess\IResignationNewService.cs" />
     <Compile Include="NewAttendanceProcess\LeaveTransactionNewService.cs" />
@@ -228,13 +229,13 @@
     <Compile Include="NewAttendanceProcess\DayStatusService.cs" />
     <Compile Include="NewAttendanceProcess\OutPunchConfigurationService.cs" />
     <Compile Include="NewAttendanceProcess\RosterPatternService.cs" />
-    <Compile Include="NewAttendanceProcess\OTConfirmationProcessService.cs" />
     <Compile Include="NewAttendanceProcess\TablesUploadService.cs" />
     <Compile Include="NewAttendanceProcess\WeeklyOffService.cs" />
     <Compile Include="NewAttendanceProcess\WeekDefinitionService.cs" />
     <Compile Include="NewAttendanceProcess\WeekOffUpdatesService.cs" />
     <Compile Include="NewAttendanceProcess\SandwichProcessService.cs" />
     <Compile Include="NewOTProcess\HourlyOTReportService.cs" />
+    <Compile Include="NewOTProcess\OTConfirmationProcessService.cs" />
     <Compile Include="Payroll\Allowance\clsDiscreteAllowanceReport.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseAmountTransaction.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseDailyService.cs" />

@@ -573,6 +573,410 @@ namespace Library.Accounting.Accounts
         }
         #endregion Bank Sheet Generation Report
 
+        #region Bank Ledger Report Company Level
+        public IWorkbook GetBankLedgerReportCompanyLevel(string companyGroupId, string companyId, string bankMasterId, string fromDate, string toDate, bool extended)
+        {
+            try
+            {
+                var row = 6;
+                var colLast = 0;
+                var excelEngine = new ExcelEngine();
+                var reportUtility = new ReportUtility();
+                var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2016;
+                var sheet = workbook.Worksheets[0];
+                sheet.Name = "Ledger";
+                AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+
+                int xlsCol = 1;
+                int colVoucherNo = 0;
+                int colPostingDate = 0;
+                //int colAccountName = 0;
+                int colNarration = 0;
+                int colParticulars = 0;
+
+                int colDebit = 0;
+                int colCredit = 0;
+                int colBlance = 0;
+                int colDrCr = 0;
+                //int colLast = xlsCol;
+
+                // Get BankMaster data
+                var bankMaster = GetBankMaster(bankMasterId);
+
+                // Set Header
+                row++;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Bank");
+                // sheet.Range[row, 1, row, 2].Merge();
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ": " + reportUtility.GetColumnNameForXls(2) + row].Merge();
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, bankMaster["BankName"].ToString());
+
+                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Branch");
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 5, bankMaster["BankBranchName"].ToString());
+                sheet.Range[reportUtility.GetColumnNameForXls(5) + row + ": " + reportUtility.GetColumnNameForXls(8) + row].Merge();
+
+                row++;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Account No");
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ": " + reportUtility.GetColumnNameForXls(2) + row].Merge();
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, bankMaster["AccountNumber"].ToString());
+
+
+                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Account Title");
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 5, bankMaster["AccountTitle"].ToString());
+                sheet.Range[reportUtility.GetColumnNameForXls(5) + row + ": " + reportUtility.GetColumnNameForXls(8) + row].Merge();
+
+                row++;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Bank Currency");
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ": " + reportUtility.GetColumnNameForXls(2) + row].Merge();
+                var bankCurrencyId = bankMaster["CurrencyCode"].ToString();
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, bankCurrencyId);
+
+                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "GL");
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 5, bankMaster["GLGeneralInfoCode"] + " - " + bankMaster["GLGeneralInfoName"]);
+                sheet.Range[reportUtility.GetColumnNameForXls(5) + row + ": " + reportUtility.GetColumnNameForXls(8) + row].Merge();
+
+                row++;
+                reportUtility.SetHeaderText(ref sheet, row, 5, "Bank Currency", ExcelHAlign.HAlignCenter);
+                sheet.Range[reportUtility.GetColumnNameForXls(5) + row + ":" + reportUtility.GetColumnNameForXls(7) + row].Merge();
+                sheet.Range[row, 5, row, 7].BorderAround(ExcelLineStyle.Thin);
+
+                colLast = 8;
+
+                accountsCommonService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
+                if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
+                {
+                    reportUtility.SetHeaderText(ref sheet, row, colLast, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                    sheet.Range[reportUtility.GetColumnNameForXls(colLast) + row + ":" + reportUtility.GetColumnNameForXls(10) + row].Merge();
+                    sheet.Range[row, 8, row, 10].BorderAround(ExcelLineStyle.Thin);
+                    colLast = 11;
+                }
+
+                // Set Row Header
+                row++;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Voucher No", 13); colVoucherNo = xlsCol; xlsCol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Posting Date", 11); colPostingDate = xlsCol; xlsCol++;
+                //reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Account Name", 32); colAccountName = xlsCol; xlsCol++;
+
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Particulars", 25); colParticulars = xlsCol; xlsCol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Narration", 25); colNarration = xlsCol; xlsCol++;
+
+
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 12, ExcelHAlign.HAlignRight); colDebit = xlsCol; xlsCol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 12, ExcelHAlign.HAlignRight); colCredit = xlsCol; xlsCol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Balance", 15, ExcelHAlign.HAlignRight); colBlance = xlsCol; xlsCol++;
+
+
+                int colCompanyDr = 0;
+                int colCompanyCr = 0;
+                int colCompanyBlance = 0;
+                // int colDrCr = 0;
+
+                if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
+                {
+                    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 12, ExcelHAlign.HAlignRight); colCompanyDr = xlsCol; xlsCol++;
+                    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 12, ExcelHAlign.HAlignRight); colCompanyCr = xlsCol; xlsCol++;
+                    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Balance", 15, ExcelHAlign.HAlignRight); colCompanyBlance = xlsCol; xlsCol++;
+                }
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Dr/Cr", 5, ExcelHAlign.HAlignRight); colDrCr = xlsCol;
+
+                row++;
+                reportUtility.SetText(ref sheet, row, 2, "Opening Balance", true);
+                sheet.Range[reportUtility.GetColumnNameForXls(colPostingDate) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
+
+                // Get bank opening balance data.
+                var obVal = GetBankOpeningBalanceLedgerData(companyGroupId, companyId, bankMasterId, fromDate);
+                if (obVal.Count > 0)
+                {
+                    // Set Opening Balance
+                    reportUtility.SetText(ref sheet, row, 7, Convert.ToDouble(obVal[0]["OB"]), true);
+                    sheet.Range[row, 7].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
+                    if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
+                        reportUtility.SetText(ref sheet, row, 10, Convert.ToDouble(obVal[0]["CompanyCurrencyOB"]), true);
+                    sheet.Range[row, 10].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    colLast = 8;
+                    if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
+                    {
+                        colLast = 11;
+                    }
+                    sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
+                }
+                sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[row, colLast].VerticalAlignment = ExcelVAlign.VAlignTop;
+                row++;
+                int StartRow = row;
+                // Get bank transaction data.
+               
+
+                var ledgerData = GetBankLedgerData(companyGroupId, companyId, bankMasterId, fromDate, toDate);
+                if (ledgerData.Rows.Count > 0)
+                {
+                    for (int i = 0; i < ledgerData.Rows.Count; i++)
+                    {
+                        reportUtility.SetText(ref sheet, row, 1, ledgerData.Rows[i]["VoucherNo"].ToString());
+                        //sheet.Range[row, 1].WrapText = true;
+                        reportUtility.SetText(ref sheet, row, 2, Convert.ToDateTime(ledgerData.Rows[i]["PostingDate"].ToString()).ToString("dd-MMM-yyyy"));
+                        reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["OtherSide"].ToString());
+
+                        //sheet.Range[row, 2].WrapText = true;
+                        //reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["OtherSide"].ToString());
+                        //sheet.Range[row, 3].WrapText = true;
+                        reportUtility.SetText(ref sheet, row, 4, ledgerData.Rows[i]["Narration"].ToString());
+                        sheet.Range[row, 4].WrapText = true;
+                        //sheet.Range[reportUtility.GetColumnNameForXls(3) + row + ":" + reportUtility.GetColumnNameForXls(4) + row].Merge();
+
+                        sheet.Range[row, 4].WrapText = true;
+
+                        //sheet.Range[row, 4].ColumnWidth = 40;
+                        //sheet.Range[row, 4].AutofitColumns();
+
+                        if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode == bankCurrencyId)
+                        {
+                            reportUtility.SetText(ref sheet, row, 5, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
+                            reportUtility.SetText(ref sheet, row, 6, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
+                        }
+                        else
+                        {
+                            reportUtility.SetText(ref sheet, row, 5, Convert.ToDouble(ledgerData.Rows[i]["DrAmount"].ToString()));
+                            reportUtility.SetText(ref sheet, row, 6, Convert.ToDouble(ledgerData.Rows[i]["CrAmount"].ToString()));
+                        }
+                        sheet.Range[row, 7].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(7) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(5) + row + "-" + reportUtility.GetColumnNameForXls(6) + row + ")";
+                        sheet.Range[row, 7].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
+                        colLast = 8;
+                        // Base currency checking
+                        if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
+                        {
+                            reportUtility.SetText(ref sheet, row, 8, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
+                            reportUtility.SetText(ref sheet, row, 9, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
+                            sheet.Range[row, 10].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(10) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(8) + row + "-" + reportUtility.GetColumnNameForXls(9) + row + ")";
+                            sheet.Range[row, 10].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                            colLast = 11;
+                        }
+                        
+                        sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
+                        sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet.Range[row, colLast].VerticalAlignment = ExcelVAlign.VAlignTop;
+                        row++;
+                    }
+                }
+
+                reportUtility.SetText(ref sheet, row, 2, "Closing Balance", true);
+                sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
+                sheet.Range[row, colDebit].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colDebit) + StartRow + ":" + reportUtility.GetColumnNameForXls(colDebit) + (row - 1) + ")";
+                sheet.Range[row, colDebit].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet.Range[row, colCredit].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colCredit) + StartRow + ":" + reportUtility.GetColumnNameForXls(colCredit) + (row - 1) + ")";
+                sheet.Range[row, colCredit].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet.Range[row, 7].Formula = "=" + reportUtility.GetColumnNameForXls(7) + (row - 1);
+                sheet.Range[row, 7].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[row, 7].CellStyle.Font.Bold = true;
+                colLast = 8;
+                if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
+                {
+                    sheet.Range[row, 10].Formula = "=" + reportUtility.GetColumnNameForXls(10) + (row - 1);
+                    sheet.Range[row, 10].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    sheet.Range[row, 10].CellStyle.Font.Bold = true;
+                    colLast = 11;
+                }
+                sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
+                sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[row, colLast].VerticalAlignment = ExcelVAlign.VAlignTop;
+                // row++;
+
+                sheet.Range[12, 5, row, 5].WrapText = true;
+                //sheet.UsedRange.AutofitColumns();
+                sheet.UsedRange.CellStyle.Font.Size = 8;
+                reportUtility.CompanyHeader(ref sheet, colLast, "Bank Ledger", companyId);
+                reportUtility.SetText(ref sheet, 5, 4, "From " + fromDate + " To " + toDate + "", ExcelHAlign.HAlignCenter);
+
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + 6 + ":" + reportUtility.GetColumnNameForXls(colLast) + 6].Merge();
+                reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
+                return workbook;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetBankLedgerData(string companyGroupId, string companyId, string bankMasterId, string fromDate, string toDate)
+        {
+            var cmdText = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"';
+                    DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                    DECLARE @bankMasterId VARCHAR(10)='" + bankMasterId + @"';
+                    SELECT V.VoucherNo, V.PostingDate, V.CurrencyId,
+                    GLT.DrAmount AS DrAmount,
+                    GLT.CrAmount AS CrAmount
+                    , CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount, V.Narration,v.AddedDate
+                    ,OtherSide = concat( STUFF((select distinct ','+XPP.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
+                    where XVD.VoucherId=V.Id AND XVD.PartyPlantId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XEI.AccountTitle from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join mst.BankMaster XEI ON XEI.id=XVD.BankMasterId
+					LEFT JOIN HKP.Bank BX ON BX.Id=XEI.BankId
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId !=VD.BankMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    
+                    ,STUFF((select distinct ','+XEI.EmployeeName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join dbo.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
+                    where XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XCM.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
+                    where XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XA.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.Activity XA ON XA.Id=XVD.ActivityId
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                    FROM [TRN].[GLTransactionDetail] AS GLT
+                    LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
+                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                    LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
+                    LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
+                    LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                    LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+                    FROM [TRN].[VoucherDetailCurrency] AS VDC
+                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                    ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
+                    WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND VD.BankMasterId=@bankMasterId AND V.SourceType!='OpeningBalance'
+                    AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
+                    
+                    UNION ALL
+                    
+                    SELECT V.VoucherNo, V.PostingDate, V.CurrencyId,
+                    GLT.DrAmount AS DrAmount,
+                    GLT.CrAmount AS CrAmount
+                    , CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount, V.Narration,v.AddedDate
+                    ,OtherSide = concat( STUFF((select distinct ','+XPP.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
+                    where XVD.VoucherId=V.Id AND XVD.PartyPlantId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XEI.EmployeeName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join dbo.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
+                    where XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XEI.AccountTitle from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join mst.BankMaster XEI ON XEI.id=XVD.BankMasterId
+					LEFT JOIN HKP.Bank BX ON BX.Id=XEI.BankId
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId !=VD.BankMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    
+                    ,STUFF((select distinct ','+XCM.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
+                    where XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XA.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.Activity XA ON XA.Id=XVD.ActivityId
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                    FROM [TRN].[GLTransactionDetail] AS GLT
+                    LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
+                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                    LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
+                    LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
+                    LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                    LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+                    FROM [TRN].[VoucherDetailCurrency] AS VDC
+                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                    ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
+                    WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND VD.BankMasterId=@bankMasterId
+                    AND V.SourceType='OpeningBalance'
+                    AND V.PostingDate > '" + fromDate + @"'
+                    ORDER BY V.PostingDate,V.Addeddate, V.VoucherNo ASC";
+            return _sqlRepository.GetDataTable(cmdText);
+        }
+
+        public Dictionary<string, object> GetBankMaster(string bankMasterId)
+        {
+            var sql = @"SELECT BM.Id, BM.AccountTitle, BM.AccountNumber, BM.CurrencyId, C.Code AS CurrencyCode, B.UserName AS BankName, BB.UserName AS BankBranchName, GLGI.AccountCode AS GLGeneralInfoCode
+                    , GLGI.UserName AS GLGeneralInfoName, BGM.RefNo, BG.UserName AS BudgetName, A.UserName AS ActivityName
+                    FROM [MST].[BankMaster] AS BM
+                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=BM.CurrencyId
+                    LEFT JOIN [HKP].[Bank] AS B ON B.Id=BM.BankId
+                    LEFT JOIN [HKP].[BankBranch] AS BB ON BB.Id=BM.BankBranchId
+                    LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+                    LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=BM.BudgetMasterId
+                    LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=BM.ActivityId
+                    WHERE BM.Id='" + bankMasterId + "'";
+            return _sqlRepository.GetData(sql);
+        }
+
+        public List<Dictionary<string, object>> GetBankOpeningBalanceLedgerData(string companyGroupId, string companyId, string bankMasterId, string fromDate)
+        {
+            var sql = @"SELECT SUM(DrAmount) - SUM(CrAmount) AS OB
+                        , CompanyCurrencyId, SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyCurrencyOB
+                        , CompanyGroupCurrencyId, SUM(CompanyGroupCurrencyDrAmount)-SUM(CompanyGroupCurrencyCrAmount) AS CompanyGroupCurrencyOB
+                        , HardCurrencyId, SUM(HardCurrencyDrAmount)-SUM(HardCurrencyCrAmount) AS HardCurrencyOB FROM (
+                        SELECT SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
+                        , CC.CompanyCurrencyId, SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount
+                        , GC.CompanyGroupCurrencyId, SUM(GC.CompanyGroupCurrencyDrAmount) AS CompanyGroupCurrencyDrAmount, SUM(GC.CompanyGroupCurrencyCrAmount) AS CompanyGroupCurrencyCrAmount
+                        , HC.HardCurrencyId, SUM(HC.HardCurrencyDrAmount) AS HardCurrencyDrAmount, SUM(HC.HardCurrencyCrAmount) AS HardCurrencyCrAmount
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.BankMasterId=VD.BankMasterId
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyGroupCurrencyId, VDC.DrAmount AS CompanyGroupCurrencyDrAmount, VDC.CrAmount AS CompanyGroupCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
+                        ) AS GC ON GC.VoucherDetailId=VD.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS HardCurrencyId, VDC.DrAmount AS HardCurrencyDrAmount, VDC.CrAmount AS HardCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId='" + companyId + @"'
+                        ) AS HC ON HC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND VD.BankMasterId='" + bankMasterId + "' AND V.PostingDate < '" + fromDate.ToDbDate() + @"'
+                        GROUP BY CC.CompanyCurrencyId, GC.CompanyGroupCurrencyId, HC.HardCurrencyId
+                        UNION
+                        SELECT SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
+                        , CC.CompanyCurrencyId, SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount
+                        , GC.CompanyGroupCurrencyId, SUM(GC.CompanyGroupCurrencyDrAmount) AS CompanyGroupCurrencyDrAmount, SUM(GC.CompanyGroupCurrencyCrAmount) AS CompanyGroupCurrencyCrAmount
+                        , HC.HardCurrencyId, SUM(HC.HardCurrencyDrAmount) AS HardCurrencyDrAmount, SUM(HC.HardCurrencyCrAmount) AS HardCurrencyCrAmount
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.BankMasterId=VD.BankMasterId
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyGroupCurrencyId, VDC.DrAmount AS CompanyGroupCurrencyDrAmount, VDC.CrAmount AS CompanyGroupCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
+                        ) AS GC ON GC.VoucherDetailId=VD.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS HardCurrencyId, VDC.DrAmount AS HardCurrencyDrAmount, VDC.CrAmount AS HardCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId='" + companyId + @"'
+                        ) AS HC ON HC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND VD.BankMasterId='" + bankMasterId + "' AND V.PostingDate ='" + fromDate.ToDbDate() + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId, GC.CompanyGroupCurrencyId, HC.HardCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId, X.CompanyGroupCurrencyId, X.HardCurrencyId";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        #endregion
 
     }
 }
