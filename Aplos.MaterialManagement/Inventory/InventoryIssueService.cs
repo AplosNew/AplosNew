@@ -7406,7 +7406,7 @@ namespace Library.MaterialManagement.Inventory
                             left join [MST].[MaterialMasterAlternativeUOM] AlternativeUOM ON AlternativeUOM.AlternativeUOMId=IR.TransactionUoMId And AlternativeUOM.MaterialMasterId=mm.Id
 
 							LEFT JOIN(
-										SELECT TUoM.Id UoM,0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
+										SELECT TUoM.Id UoM,0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(II.IssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
 											,IM.MaterialMasterId
 												,IM.ArticleId
 												,IM.FirstCharacteristicsValueId
@@ -7420,6 +7420,18 @@ namespace Library.MaterialManagement.Inventory
 												LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
 												LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
 												LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+
+                                                LEFT JOIN (
+									            select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, II.MaterialStorageId
+                                                , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,IID.IsAsset
+									            FROM TRN.InventoryIssueDetail IID  
+									            LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
+									            LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
+									            WHERE --convert(Date,II.IssueDate) <= CAST('13-Jan-2022' AS DATE)  AND 
+                                                II.PlantId='" + identity.PlantId+@"'   
+									            GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
+									            ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
+
 											WHERE IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'
 												AND IR.IsApproved=1						
 												Group BY 
@@ -7473,7 +7485,7 @@ namespace Library.MaterialManagement.Inventory
 												AND  UnApprovedQty.UoM=IR.TransactionUoMId
 
 								Left JOIN(
-										SELECT TUoM.Id UoM,0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
+										SELECT TUoM.Id UoM,0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(II.IssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
 										,IM.MaterialMasterId
 																,IM.ArticleId
 																,IM.FirstCharacteristicsValueId
@@ -7488,6 +7500,18 @@ namespace Library.MaterialManagement.Inventory
 												JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
 												JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
 												JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+
+                                                LEFT JOIN (
+									            select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, II.MaterialStorageId
+                                                , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,IID.IsAsset
+									            FROM TRN.InventoryIssueDetail IID  
+									            LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
+									            LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
+									            WHERE --convert(Date,II.IssueDate) <= CAST('13-Jan-2022' AS DATE)  AND 
+                                                II.PlantId='"+identity.PlantId+@"'   
+									            GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
+									            ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
+
 												WHERE IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'
 												AND IR.[Status]='Posting' 						
 												Group BY 

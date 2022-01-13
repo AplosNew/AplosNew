@@ -4,6 +4,8 @@ using System.Web.Mvc;
 using Library.HumanResource.NewAttendanceProcess;
 using System.Data;
 using System;
+using Library.Crosscutting.Security;
+using System.Threading;
 
 #endregion
 
@@ -26,6 +28,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
+        public ActionResult PlantWise()
+        {
+            return View();
+        }
         #endregion
 
         [HttpPost, Authorize]
@@ -33,6 +39,16 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             var jsondata = Json(ss.GetEmployeeInformation(month, year), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeInformationPlantWise(string month, string year)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(ss.GetEmployeeInformationPlantWise(month, year,identity.PlantId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+
             return jsondata;
         }
 
@@ -78,5 +94,27 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(new { Error = false, Message = "Sandwich Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
 
         }
+
+        [HttpPost, Authorize]
+        public ActionResult RunProcessPlantWise(string month, string year)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            NewAttendanceProcessService repo = new NewAttendanceProcessService();
+
+            string CatchPlant = "";
+            try
+            {             
+                CatchPlant = identity.PlantId;
+                ss.Process(CatchPlant,month,year);
+            }
+            catch (Exception ex)
+            {
+                repo.CommonLogFunction(ex, CatchPlant, "SandwichProcess");
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "Sandwich Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }
