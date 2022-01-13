@@ -421,7 +421,7 @@ namespace Library.Service.SalaryDisbursement
                                         }
 
                                     }
-                                    if (directdata.Amount - directAmount > 0)
+                                    if (directVoucherDetailVM.CrAmount - directAmount > 0)
                                     {
                                         currentVoucherDetailId++;
                                         var directVoucherDetailDrAdd = _voucherService.InsertVoucherDetail(voucherdirect, new VoucherDetail
@@ -451,6 +451,7 @@ namespace Library.Service.SalaryDisbursement
                                 }
                                 else
                                 {
+                                    currentVoucherDetailId++;
                                     var directVoucherDetailDr = _voucherService.InsertVoucherDetail(voucherdirect, new VoucherDetail
                                     {
                                         GLGeneralInfoId = directVoucherDetailVM.GLGeneralInfoId,
@@ -709,10 +710,11 @@ namespace Library.Service.SalaryDisbursement
                                         
                                     }
                                     
-                                        if (indirectdata.Amount - indirectAdvanceAmountTemp > 0)
+                                        if (voucherDetailVM.CrAmount - indirectAdvanceAmountTemp > 0)
                                         {
-                                            // If no advance found against employee then only voucher will save. Advance SetOff will not occur.
-                                            var voucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
+                                        currentVoucherDetailId++;
+                                        // If no advance found against employee then only voucher will save. Advance SetOff will not occur.
+                                        var voucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
                                             {
                                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                                 BudgetMasterId = voucherDetailVM.BudgetMasterId,
