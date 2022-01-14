@@ -38,7 +38,7 @@ namespace Library.OrderManagement.Production
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                             left join dbo.ProductLibrary pl on pl.Id = moi.ProductLibraryId
                             left join hkp.Party p on p.Id = mo.PartyId
-                            left join hkp.ProductionStatus prs on prs.Id = po.planningStatus
+                            left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
                             left join hkp.OrderStatus os on os.Id = so.OrderStatusId
                             left join hkp.Process pc on pc.Id = ps.ProcessId";
                 return _sqlRepository.GetDataCollection(str);
@@ -49,10 +49,22 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> getMasterGrid()
+        public IEnumerable<object> getMasterGrid(Dictionary<string, object> filters)
         {
             try
             {
+
+                string pc = "";
+                if(filters["PSLibId"].ToString() == "'','null'")
+                {
+                    pc = "";
+                }
+                else
+                {
+                    pc = "and ps.ProductLibraryId in ("+ filters["PSLibId"] + ")";
+                }
+
+
                 var str = @"Select dd.Customer ,dd.PRStatus,dd.ProductionOrderId , dd.LineItem,isnull(dd.ProductCode,'') as ProductCode, Sum(dd.OrderQty) as OrderQty , Sum(dd.PlanQty) as PlanQty , Sum(dd.ProducedQty) as ProdQty , abs(Sum(Case when dd.ShortExcess<0 then dd.ShortExcess else 0 end)) as ToProduce ,Sum(Case when dd.ShortExcess>0 then dd.ShortExcess else 0 end) as ExcessProduce 
                         from 
                         (

@@ -27,6 +27,7 @@ function ProductionReportController(cboService, commonMessage, $scope, $rootScop
             $("#FilterList").children('.e-pager.e-js.e-pager').hide();
             $("#FilterList").children('.e-gridcontent.e-droppable.e-js').hide();
             $("#FilterList").children('.e-gridcontent').hide();
+            $scope.fillFilters();
         });
     }
 
@@ -115,5 +116,4 @@ function ProductionReportController(cboService, commonMessage, $scope, $rootScop
 
     //Initial Loading Functions
     $scope.getFilters();
-    $scope.getMaster();
 }
