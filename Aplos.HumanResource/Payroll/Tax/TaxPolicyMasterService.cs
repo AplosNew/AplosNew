@@ -72,7 +72,7 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                var sql = @"Select * from dbo.attdnbonusplantchild where HeaderId ='" + MasterId + "'";
+                var sql = @"Select * from dbo.TaxPlantChild where HeaderId ='" + MasterId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -85,7 +85,7 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string TableName = "dbo.attdnbonusplantchild";
+                string TableName = "dbo.TaxPlantChild";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where PlantId ='" + Child["PlantId"] + "'", out dsMaster, false, "1");
@@ -98,7 +98,7 @@ namespace Library.HumanResource.Payroll.Tax
                     clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    Child["Id"] = "PC"+_Id;
+                    Child["Id"] = "TPC"+_Id;
                     AddNewRow(dsMaster.Tables[0], Child);
                 }
                 else
@@ -122,7 +122,7 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string TableName = "dbo.attdnbonusplantchild";
+                string TableName = "dbo.TaxPlantChild";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
