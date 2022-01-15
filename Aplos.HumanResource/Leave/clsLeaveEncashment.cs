@@ -175,6 +175,48 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                 objCon = null;
             }
         }//End Function
+        public void GetLeaveBalanceFinalSettlement(string EmpSystemId, string DOS, out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"select 
+                             E.SystemId, e.EmployeeCode,e.EmployeeName,t.UserName LeaveType,s.LeaveTypeId,e.LegalDesignationId
+                            ,BroughtForward=isnull(s.BroughtForward,0)+isnull(s.CarryForwardOpeningBalance,0)
+                            ,s.CarryForward
+                            ,s.DaysCanBeSanctioned
+                            ,s.CurrentYearAllocation
+                            ,s.IsYearlyProcessed,s.EncashedInbetween ,s.YearEndEncash
+                            ,LeaveDaysAllowed=isnull(s.BroughtForward,0)+isnull(s.DaysCanBeSanctioned,0)
+                            ,ISNULL( (SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
+                                        INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
+                                        where D.WorkDate BETWEEN S.FromDate and S.ToDate
+                                AND m.EmpSystemID=S.EmployeeId AND m.LTSystemID=S.LeaveTypeId ),0) AS AvailedLeave
+
+            
+            				,Balance=ISNULL(s.CurrentYearAllocation,0)+ISNULL(s.BroughtForward,0)+ISNULL(s.CarryForwardOpeningBalance,0)
+                            from trn.EmployeeLeaveSummary s 
+                            INNER JOIN LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
+                            INNER JOIN EmployeeInformation e on e.SystemId=s.EmployeeId AND s.PlantId=e.PlantId
+                            
+						   --------------------------------------------------------------------------
+                            where  E.SystemId ='" + EmpSystemId + @"' AND e.DOS BETWEEN s.FromDate AND s.ToDate
+                            ORDER BY  e.EmployeeCodePreFix,e.EmployeeCodeNumeric
+                            ";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
         public void GetEarnLeavePolicy(string PlantId, out System.Data.DataSet dsRef)
         {
@@ -421,7 +463,7 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
             EarnleaveID = objLeaveYearEndProcessData.GetEarnLeaveID();
 
             GetEarnLeavePolicy(PlantId, EmpSystemId, out dsEarnLeavePolicy);
-            GetLeaveBalance(EmpSystemId, YearNo, PlantId, out dsLvEncashment);
+            GetLeaveBalanceFinalSettlement(EmpSystemId, LeaveEncashmentDate, out dsLvEncashment);
             GetSalaryDataEmpWise(EmpSystemId, LeaveEncashmentDate, out dsSalaryDataEmpWise);
             //GetAvailedEncashmentBalance(EmpSystemId, YearNo, out dsAvailedEncashmentBalance);
 
@@ -433,59 +475,18 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                 ob.EmployeeName = dsLvEncashment.Tables[0].Rows[0]["EmployeeName"].ToString();
                 ob.LeaveType = dsLvEncashment.Tables[0].Rows[0]["LeaveType"].ToString();
                 ob.LeaveTypeId = dsLvEncashment.Tables[0].Rows[0]["LeaveTypeId"].ToString();
-                if (!string.IsNullOrEmpty(dsLvEncashment.Tables[0].Rows[0]["BroughtForward"].ToString()))
-                {
-                    ob.BroughtForward = Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["BroughtForward"].ToString());
-                }
-                if (!string.IsNullOrEmpty(dsLvEncashment.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString()))
-                {
-                    ob.DaysCanBeSanctioned = Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString());
-                }
-                if (!string.IsNullOrEmpty(dsLvEncashment.Tables[0].Rows[0]["CurrentYearAllocation"].ToString()))
-                {
-                    ob.CurrentYearAllocation = Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["CurrentYearAllocation"].ToString());
-                }
-                if (!string.IsNullOrEmpty(dsLvEncashment.Tables[0].Rows[0]["LeaveDaysAllowed"].ToString()))
-                {
-                    ob.LeaveDaysAllowed = Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["LeaveDaysAllowed"].ToString());
-                }
-                if (!string.IsNullOrEmpty(dsLvEncashment.Tables[0].Rows[0]["AvailedLeave"].ToString()))
-                {
-                    ob.AvailedLeave = Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["AvailedLeave"].ToString());
-                }
-                //if (!string.IsNullOrEmpty(dsLvEncashment.Tables[0].Rows[0]["YearEndEncash"].ToString()))
-                //{
-                //    ob.Balance = Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["YearEndEncash"].ToString());
-                //}
-                if (Convert.ToDateTime(dsLvEncashment.Tables[0].Rows[0]["DOJorDOC"].ToString()) <= Convert.ToDateTime(LeaveEncashmentDate))
-                {
-                    if (!string.IsNullOrEmpty(dsLvEncashment.Tables[0].Rows[0]["Balance"].ToString()))
-                    {
-                        ob.Days = Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["Balance"].ToString());
-                    }
-                }
 
 
-                //if (dsAvailedEncashmentBalance.Tables[0].Rows.Count > 0)
-                //{
-
-                //    if (!string.IsNullOrEmpty(dsAvailedEncashmentBalance.Tables[0].Rows[0]["Days"].ToString()))
-                //    {
-                //        ob.AvailedEncashment = Convert.ToDecimal(dsAvailedEncashmentBalance.Tables[0].Rows[0]["Days"].ToString());
-
-                //    }
-                //}
-
+                ob.BroughtForward = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["BroughtForward"].ToString());
+                ob.DaysCanBeSanctioned = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString());
+                ob.CurrentYearAllocation = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["CurrentYearAllocation"].ToString());
+                ob.LeaveDaysAllowed = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["LeaveDaysAllowed"].ToString());
+                ob.AvailedLeave = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["AvailedLeave"].ToString());
+                ob.Days = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["Balance"].ToString());
 
 
                 CarryForword objCarryForword = CheckLeavePolicyDetails(PlantId, EmpSystemId, EarnleaveID, Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["Balance"].ToString()));
-                //leaveResult = CalculateLeave(EmpSystemId, LeaveTypeId, sdsLeaveTranInfo);
-                //if (objCarryForword != null)
-                //{
-                //    ob.Days = objCarryForword.CarryForwordEncash;
-                //}
-
-                //ob.Days = ob.Balance;
+              
 
 
 
@@ -529,28 +530,6 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                         ob.Rate = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult));
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-                        //dsSalaryDataEmpWise.Tables[0].DefaultView.RowFilter= "SalaryHeadId=" + dsEarnLeavePolicy.Tables[0].Rows[0]["LvEncashmentSalaryHeadID"].ToString();
-                        //dv.RowFilter = "SalaryHeadId='" + dsEarnLeavePolicy.Tables[0].Rows[0]["LvEncashmentSalaryHeadID"].ToString() + "'";
-                        //if (dv.Count > 0)
-                        //{
-                        //    if (!string.IsNullOrEmpty(dv[0]["EntryAmount"].ToString()))
-                        //    {
-                        //        ob.Rate = Convert.ToDecimal(dv[0]["EntryAmount"].ToString()) / 30;
-                        //    }
-
-                        //}
                     }
                     else
                     {

@@ -125,7 +125,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult XlsDepWiseAttnRpt(string Month, string Year, string DayStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult XXlsDepWiseAttnRpt(string Month, string Year, string DayStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
         {
             try
             {
@@ -137,9 +137,10 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
-
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-
+                return Json(new { FileName = fullPath, Error = false }, JsonRequestBehavior.AllowGet);
+                //workbook.SaveAs(fileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //workbook.Close();
+                
 
             }
 
@@ -150,6 +151,28 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult XlsDepWiseAttnRpt(string Month, string Year, string DayStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd")+identity.UserId + ".xlsx";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+                var workbook = _monthlyAttendanceInformation.XlsMonthlyAttendanceSummaryReports(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters, withColor, includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
+
+                return Json(new { FullPath = workbook, FileName= fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
 
 
         [HttpPost, Authorize]

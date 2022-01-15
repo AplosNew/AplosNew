@@ -73,7 +73,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost , Authorize]
         public JsonResult saveQuantity(Dictionary<string, object> data)
         {
             try
