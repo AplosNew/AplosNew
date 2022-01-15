@@ -28,7 +28,7 @@ namespace Library.OrderManagement.Production
             {
                 var str = @"
                             Select p.Id as CustomerId,p.UserName as Customer, mo.BuyerReferenceNo as BuyerRef, mo.OwnReferenceNo as OwnRef , mo.Id as MOId,mo.MasterOrderNo as MO ,
-                            moi.Id as LineItem , So.Id as SO,prs.UserName as PRStatusNA, po.planningStatus as PRStatus , so.OrderStatusId as SOOrderId,os.UserName as SOStatus ,
+                            moi.Id as LineItem , So.Id as SO,prs.UserName as PRStatus, po.planningStatus as PRStatusNA , so.OrderStatusId as SOOrderId,os.UserName as SOStatus ,
                             pl.Code as ProductCode ,moi.ProductLibraryId as MOILibId , ps.ProductLibraryId as PSLibId , ps.ProcessId , pc.UserName as Process
                             from trn.ProductionSummary ps
                             left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
