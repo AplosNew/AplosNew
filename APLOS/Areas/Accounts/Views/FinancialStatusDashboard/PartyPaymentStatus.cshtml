@@ -1413,11 +1413,11 @@
                                     @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>*@
 
                                     @*<td class="text-right">
-                                          <ul class="list-inline action-list">
-                                              <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
-                                          </ul>
-                                        </td>*@
-
+          <ul class="list-inline action-list">
+              <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+          </ul>
+        </td>*@
+                                    <div e-column e-type="string" e-field="SourceType" e-headertext="Source Type" e-width="80"></div>
                                     <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AccNo" e-width="80"></div>
                                     <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Date" e-format="{0:dd-MMM-yyyy}" e-width="50"></div>
                                     <div e-column e-template="#templateVoucherNoAcceptanceLiability" e-type="string" e-field="VoucherNo" e-headertext="Voucher No" e-width="100"></div>
