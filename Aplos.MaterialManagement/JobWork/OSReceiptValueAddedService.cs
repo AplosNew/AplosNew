@@ -1094,31 +1094,26 @@ namespace Library.MaterialManagement.JobWork
 									) x group by x.OSTransformationPODetailId
                          )CC3 ON CC3.OSTransformationPODetailId=mp.Id
                         left join(select OSTransformationPODetailId, Sum(isnull(TransactionQty,0)) TransactionQty from trn.InventoryReceiveDetail group by OSTransformationPODetailId)rcvqty ON rcvqty.OSTransformationPODetailId=mp.Id
-                        left join( --select  mp1.Id ,II.JWContractId 
-								 --,sum(IID.PolicyAmount/IID.TransactionQty) Rate
-                                 --,sum(IID.PolicyAmount) PolicyAmt,sum(IID.TransactionQty) TQty
-								 --,Rate=round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)),4)
-								 --FROM trn.InventoryIssueDetail IID
-								 --left join trn.InventoryIssue II On II.Id=IID.InventoryIssueId
-								 --left join trn.InventoryMaterial IM ON IM.Id=IID.InventoryMaterialId
-								 --left JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
-								 --left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
-								 --left join dbo.OSTransformationPO tc on tc.Id=II.JWContractId
-								 --left join dbo.OSTransformationPODetail mp1 ON mp1.OSTransformationPOId=Tc.Id								
-								 --group by  mp1.Id,II.JWContractId 
-
-                                   select  IID.OSTransformationPOId,II.JWContractId 
-								 ,sum(IID.PolicyAmount) PolicyAmt,sum(IID.TransactionQty) TQty
-								 ,Rate=round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)),4)
-                                 ,ConsumptionAmount= (round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)),4) * sum(IID.TransactionQty))
+                        left join( select x.OSTransformationPOId,x.JWContractId 
+								 ,sum(x.PolicyAmt) PolicyAmt,sum(x.TQty) TQty
+								 ,sum(x.Rate) Rate
+                                 ,sum(x.ConsumptionAmount) ConsumptionAmount
+								FROM (
+                                  SELECT  IID.OSTransformationPOId,II.JWContractId,IID.InventoryMaterialId 
+								 ,IID.PolicyAmount PolicyAmt,IID.TransactionQty TQty
+								 ,Rate=IID.PolicyAmount / IID.TransactionQty
+                                 ,ConsumptionAmount=IID.PolicyAmount*otim.GrossConsumption--, (round((sum() / sum(IID.TransactionQty)),4) * sum(IID.TransactionQty))
 								 FROM trn.InventoryIssueDetail IID
+								 
+								 left join (select  Id,GrossConsumption from dbo.OSTransformationPOInputMaterial) otim on otim.Id=iid.OSTransformationPOInputMaterialId
 								 left join trn.InventoryIssue II On II.Id=IID.InventoryIssueId
 								 left join trn.InventoryMaterial IM ON IM.Id=IID.InventoryMaterialId
 								 left JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
 								 left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
 								 left join dbo.OSTransformationPO tc on tc.Id=II.JWContractId
 								 where II.JWContractId='" + PKId + @"'
-								 group by II.JWContractId,IID.OSTransformationPOId
+								  ) x
+								 group by x.JWContractId,x.OSTransformationPOId
                                  )vvvv ON vvvv.JWContractId=tc.Id and vvvv.OSTransformationPOId=mp.Id
                         where tc.Id='" + PKId + @"' 
                          group by mp.Quantity ,ISNULL(rcvqty.TransactionQty,'0'),mp.Id,jwi.UserName, mma.StandardName,jwa.UserName--,kk.TotalReceivedQuantity
