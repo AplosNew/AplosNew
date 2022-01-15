@@ -445,6 +445,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('ESICPolicyController', ESICPolicyController)
     .controller('jobLocationController', jobLocationController)
     .controller('TaxPolicyController', TaxPolicyController)
+    .controller('TaxPolicyHeaderController', TaxPolicyHeaderController)
     .controller("attendanceBonusPolicyController", attendanceBonusPolicyController)
     .controller('CurrencyRuleController', CurrencyRuleController)
     .controller('leaveTypeController', leaveTypeController)
