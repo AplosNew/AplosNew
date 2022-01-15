@@ -155,13 +155,13 @@
                         <th>{{CharacteristicsName}}</th>
                         <th></th>
                         <th></th>
-                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
+                        <th ng-repeat="x in FGCharacteristicsValueList" style="text-align:center">{{x.Characteristicsvalue}}</th>
                     </tr>
                     <tr>
                         <th>Ratio</th>
                         <th>Min. Ply Value</th>
                         <th>{{CalculateOn}} Ply Value</th>
-                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
+                        <th style="text-align:center" ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -169,7 +169,7 @@
                         <td>{{x.Characteristicsvalue}}</td>
                         <td>{{x.MinimumPlyActualValue}}</td>
                         <td>{{x.MinimumPlyOptionValue}}</td>
-                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" value="{{x.MinimumPlyOptionValue * y.Ratio}}" class="form-control"></td>
+                        <td ng-repeat="y in x.Qty"><input disabled type="text" value="{{y.CalculatedPlyQty}}" class="form-control"></td>
                     </tr>
                 </tbody>
             </table>
@@ -184,27 +184,34 @@
                 <thead>
                     <tr>
                         <th>{{CharacteristicsName}}</th>
-                        <th></th>
-                        <th ng-repeat="x in SecenodIterationHeader">{{x.UserName}}</th>
+                        <th colspan="3" ng-repeat="x in FGCharacteristicsValueList"style="text-align:center">{{x.Characteristicsvalue}}</th>
                     </tr>
                     <tr>
                         <th>Ratio</th>
-                        <th>Qty For Calculation</th>
-                        <th ng-repeat="x in SecenodIterationHeader">{{x.MarkerRatio}}</th>
+                        <th colspan="3" style="text-align:center" ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th style="vertical-align: middle; text-align:center" ng-repeat-start="x in FGCharacteristicsValueList">Total</th>
+                        <th style="vertical-align: middle; text-align:center">Calculated</th>
+                        <th style="vertical-align: middle; text-align:center" ng-repeat-end>Available</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="y in SecenodIteration">
-                        <td>{{y.UserName}}</td>
-                        <td>{{y.QtyForCalculation}}</td>
-                        <td ng-repeat="zx in y.Details">
-                            <label class="col-sm-3 control-label">Calculated Qty: </label>
-                            <label class="col-sm-3 control-label">{{zx.CalculatedQty}}</label>
-                            <label class="col-sm-3 control-label">Available Qty: </label>
-                            <label class="col-sm-3 control-label">{{zx.CurrentQty}}</label>
-                        </td>
-                        @*<td ng-repeat="zx in y.Details"></td>*@
+                    <tr ng-repeat="x in CalculatedSkuValueList">
+                        <td>{{x.Characteristicsvalue}}</td>
+                        <td style="vertical-align: middle; text-align:center" ng-repeat-start="y in x.Qty"><input disabled type="text" value="{{y.Qty}}" class="form-control"></td>
+                        <td style="vertical-align: middle; text-align:center"><input disabled type="text" value="{{y.CalculatedPlyQty}}" class="form-control"></td>
+                        <td style="vertical-align: middle; text-align:center" ng-repeat-end><input disabled type="text" value="{{y.AvailableQty}}" class="form-control"></td>
                     </tr>
+                    @*<tr ng-repeat="x in CalculatedSkuValueList">
+                        <td>{{x.Characteristicsvalue}}</td>
+                        <td ng-repeat="y in x.Qty">
+                            Total: <input disabled type="text" value="{{y.Qty}}" class="form-control">
+                            Calculated: <input disabled type="text" value="{{y.CalculatedPlyQty}}" class="form-control">
+                            Available: <input disabled type="text" value="{{y.AvailableQty}}" class="form-control">
+                        </td>
+                    </tr>*@
                 </tbody>
             </table>
             <div class="common-btn">

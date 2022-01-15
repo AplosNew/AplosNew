@@ -688,6 +688,7 @@
     <Compile Include="Areas\JobWork\Controllers\JWReceiptController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
@@ -1992,6 +1993,7 @@
     <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JWReceiptController.js" />
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
+    <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataMasterController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
@@ -3941,6 +3943,7 @@
     <Content Include="Areas\Attendances\Views\SandwichProcess\PlantWise.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceManagementMaster\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\TaxPolicyHeader\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

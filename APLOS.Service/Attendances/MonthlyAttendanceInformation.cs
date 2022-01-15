@@ -1473,7 +1473,7 @@ namespace Library.Service.Attendances
                     workbook = application.Workbooks.Create(1);
                     sheet1 = workbook.Worksheets[0];
                     sheet1.IsGridLinesVisible = true;
-                    workbook.Version = ExcelVersion.Excel97to2003;
+                    workbook.Version = ExcelVersion.Excel2013;
                     xlsRow = 6;
 
                     #region StyleSheet
@@ -2492,11 +2492,11 @@ namespace Library.Service.Attendances
                 // return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
 
                 // return workbook;
-                var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xls";
+                var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xlsx";
                 var filePath = "";
                 var SheetName = "";
                 //return workbook;
-                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.Version = ExcelVersion.Excel2013;
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + fileName);
                 workbook.SaveAs(filePath);
                 workbook.Close();
