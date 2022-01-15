@@ -3073,6 +3073,32 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
         #endregion
+
+        #region Bonus Query Code Commented
+        //        select dd.* , ar.Amount, ar.Id
+        //from AttdnBonusRuleChild ar
+        //left join
+        //(select distinct p.EmpSystemID as EmpId,
+        //Sum(dtv.AttnBonusAbsent) AbsentCount, sum(dtv.AttnBonusLate) LateCount,
+        //sum(dtv.AttnBonusLeave) LeaveCount, dc.AttdnBonusHeaderId as HeaderId, p.PlantID
+        //from AttdnProcessData p join
+        //EmployeeInformation e on e.SystemId= p.EmpSystemID
+        //left join DayStatusHeader dh on dh.Id= p.DayStatusHeaderId
+        //left join DayTypeWithValues dtv on dtv.DayType= p.DayStatus
+        //left join mst.DesignationMasterLegalDesignation ddm on
+        //ddm.LegalDesignationId = e.LegalDesignationId
+        //left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+        //left join scs.DesignationMasterConfiguration dc on dc.DesignationMasterId= dm.Id
+        //and dc.PlantId= e.PlantId
+        //left join attdnbonusheader ah on ah.Id= dc.AttdnBonusHeaderId
+        //where p.otmonth= '11' and p.otyear= '2021' and p.PlantId= '202016' AND AH.Active= 1
+        //group by p.EmpSystemID, dc.AttdnBonusHeaderId, p.PlantID)
+        //as dd on ar.HeaderId=dd.HeaderId and
+        //dd.AbsentCount = ar.AbsentValue
+        //and dd.LateCount = ar.LateValue and dd.LeaveCount=ar.LeaveValue
+        //where dd.HeaderId is not null
+        #endregion
+
     }
 }
 

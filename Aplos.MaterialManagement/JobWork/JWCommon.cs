@@ -6065,7 +6065,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
                         range.ApplyCharacterFormat(FontBold);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }

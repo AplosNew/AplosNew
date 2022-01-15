@@ -485,7 +485,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-                    GetLeaveBalance(FinalSettlementData.EmpSystemId, YearlyCalendarId, identity.PlantId, out dsLvDetails);
+                    GetLeaveBalance(FinalSettlementData.EmpSystemId, out dsLvDetails);
                     DataView dvleaveEncashment = new DataView(dsleaveEncashment.Tables[0]);
 
 
@@ -522,32 +522,14 @@ namespace Aplos.Areas.Payrolls.Controllers
                         {
 
 
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["LegalDesignationId"].ToString()))
-                            {
-                                dr["LegalDesignationId"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["LegalDesignationId"].ToString());
-                            }
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["BroughtForward"].ToString()))
-                            {
-                                dr["BroughtForward"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["BroughtForward"].ToString());
-                            }
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString()))
-                            {
-                                dr["DaysCanBeSanctioned"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString());
-                            }
-                            //if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["CurrentYearAllocation"].ToString()))
-                            //{
-                            //    ob.CurrentYearAllocation = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["CurrentYearAllocation"].ToString());
-                            //}
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["CarryForward"].ToString()))
-                            {
-                                dr["CarryForward"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["CarryForward"].ToString());
-                            }
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["AvailedLeave"].ToString()))
-                            {
-                                dr["AvailedLeave"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["AvailedLeave"].ToString());
-                            }
+
+                            dr["LegalDesignationId"] = dsLvDetails.Tables[0].Rows[0]["LegalDesignationId"].ToString();
 
 
+                            dr["BroughtForward"] = clsStaticInfo.dbl(dsLvDetails.Tables[0].Rows[0]["BroughtForward"].ToString());
+                            dr["DaysCanBeSanctioned"] = clsStaticInfo.dbl(dsLvDetails.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString());
+                            dr["CarryForward"] = clsStaticInfo.dbl(dsLvDetails.Tables[0].Rows[0]["CarryForward"].ToString());
+                            dr["AvailedLeave"] = clsStaticInfo.dbl(dsLvDetails.Tables[0].Rows[0]["AvailedLeave"].ToString());
 
                             if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["PaymentMode"].ToString()))
                             {
@@ -566,15 +548,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 dr["BankAccNo"] = dsLvDetails.Tables[0].Rows[0]["BankAccNo"].ToString();
                             }
 
-                            //dr["PaymentMode"] = leaveEncashment[i].PaymentMode;
-                            //dr["BankSystemID"] = leaveEncashment[i].BankSystemID;
-                            //dr["BankBranchId"] = leaveEncashment[i].BankBranchId;
-                            //dr["BankAccNo"] = leaveEncashment[i].BankAccNo;
+             
                         }
-                        //dr["BroughtForward"] = leaveEncashment[i].BroughtForward;
-                        //dr["DaysCanBeSanctioned"] = leaveEncashment[i].DaysCanBeSanctioned;
-                        //dr["AvailedLeave"] = leaveEncashment[i].AvailedLeave;
-                        //dr["CarryForward"] = leaveEncashment[i].CarryForward;
                         dr["Isdisburse"] = true;
                         dr["YearlyCalendarId"] = YearlyCalendarId;
                         dr["AddedBy"] = identity.Name;
@@ -616,27 +591,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         if (dsLvDetails.Tables[0].Rows.Count > 0)
                         {
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["LegalDesignationId"].ToString()))
-                            {
-                                dr["LegalDesignationId"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["LegalDesignationId"].ToString());
-                            }
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["BroughtForward"].ToString()))
-                            {
-                                dr["BroughtForward"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["BroughtForward"].ToString());
-                            }
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString()))
-                            {
-                                dr["DaysCanBeSanctioned"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString());
-                            }
+                            dr["LegalDesignationId"] = dsLvDetails.Tables[0].Rows[0]["LegalDesignationId"].ToString();
 
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["CarryForward"].ToString()))
-                            {
-                                dr["CarryForward"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["CarryForward"].ToString());
-                            }
-                            if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["AvailedLeave"].ToString()))
-                            {
-                                dr["AvailedLeave"] = Convert.ToDecimal(dsLvDetails.Tables[0].Rows[0]["AvailedLeave"].ToString());
-                            }
+
+                            dr["BroughtForward"] = clsStaticInfo.dbl(dsLvDetails.Tables[0].Rows[0]["BroughtForward"].ToString());
+                            dr["DaysCanBeSanctioned"] = clsStaticInfo.dbl(dsLvDetails.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString());
+                            dr["CarryForward"] = clsStaticInfo.dbl(dsLvDetails.Tables[0].Rows[0]["CarryForward"].ToString());
+                            dr["AvailedLeave"] = clsStaticInfo.dbl(dsLvDetails.Tables[0].Rows[0]["AvailedLeave"].ToString());
 
                             if (!string.IsNullOrEmpty(dsLvDetails.Tables[0].Rows[0]["PaymentMode"].ToString()))
                             {
@@ -828,7 +789,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
             return Json(new { Message = AplosMessage.Success });
         }
-        public void GetLeaveBalance(string EmpSystemId, string YearId, string PlantId, out System.Data.DataSet dsRef)
+        public void GetLeaveBalance(string EmpSystemId, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -842,87 +803,20 @@ namespace Aplos.Areas.Payrolls.Controllers
                             ,s.CurrentYearAllocation
                             ,s.IsYearlyProcessed,s.EncashedInbetween ,s.YearEndEncash
                             ,LeaveDaysAllowed=isnull(s.BroughtForward,0)+isnull(s.DaysCanBeSanctioned,0)
-                            ,isnull(kk.LeaveDuration,0) AvailedLeave
+                            ,ISNULL( (SELECT sum(d.LeaveDuration) FROM [dbo].[LeaveTransaction] m 
+                                        INNER JOIN  [dbo].[LeaveTransactionDetails] D ON d.LvTrnsSystemID=m.SystemID 
+                                        where D.WorkDate BETWEEN S.FromDate and S.ToDate
+                                AND m.EmpSystemID=S.EmployeeId AND m.LTSystemID=S.LeaveTypeId ),0) AS AvailedLeave
 
-                            --,Balance=isnull(s.BroughtForward,0)+isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)-isnull(s.EncashedInbetween,0)
-                            -----------------------------------Is Brought Forward Add to balance -----------------------------------------------------------                                       
-							,Balance=CASE WHEN t.LeaveType='Earn' THEN  
-								CASE WHEN
-								-----------------------------------DOJorDOC start -----------------------------------------------------------
-															CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
-                            																	 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ ) END
-																	   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
-										   														 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	e.DOC  )
-										   													END
-																   END
-							---------------------------------------DOJorDOC start  end-------------------------------------------------------
-	
-								> GETDATE() then 
-									  isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)-isnull(s.EncashedInbetween,0)------No
-									ELSE  
-                        ---isnull(s.BroughtForward,0) 
-                        CASE WHEN s.IsEncashed =1 THEN ISNULL(s.CarryForward, 0)+ISNULL(s.EncashedInbetween, 0) ELSE ISNULL(s.BroughtForward, 0)+isnull(s.CarryForwardOpeningBalance,0) END
-                        +isnull(s.DaysCanBeSanctioned,0)
-                        -isnull(kk.LeaveDuration,0)-
-                        isnull(s.EncashedInbetween,0) END---Yes
-							ELSE  isnull(s.DaysCanBeSanctioned,0)-isnull(kk.LeaveDuration,0)-isnull(s.EncashedInbetween,0) END  ---No,
-	                        ,DOJorDOC=CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
-                            																	 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  e.DOJ )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  e.DOJ ) END
-																	   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
-										   														 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	e.DOC  )
-																									  WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	e.DOC  )
-										   													END
-																   END
+            
+            				,Balance=ISNULL(s.CurrentYearAllocation,0)+ISNULL(s.BroughtForward,0)+ISNULL(s.CarryForwardOpeningBalance,0)
                             from trn.EmployeeLeaveSummary s 
                             INNER join LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
-                            left join EmployeeInformation e on e.SystemId=s.EmployeeId
-                            left join (
-                            select 
-                            tt.UserName LeaveType,t.EmpSystemID,t.LTSystemID, sum(isnull(d.LeaveDuration,0)) LeaveDuration
-                            from 
-                            LeaveTransaction t 
-                            left join 
-                            (--detail
-                            select SUM(LeaveDuration) LeaveDuration, LvTrnsSystemID from LeaveTransactionDetails 
-                            where IsAvailed=1
-                            and WorkDate between
-                            (select FromDate from YearlyCalendar where Id=" + YearId + @" and PlantId='" + PlantId + @"')
-                            and (select ToDate from YearlyCalendar where Id= " + YearId + @" and PlantId='" + PlantId + @"')
-                            group by LvTrnsSystemID
-                            )--detail 
-                            d on t.SystemID=d.LvTrnsSystemID
-
-                            left join LeaveType tt on tt.id=t.LTSystemID
-                            where t.IsApproved=1  
-                            group by tt.UserName ,t.EmpSystemID,t.LTSystemID
-                            ) kk on kk.LTSystemID=s.LeaveTypeId and kk.EmpSystemID=s.EmployeeId
-                        -----------------------------------------------------------
-						   left outer join (select * from dbo.LeavePolicyDetail
-											where LPMSystemID =
-											(--w
-											select LeavePolicyMasterId from 
-													(
-														SELECT DC.LeavePolicyMasterId,dm.DesignationId 
-																				FROM MST.DesignationMaster DM
-																				LEFT JOIN SCS.DesignationMasterConfiguration DC 
-																							ON DM.Id=DC.DesignationMasterId
-																where dc.plantid='" + PlantId + @"'
-
-													) dm where dm.DesignationId =(select givendesignationId 
-																				from dbo.EmployeeInformation 
-																				where SystemId='" + EmpSystemId + @"')
-											)--w
-							) ltd on ltd.LTSystemID = t.Id
+                            join EmployeeInformation e on e.SystemId=s.EmployeeId AND s.PlantId=e.PlantId
                             LEFT JOIN EmployeeBankInfo  AS BI ON BI.EmpSystemID=e.SystemId
+                            
 						   --------------------------------------------------------------------------
-                            where s.CalanderYearId=(select id from YearlyCalendar where Id=" + YearId + @" and PlantId='" + PlantId + @"') AND E.SystemId ='" + EmpSystemId + @"'
+                            where  E.SystemId ='" + EmpSystemId + @"' AND e.DOS BETWEEN s.FromDate AND s.ToDate
                             ORDER BY  e.EmployeeCodePreFix,e.EmployeeCodeNumeric
                             ";
 
