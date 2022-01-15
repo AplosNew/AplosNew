@@ -186,6 +186,7 @@
     <Compile Include="NewAttendanceProcess\NewAttdnDashboardService.cs" />
     <Compile Include="NewAttendanceProcess\NewAttendanceProcessService.cs" />
     <Compile Include="NewAttendanceProcess\NewHRDashboardService.cs" />
+    <Compile Include="NewAttendanceProcess\PerformanceManagementMasterService.cs" />
     <Compile Include="NewAttendanceProcess\ResignationNewService.cs" />
     <Compile Include="NewAttendanceProcess\RosterUpdatesService.cs" />
     <Compile Include="NewAttendanceProcess\AttdnRawDataUploadService.cs" />

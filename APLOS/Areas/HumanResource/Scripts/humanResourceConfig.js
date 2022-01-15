@@ -699,6 +699,12 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/EmployeeShiftUpdates/Aplos',
             controller: 'EmployeeShiftUpdatesController'
         })
+        .when('/PerformanceManagement-Master', {
+            templateUrl: 'humanresource/PerformanceManagementMaster/Aplos',
+            controller: 'PerformanceManagementMasterController'
+        })
+
+
     
         ;
 }

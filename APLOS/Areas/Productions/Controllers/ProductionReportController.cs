@@ -55,7 +55,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                return Json(new { Error = false, Data = ps.getMasterGrid() }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Data = ps.getMasterGrid(filters) }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
