@@ -224,34 +224,34 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public void Delete(string id)
-        {
-            try
-            {
-                string TableName = "dbo.WasteMaster";
+        //public void Delete(string id)
+        //{
+        //    try
+        //    {
+        //        string TableName = "dbo.WasteMaster";
 
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
+        //        if (string.IsNullOrEmpty(id))
+        //            throw new Exception("Select entry first");
 
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("delete from dbo.WasteBudgetDetail where WasteMasterId ='" + id + "'");
-                conC.CommitTransaction();
+        //        ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+        //        conC.BeginTransaction();
+        //        conC.executeQuery("delete from dbo.WasteBudgetDetail where WasteMasterId ='" + id + "'");
+        //        conC.CommitTransaction();
 
 
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
+        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+        //        con.BeginTransaction();
+        //        con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+        //        con.CommitTransaction();
 
-            }
-            catch (Exception ex)
-            {
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                throw ex;
+        //        throw ex;
 
-            }
-        }
+        //    }
+        //}
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {

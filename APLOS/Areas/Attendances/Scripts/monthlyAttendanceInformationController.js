@@ -5,7 +5,8 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
     $scope.index = -1;
     $scope.maternityLeaveTransactions = [];
     $scope.path = 'Attendances/AttendanceProcessUI/';
-    $scope.downloadgriddataUrl = 'GridReports/Download';
+   // $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.includeCurrentDate = true;
     $scope.MonthlyAttendanceInformation = {
         YearNo: null,
@@ -105,6 +106,8 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
     var empParameters = [];
     $scope.GetMonthlyAttendanceSummaryReport = function (reportType) {
         try {
+            
+            $scope.fileName = "MonthlyAttdnInfo.xls";
             empParameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
@@ -142,9 +145,10 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    if (reportType === 'EXCEL') {
-                        $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                    }
+                    //if (reportType === 'EXCEL') {
+                    //    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    //}
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
                 }
             });
 
@@ -245,9 +249,10 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    if (reportType === 'EXCEL') {
-                        $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                    }
+                    //if (reportType === 'EXCEL') {
+                    //    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    //}
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
                 }
             });
 

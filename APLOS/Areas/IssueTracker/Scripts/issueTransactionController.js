@@ -16,7 +16,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
     $scope.path = 'issueTracker/IssueTransaction/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.saveUrl = $scope.path + 'IssueTransactionCreate';
+    $scope.saveUrl = $scope.path + 'Create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.IssueTransactionId = null;
@@ -2627,4 +2627,15 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         });
         return true;
     };
+
+    $scope.AttahedBoMIList = [];
+    $scope.GetAttahedDocInfo = function (obj) {
+        $http.get('IssueTracker/IssueTransaction/GetIssueDocumentsData?issueTransactionId=' + obj.Id)
+            .then(function (response) {
+                $scope.issueTransactionDocumentList = response.data;
+            });
+        angular.element(document.querySelector('#TaggedDocumentsPopup')).modal('show');
+    };
+
+
 }

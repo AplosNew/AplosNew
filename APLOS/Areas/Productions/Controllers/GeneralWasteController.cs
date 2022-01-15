@@ -100,7 +100,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost , Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
@@ -132,24 +132,25 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public ActionResult Delete(string id)
-        {
-            try
-            {
-                ws.Delete(id);
+        //[HttpPost]
+        //public ActionResult Delete(string id)
+        //{
+        //    try
+        //    {
+        //        ws.Delete(id);
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        //        return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
-            }
-            catch (Exception ex)
-            {
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
 
-            }
+        //    }
 
 
-        }
+        //}
 
 
         
