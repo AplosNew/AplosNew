@@ -66,7 +66,7 @@
                          e-detailsdatabound="detailgrid">
                         <div e-columns>
                             <div e-column e-headertext="Select" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>
-
+                            <div e-column e-type="string" e-field="SourceType" e-headertext="Source Type" e-width="80"></div>
                             <div e-column e-type="string" e-field="PurchaseDocAcceptanceId" e-headertext="Id" e-width="80"></div>
                             <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AccNo" e-width="80"></div>
                             <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Date" e-format="{0:dd-MMM-yyyy}" e-width="50"></div>
@@ -83,8 +83,8 @@
                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext="SetOff" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-textalign="right" e-width="80"></div>
                             @*<div e-column e-template="#LoanAmountTemp" e-field="Amount" textAlign='right' e-headertext="LoanAmount" e-width="100"></div>
-                                <div e-column e-template="#LoanNoTemp" e-field="LoanNo" textAlign='right' e-headertext="LoanNo" e-width="100"></div>
-                                <div e-column e-template="#LoanDateTemp" e-field="LoanDate" textAlign='right' e-headertext="LoanDate" e-width="100"></div>*@
+        <div e-column e-template="#LoanNoTemp" e-field="LoanNo" textAlign='right' e-headertext="LoanNo" e-width="100"></div>
+        <div e-column e-template="#LoanDateTemp" e-field="LoanDate" textAlign='right' e-headertext="LoanDate" e-width="100"></div>*@
                             <div e-column e-type="string" e-field="PurchaseLCNo" e-headertext="LC No" e-width="100"></div>
                             <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="LCOpeningDate" e-format="{0:dd-MMM-yyyy}" e-width="60"></div>
                             <div e-column e-type="string" e-field="PINo" e-headertext="PINo" e-width="50"></div>
