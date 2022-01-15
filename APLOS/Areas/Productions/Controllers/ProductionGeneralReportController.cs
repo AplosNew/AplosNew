@@ -24,16 +24,16 @@ using System.Drawing;
 
 namespace Aplos.Areas.Productions.Controllers
 {
-    public class ProductionReportController : BaseController
+    public class ProductionGeneralReportController : BaseController
     {
 
-        ProductionReportService ps = new ProductionReportService();
+        ProductionGeneralReportService ps = new ProductionGeneralReportService();
         
         
         #region Constructor
 
         
-        public ProductionReportController()
+        public ProductionGeneralReportController()
         {
         }
 

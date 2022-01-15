@@ -9,12 +9,12 @@ using System.Linq;
 
 namespace Library.OrderManagement.Production
 {
-    public class ProductionReportService
+    public class ProductionGeneralReportService
     {
         private readonly SqlRepository _sqlRepository;
 
         #region Constructor
-        public ProductionReportService()
+        public ProductionGeneralReportService()
         {
             _sqlRepository = new SqlRepository();
 

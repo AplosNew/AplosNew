@@ -3941,7 +3941,7 @@
     <Content Include="Areas\HumanResource\Views\EmployeeShiftUpdates\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\CommercialAdditionalInfo\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\SandwichProcess\PlantWise.cshtml" />
-    <Content Include="Areas\Productions\Views\ProductionReport\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionGeneralReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceManagementMaster\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\TaxPolicyHeader\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
