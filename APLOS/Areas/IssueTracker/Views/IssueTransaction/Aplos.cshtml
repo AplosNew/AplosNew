@@ -783,6 +783,7 @@
                 <th>Issue/Task Closing Date</th>
                 <th>Expiry Date</th>
                 <th>Remarks</th>
+                <th>Documents</th>
             </tr>
         </thead>
         <tbody>
@@ -803,6 +804,9 @@
                 <td>{{x.CloseDate| dateFiltering}}</td>
                 <td>{{x.ExpiryDate| dateFiltering}}</td>
                 <td>{{x.Remarks}}</td>
+                <td style="text-align:center">
+                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="GetAttahedDocInfo(x);">{{x.Doc}}</a>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -961,4 +965,31 @@
 <confirm-archive-generic modalid="AddSubtaskWhenUpdateconfirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="AddSubTask()"></confirm-archive-generic>
 @Html.Partial("~/Areas/TaskScheduler/Views/TaskSchedule/Aplos.cshtml")
 
+<div class="modal site-modal in" id="TaggedDocumentsPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Documents list<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
 
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in issueTransactionDocumentList ">
+                                <td ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></td>
+                                <td>{{x.Description}}</td>
+
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
