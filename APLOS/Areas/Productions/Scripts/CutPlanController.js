@@ -265,7 +265,9 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                     $scope.CalculatedSkuValueList[i].Qty[j].CalculatedPlyQty = c.toFixed(2);
                 }
             }
-
+            if ($scope.ErrorThrow) {
+                throw "Select Value For Calculation.. ";
+            }
         } catch (e) {
             ShowResult(e, "failure");
         }
