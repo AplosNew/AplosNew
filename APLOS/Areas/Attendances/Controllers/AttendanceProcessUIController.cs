@@ -158,11 +158,11 @@ namespace Aplos.Areas.Attendances.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xls";
+                var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd")+identity.UserId + ".xlsx";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
                 var workbook = _monthlyAttendanceInformation.XlsMonthlyAttendanceSummaryReports(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters, withColor, includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
 
-                return Json(new { FileName = workbook, Error = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { FullPath = workbook, FileName= fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
 
             }

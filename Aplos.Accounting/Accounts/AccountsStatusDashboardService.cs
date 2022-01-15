@@ -16674,7 +16674,7 @@ union ALL
 
                 //}
 
-                var sql = @"SELECT  PDA.Id PurchaseDocAcceptanceId,PDA.AcceptanceNo,format(PDA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,PDA.VoucherId
+                var sql = @"SELECT 'Acceptance' SourceType, PDA.Id PurchaseDocAcceptanceId,PDA.AcceptanceNo,format(PDA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,PDA.VoucherId
                            -- ,Format( V.PostingDate,'dd-MMM-yyyy') as PostingDate
                                ,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
 							,P.UserName PartyName, PP.UserName PartyPlantName,PDA.PartyId,PDA.PartyPlantId
@@ -16765,13 +16765,13 @@ union ALL
                             WHERE PDA.VoucherId <>'' and V.Plantid='" + plantId + @"' 
                             and I.PostingDate <= '" + toDate + @"'
                             AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0
-							AND PDA.Id NOT IN(SELECT PurchaseDocAcceptanceId FROM LoanAgainstAcceptanceDetail)
+							AND PDA.Id NOT IN(SELECT isnull(PurchaseDocAcceptanceId,'') FROM LoanAgainstAcceptanceDetail)
 								--ORDER BY I.ActualDueDate ASC 
 							UNION ALL
-							SELECT  PDA.Id PurchaseDocAcceptanceId,''AcceptanceNo,format(PDA.AddedDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,I.VoucherId
+							SELECT   'Invoice' SourceType,I.Id PurchaseDocAcceptanceId,I.DocRefNo AcceptanceNo,format(V.PostingDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,I.VoucherId
                                ,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
-							,P.UserName PartyName, PP.UserName PartyPlantName,PDA.PartyId,PDA.PartyPlantId
-							,CurrencyCode= XC.Code  ,PDA.CurrencyId
+							,P.UserName PartyName, PP.UserName PartyPlantName,I.PartyId,I.PartyPlantId
+							,CurrencyCode= XC.Code  ,I.CurrencyId
 							,isnull( format(I.BaseOnDueDate,'dd-MMM-yyyy'),'')  AS DueDateBaseON
 							,isnull( format(I.ActualDueDate,'dd-MMM-yyyy'),'')  AS ActualDueDate
 							, NoOfDays=DATEDIFF(DAY, GETDATE(), I.ActualDueDate)
@@ -16786,70 +16786,70 @@ union ALL
 							 ,Amount=ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0) ,NULL LoanNo,NULL LoanDate
 							 ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,LCOpeningDate= STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), XVD.LCDate, 106),' ','-') from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,PINo= STUFF((select distinct ','+XVD.PINo from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,LCAmount
 							 ,OpeningBank= STUFF((select distinct ','+xbm.AccountTitle from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														left join MST.BankMaster xbm on xbm.Id=XVD.OpeningBankMasterId
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,BankMasterId= STUFF((select distinct ','+XVD.OpeningBankMasterId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,BenificiaryBank= STUFF((select distinct ','+XVD.BenificiaryBank from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,Tenure= STUFF((select distinct ','+REPLACE(CONVERT(int, XVD.Tenure, 106),' ','-') from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,PaymentType= STUFF((select distinct ','+XVD.[Type] from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,PONo= isnull( STUFF((select distinct ','+xpomap.POId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							,GRNNo= isnull( STUFF((select distinct ','+xgrnmap.GRNId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
 							,ContractNo= isnull( STUFF((select distinct ','+XC.ContractNo from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							,Customer= isnull( STUFF((select distinct ','+XCU.UserName from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
 														join HKP.Party XCU ON XCU.Id=XC.CustomerId
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							 ,MasterLCNo= isnull( STUFF((select distinct ','+XC.MasterLCId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-													where	PDA.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							,UDNo= isnull( STUFF((select distinct ','+XC.UDNo from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-													where	PDA.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							
 							
-                            FROM InvoiceTaggingWithLCMaster AS PDA
-							LEFT JOIN InvoiceTaggingWithLCDetail PDAD ON PDA.Id=PDAD.InvoiceTaggingWithLCMasterId
-							LEFT JOIN TRN.Invoice I ON I.Id=PDAD.InvoiceId
-						    LEFT JOIN (select Id,sum(Amount) LCAmount from dbo.PurchaseLC group by Id) PLC ON PLC.Id=PDA.PurchaseLCId
-						    LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
-                            LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
+                            FROM TRN.Invoice I 
+						    LEFT JOIN (select Id,sum(Amount) LCAmount from dbo.PurchaseLC group by Id) PLC ON PLC.Id=I.PurchaseLCId
+						    LEFT JOIN HKP.Party P ON P.Id=I.PartyId
+                            LEFT JOIN HKP.PartyPlant PP ON PP.Id=I.PartyPlantId
 							LEFT JOIN TRN.Voucher V ON V.Id=I.VoucherId
-							LEFT JOIN SCS.Currency XC ON XC.Id=PDA.CurrencyId
+							LEFT JOIN SCS.Currency XC ON XC.Id=I.CurrencyId
                             --WHERE PDA.VoucherId <>'' and V.Plantid='20171'   
-                            WHERE PDA.IsLoan=0 and PDA.Plantid='" + plantId + @"' 
+                            WHERE I.Plantid='" + plantId + @"' 
                             and I.PostingDate <= '" + toDate + @"' 
-                            AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0 ";
+                            AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0
+                            AND ISNULL(I.PurchaseLCId,'')<>'' 
+                            AND I.Id NOT in (SELECT isnull(InvoiceId,'') FROM LoanAgainstAcceptanceDetail )";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -16865,7 +16865,7 @@ union ALL
         {
 
             return @" 
-	     	     SELECT  PDA.Id PurchaseDocAcceptanceId,PDA.AcceptanceNo,format(PDA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,PDA.VoucherId
+	     	     SELECT 'Acceptance' SourceType, PDA.Id PurchaseDocAcceptanceId,PDA.AcceptanceNo,format(PDA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,PDA.VoucherId
                            -- ,Format( V.PostingDate,'dd-MMM-yyyy') as PostingDate
                                ,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
 							,P.UserName PartyName, PP.UserName PartyPlantName,PDA.PartyId,PDA.PartyPlantId
@@ -16956,13 +16956,13 @@ union ALL
                             WHERE PDA.VoucherId <>'' and V.Plantid='" + PlantId + @"' and I.PostingDate <= '" + toDate + @"'
 
                              AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0
-							AND PDA.Id NOT IN(SELECT PurchaseDocAcceptanceId FROM LoanAgainstAcceptanceDetail)
+							AND PDA.Id NOT IN(SELECT isnull(PurchaseDocAcceptanceId,'') FROM LoanAgainstAcceptanceDetail)
                             --ORDER BY I.ActualDueDate ASC 
 UNION ALL
-							SELECT  PDA.Id PurchaseDocAcceptanceId,''AcceptanceNo,format(PDA.AddedDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,I.VoucherId
+							SELECT   'Invoice' SourceType,I.Id PurchaseDocAcceptanceId,I.DocRefNo AcceptanceNo,format(V.PostingDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,I.VoucherId
                                ,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
-							,P.UserName PartyName, PP.UserName PartyPlantName,PDA.PartyId,PDA.PartyPlantId
-							,CurrencyCode= XC.Code  ,PDA.CurrencyId
+							,P.UserName PartyName, PP.UserName PartyPlantName,I.PartyId,I.PartyPlantId
+							,CurrencyCode= XC.Code  ,I.CurrencyId
 							,isnull( format(I.BaseOnDueDate,'dd-MMM-yyyy'),'')  AS DueDateBaseON
 							,isnull( format(I.ActualDueDate,'dd-MMM-yyyy'),'')  AS ActualDueDate
 							, NoOfDays=DATEDIFF(DAY, GETDATE(), I.ActualDueDate)
@@ -16977,70 +16977,70 @@ UNION ALL
 							 ,Amount=ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0) ,NULL LoanNo,NULL LoanDate
 							 ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,LCOpeningDate= STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), XVD.LCDate, 106),' ','-') from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,PINo= STUFF((select distinct ','+XVD.PINo from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,LCAmount
 							 ,OpeningBank= STUFF((select distinct ','+xbm.AccountTitle from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														left join MST.BankMaster xbm on xbm.Id=XVD.OpeningBankMasterId
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,BankMasterId= STUFF((select distinct ','+XVD.OpeningBankMasterId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,BenificiaryBank= STUFF((select distinct ','+XVD.BenificiaryBank from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,Tenure= STUFF((select distinct ','+REPLACE(CONVERT(int, XVD.Tenure, 106),' ','-') from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,PaymentType= STUFF((select distinct ','+XVD.[Type] from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,PONo= isnull( STUFF((select distinct ','+xpomap.POId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							,GRNNo= isnull( STUFF((select distinct ','+xgrnmap.GRNId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
 							,ContractNo= isnull( STUFF((select distinct ','+XC.ContractNo from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							,Customer= isnull( STUFF((select distinct ','+XCU.UserName from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
 														join HKP.Party XCU ON XCU.Id=XC.CustomerId
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							 ,MasterLCNo= isnull( STUFF((select distinct ','+XC.MasterLCId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-													where	PDA.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							,UDNo= isnull( STUFF((select distinct ','+XC.UDNo from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-													where	PDA.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							
 							
-                            FROM InvoiceTaggingWithLCMaster AS PDA
-							LEFT JOIN InvoiceTaggingWithLCDetail PDAD ON PDA.Id=PDAD.InvoiceTaggingWithLCMasterId
-							LEFT JOIN TRN.Invoice I ON I.Id=PDAD.InvoiceId
-						    LEFT JOIN (select Id,sum(Amount) LCAmount from dbo.PurchaseLC group by Id) PLC ON PLC.Id=PDA.PurchaseLCId
-						    LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
-                            LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
+                            FROM TRN.Invoice I 
+						    LEFT JOIN (select Id,sum(Amount) LCAmount from dbo.PurchaseLC group by Id) PLC ON PLC.Id=I.PurchaseLCId
+						    LEFT JOIN HKP.Party P ON P.Id=I.PartyId
+                            LEFT JOIN HKP.PartyPlant PP ON PP.Id=I.PartyPlantId
 							LEFT JOIN TRN.Voucher V ON V.Id=I.VoucherId
-							LEFT JOIN SCS.Currency XC ON XC.Id=PDA.CurrencyId
+							LEFT JOIN SCS.Currency XC ON XC.Id=I.CurrencyId
                             --WHERE PDA.VoucherId <>'' and V.Plantid='" + PlantId + @"'   
-                            WHERE PDA.IsLoan=0 and PDA.Plantid='20171' 
+                            WHERE I.Plantid='20171' 
                             and I.PostingDate <= '" + toDate + @"' 
-                            AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0 ";
+                            AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0
+                            AND ISNULL(I.PurchaseLCId,'')<>'' 
+                            AND I.Id NOT in (SELECT isnull(InvoiceId,'') FROM LoanAgainstAcceptanceDetail ) ";
 
         }
 
@@ -17999,13 +17999,13 @@ UNION ALL
                             WHERE PDA.VoucherId <>'' and V.Plantid='" + plantId + @"' and I.PostingDate <= '" + toDate + @"'
 
                              AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0
-							AND PDA.Id NOT IN(SELECT PurchaseDocAcceptanceId FROM LoanAgainstAcceptanceDetail)
+							AND PDA.Id NOT IN(SELECT isnull(PurchaseDocAcceptanceId,'') FROM LoanAgainstAcceptanceDetail)
                           
 UNION ALL
-							SELECT  PDA.Id PurchaseDocAcceptanceId,''AcceptanceNo,format(PDA.AddedDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,I.VoucherId
+							SELECT  I.Id PurchaseDocAcceptanceId,''AcceptanceNo,format(V.PostingDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,I.VoucherId
                                ,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
-							,P.UserName PartyName, PP.UserName PartyPlantName,PDA.PartyId,PDA.PartyPlantId,P.Code PartyCode
-							,CurrencyCode= XC.Code  ,PDA.CurrencyId
+							,P.UserName PartyName, PP.UserName PartyPlantName,I.PartyId,I.PartyPlantId,P.Code PartyCode
+							,CurrencyCode= XC.Code  ,I.CurrencyId
 							,isnull( format(I.BaseOnDueDate,'dd-MMM-yyyy'),'')  AS DueDateBaseON
 							,isnull( format(I.ActualDueDate,'dd-MMM-yyyy'),'')  AS ActualDueDate
 							, NoOfDays=DATEDIFF(DAY, GETDATE(), I.ActualDueDate)
@@ -18020,69 +18020,69 @@ UNION ALL
 							 ,Amount=ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0) ,NULL LoanNo,NULL LoanDate
 							 ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,LCOpeningDate= STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), XVD.LCDate, 106),' ','-') from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,PINo= STUFF((select distinct ','+XVD.PINo from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,LCAmount
 							 ,OpeningBank= STUFF((select distinct ','+xbm.AccountTitle from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														left join MST.BankMaster xbm on xbm.Id=XVD.OpeningBankMasterId
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,BankMasterId= STUFF((select distinct ','+XVD.OpeningBankMasterId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,BenificiaryBank= STUFF((select distinct ','+XVD.BenificiaryBank from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,Tenure= STUFF((select distinct ','+REPLACE(CONVERT(int, XVD.Tenure, 106),' ','-') from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,PaymentType= STUFF((select distinct ','+XVD.[Type] from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,PONo= isnull( STUFF((select distinct ','+xpomap.POId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							,GRNNo= isnull( STUFF((select distinct ','+xgrnmap.GRNId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
 							,ContractNo= isnull( STUFF((select distinct ','+XC.ContractNo from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							,Customer= isnull( STUFF((select distinct ','+XCU.UserName from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
 														join HKP.Party XCU ON XCU.Id=XC.CustomerId
-													where	PDA.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							 ,MasterLCNo= isnull( STUFF((select distinct ','+XC.MasterLCId from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-													where	PDA.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							,UDNo= isnull( STUFF((select distinct ','+XC.UDNo from
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
-													where	PDA.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+													where	I.PurchaseLCId=XVD.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 							
 							
-                            FROM InvoiceTaggingWithLCMaster AS PDA
-							LEFT JOIN InvoiceTaggingWithLCDetail PDAD ON PDA.Id=PDAD.InvoiceTaggingWithLCMasterId
-							LEFT JOIN TRN.Invoice I ON I.Id=PDAD.InvoiceId
-						    LEFT JOIN (select Id,sum(Amount) LCAmount from dbo.PurchaseLC group by Id) PLC ON PLC.Id=PDA.PurchaseLCId
-						    LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
-                            LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
+                            FROM TRN.Invoice I 
+						    LEFT JOIN (select Id,sum(Amount) LCAmount from dbo.PurchaseLC group by Id) PLC ON PLC.Id=I.PurchaseLCId
+						    LEFT JOIN HKP.Party P ON P.Id=I.PartyId
+                            LEFT JOIN HKP.PartyPlant PP ON PP.Id=I.PartyPlantId
 							LEFT JOIN TRN.Voucher V ON V.Id=I.VoucherId
-							LEFT JOIN SCS.Currency XC ON XC.Id=PDA.CurrencyId
-                            WHERE PDA.IsLoan=0 and PDA.Plantid='" + plantId + @"'
-                            and I.PostingDate <= '" + toDate + @"'
-                             AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0 
+							LEFT JOIN SCS.Currency XC ON XC.Id=I.CurrencyId
+                            WHERE I.Plantid='" + plantId + @"' 
+                            and I.PostingDate <= '" + toDate + @"' 
+                            AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0
+                            AND ISNULL(I.PurchaseLCId,'')<>'' 
+                            AND I.Id NOT in (SELECT isnull(InvoiceId,'') FROM LoanAgainstAcceptanceDetail )
 
                         )
                         X
@@ -18230,6 +18230,11 @@ UNION ALL
                 sheet[ROW, COL].Text = "SL No.";
                 sheet[ROW, COL].ColumnWidth = 5;
                 int colSlNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Source Type";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colSourceType = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Acceptance No";
@@ -18427,6 +18432,7 @@ UNION ALL
 
                     sheet[ROW, colSlNo].Number = (i + 1);
 
+                    sheet[ROW, colSourceType].Text = dtAcceptLiabilityMaturity.Rows[i]["SourceType"].ToString();
                     sheet[ROW, colAcceptanceNo].Text = dtAcceptLiabilityMaturity.Rows[i]["AcceptanceNo"].ToString();
                     sheet[ROW, colAcceptanceDate].Text = dtAcceptLiabilityMaturity.Rows[i]["AcceptanceDate"].ToString();
 
