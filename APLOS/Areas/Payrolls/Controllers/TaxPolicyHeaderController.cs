@@ -1,21 +1,8 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
-using Library.Core;
-using Library.Crosscutting.Security;
-using Library.Data;
-using Library.Data.Sql;
-using Library.HumanResource.NewAttendanceProcess;
-using Library.Model.HumanResources;
-using Library.Service.Enums;
-using Library.Service.HumanResources;
-using Library.Service.Leave;
-using Library.Service.Logs;
-using Syncfusion.XlsIO;
+using Library.HumanResource.Payroll.Tax;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Reflection;
-using System.Threading;
 using System.Web.Mvc;
 
 namespace Aplos.Areas.Payrolls.Controllers
@@ -24,7 +11,7 @@ namespace Aplos.Areas.Payrolls.Controllers
     {
         #region Constructor
 
-        AttdnBonusMasterService ds = new AttdnBonusMasterService();
+        TaxPolicyMasterService ds = new TaxPolicyMasterService();
         public TaxPolicyHeaderController()
         {
         }

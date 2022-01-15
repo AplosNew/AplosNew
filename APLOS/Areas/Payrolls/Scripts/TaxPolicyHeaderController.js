@@ -3,7 +3,7 @@ TaxPolicyHeaderController.$inject = ['commonMessage', '$scope', '$rootScope', 'b
 function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = 'Tax Policy Master';
     $scope.Action = 'Save';
-    $scope.path = 'HumanResource/AttendanceBonusMaster/';
+    $scope.path = 'Payrolls/TaxPolicyHeader/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
 
   
