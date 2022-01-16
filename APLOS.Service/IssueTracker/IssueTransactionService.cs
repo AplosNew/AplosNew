@@ -284,9 +284,8 @@ namespace Library.Service.IssueTracker
 	                    ,tsc.UserName AS TaskSubCategory
 	                     ,iim.UserName AS IssueImportance
 						 ,ig.Name AS IssueGroupName
-						 ,p.userName as Customer
-	                  
-						,imn.EmployeeName AS Mentor
+						 ,p.userName as Customer	                  
+						,imn.EmployeeName AS Mentor,Doc=(SELECT COUNT(Id) FROM dbo.IssueTransactionDocuments Where IssueTransactionId=its.Id)
 	                    FROM [dbo].[IssueTransaction] AS its
 						LEFT JOIN [dbo].[IssueStandard] AS isd ON its.IssueStandardId = isd.Id
 	                    LEFT JOIN [dbo].[IssueImportance] AS iim ON its.IssueImportanceId = iim.Id

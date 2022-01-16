@@ -206,6 +206,7 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyId = '" + companyId + @"'
 									" + DatewiseData + @"
 								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
+								AND ISNULL(IV.PurchaseLCId,'')=''
 								UNION ALL
 								
 								SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId
@@ -328,7 +329,8 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyId = '" + companyId + @"'
 									AND IR.PurchaseDocumentAcceptanceId IS NULL
 									" + DatewiseData + @"
-								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)";
+								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
+								AND ISNULL(IV.PurchaseLCId,'')=''";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -443,7 +445,28 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> GetMaster(string CompanyGroupId, string CompanyId, string PlantId)
+		public void SaveWithoutLoan(List<Dictionary<string, object>> DataList, Dictionary<string, object> LcData)
+		{
+			try
+			{
+				var vendorAdWr = new System.Text.StringBuilder();
+				var vendorAdWrsql = "";
+
+				foreach (var item in DataList)
+				{
+					vendorAdWrsql = @"update TRN.Invoice set PurchaseLCId='" + LcData["Id"] + "' where Id ='" + item["InvoiceId"] + "' ";
+					vendorAdWr.Append(vendorAdWrsql);
+				}
+				_sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+			}
+			catch (Exception ex)
+			{
+
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetMaster(string CompanyGroupId, string CompanyId, string PlantId)
         {
             try
             {

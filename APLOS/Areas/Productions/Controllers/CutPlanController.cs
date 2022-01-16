@@ -122,7 +122,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create( List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails,List<Dictionary<string,object>> SkuValueList)
+        public JsonResult Create( List<CutPlantCalculate> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails,List<Dictionary<string,object>> SkuValueList)
         {
             try
             {

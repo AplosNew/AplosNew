@@ -1,0 +1,109 @@
+﻿<h3 class="site-heading">{{title}}</h3>
+
+<div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+        <div id="FilterList" ej-grid e-datasource="filtersList"
+             e-allowfiltering="true" e-responsive="true"
+             e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Customer" e-type="string" e-headertext="Customer" e-width="80"></div>
+                <div e-column e-field="BuyerRef" e-type="string" e-headertext="Buyer Ref" e-width="80"></div>
+                <div e-column e-field="OwnRef" e-type="string" e-headertext="Own Ref" e-width="80"></div>
+                <div e-column e-field="MO" e-type="string" e-headertext="Master Order" e-width="80"></div>
+                <div e-column e-field="LineItem" e-type="string" e-headertext="Line Item" e-width="80"></div>
+                <div e-column e-field="SO" e-type="string" e-headertext="SO" e-width="80"></div>
+                <div e-column e-field="PRStatus" e-type="string" e-headertext="PR Status" e-width="80"></div>
+                <div e-column e-field="SOStatus" e-type="string" e-headertext="SO Status" e-width="80"></div>
+                <div e-column e-field="ProductCode" e-type="string" e-headertext="Product Code" e-width="80"></div>
+                <div e-column e-field="Process" e-type="string" e-headertext="Process" e-width="80"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top:10px; padding-right:10px;">
+    <div class="col-md-6 col-lg-12 col-sm-12">
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="fillFilters();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<div class="row" style="margin-top:10px; padding-right:10px;">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+        <div id="MasterGrid" ej-grid e-datasource="masterData"
+             e-allowfiltering="true" e-responsive="true" e-recordDoubleClick="detailClick"
+             e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="PRStatus" e-type="string" e-headertext="PR Status" e-width="80"></div>
+                <div e-column e-field="ProductionOrderId" e-type="string" e-headertext="PR" e-width="80"></div>
+                <div e-column e-field="Customer" e-type="string" e-headertext="Customer" e-width="80"></div>
+                <div e-column e-field="ProductCode" e-type="string" e-headertext="Product Code" e-width="80"></div>
+                <div e-column e-field="LineItem" e-type="string" e-headertext="Line Item" e-width="80"></div>
+                <div e-column e-field="OrderQty" e-type="string" e-headertext="Order Qty" e-width="80"></div>
+                <div e-column e-field="PlanQty" e-type="string" e-headertext="Plan Qty" e-width="80"></div>
+                <div e-column e-field="ProdQty" e-type="string" e-headertext="Produced Qty" e-width="80"></div>
+                <div e-column e-field="ToProduce" e-type="string" e-headertext="To Produce" e-width="80"></div>
+                <div e-column e-field="ExcessProduce" e-type="string" e-headertext="Excess Produce" e-width="80"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Modal Sections*@
+
+
+<div class="modal fade site-modal in" id="masterDetail" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Details for {{ColName}}</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row">
+                    <p style="margin:10px;">
+                        The Details for the chosen  {{ColName}}.
+                    <p>
+                </div>
+                <div class="row" style="margin: 20px; font-style:italic">
+                    <div class="common-btn" style="margin-top:10px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-download"></i> Download Report </button></li>
+                            @*<li> <button ng-click="getStocksReport();" class="btn"><i class="glyphicon glyphicon-save"></i> Export To Excel </button></li>*@
+
+                        </ul>
+                    </div>
+                </div>
+               
+
+                    <div id="detailMaster" ej-grid e-datasource="masterDetailData" 
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         >
+                        <div e-columns>
+                            <div e-column e-field="SalesOrderId" e-headertext="SO" e-width="120"></div>
+                            <div e-column e-field="CharV" e-headertext="SKU1" e-width="80"></div>
+                            <div e-column e-field="Char2V" e-headertext="SKU2" e-width="80"></div>
+                            <div e-column e-field="OrderQty" e-type="string" e-headertext="Order Qty" e-width="80"></div>
+                            <div e-column e-field="PlanQty" e-type="string" e-headertext="Plan Qty" e-width="80"></div>
+                            <div e-column e-field="ProducedQty" e-type="string" e-headertext="Produced Qty" e-width="80"></div>
+                            <div e-column e-field="ShortExcess" e-type="string" e-headertext="Short/Excess" e-width="80"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

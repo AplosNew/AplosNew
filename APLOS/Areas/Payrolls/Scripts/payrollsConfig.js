@@ -372,6 +372,10 @@
             templateUrl: 'Payrolls/OTFormula/Aplos',
             controller: 'OTFormulaController'
         })
+        .when('/tax-policy-master', {
+            templateUrl: 'Payrolls/TaxPolicyHeader/Aplos',
+            controller: 'TaxPolicyHeaderController'
+        })
         ;
 
 

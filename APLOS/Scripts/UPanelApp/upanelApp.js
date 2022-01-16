@@ -999,6 +999,7 @@ var upanelApp = angular
     .controller('GeneralWasteController', GeneralWasteController)
     .controller("issueTransactionController", issueTransactionController)
     .controller("EmployeeShiftUpdatesController", EmployeeShiftUpdatesController)
+    .controller("ProductionGeneralReportController", ProductionGeneralReportController)
 
 
     .config(AccessControllerConfig)
