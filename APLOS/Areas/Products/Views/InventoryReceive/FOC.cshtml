@@ -392,10 +392,6 @@
                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                     <input type="text" name="ContractId" ng-model="productNew.ContractId" class="form-control" maxlength="100" ng-hide="true">
                     <input type="text" name="ContractNo" ng-model="productNew.ContractNo" ng-disabled="true" class="form-control" maxlength="100" ng-hide="productNew.OrderSpecific==='No'">
-
-
-
-                    @*<input type="text" name="Contract" ng-model="productNew.ContractId" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">*@
                     <span class="input-group-btn">
                         <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
                         <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
@@ -462,6 +458,36 @@
                     </div>
                 </div>
             </div>
+
+            <div class="form-group" id="div_entryNo">
+                <label class="col-sm-4 control-label">Gate Entry No<sup>*</sup></label>
+                <div class="col-sm-3 show-message">
+                    <div class="input-group">
+                        <input type="text" name="Gate Entry No" ng-model="productNew.GateEntryNo" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-disabled="inventoryMaterialList.length>0" ng-click="POPopUpGateEntry()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <label class="col-sm-2 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+                <div class="col-sm-3 show-message pdl3">
+                    <input type="text" name="Entry Date" ng-disabled="true" ng-model="productNew.EntryDate" datepicker="modelValidation('div_entryDate', 'productNew', 'EntryDate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="5" readonly>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Storage Location" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.MaterialStorageId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="7" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+
         </div>
         <div class="col-md-6 pdl3 pdr3">
             <div class="col-md-8">
@@ -471,6 +497,13 @@
                         <input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="100" tabindex="2" autocomplete="off">
                     </div>
                 </div>
+                    <div class="form-group" id="div_grnNo">
+                        <label class="col-sm-4 control-label">GRN No<sup>*</sup></label>
+                        <div class="col-sm-8 show-message pdr3">
+                            <input type="text" name="PO No" ng-model="productNew.Id" class="form-control" maxlength="10" disabled>
+                        </div>
+                    </div>
+                
             </div>
             <div class="col-md-4">
                 <div class="form-group" id="div_docDate">
@@ -479,61 +512,10 @@
                         <input type="text" name="Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-6 pdl3 pdr3">
-            <div class="col-md-8">
-                <div class="form-group" id="div_entryNo">
-                    <label class="col-sm-6 control-label">Gate Entry No<sup>*</sup></label>
-                    @*<div class="col-sm-6 show-message pdr3">
-                        <input type="text" name="Gate EntryNo" ng-model="productNew.GateEntryNo" class="form-control" ng-keyup="modelValidation('div_entryNo', 'productNew', 'GateEntryNo');" maxlength="10" tabindex="4" autocomplete="off">
-                    </div>*@
-                    <div class="col-sm-6 show-message">
-                        <div class="input-group">
-                            <input type="text" name="Gate Entry No" ng-model="productNew.GateEntryNo" class="form-control" readonly>
-                            <span class="input-group-btn">
-                                <button name="submit" ng-disabled="inventoryMaterialList.length>0" ng-click="POPopUpGateEntry()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="div_entryDate">
-                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
-                    <div class="col-sm-9 show-message pdl3">
-                        <input type="text" name="Entry Date" ng-disabled="true" ng-model="productNew.EntryDate" datepicker="modelValidation('div_entryDate', 'productNew', 'EntryDate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="5" readonly>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 pdl3 pdr3">
-            <div class="col-md-8">
-                <div class="form-group" id="div_grnNo">
-                    <label class="col-sm-4 control-label">GRN No<sup>*</sup></label>
-                    <div class="col-sm-8 show-message pdr3">
-                        <input type="text" name="PO No" ng-model="productNew.Id" class="form-control" maxlength="10" disabled>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
                 <div class="form-group" id="div_PODate">
                     <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
                     <div class="col-sm-9 show-message pdl3">
                         <input type="text" name="GRN Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.GRNDate" datepicker="modelValidation('div_PODate', 'productNew', 'GRNDate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select name="Storage Location" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.MaterialStorageId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="7" required>
-                            <option value=""></option>
-                        </select>
                     </div>
                 </div>
             </div>
@@ -556,7 +538,6 @@
                 <div class="form-group" id="div_rate">
                     <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
                     <div class="col-sm-9 show-message pdl3">
-                        @*{{currencyPrecision}} ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||inventoryMaterialList.length>0"*@
                         <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
                     </div>
                 </div>
@@ -689,8 +670,6 @@
                     </tr>
                     <tr>
                         <td>Materials</td>
-
-
                         <td>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:2| number }}</td>
                         <td>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:2| number:2}}</td>
                         <td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:2)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount' | setDecimal:2)|number}}</td>
@@ -705,7 +684,6 @@
                         <td></td>
                         <td></td>
                         <td>Gross Amount</td>
-                        @*<td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| number:2)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount'| number:2 )+(inventoryMaterialList | sumByKey : 'ServiceCharge'| number:2)+(inventoryMaterialList | sumByKey : 'ServiceTax'| number:2)| number:2}}</td>*@
                         <td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:2)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:2)+(chargesList | sumByKey : 'Amount'| setDecimal:2)+(chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:2)| number}}</td>
                     </tr>
                 </tbody>
@@ -748,7 +726,6 @@
                                 <th>Sku2</th>
                                 <th>Sku3</th>
                                 <th>CountryName</th>
-                                @*<th>UOM</th>*@
                                 <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -771,23 +748,13 @@
                                 <td>{{x.SecondCharacteristicsValue}}</td>
                                 <td>{{x.ThirdCharacteristicsValue}}</td>
                                 <td>{{x.CountryName}}</td>
-                                @*<td>
-                                        <div class="select-style">
-                                            <select style="width:100px;" name="Transaction UoM" class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in uoMList" ng-change="manualValidationAddRemove('div_uom', 'detailModel','TransactionUoMId');">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                    </td>*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false" placeholder="0.00"> </td>  @*{{x.TransactionRate| number:2}}*@
                                 <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
                                 <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="150" ng-model="x.TrnAmount" ng-keyup="calculateRate(x);" ng-disabled="true"> </td> @*{{x.TrnAmount| number:2}}*@
                                 <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="150" ng-model="x.BaseTaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| number:2}}*@
-                                @*<td class="text-right">{{x.ServiceCharge| number:2}}</td>
-                                    <td class="text-right">{{x.ServiceTax| number:2}}</td>*@
                                 <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
-                                @*<td class="text-right">{{x.BaseAmount|  number:2}}</td>*@
                                 <td>
                                     <div class="show-message">
                                         <input type="text" class="form-control text-right" ng-model="x.Description" style="width:500px;">
@@ -812,7 +779,6 @@
                                         </div>
                                     </div>
                                 </td>
-                                @*<td>{{x.DeliveryDate| dateFiltering}}</td>*@
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
                                         <li ng-hide="productNew.OrderSpecific==='No'"><button ng-click="PODetailsUpdatePOPUp(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
@@ -828,13 +794,9 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-
-
-                                @*<td class="text-right" ng-hide="sumORnot"></td>*@
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:2| number:2 }}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:2| number:2}}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseAmount'| setDecimal:2| number:2}}</strong></td>
-                                @*<td></td>*@
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -1202,78 +1164,7 @@
                         </div>
 
                     </div>
-                    @*<div class="clearfix"></div>
-                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueLot ===false">
-                            <div class="form-group" ng-hide="detailModel.TypeValueLot ===false">
-                                <label class="col-sm-4 control-label">Is Lot Number</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" name="TypeValue" ng-model="detailModel.TypeValueLot" tabindex="16" ng-disabled="true">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueLot ===false">
-                            <div class="form-group" id="div_qty">
-                                <label class="col-sm-4 control-label">Lot Number</label>
-                                <div class="col-sm-8 show-message" style="padding-right:0px;">
-                                    <input type="text" name="LotNumber" maxlength="200" ng-model="detailModel.LotNumber" class="form-control text-left" ng-hide="detailModel.TypeValueLot ===false">
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueDiameter ===false">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Is Diameter</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" name="TypeValue" ng-model="detailModel.TypeValueDiameter" tabindex="16" ng-disabled="true">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueDiameter ===false">
-                            <div class="form-group" id="div_qty">
-                                <label class="col-sm-4 control-label" ng-hide="detailModel.TypeValueDiameter ===false">Diameter</label>
-                                <div class="col-sm-8 show-message" style="padding-right:0px;">
-                                    <input type="text" name="LotNumber" maxlength="200" ng-model="detailModel.Diameter" class="form-control text-left" ng-hide="detailModel.TypeValueDiameter ===false">
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" ng-hide="detailModel.TypeValueType ===false">Is Type</label>
-                                <div class="col-sm-8" ng-hide="detailModel.TypeValueType ===false">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" name="TypeValue" ng-model="detailModel.TypeValueType" tabindex="16" ng-hide="detailModel.TypeValueType ===false">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group" id="div_qty">
-                                <label class="col-sm-4 control-label" ng-hide="detailModel.TypeValueType ===false">Type</label>
-                                <div class="col-sm-8 show-message" style="padding-right:0px;">
-                                    <input type="text" name="LotNumber" maxlength="200" ng-model="detailModel.Type" class="form-control text-left" ng-hide="detailModel.TypeValueType ===false">
-                                </div>
-
-                            </div>
-                        </div>*@
+                   
                 </fieldset>
                 <!--detailModel Entry Right-->
                 <hr ng-show="char1.CharacteristicsId.length>0;" />
@@ -1405,55 +1296,6 @@
                     </div>
                 </div>
 
-
-                @*<div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" id="div_tamnt">
-                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Shortage Qty<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.ShortageQty" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','ShortageQty');" />
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" id="div_tamnt">
-                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Rejection Qty<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.RejectionQty" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','RejectionQty');" />
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" id="div_tamnt">
-                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Approved Qty<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.ApprovedQty" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" id="div_tamnt">
-                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Net Qty<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>*@
 
                 <div class="clearfix"></div>
 
