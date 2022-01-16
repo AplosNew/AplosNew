@@ -21,11 +21,8 @@ namespace Library.Model.Inventory
         public string Remarks { get; set; }
 		public string CostCenterId { get; set; }
         public string Comments { get; set; }
-        public string OSTransformationPOId { get; set; } 
         public bool IsAsset { get; set; }
-        public string JWTCInputId { get; set; }
 
-        public string JWTransformationPOId { get; set; }
 
         #endregion Scalar Properties
 
@@ -96,7 +93,11 @@ namespace Library.Model.Inventory
         public string PostCrBudgetMasterId { get; set; }
 
         public string PostCrActivityId { get; set; }
-       
+        public string JWTCInputId { get; set; }
+
+        public string JWTransformationPOId { get; set; }
+        public string OSTransformationPOId { get; set; }
+        public string OSTransformationPOInputMaterialId { get; set; }
         #endregion Navigation Properties
     }
 }

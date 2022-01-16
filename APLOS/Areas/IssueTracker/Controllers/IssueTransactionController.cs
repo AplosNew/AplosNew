@@ -685,7 +685,7 @@ namespace Aplos.Areas.IssueTracker.Controllers
         #endregion end issuetransactionCreation
 
         [HttpPost]
-        public JsonResult IssueTransactionCreate(IssueTransaction issueTransactionNew, List<Dictionary<string, object>> buyers)
+        public JsonResult Create(IssueTransaction issueTransactionNew, List<Dictionary<string, object>> buyers)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 

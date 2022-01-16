@@ -65,10 +65,21 @@
                 <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Details for {{ColName}}</h1>
             </div>
             <div class="modal-body" style="min-height:300px; min-width:100%;">
-                <div class="row" style="margin: 20px; font-style:italic"> </div>
-                <p style="margin:10px;">
-                    The Details for the chosen  {{ColName}}.
-                <p>
+                <div class="row">
+                    <p style="margin:10px;">
+                        The Details for the chosen  {{ColName}}.
+                    <p>
+                </div>
+                <div class="row" style="margin: 20px; font-style:italic">
+                    <div class="common-btn" style="margin-top:10px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-download"></i> Download Report </button></li>
+                            @*<li> <button ng-click="getStocksReport();" class="btn"><i class="glyphicon glyphicon-save"></i> Export To Excel </button></li>*@
+
+                        </ul>
+                    </div>
+                </div>
+               
 
                     <div id="detailMaster" ej-grid e-datasource="masterDetailData" 
                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"

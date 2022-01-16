@@ -271,6 +271,8 @@ namespace Library.MaterialManagement.Inventory
                     inventoryIssue.ProductionOrderId = inventoryIssue.ProductionOrderId;
                     inventoryIssue.ContractId = inventoryIssue.ContractId;
                     inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
+                   
+
                     inventoryIssue.Id = _pk;
                     InsertGraph(inventoryIssue);
                     var rdBuilder = new System.Text.StringBuilder();
@@ -12533,6 +12535,7 @@ namespace Library.MaterialManagement.Inventory
                                             Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
                                             // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
                                             OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                            OSTransformationPOInputMaterialId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOInputMaterialId).FirstOrDefault(),
                                             //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             ModelState = ModelState.Added

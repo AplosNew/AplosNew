@@ -9,12 +9,12 @@ using System.Linq;
 
 namespace Library.OrderManagement.Production
 {
-    public class ProductionReportService
+    public class ProductionGeneralReportService
     {
         private readonly SqlRepository _sqlRepository;
 
         #region Constructor
-        public ProductionReportService()
+        public ProductionGeneralReportService()
         {
             _sqlRepository = new SqlRepository();
 
@@ -251,6 +251,55 @@ namespace Library.OrderManagement.Production
             }
         }
         #endregion masterDetail
+
+        #region Report
+        public DataTable getReports()
+        {
+            try
+            {
+                var str = @"Select dd.* , abs((Case when dd.ShortExcess<0 then dd.ShortExcess else 0 end)) as ToProduce ,
+                            (Case when dd.ShortExcess>0 then dd.ShortExcess else 0 end) as ExcessProduce  ,
+                           FLOOR((dd.ProducedQty/dd.OrderQty)*100) as Percents
+                            from
+                            (Select ps.ProductionOrderId, pps.Customer as Buyer, pps.MasterOrderNo ,pps.BuyerRef, pps.OwnRef ,pps.LineItem,pl.Code as ProductCode,ps.SalesOrderId ,  prs.UserName as PRStatus  , ps.ProcessId , ps.PlantId , c.UserName as Charac, cv.Id as CharVId ,cv.UserName as CharV , cs.UserName as Char2c , cvs.Id as Char2VId ,cvs.UserName as Char2V , pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty , Sum(psd.Qty) as ProducedQty , (Sum(psd.Qty) -  pps.PlanQty  ) as ShortExcess
+                            --, c.Id as cc , fc.CharacteristicsId , cs.Id , sc.CharacteristicsId
+                            from trn.ProductionSummary ps
+                            right join trn.ProductionSummaryDetail psd on psd.ProductionSummaryId = ps.Id
+                            left join hkp.Characteristics c on c.Id = psd.Characteristics1Id
+                            left join hkp.CharacteristicsValue cv on cv.Id = psd.Characteristics1ValueId
+                            left join hkp.Characteristics cs on cs.Id = psd.Characteristics2Id
+                            left join hkp.CharacteristicsValue cvs on cvs.Id = psd.Characteristics2ValueId
+                           
+                            left join 
+                            (
+                            Select p.UserName as Customer,mo.MasterOrderNo,mo.BuyerReferenceNo as BuyerRef, mo.OwnReferenceNo as OwnRef,moi.Id as LineItem,So.Id , cv.Id as FirstId ,cv.UserName as CharValF , cvs.Id as SecId ,cvs.UserName as CharValS , sc.Qty as OrderQty 
+                            ,Ceiling( sc.Qty/(1-(mo.ExtraOrderPercentage+mo.OrderWastagePercentage)/100)) as PlanQty
+                            from trn.SalesOrder so
+                            left join trn.FirstCharacteristics fc on fc.SalesOrderId = so.Id
+                            left join trn.SecondCharacteristics sc on sc.FirstCharacteristicsId = fc.Id
+                            left join hkp.Characteristics c on c.Id = fc.CharacteristicsId
+                            left join hkp.CharacteristicsValue cv on cv.Id = fc.CharacteristicsValueId
+                            left join hkp.Characteristics cs on cs.Id = sc.CharacteristicsId
+                            left join hkp.CharacteristicsValue cvs on cvs.Id = sc.CharacteristicsValueId
+                            left join trn.MasterOrderItem moi on moi.Id = So.MasterOrderItemId
+                            left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+                            left join hkp.Party p on p.Id = mo.PartyId
+                            )
+                            as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
+                            left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
+                            left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
+                            left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
+                            where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '214'
+                            group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName , cs.UserName , cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty ,  prs.UserName ,pps.Customer , pps.LineItem , pl.Code , pps.BuyerRef , pps.OwnRef , pps.MasterOrderNo
+                           ) as dd";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Report
 
 
 
