@@ -596,8 +596,16 @@ namespace Aplos.Areas.Commercial.Controllers
 						throw new Exception("Enter Loan Date");
 					}
 				}
-                #endregion
-                ep.Save(DataList, LcData);
+				#endregion
+				if (Convert.ToBoolean(LcData["IsLoan"]))
+				{
+					ep.Save(DataList, LcData);
+				}
+				else
+				{
+					ep.SaveWithoutLoan(DataList, LcData);
+				}
+				
                 return Json(new { Error = false, Message = AplosMessage.Updated });
             }
             catch (Exception ex)

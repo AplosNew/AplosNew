@@ -186,7 +186,15 @@ namespace Aplos.Areas.Commercial.Controllers
                             drSave = dsDetails.Tables[0].NewRow();
                             drSave["Id"] =  MasterId + count;
                             drSave["LoanAgainstAcceptanceMasterId"] = MasterId;
-                            drSave["PurchaseDocAcceptanceId"] = item["PurchaseDocAcceptanceId"];
+                            if(item["SourceType"].ToString() == "Acceptance")
+                            {
+                                drSave["PurchaseDocAcceptanceId"] = item["PurchaseDocAcceptanceId"];
+                            }
+                            else
+                            {
+                                drSave["InvoiceId"] = item["PurchaseDocAcceptanceId"];
+                            }
+                            
                             drSave["BankMasterId"] = item["BankMasterId"];
 
                             drSave["AddedBy"] = identity.Name;

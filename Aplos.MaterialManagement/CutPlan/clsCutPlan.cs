@@ -239,7 +239,8 @@ namespace Library.MaterialManagement.CutPlan
 								where  ch.Id='" + OtherSkuId + "' and sc.SalesOrderId in (" + SOId + @") group by  c.UserName  ,c.Id ";
                 }
 
-                _sql1 = @"select cv.Id ColorId,cv.UserName Colorvalue, c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(sc.Qty)Qty,m.Ratio
+                _sql1 = @"select cv.Id ColorId,cv.UserName Colorvalue, c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(sc.Qty)Qty
+                                ,m.Ratio,NULL AS CalculatedPlyQty,NULL AS AvailableQty
 								From TRN.FirstCharacteristics fc
 								left JOIN TRN.SecondCharacteristics sc ON SC.FirstCharacteristicsId=fc.Id AND SC.SalesOrderId=fc.SalesOrderId
 								left join hkp.Characteristicsvalue c on c.Id = sc.CharacteristicsValueId
@@ -263,7 +264,7 @@ namespace Library.MaterialManagement.CutPlan
             }
         }
 
-        public void Save(List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails, List<Dictionary<string, object>> SkuValueList)
+        public void Save(List<CutPlantCalculate> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails, List<Dictionary<string, object>> SkuValueList)
         {
             try
             {
@@ -361,6 +362,7 @@ namespace Library.MaterialManagement.CutPlan
 
                 #endregion
 
+
                 #region Cut Plan C H I L D
                 string CutPlanChildId = string.Empty;
                 string sql3 = "SELECT * FROM CutPlanChild WHERE CutPlanMarkerDetailsId='" + cutplantMarkerDetails + "' ";
@@ -374,16 +376,16 @@ namespace Library.MaterialManagement.CutPlan
 
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanChild]", out string ChildId);
                 count = 0;
-                for (int j = 0; j < SkuValueList.Count; j++)
+                for (int j = 0; j < CalculatedValueList.Count; j++)
                 {
                     count++;
                     DataRow dr = dsCutPlanChild.Tables[0].NewRow();
                     dr["Id"] = "F" + ChildId + count;
                     CutPlanChildId = dr["Id"].ToString();
-                    SkuValueList[j]["CutPlanChildId"] = CutPlanChildId;
+                    CalculatedValueList[j].CutPlanChildId = CutPlanChildId;
                     dr["CutPlanMarkerDetailsId"] = cutplantMarkerDetails;
-                    dr["CharacteristicsValueId"] = SkuValueList[j]["CharacteristicsId"].ToString();
-                    dr["RoundingPlyValue"] = SkuValueList[j]["MinimumPlyOptionValue"];
+                    dr["CharacteristicsValueId"] = CalculatedValueList[j].CharacteristicsId;
+                    dr["RoundingPlyValue"] = CalculatedValueList[j].MinimumPlyOptionValue;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -413,19 +415,45 @@ namespace Library.MaterialManagement.CutPlan
 
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanFormation]", out string TempId);
 
-                for (int i = 0; i < FGCharacteristicsValueList.Count; i++)
+                //for (int i = 0; i < FGCharacteristicsValueList.Count; i++)
+                //{
+                //    for (int j = 0; j < SkuValueList.Count; j++)
+                //    {
+                //        count++;
+                //        DataRow dr = dsCutPlanFormation.Tables[0].NewRow();
+                //        dr["Id"] = "F" + TempId + count;
+
+                //        dr["CutPlanChildId"] = SkuValueList[j]["CutPlanChildId"];
+                //        dr["MarkerCharacteristicsValueId"] = FGCharacteristicsValueList[i]["CharacteristicsValueId"].ToString();
+                //        dr["MarkerRatio"] = FGCharacteristicsValueList[i]["Ratio"];
+                //        dr["CalculatedQty"] = clsStaticInfo.dbl(SkuValueList[j]["MinimumPlyOptionValue"]) * clsStaticInfo.dbl(FGCharacteristicsValueList[i]["Ratio"]) ;
+                //        dr["QtyForCalculation"] = SkuValueList[j]["Qty"];
+
+                //        dr["AddedBy"] = identity.Name;
+                //        dr["AddedDate"] = DateTime.Now;
+                //        dr["AddedFromIP"] = identity.IPAddress;
+
+                //        dr["UpdatedBy"] = identity.Name;
+                //        dr["UpdatedDate"] = DateTime.Now;
+                //        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                //        dsCutPlanFormation.Tables[0].Rows.Add(dr);
+                //    }
+                //}
+
+                foreach (var item in CalculatedValueList)
                 {
-                    for (int j = 0; j < SkuValueList.Count; j++)
+                    foreach (var y in item.Qty)
                     {
                         count++;
                         DataRow dr = dsCutPlanFormation.Tables[0].NewRow();
                         dr["Id"] = "F" + TempId + count;
 
-                        dr["CutPlanChildId"] = SkuValueList[j]["CutPlanChildId"];
-                        dr["MarkerCharacteristicsValueId"] = FGCharacteristicsValueList[i]["CharacteristicsValueId"].ToString();
-                        dr["MarkerRatio"] = FGCharacteristicsValueList[i]["Ratio"];
-                        dr["CalculatedQty"] = clsStaticInfo.dbl(SkuValueList[j]["MinimumPlyOptionValue"]) * clsStaticInfo.dbl(FGCharacteristicsValueList[i]["Ratio"]) ;
-                        dr["QtyForCalculation"] = SkuValueList[j]["Qty"];
+                        dr["CutPlanChildId"] = item.CutPlanChildId;
+                        dr["MarkerCharacteristicsValueId"] = y.CharacteristicsId;
+                        dr["MarkerRatio"] = y.Ratio;
+                        dr["CalculatedQty"] = y.CalculatedPlyQty;
+                        dr["QtyForCalculation"] = y.Qty;
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = DateTime.Now;
@@ -467,4 +495,25 @@ public class CutPlanMarkerDetails
     public string MarkerId { get; set; }
     public string MarkerCharacteristicsId { get; set; }
     public string RoundingType { get; set; }
+}
+
+public class CutPlantCalculate
+{
+    public string Id { get; set; }
+    public string Characteristicsvalue { get; set; }
+    public string CharacteristicsId { get; set; }
+    public string CutPlanChildId { get; set; }
+    public string MinimumPlyActualValue { get; set; }
+    public string MinimumPlyOptionValue { get; set; }
+    public ICollection<CutPlantCalculateDetails> Qty { get; set; }
+}
+public class CutPlantCalculateDetails
+{
+    public string CharacteristicsId { get; set; }
+    public string ColorId { get; set; }
+    public string Qty { get; set; }
+    public string Ratio { get; set; }
+    public string Characteristicsvalue { get; set; }
+    public string Colorvalue { get; set; }
+    public string CalculatedPlyQty { get; set; }
 }
