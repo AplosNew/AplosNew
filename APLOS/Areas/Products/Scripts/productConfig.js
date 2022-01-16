@@ -379,7 +379,7 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/GoodsReceiveNote/GRNRequitionSOAllocation',
             controller: 'GRNRequisitionSOAllocationController'
         })
-        .when('/FOC', {
+        .when('/foc', {
             templateUrl: 'Products/InventoryReceive/FOC',
             controller: 'FOCController'
         })

@@ -271,6 +271,8 @@ namespace Library.MaterialManagement.Inventory
                     inventoryIssue.ProductionOrderId = inventoryIssue.ProductionOrderId;
                     inventoryIssue.ContractId = inventoryIssue.ContractId;
                     inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
+                   
+
                     inventoryIssue.Id = _pk;
                     InsertGraph(inventoryIssue);
                     var rdBuilder = new System.Text.StringBuilder();
@@ -2220,7 +2222,7 @@ namespace Library.MaterialManagement.Inventory
 									LEFT JOIN dbo.MasterLC LC ON LC.Id=CN.MasterLCId
 									LEFT JOIN HKP.Party P ON P.Id=LC.CustomerId
                             WHERE II.PlantId='" + plantId + @"' AND ISNULL(II.[Status],'')<>'Posting' 
-                            AND IID.IsAsset=0
+                            AND IID.IsAsset=0 AND II.IsPostingRequired=1
                             GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 	                                 , II.IssueDate, MS.UserName
 									 ,EI.EmployeeCode,EI.EmployeeName,II.Remarks,II.EntityId,E.UserName,II.IssueType
@@ -12533,6 +12535,7 @@ namespace Library.MaterialManagement.Inventory
                                             Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
                                             // OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
                                             OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPODetailId).FirstOrDefault(),
+                                            OSTransformationPOInputMaterialId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOInputMaterialId).FirstOrDefault(),
                                             //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
                                             ModelState = ModelState.Added
