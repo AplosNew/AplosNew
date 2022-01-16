@@ -2743,39 +2743,56 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.generate = function () {
         var firstCharId = '';
-        for (var i = 0; i < $scope.rowNo; i++) {
-            firstCharId = '-' + (i + 1);
-            $scope.skuList.push(
-                {
-                    Id: firstCharId
-                    , SalesOrderId: $scope.salesOrderId
-                    , FirstCharacteristicsId: null
-                    , SecondCharacteristicsId: null
-                    , CharacteristicsId: $scope.colorCharacteristicsId
-                    , CharacteristicsValueId: null
-                    , ValueFreeText: null
-                    , Sequence: i + 1
-                    , Qty: null
-                    , childList: []
-                    , Flag: null
-                }
-            );
-            for (var t = 0; t < $scope.columnNo; t++) {
-                $scope.skuList[i].childList.push(
-                    {
-                        Id: null
-                        , SalesOrderId: $scope.salesOrderId
-                        , FirstCharacteristicsId: baseService.arrayLength($scope.characteristicsList) === 2 ? firstCharId : null
-                        , SecondCharacteristicsId: baseService.arrayLength($scope.characteristicsList) === 3 ? firstCharId : null
-                        , CharacteristicsId: $scope.sizeCharacteristicsId
-                        , CharacteristicsValueId: null
-                        , ValueFreeText: null
-                        , Sequence: t + 1
-                        , Qty: null
+       
+
+        $http.get($scope.path + 'GetChValueCbo?materialId=' + $scope.materialMasterId)
+            .then(function (response) {
+
+                $scope.charValueList = [];
+                $scope.char1ValueList = [];
+                $scope.char2ValueList = [];
+                $scope.charValueList = response.data;
+
+                $scope.char1ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char1Id });
+                $scope.char2ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char2Id });
+
+                for (var i = 0; i < $scope.rowNo; i++) {
+                    firstCharId = '-' + (i + 1);
+                    $scope.skuList.push(
+                        {
+                            Id: firstCharId
+                            , SalesOrderId: $scope.salesOrderId
+                            , FirstCharacteristicsId: null
+                            , SecondCharacteristicsId: null
+                            , CharacteristicsId: $scope.colorCharacteristicsId
+                            , CharacteristicsValueId: null
+                            , ValueFreeText: null
+                            , Sequence: i + 1
+                            , Qty: null
+                            , childList: []
+                            , Flag: null
+                        }
+                    );
+                    for (var t = 0; t < $scope.columnNo; t++) {
+                        $scope.skuList[i].childList.push(
+                            {
+                                Id: null
+                                , SalesOrderId: $scope.salesOrderId
+                                , FirstCharacteristicsId: baseService.arrayLength($scope.characteristicsList) === 2 ? firstCharId : null
+                                , SecondCharacteristicsId: baseService.arrayLength($scope.characteristicsList) === 3 ? firstCharId : null
+                                , CharacteristicsId: $scope.sizeCharacteristicsId
+                                , CharacteristicsValueId: null
+                                , ValueFreeText: null
+                                , Sequence: t + 1
+                                , Qty: null
+                            }
+                        );
                     }
-                );
-            }
-        }
+                }
+
+
+            });
+
 
         angular.element(document.querySelector('#generatePopup')).modal('hide');
         if (baseService.arrayLength($scope.characteristicsList) === 3)
