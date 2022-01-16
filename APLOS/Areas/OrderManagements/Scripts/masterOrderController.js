@@ -2728,13 +2728,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         angular.element(document.querySelector('#secondPopup')).modal('hide');
                         angular.element(document.querySelector('#thirdPopup')).modal('hide');
                     }
+
+                   
+
+
                 });
         }
-        $http.get($scope.path + 'GetChValueCbo?materialId=' + $scope.materialMasterId)
-            .then(function (response) {
-                $scope.charValueList = [];
-                $scope.charValueList = response.data;
-            });
+       
     };
 
     function generateCharPopUp() {
@@ -2785,36 +2785,51 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
 
     function getSkuMatrix(rowDataList, columnDataList) {
-        for (var i = 0; i < baseService.arrayLength(rowDataList); i++) {
-            $scope.skuList.push({
-                Id: rowDataList[i].Id
-                , SalesOrderId: rowDataList[i].SalesOrderId
-                , FirstCharacteristicsId: rowDataList[i].FirstCharacteristicsId
-                , SecondCharacteristicsId: rowDataList[i].SecondCharacteristicsId
-                , CharacteristicsId: rowDataList[i].CharacteristicsId
-                , CharacteristicsValueId: rowDataList[i].CharacteristicsValueId
-                , ValueFreeText: rowDataList[i].ValueFreeText
-                , Sequence: rowDataList[i].Sequence
-                , Qty: rowDataList[i].Qty
-                , childList: []
-                , Flag: null
-            });
-            for (var t = 0; t < baseService.arrayLength(columnDataList); t++) {
-                if (columnDataList[t].FirstCharacteristicsId === rowDataList[i].Id || columnDataList[t].SecondCharacteristicsId === rowDataList[i].Id) {
-                    $scope.skuList[i].childList.push({
-                        Id: columnDataList[t].Id
-                        , SalesOrderId: columnDataList[t].SalesOrderId
-                        , FirstCharacteristicsId: columnDataList[t].FirstCharacteristicsId
-                        , SecondCharacteristicsId: columnDataList[t].SecondCharacteristicsId
-                        , CharacteristicsId: columnDataList[t].CharacteristicsId
-                        , CharacteristicsValueId: columnDataList[t].CharacteristicsValueId
-                        , ValueFreeText: columnDataList[t].ValueFreeText
-                        , Sequence: columnDataList[t].Sequence
-                        , Qty: columnDataList[t].Qty
+        $http.get($scope.path + 'GetChValueCbo?materialId=' + $scope.materialMasterId)
+            .then(function (response) {
+
+                $scope.charValueList = [];
+                $scope.char1ValueList = [];
+                $scope.char2ValueList = [];
+                $scope.charValueList = response.data;
+
+                $scope.char1ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char1Id });
+                $scope.char2ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char2Id });
+
+                for (var i = 0; i < baseService.arrayLength(rowDataList); i++) {
+                    $scope.skuList.push({
+                        Id: rowDataList[i].Id
+                        , SalesOrderId: rowDataList[i].SalesOrderId
+                        , FirstCharacteristicsId: rowDataList[i].FirstCharacteristicsId
+                        , SecondCharacteristicsId: rowDataList[i].SecondCharacteristicsId
+                        , CharacteristicsId: rowDataList[i].CharacteristicsId
+                        , CharacteristicsValueId: rowDataList[i].CharacteristicsValueId
+                        , ValueFreeText: rowDataList[i].ValueFreeText
+                        , Sequence: rowDataList[i].Sequence
+                        , Qty: rowDataList[i].Qty
+                        , childList: []
+                        , Flag: null
                     });
+                    for (var t = 0; t < baseService.arrayLength(columnDataList); t++) {
+                        if (columnDataList[t].FirstCharacteristicsId === rowDataList[i].Id || columnDataList[t].SecondCharacteristicsId === rowDataList[i].Id) {
+                            $scope.skuList[i].childList.push({
+                                Id: columnDataList[t].Id
+                                , SalesOrderId: columnDataList[t].SalesOrderId
+                                , FirstCharacteristicsId: columnDataList[t].FirstCharacteristicsId
+                                , SecondCharacteristicsId: columnDataList[t].SecondCharacteristicsId
+                                , CharacteristicsId: columnDataList[t].CharacteristicsId
+                                , CharacteristicsValueId: columnDataList[t].CharacteristicsValueId
+                                , ValueFreeText: columnDataList[t].ValueFreeText
+                                , Sequence: columnDataList[t].Sequence
+                                , Qty: columnDataList[t].Qty
+                            });
+                        }
+                    }
                 }
-            }
-        }
+
+
+            });
+       
     }
 
     $scope.addSkuMatrixColumn = function () {
@@ -4776,11 +4791,21 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             });
     };
 
+    $scope.char1ValueList = [];
+    $scope.char2ValueList = [];
+
     function GetChValueCbo() {
         $http.get($scope.path + 'GetChValueCbo?materialId=' + $scope.materialMasterId)
             .then(function (response) {
                 $scope.charValueList = [];
+                $scope.char1ValueList = [];
+                $scope.char2ValueList = [];
                 $scope.charValueList = response.data;
+
+                $scope.char1ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char1.Id });
+                $scope.char2ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char2.Id });
+                
+
             });
     }
 

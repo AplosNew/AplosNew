@@ -2162,12 +2162,13 @@
                                     <th ng-repeat="x in skuList[0].childList" class="text-center" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
                                         @*<button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
                                         <button ng-click="removeSkuMatrixColumn($index)" class="btn btn-action tooltip-here pull-right" tooltip data-placement="top" title="Remove" ng-disabled="skuList[0].childList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
-                                                    ng-change="chvChange(x.CharacteristicsValueId, $index); verifySkuMatrix();">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
+                                        @*<div class="select-style">
+            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
+                    ng-change="chvChange(x.CharacteristicsValueId, $index); verifySkuMatrix();">
+                <option value=""></option>
+            </select>
+        </div>*@
+                                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char2ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                                         <div>
                                             <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index); verifySkuMatrix();" class="form-control" maxlength="15">
                                         </div>
@@ -2180,11 +2181,12 @@
                             <tbody>
                                 <tr ng-repeat="x in skuList">
                                     <td>
-                                        <div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
-                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
+                                        @*<div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                <option value=""></option>
+            </select>
+        </div>*@
+                                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char1ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                                         <div ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
                                             <input type="text" ng-model="x.ValueFreeText" class="form-control" ng-keyup="verifySkuMatrix();" maxlength="15" />
                                         </div>
