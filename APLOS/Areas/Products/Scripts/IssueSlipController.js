@@ -271,104 +271,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 		Entity: null
 	};
 
-	//cboService.getCboPlantByCompany(null, function (result) {
-	//	$scope.PlantList = result;
-	//});
-
-	//function setUserImage(data) {
-	//	if (!baseService.isUndefinedOrNull(data.SystemId)) {
-	//		//$scope.imageSrc = $rootScope.HRMSImage + data.EmpPicPath;
-	//		//$scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
-	//		$scope.imageBtnDisable = true;
-	//		$scope.employee.EmpPicPath = data.EmpPicPath;
-	//	}
-	//	else {
-	//		$scope.imageBtnDisable = false;
-	//		$scope.employee.EmpPicPath = null;
-	//	}
-	//}
-
-	//$scope.getFile = function () {
-	//	$scope.progress = 0;
-	//	fileReader.readAsDataUrl($scope.file, $scope)
-	//		.then(function (result) {
-	//			$scope.imageSrc = result;
-	//		});
-	//};
-
-	//$scope.showEntity = function () {
-	//	$http.get('employees/resignation/getentitybyemployee')
-	//		.then(function (response) {
-	//			$scope.entityList = response.data;
-	//		});
-	//	angular.element(document.querySelector('#entityPopUp')).modal('show');
-	//};
-	//$scope.roleWiseMessage = function () {
-	//	$http.get('employees/resignation/getEntity')
-	//		.then(function successCallback(response) {
-	//			if (!baseService.isUndefinedOrNull(response.data.Message)) {
-	//				$scope.message = response.data.Message;
-	//			}
-	//			else {
-	//				$scope.message = response.data;
-	//			}
-	//		}
-	//		), function errorCallBack(response) {
-	//			showResult(response.data.Message, 'failure');
-	//		};
-	//};
-	//$scope.roleWiseMessage();
-
-	//$scope.Save = function () {
-	//	try {
-	//		Validate();
-	//		if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-	//			throw $scope.filedata.name + ' File size must be below 2 mb';
-	//		var fileName = null;
-	//		if (!baseService.isUndefinedOrNull($scope.filedata))
-	//			fileName = $scope.filedata.name;
-	//		//$scope.Resignation.AttachLetter = fileName;
-
-	//		$scope.savedisable = true;
-
-	//		var formData = new FormData();
-	//		$http({
-	//			method: 'POST',
-	//			url: 'employees/resignation/create',
-	//			headers: { 'Content-Type': undefined },
-	//			transformRequest: function (data) {
-	//				formData.append('Resignation', angular.toJson(data.Resignation));
-	//				if (baseService.isUndefinedOrNull($scope.filedata) === false) {
-	//					formData.append('file', data.file);
-	//				}
-	//				return formData;
-	//			},
-	//			data: { 'Resignation': $scope.Resignation, 'file': $scope.filedata }
-	//		}).then(function successCallback(response) {
-	//			if (response.data.Error === true) {
-	//				$scope.btnDisable = false;
-	//				$scope.savedisable = false;
-	//				ShowResult(response.data.Message, 'failure');
-	//			}
-	//			else {
-	//				ShowResult(response.data.Message, 'success');
-	//				$scope.Clear();
-	//				$scope.filedata = {};
-	//				document.getElementById('abc').value = ''
-	//				$scope.savedisable = false;
-	//			}
-	//		}, function errorCallback(response) {
-	//			$scope.savedisable = false;
-	//			ShowResult(response.status.Message, 'failure');
-	//		});
-	//		$scope.savedisable = false;
-	//		return true;
-	//	} catch (e) {
-	//		$scope.savedisable = false;
-
-	//		ShowResult(e, 'failure');
-	//	}
-	//};
+	
 
 	$scope.loadNewEmployee = function () {
 		$scope.excluedEmpColumn = ['Email', 'Reason', 'position', 'ResignationDate', 'AttachLetter', 'ApprovalStatus', 'EffectiveDate', 'Picture', 'IsPastResignationAllowed', 'PastResignationDaysAllowed', 'EmployeeCategory'];
@@ -1430,48 +1333,13 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 	}
 
 
-
-	//#region Issue Slip Checked Update
-	//$scope.onClickPOA = function (args) {
-	//	//debugger;
-	//	var gridObj = $("#GridISUnchecked").data("ejGrid");
-	//	//getting corresponding record 
-	//	$scope.podata = gridObj.getSelectedRecords()[0];
-
-	//	//alert('Approve=' + data.Id);
-	//	$scope.approvalAlert();
- //   };
-
-    //$scope.onClickSave = function (z) {
-    //    //debugger;
-    //    var x = "#" + z;
-    //    var gridObj = $(x).data("ejGrid");
-    //    $scope.podata = gridObj.getSelectedRecords()[0];
-    //    $scope.approvalAlert();
-    //};
-	//$scope.commandpo = [{
-	//	type: "details", buttonOptions: {
-	//		text: "Save",
-	//		width: "100",
-	//		height: "30",
-	//		click: $scope.onClickPOA
-	//	}
-	//}];
     $scope.approvalAlert = function () {
         //debugger;
 		$scope.message = 'Are you sure want to Approve?';
 		angular.element(document.querySelector('#poapprovealert')).modal('show');
 	};
 
-	//$scope.onClickPOAUTH = function (args) {
-
-	//	var gridObj = $("#GridIUNApproved").data("ejGrid");
-	//	//getting corresponding record 
-	//	$scope.podata = gridObj.getSelectedRecords()[0];
-
-	//	//alert('Approve=' + data.Id);
-	//	$scope.approvalAlert();
-	//};
+	
 
     $scope.onClickSave = function (z) {
         //debugger;
@@ -1506,11 +1374,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 		//debugger;
 		var x = $event;
 		$scope.IssueId = x.data.Id;
-		//$scope.modelNew.OperationMasterIdID = x.data.Id;
-		//$scope.GetDataByMasterOrderIdfn($scope.OMId);
-		//$scope.GetDataByMasterOrderIdfnMP1($scope.OMId);
-		//$scope.GetOperationPositionMPBudget();
-		//$scope.GetAutoSequenceForManPower();
+		
 		$scope.GetRequisitionIssueDetail($scope.IssueId);
 		$scope.Action1 = 'Update';
 		if (!$rootScope.isCollapsed) $rootScope.toggle();

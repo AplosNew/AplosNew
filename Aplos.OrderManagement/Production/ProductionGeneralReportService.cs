@@ -253,7 +253,7 @@ namespace Library.OrderManagement.Production
         #endregion masterDetail
 
         #region Report
-        public DataTable getReports()
+        public DataTable getReports(string PRId)
         {
             try
             {
@@ -289,7 +289,7 @@ namespace Library.OrderManagement.Production
                             left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
                             left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
                             left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                            where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '214'
+                            where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '"+PRId+@"'
                             group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName , cs.UserName , cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty ,  prs.UserName ,pps.Customer , pps.LineItem , pl.Code , pps.BuyerRef , pps.OwnRef , pps.MasterOrderNo
                            ) as dd";
                 return _sqlRepository.GetDataTable(str);

@@ -82,12 +82,12 @@ namespace Aplos.Areas.Productions.Controllers
         #region Report Operations
 
         [HttpPost, Authorize]
-        public ActionResult getReports()
+        public ActionResult getReports(string PRId)
         {
 
             try
             {
-                var workbook = getReportsDown();
+                var workbook = getReportsDown(PRId);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "ProductionReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -103,14 +103,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook getReportsDown()
+        private IWorkbook getReportsDown(string PRId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = ps.getReports();
+            var data = ps.getReports(PRId);
 
 
             var sheet = workbook.Worksheets[0];
