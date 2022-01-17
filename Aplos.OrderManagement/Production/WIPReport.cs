@@ -1909,9 +1909,7 @@ namespace Library.OrderManagement.Production
 			                ) AS K group by ProductionOrderId,WorkCenterMasterId) prSum ON prDetail.Id = prSum.ProductionOrderId
                             left join scs.WorkCenterMaster AS wcm ON wcm.Id = prSum.WorkCenterMasterId
                             JOIN org.Entity AS e ON e.Id=wcm.EntityId
-                            JOIN org.Plant AS p ON p.Id=e.PlantId
-
-				ORDER BY wcm.Sequence";
+                            JOIN org.Plant AS p ON p.Id=e.PlantId ORDER BY wcm.Sequence";
 
                 dt = _sqlRepository.GetDataTable(strSql);
                 for (int i = 0; i < dt.Rows.Count; i++)

@@ -7338,8 +7338,8 @@ TNA.SONo, TNA.PRNo
                 workbook = application.Workbooks.Create(3);
                 workbook.Worksheets[0].Name = "Ladder Plan";
                 sheet = workbook.Worksheets[0];
-
-
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                workbook.Version = ExcelVersion.Excel2013;
                 int ROW = 6; int COL = 1;
 
                 #region columns
@@ -7456,8 +7456,8 @@ TNA.SONo, TNA.PRNo
 
                 int startRow = ROW;
 
-                int RowIndex = ROW;
-                startRow = ROW;
+                //int RowIndex = ROW;
+                //startRow = ROW;
                 ROW++;
 
                 int StartRow = ROW;
@@ -7580,7 +7580,7 @@ TNA.SONo, TNA.PRNo
                 sheet.IsGridLinesVisible = false;
 
 
-                //#endregion ******************Report Header******************
+//#endregion ******************Report Header******************
 
                 sheet.PageSetup.TopMargin = 0.2;
                 sheet.PageSetup.BottomMargin = 0.8;
@@ -7597,7 +7597,7 @@ TNA.SONo, TNA.PRNo
 
 
 
-                string fPath = fPath = HostingEnvironment.MapPath("~/") + "TempReport" + identity.UserId + ".xlsx";
+                string fPath = fPath = HostingEnvironment.MapPath("~/") + "LadderPlan" + identity.UserId + ".xlsx";
 
 
                 workbook.SaveAs(fPath);
@@ -7606,12 +7606,14 @@ TNA.SONo, TNA.PRNo
 
 
                 #region PR Wise
-                workbook.Worksheets[1].Name = "PR Wise";
+                workbook.Worksheets[1].Name = "PRWise";
 
-                IWorksheet pivotSheet1 = workbook.Worksheets[1];
+                IWorksheet pivotSheet = workbook.Worksheets[1];
+                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
-                IPivotCache cache2 = workbook.PivotCaches.Add(sheet[startRow - 1, 1, ROW - 1, endCol]);
-                IPivotTable pivotTable = pivotSheet1.PivotTables.Add("PivotTable1", pivotSheet1["A6"], cache2);
+
+
                 pivotTable.Fields[colDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPRNo - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colWorkCenter - 1].Axis = PivotAxisTypes.Row;
@@ -7668,15 +7670,15 @@ TNA.SONo, TNA.PRNo
                 pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
 
-                reportUtility.CompanyPlantHeaderNew(ref pivotSheet1, 1, "Ladder Plan. Last Updated(" + Convert.ToDateTime(data.Rows[0]["Date"].ToString()).ToString("dd-MMM-yyyy") + ")", identity.CompanyId, identity.CompanyName, "");
+                reportUtility.CompanyPlantHeaderNew(ref pivotSheet, 1, "Ladder Plan. Last Updated(" + Convert.ToDateTime(data.Rows[0]["Date"].ToString()).ToString("dd-MMM-yyyy") + ")", identity.CompanyId, identity.CompanyName, "");
 
-                reportUtility.PageSetup(ref pivotSheet1, 6, ExcelPageOrientation.Landscape);
-                pivotSheet1[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                pivotSheet1.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                reportUtility.PageSetup(ref pivotSheet, 6, ExcelPageOrientation.Landscape);
+                pivotSheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                pivotSheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                pivotSheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                pivotSheet1.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                pivotSheet1.IsGridLinesVisible = false;
+                pivotSheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                pivotSheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                pivotSheet.IsGridLinesVisible = false;
 
 
                 #endregion PR Wise
