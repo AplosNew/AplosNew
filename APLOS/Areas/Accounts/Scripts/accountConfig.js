@@ -935,5 +935,9 @@ function accountConfig($routeProvider) {
             controller: "AssetWIPStatusController"
         })
 
+        .when("/inventory-sales-returnpost", {
+            templateUrl: "Accounts/InventorySale/InventorySalesReturnPost",
+            controller: "inventorySalesReturnPost"
+        })
         ;
 } 
