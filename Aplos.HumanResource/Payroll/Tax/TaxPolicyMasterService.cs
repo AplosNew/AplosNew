@@ -242,7 +242,9 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                var str = @"Select * from dbo.taxEarningMasterChild where TaxPolicyHeaderId ='" + Id + "'";
+                var str = @"Select tc.*,sc.SalaryHead from dbo.taxEarningMasterChild TC LEFT JOIN salaryhead sc
+                on sc.SalaryHeadID=tc.SalaryHeadId
+                where TaxPolicyHeaderId ='"+Id+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -263,6 +265,7 @@ namespace Library.HumanResource.Payroll.Tax
                 throw e;
             }
         }
+       
         public Dictionary<string, object> SaveEarningMasterChild(Dictionary<string, object> Header)
         {
             try
