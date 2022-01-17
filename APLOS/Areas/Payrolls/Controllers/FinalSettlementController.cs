@@ -835,9 +835,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-
-
-
+    
         [HttpGet, Authorize]
         public ActionResult GetDataForEdit(string Id)
         {

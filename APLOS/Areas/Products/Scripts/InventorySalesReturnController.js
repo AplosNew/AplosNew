@@ -52,7 +52,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
     $scope.getPopUpData = function () {
         $http({
             method: 'POST',
-            url: 'Accounts/InventorySale/GetListForInvReceivable',
+            url: 'Accounts/InventorySale/GetPostedSalesListForReturn',
             data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
         }).then(function successCallback(response) {
             $scope.approvedSalesList = response.data;

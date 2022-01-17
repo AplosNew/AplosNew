@@ -7338,8 +7338,8 @@ TNA.SONo, TNA.PRNo
                 workbook = application.Workbooks.Create(3);
                 workbook.Worksheets[0].Name = "Ladder Plan";
                 sheet = workbook.Worksheets[0];
-
-
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                workbook.Version = ExcelVersion.Excel2013;
                 int ROW = 6; int COL = 1;
 
                 #region columns
@@ -7360,7 +7360,7 @@ TNA.SONo, TNA.PRNo
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colPlanTarget = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Plan Cumilative/ Day ";
+                sheet[ROW, COL].Text = "Plan Cumulative/ Day ";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colPlanCumilativeDay = COL;
                 COL++;
@@ -7368,7 +7368,7 @@ TNA.SONo, TNA.PRNo
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colTargetMonth = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Plan Cumilative";
+                sheet[ROW, COL].Text = "Plan Cumulative";
                 sheet[ROW, COL].ColumnWidth = 8;
                 int colPlanCumilative = COL;
                 COL++;
@@ -7377,11 +7377,11 @@ TNA.SONo, TNA.PRNo
                 int colProductionQty = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Production Cumilative / Day";
+                sheet[ROW, COL].Text = "Production Cumulative / Day";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colProductionCumilativeDay = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Production Cumilative";
+                sheet[ROW, COL].Text = "Production Cumulative";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colProductionCumilative = COL;
                 COL++;
@@ -7454,10 +7454,8 @@ TNA.SONo, TNA.PRNo
 
                 //ROW++;
 
-                int startRow = ROW;
 
                 int RowIndex = ROW;
-                startRow = ROW;
                 ROW++;
 
                 int StartRow = ROW;
@@ -7465,6 +7463,7 @@ TNA.SONo, TNA.PRNo
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
+                   
                     //text fields
                     sheet[ROW, colPRNo].Text = data.Rows[i]["PRNo"].ToString();
                     sheet[ROW, colDate].Text = GetDate(data.Rows[i]["Date"].ToString());
@@ -7538,21 +7537,16 @@ TNA.SONo, TNA.PRNo
                     sheet[ROW, colTotalProduction].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet[ROW, colTotalProduction].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                    //sheet[ROW, colRemarks].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                    //sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-
-                    //ROW++;
-
+                    
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                     ROW++;
-
+                     
                 }
 
-                IListObject table = sheet.ListObjects.Create("Table1", sheet[clsStaticInfo.GetxlsCol(1) + (6).ToString() + ":" + clsStaticInfo.GetxlsCol(endCol) + (ROW).ToString()]);
+                IListObject table = sheet.ListObjects.Create("Table1", sheet[clsStaticInfo.GetxlsCol(1) + (StartRow - 1).ToString() + ":" + clsStaticInfo.GetxlsCol(endCol) + (ROW).ToString()]);
                 table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
 
 
@@ -7564,7 +7558,6 @@ TNA.SONo, TNA.PRNo
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.UsedRange["A7"].FreezePanes();
 
 
                 ReportUtility reportUtility = new ReportUtility();
@@ -7580,7 +7573,7 @@ TNA.SONo, TNA.PRNo
                 sheet.IsGridLinesVisible = false;
 
 
-                //#endregion ******************Report Header******************
+//#endregion ******************Report Header******************
 
                 sheet.PageSetup.TopMargin = 0.2;
                 sheet.PageSetup.BottomMargin = 0.8;
@@ -7597,7 +7590,7 @@ TNA.SONo, TNA.PRNo
 
 
 
-                string fPath = fPath = HostingEnvironment.MapPath("~/") + "TempReport" + identity.UserId + ".xlsx";
+                string fPath = fPath = HostingEnvironment.MapPath("~/") + "LadderPlan" + identity.UserId + ".xlsx";
 
 
                 workbook.SaveAs(fPath);
@@ -7606,11 +7599,15 @@ TNA.SONo, TNA.PRNo
 
 
                 #region PR Wise
-                workbook.Worksheets[1].Name = "PR Wise";
+                workbook.Worksheets[1].Name = "PRWise";
 
-                IWorksheet pivotSheet1 = workbook.Worksheets[1];
+                IWorksheet pivotSheet = workbook.Worksheets[1];
+                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
-                IPivotCache cache2 = workbook.PivotCaches.Add(sheet[startRow - 1, 1, ROW - 1, endCol]);
+
+
+                IPivotCache cache2 = workbook.PivotCaches.Add(sheet[StartRow - 1, 1, ROW - 1, endCol]);
                 IPivotTable pivotTable = pivotSheet1.PivotTables.Add("PivotTable1", pivotSheet1["A6"], cache2);
                 pivotTable.Fields[colDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPRNo - 1].Axis = PivotAxisTypes.Row;
@@ -7668,94 +7665,20 @@ TNA.SONo, TNA.PRNo
                 pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
 
-                reportUtility.CompanyPlantHeaderNew(ref pivotSheet1, 1, "Ladder Plan. Last Updated(" + Convert.ToDateTime(data.Rows[0]["Date"].ToString()).ToString("dd-MMM-yyyy") + ")", identity.CompanyId, identity.CompanyName, "");
+                reportUtility.CompanyPlantHeaderNew(ref pivotSheet, 1, "Ladder Plan. Last Updated(" + Convert.ToDateTime(data.Rows[0]["Date"].ToString()).ToString("dd-MMM-yyyy") + ")", identity.CompanyId, identity.CompanyName, "");
 
-                reportUtility.PageSetup(ref pivotSheet1, 6, ExcelPageOrientation.Landscape);
-                pivotSheet1[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                pivotSheet1.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                reportUtility.PageSetup(ref pivotSheet, 6, ExcelPageOrientation.Landscape);
+                pivotSheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                pivotSheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                pivotSheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                pivotSheet1.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                pivotSheet1.IsGridLinesVisible = false;
+                pivotSheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                pivotSheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                pivotSheet.IsGridLinesVisible = false;
 
 
                 #endregion PR Wise
 
-                //#region WC Wise
-                //workbook.Worksheets[1].Name = "WC Wise";
 
-                //IWorksheet pivotSheet2 = workbook.Worksheets[1];
-
-                //IPivotCache cache3 = workbook.PivotCaches.Add(sheet[startRow - 1, 1, ROW - 1, endCol]);
-                //IPivotTable pivotTable2 = pivotSheet2.PivotTables.Add("PivotTable1", pivotSheet2["A6"], cache3);
-                //pivotTable2.Fields[colDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable2.Fields[colPRNo - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colWorkCenter - 1].Axis = PivotAxisTypes.Row;
-
-                ////pivotTable.Fields[colPlanTarget - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colPlanTarget - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                ////pivotTable.Fields[colProductionQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colProductionQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                ////pivotTable.Fields[colDiff - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colDiff - 1].NumberFormat = clsStaticInfo.NumberFormat();
-
-
-                //for (int i = 0; i < pivotTable2.Fields.Count; i++)
-                //{
-                //    if (i == colDate - 1)
-                //        continue;
-                //    pivotTable2.Fields[i].Subtotals = PivotSubtotalTypes.None;
-                //}
-
-
-                //IPivotField field2 = pivotTable2.Fields[colPlanTarget - 1];
-                //field2.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable2.DataFields.Add(field2, "Target Qty", PivotSubtotalTypes.Sum);
-
-                //field2 = pivotTable2.Fields[colProductionQty - 1];
-                //field2.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable2.DataFields.Add(field2, "Prod. Qty", PivotSubtotalTypes.Sum);
-
-                //field2 = pivotTable2.Fields[colDiff - 1];
-                //field2.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable2.DataFields.Add(field2, "Diff", PivotSubtotalTypes.Sum);
-
-
-                ////pivotTable.Fields[colPlanTarget - 1].Axis = PivotAxisTypes.Column;
-                ////pivotTable.Fields[colPlanTarget - 1].Name = "Target Qty";
-                ////pivotTable.Fields[colPlanTarget - 1].Subtotals = PivotSubtotalTypes.Sum;
-
-                ////pivotTable.Fields[colProductionQty - 1].Axis = PivotAxisTypes.Column;
-                ////pivotTable.Fields[colProductionQty - 1].Name = "Prod. Qty";
-                ////pivotTable.Fields[colPlanTarget - 1].Subtotals = PivotSubtotalTypes.Sum;
-
-                ////pivotTable.Fields[colDiff - 1].Axis = PivotAxisTypes.Column;
-                ////pivotTable.Fields[colDiff - 1].Name = "Diff";
-                ////pivotTable.Fields[colDiff - 1].Subtotals = PivotSubtotalTypes.Sum;
-
-
-                ////int totalColumns = pivotTable2_1.RowFields.Count + pivotTable2_1.ColumnFields.Count;
-
-                ////int StartFormattingColumn = pivotTable.RowFields.Count + 1;
-                ////int endFormaatingColumn = StartFormattingColumn + pivotTable.ColumnFields[0].Items.Count + pivotTable.ColumnFields[1].Items.Count;
-
-
-                //pivotTable2.ShowDrillIndicators = false;
-                ////pivotTable2.ShowDataFieldInRow = true;
-                //pivotTable2.Options.RowLayout = PivotTableRowLayout.Tabular;
-                //pivotTable2.Options.NullString = "";
-                //pivotTable2.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
-
-
-                //reportUtility.CompanyPlantHeaderNew(ref pivotSheet2, 1, "Ladder Plan. Last Updated(" + Convert.ToDateTime(data.Rows[0]["Date"].ToString()).ToString("dd-MMM-yyyy") + ")", identity.CompanyId, identity.CompanyName, "");
-
-                //reportUtility.PageSetup(ref pivotSheet1, 6, ExcelPageOrientation.Landscape);
-                //pivotSheet1[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //pivotSheet1.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-                //pivotSheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                //pivotSheet1.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                //pivotSheet1.IsGridLinesVisible = false;
-
-
-                //#endregion WC Wise
 
                 return workbook;
 

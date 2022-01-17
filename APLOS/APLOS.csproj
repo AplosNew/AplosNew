@@ -1598,6 +1598,7 @@
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
     <Content Include="Areas\Accounts\Scripts\entityWiseExpenseAndEarningController.js" />
     <Content Include="Areas\Accounts\Scripts\AssetWIPStatusController.js" />
+    <Content Include="Areas\Accounts\Scripts\inventorySalesReturnPost.js" />
     <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
     <Content Include="Areas\Accounts\Scripts\expenseRegisterReportController.js" />
@@ -3944,6 +3945,7 @@
     <Content Include="Areas\Productions\Views\ProductionGeneralReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceManagementMaster\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\TaxPolicyHeader\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventorySale\InventorySalesReturnPost.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

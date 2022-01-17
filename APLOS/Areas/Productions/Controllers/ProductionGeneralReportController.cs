@@ -381,7 +381,7 @@ namespace Aplos.Areas.Productions.Controllers
             sheet.UsedRange.CellStyle.Font.Size = 12;
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "Prod Report", identity.CompanyId);
+            reportUtility.CompanyHeader(ref sheet, endCol, "Cutting Report", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
