@@ -91,8 +91,6 @@ namespace Aplos.Areas.Attendances.Controllers
             {
 
                 objLeaveYearEndProcessData.validateIndividualYearEnd(identity.PlantId, YearId);
-                #region Validation
-
 
                 if (string.IsNullOrEmpty(YearId.ToString().Trim()) == true)
                 {
@@ -101,7 +99,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 objLeaveYearEndProcessData.GetNextYearID(identity.PlantId, YearId.ToString().Trim(), out dsLocal);
-             
+
                 if (dsLocal.Tables[0].Rows.Count > 0)
                 {
 
@@ -126,7 +124,10 @@ namespace Aplos.Areas.Attendances.Controllers
                     foreach (DataRow item in dsOldSummary.Tables[0].Rows)
                         item["IsYearlyProcessed"] = true;
 
-                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
+                    OTSBD.clsLeaveEncashment leaveEncashment = new clsLeaveEncashment();
+                    DataSet dsEncashmentData = leaveEncashment.SaveYearEndDateLeaveEncashmentData(identity.PlantId, dsOldSummary);
+
+                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay, dsEncashmentData);
 
 
                 }
@@ -138,9 +139,6 @@ namespace Aplos.Areas.Attendances.Controllers
                     throw (ex);
                 }
 
-
-                #endregion Validation
-                //-----
             }
             catch (Exception ex)
             {
@@ -150,14 +148,6 @@ namespace Aplos.Areas.Attendances.Controllers
             {
 
             }
-
-
-            //var data = _sqlRepository.GetDataCollection(sql);
-            //JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
-            //json.MaxJsonLength = int.MaxValue;
-            //return json;
-
-
 
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
@@ -180,37 +170,23 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
 
-
-                #region Validation
-
-
                 if (string.IsNullOrEmpty(ToDate.ToString().Trim()) == true)
                 {
                     Exception ex = new Exception("Select date First...");
                     throw (ex);
                 }
 
-
-
-
-
-
                 objLeaveYearEndProcessData.GetLeaveTranInfoIndividual(identity.PlantId, ToDate, out dsLeaveTranInfo);
                 objLeaveYearEndProcessData.LeaveYearEndProcessIndividual(identity.PlantId, ToDate.ToString().Trim(), dsLeaveTranInfo, out dsNewSummary, out dsOldSummary);
-
-
-
 
                 foreach (DataRow item in dsOldSummary.Tables[0].Rows)
                     item["IsYearlyProcessed"] = true;
 
-                objStatic.SaveDataSets(dsNewSummary, dsOldSummary);
+                OTSBD.clsLeaveEncashment leaveEncashment = new clsLeaveEncashment();
+                DataSet dsEncashmentData = leaveEncashment.SaveYearEndDateLeaveEncashmentData(identity.PlantId, dsOldSummary);
 
+                objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsEncashmentData);
 
-
-
-                #endregion Validation
-                //-----
             }
             catch (Exception ex)
             {
@@ -256,8 +232,6 @@ namespace Aplos.Areas.Attendances.Controllers
             {
                 objLeaveYearEndProcessData.validateIndividualYearEnd(identity.PlantId, YearId);
 
-                #region Validation
-
 
                 if (string.IsNullOrEmpty(YearId.ToString().Trim()) == true)
                 {
@@ -289,21 +263,24 @@ namespace Aplos.Areas.Attendances.Controllers
 
                     foreach (DataRow item in dsOldSummary.Tables[0].Rows)
                         item["IsYearlyProcessed"] = true;
-                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay);
 
-                   
+
+                    OTSBD.clsLeaveEncashment leaveEncashment = new clsLeaveEncashment();
+                    DataSet dsEncashmentData = leaveEncashment.SaveYearEndDateLeaveEncashmentDataForNewAttendance(identity.PlantId, dsOldSummary);
+
+                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay, dsEncashmentData);
+
+
                 }
                 else
                 {
 
-                    //Exception ex = new Exception("Calendar Year " + (Convert.ToInt32(ddlYear.Items[ddlYear.SelectedIndex].Text) + 1).ToString()+" Not found ");
                     Exception ex = new Exception("Calendar Year Not found after ");
                     throw (ex);
                 }
 
 
-                #endregion Validation
-                //-----
+
             }
             catch (Exception ex)
             {
@@ -313,14 +290,6 @@ namespace Aplos.Areas.Attendances.Controllers
             {
 
             }
-
-
-            //var data = _sqlRepository.GetDataCollection(sql);
-            //JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
-            //json.MaxJsonLength = int.MaxValue;
-            //return json;
-
-
 
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
@@ -338,13 +307,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
             clsLeaveYearEndProcess objLeaveYearEndProcessData;
             objLeaveYearEndProcessData = new clsLeaveYearEndProcess();
-            //clsLeaveServiceAplos objLeaveServiceAplos;
-            //objLeaveServiceAplos = new clsLeaveServiceAplos();
             try
             {
-
-
-                #region Validation
 
 
                 if (string.IsNullOrEmpty(ToDate.ToString().Trim()) == true)
@@ -353,29 +317,18 @@ namespace Aplos.Areas.Attendances.Controllers
                     throw (ex);
                 }
 
-
-
-
-
-
                 objLeaveYearEndProcessData.GetLeaveTranInfoIndividualNew(identity.PlantId, ToDate, out dsLeaveTranInfo);
                 objLeaveYearEndProcessData.LeaveYearEndProcessIndividual(identity.PlantId, ToDate.ToString().Trim(), dsLeaveTranInfo, out dsNewSummary, out dsOldSummary);
-
-
-
-
 
                 foreach (DataRow item in dsOldSummary.Tables[0].Rows)
                     item["IsYearlyProcessed"] = true;
 
-                objStatic.SaveDataSets(dsNewSummary, dsOldSummary);
 
+                OTSBD.clsLeaveEncashment leaveEncashment = new clsLeaveEncashment();
+                DataSet dsEncashmentData = leaveEncashment.SaveYearEndDateLeaveEncashmentDataForNewAttendance(identity.PlantId, dsOldSummary);
 
+                objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsEncashmentData);
 
-
-
-                #endregion Validation
-                //-----
             }
             catch (Exception ex)
             {
@@ -667,8 +620,8 @@ namespace Aplos.Areas.Attendances.Controllers
                                 FROM [TRN].[EmployeeLeaveSummary] ELS
                                
                                 JOIN [TRN].[EmployeeLeaveSummary] ELX ON els.Id=elx.Id and elx.Id=(SELECT TOP 1 Id FROM [TRN].[EmployeeLeaveSummary] X 
-                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId
-																							AND x.LeaveTypeId=els.LeaveTypeId AND X.ToDate<='" + ToDate + @"' ORDER BY x.ToDate DESC )
+                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId AND ISNULL(ELS.IsYearlyProcessed,0)=0
+																							AND x.LeaveTypeId=els.LeaveTypeId AND X.ToDate<='" + ToDate + @"' ORDER BY x.ToDate ASC )
                                 LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
                                 LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId         
 
@@ -717,7 +670,7 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = string.Empty;
-         
+
 
             sql = @"select EmployeeId, EmployeeCode,EmployeeName,EmployeeCodeNumeric,EmployeeCodePreFix,DOJorDOC,FromDate,x.ToDate
                                 ,LeaveName
@@ -884,8 +837,8 @@ namespace Aplos.Areas.Attendances.Controllers
                                 FROM [TRN].[EmployeeLeaveSummary] ELS
                                
                                 JOIN [TRN].[EmployeeLeaveSummary] ELX ON els.Id=elx.Id and elx.Id=(SELECT TOP 1 Id FROM [TRN].[EmployeeLeaveSummary] X 
-                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId
-																							AND x.LeaveTypeId=els.LeaveTypeId AND X.ToDate<='" + ToDate + @"' ORDER BY x.ToDate DESC )
+                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId AND ISNULL(ELS.IsYearlyProcessed,0)=0
+																							AND x.LeaveTypeId=els.LeaveTypeId AND X.ToDate<='" + ToDate + @"' ORDER BY x.ToDate ASC )
                                 LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
                                 LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId         
 
