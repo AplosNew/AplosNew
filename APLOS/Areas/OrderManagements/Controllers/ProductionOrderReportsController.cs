@@ -7602,13 +7602,10 @@ TNA.SONo, TNA.PRNo
                 workbook.Worksheets[1].Name = "PRWise";
 
                 IWorksheet pivotSheet = workbook.Worksheets[1];
-                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
-                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
-
-
-
+              
                 IPivotCache cache2 = workbook.PivotCaches.Add(sheet[StartRow - 1, 1, ROW - 1, endCol]);
-                IPivotTable pivotTable = pivotSheet1.PivotTables.Add("PivotTable1", pivotSheet1["A6"], cache2);
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache2);
+
                 pivotTable.Fields[colDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPRNo - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colWorkCenter - 1].Axis = PivotAxisTypes.Row;
@@ -7678,7 +7675,82 @@ TNA.SONo, TNA.PRNo
 
                 #endregion PR Wise
 
+                #region WC Wise
 
+                workbook.Worksheets[1].Name = "WCWise";
+
+                IWorksheet pivotSheetWC = workbook.Worksheets[1];
+
+                IPivotCache cacheWC = workbook.PivotCaches.Add(sheet[StartRow - 1, 1, ROW - 1, endCol]);
+                IPivotTable pivotTableWC = pivotSheetWC.PivotTables.Add("PivotTable1", pivotSheetWC["A6"], cacheWC);
+
+                pivotTableWC.Fields[colDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTableWC.Fields[colPRNo - 1].Axis = PivotAxisTypes.Row;
+                pivotTableWC.Fields[colWorkCenter - 1].Axis = PivotAxisTypes.Row;
+
+                //pivotTable.Fields[colPlanTarget - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colPlanTarget - 1].NumberFormat = clsStaticInfo.NumberFormat();
+                //pivotTable.Fields[colProductionQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colProductionQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
+                //pivotTable.Fields[colDiff - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colDiff - 1].NumberFormat = clsStaticInfo.NumberFormat();
+
+
+                for (int i = 0; i < pivotTableWC.Fields.Count; i++)
+                {
+                    if (i == colDate - 1)
+                        continue;
+                    pivotTableWC.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                }
+
+
+                IPivotField wcField = pivotTableWC.Fields[colPlanTarget - 1];
+                wcField.NumberFormat = clsStaticInfo.NumberFormat();
+                pivotTableWC.DataFields.Add(wcField, "Target Qty", PivotSubtotalTypes.Sum);
+
+                wcField = pivotTableWC.Fields[colProductionQty - 1];
+                wcField.NumberFormat = clsStaticInfo.NumberFormat();
+                pivotTableWC.DataFields.Add(wcField, "Prod. Qty", PivotSubtotalTypes.Sum);
+
+                wcField = pivotTableWC.Fields[colDiff - 1];
+                wcField.NumberFormat = clsStaticInfo.NumberFormat();
+                pivotTableWC.DataFields.Add(wcField, "Diff", PivotSubtotalTypes.Sum);
+
+
+                //pivotTable.Fields[colPlanTarget - 1].Axis = PivotAxisTypes.Column;
+                //pivotTable.Fields[colPlanTarget - 1].Name = "Target Qty";
+                //pivotTable.Fields[colPlanTarget - 1].Subtotals = PivotSubtotalTypes.Sum;
+
+                //pivotTable.Fields[colProductionQty - 1].Axis = PivotAxisTypes.Column;
+                //pivotTable.Fields[colProductionQty - 1].Name = "Prod. Qty";
+                //pivotTable.Fields[colPlanTarget - 1].Subtotals = PivotSubtotalTypes.Sum;
+
+                //pivotTable.Fields[colDiff - 1].Axis = PivotAxisTypes.Column;
+                //pivotTable.Fields[colDiff - 1].Name = "Diff";
+                //pivotTable.Fields[colDiff - 1].Subtotals = PivotSubtotalTypes.Sum;
+
+
+                //int totalColumns = pivotTable2_1.RowFields.Count + pivotTable2_1.ColumnFields.Count;
+
+                //int StartFormattingColumn = pivotTable.RowFields.Count + 1;
+                //int endFormaatingColumn = StartFormattingColumn + pivotTable.ColumnFields[0].Items.Count + pivotTable.ColumnFields[1].Items.Count;
+
+
+                pivotTableWC.ShowDrillIndicators = false;
+                //pivotTable.ShowDataFieldInRow = true;
+                pivotTableWC.Options.RowLayout = PivotTableRowLayout.Tabular;
+                pivotTableWC.Options.NullString = "";
+                pivotTableWC.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+
+                reportUtility.CompanyPlantHeaderNew(ref pivotSheetWC, 1, "Ladder Plan. Last Updated(" + Convert.ToDateTime(data.Rows[0]["Date"].ToString()).ToString("dd-MMM-yyyy") + ")", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref pivotSheetWC, 6, ExcelPageOrientation.Landscape);
+                pivotSheetWC[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                pivotSheetWC.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                pivotSheetWC.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                pivotSheetWC.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                pivotSheetWC.IsGridLinesVisible = false;
+
+                #endregion WC Wise
 
                 return workbook;
 
