@@ -333,7 +333,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult DeleteDebitNoteSetOff(string invoiceWriteOffId, string voucherId)
         {
             _invoiceWriteOffService.DeleteAdjustmentNoteWriteOff(invoiceWriteOffId, voucherId);
-            return Json(new { Message = AplosMessage.Posted });
+            return Json(new { Message = AplosMessage.Deleted });
         }
         #region CreditNoteSetOffReport
 

@@ -648,7 +648,7 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
             }
             else {
                 ShowResult(response.data.Message, "success");
-                $scope.getData();
+                $scope.getMasterOrderSalesPosted();
                 $scope.Clear();
                 $scope.salesId = null;
                 $scope.voucherId = null;
