@@ -22,6 +22,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
     baseService.init("Accounts/AdjustmentNote/GetDebitNoteSetOffList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.url = "Accounts/AdjustmentNote";
     $scope.postUrl = $scope.url + "/PostDebitNoteSetOff";
+    $scope.deleteUrl = $scope.url + "/DeleteDebitNoteSetOff";
 
     $scope.voucher = {
         Id: null,
@@ -941,7 +942,36 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         });
         return true;
     };
-
+    $scope.delete = function (invoiceWriteOffId, voucherId) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "invoiceWriteOffId": invoiceWriteOffId, "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+    $scope.invoiceWriteOffId = null;
+    $scope.confirmDelete = function (invoiceWriteOffId, voucherId) {
+        $scope.invoiceWriteOffId = invoiceWriteOffId;
+        $scope.voucherId = voucherId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
     $scope.getPartyType = function (party) {
         $scope.voucher.PartyId = null;
         $scope.voucher.PartyPlantId = null;
