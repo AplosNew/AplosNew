@@ -7677,9 +7677,9 @@ TNA.SONo, TNA.PRNo
 
                 #region WC Wise
 
-                workbook.Worksheets[1].Name = "WCWise";
+                workbook.Worksheets[2].Name = "WCWise";
 
-                IWorksheet pivotSheetWC = workbook.Worksheets[1];
+                IWorksheet pivotSheetWC = workbook.Worksheets[2];
 
                 IPivotCache cacheWC = workbook.PivotCaches.Add(sheet[StartRow - 1, 1, ROW - 1, endCol]);
                 IPivotTable pivotTableWC = pivotSheetWC.PivotTables.Add("PivotTable1", pivotSheetWC["A6"], cacheWC);
@@ -7688,14 +7688,10 @@ TNA.SONo, TNA.PRNo
                 pivotTableWC.Fields[colPRNo - 1].Axis = PivotAxisTypes.Row;
                 pivotTableWC.Fields[colWorkCenter - 1].Axis = PivotAxisTypes.Row;
 
-                //pivotTable.Fields[colPlanTarget - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colPlanTarget - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colProductionQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colProductionQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colDiff - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colDiff - 1].NumberFormat = clsStaticInfo.NumberFormat();
-
 
                 for (int i = 0; i < pivotTableWC.Fields.Count; i++)
                 {
-                    if (i == colDate - 1)
+                    if (i == colWorkCenter - 1)
                         continue;
                     pivotTableWC.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
@@ -7713,24 +7709,6 @@ TNA.SONo, TNA.PRNo
                 wcField.NumberFormat = clsStaticInfo.NumberFormat();
                 pivotTableWC.DataFields.Add(wcField, "Diff", PivotSubtotalTypes.Sum);
 
-
-                //pivotTable.Fields[colPlanTarget - 1].Axis = PivotAxisTypes.Column;
-                //pivotTable.Fields[colPlanTarget - 1].Name = "Target Qty";
-                //pivotTable.Fields[colPlanTarget - 1].Subtotals = PivotSubtotalTypes.Sum;
-
-                //pivotTable.Fields[colProductionQty - 1].Axis = PivotAxisTypes.Column;
-                //pivotTable.Fields[colProductionQty - 1].Name = "Prod. Qty";
-                //pivotTable.Fields[colPlanTarget - 1].Subtotals = PivotSubtotalTypes.Sum;
-
-                //pivotTable.Fields[colDiff - 1].Axis = PivotAxisTypes.Column;
-                //pivotTable.Fields[colDiff - 1].Name = "Diff";
-                //pivotTable.Fields[colDiff - 1].Subtotals = PivotSubtotalTypes.Sum;
-
-
-                //int totalColumns = pivotTable2_1.RowFields.Count + pivotTable2_1.ColumnFields.Count;
-
-                //int StartFormattingColumn = pivotTable.RowFields.Count + 1;
-                //int endFormaatingColumn = StartFormattingColumn + pivotTable.ColumnFields[0].Items.Count + pivotTable.ColumnFields[1].Items.Count;
 
 
                 pivotTableWC.ShowDrillIndicators = false;
