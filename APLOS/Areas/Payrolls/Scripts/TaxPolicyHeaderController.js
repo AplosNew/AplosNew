@@ -191,6 +191,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             var gridObj = $("#EarningMasterChildGrid").data("ejGrid");
             var data = gridObj.getSelectedRecords()[0];
             $scope.TaxExemptionFormula.TaxEarningMasterChildId = data.Id;
+            $scope.EarningChildId = data.Id;
 
             $scope.getGeneralTaxFormula($scope.TaxExemptionFormula.TaxEarningMasterChildId);
 
@@ -207,6 +208,34 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         }
 
     };
+
+    $scope.ClearFormula = function () {
+
+
+        $scope.TaxExemptionFormula = {
+            Id: null,
+            TaxEarningMasterChildId: $scope.EarningChildId,
+            Formula: null,
+            FormulaID: null,
+            Description: null
+        }
+
+        // Rest Still Have to Check 
+
+        $scope.FormulaArray = [];
+        $scope.FormulaIdArray = [];
+        $scope.NoticePeriodNew = {
+            TaxPolicyGeneralId: null,
+            FormulaDes: null,
+            FormulaDesID: null,
+        }
+        $scope.NoticePeriodNew.FormulaDes = null;
+        $scope.NoticePeriodNew.FormulaDesID = null;
+        $scope.NoticePeriodNew.SalaryHeadFormula = null;
+        $scope.NoticePeriodNew.FormulaDescription = null;
+        $scope.FormulaDetails = [];
+    };
+
 
     //#endregion
 
