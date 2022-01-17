@@ -372,7 +372,7 @@
     </div>
 </div>
 
-<ej-dialog id="General"
+<ej-dialog id="GeneralForm"
            title="Exemption"
            e-enablemodal="true"
            e-position-y="0"
@@ -383,7 +383,9 @@
            e-minheight="470"
            e-open="enableBtn">
 
-    <fieldset class="scheduler-border form-group form-elements" style="width:990px;">
+    @*<div class="row">hello</div>*@
+    
+    @*<fieldset class="scheduler-border form-group form-elements" style="width:990px;">
 
         <div class="col-xs-12">
             <div class="col-xs-6 col-sm-6 col-md-6">
@@ -476,7 +478,7 @@
                 <div class="col-sm-2">
                     <div class="common-btn">
                         <ul class="list-inline text-left">
-                            <li> <button ng-click="SetFormula('Other');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                            <li> <button ng-click="SetFormula('Other');" class="btn" ><i class="glyphicon glyphicon-forward"></i></button></li>
                         </ul>
                     </div>
                 </div>
@@ -496,14 +498,16 @@
     </fieldset>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="SaveFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-            <li> <button ng-click="ClearFormula();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> <button ng-click="SaveFormula();" class="btn" ><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+            <li> <button ng-click="ClearFormula();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
-    </div>
+    </div>*@
+
     <div class="col-xs-12 col-sm-12 col-sm-12" id="NewIdd">
         <div style="color:black;" ej-grid e-datasource="GeneralTaxFormulaList"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-             e-allowselection="true" e-recorddoubleclick="GeneralFormula" e-filtersettings-filterType="excel" e-actioncomplete="actionCompleteSelected">
+             e-allowselection="true" @*e-recorddoubleclick="GeneralFormula"*@ 
+             e-filtersettings-filterType="excel" e-actioncomplete="actionCompleteSelected">
             <div e-columns>
                 <div e-column e-field="Description" e-headertext="Description" e-width="6"></div>
                 <div e-column e-field="Formula" e-headertext="Formula" e-width="6"></div>
@@ -518,4 +522,5 @@
             </div>
         </script>
     </div>
+
 </ej-dialog>

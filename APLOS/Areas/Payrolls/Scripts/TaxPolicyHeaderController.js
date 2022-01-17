@@ -162,16 +162,41 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         Description: null       
     }
 
+    $scope.NoticePeriodNew = {
+        TaxPolicyGeneralId: null,
+        FormulaDes: null,
+        FormulaDesID: null,
+    }
+    $scope.NoticePeriodNew.FormulaDes = null;
+    $scope.NoticePeriodNew.FormulaDesID = null;
+    $scope.NoticePeriodNew.SalaryHeadFormula = null;
+    $scope.NoticePeriodNew.FormulaDescription = null;
+
+    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
+
+    $scope.FormulaDetails = [];
+
+    $scope.getGeneralTaxFormula = function (TaxEarnChildId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetGeneralFormula?TaxEarnChildId=" + TaxEarnChildId,
+        }).then(function successCallback(response) {
+            $scope.GeneralTaxFormulaList = response.data;
+        });
+    }
+
     $scope.AddLineItemG = function () {
         try {
             $scope.ShowDiv = true;
             var gridObj = $("#EarningMasterChildGrid").data("ejGrid");
             var data = gridObj.getSelectedRecords()[0];
             $scope.TaxExemptionFormula.TaxEarningMasterChildId = data.Id;
-            var eDialog = $("#General").data("ejDialog");
+
+            $scope.getGeneralTaxFormula($scope.TaxExemptionFormula.TaxEarningMasterChildId);
+
+            var eDialog = $("#GeneralForm").data("ejDialog");
             if (data.ExemptionApplicable == true) {
-             //   $scope.getGeneralTaxFormula($scope.TaxPolicyGeneralFormula.TaxPolicyGeneralId);
-                $("#General").ejDialog("setTitle", data.SalaryHead + " Exemption");
+                $("#GeneralForm").ejDialog("setTitle", data.SalaryHead + " Exemption");
                 eDialog.open();
             }
             else {
