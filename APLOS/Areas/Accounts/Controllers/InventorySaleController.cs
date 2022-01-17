@@ -30,11 +30,15 @@ namespace Aplos.Areas.Accounts.Controllers
             _accountsSalesService = accountsSalesService;
         }
 
-        
+
 
         #region Inventory Sales Posting
-        
+
         public ActionResult InventoryReceivable()
+        {
+            return View();
+        }
+        public ActionResult InventorySalesReturnPost()
         {
             return View();
         }

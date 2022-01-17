@@ -23,13 +23,21 @@ namespace Aplos.Areas.Products.Controllers
             _inventoryIssueService = inventoryIssueService;
         }
 
-        #region Inventory Sales Posting
+        #region Inventory Sales Return
         
         public ActionResult Aplos()
         {
             return View();
         }
-      
+
+        [Authorize, HttpPost]
+        public JsonResult GetPostedSalesListForReturn(string column, string value)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsSalesService.GetPostedSalesListForReturn(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetInventorySaleDetailGLList(string inventorySalesId, string customerId)
         {

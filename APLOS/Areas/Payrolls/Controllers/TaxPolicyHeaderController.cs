@@ -111,7 +111,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region Rules Screen Functions
+        #region Earning Screen Functions
 
         [HttpPost, Authorize]
         public ActionResult GetEarningMasterList(string Id)
@@ -147,6 +147,22 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
+        #endregion
+
+        #region Formula Rules Functions
+      
+        [HttpGet, Authorize]
+        public ActionResult GetGeneralFormula(string GeneralID)
+        {
+            try
+            {
+                return Json(ds.GetGeneralFormula(GeneralID), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         #endregion
 
     }

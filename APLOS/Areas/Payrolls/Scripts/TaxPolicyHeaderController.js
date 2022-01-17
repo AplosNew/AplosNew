@@ -152,6 +152,39 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     }
 
+    // #region TaxExemption Formula Functions
+
+    $scope.TaxExemptionFormula = {
+        Id: null,
+        TaxEarningMasterChildId: null,
+        Formula: null,
+        FormulaID: null,
+        Description: null       
+    }
+
+    $scope.AddLineItemG = function () {
+        try {
+            $scope.ShowDiv = true;
+            var gridObj = $("#EarningMasterChildGrid").data("ejGrid");
+            var data = gridObj.getSelectedRecords()[0];
+            $scope.TaxExemptionFormula.TaxEarningMasterChildId = data.Id;
+            var eDialog = $("#General").data("ejDialog");
+            if (data.ExemptionApplicable == true) {
+             //   $scope.getGeneralTaxFormula($scope.TaxPolicyGeneralFormula.TaxPolicyGeneralId);
+                $("#General").ejDialog("setTitle", data.SalaryHead + " Exemption");
+                eDialog.open();
+            }
+            else {
+                throw "Exemption Applicable is not checked for this Taxable Income";
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+
+    };
+
+    //#endregion
+
     // #region EarningMaster Functions
         
     $scope.EarningMasterModel = {
