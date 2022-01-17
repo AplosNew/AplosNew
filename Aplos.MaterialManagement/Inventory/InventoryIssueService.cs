@@ -2222,7 +2222,7 @@ namespace Library.MaterialManagement.Inventory
 									LEFT JOIN dbo.MasterLC LC ON LC.Id=CN.MasterLCId
 									LEFT JOIN HKP.Party P ON P.Id=LC.CustomerId
                             WHERE II.PlantId='" + plantId + @"' AND ISNULL(II.[Status],'')<>'Posting' 
-                            AND IID.IsAsset=0
+                            AND IID.IsAsset=0 AND II.IsPostingRequired=1
                             GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 	                                 , II.IssueDate, MS.UserName
 									 ,EI.EmployeeCode,EI.EmployeeName,II.Remarks,II.EntityId,E.UserName,II.IssueType

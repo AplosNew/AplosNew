@@ -114,7 +114,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         $scope.productNew.TaxOptionAddiTax = 'Yes';
         //$scope.getTaxCodeByTaxYearWithhold($scope.productNew.SalesDate);
 
-        $scope.Action = 'Update';
+        $scope.Action = 'Save';
         $scope.closeGRNPopUp();
     };
 

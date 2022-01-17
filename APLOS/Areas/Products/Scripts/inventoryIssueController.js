@@ -187,7 +187,13 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			ShowResult('You can not select issue type Capital');
 			return false;
 		}
-		
+		var totalBaseCurrencyRate = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'BaseCurrencyRate');
+		if (totalBaseCurrencyRate > 0) {
+			$scope.productNew.IsPostingRequired = true;
+		}
+		else {
+			$scope.productNew.IsPostingRequired = false;
+		}
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		$scope.ispostDisable = true;
@@ -306,18 +312,11 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 					
 				}	
-
-				//$scope.detailListNew.push($scope.detailList[i]);
 			}
 
 		}
-		//for (var i = 0; i < $scope.detailList.length; i++) {
-		//    if ($scope.detailList[i].TransactionQty > $scope.detailList[i].RequestedQty) {
-		//        ShowResult("Issue qty can not gaterthen Requested Qty");
-		//        return false;
-		//    }
-		//}
-
+	
+		$scope.productNew.IsPostingRequired = true;
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 
 		if ($scope.Action === "Save") {
@@ -575,9 +574,6 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.manualValidationAddRemove('div_ar', 'ArticleName');
 		$scope.manualValidationAddRemove('div_qty', 'TransactionQty');
 		$scope.manualValidationAddRemove('div_qty', 'TransactionUoMId', 'UoM is required');
-		//$scope.manualValidationAddRemove('div_entity', 'EntityId', 'Entity is required');
-		//$scope.manualValidationAddRemove('div_budget', 'BudgetMasterid', 'budget is required');
-
 
 		if ($scope.hasSku) {
 			if (!baseService.isUndefinedOrNull($scope.char1.CharacteristicsId))
@@ -936,6 +932,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		//debugger;
 		try {
 			var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
+		
 			if (sumOfmaterialStockList > $scope.selectedRowQty) {
 				ShowResult("Issue qty can not grater than requisition qty", 'failure', 'stockPopUp');
 				return false;
