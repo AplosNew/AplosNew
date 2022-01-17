@@ -279,7 +279,7 @@ function inventorySalesReturnPost(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#GRNpopUp')).modal('hide');
     };
     function getRecievedList() {
-        $http.get('Accounts/InventorySale/GetInventoryMaterialReceivableList?inveReveiveId=' + $scope.modelNew.Id)
+        $http.get('Accounts/InventorySale/GetInventorySalesReturnMaterial?inveReveiveId=' + $scope.modelNew.Id)
             .then(function (response) {
                 $scope.inventoryReceivedList = response.data.Rows;
                 checkSameValueInColumnList($scope.inventoryReceivedList, 'TransactionUoM');
