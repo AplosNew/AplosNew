@@ -10,7 +10,7 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
     $scope.masterData = [];
     $scope.masterDetailData = [];
     $scope.ColName = 'Master';
-
+    $scope.ChosenPRID = null;
 
 
     // Getting the Filters 
@@ -102,8 +102,9 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         else {
             $scope.ColName = 'Master';
         }
-
+        
         var PRId = e.data.ProductionOrderId;
+        $scope.ChosenPRID = PRId;
         $http({
             method: 'POST',
             url: $scope.path + 'masterDetail',
@@ -120,6 +121,7 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + "getReports",
+            data: { 'PRId': $scope.ChosenPRID},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

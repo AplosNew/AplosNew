@@ -73,7 +73,7 @@
         <div class="tab-design" id="tab_show">
             <div class="site-tab">
                 <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="DayTypeWithValues" role="tab" data-toggle="tab">Rule Master</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="EarningMasterChild" role="tab" data-toggle="tab">Earning Master</a></li>
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Tagging</a></li>
                 </ul>
             </div>
@@ -81,27 +81,27 @@
               
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="row">
-                        <div ng-form name="RuleMasterForm">
+                        <div ng-form name="EarningMasterForm">
                             <div class="col-xs-12 col-sm-6 col-md-6">
 
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Header Id</label>
                                     <div class="col-sm-8">
-                                        <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.HeaderId" class="form-control" maxlength="100" tabindex="2" readonly>
+                                        <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxPolicyHeaderId"  class="form-control" maxlength="100" readonly>
                                     </div>
                                 </div>
 
                                 <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Standard Name</label>
+                                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="RuleMaster.StandardName" name="Standard Name" class="form-control" maxlength="30" required>
+                                        <input type="text" ng-model="EarningMasterModel.StandardName" name="Standard Name" class="form-control" maxlength="30" required>
                                     </div>
                                 </div>                                                                           
 
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Remarks</label>
                                     <div class="col-sm-8">
-                                        <input type="text" ng-model="RuleMaster.Remarks" class="form-control" maxlength="200">
+                                        <input type="text" ng-model="EarningMasterModel.Remarks" class="form-control" maxlength="200">
                                     </div>
                                 </div>
 
@@ -110,16 +110,16 @@
                             <div class="col-xs-12 col-sm-6 col-md-6">
 
                                 <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">User Name</label>
+                                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="RuleMaster.UserName" class="form-control" maxlength="100" required>
+                                        <input type="text" ng-model="EarningMasterModel.UserName" class="form-control" maxlength="100" required>
                                     </div>
                                 </div>
 
                                 <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Short Name</label>
+                                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="RuleMaster.ShortName" class="form-control" maxlength="100" required>
+                                        <input type="text" ng-model="EarningMasterModel.ShortName" class="form-control" maxlength="100" required>
                                     </div>
                                 </div>                              
                               
@@ -128,7 +128,7 @@
                                     <div class="col-sm-8">
                                         <div class="checkbox-site" style="margin-top:7px;">
                                             <label>
-                                                <input type="checkbox" ng-model="RuleMaster.Active">
+                                                <input type="checkbox" ng-model="EarningMasterModel.Active">
                                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                             </label>
                                         </div>
@@ -143,36 +143,45 @@
 
                                     <div class="col-xs-12 col-sm-6 col-md-6 ">
 
-                                   
-                                        <div class="form-group" show-errors>
-                                            <label class="col-sm-4 control-label">Leave Value </label>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">SalaryHead<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.LeaveValue" class="form-control" maxlength="100" required>
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="EarningMasterModel.SalaryHeadId" name="SalaryHead"
+                                                            ng-options="item.Value as item.Text for item in SalaryHeadList" required>
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div class="form-group" show-errors>
-                                            <label class="col-sm-4 control-label">Late Value </label>
+                                            <label class="col-sm-4 control-label">Taxable Amount %</label>
                                             <div class="col-sm-8 show-message">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.LateValue" class="form-control" maxlength="100" required>
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxableAmountPer" class="form-control" maxlength="100">
                                             </div>
                                         </div>
 
                                     </div>
 
-                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">                                        
 
-                                        <div class="form-group" show-errors>
-                                            <label class="col-sm-4 control-label">Absent value </label>
-                                            <div class="col-sm-8 show-message">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.AbsentValue" class="form-control" maxlength="100" required>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Exemption Applicable</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site" style="margin-top:7px;">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="EarningMasterModel.ExemptionApplicable">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
-                                       
+
                                         <div class="form-group" show-errors>
-                                            <label class="col-sm-4 control-label">Amount</label>
+                                            <label class="col-sm-4 control-label">Taxable Amount Fix</label>
                                             <div class="col-sm-8 show-message">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="RuleMaster.Amount" class="form-control" maxlength="100" required>
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxableAmountFix" class="form-control" maxlength="100">
                                             </div>
                                         </div>
                                     </div>
@@ -183,26 +192,26 @@
                             <div class="col-xs-12">
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
-                                        <li> <button ng-click="SaveRuleMaster();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                        <li> <button ng-click="ClearRuleMaster();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                        <li> <button ng-click="SaveEarningMaster();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                        <li> <button ng-click="ClearEarningMaster();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                     </ul>
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-sm-12">
-                                    <div style="color:black;" id="RulesMasterChildGrid" ej-grid e-datasource="RulesList"
+                                    <div style="color:black;" id="EarningMasterChildGrid" ej-grid e-datasource="EarningList"
                                          e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
-                                         e-allowselection="true" e-recorddoubleclick="getRuleChildDetails" e-filtersettings-filterType="excel"
+                                         e-allowselection="true" e-recorddoubleclick="getEarnMasterChildDetails" e-filtersettings-filterType="excel"
                                          e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
                                         <div e-columns>
 
                                             <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-                                            <div e-column e-field="HeaderId" e-headertext="header Id" e-width="50"></div>
+                                            <div e-column e-field="TaxPolicyHeaderId" e-headertext="TaxPolicyHeaderId" e-width="80"></div>
                                             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
                                             <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
                                             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
-                                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                                            <div e-column e-field="SalaryHead" e-headertext="SalaryHead" e-width="120"></div>
                                             <div e-column e-field="Active" e-headertext="Active" e-width="50"></div>
                                           
                                         </div>

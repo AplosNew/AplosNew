@@ -2843,6 +2843,64 @@ namespace Library.Service.SalesManagements
             }
         }
 
+        public void DeleteMasterOrderSalePost(string companyId, string plantId, string salesId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                var writtenOff = _invoiceService.Query(r => r.VoucherId == voucherId && r.WrittenOffAmount > 0).Select().ToList();
+
+                if (writtenOff.Count()>0)
+                    throw new CustomException("Delete is not allow,Please delete Customer Payment Receipt First ! ");
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                vendorAdWrsql = @"update trn.SalesMaterial set VoucherDetailId=null where SalesId='" + salesId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                
+                vendorAdWrsql = @"delete from TRN.InvoiceTaxDetail where InvoiceTaxId in(select Id from trn.InvoiceTax where InvoiceId in(select Id from TRN.Invoice where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.InvoiceTax  where InvoiceId in(select Id from TRN.Invoice where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.InvoiceDetail  where InvoiceId in(select Id from TRN.Invoice where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.Invoice  where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+
+                vendorAdWrsql = @"update trn.Sales set VoucherId=null where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.voucher  where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         public object GetMasterOrderIdBySalesId(string salesId)
         {
             try
