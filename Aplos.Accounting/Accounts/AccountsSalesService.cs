@@ -1556,7 +1556,7 @@ namespace Library.Accounting.Accounts
                             , ISD.TransactionUoMId, TUoM.UserName AS TransactionUoM
                             , ISD.SalesRate AS TransactionRate
                             , CU.Code AS CurrencyName, IVS.ToCurrencyRate
-                            , ISD.TotalSalesAmount
+                            , ISNULL(ISD.TotalSalesAmount,0) Amount
                             ,ISD.TransactionQty                         
 							                  
 					        ,ISD.TransactionUoMId
@@ -1587,6 +1587,731 @@ namespace Library.Accounting.Accounts
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 
+		}
+		private Dictionary<string, object> GetCustomerCompanyPartyGroup(string partyId, string plantId)
+		{
+			var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='" + plantId + @"' and PartyType='Customer'";
+			return _sqlRepository.GetData(cmdText);
+		}
+		public IEnumerable<object> GetInventorySaleDetailGLListData(string companyId, string plantId, string inveReveiveId, string partyId)
+		{
+			try
+			{
+				var companyParty = GetCustomerCompanyPartyGroup(partyId, plantId);
+				var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"'
+					SELECT  X.* FROM (
+					SELECT  'Inventory' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId
+							,ISH.PostDrGLGeneralInfoId GLGeneralInfoId , GL.AccountCode GLGeneralInfoCode ,GL.UserName GLGeneralInfoName
+							,ISH.PostDrBudgetMasterId BudgetMasterId ,B.Code BudgetCode  ,B.UserName BudgetName
+							,ISH.PostDrActivityId ActivityId ,A.Code ActivityCode ,A.UserName  ActivityName 
+							
+							, 0 Dr, SUM(ISH.GRNRate * ISH.Qty) AS Cr
+							, SUM(ISH.GRNRate * ISH.Qty) AS Amount
+                            ,ISD.Id InventorySalesDetailId
+						FROM [TRN].[InventorySalesDetail] AS ISD
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN (
+								SELECT SDH.InventorySalesDetailId,SUM(RD.MaterialTranRate) GRNRate,SUM(SDH.Qty) Qty
+								,RD.PostDrGLGeneralInfoId ,RD.PostDrBudgetMasterId,RD.PostDrActivityId
+								FROM TRN.InventorySalesDetail SD 
+								JOIN TRN.InventorySalesHistory SDH ON SDH.InventorySalesDetailId=SD.Id
+								LEFT JOIN TRN.InventoryReceiveDetail RD ON RD.Id=SDH.InventoryReceiveDetailId
+								GROUP BY SDH.InventorySalesDetailId,RD.PostDrGLGeneralInfoId ,RD.PostDrBudgetMasterId,RD.PostDrActivityId
+								 ) ISH ON ISH.InventorySalesDetailId=ISD.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON ISH.PostDrBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Activity] AS A ON ISH.PostDrActivityId= A.Id
+						
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY ISH.PostDrGLGeneralInfoId,ISH.PostDrBudgetMasterId,ISH.PostDrActivityId,GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,ISD.Id
+						,ISD.Id 
+						UNION
+                            SELECT  'A/R' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId
+
+                            ,MGPGL.GLGeneralInfoId GLGeneralInfoId
+							,GL.AccountCode GLGeneralInfoCode
+							,GL.UserName GLGeneralInfoName
+							,MGPGL.BudgetMasterId BudgetMasterId
+							,B.Code BudgetCode
+							,B.UserName BudgetName
+							,MGPGL.ActivityId ActivityId
+							,A.Code ActivityCode
+							,A.UserName ActivityName
+
+							, SUM(ISD.SalesRate*ISH.Qty)   AS  Dr, 0 Cr
+							, SUM(ISD.SalesRate*ISH.Qty)  AS Amount
+							,ISD.Id InventorySalesDetailId
+						FROM [TRN].[InventorySalesDetail] AS ISD 
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
+						--JOIN [TRN].[InventoryService] AS INS ON ISD.InventoryReceiveId=INS.InventoryReceiveId
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
+						JOIN [SCS].[UnitOfMeasurement] AS TUoM ON ISD.TransactionUoMId=TUoM.Id
+						
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Customer')AS CP ON IR.CustomerId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id AND GLType='Receivable'
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+
+                        LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAVGL.VendorReconGLId ,FAVGL.VendorReconBudgetMasterId,FAVGL.VendorReconActivityId 
+						FROM HKP.FixedAssetMasterBudgetTag FAMBT 
+						LEFT JOIN HKP.FixedAssetMasterVendorReconGL FAVGL ON 
+						FAMBT.FixedAssetMasterId=FAVGL.FixedAssetMasterId  AND FAVGL.PartyAccountGroupId=@partyAccountGruopId) AS FAG 
+						ON FAG.BudgetMasterId=MM.BudgetMasterId
+
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON FAG.VendorReconGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.VendorReconBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY  IR.Id, MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName
+						,MM.IsAsset,FAG.VendorReconGLId,GLF.AccountCode,GLF.UserName,FAG.VendorReconBudgetMasterId,BF.Code,BF.UserName,FAG.VendorReconActivityId,AF.Code,AF.UserName
+						,ISD.Id 
+							)X
+							WHERE X.Amount>0";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+
+		public IEnumerable<object> GetBudgetActivityInSalesReturnMaterial(string companyId, string plantId, string inveReveiveId, string partyId)
+		{
+			try
+			{
+				var companyParty = GetCompanyPartyGroup(partyId, plantId);
+
+				var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
+					SELECT  'Inventory' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId
+							,ISH.PostDrGLGeneralInfoId GLGeneralInfoId , GL.AccountCode GLGeneralInfoCode ,GL.UserName GLGeneralInfoName
+							,ISH.PostDrBudgetMasterId BudgetMasterId ,B.Code BudgetCode  ,B.UserName BudgetName
+							,ISH.PostDrActivityId ActivityId ,A.Code ActivityCode ,A.UserName  ActivityName 
+							
+							, 0 Dr, SUM(ISH.TotalBaseAmount) AS Cr
+							, SUM(ISH.TotalBaseAmount) AS Amount
+                            --,ISD.Id InventorySalesDetailId
+						FROM [TRN].[InventorySalesDetail] AS ISD
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN (
+								SELECT SDH.InventorySalesDetailId,SUM(SDH.TotalBaseAmount) TotalBaseAmount,SUM(SDH.Qty) Qty
+								,RD.PostDrGLGeneralInfoId ,RD.PostDrBudgetMasterId,RD.PostDrActivityId
+								FROM TRN.InventorySalesDetail SD 
+								JOIN TRN.InventorySalesHistory SDH ON SDH.InventorySalesDetailId=SD.Id
+								LEFT JOIN TRN.InventoryReceiveDetail RD ON RD.Id=SDH.InventoryReceiveDetailId
+								GROUP BY SDH.InventorySalesDetailId,RD.PostDrGLGeneralInfoId ,RD.PostDrBudgetMasterId,RD.PostDrActivityId
+								 ) ISH ON ISH.InventorySalesDetailId=ISD.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON ISH.PostDrBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Activity] AS A ON ISH.PostDrActivityId= A.Id
+						
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY ISH.PostDrGLGeneralInfoId,ISH.PostDrBudgetMasterId,ISH.PostDrActivityId,GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName--,ISD.Id
+
+						UNION
+						
+                             SELECT  'CostOfGoodsSold' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId
+
+                            ,MGGL.ExpenseGLId GLGeneralInfoId
+							,GL.AccountCode GLGeneralInfoCode
+							,GL.UserName GLGeneralInfoName
+							,MGGL.ExpenseBudgetMasterId BudgetMasterId
+							,B.Code BudgetCode
+							,B.UserName BudgetName
+							,MGGL.ExpenseActivityId ActivityId
+							,A.Code ActivityCode
+							,A.UserName ActivityName
+
+							, SUM(ISH.TotalBaseAmount)   AS  Dr, 0 Cr
+							, SUM(ISH.TotalBaseAmount)  AS Amount
+							--,ISD.Id InventorySalesDetailId
+						FROM [TRN].[InventorySalesDetail] AS ISD 
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
+						LEFT JOIN [TRN].[InventoryReceiveDetail] AS INS ON ISH.InventoryReceiveDetailId=INS.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
+						JOIN [SCS].[UnitOfMeasurement] AS TUoM ON ISD.TransactionUoMId=TUoM.Id
+						
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Customer')AS CP ON IR.CustomerId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id AND GLType='Receivable'
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGGL.ExpenseGLId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGGL.ExpenseBudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGGL.ExpenseActivityId= A.Id
+
+                        LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAVGL.VendorReconGLId ,FAVGL.VendorReconBudgetMasterId,FAVGL.VendorReconActivityId 
+						FROM HKP.FixedAssetMasterBudgetTag FAMBT 
+						LEFT JOIN HKP.FixedAssetMasterVendorReconGL FAVGL ON 
+						FAMBT.FixedAssetMasterId=FAVGL.FixedAssetMasterId  AND FAVGL.PartyAccountGroupId=@partyAccountGruopId) AS FAG 
+						ON FAG.BudgetMasterId=MM.BudgetMasterId
+
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON FAG.VendorReconGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.VendorReconBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY  IR.Id, MGGL.ExpenseGLId, GL.AccountCode, GL.UserName, MGGL.ExpenseBudgetMasterId, B.Code, B.UserName, MGGL.ExpenseActivityId, A.Code, A.UserName
+						,MM.IsAsset,FAG.VendorReconGLId,GLF.AccountCode,GLF.UserName,FAG.VendorReconBudgetMasterId,BF.Code,BF.UserName,FAG.VendorReconActivityId,AF.Code,AF.UserName--,ISD.Id
+                     ";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+		public IEnumerable<object> GetInventorySalesReturnInventorySalesBook(string companyId, string plantId, string inveReveiveId, string partyId, string taxapplicable)
+		{
+			try
+			{
+				var companyParty = GetCompanyPartyGroup(partyId, plantId);
+				if (taxapplicable == "Mandatory")
+				{
+					var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"'
+				SELECT AR.OtherName,AR.TrnType,AR.MaterialGroupMasterId, AR.TaxCategoryId,AR.TaxCodeId
+					,AR.GLGeneralInfoId,AR.GLGeneralInfoCode,AR.GLGeneralInfoName,AR.BudgetMasterId,AR.BudgetCode,AR.BudgetName
+				    ,AR.ActivityId,AR.ActivityCode,AR.ActivityName
+					,AR.Dr+ISNULL(ISS.SvcAmount,0)+ISNULL(INS.TCSAmount,0) Dr
+					,AR.Cr
+					,AR.Dr+ISNULL(ISS.SvcAmount,0)+ISNULL(INS.TCSAmount,0) Amount
+	                FROM (
+                            SELECT  'A/R' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId,NULL TaxCodeId
+                            ,MGPGL.GLGeneralInfoId GLGeneralInfoId
+							,GL.AccountCode GLGeneralInfoCode
+							,GL.UserName GLGeneralInfoName
+							,MGPGL.BudgetMasterId BudgetMasterId
+							,B.Code BudgetCode
+							,B.UserName BudgetName
+							,MGPGL.ActivityId ActivityId
+							,A.Code ActivityCode
+							,A.UserName ActivityName
+							, SUM(ISD.TransactionQty * ISD.SalesRate)   AS  Dr, 0 Cr
+							, SUM(ISD.TransactionQty * ISD.SalesRate)  AS Amount
+							, ISD.InventorySalesId
+						FROM [TRN].[InventorySalesDetail] AS ISD 
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						--LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
+						JOIN [SCS].[UnitOfMeasurement] AS TUoM ON ISD.TransactionUoMId=TUoM.Id
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Customer')AS CP ON IR.CustomerId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id AND GLType='Receivable'
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY  IR.Id, MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName
+						,MM.IsAsset,ISD.InventorySalesId
+						) AR
+						LEFT OUTER JOIN (SELECT InventorySalesId ,sum(TaxAmount) TaxAmount FROM TRN.InventorySalesTax group by InventorySalesId) IST ON IST.InventorySalesId =AR.InventorySalesId
+						LEFT OUTER JOIN (SELECT InventorySalesId ,sum(Amount) SvcAmount FROM TRN.InventorySalesService group by InventorySalesId) ISS ON ISS.InventorySalesId =AR.InventorySalesId
+						LEFT outer JOIN ( SELECT InventorySalesId, sum(ISNULL(TaxAmount,0)) AS TCSAmount from  [TRN].[InventorySalesAdditionalTax] group by InventorySalesId) AS INS ON  INS.InventorySalesId=AR.InventorySalesId
+                    UNION
+					SELECT  'Sales' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId,NULL TaxCodeId
+
+                            ,MGPGL.GLGeneralInfoId GLGeneralInfoId
+							,GL.AccountCode GLGeneralInfoCode
+							,GL.UserName GLGeneralInfoName
+							,MGPGL.BudgetMasterId BudgetMasterId
+							,B.Code BudgetCode
+							,B.UserName BudgetName
+							,MGPGL.ActivityId ActivityId
+							,A.Code ActivityCode
+							,A.UserName ActivityName
+							, 0 Dr
+							, SUM(ISD.TransactionQty * ISD.SalesRate)   AS   Cr
+							, SUM(ISD.TransactionQty * ISD.SalesRate)  AS Amount
+						FROM [TRN].[InventorySalesDetail] AS ISD 
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						--LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
+						JOIN [SCS].[UnitOfMeasurement] AS TUoM ON ISD.TransactionUoMId=TUoM.Id
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Customer')AS CP ON IR.CustomerId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id AND GLType='Sales'
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+                        LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAVGL.VendorReconGLId ,FAVGL.VendorReconBudgetMasterId,FAVGL.VendorReconActivityId 
+						FROM HKP.FixedAssetMasterBudgetTag FAMBT 
+						LEFT JOIN HKP.FixedAssetMasterVendorReconGL FAVGL ON 
+						FAMBT.FixedAssetMasterId=FAVGL.FixedAssetMasterId  AND FAVGL.PartyAccountGroupId=@partyAccountGruopId) AS FAG 
+						ON FAG.BudgetMasterId=MM.BudgetMasterId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON FAG.VendorReconGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.VendorReconBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY  IR.Id, MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName
+						,MM.IsAsset,FAG.VendorReconGLId,GLF.AccountCode,GLF.UserName,FAG.VendorReconBudgetMasterId,BF.Code,BF.UserName,FAG.VendorReconActivityId,AF.Code,AF.UserName,ISD.InventorySalesId
+						UNION
+				        SELECT  OtherName='Tax'  
+							,TrnType='Dr'  , NULL MaterialGroupMasterId, ISD.TaxCategoryId,NULL TaxCodeId
+							,GLGeneralInfoId=TCL.GLGeneralInfoId
+							,GLGeneralInfoCode= GL.AccountCode
+							,GLGeneralInfoName= GL.UserName 
+							,BudgetMasterId= TCL.BudgetMasterId 
+							,BudgetCode= B.Code
+							,BudgetName= B.UserName
+							, ActivityId= TCL.ActivityId
+							,ActivityCode=A.Code
+							,ActivityName=A.UserName
+							, SUM(ISD.TaxAmount) Dr, 0 Cr
+							, SUM(ISD.TaxAmount) AS Amount
+						FROM [TRN].[InventorySalesTax] AS ISD
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN MST.TaxCategory TC ON TC.Id=ISD.TaxCategoryId
+						LEFT JOIN MST.TaxCategoryGL TCL ON TCL.TaxCategoryId=TC.Id AND InputTaxOutPutTax='Output'
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON TCL.GLGeneralInfoId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON TCL.BudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BMF.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON TCL.ActivityId= A.Id
+
+						WHERE ISD.InventorySalesId=@receiveId AND ISNULL(TCL.TaxType,'')='Excluded'
+						GROUP BY TCL.GLGeneralInfoId ,GL.AccountCode  ,GL.UserName  ,TCL.BudgetMasterId 
+							,B.Code  ,B.UserName  ,TCL.ActivityId  ,A.Code  ,A.UserName ,ISD.TaxCategoryId
+
+						UNION
+				        SELECT  OtherName='Tax'  
+							,TrnType='Cr'  , NULL MaterialGroupMasterId, ISD.TaxCategoryId,NULL TaxCodeId
+							,GLGeneralInfoId=TCL.LiabilityGLId
+							,GLGeneralInfoCode= GL.AccountCode
+							,GLGeneralInfoName= GL.UserName 
+							,BudgetMasterId= TCL.LiabilityBudgetMasterId 
+							,BudgetCode= B.Code
+							,BudgetName= B.UserName
+							, ActivityId= TCL.LiabilityActivityId
+							,ActivityCode=A.Code
+							,ActivityName=A.UserName
+							, 0 Dr, SUM(ISD.TaxAmount) AS Cr
+							, SUM(ISD.TaxAmount) AS Amount
+						FROM [TRN].[InventorySalesTax] AS ISD
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN MST.TaxCategory TC ON TC.Id=ISD.TaxCategoryId
+						LEFT JOIN MST.TaxCategoryGL TCL ON TCL.TaxCategoryId=TC.Id AND InputTaxOutPutTax='Output'
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON TCL.LiabilityGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON TCL.LiabilityBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BMF.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON TCL.LiabilityActivityId= A.Id
+
+						WHERE ISD.InventorySalesId=@receiveId AND ISNULL(TCL.TaxType,'')='Excluded'
+						GROUP BY TCL.LiabilityGLId ,GL.AccountCode  ,GL.UserName  ,TCL.LiabilityBudgetMasterId 
+							,B.Code  ,B.UserName  ,TCL.LiabilityActivityId  ,A.Code  ,A.UserName ,ISD.TaxCategoryId
+
+							UNION
+							SELECT  OtherName='Svc'  
+							,TrnType='Cr'  , NULL MaterialGroupMasterId, NULL TaxCategoryId,NULL TaxCodeId
+							,GLGeneralInfoId=SGL.ServiceGLId
+							,GLGeneralInfoCode= GL.AccountCode
+							,GLGeneralInfoName= GL.UserName 
+							,BudgetMasterId= SGL.ServiceBudgetMasterId 
+							,BudgetCode= B.Code
+							,BudgetName= B.UserName
+							, ActivityId= SGL.ServiceActivityId
+							,ActivityCode=A.Code
+							,ActivityName=A.UserName
+							, 0 Dr, SUM(ISS.Amount) AS Cr
+							, SUM(ISS.Amount) AS Amount
+						FROM [TRN].[InventorySalesService] AS ISS
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISS.InventorySalesId=IR.Id
+						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=ISS.ServiceMasterId
+						LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
+						LEFT JOIN HKP.ServiceGroupGL SGL ON SGL.ServiceGroupId=SG.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON SGL.ServiceGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON SGL.ServiceBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BMF.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON SGL.ServiceActivityId= A.Id
+
+						WHERE ISS.InventorySalesId=@receiveId
+						GROUP BY SGL.ServiceGLId, GL.AccountCode, GL.UserName, SGL.ServiceBudgetMasterId 
+							,B.Code, B.UserName, SGL.ServiceActivityId, A.Code, A.UserName 
+
+							UNION
+					SELECT 'TCSPayable' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId,IRT.TaxCodeId
+						, TGL.WithholdCreditableGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+						, TGL.WithholdCreditableBudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
+						, TGL.WithholdCreditableActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+						,  NULL Dr, SUM(IRT.TaxAmount) AS Cr
+						, SUM(IRT.TaxAmount) AS Amount
+                        
+					FROM [TRN].[InventorySalesAdditionalTax] AS IRT
+                    LEFT JOIN [TRN].[InventorySales] AS IR ON IRT.InventorySalesId=IR.Id
+					LEFT JOIN MST.TaxCode TCO ON TCO.Id=IRT.TaxCodeId  
+					LEFT JOIN MST.TaxCodeGL TGL ON TGL.TaxCodeId=TCO.Id 
+					LEFT JOIN [MST].[TaxCategory] AS TC ON IRT.TaxCategoryId=TC.Id
+					LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON TGL.WithholdCreditableGLId=GL.Id
+					LEFT JOIN [MST].[BudgetMaster] AS BM ON TGL.WithholdCreditableBudgetMasterId= BM.Id
+					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+					LEFT JOIN [HKP].[Activity] AS A ON TGL.WithholdCreditableActivityId= A.Id
+					WHERE IRT.InventorySalesId=@receiveId AND TCO.InputOrOutput='Output' 
+					GROUP BY  IRT.TaxCategoryId,IRT.TaxCodeId, TGL.WithholdCreditableGLId, GL.AccountCode, GL.UserName, TGL.WithholdCreditableBudgetMasterId, B.Code
+					, B.UserName, TGL.WithholdCreditableActivityId, A.Code, A.UserName, IRT.TaxCategoryId,IRT.TaxCodeId
+							 ";
+					return _sqlRepository.GetDataCollection(sql);
+				}
+				else
+				{
+					var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"'
+				SELECT AR.OtherName,AR.TrnType,AR.MaterialGroupMasterId, AR.TaxCategoryId,AR.TaxCodeId
+					,AR.GLGeneralInfoId,AR.GLGeneralInfoCode,AR.GLGeneralInfoName,AR.BudgetMasterId,AR.BudgetCode,AR.BudgetName
+				    ,AR.ActivityId,AR.ActivityCode,AR.ActivityName
+					,AR.Dr+ISNULL(IST.TaxAmount,0)+ISNULL(ISS.SvcAmount,0)+ISNULL(INS.TCSAmount,0) Dr
+					,AR.Cr
+					,AR.Dr+ISNULL(IST.TaxAmount,0)+ISNULL(ISS.SvcAmount,0)+ISNULL(INS.TCSAmount,0) Amount
+	                FROM (
+                            SELECT  'A/R' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId,NULL TaxCodeId
+                            ,MGPGL.GLGeneralInfoId GLGeneralInfoId
+							,GL.AccountCode GLGeneralInfoCode
+							,GL.UserName GLGeneralInfoName
+							,MGPGL.BudgetMasterId BudgetMasterId
+							,B.Code BudgetCode
+							,B.UserName BudgetName
+							,MGPGL.ActivityId ActivityId
+							,A.Code ActivityCode
+							,A.UserName ActivityName
+							, SUM(ISD.TransactionQty * ISD.SalesRate)   AS  Dr, 0 Cr
+							, SUM(ISD.TransactionQty * ISD.SalesRate)  AS Amount
+							, ISD.InventorySalesId
+						FROM [TRN].[InventorySalesDetail] AS ISD 
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						--LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
+						JOIN [SCS].[UnitOfMeasurement] AS TUoM ON ISD.TransactionUoMId=TUoM.Id
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Customer')AS CP ON IR.CustomerId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id AND GLType='Receivable'
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY  IR.Id, MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName
+						,MM.IsAsset,ISD.InventorySalesId
+						) AR
+						LEFT OUTER JOIN (SELECT InventorySalesId ,sum(TaxAmount) TaxAmount FROM TRN.InventorySalesTax group by InventorySalesId) IST ON IST.InventorySalesId =AR.InventorySalesId
+						LEFT OUTER JOIN (SELECT InventorySalesId ,sum(Amount) SvcAmount FROM TRN.InventorySalesService group by InventorySalesId) ISS ON ISS.InventorySalesId =AR.InventorySalesId
+						LEFT outer JOIN ( SELECT InventorySalesId, sum(ISNULL(TaxAmount,0)) AS TCSAmount from  [TRN].[InventorySalesAdditionalTax] group by InventorySalesId) AS INS ON  INS.InventorySalesId=AR.InventorySalesId
+                    UNION
+					SELECT  'Sales' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId,NULL TaxCodeId
+
+                            ,MGPGL.GLGeneralInfoId GLGeneralInfoId
+							,GL.AccountCode GLGeneralInfoCode
+							,GL.UserName GLGeneralInfoName
+							,MGPGL.BudgetMasterId BudgetMasterId
+							,B.Code BudgetCode
+							,B.UserName BudgetName
+							,MGPGL.ActivityId ActivityId
+							,A.Code ActivityCode
+							,A.UserName ActivityName
+							, 0 Dr
+							, SUM(ISD.TransactionQty * ISD.SalesRate)   AS   Cr
+							, SUM(ISD.TransactionQty * ISD.SalesRate)  AS Amount
+						FROM [TRN].[InventorySalesDetail] AS ISD 
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						--LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
+						JOIN [SCS].[UnitOfMeasurement] AS TUoM ON ISD.TransactionUoMId=TUoM.Id
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Customer')AS CP ON IR.CustomerId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id AND GLType='Sales'
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+                        LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAVGL.VendorReconGLId ,FAVGL.VendorReconBudgetMasterId,FAVGL.VendorReconActivityId 
+						FROM HKP.FixedAssetMasterBudgetTag FAMBT 
+						LEFT JOIN HKP.FixedAssetMasterVendorReconGL FAVGL ON 
+						FAMBT.FixedAssetMasterId=FAVGL.FixedAssetMasterId  AND FAVGL.PartyAccountGroupId=@partyAccountGruopId) AS FAG 
+						ON FAG.BudgetMasterId=MM.BudgetMasterId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON FAG.VendorReconGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.VendorReconBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY  IR.Id, MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName
+						,MM.IsAsset,FAG.VendorReconGLId,GLF.AccountCode,GLF.UserName,FAG.VendorReconBudgetMasterId,BF.Code,BF.UserName,FAG.VendorReconActivityId,AF.Code,AF.UserName,ISD.InventorySalesId
+						UNION
+				        SELECT  OtherName='Tax'  
+							,TrnType='Cr'  , NULL MaterialGroupMasterId, ISD.TaxCategoryId,NULL TaxCodeId
+							,GLGeneralInfoId=TCL.GLGeneralInfoId
+							,GLGeneralInfoCode= GL.AccountCode
+							,GLGeneralInfoName= GL.UserName 
+							,BudgetMasterId= TCL.BudgetMasterId 
+							,BudgetCode= B.Code
+							,BudgetName= B.UserName
+							, ActivityId= TCL.ActivityId
+							,ActivityCode=A.Code
+							,ActivityName=A.UserName
+							, 0 Dr, SUM(ISD.TaxAmount) AS Cr
+							, SUM(ISD.TaxAmount) AS Amount
+						FROM [TRN].[InventorySalesTax] AS ISD
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN MST.TaxCategory TC ON TC.Id=ISD.TaxCategoryId
+						LEFT JOIN MST.TaxCategoryGL TCL ON TCL.TaxCategoryId=TC.Id AND InputTaxOutPutTax='Output' AND TCL.TaxType is null
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON TCL.GLGeneralInfoId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON TCL.BudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BMF.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON TCL.ActivityId= A.Id
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY TCL.GLGeneralInfoId ,GL.AccountCode  ,GL.UserName  ,TCL.BudgetMasterId 
+							,B.Code  ,B.UserName  ,TCL.ActivityId  ,A.Code  ,A.UserName ,ISD.TaxCategoryId
+							UNION
+							SELECT  OtherName='Svc'  
+							,TrnType='Cr'  , NULL MaterialGroupMasterId, NULL TaxCategoryId,NULL TaxCodeId
+							,GLGeneralInfoId=SGL.ServiceGLId
+							,GLGeneralInfoCode= GL.AccountCode
+							,GLGeneralInfoName= GL.UserName 
+							,BudgetMasterId= SGL.ServiceBudgetMasterId 
+							,BudgetCode= B.Code
+							,BudgetName= B.UserName
+							, ActivityId= SGL.ServiceActivityId
+							,ActivityCode=A.Code
+							,ActivityName=A.UserName
+							, 0 Dr, SUM(ISS.Amount) AS Cr
+							, SUM(ISS.Amount) AS Amount
+						FROM [TRN].[InventorySalesService] AS ISS
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISS.InventorySalesId=IR.Id
+						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=ISS.ServiceMasterId
+						LEFT JOIN HKP.ServiceGroup SG ON SG.Id=SM.ServiceGroupId
+						LEFT JOIN HKP.ServiceGroupGL SGL ON SGL.ServiceGroupId=SG.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON SGL.ServiceGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON SGL.ServiceBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BMF.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON SGL.ServiceActivityId= A.Id
+
+						WHERE ISS.InventorySalesId=@receiveId
+						GROUP BY SGL.ServiceGLId, GL.AccountCode, GL.UserName, SGL.ServiceBudgetMasterId 
+							,B.Code, B.UserName, SGL.ServiceActivityId, A.Code, A.UserName 
+
+							UNION
+					SELECT 'TCSPayable' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId,IRT.TaxCodeId
+						, TGL.WithholdCreditableGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+						, TGL.WithholdCreditableBudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
+						, TGL.WithholdCreditableActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+						,  NULL Dr, SUM(IRT.TaxAmount) AS Cr
+						, SUM(IRT.TaxAmount) AS Amount
+                        
+					FROM [TRN].[InventorySalesAdditionalTax] AS IRT
+                    LEFT JOIN [TRN].[InventorySales] AS IR ON IRT.InventorySalesId=IR.Id
+					LEFT JOIN MST.TaxCode TCO ON TCO.Id=IRT.TaxCodeId  
+					LEFT JOIN MST.TaxCodeGL TGL ON TGL.TaxCodeId=TCO.Id 
+					LEFT JOIN [MST].[TaxCategory] AS TC ON IRT.TaxCategoryId=TC.Id
+					LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON TGL.WithholdCreditableGLId=GL.Id
+					LEFT JOIN [MST].[BudgetMaster] AS BM ON TGL.WithholdCreditableBudgetMasterId= BM.Id
+					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+					LEFT JOIN [HKP].[Activity] AS A ON TGL.WithholdCreditableActivityId= A.Id
+					WHERE IRT.InventorySalesId=@receiveId AND TCO.InputOrOutput='Output' 
+					GROUP BY  IRT.TaxCategoryId,IRT.TaxCodeId, TGL.WithholdCreditableGLId, GL.AccountCode, GL.UserName, TGL.WithholdCreditableBudgetMasterId, B.Code
+					, B.UserName, TGL.WithholdCreditableActivityId, A.Code, A.UserName, IRT.TaxCategoryId,IRT.TaxCodeId
+							 ";
+					return _sqlRepository.GetDataCollection(sql);
+				}
+
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+		private Dictionary<string, object> GetCompanyParty(string partyId, string plantId)
+		{
+			var cmdText = @"select PartyAccountGroupId from hkp.CompanyParty where PartyId='" + partyId + "' AND Plantid='" + plantId + "'";
+			return _sqlRepository.GetData(cmdText);
+		}
+		public IEnumerable<object> GetInventorySalesReturnMaterialReceivable(string companyId, string plantId, string inveReveiveId, string partyId, string taxapplicable)
+		{
+			try
+			{
+				var companyParty = GetCompanyParty(partyId, plantId);
+				var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
+					SELECT  'Inventory' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId
+							,ISH.PostDrGLGeneralInfoId GLGeneralInfoId , GL.AccountCode GLGeneralInfoCode ,GL.UserName GLGeneralInfoName
+							,ISH.PostDrBudgetMasterId BudgetMasterId ,B.Code BudgetCode  ,B.UserName BudgetName
+							,ISH.PostDrActivityId ActivityId ,A.Code ActivityCode ,A.UserName  ActivityName 
+							
+							, 0 Dr, SUM(ISH.GRNRate * ISH.Qty) AS Cr
+							, SUM(ISH.GRNRate * ISH.Qty) AS Amount
+                            
+						FROM [TRN].[InventorySalesDetail] AS ISD
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN (
+								SELECT SDH.InventorySalesDetailId,SUM(RD.MaterialTranRate) GRNRate,SUM(SDH.Qty) Qty
+								,RD.PostDrGLGeneralInfoId ,RD.PostDrBudgetMasterId,RD.PostDrActivityId
+								FROM TRN.InventorySalesDetail SD 
+								JOIN TRN.InventorySalesHistory SDH ON SDH.InventorySalesDetailId=SD.Id
+								LEFT JOIN TRN.InventoryReceiveDetail RD ON RD.Id=SDH.InventoryReceiveDetailId
+								GROUP BY SDH.InventorySalesDetailId,RD.PostDrGLGeneralInfoId ,RD.PostDrBudgetMasterId,RD.PostDrActivityId
+								 ) ISH ON ISH.InventorySalesDetailId=ISD.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON ISH.PostDrBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Activity] AS A ON ISH.PostDrActivityId= A.Id					
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY ISH.PostDrGLGeneralInfoId,ISH.PostDrBudgetMasterId,ISH.PostDrActivityId,GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,ISD.Id
+
+						UNION		
+						
+						
+                            SELECT  'A/R' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId
+
+                            ,MGPGL.GLGeneralInfoId GLGeneralInfoId
+							,GL.AccountCode GLGeneralInfoCode
+							,GL.UserName GLGeneralInfoName
+							,MGPGL.BudgetMasterId BudgetMasterId
+							,B.Code BudgetCode
+							,B.UserName BudgetName
+							,MGPGL.ActivityId ActivityId
+							,A.Code ActivityCode
+							,A.UserName ActivityName
+
+							, SUM(ISD.SalesRate*ISH.Qty)   AS  Dr, 0 Cr
+							, SUM(ISD.SalesRate*ISH.Qty)  AS Amount
+						FROM [TRN].[InventorySalesDetail] AS ISD 
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
+						--JOIN [TRN].[InventoryService] AS INS ON ISD.InventoryReceiveId=INS.InventoryReceiveId
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON ISD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
+						JOIN [SCS].[UnitOfMeasurement] AS TUoM ON ISD.TransactionUoMId=TUoM.Id
+						
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Customer')AS CP ON IR.CustomerId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id AND GLType='Receivable'
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+
+                        LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAVGL.VendorReconGLId ,FAVGL.VendorReconBudgetMasterId,FAVGL.VendorReconActivityId 
+						FROM HKP.FixedAssetMasterBudgetTag FAMBT 
+						LEFT JOIN HKP.FixedAssetMasterVendorReconGL FAVGL ON 
+						FAMBT.FixedAssetMasterId=FAVGL.FixedAssetMasterId  AND FAVGL.PartyAccountGroupId=@partyAccountGruopId) AS FAG 
+						ON FAG.BudgetMasterId=MM.BudgetMasterId
+
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON FAG.VendorReconGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.VendorReconBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY  IR.Id, MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName
+						,MM.IsAsset,FAG.VendorReconGLId,GLF.AccountCode,GLF.UserName,FAG.VendorReconBudgetMasterId,BF.Code,BF.UserName,FAG.VendorReconActivityId,AF.Code,AF.UserName
+                    
+
+						union
+                        SELECT  OtherName=case when (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 then 'Gain on Sales'  
+											when (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty)>0 then 'Loss on Sales'
+											  end
+							,TrnType=case when (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 then 'Cr'  
+											when (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty)>0 then 'Dr'
+											  end
+											  , NULL MaterialGroupMasterId
+							,GLGeneralInfoId=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GAD.GLGeneralInfoId ELSE GADL.GLGeneralInfoId END
+							,GLGeneralInfoCode=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GL.AccountCode  ELSE GLL.AccountCode END
+							,GLGeneralInfoName=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GL.UserName   ELSE GLL.UserName  END
+							,BudgetMasterId=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GAD.BudgetMasterId   ELSE GADL.BudgetMasterId  END
+							,BudgetCode=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN B.Code   ELSE BL.Code  END
+							,BudgetName=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN B.UserName   ELSE BL.UserName  END
+							, ActivityId=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GAD.ActivityId  ELSE GADL.ActivityId END
+							,ActivityCode=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN A.Code   ELSE AL.Code  END
+							,ActivityName=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN A.UserName   ELSE AL.UserName  END
+							
+							, Dr=CASE WHEN (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty)>0 THEN (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty) ELSE 0 END
+							, Cr=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty) ELSE 0 END
+							, Amount=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty) ELSE (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty) END
+						FROM [TRN].[InventorySalesDetail] AS ISD
+						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
+						LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
+						LEFT JOIN [TRN].InventoryReceiveDetail IRD ON IRD.Id=ISH.InventoryReceiveDetailId
+						LEFT JOIN ORG.Company C ON C.Id=IR.CompanyId
+						LEFT JOIN [HKP].[GeneralAccountDeterminate] GAD ON C.COAId=GAD.COAId and GAD.Id='GainOnInventorySales'
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON GAD.BudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BMF.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
+
+						LEFT JOIN [HKP].[GeneralAccountDeterminate] GADL ON GADL.COAId=C.COAId and GADL.Id='LossOnInventorySales'
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLL ON GADL.GLGeneralInfoId=GLL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMFL ON GADL.BudgetMasterId= BMFL.Id
+						LEFT JOIN [HKP].[Budget] AS BL ON BMFL.BudgetId= BL.Id
+						LEFT JOIN [HKP].[Activity] AS AL ON GADL.ActivityId= AL.Id
+
+						WHERE ISD.InventorySalesId=@receiveId
+						GROUP BY ISD.Id,ird.Id,GAD.GLGeneralInfoId ,GL.AccountCode  ,GL.UserName  ,GAD.BudgetMasterId 
+							,B.Code  ,B.UserName  ,GAD.ActivityId  ,A.Code  ,A.UserName ,GADL.GLGeneralInfoId 
+							,GLL.AccountCode  ,GLL.UserName  ,GADL.BudgetMasterId  ,BL.Code  ,BL.UserName  ,GADL.ActivityId 
+							,AL.Code  ,AL.UserName";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
 		}
 
 	}
