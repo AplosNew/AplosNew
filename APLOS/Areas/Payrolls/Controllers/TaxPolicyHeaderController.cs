@@ -3,6 +3,7 @@ using Aplos.Properties;
 using Library.HumanResource.Payroll.Tax;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Web.Mvc;
 
 namespace Aplos.Areas.Payrolls.Controllers
@@ -14,6 +15,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         TaxPolicyMasterService ds = new TaxPolicyMasterService();
         public TaxPolicyHeaderController()
         {
+            ds = new TaxPolicyMasterService();
         }
 
         #endregion Constructor
@@ -150,13 +152,82 @@ namespace Aplos.Areas.Payrolls.Controllers
         #endregion
 
         #region Formula Rules Functions
-      
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteFormula(string ID)
+        {
+            try
+            {
+                ds.DeleteFormula(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetGeneralFormula(string TaxEarnChildId)
         {
             try
             {
                 return Json(ds.GetGeneralFormula(TaxEarnChildId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveGeneralFormula(TaxExemptionFormula TaxExemptionFormula, IEnumerable<TaxExemptionFormulaDetail> details)
+        {
+            try
+            {
+                #region Validations
+
+                if (string.IsNullOrEmpty(TaxExemptionFormula.Description))
+                {
+                    throw new Exception("Enter Description..");
+                }
+                if (TaxExemptionFormula.Formula == null)
+                {
+                    throw new Exception("Select Formula..");
+                }
+              
+                DataSet dsExemptionFormula;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from TaxExemptionApplicableChild where TaxEarningMasterChildId='" + TaxExemptionFormula.TaxEarningMasterChildId + "' AND  " +
+                    "Id<>'" + TaxExemptionFormula.Id + "' AND  Description='" + TaxExemptionFormula.Description + "'", out dsExemptionFormula, false, "1");
+               
+                if (dsExemptionFormula.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Description already exists!!!");
+
+                #endregion
+
+                #region Service Calling
+               
+                TaxPolicyMasterService p = new TaxPolicyMasterService();
+                p.SaveGeneralFormula(TaxExemptionFormula, details);
+             
+                #endregion
+
+                return Json(new { Error = false, Data = TaxExemptionFormula, Message = AplosMessage.Updated });
+          
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFormulaList(string FormulaId)
+        {
+            try
+            {
+                return Json(ds.GetFormulaList(FormulaId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

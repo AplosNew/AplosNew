@@ -52,7 +52,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         DesignationSystemID: null,
         BudgetCode: null,
         PositionID: null,
-        IsDirect: null,
+        IsDirect: false,
         SalaryPercentage: null,
         CardNumber: null,
         Salutation: null,

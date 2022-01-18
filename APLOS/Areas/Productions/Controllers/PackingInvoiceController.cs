@@ -251,7 +251,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         public void DeleteData(string id)
         {
-            string strSQL, strPSQL, strBSQL, strOSQL, strSSQL, strASQL;
+            string strSQL, strPSQL, strBSQL, strOSQL, strSSQL, strASQL, strPISQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
@@ -263,6 +263,7 @@ namespace Aplos.Areas.Productions.Controllers
                 strSSQL = "DELETE FROM TRN.SalesService WHERE SalesId='" + id + "'";
                 strPSQL = "DELETE FROM dbo.SalesPacking WHERE SalesId='" + id + "'";
                 strBSQL = "DELETE FROM TRN.SalesMaterial WHERE SalesId='" + id + "'";
+                strPISQL = "DELETE FROM [dbo].[PostSalesInvoice] WHERE SalesId='" + id + "'";
                 strSQL = "DELETE FROM TRN.Sales WHERE Id = '" + id + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -273,6 +274,7 @@ namespace Aplos.Areas.Productions.Controllers
                 objCon.ExecuteNonQueryWrapper(strSSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strPSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strPISQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
                 objCon.CommitTransaction();
             }

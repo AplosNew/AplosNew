@@ -2574,22 +2574,22 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //GetDateRangeWiseTrialBalanceReport(string companyId, string plantId, string plantName, string toDate, bool isBudgetLevel, bool isActivityLevel)
         [HttpGet, Authorize]
-        public ActionResult IncomeStatementReport(string date, string parallelCurrency)
+        public ActionResult IncomeStatementReport(string date, string parallelCurrency, bool isBudgetLevel, bool isActivityLevel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "Income Statement Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
-            var workbook = _voucharReportService.GetIncomeStatementReport(identity.CompanyId, identity.PlantId, identity.PlantName, date, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency));
+            var workbook = _voucharReportService.GetIncomeStatementReport(identity.CompanyId, identity.PlantId, identity.PlantName, date, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency),  isBudgetLevel,  isActivityLevel);
             workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
             return null;
         }
 
         //GetDateRangeWiseTrialBalanceReport(string companyId, string plantId, string plantName, string toDate, bool isBudgetLevel, bool isActivityLevel)
         [HttpGet, Authorize]
-        public ActionResult incomestatementreportDateWise(string fromDate, string toDate, string parallelCurrency)
+        public ActionResult incomestatementreportDateWise(string fromDate, string toDate, string parallelCurrency, bool isBudgetLevel, bool isActivityLevel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "Income Statement Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
-            var workbook = _voucharReportService.GetIncomeStatementReportDateWise(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency));
+            var workbook = _voucharReportService.GetIncomeStatementReportDateWise(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency),  isBudgetLevel, isActivityLevel);
             workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
             return null;
         }

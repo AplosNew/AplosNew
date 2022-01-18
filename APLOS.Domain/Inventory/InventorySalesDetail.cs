@@ -98,7 +98,19 @@ namespace Library.Model.Inventory
         public string PostCrBudgetMasterId { get; set; }
 
         public string PostCrActivityId { get; set; }
-       
+
+        public string PostDrInventoryGLId { get; set; }
+
+        public string PostDrInventoryBudgetMasterId { get; set; }
+
+        public string PostDrInventoryActivityId { get; set; }
+
+        public string PostCrInventoryGLId { get; set; }
+
+        public string PostCrInventoryBudgetMasterId { get; set; }
+
+        public string PostCrInventoryActivityId { get; set; }
+
         #endregion Navigation Properties
     }
 }

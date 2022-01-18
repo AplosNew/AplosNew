@@ -2537,7 +2537,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     $scope.characteristicsList = response.data;
                     if (baseService.arrayLength($scope.characteristicsList) === 1) {
                         $scope.firstSKUList = [];
+                        $scope.char1Id = $scope.characteristicsList[0].Value;
+                        $scope.char1ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
+
                         $scope.addFirstSkuList();
+
                         angular.element(document.querySelector('#firstPopup')).modal('show');
                         angular.element(document.querySelector('#secondPopup')).modal('hide');
                         angular.element(document.querySelector('#thirdPopup')).modal('hide');
@@ -3231,18 +3235,29 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.firstSKUList = [];
     $scope.addFirstSkuList = function () {
-        $scope.firstSKUList.push({
-            Id: null
-            , SalesOrderId: $scope.salesOrderId
-            , FirstCharacteristicsId: null
-            , SecondCharacteristicsId: null
-            , CharacteristicsId: 1
-            , CharacteristicsValueId: null
-            , Sequence: (baseService.arrayLength($scope.firstSKUList) + 1)
-            , ValueFreeText: null
-            , Qty: null
-            , Flag: null
-        });
+        $http.get($scope.path + 'GetChValueCbo?materialId=' + $scope.materialMasterId)
+            .then(function (response) {
+
+                $scope.charValueList = [];
+                $scope.char1ValueList = [];
+                $scope.charValueList = response.data;
+
+                $scope.char1ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char1Id });
+
+                $scope.firstSKUList.push({
+                    Id: null
+                    , SalesOrderId: $scope.salesOrderId
+                    , FirstCharacteristicsId: null
+                    , SecondCharacteristicsId: null
+                    , CharacteristicsId: 1
+                    , CharacteristicsValueId: null
+                    , Sequence: (baseService.arrayLength($scope.firstSKUList) + 1)
+                    , ValueFreeText: null
+                    , Qty: null
+                    , Flag: null
+                });
+               
+            });
 
     }
 
