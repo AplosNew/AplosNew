@@ -1924,7 +1924,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                 else if ($scope.salesVM.PlantStateId != $scope.salesVM.InvoicingStateId && $scope.salesVM.PlantStateId != $scope.salesVM.ChangeInvoicingStateId)
                     angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
                 else
-                    ShowResult('Change is not allowed', 'failure', 'invoicingPartyPopUp');
+                    //ShowResult('Change is not allowed', 'failure', 'invoicingPartyPopUp');
+                    ShowResult('First delete material.', 'failure', 'invoicingPartyPopUp');
             }
             else
                 angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');

@@ -258,6 +258,7 @@
                                                     <strong>Total : </strong>
                                                 </td>
                                                 <td></td>
+                                                <td></td>
                                                 <td class="text-right">
                                                     <strong>{{salesOrderList | sumByKey : 'TransactionQty'| setDecimal:2 | number:2}}</strong>
                                                 </td>
@@ -271,8 +272,8 @@
                                                 <td class="text-right">
                                                     <strong>{{salesOrderList | sumByKey : 'TaxAmount'| setDecimal:2 | number:2}}</strong>
                                                 </td>
-                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision | number}}</strong></td>
-                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
+                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceCharge'| setDecimal:2 | number:2}}</strong></td>
+                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceTax'| setDecimal:2 | number:2}}</strong></td>
                                                 <td class="text-right">
                                                     <strong>{{salesOrderList | sumByKey : 'NetAmount'| setDecimal:2 | number:2}}</strong>
                                                 </td>

@@ -1,8 +1,10 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Model.Currencies;
 using Library.Service.Currencies;
+using System.Threading;
 using System.Web.Mvc;
 
 namespace Aplos.Areas.Currencies.Controllers
@@ -25,6 +27,11 @@ namespace Aplos.Areas.Currencies.Controllers
         [HttpGet, Authorize]
         public JsonResult GetCboCurrencyTransaction(string companyId)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(companyId) || companyId=="null")
+            {
+                companyId = identity.CompanyId;
+            }
             return Json(_currencyTransactionService.GetCboCurrencyTransaction(companyId), JsonRequestBehavior.AllowGet);
         }
 
