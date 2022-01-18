@@ -168,8 +168,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (sourceType == SourceType.SalesInvoice.ToString() || sourceType == SourceType.PostInvoice.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var invoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var salesSql = @"UPDATE [TRN].Sales SET RowState='Parked' WHERE Id='" + voucherId + "'";
+                    var invoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    var salesSql = @"UPDATE [TRN].Sales SET RowState='Parked' WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(invoiceSql);
                     rdBuilder.Append(salesSql);

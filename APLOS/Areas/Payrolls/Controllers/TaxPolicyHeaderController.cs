@@ -111,22 +111,34 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region Rules Screen Functions
+        #region Earning Screen Functions
 
         [HttpPost, Authorize]
-        public ActionResult getRulesList(string Id)
+        public ActionResult GetEarningMasterList(string Id)
         {
-            return Json(ds.getRulesList(Id), JsonRequestBehavior.AllowGet);
+            return Json(ds.GetEarningMasterList(Id), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        public ActionResult SaveRuleMaster(Dictionary<string, object> RuleMasterData)
+        [HttpGet, Authorize]
+        public ActionResult getSalaryHeadList()
         {
             try
             {
-                var id = ds.SaveRuleMaster(RuleMasterData);
-                return Json(new { Error = false, Data = id, Message = AplosMessage.Success });
+                return Json(ds.getSalaryHeadList(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
+        [HttpPost]
+        public ActionResult SaveEarningMaster(Dictionary<string, object> EarningMasterData)
+        {
+            try
+            {
+                var id = ds.SaveEarningMasterChild(EarningMasterData);
+                return Json(new { Error = false, Data = id, Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
@@ -135,6 +147,22 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
+        #endregion
+
+        #region Formula Rules Functions
+      
+        [HttpGet, Authorize]
+        public ActionResult GetGeneralFormula(string TaxEarnChildId)
+        {
+            try
+            {
+                return Json(ds.GetGeneralFormula(TaxEarnChildId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         #endregion
 
     }

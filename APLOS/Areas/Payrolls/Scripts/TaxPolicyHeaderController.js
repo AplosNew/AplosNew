@@ -63,12 +63,11 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.Header = e.data;
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-        }
-
-        $scope.ClearRuleMaster();
-        $scope.RuleMaster.HeaderId = e.data.Id;
+        }       
+        $scope.ClearEarningMaster();
+        $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
-        $scope.getRulesList();
+        $scope.GetEarningMasterList();
         updateChild();
         showTabs();
         
@@ -117,7 +116,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.Header = response.data.Data;
-                    $scope.RuleMaster.HeaderId = response.data.Data.Id;
+                    $scope.EarningMasterModel.HeaderId = response.data.Data.Id;
                     $scope.Child.HeaderId = response.data.Data.Id;
                     $scope.getHeader();
                     showTabs();                   
@@ -153,60 +152,137 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     }
 
-    // #region RuleMaster Functions
+    // #region TaxExemption Formula Functions
 
-    $scope.RuleMaster = {
+    $scope.TaxExemptionFormula = {
         Id: null,
-        HeaderId: null,
+        TaxEarningMasterChildId: null,
+        Formula: null,
+        FormulaID: null,
+        Description: null       
+    }
+
+    $scope.NoticePeriodNew = {
+        TaxPolicyGeneralId: null,
+        FormulaDes: null,
+        FormulaDesID: null,
+    }
+    $scope.NoticePeriodNew.FormulaDes = null;
+    $scope.NoticePeriodNew.FormulaDesID = null;
+    $scope.NoticePeriodNew.SalaryHeadFormula = null;
+    $scope.NoticePeriodNew.FormulaDescription = null;
+
+    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
+
+    $scope.FormulaDetails = [];
+
+    $scope.getGeneralTaxFormula = function (TaxEarnChildId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetGeneralFormula?TaxEarnChildId=" + TaxEarnChildId,
+        }).then(function successCallback(response) {
+            $scope.GeneralTaxFormulaList = response.data;
+        });
+    }
+
+    $scope.AddLineItemG = function () {
+        try {
+            $scope.ShowDiv = true;
+            var gridObj = $("#EarningMasterChildGrid").data("ejGrid");
+            var data = gridObj.getSelectedRecords()[0];
+            $scope.TaxExemptionFormula.TaxEarningMasterChildId = data.Id;
+            $scope.EarningChildId = data.Id;
+
+            $scope.getGeneralTaxFormula($scope.TaxExemptionFormula.TaxEarningMasterChildId);
+
+            var eDialog = $("#GeneralForm").data("ejDialog");
+            if (data.ExemptionApplicable == true) {
+                $("#GeneralForm").ejDialog("setTitle", data.SalaryHead + " Exemption");
+                eDialog.open();
+            }
+            else {
+                throw "Exemption Applicable is not checked for this Taxable Income";
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+
+    };
+
+    $scope.ClearFormula = function () {
+
+
+        $scope.TaxExemptionFormula = {
+            Id: null,
+            TaxEarningMasterChildId: $scope.EarningChildId,
+            Formula: null,
+            FormulaID: null,
+            Description: null
+        }
+
+        // Rest Still Have to Check 
+
+        $scope.FormulaArray = [];
+        $scope.FormulaIdArray = [];
+        $scope.NoticePeriodNew = {
+            TaxPolicyGeneralId: null,
+            FormulaDes: null,
+            FormulaDesID: null,
+        }
+        $scope.NoticePeriodNew.FormulaDes = null;
+        $scope.NoticePeriodNew.FormulaDesID = null;
+        $scope.NoticePeriodNew.SalaryHeadFormula = null;
+        $scope.NoticePeriodNew.FormulaDescription = null;
+        $scope.FormulaDetails = [];
+    };
+
+
+    //#endregion
+
+    // #region EarningMaster Functions
+        
+    $scope.EarningMasterModel = {
+        Id: null,
+        TaxPolicyHeaderId: null,
+        SalaryHeadId: null,
         ShortName: null,
         StandardName: null,
         UserName: null,
         Remarks: null,
         Active: false,
-        LeaveValue: 0,
-        AbsentValue: 0,
-        LateValue: 0,
-        Amount:0
-    };     
+        TaxableAmountFix: 0,
+        TaxableAmountFix: 0,
+        ExemptionApplicable: false
+    };
 
 
-    $scope.SaveRuleMaster = function () {
+    $scope.SaveEarningMaster = function () {
 
-        if (baseService.isUndefinedOrNull($scope.RuleMaster.LateValue)) {
-            ShowResult("LateValue can not be blank...");
+        if (baseService.isUndefinedOrNull($scope.EarningMasterModel.SalaryHeadId)) {
+            ShowResult("SalaryHead cann't be blank...");
         }
-        else if (baseService.isUndefinedOrNull($scope.RuleMaster.Amount)) {
-            ShowResult("Amount can not be blank...");
+        else if (baseService.isUndefinedOrNull($scope.EarningMasterModel.StandardName)) {
+            ShowResult("StandardName cann't be blank...");
         }
-        else if (baseService.isUndefinedOrNull($scope.RuleMaster.AbsentValue)) {
-            ShowResult("AbsentValue can not be blank...");
+        else if (baseService.isUndefinedOrNull($scope.EarningMasterModel.UserName)) {
+            ShowResult("UserName cann't be blank...");
         }
-        else if (baseService.isUndefinedOrNull($scope.RuleMaster.LeaveValue)) {
-            ShowResult("LeaveValue can not be blank...");
-        }
-        else if (baseService.isUndefinedOrNull($scope.RuleMaster.StandardName)) {
-            ShowResult("StandardName can not be blank...");
-        }
-        else if (baseService.isUndefinedOrNull($scope.RuleMaster.UserName)) {
-            ShowResult("UserName can not be blank...");
-        }
-        else if (baseService.isUndefinedOrNull($scope.RuleMaster.ShortName)) {
-            ShowResult("ShortName can not be blank...");
+        else if (baseService.isUndefinedOrNull($scope.EarningMasterModel.ShortName)) {
+            ShowResult("ShortName cann't be blank...");
         }
         else
         {
-
             $http({
                 method: 'POST',
-                url: $scope.path + 'SaveRuleMaster',
-                data: { 'RuleMasterData': $scope.RuleMaster }
+                url: $scope.path + 'SaveEarningMaster',
+                data: { 'EarningMasterData': $scope.EarningMasterModel }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.getRulesList();
+                    $scope.GetEarningMasterList();
                 }
             })
             ,function errorCallBack(response)
@@ -215,41 +291,53 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
              }
         }
     }
-        
-    $scope.ClearRuleMaster = function () {
-        $scope.RuleMaster = {
+      
+    $scope.ClearEarningMaster = function () {
+        $scope.EarningMasterModel = {
             Id: null,
-            HeaderId: null,
+            TaxPolicyHeaderId: null,
+            SalaryHeadId: null,
             ShortName: null,
             StandardName: null,
             UserName: null,
             Remarks: null,
             Active: false,
-            LeaveValue: 0,
-            AbsentValue: 0,
-            LateValue: 0,
-            Amount:0
+            TaxableAmountFix: 0,
+            TaxableAmountPer: 0,
+            ExemptionApplicable: false
         };
-        $scope.RuleMaster.HeaderId = $scope.Header.Id;
-        
+        $scope.EarningMasterModel.HeaderId = $scope.Header.Id;
+
     }
 
-    $scope.RulesList = [];
-    $scope.getRulesList = function () {
+    $scope.EarningList = [];
+    $scope.GetEarningMasterList = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getRulesList",
+            url: $scope.path + "GetEarningMasterList",
             data: { 'Id': $scope.Header.Id},
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.RulesList = [];
-            $scope.RulesList = response.data;
+            $scope.EarningList = [];
+            $scope.EarningList = response.data;
         });
     }
-
-    $scope.getRuleChildDetails = function (e) {
-        $scope.RuleMaster = e.data;
+      
+    $scope.getEarnMasterChildDetails = function (e) {
+        $scope.EarningMasterModel = e.data; // Model which is used as ng-model will come here
     }
+
+    $scope.SalaryHeadList = [];
+    $scope.getSalaryHeadList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getSalaryHeadList'
+        }).then(function success(response) {
+            $scope.SalaryHeadList = response.data;
+        })
+    }
+
+    $scope.getSalaryHeadList();
 
     //#endregion
 

@@ -959,12 +959,13 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                         where D.WorkDate BETWEEN SE.FromDate and SE.ToDate
                                 AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId ),0) AS totalLeave 
                                 from [TRN].[EmployeeLeaveSummary] S
-                                JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
+                                JOIN [TRN].[EmployeeLeaveSummary] SE on S.Id=SE.Id AND SE.Id=(
                                 select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
                                 join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
                                 AND X.ToDate<='" + ToDate + @"' AND X.PlantId=SE.PlantId
-                                ORDER BY x.FromDate DESC
+                                AND ISNULL(S.IsYearlyProcessed,0)=0
+                                ORDER BY x.FromDate ASC
                                 ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId 
                          WHERE SE.PlantId='" + sPlantID + @"'  ";
 
@@ -1027,12 +1028,13 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                         where m.WorkDate BETWEEN SE.FromDate and SE.ToDate
                                 AND m.EmpSystemID=SE.EmployeeId AND m.LTSystemID=SE.LeaveTypeId),0) AS totalLeave 
                                 from [TRN].[EmployeeLeaveSummary] S
-                                JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
+                                JOIN [TRN].[EmployeeLeaveSummary] SE on S.Id=SE.Id AND SE.Id=(
                                 select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
                                 --join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
                                 AND X.ToDate<='" + ToDate + @"' AND X.PlantId=S.PlantId
-                                ORDER BY x.FromDate DESC
+                                AND ISNULL(S.IsYearlyProcessed,0)=0
+                                ORDER BY x.FromDate ASC
                                 ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId
                                 JOIN LeaveType AS lt ON lt.Id=se.LeaveTypeId
                             WHERE SE.PlantId='" + sPlantID + @"'  ";
@@ -1453,7 +1455,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
 
 
                 #region CalanderYear
-                if (sEmployeeId == "2001976")
+                if (sEmployeeId == "1800156")
                 {
 
                 }
@@ -1754,7 +1756,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                             LEFT JOIN dbo.LeavePolicyDetail as lpd  on lpd.LPMSystemID=lpm.SystemID
                             
                             LEFT JOIN trn.EmployeeLeaveSummary SM ON sm.EmployeeId=emp.SystemId AND sm.LeaveTypeId=lpd.LTSystemID
-                            AND sm.Id=(SELECT TOP 1 Id FROM trn.EmployeeLeaveSummary SMX WHERE SMX.EmployeeId=emp.SystemId AND SMX.PlantId=emp.PlantId AND SMX.LeaveTypeId=lpd.LTSystemID AND smx.ToDate<='" + ToDate + @"' ORDER BY SMX.ToDate DESC)
+                            AND sm.Id=(SELECT TOP 1 Id FROM trn.EmployeeLeaveSummary SMX WHERE SMX.EmployeeId=emp.SystemId AND SMX.PlantId=emp.PlantId AND SMX.LeaveTypeId=lpd.LTSystemID AND ISNULL(SM.IsYearlyProcessed,0)=0 AND smx.ToDate<='" + ToDate + @"' ORDER BY SMX.ToDate ASC)
                            
                             where lpd.IsCarryForward=1 AND emp.PlantId='" + sPlantID + @"'
                             
@@ -1844,20 +1846,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
-                                select S.Id from [TRN].[EmployeeLeaveSummary] S
-                                JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
-                                select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
-                                join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
-                                where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
-                                AND X.ToDate<='" + ToDate + @"'
-                                ORDER BY x.FromDate DESC
-                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId
-
-                                and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE  EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
-                                    
-                                )";
-
+              
                 strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
                                 select S.Id from [TRN].[EmployeeLeaveSummary] S
                                 
@@ -1867,7 +1856,8 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                 join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
                                 AND X.ToDate<='" + ToDate + @"'   AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
-                                ORDER BY x.ToDate DESC
+                                AND ISNULL(S.IsYearlyProcessed,0)=0
+                                ORDER BY x.ToDate ASC
                                 ) 
                          		AND ISNULL(S.IsYearlyProcessed,0)=0
                                 and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE  EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
@@ -1893,21 +1883,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
-                                select S.Id from [TRN].[EmployeeLeaveSummary] S
-                                JOIN [TRN].[EmployeeLeaveSummary] SE on SE.Id=(
-                                select Top 1 Id from [TRN].[EmployeeLeaveSummary] X
-                                join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
-                                where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
-                                AND X.ToDate<='" + ToDate + @"'
-                                ORDER BY x.FromDate DESC
-                                ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId
-                                and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
-                                INNER JOIN  [TRN].[EmployeeLeaveSummary] ST ON st.EmployeeId=s.EmployeeId AND st.LeaveTypeId=s.LeaveTypeId
-                                   AND st.FromDate=DATEADD(DAY,1,s.ToDate)
-                                )";
-
-
+               
                 strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
                                 select SN.Id from [TRN].[EmployeeLeaveSummary] S
                                 JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
@@ -1919,7 +1895,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                 join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
                                 AND X.ToDate<='" + ToDate + @"'  and ISNULL(X.IsYearlyProcessed,0)=0
-                                ORDER BY x.ToDate DESC
+                                ORDER BY x.ToDate ASC
                                 ) 
                                 and S.LeaveTypeId in ( SELECT LTSystemID FROM [LeavePolicyDetail] WHERE  EncashmentBasis<>'CalanderYear' AND IsCarryForward=1 and PlantId='" + plantId + @"' )
                                     

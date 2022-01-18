@@ -141,7 +141,7 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
-
+         
         #region Header Functions
         public double GetSequence()
         {
@@ -238,11 +238,13 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region Rules Functions
-        public IEnumerable<object> getRulesList(string Id)
+        public IEnumerable<object> GetEarningMasterList(string Id)
         {
             try
             {
-                var str = @"Select * from dbo.AttdnBonusRuleChild where HeaderId ='" + Id + "'";
+                var str = @"Select tc.*,sc.SalaryHead from dbo.taxEarningMasterChild TC LEFT JOIN salaryhead sc
+                on sc.SalaryHeadID=tc.SalaryHeadId
+                where TaxPolicyHeaderId ='"+Id+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -251,21 +253,34 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
 
-        public Dictionary<string, object> SaveRuleMaster(Dictionary<string, object> Header)
+        public IEnumerable<object> getSalaryHeadList()
         {
             try
             {
-                string TableName = "dbo.AttdnBonusRuleChild";
+                var str = @"select SalaryHeadID as Value,SalaryHead as Text from salaryhead";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+       
+        public Dictionary<string, object> SaveEarningMasterChild(Dictionary<string, object> Header)
+        {
+            try
+            {
+                string TableName = "dbo.taxEarningMasterChild";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId='" + Header["HeaderId"] + "' and UserName='" + Header["UserName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where TaxPolicyHeaderId='" + Header["TaxPolicyHeaderId"] + "' and UserName='" + Header["UserName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     throw new Exception("Same UserName is Already Present");
                 }
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId='" + Header["HeaderId"] + "' and StandardName='" + Header["StandardName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where TaxPolicyHeaderId='" + Header["TaxPolicyHeaderId"] + "' and StandardName='" + Header["StandardName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     throw new Exception("Same StandardName is Already Present");
@@ -281,7 +296,7 @@ namespace Library.HumanResource.Payroll.Tax
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    Header["Id"] ="RC"+ _Id;
+                    Header["Id"] ="TMC"+ _Id;
                     AddNewRow(dsMaster.Tables[0], Header);
                 }
                 else
@@ -304,7 +319,25 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
-              
+
+        #region Formula Rules Functions
+        public IEnumerable<object> GetGeneralFormula(string Id)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"select * from TaxExemptionApplicableChild where TaxEarningMasterChildId ='" + Id + "'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+        
+        #endregion
+
     }
 }
 
