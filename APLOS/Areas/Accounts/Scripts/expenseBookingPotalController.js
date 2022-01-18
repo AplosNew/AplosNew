@@ -15,7 +15,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
 
     $scope.getListUrl = $scope.path + "getlist";
     $scope.saveUrl = $scope.path + "PotalBookingCreate";
-    $scope.updateUrl = $scope.path + "edit";
+    $scope.updateUrl = $scope.path + "Edit";
     $scope.deleteUrl = $scope.path + "delete/";
 
     $scope.isWriteOff = true;
@@ -1010,9 +1010,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
                         }
                         else {
                             ShowResult(response.data.Message, "success");
-                            if ($scope.index > -1) {
-                                $scope.budgetTransactionMasters[$scope.index] = $scope.budgetTransactionMaster;
-                            }
+                            $scope.budgetTransactionMaster.Status = "ToBeChecked";
                             $scope.GetExBooking();
                             ClearFields();
                         }
@@ -1021,6 +1019,7 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
                     });
                     return true;
                 }
+                
             } catch (e) {
                 throw ShowResult(e, "failure");
             }

@@ -14,7 +14,7 @@ namespace Library.Service.Vouchers
         IWorkbook GetGLDateWise(out ExcelEngine excelEngine, string masterId, string fromDate, string toDate);
 
 
-        IWorkbook GetIncomeStatementReport(string companyId,  string plantId,string plantName, string date, string[] parallelCurrencies);
+        IWorkbook GetIncomeStatementReport(string companyId,  string plantId,string plantName, string date, string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel);
 
         IWorkbook GetFiscalYearBudgetReport(string username, string companyGroupId, string companyId, string plantId, string plantName, string fiscalYearPeriodId);
 
@@ -23,7 +23,7 @@ namespace Library.Service.Vouchers
         IWorkbook GetOBAdvanceJournalVoucher(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string openingBalanceId);
         IWorkbook GetExchangeVoucher(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId);
 
-        IWorkbook GetIncomeStatementReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate, string[] parallelCurrencies);
+        IWorkbook GetIncomeStatementReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate, string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel);
         IWorkbook GetBalanceSheetReportDateWise(string companyId, string plantName, string fromDate, string toDate);
 
         IWorkbook GetEntityWiseExpenseAndEarningReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate, string entityId, string entity, string[] parallelCurrencies);

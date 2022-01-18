@@ -277,6 +277,10 @@ namespace Library.Service.Materials
         {
             try
             {
+                if (materialId=="null")
+                {
+                    materialId = string.Empty;
+                }
                 if (string.IsNullOrEmpty(materialId))
                     return Query(t => t.CharacteristicsId == characteristicsId && !t.Archive).Select().Max(r => r.Sequence + 1);
                 else
