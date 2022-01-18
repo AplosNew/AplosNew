@@ -10,9 +10,46 @@ function IncomeStatementReportController(commonMessage, $scope, $rootScope, base
       //  ParallelCurrencyId: null,
         Type: 'AsOnDate',
         FromDate: $filter('dateFiltering')(Date.now()),
-        ToDate: $filter('dateFiltering')(Date.now())
+        ToDate: $filter('dateFiltering')(Date.now()),
+        IsUpToLevel: null,
+        IsBudgetLevel: false,
+        IsActivityLevel: false,
+        isACGroupLevel: false,
     };
+    $scope.LevelAssaign = function (level) {
+        if (level == 'GL') {
+            $scope.report.IsBudgetLevel = false;
+            $scope.report.IsActivityLevel = false;
+        
+        }
+        if (level == 'Budget') {
+            $scope.incomeStatementReport.IsBudgetLevel = true;
+            $scope.incomeStatementReport.IsActivityLevel = false;
+ 
+        }
+        else if (level == 'Activity') {
+            $scope.incomeStatementReport.IsBudgetLevel = true;
+            $scope.incomeStatementReport.IsActivityLevel = true;
+  
+        }
+        else if (level == 'AccountGroup') {
+            $scope.incomeStatementReport.isACGroupLevel = true;
+            $scope.incomeStatementReport.IsActivityLevel = true;
 
+        }
+    };
+    $scope.upToLevelList = [];
+
+    $scope.getLevelType = function () {
+        $http({
+            method: "GET",
+            url: "Enum/GetIncomeStatementCbo/"
+        }).then(function successCallback(response) {
+            $scope.upToLevelList = response.data;
+            $scope.report.IsUpToLevel = response.data[0].Value;
+        });
+    };
+    $scope.getLevelType();
     //$http({
     //    method: 'GET',
     //    url: 'accounts/OpeningBalance/GetACCCutOffDate'
@@ -84,7 +121,7 @@ function IncomeStatementReportController(commonMessage, $scope, $rootScope, base
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.form.$valid) {
             if ($scope.currencyIds.length === 0) return ShowResult('Currency required', 'failure');
-            location.href = 'accounts/voucher/incomestatementreport?date=' + $scope.incomeStatementReport.Date + '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds));
+            location.href = 'accounts/voucher/incomestatementreport?date=' + $scope.incomeStatementReport.Date + '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds)) + '&isBudgetLevel=' + $scope.incomeStatementReport.IsBudgetLevel + '&isActivityLevel=' + $scope.incomeStatementReport.IsActivityLevel;
         }
     };
 
@@ -106,7 +143,7 @@ function IncomeStatementReportController(commonMessage, $scope, $rootScope, base
             manualValidation('div_WDToDate', true, "To Date is required.");
         }
         else {
-            location.href = 'accounts/voucher/incomestatementreportDateWise?fromDate=' + $scope.incomeStatementReport.FromDate + '&toDate=' + $scope.incomeStatementReport.ToDate   + '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds));
+            location.href = 'accounts/voucher/incomestatementreportDateWise?fromDate=' + $scope.incomeStatementReport.FromDate + '&toDate=' + $scope.incomeStatementReport.ToDate + '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds)) + '&isBudgetLevel=' + $scope.incomeStatementReport.IsBudgetLevel + '&isActivityLevel=' + $scope.incomeStatementReport.IsActivityLevel;
 
             //var url = 'Accounts/Voucher/DateRangeWiseTrialBalanceReport?reportFormat=' + $scope.report.ReportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel;
             //$window.open(url, '_blank');
