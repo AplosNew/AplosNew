@@ -1291,6 +1291,7 @@ namespace Aplos.HumanResource
                 drLocal["GenderID"] = data.GenderID;
 
                 drLocal["PositionId"] = data.PositionId;
+                drLocal["IsDirect"] = data.IsDirect;
 
                 drLocal["BudgetCode"] = data.BudgetCode;
 
