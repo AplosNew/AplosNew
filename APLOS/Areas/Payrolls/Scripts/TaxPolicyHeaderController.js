@@ -390,7 +390,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             $http({
                 method: 'POST',
                 url: $scope.path + "SaveGeneralFormula",
-                data: { 'GeneralFormula': $scope.TaxExemptionFormula, 'details': $scope.FormulaDetails },
+                data: { 'TaxExemptionFormula': $scope.TaxExemptionFormula, 'details': $scope.FormulaDetails },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
