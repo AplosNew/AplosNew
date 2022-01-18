@@ -237,7 +237,7 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
-        #region Rules Functions
+        #region EarningMaster Functions
         public IEnumerable<object> GetEarningMasterList(string Id)
         {
             try
@@ -335,9 +335,69 @@ namespace Library.HumanResource.Payroll.Tax
             }
 
         }
-        
+
+        public void SaveGeneralFormula(TaxExemptionFormula ExemptionFormula, IEnumerable<TaxExemptionFormulaDetail> details)
+        {
+            try
+            {
+                DataSet dsFormula;
+                DataSet dsFormulaDetail;
+               // GetTexPolicyGeneralFormula(GeneralFormula.Id, out dsFormula);
+                //_TexGeneralFormula(ref dsFormula, GeneralFormula);
+                //GetTexPolicyGeneralFormulaa(GeneralFormula.Id, out dsFormulaDetail);
+
+                //DataRow drF;
+                //while (dsFormulaDetail.Tables[0].DefaultView.Count > 0)
+                //    dsFormulaDetail.Tables[0].DefaultView[0].Delete();
+                //string _Id = dsFormula.Tables[0].Rows[0]["Id"].ToString();
+                //int count = 0;
+                //if (details != null)
+                //{
+
+                //    foreach (var item in details)
+                //    {
+                //        drF = dsFormulaDetail.Tables[0].NewRow();
+                //        count++;
+                //        string pk = _Id + "_" + count;
+                //        drF["Id"] = pk;
+                //        drF["TaxPolicyGeneralId"] = _Id;
+                //        drF["Sequence"] = item.Sequence;
+                //        drF["SalaryHeadID"] = item.SalaryHeadID;
+                //        drF["Component"] = item.Component;
+
+                //        dsFormulaDetail.Tables[0].Rows.Add(drF);
+                //    }
+
+                //}
+
+                //clsStaticInfo _info = new clsStaticInfo();
+               // _info.SaveDataSets(dsFormula, dsFormulaDetail);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
+    }
+    public class TaxExemptionFormula
+    {
+        public string Id { get; set; }
+        public string TaxEarningMasterChildId { get; set; }
+        public string Formula { get; set; }
+        public string FormulaID { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class TaxExemptionFormulaDetail
+    {
+        public string Id { get; set; }
+        public decimal Sequence { get; set; }
+        public string SalaryHeadID { get; set; }
+        public string ExemptionApplicableChildId { get; set; }
+        public string Component { get; set; }
     }
 }
 

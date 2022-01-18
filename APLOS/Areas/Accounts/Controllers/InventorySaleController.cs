@@ -145,6 +145,38 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsSalesService.GetInvSalesReturnMaterial(parameters, identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventorySaleReturnDetailGLList(string inventorySalesId, string customerId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsInventorySalesService.GetInventorySaleDetailGLListData(identity.CompanyId, identity.PlantId, inventorySalesId, customerId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetBudgetActivityInSalesReturnMaterial(string inventorysalesId, string customerId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetBudgetActivityInSalesReturnMaterial(identity.CompanyId, identity.PlantId, inventorysalesId, customerId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventorySalesReturnInventorySalesBook(string inventorysalesId, string customerId, string taxapplicable)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_accountsSalesService.GetInventorySalesReturnInventorySalesBook(identity.CompanyId, identity.PlantId, inventorysalesId, customerId, taxapplicable), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventorySalesReturnMaterialReceivable(string inveReveiveId, string employeeId, string partyId, string taxapplicable)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetInventorySalesReturnMaterialReceivable(identity.CompanyId, identity.PlantId, inveReveiveId, partyId, taxapplicable), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
     }
 }
