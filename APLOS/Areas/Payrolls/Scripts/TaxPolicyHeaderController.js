@@ -74,7 +74,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     }
 
 
-    /// ******************************* Header Operations ******************************* \\\
+    // #region Header Operations
+
     $scope.Header = {
         Id: null,
         ShortName:null,
@@ -151,6 +152,332 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         showTabs();
 
     }
+
+    // #endregion
+
+    // #region TaxExemption Applicable Logic Functions
+
+    // #region Modal Region
+
+    $scope.TaxExemptionFormula = {
+        Id: null,
+        TaxEarningMasterChildId: null,
+        Formula: null,
+        FormulaID: null,
+        Description: null       
+    }
+
+    $scope.FormulaChildModel = {
+        TaxEarningMasterChildId: null,
+        FormulaDes: null,
+        FormulaDesID: null,
+    }
+    $scope.FormulaChildModel.SalaryHeadFormula = null;
+    $scope.FormulaChildModel.FormulaDescription = null;
+
+    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
+
+    $scope.FormulaDetails = [];
+
+    // #endregion
+
+    // #region Formula Configuration Functions
+
+    $scope.SetFormula = function (formula) {
+        try {
+            var formulaObj = {};
+
+            if (formula === 'SHead') {
+
+                formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                formulaObj.TaxEarningMasterChildId = $scope.TaxExemptionFormula.Id == null ? null : $scope.TaxExemptionFormula.Id;
+                formulaObj.SalaryHeadID = $scope.FormulaChildModel.SalaryHeadIdFormula;
+                formulaObj.SalaryHead = $("#SalaryHeadFormula option:selected").text();
+                formulaObj.Component = null;
+                $scope.FormulaDetails.push(formulaObj);
+
+                $scope.FormulaChildModel.FormulaDes = '';
+                $scope.FormulaChildModel.FormulaDesID = '';
+
+                $scope.FormulaChildModel.FormulaDescription = '';
+                $scope.FormulaChildModel.FormulaIDDescription = '';
+
+                for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+                    if (!baseService.isUndefinedOrNull($scope.FormulaChildModel.FormulaDes)) {
+                        $scope.FormulaChildModel.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.FormulaChildModel.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
+                    } else {
+                        $scope.FormulaChildModel.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                        $scope.FormulaChildModel.FormulaDesID = $scope.FormulaDetails[i].SalaryHeadID;
+                    }
+                }
+
+                $scope.FormulaChildModel.FormulaDescription = $scope.FormulaChildModel.FormulaDes;
+                $scope.FormulaChildModel.FormulaIDDescription = $scope.FormulaChildModel.FormulaDesID;
+
+
+            }
+            else if (formula === 'Operator') {
+                if ($scope.FormulaDetails.length != 0) {
+                    if (!baseService.isUndefinedOrNull($scope.FormulaChildModel.Operator)) {
+
+
+                        formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                        formulaObj.TaxEarningMasterChildId = $scope.TaxExemptionFormula.Id == null ? null : $scope.TaxExemptionFormula.Id;
+                        formulaObj.SalaryHeadID = null;
+                        formulaObj.Component = $scope.FormulaChildModel.Operator;
+                        formulaObj.SalaryHead = $scope.FormulaChildModel.Operator;;
+
+                        $scope.FormulaDetails.push(formulaObj);
+
+                        $scope.FormulaChildModel.FormulaDes = '';
+                        $scope.FormulaChildModel.FormulaDesID = '';
+
+                        $scope.FormulaChildModel.FormulaDescription = '';
+                        $scope.FormulaChildModel.FormulaIDDescription = '';
+
+                        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                            $scope.FormulaChildModel.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                            $scope.FormulaChildModel.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
+
+                        }
+
+                        $scope.FormulaChildModel.FormulaDescription = $scope.FormulaChildModel.FormulaDes;
+                        $scope.FormulaChildModel.FormulaIDDescription = $scope.FormulaChildModel.FormulaDesID;
+
+                    }
+                }
+                else {
+                    throw "First select Salary Head or input value.";
+                }
+            }
+            else if (formula === 'Precedence') {
+
+
+                if (!baseService.isUndefinedOrNull($scope.FormulaChildModel.Precedence)) {
+
+
+                    formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                    formulaObj.TaxEarningMasterChildId = $scope.TaxExemptionFormula.Id == null ? null : $scope.TaxExemptionFormula.Id;
+                    formulaObj.SalaryHeadID = null;
+                    formulaObj.SalaryHead = $scope.FormulaChildModel.Precedence;
+                    formulaObj.Component = $scope.FormulaChildModel.Precedence;
+                    $scope.FormulaDetails.push(formulaObj);
+
+
+                    $scope.FormulaChildModel.FormulaDes = '';
+                    $scope.FormulaChildModel.FormulaDesID = '';
+
+                    $scope.FormulaChildModel.FormulaDescription = '';
+                    $scope.FormulaChildModel.FormulaIDDescription = '';
+
+                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                        $scope.FormulaChildModel.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.FormulaChildModel.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
+
+                    }
+
+                    $scope.FormulaChildModel.FormulaDescription = $scope.FormulaChildModel.FormulaDes;
+                    $scope.FormulaChildModel.FormulaIDDescription = $scope.FormulaChildModel.FormulaDesID;
+
+                }
+
+
+            }
+
+            else if (formula === 'Value') {
+
+                if (!baseService.isUndefinedOrNull($scope.FormulaChildModel.Value)) {
+
+                    formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                    formulaObj.TaxEarningMasterChildId = $scope.TaxExemptionFormula.Id == null ? null : $scope.TaxExemptionFormula.Id;
+                    formulaObj.SalaryHeadID = null;
+                    formulaObj.SalaryHead = $scope.FormulaChildModel.Value;
+                    formulaObj.Component = $scope.FormulaChildModel.Value;
+                    $scope.FormulaDetails.push(formulaObj);
+
+                    $scope.FormulaChildModel.FormulaDes = '';
+                    $scope.FormulaChildModel.FormulaDesID = '';
+
+                    $scope.FormulaChildModel.FormulaDescription = '';
+                    $scope.FormulaChildModel.FormulaIDDescription = '';
+
+                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                        $scope.FormulaChildModel.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.FormulaChildModel.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
+
+                    }
+
+                    $scope.FormulaChildModel.FormulaDescription = $scope.FormulaChildModel.FormulaDes;
+                    $scope.FormulaChildModel.FormulaIDDescription = $scope.FormulaChildModel.FormulaDesID;
+
+                }
+            }
+            else if (formula === 'Other') {
+
+                if (!baseService.isUndefinedOrNull($scope.FormulaChildModel.Other)) {
+
+                    formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                    formulaObj.TaxEarningMasterChildId = $scope.TaxExemptionFormula.Id == null ? null : $scope.TaxExemptionFormula.Id;
+                    formulaObj.SalaryHeadID = null;
+                    formulaObj.SalaryHead = $scope.FormulaChildModel.Other;
+                    formulaObj.Component = $scope.FormulaChildModel.Other;
+                    $scope.FormulaDetails.push(formulaObj);
+
+                    $scope.FormulaChildModel.FormulaDes = '';
+                    $scope.FormulaChildModel.FormulaDesID = '';
+
+                    $scope.FormulaChildModel.FormulaDescription = '';
+                    $scope.FormulaChildModel.FormulaIDDescription = '';
+
+                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                        $scope.FormulaChildModel.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.FormulaChildModel.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
+
+                    }
+
+                    $scope.FormulaChildModel.FormulaDescription = $scope.FormulaChildModel.FormulaDes;
+                    $scope.FormulaChildModel.FormulaIDDescription = $scope.FormulaChildModel.FormulaDesID;
+
+                }
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.RemoveFormula = function () {
+
+        var maxseq = Math.max.apply(Math, $scope.FormulaDetails.map(function (o) { return o.Sequence; }))
+
+        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+            if (maxseq === $scope.FormulaDetails[i].Sequence) {
+                $scope.FormulaDetails.splice(i, 1);
+                break;
+            }
+        }
+
+        $scope.FormulaChildModel.FormulaDes = '';
+        $scope.FormulaChildModel.FormulaDesID = '';
+
+        $scope.FormulaChildModel.FormulaDescription = '';
+        $scope.FormulaChildModel.FormulaIDDescription = '';
+
+        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+            if (!baseService.isUndefinedOrNull($scope.FormulaChildModel.FormulaDes)) {
+                $scope.FormulaChildModel.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                $scope.FormulaChildModel.FormulaDesID += ' ' + $scope.FormulaDetails[i].SalaryHeadID;
+            } else {
+                $scope.FormulaChildModel.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                $scope.FormulaChildModel.FormulaDesID = $scope.FormulaDetails[i].SalaryHeadID;
+            }
+        }
+
+        $scope.FormulaChildModel.FormulaDescription = $scope.FormulaChildModel.FormulaDes;
+        $scope.FormulaChildModel.FormulaIDDescription = $scope.FormulaChildModel.FormulaDesID;
+
+    }
+
+    $scope.SaveFormula = function () {
+        try {
+            $scope.TaxExemptionFormula.Formula = $scope.FormulaChildModel.FormulaDes;
+            $scope.TaxExemptionFormula.FormulaID = $scope.FormulaChildModel.FormulaDesID;
+            $http({
+                method: 'POST',
+                url: $scope.path + "SaveGeneralFormula",
+                data: { 'GeneralFormula': $scope.TaxExemptionFormula, 'details': $scope.FormulaDetails },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getGeneralTaxFormula($scope.TaxExemptionFormula.TaxEarningMasterChildId);
+                    $scope.ClearFormula();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    // #endregion
+
+    // #region Grid Click Functionality
+
+    $scope.GeneralTaxFormulaList = [];
+    $scope.getGeneralTaxFormula = function (TaxEarnChildId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetGeneralFormula?TaxEarnChildId=" + TaxEarnChildId,
+        }).then(function successCallback(response) {
+            $scope.GeneralTaxFormulaList = response.data;
+        });
+    }     
+
+    $scope.AddEntry = function () {
+        try {
+            // EarningMasterChild Table Id fetching
+            var gridObj = $("#EarningMasterChildGrid").data("ejGrid");
+            var data = gridObj.getSelectedRecords()[0];
+            $scope.TaxExemptionFormula.TaxEarningMasterChildId = data.Id;
+            $scope.EarningChildId = data.Id;
+
+            $scope.getGeneralTaxFormula($scope.TaxExemptionFormula.TaxEarningMasterChildId);
+
+            if (data.ExemptionApplicable == true)
+            {
+                angular.element(document.querySelector('#ExemptionPopup')).modal('show');
+            }
+            else
+            {
+                ShowResult("Exemption Applicable is not checked for this Taxable Income");
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+
+    };
+
+    // #endregion
+
+    // #region Clear Formula Function
+
+    $scope.ClearFormula = function () {
+
+        $scope.TaxExemptionFormula = {
+            Id: null,
+            TaxEarningMasterChildId: $scope.EarningChildId,
+            Formula: null,
+            FormulaID: null,
+            Description: null
+        }
+
+        $scope.FormulaArray = [];
+        $scope.FormulaIdArray = [];
+        $scope.FormulaChildModel = {
+            TaxEarningMasterChildId: null,
+            FormulaDes: null,
+            FormulaDesID: null,
+        }
+        $scope.FormulaChildModel.FormulaDes = null;
+        $scope.FormulaChildModel.FormulaDesID = null;
+        $scope.FormulaChildModel.SalaryHeadFormula = null;
+        $scope.FormulaChildModel.FormulaDescription = null;
+        $scope.FormulaDetails = [];
+    };
+
+    //#endregion
+
+    //#endregion
 
     // #region EarningMaster Functions
         

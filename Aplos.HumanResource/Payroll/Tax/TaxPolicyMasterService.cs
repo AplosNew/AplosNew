@@ -319,7 +319,25 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
-              
+
+        #region Formula Rules Functions
+        public IEnumerable<object> GetGeneralFormula(string Id)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"select * from TaxExemptionApplicableChild where TaxEarningMasterChildId ='" + Id + "'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+        
+        #endregion
+
     }
 }
 

@@ -730,7 +730,7 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IVS.MaterialStorageId
 					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
 					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
-                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')!='Posting'  
+                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')!='Posting'
 					) AS TEMP WHERE " + strkey + " order by SalesDate DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}
@@ -784,6 +784,115 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
                     WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')<>'Posting' 
 					order by IVS.SalesDate DESC";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+		public IEnumerable<object> GetPostedSalesListForReturn(string column, string value, string plantId)
+		{
+			try
+			{
+				string strkey = "1=1";
+				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+					strkey = column + " like '%" + value + "%'";
+				var sql = @"select top 300 * from (SELECT  IVS.Id, REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.CustomerId PartyId, IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
+								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDateNew
+			                    , CP.UserName AS PartyAccountGroupName
+			                    , IVS.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+	                           , IVS.MaterialStorageId,MS.UserName MaterialStorage,IVS.EntityId,E.UserName Entity,FORMAT(IVS.DocDate,'dd-MMM-yyyy')DocDate
+								, REPLACE(CONVERT(CHAR(11), IVS.AddedDate, 106),' ','-') AS EntryDate,IVS.Remarks,IVS.DocRefNo
+								, IVS.CurrencyId, CU.Code AS CurrencyCode
+	                            , IVS.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy,  IVS.DeliveryPartyPlantId
+								, DPP.UserName AS DeliveryBy
+	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState
+								, CP.TaxApplicable,CP.IsPaymentTermChangeable,IVS.PaymentTermId,PT.UserName PaymentTerm
+								,REPLACE(CONVERT(CHAR(11), IVS.BaseOnDueDate, 106),' ','-') BaseOnDueDate,IVS.BaseNoOfDays,REPLACE(CONVERT(CHAR(11), IVS.MatureDate, 106),' ','-') MatureDate
+								,[Type]=CASE WHEN IVS.EmployeeId<>'' THEN 'Employee' Else 'Customer' END
+                                ,CO.BaseCurrencyId,IVS.ToCurrencyRate
+                                ,IVS.NoteForAccounts
+                    FROM [TRN].[InventorySales] AS IVS LEFT JOIN [HKP].[Party] AS P ON IVS.CustomerId=P.Id
+                    LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable,C.IsPaymentTermChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Customer') AS CP ON CP.PartyId=IVS.CustomerId AND CP.PlantId=IVS.PlantId
+                    LEFT JOIN [EmployeeInformation] AS EI ON IVS.EmployeeId=EI.SystemId
+                    LEFT JOIN [SCS].[Currency] AS CU ON IVS.CurrencyId=CU.Id
+                    LEFT JOIN [HKP].[PartyPlant] AS IPP ON IVS.InvoicingPartyPlantId=IPP.Id
+                    LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                    LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                    LEFT JOIN [HKP].[PartyPlant] AS DPP ON IVS.DeliveryPartyPlantId=DPP.Id
+                    LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                    LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                    LEFT JOIN ORG.Company AS CO ON CO.Id=IVS.CompanyId
+                     LEFT JOIN (SELECT A.InventorySalesId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.AvgAmount,4)) AS TransactionAmount, SUM(ROUND(A.AvgAmount,0)) AS BaseAmount 
+					 FROM [TRN].[InventorySalesDetail] AS A
+		                        JOIN [TRN].[InventorySales] AS B ON A.InventorySalesId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventorySalesId) AS IRD ON IRD.InventorySalesId=IVS.Id
+                    LEFT JOIN (SELECT A.InventorySalesId, A.TransactionUoMId FROM [TRN].[InventorySalesDetail] AS A JOIN [TRN].[InventorySales] AS B ON A.InventorySalesId=B.Id
+		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventorySalesId, A.TransactionUoMId HAVING COUNT(A.InventorySalesId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventorySalesId=IVS.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+					LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IVS.MaterialStorageId
+					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
+					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
+                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')='Posting' AND IVS.VoucherId IS NOT NULL
+					) AS TEMP WHERE " + strkey + " order by SalesDate DESC";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+
+		public IEnumerable<object> GetInventorySalesReturnForPost(string column, string value, string plantId)
+		{
+			try
+			{
+				string strkey = "1=1";
+				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+					strkey = column + " like '%" + value + "%'";
+				var sql = @"select top 300 * from (SELECT  IVS.Id, REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.CustomerId PartyId, IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
+								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDateNew
+			                    , CP.UserName AS PartyAccountGroupName
+	                           , IVS.MaterialStorageId,MS.UserName MaterialStorage,IVS.EntityId,E.UserName Entity,FORMAT(IVS.DocDate,'dd-MMM-yyyy')DocDate
+								, REPLACE(CONVERT(CHAR(11), IVS.AddedDate, 106),' ','-') AS EntryDate,IVS.Remarks,IVS.DocRefNo
+								, IVS.CurrencyId, CU.Code AS CurrencyCode
+	                            , IVS.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy,  IVS.DeliveryPartyPlantId
+								, DPP.UserName AS DeliveryBy
+	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState
+								, CP.TaxApplicable,CP.IsPaymentTermChangeable,IVS.PaymentTermId,PT.UserName PaymentTerm
+								,REPLACE(CONVERT(CHAR(11), IVS.BaseOnDueDate, 106),' ','-') BaseOnDueDate,IVS.BaseNoOfDays,REPLACE(CONVERT(CHAR(11), IVS.MatureDate, 106),' ','-') MatureDate
+								,[Type]='Customer'
+                                ,CO.BaseCurrencyId,IVS.ToCurrencyRate
+                                ,IVS.NoteForAccounts
+                    FROM [TRN].[InventorySalesReturn] AS IVS LEFT JOIN [HKP].[Party] AS P ON IVS.CustomerId=P.Id
+                    LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable,C.IsPaymentTermChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Customer') AS CP ON CP.PartyId=IVS.CustomerId AND CP.PlantId=IVS.PlantId
+                    LEFT JOIN [SCS].[Currency] AS CU ON IVS.CurrencyId=CU.Id
+                    LEFT JOIN [HKP].[PartyPlant] AS IPP ON IVS.InvoicingPartyPlantId=IPP.Id
+                    LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                    LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                    LEFT JOIN [HKP].[PartyPlant] AS DPP ON IVS.DeliveryPartyPlantId=DPP.Id
+                    LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                    LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                    LEFT JOIN ORG.Company AS CO ON CO.Id=IVS.CompanyId
+                     LEFT JOIN (SELECT A.InventorySalesReturnId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.AvgAmount,4)) AS TransactionAmount, SUM(ROUND(A.AvgAmount,0)) AS BaseAmount 
+					 FROM [TRN].[InventorySalesReturnDetail] AS A
+		                        JOIN [TRN].[InventorySalesReturn] AS B ON A.InventorySalesReturnId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventorySalesReturnId) AS IRD ON IRD.InventorySalesReturnId=IVS.Id
+                    LEFT JOIN (SELECT A.InventorySalesReturnId, A.TransactionUoMId FROM [TRN].[InventorySalesReturnDetail] AS A JOIN [TRN].[InventorySalesReturn] AS B ON A.InventorySalesReturnId=B.Id
+		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventorySalesReturnId, A.TransactionUoMId HAVING COUNT(A.InventorySalesReturnId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventorySalesReturnId=IVS.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+					LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IVS.MaterialStorageId
+					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
+					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
+                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')!='Posting'
+					) AS TEMP WHERE " + strkey + " order by SalesDate DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -1421,6 +1530,62 @@ namespace Library.Accounting.Accounts
 			LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
 			where SP.SalesId='"+ salesId + "' AND S.PlantId='"+ plantId + "'  ";
 			return _sqlRepository.GetDataCollection(sql);
+
+		}
+
+		public GridModel GetInvSalesReturnMaterial(GridParameter parameters, string companyId, string plantId, string inveReveiveId)
+		{
+			try
+			{
+				parameters.CmdText = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + inveReveiveId + @"',@companyId varchar(10)='" + companyId + @"',@plantId varchar(10)='" + plantId + @"'
+                                         , @totalReceiveAmount DECIMAL(18, 4)=0
+	                                  , @totalServiceAmount DECIMAL(18, 4)=0
+	                                  , @totalSvcTaxAmount DECIMAL(18, 4)=0
+                        SET @totalReceiveAmount=(SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=@inventoryReceiveId)
+                        SET @totalReceiveAmount=(SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=@inventoryReceiveId)
+                        SELECT IM.Id, ISD.Id AS InventoryReceiveDetailId
+                            , MGM.UserName AS MaterialGroupMasterName
+                            , IM.MaterialMasterId, MM.UserName
+                            , IM.ArticleId, ART.StandardName
+                            , IM.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                            , IM.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
+                            , IM.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
+                            , IM.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
+                            , IM.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
+                            , IM.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue                         
+                            , ISD.TransactionUoMId, TUoM.UserName AS TransactionUoM
+                            , ISD.SalesRate AS TransactionRate
+                            , CU.Code AS CurrencyName, IVS.ToCurrencyRate
+                            , ISD.TotalSalesAmount
+                            ,ISD.TransactionQty                         
+							                  
+					        ,ISD.TransactionUoMId
+							,ISD.BaseUOMId 
+                            ,MM.IsAsset  
+							,HSNC.Code HSNCode
+					  from TRN.InventoryMaterial AS IM
+                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+						LEFT JOIN [TRN].[InventorySalesReturnDetail] ISD ON ISD.InventoryMaterialId=IM.Id AND ISD.InventorySalesReturnId=@inventoryReceiveId
+                        JOIN [SCS].[UnitOfMeasurement] AS TUoM ON ISD.TransactionUoMId=TUoM.Id
+						JOIN TRN.InventorySalesReturn IVS ON IVS.Id=ISD.InventorySalesReturnId
+                        JOIN [SCS].[Currency] AS CU ON IVS.CurrencyId=CU.Id
+                        LEFT JOIN HKP.HSNCode AS HSNC ON HSNC.Id=MM.HSNCodeId";
+				return _sqlRepository.GetDifferentGridData(parameters);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
 
 		}
 
