@@ -127,8 +127,24 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
+        #endregion
 
-       
+        #region InventorySales Return Post
+
+        [Authorize, HttpPost]
+        public JsonResult GetInventorySalesReturnForPost(string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetInventorySalesReturnForPost(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventorySalesReturnMaterial(GridParameter parameters, string inveReveiveId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetInvSalesReturnMaterial(parameters, identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 }

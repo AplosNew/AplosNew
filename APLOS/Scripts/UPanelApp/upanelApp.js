@@ -1000,6 +1000,7 @@ var upanelApp = angular
     .controller("issueTransactionController", issueTransactionController)
     .controller("EmployeeShiftUpdatesController", EmployeeShiftUpdatesController)
     .controller("ProductionGeneralReportController", ProductionGeneralReportController)
+    .controller("inventorySalesReturnPost", inventorySalesReturnPost)
 
 
     .config(AccessControllerConfig)

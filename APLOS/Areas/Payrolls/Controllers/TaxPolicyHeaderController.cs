@@ -152,11 +152,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region Formula Rules Functions
       
         [HttpGet, Authorize]
-        public ActionResult GetGeneralFormula(string GeneralID)
+        public ActionResult GetGeneralFormula(string TaxEarnChildId)
         {
             try
             {
-                return Json(ds.GetGeneralFormula(GeneralID), JsonRequestBehavior.AllowGet);
+                return Json(ds.GetGeneralFormula(TaxEarnChildId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

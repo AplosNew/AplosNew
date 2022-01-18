@@ -2844,7 +2844,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     }
                 }
 
-
+                $scope.sumTwoMatQuantity();
             });
        
     }
