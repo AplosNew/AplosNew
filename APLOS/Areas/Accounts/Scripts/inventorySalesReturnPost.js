@@ -190,7 +190,7 @@ function inventorySalesReturnPost(cboService, commonMessage, $scope, $rootScope,
     $scope.getPopUpData = function () {
         $http({
             method: 'POST',
-            url: 'Accounts/InventorySale/GetListForInvReceivable',
+            url: 'Accounts/InventorySale/GetInventorySalesReturnForPost',
             data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
         }).then(function successCallback(response) {
             $scope.approvedSalesList = response.data;
@@ -297,7 +297,7 @@ function inventorySalesReturnPost(cboService, commonMessage, $scope, $rootScope,
     }
     $scope.inventoryJV = [];
     function getInventortGLBudgetActivity(inventorysalesId, customerId) {
-        $http.get('Accounts/InventorySale/GetBudgetActivityInSalesMaterial?inventorysalesId=' + inventorysalesId + '&customerId=' + customerId)
+        $http.get('Accounts/InventorySale/GetBudgetActivityInSalesReturnMaterial?inventorysalesId=' + inventorysalesId + '&customerId=' + customerId)
             .then(function (response) {
                 $scope.inventoryJV = [];
                 $scope.inventoryJV = response.data;
@@ -311,12 +311,12 @@ function inventorySalesReturnPost(cboService, commonMessage, $scope, $rootScope,
         $scope.inventorySalesJV = [];
         if ($scope.companyConfig.IsInventorySalesBook) {
             $scope.Journal = 'Sales Journal';
-            $scope.jvurl1 = 'Accounts/InventorySale/GetInventorySalesBudgetActivityInSalesMaterial?inventorysalesId=' + inveReveiveId + '&customerId=' + customerId + '&taxapplicable=' + taxapplicable
+            $scope.jvurl1 = 'Accounts/InventorySale/GetInventorySalesReturnInventorySalesBook?inventorysalesId=' + inveReveiveId + '&customerId=' + customerId + '&taxapplicable=' + taxapplicable
             getInventortGLBudgetActivity(inveReveiveId, customerId);
         }
         else {
             $scope.Journal = 'Journal';
-            $scope.jvurl1 = 'Accounts/InventorySale/GetInventoryMaterialReceivable?inveReveiveId=' + inveReveiveId + '&partyId=' + customerId + '&taxapplicable=' + taxapplicable
+            $scope.jvurl1 = 'Accounts/InventorySale/GetInventorySalesReturnMaterialReceivable?inveReveiveId=' + inveReveiveId + '&partyId=' + customerId + '&taxapplicable=' + taxapplicable
         }
         $http.get($scope.jvurl1)
             .then(function (response) {

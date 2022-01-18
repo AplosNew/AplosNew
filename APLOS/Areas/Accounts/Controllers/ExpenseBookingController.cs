@@ -356,7 +356,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { ExpenseBooking = expenseBooking, Message = AplosMessage.Insert });
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult Edit(FormCollection form /*ExpenseBooking expenseBooking, IEnumerable<ExpenseBookingDetail> expenseBookingDetails, IEnumerable<ExpenseActivity> expActdetails*/)
         {
             var expenseBooking = new JavaScriptSerializer().Deserialize<ExpenseBooking>(form["expenseBooking"]);

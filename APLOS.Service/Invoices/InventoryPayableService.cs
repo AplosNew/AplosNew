@@ -5217,18 +5217,18 @@ namespace Library.Service.Invoices
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
 
-                        //foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == voucherCr.GLGeneralInfoId
-                        //&& r.BudgetMasterId == voucherCr.BudgetMasterId && r.ActivityId == voucherCr.ActivityId && r.TrnType == "Cr"))
-                        //{
-                        //    var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);
-                        //    var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
-                        //    inventorySalesDetail.PostCrGLGeneralInfoId = voucherCr.GLGeneralInfoId;
-                        //    inventorySalesDetail.PostCrBudgetMasterId = voucherCr.BudgetMasterId;
-                        //    inventorySalesDetail.PostCrActivityId = voucherCr.ActivityId;
-                        //    inventorySalesDetail.ModelState = ModelState.Modified;
-                        //    AuditService.UpdatedLog(inventorySalesDetail);
-                        //    _inventorySalesDetailRepository.Update(inventorySalesDetail);
-                        //}
+                        foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == voucherCr.GLGeneralInfoId
+                        && r.BudgetMasterId == voucherCr.BudgetMasterId && r.ActivityId == voucherCr.ActivityId && r.TrnType == "Cr"))
+                        {
+                            var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);
+                            var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
+                            inventorySalesDetail.PostCrGLGeneralInfoId = voucherCr.GLGeneralInfoId;
+                            inventorySalesDetail.PostCrBudgetMasterId = voucherCr.BudgetMasterId;
+                            inventorySalesDetail.PostCrActivityId = voucherCr.ActivityId;
+                            inventorySalesDetail.ModelState = ModelState.Modified;
+                            AuditService.UpdatedLog(inventorySalesDetail);
+                            _inventorySalesDetailRepository.Update(inventorySalesDetail);
+                        }
 
                         if (voucherDetailVM.OtherName == "Tax")
                         {
@@ -5332,17 +5332,17 @@ namespace Library.Service.Invoices
                         };
                         voucherDetailVM.Id = voucherDr.Id;
                         totalAmountDr += voucherDr.DrAmount;
-                        // foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId
-                        //&& r.BudgetMasterId == voucherDr.BudgetMasterId && r.ActivityId == voucherDr.ActivityId && r.TrnType == "Dr"))
-                        // {
-                        //     var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);
-                        //     inventorySalesDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
-                        //     inventorySalesDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
-                        //     inventorySalesDetail.PostDrActivityId = voucherDr.ActivityId;
-                        //     inventorySalesDetail.ModelState = ModelState.Modified;
-                        //     AuditService.UpdatedLog(inventorySalesDetail);
-                        //     _inventorySalesDetailRepository.Update(inventorySalesDetail);
-                        // }
+                        foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId
+                       && r.BudgetMasterId == voucherDr.BudgetMasterId && r.ActivityId == voucherDr.ActivityId && r.TrnType == "Dr"))
+                        {
+                            var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);
+                            inventorySalesDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
+                            inventorySalesDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
+                            inventorySalesDetail.PostDrActivityId = voucherDr.ActivityId;
+                            inventorySalesDetail.ModelState = ModelState.Modified;
+                            AuditService.UpdatedLog(inventorySalesDetail);
+                            _inventorySalesDetailRepository.Update(inventorySalesDetail);
+                        }
                         if (voucherDetailVM.OtherName == "Tax")
                         {
                             // var voucherDetailCrrId = voucherDetailVMList.FirstOrDefault(t => t.TrnType == "Cr" && t.OtherName == "Tax").Id;
@@ -5509,18 +5509,18 @@ namespace Library.Service.Invoices
                         invcurrentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(invvoucher, invvoucherCr, invcurrentVoucherDetaiRecord);
 
-                        //foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == invvoucherCr.GLGeneralInfoId
-                        //&& r.BudgetMasterId == invvoucherCr.BudgetMasterId && r.ActivityId == invvoucherCr.ActivityId && r.TrnType == "Cr"))
-                        //{
-                        //    var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);
-                        //    var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
-                        //    inventorySalesDetail.PostCrGLGeneralInfoId = invvoucherCr.GLGeneralInfoId;
-                        //    inventorySalesDetail.PostCrBudgetMasterId = invvoucherCr.BudgetMasterId;
-                        //    inventorySalesDetail.PostCrActivityId = invvoucherCr.ActivityId;
-                        //    inventorySalesDetail.ModelState = ModelState.Modified;
-                        //    AuditService.UpdatedLog(inventorySalesDetail);
-                        //    _inventorySalesDetailRepository.Update(inventorySalesDetail);
-                        //}
+                        foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == invvoucherCr.GLGeneralInfoId
+                        && r.BudgetMasterId == invvoucherCr.BudgetMasterId && r.ActivityId == invvoucherCr.ActivityId && r.TrnType == "Cr"))
+                        {
+                            var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);
+                            var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
+                            inventorySalesDetail.PostCrInventoryGLId = invvoucherCr.GLGeneralInfoId;
+                            inventorySalesDetail.PostCrInventoryBudgetMasterId = invvoucherCr.BudgetMasterId;
+                            inventorySalesDetail.PostCrInventoryActivityId = invvoucherCr.ActivityId;
+                            inventorySalesDetail.ModelState = ModelState.Modified;
+                            AuditService.UpdatedLog(inventorySalesDetail);
+                            _inventorySalesDetailRepository.Update(inventorySalesDetail);
+                        }
 
                         var invvoucherDetailCurrencydb = new VoucherDetailCurrency
                         {
@@ -5553,17 +5553,17 @@ namespace Library.Service.Invoices
                         };
                         invvoucherDetailVM.Id = invvoucherDr.Id;
                         invtotalAmountDr += invvoucherDr.DrAmount;
-                        // foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId
-                        //&& r.BudgetMasterId == voucherDr.BudgetMasterId && r.ActivityId == voucherDr.ActivityId && r.TrnType == "Dr"))
-                        // {
-                        //     var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);
-                        //     inventorySalesDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
-                        //     inventorySalesDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
-                        //     inventorySalesDetail.PostDrActivityId = voucherDr.ActivityId;
-                        //     inventorySalesDetail.ModelState = ModelState.Modified;
-                        //     AuditService.UpdatedLog(inventorySalesDetail);
-                        //     _inventorySalesDetailRepository.Update(inventorySalesDetail);
-                        // }
+                        foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == invvoucherDr.GLGeneralInfoId
+                       && r.BudgetMasterId == invvoucherDr.BudgetMasterId && r.ActivityId == invvoucherDr.ActivityId && r.TrnType == "Dr"))
+                        {
+                            var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);
+                            inventorySalesDetail.PostDrInventoryGLId = invvoucherDr.GLGeneralInfoId;
+                            inventorySalesDetail.PostDrInventoryBudgetMasterId = invvoucherDr.BudgetMasterId;
+                            inventorySalesDetail.PostDrInventoryActivityId = invvoucherDr.ActivityId;
+                            inventorySalesDetail.ModelState = ModelState.Modified;
+                            AuditService.UpdatedLog(inventorySalesDetail);
+                            _inventorySalesDetailRepository.Update(inventorySalesDetail);
+                        }
                         invcurrentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(invvoucher, invvoucherDr, invcurrentVoucherDetaiRecord);
                         var invvoucherDetailCurrencydb = new VoucherDetailCurrency
