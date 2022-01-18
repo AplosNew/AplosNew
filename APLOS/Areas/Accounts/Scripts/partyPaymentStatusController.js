@@ -4761,6 +4761,20 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     }
 
+
+    $scope.GRNWithoutInvoiceReportExcel = function(){
+        var reportFormat = "Excel";
+        try {
+            //var url = $scope.path + 'EmployeeAdvanceDeductionReportExcelFormat?reportFormat=' + reportFormat + '&Year=' + $scope.year + '&Month=' + $scope.month + '&MonthName=' + $scope.monthname;
+
+            var url = $scope.path + 'GRNWithoutInvoiceReportExcelFormat?reportFormat=' + reportFormat + '&ToDate=' + $scope.report.ToDate;
+            $rootScope.report(url);
+        }
+        catch (e) {
+
+        }
+    }
+
      //**********************#endregion Invoice GRN With out **************************
 
 

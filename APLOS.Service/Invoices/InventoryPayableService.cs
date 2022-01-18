@@ -5509,7 +5509,7 @@ namespace Library.Service.Invoices
                         invcurrentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(invvoucher, invvoucherCr, invcurrentVoucherDetaiRecord);
 
-                        foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == invvoucherCr.GLGeneralInfoId
+                        foreach (var item in inventoryJVList.Where(r => r.GLGeneralInfoId == invvoucherCr.GLGeneralInfoId
                         && r.BudgetMasterId == invvoucherCr.BudgetMasterId && r.ActivityId == invvoucherCr.ActivityId && r.TrnType == "Cr"))
                         {
                             var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);
@@ -5553,7 +5553,7 @@ namespace Library.Service.Invoices
                         };
                         invvoucherDetailVM.Id = invvoucherDr.Id;
                         invtotalAmountDr += invvoucherDr.DrAmount;
-                        foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == invvoucherDr.GLGeneralInfoId
+                        foreach (var item in inventoryJVList.Where(r => r.GLGeneralInfoId == invvoucherDr.GLGeneralInfoId
                        && r.BudgetMasterId == invvoucherDr.BudgetMasterId && r.ActivityId == invvoucherDr.ActivityId && r.TrnType == "Dr"))
                         {
                             var inventorySalesDetail = _inventorySalesDetailRepository.Find(item.InventorySalesDetailId);

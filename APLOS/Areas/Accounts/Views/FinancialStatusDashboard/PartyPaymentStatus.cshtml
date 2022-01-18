@@ -1886,21 +1886,21 @@
                                     <div e-column e-type="string" e-field="DocRefNo" e-headertext="Doc RefNo" e-width="70"></div>
                                     <div e-column e-type="date" e-field="DocDate" e-headertext="Doc Date" e-format="{0:dd-MMM-yyyy}" e-width="70"></div>
 
-                                    <div e-column e-type="string" e-field="Vendor" e-headertext="vendor" e-width="120"></div>
+                                    <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="120"></div>
                                     <div e-column e-template="#templateVoucherNo" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="string" e-field="TransactionQty" e-headertext="Qty" e-width="50"></div>
                                     <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalMaterialTranAmount" e-headertext="Amount" e-textalign="right" e-width="100"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ToCurrencyRate" e-headertext="Exchange Rate" e-textalign="right" e-width="100"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Books val." e-textalign="right" e-width="100"></div>
-                                    <div e-column e-type="string" e-field="POId" e-headertext="PO NO" e-width="50"></div>
-                                    <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO DocRefNo" e-width="70"></div>
-                                    <div e-column e-type="string" e-field="PINo" e-headertext="PI No" e-width="90"></div>
-                                    <div e-column e-type="string" e-field="PLCRef" e-headertext="LC No" e-width="90"></div>
+                                    <div e-column e-type="string" e-field="POId" e-headertext="PO NO." e-width="50"></div>
+                                    <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO DocRefNo." e-width="70"></div>
+                                    <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="90"></div>
+                                    <div e-column e-type="string" e-field="PLCRef" e-headertext="LC No." e-width="90"></div>
                                     <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="LC Opening Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
                                     <div e-column e-type="date" e-field="ExpiryDate" e-headertext="Expiry Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="PLCAmount" e-headertext="PLC Amount" e-textalign="right" e-width="100"></div>
-                                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="70"></div>
+                                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="70"></div>
                                     <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="120"></div>
                                     <div e-column e-type="string" e-field="MasterLCRef" e-headertext="MLC Ref" e-width="80"></div>
                                     <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="50"></div>
@@ -1921,20 +1921,15 @@
                             </script>
                         </div>
 
-                        @*<div class="form-group">
-                                <div class="col-xs-12 col-sm-12 col-md-12">
-                                    <ul class="common-btn list-inline text-right">
-                                        <li>
-                                            <div ej-tooltip e-showshadow="true" e-content="All Acceptance values" ng-click="GetAcceptanceLiabilityMaturityReport();" e-width="width">
-                                                <button class="btn"><i class="glyphicon glyphicon-file"></i>Downloard</button>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>*@
-
                     </div>
-
+                    
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li>
+                                <button ng-click="GRNWithoutInvoiceReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                            </li>
+                        </ul>
+                    </div>
 
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(18), active: isSet(18) }">
@@ -2237,7 +2232,7 @@
 
 </div>
 
-//Modal start
+
 <div class="modal fade site-modal in" id="invoicSetOffByInvoiceOtherLiabilityPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -2275,7 +2270,7 @@
 
     </div>
 </div>
-//Modal End
+
 
 <div class="form-horizontal form-elements" id="materialDIV">
     <div class="row">
