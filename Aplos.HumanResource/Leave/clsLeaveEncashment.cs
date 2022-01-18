@@ -551,13 +551,6 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
             return ob;
         }
 
-
-
-
-
-
-
-
         public void GetMultipleEmployeeLeaveBalance(string PlantId, string YearId, out System.Data.DataSet dsRef)
         {
             string strSQL;
@@ -2565,6 +2558,9 @@ WHERE m.EffectiveDate<=els.ToDate AND lt.LeaveType='Earn' AND m.PlantID='" + Pla
                     {
                         //edit
                         DataRow dr = dicEncashment[Key];
+                        if (bplib.clsWebLib.GetBoolData(dr["Isdisburse"].ToString()))
+                            continue;
+
                         dr.BeginEdit();
 
                         dr["PlantId"] = PlantId.ToString();
