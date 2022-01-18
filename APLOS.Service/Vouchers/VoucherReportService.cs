@@ -92,14 +92,14 @@ namespace Library.Service.Vouchers
         }
 
 
-        public IWorkbook GetIncomeStatementReport(string companyId, string plantId, string plantName, string date, string[] parallelCurrencies)
+        public IWorkbook GetIncomeStatementReport(string companyId, string plantId, string plantName, string date, string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel)
         {
             try
             {
                 var obj = new ReportGeneralVoucher();
                 using (ExcelEngine excelEngine = new ExcelEngine())
                 {
-                    var workbook = obj.IncomeStatement_Report(excelEngine, companyId,  plantId,plantName, date, parallelCurrencies);;
+                    var workbook = obj.IncomeStatement_Report(excelEngine, companyId,  plantId,plantName, date, parallelCurrencies,isBudgetLevel, isActivityLevel);
                     return workbook;
                 }
             }
@@ -110,14 +110,14 @@ namespace Library.Service.Vouchers
         }
 
         //Income statement datewise
-        public IWorkbook GetIncomeStatementReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate,  string[] parallelCurrencies)
+        public IWorkbook GetIncomeStatementReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate,  string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel)
         {
             try
             {
                 var obj = new ReportGeneralVoucher();
                 using (ExcelEngine excelEngine = new ExcelEngine())
                 {
-                    var workbook = obj.IncomeStatement_Report_DateRange(excelEngine, companyId, PlantId, plantName, fromDate, toDate,  parallelCurrencies);
+                    var workbook = obj.IncomeStatement_Report_DateRange(excelEngine, companyId, PlantId, plantName, fromDate, toDate,  parallelCurrencies, isBudgetLevel, isActivityLevel);
                     return workbook;
                 }
             }
