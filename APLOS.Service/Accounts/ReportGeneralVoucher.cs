@@ -1403,13 +1403,15 @@ namespace Library.Service.Accounts
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
 		                                    sum(VDC.DrAmount) as DrAmount,
 		                                    sum(VDC.CrAmount) as CrAmount,
-                                            sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
-											sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+                                            sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+											sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
 											ACT.BalanceType,
                                             ACT.Id AS [MainHead],
 											AG.UserName AS [Level],
 		                                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
-                                            VD.BudgetMasterId, BUD.UserName AS Budget
+                                            VD.BudgetMasterId, BUD.UserName AS Budget,
+											A.UserName AS Activity,
+                                            A.Id AS ActivityId
 	                                        FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -1422,7 +1424,7 @@ namespace Library.Service.Accounts
                                             LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                                             where act.IsBalanceSheet=0 AND v.PostingDate <= '" + date + @"' AND V.CompanyId='" + companyId + @"'  AND V.PlantId='" + plantId + @"'
                                             and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
-                                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
+                                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id";
 
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
@@ -1463,13 +1465,12 @@ namespace Library.Service.Accounts
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
 		                                    sum(VDC.DrAmount) as DrAmount,
 		                                    sum(VDC.CrAmount) as CrAmount,
-                                            sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
-											sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+                                            sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+											sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
 											ACT.BalanceType,
                                             ACT.Id AS [MainHead],
 											AG.UserName AS [Level],
-		                                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
-                                            VD.BudgetMasterId, BUD.UserName AS Budget
+		                                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
 	                                        FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -1482,7 +1483,7 @@ namespace Library.Service.Accounts
                                             LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                                             where act.IsBalanceSheet=0 AND v.PostingDate <= '" + date + @"' AND V.CompanyId='" + companyId + @"'  AND V.PlantId='" + plantId + @"'
                                             and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
-                                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
+                                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id";
 
                     return _sqlRepository.GetGridData(parameters).Source;
 
@@ -3056,14 +3057,16 @@ namespace Library.Service.Accounts
                     VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
                     sum(VDC.DrAmount) as DrAmount,
                     sum(VDC.CrAmount) as CrAmount,
-                    sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
-                    sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+                    sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+                    sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
                    
                     ACT.BalanceType,
                     ACT.Id AS [MainHead],
                     AG.UserName AS [Level],
                     VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
-                    VD.BudgetMasterId, BUD.UserName AS Budget
+                    VD.BudgetMasterId, BUD.UserName AS Budget,
+					A.UserName AS Activity,
+                    A.Id AS ActivityId
                     FROM TRN.VoucherDetailCurrency AS VDC
                     INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
                     INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -3078,7 +3081,7 @@ namespace Library.Service.Accounts
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
-					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id";
 
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
@@ -3125,14 +3128,13 @@ namespace Library.Service.Accounts
                     VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
                     sum(VDC.DrAmount) as DrAmount,
                     sum(VDC.CrAmount) as CrAmount,
-                    sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
-                    sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+                    sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+                    sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
                    
                     ACT.BalanceType,
                     ACT.Id AS [MainHead],
                     AG.UserName AS [Level],
-                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
-                    VD.BudgetMasterId, BUD.UserName AS Budget
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
                     FROM TRN.VoucherDetailCurrency AS VDC
                     INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
                     INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -3147,7 +3149,7 @@ namespace Library.Service.Accounts
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
-					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
+					,ACT.BalanceType,AG.UserName,ACT.Id";
 
                     return _sqlRepository.GetGridData(parameters).Source;
 
