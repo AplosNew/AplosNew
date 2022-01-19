@@ -67,6 +67,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.ClearEarningMaster();
         $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
+        $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
         $scope.GetEarningMasterList();
         updateChild();
         showTabs();
@@ -81,9 +82,13 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         ShortName:null,
         StandardName:null,
         UserName: null,
-        Sequence: 0,
-        Remarks: null,
-        Active:false,
+        Sequence: 0,       
+        Active: false,
+        Male: false,
+        Female: false,
+        AgeFrom: null,
+        AgeTo: null,
+        CityOfResidence: null
     };
 
     $scope.HeaderList = [];
@@ -144,9 +149,13 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             ShortName: null,
             StandardName: null,
             UserName: null,
-            Sequence: 0,
-            Remarks: null,
+            Sequence: 0,            
             Active: false,
+            Male: false,
+            Female: false,
+            AgeFrom: null,
+            AgeTo: null,
+            CityOfResidence: null
         };
         $scope.GetSequenceHeader();
         showTabs();
@@ -565,6 +574,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         StandardName: null,
         UserName: null,
         Remarks: null,
+        IsLessOrMore: null,
         Active: false,
         TaxableAmountFix: 0,
         TaxableAmountFix: 0,
@@ -618,6 +628,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             UserName: null,
             Remarks: null,
             Active: false,
+            IsLessOrMore: null,
             TaxableAmountFix: 0,
             TaxableAmountPer: 0,
             ExemptionApplicable: false
@@ -756,4 +767,59 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
+    // #region Investment Deduction Functions
+
+    // #region Modal Region
+
+    $scope.InvestDeductModel = {
+        TaxTypeId: null,
+        SystemId: null,
+        UserCode: null,
+        TaxPolicyHeaderId: null,
+        TaxSavingGroupId: null
+    };
+
+    // #endregion
+
+
+
+    //Getting the Tax Type
+    $scope.TaxTypeList = [];
+    $scope.getTaxType = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetTaxType',
+        }).then(function successCallback(response) {
+            $scope.TaxTypeList = response.data;
+        });
+    }
+    $scope.getTaxType();
+
+    // Tax Saving Group 
+    $scope.TaxSavingGroupList = [];
+    $scope.taxSavingGroup = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path+ 'getTaxSavingGroup',
+            dataType: 'JSON'
+        }).then(function success(response) {
+            $scope.TaxSavingGroupList = response.data;
+        });
+    }
+    $scope.taxSavingGroup();
+
+    // Tax Investment Item
+    $scope.TaxSavingItemList = [];
+    $scope.taxSavingItem = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path +'getTaxSavingItem',
+            dataType: 'JSON'
+        }).then(function success(response) {
+            $scope.TaxSavingItemList = response.data;
+        });
+    }
+    $scope.taxSavingItem();
+
+    //#endregion
 }

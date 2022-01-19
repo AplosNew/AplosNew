@@ -410,8 +410,7 @@
     </div>
 </div>
 <div class="table-responsive modal-table aplos-grid-toggle">
-    <div class="content-container-fluid" style="color:black;overflow:scroll">
-        <div style="color:black;" id="GridPurchaseLC" ej-grid e-datasource="purchaseLCList"
+        <div style="color:black;" ng-init="chkinit()" id="GridPurchaseLC" ej-grid e-datasource="purchaseLCList"
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
@@ -419,7 +418,7 @@
                 <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
                 <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="60"></div>
                 <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
-                <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}"  e-field="LCDate" e-headertext="Opening Date" e-width="60"></div>
                 <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="40" e-textalign="right"></div>
                 <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
                 <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="40" e-textalign="right"></div>
@@ -446,7 +445,6 @@
         <script type="text/template" id="ShowActionButtonsBOM">
             <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" ng-disabled="data.Version!=1" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this);" style="margin: -6px;"></i></button>
         </script>
-    </div>
 </div>
 <confirm-modal></confirm-modal>
 @Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")

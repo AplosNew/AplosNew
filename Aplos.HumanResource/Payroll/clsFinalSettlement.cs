@@ -1,5 +1,6 @@
 ﻿using bplib;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -457,7 +458,7 @@ namespace OTSBD
                 DataSet dsYearlyCalendar = null;
                 GetYearlyCalendarIdByDOS(dsTenure.Tables[0].Rows[0]["DOS"].ToString(), plantId, out dsYearlyCalendar);
                 clsLeaveEncashment olv = new clsLeaveEncashment();
-                LeaveEncashmentViewModel cc = olv.GetLeaveEncashmentDataForFinalSettlement(sEmpSystemId, Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), dsYearlyCalendar.Tables[0].Rows[0]["Id"].ToString(), plantId);
+                LeaveEncashmentViewModel cc = olv.GetLeaveEncashmentDataForFinalSettlementNew(sEmpSystemId, Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), dsYearlyCalendar.Tables[0].Rows[0]["Id"].ToString(), plantId);
                 obj.LvEncashmentDayNo = cc.Days;
                 obj.LvEncashmentRate = cc.Rate;
                 obj.LeaveTypeId = cc.LeaveTypeId;
@@ -1977,7 +1978,91 @@ namespace OTSBD
             }
         }//End Function
 
+        public void GetEncashmentForEdit(string PlantId, string Date, out List<Dictionary<string, object>> dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"
+                        SELECT CONVERT(BIT,0) AS Checked, t.Id,convert(BIT,isnull(t.isApproved,0)) AS isApproved,convert(BIT,isnull(t.Isdisburse,0)) AS Isdisburse, EI.SystemId,EI.EmployeeCode ,EI.EmployeeName , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
+                        , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ ,t.[Days],t.[Days] AS DaysOriginal, FORMAT(EI.DOS,'dd-MMM-yyyy') DOS , DG.UserName LegalDesignation , DP.UserName Department
+                        , PMB.Code,PR.UserName PositionName,s.YearEndEncash AS YearEndEncashOriginal,s.YearEndLapse YearEndLapseOriginal,s.YearEndEncash,s.YearEndLapse,t.YearEndLapse AS CurrentYearEndLapse , E.UserName EntityName,t.EncashmentDate,t.Days,t.Rate,t.BasicAmmount,t.GrossAmmount,t.PaymentMode,t.AvailedLeave
+                                                 
+                                                  FROM trn.EmployeeLeaveSummary S
+                           JOIN LeaveEncashmentTransaction AS T ON t.EmpSystemId=s.EmployeeId AND t.PlantId=s.PlantId AND t.LeaveTypeSystemId=s.LeaveTypeId
+                           AND t.EncashmentDate=s.ToDate
+											LEFT JOIN Employeeinformation EI ON ei.SystemId=t.EmpSystemId
+                                                 LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
+                                                 LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
+                                                 LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+                                                 LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                                 LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
+                                                 LEFT JOIN HKP.LegalDesignation  DG on DG.Id=T.LegalDesignationId
+                                                 LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId		
 
+                           JOIN trn.EmployeeLeaveSummary AS SX ON sx.Id=s.Id
+                           AND sx.Id=(SELECT TOP 1 x.Id FROM trn.EmployeeLeaveSummary X WHERE x.EmployeeId=s.EmployeeId AND x.LeaveTypeId=s.LeaveTypeId
+                           AND x.PlantId=s.PlantId AND s.IsYearlyProcessed=1 AND X.FromDate<='" + Date + @"' ORDER BY X.ToDate DESC)
+                           AND t.PlantId='" + PlantId + @"'
+                           
+                             ORDER BY EI.EmployeeCode
+                                ";
+
+                SqlRepository _sqlRepository = new SqlRepository();
+                dsRef = _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public void ApproveYearlyEncashent(List<Dictionary<string, object>> Data)
+        {
+            try
+            {
+                ConnectionManager.clsConnectionManager con = new ConnectionManager.clsConnectionManager(600);
+                con.BeginTransaction();
+                for (int i = 0; i < Data.Count; i++)
+                {
+                    con.executeQuery(@"UPDATE LeaveEncashmentTransaction SET [Days] =" + clsStaticInfo.dbl(Data[i]["YearEndEncash"].ToString()) + @",isApproved = 1 WHERE Id='" + Data[i]["Id"].ToString() + @"' AND ISNULL(Isdisburse,0)=0");
+                }
+
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+        public void UnApproveYearlyEncashent(List<Dictionary<string, object>> Data)
+        {
+            try
+            {
+                ConnectionManager.clsConnectionManager con = new ConnectionManager.clsConnectionManager(600);
+                con.BeginTransaction();
+                for (int i = 0; i < Data.Count; i++)
+                {
+                    con.executeQuery(@"UPDATE LeaveEncashmentTransaction SET isApproved = 0 WHERE Id='" + Data[i]["Id"].ToString() + @"' AND ISNULL(Isdisburse,0)=0");
+                }
+
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
     }
 
     public class EmployeeFinalSettlement

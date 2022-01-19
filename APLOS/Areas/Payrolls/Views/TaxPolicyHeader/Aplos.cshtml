@@ -16,14 +16,32 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Standard Name</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Header.StandardName" name="Standard Name" class="form-control" maxlength="50" tabindex="2" required>
+                        <input type="text" ng-model="Header.StandardName" name="Standard Name" class="form-control" maxlength="50" required>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Remarks</label>
-                    <div class="col-sm-8">
-                        <input type="text" ng-model="Header.Remarks" class="form-control" maxlength="100" tabindex="2">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Age Limit</label>
+                    <label class="col-sm-2 control-label">From</label>
+                    <div class="col-sm-2 show-message">
+                        <input type="number" ng-model="Header.AgeFrom" class="form-control" required>
+                    </div>
+                    <label class="col-sm-2 control-label">To</label>
+                    <div class="col-sm-2 show-message">
+                        <input type="number" ng-model="Header.AgeTo" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">City Of Residence</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="Header.CityOfResidence" required>
+                                <option value=""></option>
+                                <option value="Metro">Metro</option>
+                                <option value="Non-Metro">Non-Metro</option>
+                             </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -33,14 +51,34 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Name</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Header.UserName" name="User Name" class="form-control" maxlength="50" tabindex="2" required>
+                        <input type="text" ng-model="Header.UserName" name="User Name" class="form-control" maxlength="50" required>
                     </div>
                 </div>
 
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Short Name</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Header.ShortName" class="form-control" name="Short Name" maxlength="15" tabindex="2" required>
+                        <input type="text" ng-model="Header.ShortName" class="form-control" name="Short Name" maxlength="15" required>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Gender</label>
+                    <div class="col-sm-4">
+                        <div class="checkbox-site" style="padding-top: 7px;">
+                            <label>
+                                <input type="checkbox" name="Gender" ng-model="Header.Male" ng-disabled="Header.Female==true">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Male
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4" style="padding-top: 7px;">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" name="Gender" ng-model="Header.Female" ng-disabled="Header.Male==true">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Female
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -49,7 +87,7 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site" style="margin-top:7px;">
                             <label>
-                                <input type="checkbox" ng-model="Header.Active" tabindex="8">
+                                <input type="checkbox" ng-model="Header.Active" >
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
@@ -74,7 +112,8 @@
             <div class="site-tab">
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="EarningMasterChild" role="tab" data-toggle="tab">Earning Master</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Tagging</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="InvestmentDeductionMaster" role="tab" data-toggle="tab">Investment <strong>/</strong> Deduction Master</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Tagging</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -82,6 +121,7 @@
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="row">
                         <div ng-form name="EarningMasterForm">
+
                             <div class="col-xs-12 col-sm-6 col-md-6">
 
                                 <div class="form-group">
@@ -162,6 +202,28 @@
                                             </div>
                                         </div>
 
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Exemption On</label>
+                                            <div class="col-sm-4">
+                                                <div class="checkbox-site radio">
+                                                    <label>
+                                                        <input ng-disabled="EarningMasterModel.ExemptionApplicable == false" type="radio"
+                                                               ng-model="EarningMasterModel.IsLessOrMore" name="Less" value="Which Ever Is Less">
+                                                        <span class="cr"><i class="cr-icon"></i></span>Which Ever Is Less
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="checkbox-site radio">
+                                                    <label>
+                                                        <input ng-disabled="EarningMasterModel.ExemptionApplicable == false" type="radio" ng-model="EarningMasterModel.IsLessOrMore"
+                                                               name="More" value="Which Ever Is More">
+                                                        <span class="cr"><i class="cr-icon"></i></span>Which Ever Is More
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
 
                                     <div class="col-xs-12 col-sm-6 col-md-6 ">
@@ -228,6 +290,170 @@
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row">
+                        <div ng-form name="InvestmentDeductionForm">
+
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Header Id</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" onkeypress="return isNumber(event)" ng-model="InvestDeductModel.TaxPolicyHeaderId" class="form-control" maxlength="100" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Tax Type</label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" name="TaxType" id="TaxType" ng-model="InvestDeductModel.TaxTypeId">
+                                                <option value=""></option>
+                                                <option ng-repeat="option in TaxTypeList" value="{{option.Id}}">{{option.Username}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>                                
+                            </div>
+
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">UserCode<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" ng-model="InvestDeductModel.UserCode" class="form-control" maxlength="50" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Tax Saving Group</label>
+                                    <div class="col-sm-4 show-message">
+                                        <div class="select-style">
+                                            <select ng-model="InvestDeductModel.TaxSavingGroupId" id="SalaryHeadFormula" class="form-control" name="SalaryHead" ng-change="fillMaxLimit();" ng-options="item.Id as item.Username for item in TaxSavingGroupList" tabindex="5">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    @*<div id="taxGroupLimit" style="display:none; margin-top:10px;" class="col-sm-4 show-message">
+                                        <b>Max Limit : {{maxLimit}}</b>
+                                    </div>*@
+                                </div>                     
+
+                            </div>
+
+                            <div class="col-xs-12">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border">Configuration Values</legend>
+
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">SalaryHead<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="EarningMasterModel.SalaryHeadId" name="SalaryHead"
+                                                            ng-options="item.Value as item.Text for item in SalaryHeadList" required>
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Taxable Amount %</label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxableAmountPer" class="form-control" maxlength="100">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Exemption On</label>
+                                            <div class="col-sm-4">
+                                                <div class="checkbox-site radio">
+                                                    <label>
+                                                        <input ng-disabled="EarningMasterModel.ExemptionApplicable == false" type="radio"
+                                                               ng-model="EarningMasterModel.IsLessOrMore" name="Less" value="Which Ever Is Less">
+                                                        <span class="cr"><i class="cr-icon"></i></span>Which Ever Is Less
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="checkbox-site radio">
+                                                    <label>
+                                                        <input ng-disabled="EarningMasterModel.ExemptionApplicable == false" type="radio" ng-model="EarningMasterModel.IsLessOrMore"
+                                                               name="More" value="Which Ever Is More">
+                                                        <span class="cr"><i class="cr-icon"></i></span>Which Ever Is More
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Exemption Applicable</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site" style="margin-top:7px;">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="EarningMasterModel.ExemptionApplicable">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Taxable Amount Fix</label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxableAmountFix" class="form-control" maxlength="100">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SaveEarningMaster();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                        <li> <button ng-click="ClearEarningMaster();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-sm-12">
+                                    <div style="color:black;" id="EarningMasterChildGrid" ej-grid e-datasource="EarningList"
+                                         e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                                         e-allowselection="true" e-recorddoubleclick="getEarnMasterChildDetails" e-filtersettings-filterType="excel"
+                                         e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                                        <div e-columns>
+                                            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                                            <div e-column e-field="TaxPolicyHeaderId" e-headertext="TaxPolicyHeaderId" e-width="80"></div>
+                                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                                            <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
+                                            <div e-column e-field="SalaryHead" e-headertext="SalaryHead" e-width="120"></div>
+                                            <div e-column e-field="ExemptionApplicable" e-headertext="Exemption Applicable" e-width="80"></div>
+                                            <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="50"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/ng-template" id="ShowButtons">
+                                        <div class="common-btn">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                                                <i class="glyphicon glyphicon-list" ng-click="$parent.AddEntry(this);"></i>
+                                            </button>
+                                        </div>
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                     <div class="row" ng-form name="ChildForm" id="Allowed">
                         <div class="row" style="padding:10px;">
                             <div class="col-xs-6 col-lg-6">
@@ -298,7 +524,7 @@
 
                     </div>
                 </div>
-           
+
             </div>
         </div>
     
@@ -319,7 +545,7 @@
                 <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
                 <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
                 <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
-                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                <div e-column e-field="CityOfResidence" e-headertext="City Of Residence" e-width="150"></div>
                 <div e-column e-field="Active" e-headertext="Active" e-width="50"></div>
 
 
