@@ -43,7 +43,7 @@ namespace Aplos.Areas.Products.Controllers
         {
             AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsInventorySalesService.GetInventorySaleDetailGLListData(identity.CompanyId, identity.PlantId, inventorySalesId, customerId), JsonRequestBehavior.AllowGet);
+            return Json(accountsInventorySalesService.GetInventoryReceivableSaleDetailGLList(identity.CompanyId, identity.PlantId, inventorySalesId, customerId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
