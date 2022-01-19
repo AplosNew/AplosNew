@@ -81,9 +81,13 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         ShortName:null,
         StandardName:null,
         UserName: null,
-        Sequence: 0,
-        Remarks: null,
-        Active:false,
+        Sequence: 0,       
+        Active: false,
+        Male: false,
+        Female: false,
+        AgeFrom: null,
+        AgeTo: null,
+        CityOfResidence: null
     };
 
     $scope.HeaderList = [];
@@ -144,9 +148,13 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             ShortName: null,
             StandardName: null,
             UserName: null,
-            Sequence: 0,
-            Remarks: null,
+            Sequence: 0,            
             Active: false,
+            Male: false,
+            Female: false,
+            AgeFrom: null,
+            AgeTo: null,
+            CityOfResidence: null
         };
         $scope.GetSequenceHeader();
         showTabs();
