@@ -573,6 +573,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         StandardName: null,
         UserName: null,
         Remarks: null,
+        IsLessOrMore: null,
         Active: false,
         TaxableAmountFix: 0,
         TaxableAmountFix: 0,
@@ -626,6 +627,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             UserName: null,
             Remarks: null,
             Active: false,
+            IsLessOrMore: null,
             TaxableAmountFix: 0,
             TaxableAmountPer: 0,
             ExemptionApplicable: false
