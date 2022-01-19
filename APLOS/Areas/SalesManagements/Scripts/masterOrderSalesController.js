@@ -1171,16 +1171,15 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
     $scope.closeServiceTaxPopUp = function () {
         var salesData = $scope.chargesList[$scope.currentServiceRow];
-        //$scope.chargesList[$scope.currentServiceRow].TaxAmount = 0;
-        $scope.chargesList[$scope.currentServiceRow].Amount = 0;
+        $scope.chargesList[$scope.currentServiceRow].TaxAmount = 0;
+       // $scope.chargesList[$scope.currentServiceRow].Amount = 0;
         angular.forEach($scope.receiveTaxList, function (item) {
             $scope.chargesList[$scope.currentServiceRow].TaxAmount += item.Amount;
         });
-        //$scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount + $scope.chargesList[$scope.currentServiceRow].TaxAmount;
-        $scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount;
+        $scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount + $scope.chargesList[$scope.currentServiceRow].TaxAmount;
+        //$scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount;
 
-        //  $scope.materialMaster = {};
-        //  $scope.ServicetaxPopList = [];
+       
         angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
     };
 
