@@ -97,13 +97,19 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInventoryPayableService.GetInventoryMaterialReceivableData(identity.CompanyId, identity.PlantId, inveReveiveId, partyId, taxapplicable), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult GetInventorySaleDetailGLList(string inventorySalesId, string customerId)
+        public JsonResult GetInventoryReceivabeSaleDetailGLList(string inventorySalesId, string customerId)
         {
             AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsInventorySalesService.GetInventorySaleDetailGLListData(identity.CompanyId, identity.PlantId, inventorySalesId, customerId), JsonRequestBehavior.AllowGet);
+            return Json(accountsInventorySalesService.GetInventoryReceivableSaleDetailGLList(identity.CompanyId, identity.PlantId, inventorySalesId, customerId), JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryJVSaleDetailGLList(string inventorySalesId, string customerId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsInventorySalesService.GetInventoryJVSaleDetailGLList(identity.CompanyId, identity.PlantId, inventorySalesId, customerId), JsonRequestBehavior.AllowGet);
+        }
 
 
         [HttpGet, Authorize]
@@ -151,7 +157,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsInventorySalesService.GetInventorySaleDetailGLListData(identity.CompanyId, identity.PlantId, inventorySalesId, customerId), JsonRequestBehavior.AllowGet);
+            return Json(accountsInventorySalesService.GetInventoryReceivableSaleDetailGLList(identity.CompanyId, identity.PlantId, inventorySalesId, customerId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

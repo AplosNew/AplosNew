@@ -261,18 +261,15 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 	function loadCurrency() {
 		//debugger
-		cboService.getCompanyGroupCurrencyCbo(null, function (result) {
+		cboService.getCboCurrencyTransactionForPotal(null, function (result) {
 			$scope.currencyList = result;
 			$scope.detailModel.CurrencyId = $scope.selectBaseCurrency();
 			for (var i = 0; i < baseService.arrayLength($scope.currencyList); i++) {
 				if ($scope.currencyList[i].Value === $scope.detailModel.CurrencyId) {
 					$scope.detailModel.CurrencyName = $scope.currencyList[i].Text;
-
 				}
 			}
 			$scope.getToCurrencyRate();
-
-
 		});
 	}
 

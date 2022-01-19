@@ -49,11 +49,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(ps.getEmployeeId(), JsonRequestBehavior.AllowGet);
         }
 
-        //[Authorize, HttpGet]
-        //public JsonResult GetCbo()
-        //{
-        //    return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM dbo.WasteMaster"), JsonRequestBehavior.AllowGet);
-        //}
 
         [Authorize, HttpPost]
         public ActionResult Get(string Id)
@@ -71,7 +66,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
-
         //[HttpPost]
         //public ActionResult GetList(string column, string value)
         //{
@@ -88,7 +82,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(List<Dictionary<string, object>> datas, List<string> Employee)
+        public JsonResult Create(Dictionary<string, object> datas, List<string> Employee)
 
         {
             try
@@ -121,11 +115,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             }
 
-
         }
-
-
-        
         private double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
