@@ -27,7 +27,7 @@
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
                     <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                      
                             <div style="color:black;" id="Grid" ej-grid e-datasource="Griddata"
                                  e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -57,7 +57,7 @@
                                 </div>
                             </div>
 
-                        </div>
+                       
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
                                 <ul>
@@ -81,8 +81,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCHRIndex(3), active: isSetCHRIndex(3) }">
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                   
                             <div style="color:black;" id="GridCHR" ej-grid e-datasource="Griddata"
                                  e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -119,7 +118,6 @@
                                     <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="180"></div>
                                 </div>
                             </div>
-                        </div>
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
                                 <ul>
@@ -134,7 +132,6 @@
                                 </div>
                             </div>
                         </script>
-                    </div>
                 </fieldset>
 
             </div>
@@ -143,8 +140,6 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCheckedIndex(4), active: isSetCheckedIndex(4) }">
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
                             <div style="color:black;" id="GridChecked" ej-grid e-datasource="Griddata"
                                  e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -182,7 +177,6 @@
                                     <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
                                     <div e-column e-field="ApprovedBy" e-headertext="To Be Approved By" e-width="200"></div>
                                 </div>
-                            </div>
                         </div>
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
@@ -200,15 +194,12 @@
 
                             </div>
                         </script>
-                    </div>
                 </fieldset>
             </div>
 
             <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetAHRIndex(5), active: isSetAHRIndex(5) }">
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
                             <div style="color:black;" id="GridApprovedHR" ej-grid e-datasource="GriddataPoApp"
                                  e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -245,7 +236,6 @@
                                     <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
                                     <div e-column e-field="ApprovedBy" e-headertext="Approved By" e-width="200"></div>
                                 </div>
-                            </div>
                         </div>
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
@@ -262,15 +252,12 @@
 
                             </div>
                         </script>
-                    </div>
                 </fieldset>
             </div>
 
             <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIndex1(2), active: isSetIndex1(2) }">
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
                             <div style="color:black;" id="GridApproved" ej-grid e-datasource="GriddataPoApp"
                                  e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -306,7 +293,6 @@
                                     <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
                                     <div e-column e-field="ApprovedBy" e-headertext="Approved By" e-width="200"></div>
                                 </div>
-                            </div>
                         </div>
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
@@ -324,7 +310,6 @@
 
                             </div>
                         </script>
-                    </div>
                 </fieldset>
             </div>
         </div>
