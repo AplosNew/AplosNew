@@ -3652,6 +3652,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.approved = "";
         $scope.model = {
             SystemId: null,
+            VendorId: null,
+            PartyName: null,
             EmployeeId: null,
             PreRecruitmentEmployeeId: null,
             EmployeeCode: null,
@@ -3669,7 +3671,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             DesignationSystemID: null,
             BudgetCode: null,
             PositionID: null,
-            IsDirect: null,
+            IsDirect: false,
             SalaryPercentage: 0,
             CardNumber: null,
             Salutation: null,
@@ -3682,7 +3684,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
             EmpPicPath: null,
             EmpType: null,
             EmployeeCodeTypeId: null,
-            EmploymentType: null,
             EmployeeGroupSystemID: null,
             JobLocationID: null,
             DOB: null,
@@ -3740,8 +3741,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
             BankDateAdded: null,
             BankUpdatedBy: null,
             BankDateUpdated: null,
-            RegisterFP: null,
-            RegisterProximate: null,
+            RegisterFP: false,
+            RegisterProximate: false,
             SuperViser: null,
             IsSlvDevReg: null,
             IsAttdnProcBaseOnDeviceData: null,
@@ -3759,7 +3760,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             AgreedDOJ: null,
             TotalSalary: null,
             SpecialReviewDuration: null,
-            SpecialReviewAmount: null,
+            SpecialReviewAmount: 0,
             Image: null,
             PaymentMode: null,
             PaymentModeEffectiveDate: null,
@@ -3778,7 +3779,16 @@ function employeeInformationController(addressService, fileReader, cboService, c
             EmployeeGroup: null,
             EmpCategoryName: null,
             FixSystemID: null,
-            ExcludeOT: false
+            IsEntryComplete: false,
+            FirstTimeLock: false,
+            Ref1CellPhnNo: null,
+            Ref1Name: null,
+            ApprovalAuthorityId: null,
+            TransportGroupId: null,
+            ResidenceGroupId: null,
+            ExcludeOT: false,
+            IsOutSider: false,
+            EmpCodeType: null
         };
         $scope.employeeNew = Object.assign({}, $scope.model);
         $scope.employeeInformation = Object.assign({}, $scope.model);
