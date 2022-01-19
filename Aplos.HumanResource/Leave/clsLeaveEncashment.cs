@@ -2705,7 +2705,7 @@ WHERE m.EffectiveDate<=els.ToDate AND lt.LeaveType='Earn' AND m.PlantID='" + Pla
                     {
                         //edit
                         DataRow dr = dicEncashment[Key];
-                        if (bplib.clsWebLib.GetBoolData(dr["Isdisburse"].ToString()))
+                        if (bplib.clsWebLib.GetBoolData(dr["isApproved"].ToString()))
                             continue;
 
                         dr.BeginEdit();

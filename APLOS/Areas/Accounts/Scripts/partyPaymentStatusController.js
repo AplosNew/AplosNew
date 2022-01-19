@@ -4187,6 +4187,35 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         showCaptionSummary: true
     }];
 
+
+    $scope.TotalGRNWithoutInvoice = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialTranAmount", dataMember: "TotalMaterialTranAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialBooksCurrencyAmount", dataMember: "TotalMaterialBooksCurrencyAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PLCAmount", dataMember: "PLCAmount", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+    }];
+
+    $scope.TotalInvoiceWithoutGRN = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Gross", dataMember: "Gross", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DebitNoteAmount", dataMember: "DebitNoteAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TaxAmount", dataMember: "TaxAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksGross", dataMember: "BooksGross", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DebitNoteBooksAmount", dataMember: "DebitNoteBooksAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksTaxAmount", dataMember: "BooksTaxAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBalance", dataMember: "BooksBalance", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksWriteOffAmount", dataMember: "BooksWriteOffAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksInvoiceBalance", dataMember: "BooksInvoiceBalance", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+    }];
+
+
     $scope.GetAcceptanceLiabilityMaturityReport = function () {
         try {
             //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
@@ -4768,6 +4797,17 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             //var url = $scope.path + 'EmployeeAdvanceDeductionReportExcelFormat?reportFormat=' + reportFormat + '&Year=' + $scope.year + '&Month=' + $scope.month + '&MonthName=' + $scope.monthname;
 
             var url = $scope.path + 'GRNWithoutInvoiceReportExcelFormat?reportFormat=' + reportFormat + '&ToDate=' + $scope.report.ToDate;
+            $rootScope.report(url);
+        }
+        catch (e) {
+
+        }
+    }
+
+    $scope.InvoiceWithoutGRNReportExcel = function () {
+        var reportFormat = "Excel";
+        try {
+            var url = $scope.path + 'InvoiceWithoutGRNReportExcelFormat?reportFormat=' + reportFormat + '&ToDate=' + $scope.report.ToDate;
             $rootScope.report(url);
         }
         catch (e) {

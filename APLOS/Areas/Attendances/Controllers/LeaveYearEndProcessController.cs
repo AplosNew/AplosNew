@@ -17,6 +17,7 @@ using System;
 //using clsAttendance;
 using Library.Data.Sql;
 using OTSBD.clsLeave;
+using System.Linq;
 #endregion
 
 namespace Aplos.Areas.Attendances.Controllers
@@ -39,6 +40,11 @@ namespace Aplos.Areas.Attendances.Controllers
 
         [Authorize]
         public ActionResult Aplos()
+        {
+            return View();
+        }
+        [Authorize]
+        public ActionResult Approval()
         {
             return View();
         }
@@ -917,6 +923,69 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
+        //encashment edit
+        [HttpGet, Authorize]
+        public ActionResult GetEncashmentForEdit(string Date)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+
+            OTSBD.clsFinalSettlement clsFinal = new clsFinalSettlement();
+            clsFinal.GetEncashmentForEdit(identity.PlantId, Date, out List<Dictionary<string, object>> MainData);
+
+            var _encashedData = MainData.Where(ee => bplib.clsWebLib.GetBoolData(ee["isApproved"].ToString()) == true).ToList();
+            var _encashedPendingData = MainData.Where(ee => bplib.clsWebLib.GetBoolData(ee["isApproved"].ToString()) == false).ToList();
+
+            JsonResult json = Json(new { EncashedData = _encashedData, EncashedPendingData = _encashedPendingData }, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+        [HttpPost]
+        public ActionResult ApproveYearlyEncashent(List<Dictionary<string, object>> Data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (Data == null)
+                    throw new Exception("Please select employee");
+
+                for (int i = 0; i < Data.Count; i++)
+                {
+
+                    if (clsStaticInfo.dbl(Data[i]["YearEndEncashOriginal"]) < clsStaticInfo.dbl(Data[i]["YearEndEncash"]))
+                        throw new Exception("Cannot encash more than allowed days. Employee:" + Data[i]["EmployeeCode"].ToString() + "-" + Data[i]["EmployeeName"].ToString() + " , Max. Encash Days:" + clsStaticInfo.dbl(Data[i]["YearEndEncashOriginal"]));
+                }
+
+
+                OTSBD.clsFinalSettlement clsFinal = new clsFinalSettlement();
+                clsFinal.ApproveYearlyEncashent(Data);
+
+                return Json(new { Message = "Data approval was successful", Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+        [HttpPost]
+        public ActionResult UnApproveYearlyEncashent(List<Dictionary<string, object>> Data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (Data == null)
+                    throw new Exception("Please select employee");
+                OTSBD.clsFinalSettlement clsFinal = new clsFinalSettlement();
+                clsFinal.UnApproveYearlyEncashent(Data);
+
+                return Json(new { Message = "Data un-approval was successful", Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
     }
 }

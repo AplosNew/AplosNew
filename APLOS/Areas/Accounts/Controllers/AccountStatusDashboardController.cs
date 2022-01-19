@@ -1839,7 +1839,7 @@ namespace Aplos.Areas.Accounts.Controllers
             int ColTransactionQty = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Currency", 5, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Currency", 8, ExcelHAlign.HAlignLeft);
             int ColCurrency = COL;
             COL++;
 
@@ -1855,7 +1855,7 @@ namespace Aplos.Areas.Accounts.Controllers
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "PO NO.", 10, ExcelHAlign.HAlignLeft);
-            int ColPOId = COL;
+            int ColPONo = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "PO DocRefNo.", 10, ExcelHAlign.HAlignLeft);
@@ -1929,7 +1929,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 sheet[ROW, ColTotalMaterialBooksCurrencyAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, ColTotalMaterialBooksCurrencyAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet[ROW, ColPOId].Text = data.Rows[i]["POId"].ToString();
+                sheet[ROW, ColPONo].Text = data.Rows[i]["POId"].ToString();
                 sheet[ROW, ColPODocRefNo].Text = data.Rows[i]["PODocRefNo"].ToString();
                 sheet[ROW, ColPINo].Text = data.Rows[i]["PINo"].ToString();
                 sheet[ROW, ColPLCRef].Text = data.Rows[i]["PLCRef"].ToString();
@@ -1952,11 +1952,33 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 ROW++;
             }
+            report.SetHeaderText(ref sheet, ROW, 1, "Total", 10, ExcelHAlign.HAlignLeft);
+            sheet.Range[ROW, ColGRNDate, ROW , ColCurrency].Merge();
+
+            sheet[ROW, ColTotalMaterialTranAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount)  + (ROW-1).ToString()+")";
+            sheet[ROW, ColTotalMaterialTranAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColTotalMaterialTranAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColTotalMaterialTranAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColTotalMaterialTranAmount].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, ColToCurrencyRate, ROW, ColToCurrencyRate].Merge();
+
+            sheet[ROW, ColTotalMaterialBooksCurrencyAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialBooksCurrencyAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialBooksCurrencyAmount) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColTotalMaterialBooksCurrencyAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColTotalMaterialBooksCurrencyAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColTotalMaterialBooksCurrencyAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColTotalMaterialBooksCurrencyAmount].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, ColPONo, ROW, ColExpiryDate].Merge();
+
+            sheet[ROW, ColPLCAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColPLCAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColPLCAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColPLCAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColPLCAmount].CellStyle.Font.Bold = true;
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.NumberFormat = "#,##0.00";
             sheet.UsedRange.WrapText = true;
-            sheet.UsedRange.CellStyle.Font.Size = 8;
+            sheet.UsedRange.CellStyle.Font.Size = 8f;
             report.CompanyHeader(ref sheet, endCol, "GRN Without Invoice", identity.CompanyId);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
@@ -2191,6 +2213,432 @@ namespace Aplos.Areas.Accounts.Controllers
 
 					-- ,con.Id ,con.ContractNo, con.UDNo, cus.UserName 
 				--	,ML.Id , ML.LCRef, ml.Amount";
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+
+        public ActionResult InvoiceWithoutGRNReportExcelFormat(ReportFormat reportFormat, string ToDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "Invoice Without GRN";
+            var workbook = GetInvoiceWithoutGRNReportWorkSheet(identity.CompanyGroupId, identity.PlantId, identity.CompanyId, ToDate);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+                case ReportFormat.Excel:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+                default:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetInvoiceWithoutGRNReportWorkSheet(string companyGroupId, string plantId, string companyId, string toDate)
+        {
+
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            sheet.Name = "InvoiceWithoutGRN";
+
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+
+            DataTable data = InvoiceWithoutGRNList(companyGroupId, plantId, companyId, toDate);
+
+
+            #region Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "Invoice No.", 20, ExcelHAlign.HAlignLeft);
+            int ColInvoiceNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No.", 15, ExcelHAlign.HAlignLeft);
+            int ColDocRefNo = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "LC No.", 15, ExcelHAlign.HAlignLeft);
+            int ColPurchaseLCNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PO No.", 12, ExcelHAlign.HAlignLeft);
+            int ColPONo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 10, ExcelHAlign.HAlignLeft);
+            int ColPartyCode = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Party", 30, ExcelHAlign.HAlignLeft);
+            int ColPartyName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Party Plant", 30, ExcelHAlign.HAlignLeft);
+            int ColPartyPlantName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Voucher No.", 15, ExcelHAlign.HAlignLeft);
+            int ColVoucherNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Doc Date", 10, ExcelHAlign.HAlignLeft);
+            int ColDocDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 10, ExcelHAlign.HAlignLeft);
+            int ColPostingDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Currency", 8, ExcelHAlign.HAlignLeft);
+            int ColCurrencyCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Gross", 15, ExcelHAlign.HAlignRight);
+            int ColGross = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Debit Note Amount", 15, ExcelHAlign.HAlignRight);
+            int ColDebitNoteAmount = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Tax Amount", 15, ExcelHAlign.HAlignRight);
+            int ColTaxAmount = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "GRN Amount", 15, ExcelHAlign.HAlignRight);
+            int ColGRNAmount = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance", 15, ExcelHAlign.HAlignRight);
+            int ColBalance = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Exchange Rate", 15, ExcelHAlign.HAlignRight);
+            int ColCompanyCurrencyRate = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Books Gross", 15, ExcelHAlign.HAlignRight);
+            int ColBooksGross = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Books DebitNote Amount", 15, ExcelHAlign.HAlignRight);
+            int ColDebitNoteBooksAmount = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Books Tax Amount", 15, ExcelHAlign.HAlignRight);
+            int ColBooksTaxAmount = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Books GRN Amount", 15, ExcelHAlign.HAlignRight);
+            int ColBooksSetOff = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Books Balance", 15, ExcelHAlign.HAlignRight);
+            int ColBooksBalance = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books SetOff Amount", 15, ExcelHAlign.HAlignRight);
+            int ColBooksWriteOffAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books Balance", 15, ExcelHAlign.HAlignRight);
+            int ColBooksInvoiceBalance = COL;
+
+            endCol = COL;
+            #endregion Headers
+
+            var startRow = 0;
+
+            int RowIndex = ROW;
+            startRow = ROW;
+            ROW++;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, ColInvoiceNo].Text = data.Rows[i]["InvoiceNo"].ToString();
+                sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+                sheet[ROW, ColPurchaseLCNo].Text = data.Rows[i]["PurchaseLCNo"].ToString();
+                sheet[ROW, ColPONo].Text = data.Rows[i]["PONo"].ToString();
+                sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
+                sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+
+                sheet[ROW, ColPartyPlantName].Text = data.Rows[i]["PartyPlantName"].ToString();
+                sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+                sheet[ROW, ColDocDate].Text = GetDate(data.Rows[i]["DocDate"].ToString());
+                sheet[ROW, ColPostingDate].Text = GetDate(data.Rows[i]["PostingDate"].ToString());
+                sheet[ROW, ColCurrencyCode].Text = data.Rows[i]["CurrencyCode"].ToString();
+
+                sheet[ROW, ColGross].Number = clsStaticInfo.dbl(data.Rows[i]["Gross"].ToString());
+                sheet[ROW, ColGross].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColGross].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColDebitNoteAmount].Number = clsStaticInfo.dbl(data.Rows[i]["DebitNoteAmount"].ToString());
+                sheet[ROW, ColDebitNoteAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColDebitNoteAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColDebitNoteAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxAmount"].ToString());
+                sheet[ROW, ColTaxAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColTaxAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColTaxAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColGRNAmount].Number = clsStaticInfo.dbl(data.Rows[i]["SetOff"].ToString());
+                sheet[ROW, ColGRNAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColGRNAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColGRNAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+                sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColCompanyCurrencyRate].Number = clsStaticInfo.dbl(data.Rows[i]["CompanyCurrencyRate"].ToString());
+                sheet[ROW, ColCompanyCurrencyRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColCompanyCurrencyRate].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColCompanyCurrencyRate].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColBooksGross].Number = clsStaticInfo.dbl(data.Rows[i]["BooksGross"].ToString());
+                sheet[ROW, ColBooksGross].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBooksGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBooksGross].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColDebitNoteBooksAmount].Number = clsStaticInfo.dbl(data.Rows[i]["DebitNoteBooksAmount"].ToString());
+                sheet[ROW, ColDebitNoteBooksAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColDebitNoteBooksAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColDebitNoteBooksAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColBooksTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BooksTaxAmount"].ToString());
+                sheet[ROW, ColBooksTaxAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBooksTaxAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBooksTaxAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColBooksSetOff].Number = clsStaticInfo.dbl(data.Rows[i]["BooksSetOff"].ToString());
+                sheet[ROW, ColBooksSetOff].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBooksSetOff].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBooksSetOff].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColBooksBalance].Number = clsStaticInfo.dbl(data.Rows[i]["BooksBalance"].ToString());
+                sheet[ROW, ColBooksBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBooksBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColBooksWriteOffAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BooksWriteOffAmount"].ToString());
+                sheet[ROW, ColBooksWriteOffAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBooksWriteOffAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBooksWriteOffAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColBooksInvoiceBalance].Number = clsStaticInfo.dbl(data.Rows[i]["BooksInvoiceBalance"].ToString());
+                sheet[ROW, ColBooksInvoiceBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBooksInvoiceBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBooksInvoiceBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+               
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+            report.SetHeaderText(ref sheet, ROW, 1, "Total", 10, ExcelHAlign.HAlignLeft);
+            sheet.Range[ROW, ColDocRefNo, ROW, ColCurrencyCode].Merge();
+
+            sheet[ROW, ColGross].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColGross) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColGross) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColGross].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColGross].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColGross].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, ColToCurrencyRate, ROW, ColToCurrencyRate].Merge();
+
+            sheet[ROW, ColDebitNoteAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColDebitNoteAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColDebitNoteAmount) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColDebitNoteAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColDebitNoteAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColDebitNoteAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColDebitNoteAmount].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, ColPONo, ROW, ColExpiryDate].Merge();
+
+            sheet[ROW, ColTaxAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColTaxAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColTaxAmount) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColTaxAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColTaxAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColTaxAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColTaxAmount].CellStyle.Font.Bold = true;
+
+            sheet[ROW, ColGRNAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColGRNAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColGRNAmount) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColGRNAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColGRNAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColGRNAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColGRNAmount].CellStyle.Font.Bold = true;
+
+            sheet[ROW, ColBalance].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBalance) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBalance) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColBalance].CellStyle.Font.Bold = true;
+
+            sheet[ROW, ColBooksGross].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksGross) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksGross) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColBooksGross].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColBooksGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColBooksGross].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColBooksGross].CellStyle.Font.Bold = true;
+
+            sheet[ROW, ColDebitNoteBooksAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColDebitNoteBooksAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColDebitNoteBooksAmount) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColDebitNoteBooksAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColDebitNoteBooksAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColDebitNoteBooksAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColDebitNoteBooksAmount].CellStyle.Font.Bold = true;
+
+            sheet[ROW, ColBooksTaxAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksTaxAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksTaxAmount) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColBooksTaxAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColBooksTaxAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColBooksTaxAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColBooksTaxAmount].CellStyle.Font.Bold = true;
+
+            sheet[ROW, ColBooksSetOff].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksSetOff) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksSetOff) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColBooksSetOff].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColBooksSetOff].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColBooksSetOff].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColBooksSetOff].CellStyle.Font.Bold = true;
+
+            sheet[ROW, ColBooksBalance].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksBalance) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksBalance) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColBooksBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColBooksBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColBooksBalance].CellStyle.Font.Bold = true;
+
+            sheet[ROW, ColBooksWriteOffAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksWriteOffAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksWriteOffAmount) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColBooksWriteOffAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColBooksWriteOffAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColBooksWriteOffAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColBooksWriteOffAmount].CellStyle.Font.Bold = true;
+
+            sheet[ROW, ColBooksInvoiceBalance].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksInvoiceBalance) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksInvoiceBalance) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColBooksInvoiceBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColBooksInvoiceBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColBooksInvoiceBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColBooksInvoiceBalance].CellStyle.Font.Bold = true;
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.NumberFormat = "#,##0.00";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8f;
+            report.CompanyHeader(ref sheet, endCol, "GRN Without Invoice", identity.CompanyId);
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+        public DataTable InvoiceWithoutGRNList(string companyGroupId, string plantId, string companyId, string toDate)
+        {
+            try
+            {
+
+                string strSQL = string.Empty;
+                strSQL = @"select x.* from (
+
+                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,isnull( V.VoucherNo,'')VoucherNo,IVD.InvoiceId,VD.VoucherId,isnull( PDA.InvoiceNo,'')InvoiceNo
+										 ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,PONo= isnull( STUFF((select distinct ','+xpomap.POId from
+											dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+											LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
+										where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+                                        , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo
+										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
+										, C.Code CurrencyCode
+										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
+										
+										,Days=DATEDIFF(DAY, GETDATE(),IV.BaseOnDueDate)
+										,AgingInvoice= case 
+													--	when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then 'Overdue'
+
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
+
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+															end
+										,AgingSorting= case 
+														--when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then '1.Overdue'
+
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
+
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
+															end
+
+										, ISNULL(IVD.NetAmount,0) AS Gross
+										,0 DebitNoteAmount
+										,isnull( IWD.TaxAmount ,0)TaxAmount,
+                                         SetOff=ISNULL(IRD.TotalMaterialTranAmount, 0) 
+										 , ISNULL(IVD.NetAmount-ISNULL(IRD.TotalMaterialTranAmount, 0),0) AS Balance
+
+										,CC.CompanyCurrencyRate
+										,ISNULL(IVD.NetAmount*CC.CompanyCurrencyRate,0) AS BooksGross
+								    	,0 DebitNoteBooksAmount
+										,isnull(IWD.TaxAmount* CC.CompanyCurrencyRate,0) BooksTaxAmount
+										,ISNULL (ISNULL(IRD.TotalMaterialTranAmount, 0)*CC.CompanyCurrencyRate,0)   AS BooksSetOff
+										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(ISNULL(IRD.TotalMaterialTranAmount, 0)*CC.CompanyCurrencyRate),0) AS BooksBalance
+										,ISNULL (ISNULL(IDND.WriteOffAmount, 0)*CC.CompanyCurrencyRate,0)   AS BooksWriteOffAmount
+										,ISNULL((IVD.NetAmount*CC.CompanyCurrencyRate)-(ISNULL(IDND.WriteOffAmount, 0)*CC.CompanyCurrencyRate),0) AS BooksInvoiceBalance
+                                        FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+										LEFT JOIN TRN.PurchasedocAcceptance AS PDA ON IV.PurchaseDocAcceptanceId=PDA.Id
+									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+										LEFT JOIN (SELECT PurchaseDocumentAcceptanceId,SUM(MaterialTranAmount) MaterialTranAmount
+											,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
+											,SUM(ChargesTaxTranAmount) ChargesTaxTranAmount
+											FROM TRN.InventoryReceiveDetail GROUP BY PurchaseDocumentAcceptanceId) AS IRD ON IRD.PurchaseDocumentAcceptanceId=PDA.Id
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+								        LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+								            where w.PaymentSource='Tax'
+								            group by wd.InvoiceDetailId
+								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
+
+                                         LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) WriteOffAmount  FROM TRN.InvoiceWriteOffDetail WD 
+								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
+								                where WD.InvoiceDetailId<>'' and DNW.PaymentSource<>'Tax'
+								                group by wd.InvoiceDetailId
+								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
+										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                        WHERE IV.Archive=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('PurchaseDocAcceptance')
+                                        AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"'
+                                       
+                                        and IV.PostingDate <= '" + toDate + @"'
+										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
+										) x
+                                        where x.Balance>0
+										order by x.SortDocDate asc";
                 return _sqlRepository.GetDataTable(strSQL);
             }
             catch (Exception ex)
