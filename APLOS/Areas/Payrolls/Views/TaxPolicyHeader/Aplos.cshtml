@@ -312,7 +312,8 @@
                                             </select>
                                         </div>
                                     </div>
-                                </div>                                
+                                </div>
+
                             </div>
 
                             <div class="col-xs-12 col-sm-6 col-md-6">
@@ -328,16 +329,25 @@
                                     <label class="col-sm-4 control-label">Tax Saving Group</label>
                                     <div class="col-sm-4 show-message">
                                         <div class="select-style">
-                                            <select ng-model="InvestDeductModel.TaxSavingGroupId" id="SalaryHeadFormula" class="form-control" name="SalaryHead" ng-change="fillMaxLimit();" ng-options="item.Id as item.Username for item in TaxSavingGroupList" tabindex="5">
-                                                <option value=""></option>
+                                            <select ng-model="InvestDeductModel.TaxSavingGroupId" 
+                                             class="form-control" ng-change="fillMaxLimit();" 
+                                             ng-options="item.Id as item.Username for item in TaxSavingGroupList" >
+                                            <option value=""></option>
                                             </select>
                                         </div>
                                     </div>
-                                    @*<div id="taxGroupLimit" style="display:none; margin-top:10px;" class="col-sm-4 show-message">
-                                        <b>Max Limit : {{maxLimit}}</b>
-                                    </div>*@
-                                </div>                     
+                                    <div id="taxGroupLimit" style="display:none; margin-top:10px;" class="col-sm-4 show-message">
+                                    <b>Max Limit : {{maxLimit}}</b>
+                                    </div>
+                                </div>
 
+                            </div>
+
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="Save();" class="btn" ><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                    <li> <button ng-click="ClearMasterFields();" class="btn" style="margin-right:15px"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
                             </div>
 
                             <div class="col-xs-12">

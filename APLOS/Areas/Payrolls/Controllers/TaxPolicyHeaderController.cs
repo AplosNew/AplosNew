@@ -276,6 +276,28 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+        [HttpPost, Authorize]
+        public JsonResult Create(Dictionary<string, object> data)
+        {
+            try {
+                if (data["TaxTypeId"] == null)
+                {
+                    throw new Exception("Select Tax Type");
+                }
+                if (data["TaxSavingGroupId"] == null)
+                {
+                    throw new Exception("Select Tax Saving Group");
+                }
+                var datax = ds.Create(data);
+                return Json(new { Error = false, Data = datax, Message = AplosMessage.Updated });
+            }catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }            
+        }
+
+
         #endregion
 
     }
