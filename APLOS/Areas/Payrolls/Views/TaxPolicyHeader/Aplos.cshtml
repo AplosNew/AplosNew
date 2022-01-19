@@ -112,7 +112,7 @@
             <div class="site-tab">
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="EarningMasterChild" role="tab" data-toggle="tab">Earning Master</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="InvestmentDeductionMaster" role="tab" data-toggle="tab">Investment/Deduction Master</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="InvestmentDeductionMaster" role="tab" data-toggle="tab">Investment <strong>/</strong> Deduction Master</a></li>
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Tagging</a></li>
                 </ul>
             </div>
@@ -298,53 +298,45 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Header Id</label>
                                     <div class="col-sm-8">
-                                        <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxPolicyHeaderId" class="form-control" maxlength="100" readonly>
-                                    </div>
-                                </div>
-
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="EarningMasterModel.StandardName" name="Standard Name" class="form-control" maxlength="30" required>
+                                        <input type="text" onkeypress="return isNumber(event)" ng-model="InvestDeductModel.TaxPolicyHeaderId" class="form-control" maxlength="100" readonly>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">Remarks</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" ng-model="EarningMasterModel.Remarks" class="form-control" maxlength="200">
+                                    <label class="col-sm-4 control-label">Tax Type</label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" name="TaxType" id="TaxType" ng-model="InvestDeductModel.TaxTypeId">
+                                                <option value=""></option>
+                                                <option ng-repeat="option in TaxTypeList" value="{{option.Id}}">{{option.Username}}</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-
+                                </div>                                
                             </div>
 
                             <div class="col-xs-12 col-sm-6 col-md-6">
 
                                 <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                                    <label class="col-sm-4 control-label">UserCode<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="EarningMasterModel.UserName" class="form-control" maxlength="100" required>
-                                    </div>
-                                </div>
-
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="EarningMasterModel.ShortName" class="form-control" maxlength="100" required>
+                                        <input type="text" ng-model="InvestDeductModel.UserCode" class="form-control" maxlength="50" required>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">Active</label>
-                                    <div class="col-sm-8">
-                                        <div class="checkbox-site" style="margin-top:7px;">
-                                            <label>
-                                                <input type="checkbox" ng-model="EarningMasterModel.Active">
-                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                            </label>
+                                    <label class="col-sm-4 control-label">Tax Saving Group</label>
+                                    <div class="col-sm-4 show-message">
+                                        <div class="select-style">
+                                            <select ng-model="InvestDeductModel.TaxSavingGroupId" id="SalaryHeadFormula" class="form-control" name="SalaryHead" ng-change="fillMaxLimit();" ng-options="item.Id as item.Username for item in TaxSavingGroupList" tabindex="5">
+                                                <option value=""></option>
+                                            </select>
                                         </div>
                                     </div>
-                                </div>
+                                    @*<div id="taxGroupLimit" style="display:none; margin-top:10px;" class="col-sm-4 show-message">
+                                        <b>Max Limit : {{maxLimit}}</b>
+                                    </div>*@
+                                </div>                     
 
                             </div>
 
