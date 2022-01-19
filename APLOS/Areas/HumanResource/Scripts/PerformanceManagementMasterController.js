@@ -5,14 +5,14 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/PerformanceManagementMaster/';
-   /* $scope.getListUrl = $scope.path + 'getlist';*/
+    /*$scope.getListUrl = $scope.path + 'getlist';*/
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
-    /*baseService.init($scope.getListUrl);*/
+  /*  baseService.init($scope.getListUrl);*/
     $scope.searchBy = null; $scope.search = null;
-    //$scope.searchBy = "UserName"; $scope.search = "";
-    //$scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.searchBy = "UserName"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
   
     $scope.ID = null;
