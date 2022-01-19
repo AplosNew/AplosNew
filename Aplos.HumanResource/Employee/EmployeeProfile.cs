@@ -1278,7 +1278,16 @@ namespace Aplos.HumanResource
                 drLocal["IsEntryComplete"] = false;
                 drLocal["FirstTimeLock"] = false;
                 drLocal["RegisterProximate"] = false;
+                drLocal["IsApproved"] = false;
+                drLocal["ApplyingAsFresher"] = false;
+                drLocal["IsKnownPerson"] = false;
+                drLocal["IsImage"] = false;
+                drLocal["IsAccessible"] = false;
+                drLocal["PreviouslyWorkedHere"] = false;
+                drLocal["AnyRelativeWorkedHere"] = false;
+                drLocal["NumberOfKnownPerson"] = 0;
                 
+                    
 
                 //drLocal["Ref1Name"] = data.Ref1Name;
                 //drLocal["Ref1CellPhnNo"] = data.Ref1CellPhnNo;
