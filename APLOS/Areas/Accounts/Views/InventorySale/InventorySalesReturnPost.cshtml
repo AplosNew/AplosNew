@@ -194,7 +194,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in inventorySalesJV">
+                            <tr ng-repeat="x in inventorySalesJV ">
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
@@ -276,7 +276,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in inventoryJV">
+                            <tr ng-repeat="x in inventoryJV ">
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
@@ -502,7 +502,7 @@
         </div>
     </div>
 </div>
-@Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedSalesDetailPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/InventorySale/_ApprovedSalesReturnDetailPopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_PartyOtherPopUpNew.cshtml")
 
 <div class="modal fade site-modal in" id="JournalPopUp" role="dialog" data-backdrop="static">
