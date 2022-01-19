@@ -766,4 +766,45 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
+    // #region Investment Deduction Functions
+
+    //Getting the Tax Type
+    $scope.TaxTypeList = [];
+    $scope.getTaxType = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetTaxType',
+        }).then(function successCallback(response) {
+            $scope.TaxTypeList = response.data;
+        });
+    }
+    $scope.getTaxType();
+
+    // Tax Saving Group 
+    $scope.TaxSavingGroupList = [];
+    $scope.taxSavingGroup = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path+ 'getTaxSavingGroup',
+            dataType: 'JSON'
+        }).then(function success(response) {
+            $scope.TaxSavingGroupList = response.data;
+        });
+    }
+    $scope.taxSavingGroup();
+
+    // Tax Investment Item
+    $scope.TaxSavingItemList = [];
+    $scope.taxSavingItem = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path +'getTaxSavingItem',
+            dataType: 'JSON'
+        }).then(function success(response) {
+            $scope.TaxSavingItemList = response.data;
+        });
+    }
+    $scope.taxSavingItem();
+
+    //#endregion
 }
