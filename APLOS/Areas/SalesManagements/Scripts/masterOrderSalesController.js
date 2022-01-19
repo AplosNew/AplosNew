@@ -1918,7 +1918,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     };
 
     $scope.closeInvoicingPartyPopUp = function () {
-        if ($scope.salesMaterialList.length || $scope.chargesList.length) {
+        //$scope.salesMaterialList
+        if ($scope.selectedMasterOrderItemList.length || $scope.chargesList.length) {
             if (!baseService.isUndefinedOrNull($scope.salesVM.ChangeInvoicingStateId)) {
                 if ($scope.salesVM.PlantStateId == $scope.salesVM.InvoicingStateId == $scope.salesVM.ChangeInvoicingStateId)
                     angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
