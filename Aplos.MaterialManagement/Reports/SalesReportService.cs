@@ -635,9 +635,8 @@ namespace Library.MaterialManagement.Reports
 
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
 
             }
 
@@ -2327,7 +2326,7 @@ namespace Library.MaterialManagement.Reports
             try
             {
                 strSQL = @"select PO.SalesId,PO.Id SalesMaterialId,IRT.Id AS SalesTax,tg.Code AS TaxCode,IRT.Percentage, IRT.Amount TaxAmount
-,po.BooksCurrencyTaxAmount,po.BooksCurrencyTransactionAmount
+,IRT.BooksCurrencyTransactionAmount BooksCurrencyTaxAmount,po.BooksCurrencyTransactionAmount
 								from TRN.[SalesService] PO
                                Inner join trn.SalesTax IRT ON IRT.SalesServiceId = PO.Id 
                                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId

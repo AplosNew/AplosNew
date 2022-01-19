@@ -1272,8 +1272,22 @@ namespace Aplos.HumanResource
                 drLocal["DOB"] = bplib.clsWebLib.DateData_AppToDB(data.DOB, bplib.clsWebLib.DB_DATE_FORMAT);
                 drLocal["BirthdayCelebrationDate"] = bplib.clsWebLib.DateData_AppToDB(data.BirthdayCelebrationDate, bplib.clsWebLib.DB_DATE_FORMAT);
                 drLocal["DOJ"] = bplib.clsWebLib.DateData_AppToDB(data.DOJ, bplib.clsWebLib.DB_DATE_FORMAT);
-
-
+                drLocal["SalaryPercentage"] = 0;
+                drLocal["RegisterFP"] = false;
+                drLocal["IsAttdnProcBaseOnDeviceData"] = false;
+                drLocal["IsEntryComplete"] = false;
+                drLocal["FirstTimeLock"] = false;
+                drLocal["RegisterProximate"] = false;
+                drLocal["IsApproved"] = false;
+                drLocal["ApplyingAsFresher"] = false;
+                drLocal["IsKnownPerson"] = false;
+                drLocal["IsImage"] = false;
+                drLocal["IsAccessible"] = false;
+                drLocal["PreviouslyWorkedHere"] = false;
+                drLocal["AnyRelativeWorkedHere"] = false;
+                drLocal["NumberOfKnownPerson"] = 0;
+                
+                    
 
                 //drLocal["Ref1Name"] = data.Ref1Name;
                 //drLocal["Ref1CellPhnNo"] = data.Ref1CellPhnNo;

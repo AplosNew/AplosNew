@@ -74,11 +74,11 @@ namespace Library.OrderManagement.Sales
 
                             , ExistSalesQty=ISNULL(case when SCH.CharacteristicsValueId<>''  then SCH.SalesQty
 										when FCH.CharacteristicsValueId<>'' then FCH.SalesQty end,
-										A.TransactionQty)
+										SM.TransactionQty)
 							,Balance=(SELECT isnull(case when SCH.CharacteristicsValueId<>'' then SCH.Qty
 										when FCH.CharacteristicsValueId<>'' then FCH.Qty 
 										else SO.Qty end, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))-ISNULL(case when SCH.CharacteristicsValueId<>'' then SCH.SalesQty
-										when FCH.CharacteristicsValueId<>'' then FCH.SalesQty end,A.TransactionQty)
+										when FCH.CharacteristicsValueId<>'' then FCH.SalesQty end,SM.TransactionQty)
 
                     FROM [TRN].[SalesOrder] AS SO
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
@@ -103,12 +103,7 @@ namespace Library.OrderManagement.Sales
 
 					   LEFT JOIN TRN.ProductDefinition AS PD ON PD.MaterialMasterId=MOI.MaterialMasterId
 					   LEFT JOIN MST.ProductMaster AS PM ON PM.Id=PD.ProductMasterId
-
-                        LEFT JOIN(
-					     Select SUM(SM.TransactionQty) TransactionQty,SM.SalesOrderId from TRN.SalesMaterial SM
-                        JOIN TRN.SalesOrderItem SOI ON SOI.SalesId=SM.SalesId
-                        Where SOI.MasterOrderItemId " + masterOrderId + @" GROUP BY  SM.SalesOrderId
-					   ) A ON A.SalesOrderId=SO.Id
+                       JOIN (SELECT SUM(TransactionQty) TransactionQty,SalesOrderId FROM TRN.SalesMaterial GROUP BY  SalesOrderId) SM ON SM.SalesOrderId=SO.Id
 
                     WHERE MOI.Id " + masterOrderId + " ORDER BY SO.DeliveryDate";
                 return _sqlRepository.GetDataCollection(sql);
@@ -122,7 +117,9 @@ namespace Library.OrderManagement.Sales
         public List<Dictionary<string, object>> GetMasterOrderSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
         {
 
-            var cmdText = @"SELECT SM.*,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
+            try
+            {
+                var cmdText = @"SELECT SM.*,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
             , BUoM.UserName AS BaseUoM, TUoM.UserName AS TransactionUoM
             , CU.Code AS Currency,NULL TaxList ,FC.ValueFreeText,FCV.UserName AS [FreeText] 
             , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue
@@ -141,13 +138,19 @@ namespace Library.OrderManagement.Sales
             ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
 			, SO.SOType,SO.Rate
            ,0 SalesQty
-          ,Balance=SM.TransactionQty-ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
-										when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 
-							end,0)
-           ,ExistSalesQty=
-							ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
-										when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 
-							end,0)
+          --   ,Balance=SM.TransactionQty-ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
+							--			when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 
+							--end,0)
+       --    ,ExistSalesQty=ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
+							--			when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 
+							--end,0)
+							, ExistSalesQty=ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
+										when FC.CharacteristicsValueId<>'' then FC.SalesQty end,
+										SM.TransactionQty)
+							,Balance=(SELECT isnull(case when SC.CharacteristicsValueId<>'' then SC.Qty
+										when FC.CharacteristicsValueId<>'' then FC.Qty 
+										else SO.Qty end, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))-ISNULL(case when SC.CharacteristicsValueId<>'' then SC.SalesQty
+										when FC.CharacteristicsValueId<>'' then FC.SalesQty end,SM.TransactionQty)
                 ,SM.TransactionQty TempSalesQty
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
 	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
@@ -179,7 +182,14 @@ namespace Library.OrderManagement.Sales
             JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
             WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + "'";
 
-            return _sqlRepository.GetDataCollection(cmdText);
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
         }
 
         public List<Dictionary<string, object>> GetSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
@@ -513,7 +523,7 @@ namespace Library.OrderManagement.Sales
         }
 
 
-        
+
 
     }
 

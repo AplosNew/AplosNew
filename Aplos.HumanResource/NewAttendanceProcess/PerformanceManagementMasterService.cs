@@ -91,8 +91,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where StandardName = '" + data["StandardName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Item Name already exists!!!");
-         
+                    throw new Exception("Same StandardName already exists!!!");
+            
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName = '" + data["UserName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same UserName already exists!!!");
+
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
               
@@ -104,7 +108,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "PMM" + _Id;
+                    data["Id"] = "PM" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -135,15 +139,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("dbo.PMSChild", out _IdC); 
 
-                    dr["Id"] =data ["Id"] + _IdC;
-                    dr["Sequence"] = data["Sequence"].ToString();
-                    dr["EmployeeId"] = data["Id"].ToString();
-                    dr["EmployeeCategoryId"] = data["Id"].ToString();
+                    dr["Id"] ="PMC"+ _IdC;
+                    dr["PMSMasterId"] = data["Id"].ToString();
+                    dr["EmployeeCategoryId"] = Employee[i].ToString();
                     dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedDate"] = DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
                     dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
                     dsChild.Tables[0].Rows.Add(dr);
                 }
@@ -161,68 +164,68 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
-                Console.WriteLine("haoi");
+               
                 throw ex;
 
             }
         }
-        public string SaveData(IEnumerable<PerformanceModel> DataToSave)
-        {
-            try
-            {
-                DataSet dsMaster;
+        //public string SaveData(IEnumerable<PerformanceModel> DataToSave)
+        //{
+        //    try
+        //    {
+        //        DataSet dsMaster;
 
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-                List<PerformanceModel> items = DataToSave.ToList();
+        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+        //        if (DataToSave.Count() == 0)
+        //            return "";
+        //        List<PerformanceModel> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from dbo.PMSMaster where 1=2", out dsMaster, false, "1");
+        //        con.OpenDataSetThroughAdapter("select * from dbo.PMSMaster where 1=2", out dsMaster, false, "1");
 
-                foreach (PerformanceModel item in DataToSave)
-                {
+        //        foreach (PerformanceModel item in DataToSave)
+        //        {
 
-                    if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-
-                        bplib.clsGenID id = new bplib.clsGenID();
-                        id.GenIDYearly(DateTime.Now.ToShortDateString(), "PMSMaster", out string NewId);
-
-                        dr["Sequence"] = item.Sequence;
-                        dr["Category"] = item.Category;
-                        dr["SubCategory"] = item.SubCategory;
-                        dr["StandardName"] = item.StandardName;
-                        dr["Username"] = item.Username;
-                        dr["ShortName"] = item.ShortName;
-                        dr["Code"] = item.Code;
-                        dr["Active"] = item.Active;
-                        dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = DateTime.Now.ToString();
-                        dr["AddedFromIP"] = item.AddedFromIP;
-
-                        dsMaster.Tables[0].Rows.Add(dr);
+        //            if (dsMaster.Tables[0].Rows.Count == 0)
+        //            {
+        //                DataRow dr = dsMaster.Tables[0].NewRow();
 
 
-                    }
+        //                bplib.clsGenID id = new bplib.clsGenID();
+        //                id.GenIDYearly(DateTime.Now.ToShortDateString(), "PMSMaster", out string NewId);
 
-                }
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                if (MasterId.Contains("WT"))
-                {
-                    return "true";
-                }
-                return "false";
+        //                dr["Sequence"] = item.Sequence;
+        //                dr["Category"] = item.Category;
+        //                dr["SubCategory"] = item.SubCategory;
+        //                dr["StandardName"] = item.StandardName;
+        //                dr["Username"] = item.Username;
+        //                dr["ShortName"] = item.ShortName;
+        //                dr["Code"] = item.Code;
+        //                dr["Active"] = item.Active;
+        //                dr["AddedBy"] = item.AddedBy;
+        //                dr["AddedDate"] = DateTime.Now.ToString();
+        //                dr["AddedFromIP"] = item.AddedFromIP;
 
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-        }
+        //                dsMaster.Tables[0].Rows.Add(dr);
+
+
+        //            }
+
+        //        }
+        //        clsStaticInfo _info = new clsStaticInfo();
+        //        _info.SaveDataSets(dsMaster);
+        //        string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+        //        if (MasterId.Contains("WT"))
+        //        {
+        //            return "true";
+        //        }
+        //        return "false";
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return ex.ToString();
+        //    }
+        //}
         public class PerformanceModel
         {
             public string Sequence { get; set; }

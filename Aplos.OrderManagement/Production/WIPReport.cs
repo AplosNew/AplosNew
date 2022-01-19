@@ -284,12 +284,6 @@ namespace Library.OrderManagement.Production
                 int iMaterialMasterArticle = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Article";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 14;
-
-                xlsCol++;
-                int iSkuOne = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "SKU 1";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
                 xlsCol++;
                 int iSoDescription = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "SO.Description";
@@ -413,7 +407,7 @@ namespace Library.OrderManagement.Production
                 int iRemarks = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Remarks";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                
+
 
                 endXlsCol = xlsCol;
 
@@ -451,7 +445,6 @@ namespace Library.OrderManagement.Production
                     sheet1[xlsRow, iProductionStatus].Text = dtMainData.Rows[i]["ProductionStatus"].ToString();
                     sheet1[xlsRow, iRemarks].Text = dtMainData.Rows[i]["ProductionRemarks"].ToString();
                     sheet1[xlsRow, iWorkcenter].Text = dtMainData.Rows[i]["Workcenter"].ToString();
-                    sheet1[xlsRow, iSkuOne].Text = dtMainData.Rows[i]["sku1"].ToString();
 
                     sheet1[xlsRow, iOrderNos].Text = dtMainData.Rows[i]["MasterOrderId"].ToString();
 
@@ -466,11 +459,11 @@ namespace Library.OrderManagement.Production
                         DataRow drData;
                         if (Process.Key == BaseProcessId)
                         {
-                            if (Process.Value.ContainsKey(dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString() + "-" + dtMainData.Rows[i]["Characteristics1ValueId"].ToString()) == false)
+                            if (Process.Value.ContainsKey(dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString()) == false)
                                 continue;
 
-                            drData = Process.Value[dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString() + "-" + dtMainData.Rows[i]["Characteristics1ValueId"].ToString()];
-                            Process.Value.Remove(dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString() + "-" + dtMainData.Rows[i]["Characteristics1ValueId"].ToString());
+                            drData = Process.Value[dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString()];
+                            Process.Value.Remove(dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString());
                         }
                         else
                         {
@@ -529,11 +522,11 @@ namespace Library.OrderManagement.Production
                         DataRow drData;
                         if (Process.Key == BaseProcessId)
                         {
-                            if (Process.Value.ContainsKey(dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString() + "-" + dtMainData.Rows[i]["Characteristics1ValueId"].ToString()) == false)
+                            if (Process.Value.ContainsKey(dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString()) == false)
                                 continue;
 
-                            drData = Process.Value[dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString() + "-" + dtMainData.Rows[i]["Characteristics1ValueId"].ToString()];
-                            Process.Value.Remove(dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString() + "-" + dtMainData.Rows[i]["Characteristics1ValueId"].ToString());
+                            drData = Process.Value[dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString()];
+                            Process.Value.Remove(dtMainData.Rows[i]["ProductionOrderId"].ToString() + "-" + dtMainData.Rows[i]["WorkCenterMasterId"].ToString());
                         }
                         else
                         {
@@ -1798,7 +1791,7 @@ namespace Library.OrderManagement.Production
 
                 string strSql = "";
 
-                strSql = @"SELECT prDetail.*,prsum.*,wcm.UserName AS WorkCenter,wcm.Sequence AS WorkCenterSequence,e.UserName AS Entity,p.UserName AS Plant,cv.UserName sku1 FROM 
+                strSql = @"SELECT prDetail.*,prsum.*,wcm.UserName AS WorkCenter,wcm.Sequence AS WorkCenterSequence,e.UserName AS Entity,p.UserName AS Plant FROM 
                             (SELECT
                             PO.Id,case when ISNULL(  POS.Qty, 0)=0 then PO.PlannedQty else POS.Qty end as Qty,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName,
                            
@@ -1890,58 +1883,40 @@ namespace Library.OrderManagement.Production
                             WHERE (isnull(s.StandardName,'')<>'Closed' OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + date + @"'))) prDetail 
                                                  INNER JOIN 
                             (	
-                                select ProductionOrderId,WorkCenterMasterId,K.Characteristics1ValueId,SUM(InQuantity) AS InQuantity,SUM(OutQuantity) AS OutQuantity,SUM(KillQuantity) AS KillQuantity   from 
-			                        (SELECT ps.ProductionOrderId,PS.ToWorkCenterMasterId AS WorkCenterMasterId,xd.Characteristics1ValueId,case when ps.ProductionGrade='A' THEN xD.Quantity else 0 END AS InQuantity,0 AS OutQuantity,0 AS KillQuantity 
+                                select ProductionOrderId,WorkCenterMasterId,SUM(InQuantity) AS InQuantity,SUM(OutQuantity) AS OutQuantity,SUM(KillQuantity) AS KillQuantity   from 
+			                        (SELECT ps.ProductionOrderId,PS.ToWorkCenterMasterId AS WorkCenterMasterId,case when ps.ProductionGrade='A' THEN Quantity else 0 END AS InQuantity,0 AS OutQuantity,0 AS KillQuantity 
 				                        FROM trn.ProductionSummary AS ps
-                                LEFT JOIN (
-				                        SELECT psd.ProductionSummaryId,psd.Characteristics1ValueId,SUM(psd.Qty) AS Quantity
-				                                   FROM trn.ProductionSummaryDetail AS psd
-				                        GROUP BY psd.ProductionSummaryId,psd.Characteristics1ValueId
-				                        	
-				                        ) xd ON xd.ProductionSummaryId = ps.Id
 			                         WHERE ps.ToProcessId='" + processId + @"' AND convert(date,ps.ProductionDate)" + Criteria + @"convert(date,'" + date + @"') 
 
 			                         union all 
 			 
-			                         SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,xd.Characteristics1ValueId,0 AS InQuantity,case when ps.ProductionGrade='A' THEN xD.Quantity else 0 END AS OutQuantity,0 AS KillQuantity 
+			                         SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,0 AS InQuantity,case when ps.ProductionGrade='A' THEN Quantity else 0 END AS OutQuantity,0 AS KillQuantity 
 				                        FROM trn.ProductionSummary AS ps
-                                LEFT JOIN (
-				                        SELECT psd.ProductionSummaryId,psd.Characteristics1ValueId,SUM(psd.Qty) AS Quantity
-				                                   FROM trn.ProductionSummaryDetail AS psd
-				                        GROUP BY psd.ProductionSummaryId,psd.Characteristics1ValueId
-				                        	
-				                        ) xd ON xd.ProductionSummaryId = ps.Id
 			                         WHERE ps.ProcessId='" + processId + @"' AND convert(date,ps.ProductionDate)" + Criteria + @"convert(date,'" + date + @"') 
 
 			                          union all 
 			 
-			                         SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,xd.Characteristics1ValueId,0 AS InQuantity,0 AS OutQuantity,case when ps.ProductionGrade<>'A' THEN xD.Quantity else 0 END  AS KillQuantity 
+			                         SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,0 AS InQuantity,0 AS OutQuantity,case when ps.ProductionGrade<>'A' THEN Quantity else 0 END  AS KillQuantity 
 				                        FROM trn.ProductionSummary AS ps
-                                LEFT JOIN (
-				                        SELECT psd.ProductionSummaryId,psd.Characteristics1ValueId,SUM(psd.Qty) AS Quantity
-				                                   FROM trn.ProductionSummaryDetail AS psd
-				                        GROUP BY psd.ProductionSummaryId,psd.Characteristics1ValueId
-				                        	
-				                        ) xd ON xd.ProductionSummaryId = ps.Id
 			                         WHERE ps.ProcessId='" + processId + @"' AND convert(date,ps.ProductionDate)" + Criteria + @"convert(date,'" + date + @"') 
                                     
                                     union all 
 			 
-			                         SELECT q.ProductionOrderId,q.WorkCenterMasterID,null as Characteristics1ValueId,0 AS InQuantity,0 AS OutQuantity,isnull(q.DefectiveQty,0) AS  KillQuantity
+			                         SELECT q.ProductionOrderId,q.WorkCenterMasterID,0 AS InQuantity,0 AS OutQuantity,isnull(q.DefectiveQty,0) AS  KillQuantity
                                       FROM trn.Quality AS q
                                       JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=q.WorkCenterMasterID
 			                         WHERE wcm.ProcessId='" + processId + @"' AND convert(date,Q.ProductionDate)" + Criteria + @"convert(date,'" + date + @"') 
-			                ) AS K group by ProductionOrderId,WorkCenterMasterId,Characteristics1ValueId) prSum ON prDetail.Id = prSum.ProductionOrderId
+			                ) AS K group by ProductionOrderId,WorkCenterMasterId) prSum ON prDetail.Id = prSum.ProductionOrderId
                             left join scs.WorkCenterMaster AS wcm ON wcm.Id = prSum.WorkCenterMasterId
                             JOIN org.Entity AS e ON e.Id=wcm.EntityId
                             JOIN org.Plant AS p ON p.Id=e.PlantId
-                            LEFT JOIN hkp.CharacteristicsValue AS cv ON cv.Id=prSum.Characteristics1ValueId
+
 				ORDER BY wcm.Sequence";
 
                 dt = _sqlRepository.GetDataTable(strSql);
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    prOrderDic.Add(dt.Rows[i]["ProductionOrderId"].ToString() + "-" + dt.Rows[i]["WorkCenterMasterId"].ToString()+ "-" +dt.Rows[i]["Characteristics1ValueId"].ToString(), dt.Rows[i]);
+                    prOrderDic.Add(dt.Rows[i]["ProductionOrderId"].ToString() + "-" + dt.Rows[i]["WorkCenterMasterId"].ToString(), dt.Rows[i]);
                     if (strColProductionOrder.Contains(dt.Rows[i]["ProductionOrderId"].ToString()) == false)
                         strColProductionOrder.Add(dt.Rows[i]["ProductionOrderId"].ToString());
                 }

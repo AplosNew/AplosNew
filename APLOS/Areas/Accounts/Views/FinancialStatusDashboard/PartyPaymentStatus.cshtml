@@ -547,33 +547,36 @@
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
                     <div class="row">
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="col-xs-12 col-sm-5 col-md-5">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                                    <div class="col-sm-8">
-                                        <input e-dateformat="dd-MMM-yyyy" @*e-change="getDateRangeWisePaymentData"*@ ej-datepicker e-value="reportParameters.FromDate" />
+                        <fieldset class="scheduler-border">
+                                <div class="col-xs-12 col-sm-5 col-md-5">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                        <div class="col-sm-8">
+                                            <input e-dateformat="dd-MMM-yyyy" @*e-change="getDateRangeWisePaymentData"*@ ej-datepicker e-value="reportParameters.FromDate" />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="col-xs-12 col-sm-5 col-md-5">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                                    <div class="col-sm-8">
-                                        <input e-dateformat="dd-MMM-yyyy" @*e-change="getDateRangeWisePaymentData"*@ ej-datepicker e-value="reportParameters.ToDate" />
+                                <div class="col-xs-12 col-sm-5 col-md-5">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                        <div class="col-sm-8">
+                                            <input e-dateformat="dd-MMM-yyyy" @*e-change="getDateRangeWisePaymentData"*@ ej-datepicker e-value="reportParameters.ToDate" />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="GetDateRangeWisePaymentData();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
-                                    </ul>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="GetDateRangeWisePaymentData();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                        </fieldset>
+
+
+
                         <div class="col-xs-12">
                             <div style="color:black;" id="GridSelectedMasterPayment" ej-grid e-datasource="DateRangeWisePaymentList"
                                  e-gridlines="vertical" e-allowfiltering="true" e-rowdatabound="preparedByrowcolor" e-allowpaging="true" e-allowsorting="true"
@@ -892,37 +895,16 @@
                     <div class="row">
                         @*<div class="col-xs-12 col-sm-4 col-md-4">*@
                         <fieldset class="scheduler-border">
-                            @*<div class="form-group" show-errors>
-
-                                <div class="col-sm-12 radio">
-                                        <label>
-                                            <input type="radio" name="source2" ng-model="dateRange" value=false ng-change="viewChange()">
-                                            <span class="cr" tabindex="1"><i class="cr-icon"></i></span>As On Date
-                                        </label>
-                                        <label>
-                                            <input type="radio" name="source2" ng-model="dateRange" value=true ng-change="viewChange()">
-                                            <span class="cr" tabindex="2"><i class="cr-icon"></i></span>For the Period
-                                        </label>
-                                    </div>
-                                </div>*@
-
-
-                            @*<legend class="scheduler-border">Trial Balance</legend>*@
-                            @*<div class="form-group" show-errors id="div_FromDate">
-                                    <label class="col-sm-3 control-label">{{fromDateTitle}}<sup>*</sup></label>
-                                    <div class="col-sm-7 show-message">
-                                        <input type="text" name="Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="3">
-                                    </div>
-                                </div>*@
-
-                            <div class="form-group" id="div_WDToDate">
-                                <label class="col-sm-1 control-label">As On Date<sup>*</sup></label>
-                                <div class="col-sm-2 show-message">
-                                    <input type="text" name="Date" ng-model="report.ToDate" datepicker class="form-control" tabindex="4">
-                                </div>
-                            </div>
-
+                            
                             <div class="form-group">
+
+                                <div class="form-group" id="div_WDToDate">
+                                    <label class="col-sm-1 control-label">As On Date<sup>*</sup></label>
+                                    <div class="col-sm-2 show-message">
+                                        <input type="text" name="Date" ng-model="report.ToDate" datepicker class="form-control" tabindex="4">
+                                    </div>
+                                </div>
+
                                 <label class="col-sm-1 control-label">Level<sup>*</sup></label>
                                 <div class="col-sm-2 show-message">
                                     <div class="select-style">
@@ -931,7 +913,7 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
+                            
 
                             <div class="col-xs-12 col-sm-2 col-md-2">
                                 <div class="common-btn">
@@ -949,11 +931,12 @@
                             </div>
 
                             <div class="common-btn">
-                                <ul class="list-inline text-right">
+                                <ul class="list-inline text-left">
                                     <li><button ng-click="Print();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i>Downloard</button></li>
                                     <li>@*<button ng-click="GetAcceptanceLiabilityReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button>*@</li>
                                 </ul>
                             </div>
+                                </div>
                         </fieldset>
 
                         @*</div>*@
@@ -1384,14 +1367,15 @@
                                 <div class="col-sm-2 show-message">
                                     <input e-dateformat="dd-MMM-yyyy" ng-model="reportParameters.ToDate" ej-datepicker tabindex="4">
                                 </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="GetAcceptanceLiabilityData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
-                                    </ul>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="GetAcceptanceLiabilityData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
+                            
                         </fieldset>
 
                         <div class="col-md-12">
@@ -1521,15 +1505,16 @@
                                     @*<input e-dateformat="dd-MMM-yyyy" e-change="getDateRangeWisePaymentData" ej-datepicker e-value="reportParameters.ToDate" />*@
 
                                 </div>
-                            </div>
-
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="GetOthersLiabilityData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
-                                    </ul>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="GetOthersLiabilityData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
+
+                            
 
 
                             <div class="col-md-3">
@@ -1732,15 +1717,16 @@
                                     <input e-dateformat="dd-MMM-yyyy" ng-model="report.ToDate" ej-datepicker @*class="form-control"*@ tabindex="4">
 
                                 </div>
-                            </div>
-
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="GetAcceptanceLiabilityMaturityData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
-                                    </ul>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="GetAcceptanceLiabilityMaturityData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
+
+                            
 
                         </fieldset>
 
@@ -1852,15 +1838,15 @@
                                     <input e-dateformat="dd-MMM-yyyy" ng-model="report.ToDate" ej-datepicker @*class="form-control"*@ tabindex="4">
 
                                 </div>
-                            </div>
-
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="GetGRNWithOutInvoiceData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
-                                    </ul>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="GetGRNWithOutInvoiceData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
+                               
 
                         </fieldset>
 
@@ -1876,7 +1862,7 @@
                                  e-enabletouch="false"
                                  e-allowresizing="true"
                                  e-allowselection="false"
-                                 @*e-summaryrows="TotalAcceptanceLiabilityMaturity"*@
+                                 e-summaryrows="TotalGRNWithoutInvoice"
                                  e-allowsorting="true">
 
                                 <div e-columns>
@@ -1888,7 +1874,7 @@
 
                                     <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="120"></div>
                                     <div e-column e-template="#templateVoucherNo" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="string" e-field="TransactionQty" e-headertext="Qty" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="TransactionQty" e-headertext="Qty" e-width="70"></div>
                                     <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalMaterialTranAmount" e-headertext="Amount" e-textalign="right" e-width="100"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ToCurrencyRate" e-headertext="Exchange Rate" e-textalign="right" e-width="100"></div>
@@ -1942,15 +1928,16 @@
                                     <input e-dateformat="dd-MMM-yyyy" ng-model="report.ToDate" ej-datepicker @*class="form-control"*@ tabindex="4">
 
                                 </div>
-                            </div>
-
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="GetInvoiceWithOutGRNData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
-                                    </ul>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="GetInvoiceWithOutGRNData();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
+
+                            
                         </fieldset>
 
                         <div class="col-md-12">
@@ -1963,35 +1950,36 @@
                                  e-gridlines="vertical" e-allowscrolling="true"
                                  e-filtersettings-filterType="excel"
                                  e-enabletouch="false"
+                                 e-summaryrows="TotalInvoiceWithoutGRN"
                                  e-allowresizing="true"
                                  e-allowselection="false"
                                  e-allowsorting="true">
 
                                 <div e-columns>
-                                    <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="50"></div>
-                                    <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="50"></div>
-                                    <div e-column e-field="PurchaseLCNo" e-headertext="LC No" e-width="50"></div>
-                                    <div e-column e-field="PONo" e-headertext="PO No" e-width="50"></div>
-                                    <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="40"></div>
-                                    <div e-column e-field="PartyName" e-headertext="Party" e-width="80"></div>
-                                    <div e-column e-field="PartyPlantName" e-headertext="Party Plant" e-width="80"></div>
+                                    <div e-column e-field="InvoiceNo" e-headertext="Invoice No." e-width="80"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Doc Ref No." e-width="80"></div>
+                                    <div e-column e-field="PurchaseLCNo" e-headertext="LC No." e-width="80"></div>
+                                    <div e-column e-field="PONo" e-headertext="PO No." e-width="50"></div>
+                                    <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="80"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Party" e-width="120"></div>
+                                    <div e-column e-field="PartyPlantName" e-headertext="Party Plant" e-width="120"></div>
                                     <div e-column e-template="#templateVoucherNoInvoiceWithOutGRN" e-type="text" e-field="VoucherNo" e-headertext="Voucher No." e-width="100" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DocDate" e-headertext="Doc Date" e-width="35"></div>
-                                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PostingDate" e-headertext="Posting Date " e-width="35"></div>
-                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="25"></div>
+                                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DocDate" e-headertext="Doc Date" e-width="60"></div>
+                                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PostingDate" e-headertext="Posting Date" e-width="60"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Gross" e-headertext="Gross" e-width="80" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNoteAmount" e-headertext="DebitNote Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNoteAmount" e-headertext="Debit Note Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TaxAmount" e-headertext="Tax Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext="GRN Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CompanyCurrencyRate" e-headertext="Exchange Rate" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGross" e-headertext="Books Gross" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGross" e-headertext="Books Gross" e-width="90" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNoteBooksAmount" e-headertext="Books DebitNote Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksTaxAmount" e-headertext="Books TaxAmount " e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books GRN Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksTaxAmount" e-headertext="Books Tax Amount " e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books GRN Amount" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-template="#templateSetOffInvoiceWithOutGRN" e-type="numeric" e-format="{0:0.00}" e-field="BooksWriteOffAmount" e-headertext="Books SetOff Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksInvoiceBalance" e-headertext="Books Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksInvoiceBalance" e-headertext="Books Invoice Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
                                 </div>
                             </div>
                             <script type="text/template" id="templateVoucherNoInvoiceWithOutGRN">
@@ -2000,13 +1988,19 @@
                                 </div>
                             </script>
                             <script type="text/template" id="templateSetOffInvoiceWithOutGRN">
-                                <div class="text-left" style="width:100%">
+                                <div class="text-right" style="width:100%">
                                     <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.getInvoiceSetOffDetailByInvoice(data);">{{data.BooksWriteOffAmount | number:2 }}</a>
                                 </div>
                             </script>
+
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li>
+                                        <button ng-click="InvoiceWithoutGRNReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-
-
 
                     </div>
 

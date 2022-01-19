@@ -1665,6 +1665,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessEncashmentApprovalController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewProcessAttendanceReProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataDeleteNewController.js" />
@@ -3947,6 +3948,9 @@
     <Content Include="Areas\HumanResource\Views\PerformanceManagementMaster\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\TaxPolicyHeader\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\InventorySale\InventorySalesReturnPost.cshtml" />
+    <Content Include="Areas\Attendances\Views\LeaveYearEndProcessEncashmentApproval\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\LeaveYearEndProcess\Approval.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventorySale\_ApprovedSalesReturnDetailPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
