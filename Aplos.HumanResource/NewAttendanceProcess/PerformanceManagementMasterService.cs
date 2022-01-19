@@ -54,7 +54,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"select EmployeeCategoryId from hkp.EmployeeCategory  where EmployeeCategoryId = '" + Id + "' ";
+                var str = @"select Id from hkp.EmployeeCategory  where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -79,56 +79,92 @@ namespace Library.HumanResource.NewAttendanceProcess
         ////        throw e;
         ////    }
         //}
+        
 
-        public List<Dictionary<string, object>> Create(List<Dictionary<string, object>> Data , List<string> Employee)
+    public Dictionary<string, object> Create(Dictionary<string, object> data, List<string> Employee)
         {
             try
             {
-                // Performance Table - Performance
+                //Master Table - PMSMaster
                 string TableName = "dbo.PMSMaster";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2  ", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where StandardName = '" + data["StandardName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same StandardName already exists!!!");
+            
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName = '" + data["UserName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same UserName already exists!!!");
 
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+              
                 string _Id = "";
 
-                #region data Upload
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-                for (int i = 0; i < Data.Count; i++)
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-
-
-                    DataRow dr = dsMaster.Tables[0].NewRow();
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("dbo.PMSChild", out _Id);
-                    dr["Id"] = "WT" + DateTime.Now.Year.ToString() + '-' + _Id;
-                    dr["WasteMasterId"] = Data[i]["Id"].ToString();
-                    dr["EntityId"] = Data[i]["EntityId"].ToString();
-                    dr["Date"] = DateTime.Now;
-                    dr["Quantity"] = Data[i]["Quantity"].ToString();
-                    dr["Remarks"] = Data[i]["Remarks"].ToString();
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = "PM" + _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                // Child table - PMSChild
+
+                DataSet dsChild;
+                ConnectionManager.DAL.ConManager conC = new ConnectionManager.DAL.ConManager("1");
+                conC.OpenDataSetThroughAdapter("select * from dbo.PMSChild where Id = '" + data["Id"].ToString() + "'", out dsChild, false, "1");
+
+                while (dsChild.Tables[0].DefaultView.Count > 0)
+                {
+                    dsChild.Tables[0].DefaultView[0].Delete();
+                }
+
+                string _IdC = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                #region data Child update
+
+                for (int i = 0; i < Employee.Count; i++)
+                {
+                    DataRow dr = dsChild.Tables[0].NewRow();
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("dbo.PMSChild", out _IdC); 
+
+                    dr["Id"] ="PMC"+ _IdC;
+                    dr["PMSMasterId"] = data["Id"].ToString();
+                    dr["EmployeeCategoryId"] = "";
                     dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedDate"] = DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
                     dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
-                    dsMaster.Tables[0].Rows.Add(dr);
-
+                    dsChild.Tables[0].Rows.Add(dr);
                 }
-                #endregion data Upload
+
+                #endregion data update
+
+
+
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsChild);
 
-                return Data;
+                return data;
 
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine("haoi");
                 throw ex;
 
             }
@@ -157,11 +193,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                         bplib.clsGenID id = new bplib.clsGenID();
                         id.GenIDYearly(DateTime.Now.ToShortDateString(), "PMSMaster", out string NewId);
 
-                        dr["SquenceId"] = item.SequenceId;
+                        dr["Sequence"] = item.Sequence;
                         dr["Category"] = item.Category;
                         dr["SubCategory"] = item.SubCategory;
                         dr["StandardName"] = item.StandardName;
-                        dr["UserName"] = item.UserName;
+                        dr["Username"] = item.Username;
                         dr["ShortName"] = item.ShortName;
                         dr["Code"] = item.Code;
                         dr["Active"] = item.Active;
@@ -192,11 +228,11 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         public class PerformanceModel
         {
-            public string SequenceId { get; set; }
+            public string Sequence { get; set; }
             public string Category { get; set; }
             public string SubCategory { get; set; }
             public string StandardName { get; set; }
-            public string UserName { get; set; }
+            public string Username { get; set; }
 
             public string ShortName { get; set; }
 
@@ -241,7 +277,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             }
         }
-
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -290,5 +325,8 @@ namespace Library.HumanResource.NewAttendanceProcess
     }
    
 
-
 }
+   
+
+
+

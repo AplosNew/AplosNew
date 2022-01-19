@@ -286,14 +286,22 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
             });
     }
 
-
-    function getVendorPayableGLBudgetActivity(inventorysalesId, customerId) {
+    $scope.inventoryReceiveDetailVMList = [];
+    function getReceivableGLBudgetActivity(inventorysalesId, customerId) {
        
-        $http.get('Accounts/InventorySale/GetInventorySaleDetailGLList?inventorySalesId=' + inventorysalesId + '&customerId=' + customerId)
+        $http.get('Accounts/InventorySale/GetInventoryReceivabeSaleDetailGLList?inventorySalesId=' + inventorysalesId + '&customerId=' + customerId)
                 .then(function (response) {
-                    $scope.inventoryPayableList = [];
-                    $scope.inventoryPayableList = response.data;
+                    $scope.inventoryReceiveDetailVMList = [];
+                    $scope.inventoryReceiveDetailVMList = response.data;
                 });
+    }
+    function getInventoryJVSaleDetailGLList(inventorysalesId, customerId) {
+
+        $http.get('Accounts/InventorySale/GetInventoryJVSaleDetailGLList?inventorySalesId=' + inventorysalesId + '&customerId=' + customerId)
+            .then(function (response) {
+                $scope.inventoryPayableList = [];
+                $scope.inventoryPayableList = response.data;
+            });
     }
     $scope.inventoryJV = [];
     function getInventortGLBudgetActivity(inventorysalesId, customerId) {
@@ -330,7 +338,8 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
                         $scope.inventorySalesJV.push($scope.newList[i]);
                     }
                 }
-                getVendorPayableGLBudgetActivity(inveReveiveId, customerId);
+                getReceivableGLBudgetActivity(inveReveiveId, customerId);
+                getInventoryJVSaleDetailGLList(inveReveiveId, customerId);
             });
     }
     //$scope.inventoryTaxList = [];
@@ -677,7 +686,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
                 , voucherDetailVMList: $scope.inventorySalesJV/*$scope.inventoryMaterialList*/
                 , voucherDetailCurrencyVMList: $scope.currencyExchangeRate
                 , inventoryPayableVMList: $scope.inventoryPayableList
-                , inventoryReceiveDetailVMList: $scope.inventoryPayableList
+                , inventoryReceiveDetailVMList: $scope.inventoryReceiveDetailVMList
                 , inventoryJVList: $scope.inventoryJV
                 , IsInventorySalesBook: $scope.companyConfig.IsInventorySalesBook
                 , otherInvoiceVM: $scope.otherVoucher
@@ -731,7 +740,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
                 , voucherDetailVMList: $scope.inventorySalesJV/*$scope.inventoryMaterialList*/
                 , voucherDetailCurrencyVMList: $scope.currencyExchangeRate
                 , inventoryPayableVMList: $scope.inventoryPayableList
-                , inventoryReceiveDetailVMList: $scope.inventoryPayableList
+                , inventoryReceiveDetailVMList: $scope.inventoryReceiveDetailVMList
                 , inventoryJVList: $scope.inventoryJV
                 , IsInventorySalesBook: $scope.companyConfig.IsInventorySalesBook
                 , otherInvoiceVM: $scope.otherVoucher
