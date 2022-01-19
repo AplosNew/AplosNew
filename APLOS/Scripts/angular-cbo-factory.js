@@ -53,6 +53,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboEmployeeBudgetActivityList: getCboEmployeeBudgetActivityList
         , getBudgetCboByGL: getBudgetCboByGL
         , getCboTransactionCurrencyByCompany: getCboTransactionCurrencyByCompany
+        , getCboCurrencyTransactionForPotal: getCboCurrencyTransactionForPotal
         , getCompanyCurrency: getCompanyCurrency
         , getParallelCurrency: getParallelCurrency
         , getCboParallelCurrency: getCboParallelCurrency
@@ -831,6 +832,17 @@ function cboService($http, $window, $rootScope, baseService) {
                 companyId = null;
         }
         base('currencies/transactioncurrency/GetCboCurrencyTransaction?companyId=' + companyId, callback);
+    }
+
+    function getCboCurrencyTransactionForPotal(companyId, callback) {
+        if (baseService.isUndefinedOrNull(companyId)) {
+            if (!baseService.isUndefinedOrNull($window.companyId)) {
+                companyId = $window.companyId;
+            }
+            else
+                companyId = null;
+        }
+        base('currencies/transactioncurrency/GetCboCurrencyTransactionForPotal?companyId=' + companyId, callback);
     }
 
     function getCboTaxVariantByCompanyGroup(callback) {

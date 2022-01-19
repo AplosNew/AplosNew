@@ -16,14 +16,32 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Standard Name</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Header.StandardName" name="Standard Name" class="form-control" maxlength="50" tabindex="2" required>
+                        <input type="text" ng-model="Header.StandardName" name="Standard Name" class="form-control" maxlength="50" required>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Remarks</label>
-                    <div class="col-sm-8">
-                        <input type="text" ng-model="Header.Remarks" class="form-control" maxlength="100" tabindex="2">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Age Limit</label>
+                    <label class="col-sm-2 control-label">From</label>
+                    <div class="col-sm-2 show-message">
+                        <input type="number" ng-model="Header.AgeFrom" class="form-control" required>
+                    </div>
+                    <label class="col-sm-2 control-label">To</label>
+                    <div class="col-sm-2 show-message">
+                        <input type="number" ng-model="Header.AgeTo" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">City Of Residence</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="Header.CityOfResidence" required>
+                                <option value=""></option>
+                                <option value="Metro">Metro</option>
+                                <option value="Non-Metro">Non-Metro</option>
+                             </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -33,14 +51,34 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Name</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Header.UserName" name="User Name" class="form-control" maxlength="50" tabindex="2" required>
+                        <input type="text" ng-model="Header.UserName" name="User Name" class="form-control" maxlength="50" required>
                     </div>
                 </div>
 
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Short Name</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Header.ShortName" class="form-control" name="Short Name" maxlength="15" tabindex="2" required>
+                        <input type="text" ng-model="Header.ShortName" class="form-control" name="Short Name" maxlength="15" required>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Gender</label>
+                    <div class="col-sm-4">
+                        <div class="checkbox-site" style="padding-top: 7px;">
+                            <label>
+                                <input type="checkbox" name="Gender" ng-model="Header.Male" ng-disabled="Header.Female==true">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Male
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4" style="padding-top: 7px;">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" name="Gender" ng-model="Header.Female" ng-disabled="Header.Male==true">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Female
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -49,7 +87,7 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site" style="margin-top:7px;">
                             <label>
-                                <input type="checkbox" ng-model="Header.Active" tabindex="8">
+                                <input type="checkbox" ng-model="Header.Active" >
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
@@ -82,6 +120,7 @@
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="row">
                         <div ng-form name="EarningMasterForm">
+          
                             <div class="col-xs-12 col-sm-6 col-md-6">
 
                                 <div class="form-group">
@@ -159,6 +198,28 @@
                                             <label class="col-sm-4 control-label">Taxable Amount %</label>
                                             <div class="col-sm-8 show-message">
                                                 <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxableAmountPer" class="form-control" maxlength="100">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Exemption On</label>
+                                            <div class="col-sm-4">
+                                                <div class="checkbox-site radio">
+                                                    <label>
+                                                        <input ng-disabled="EarningMasterModel.ExemptionApplicable == false" type="radio"
+                                                               ng-model="EarningMasterModel.IsLessOrMore" name="Less" value="Which Ever Is Less">
+                                                        <span class="cr"><i class="cr-icon"></i></span>Which Ever Is Less
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="checkbox-site radio">
+                                                    <label>
+                                                        <input ng-disabled="EarningMasterModel.ExemptionApplicable == false" type="radio" ng-model="EarningMasterModel.IsLessOrMore"
+                                                               name="More" value="Which Ever Is More">
+                                                        <span class="cr"><i class="cr-icon"></i></span>Which Ever Is More
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -319,7 +380,7 @@
                 <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
                 <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
                 <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
-                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                <div e-column e-field="CityOfResidence" e-headertext="City Of Residence" e-width="150"></div>
                 <div e-column e-field="Active" e-headertext="Active" e-width="50"></div>
 
 

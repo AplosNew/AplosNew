@@ -657,6 +657,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             $scope.MDate = $scope.salesVM.MatureDate;
             $scope.PDate = $scope.salesVM.PostingDate;
             $scope.VDate = $scope.salesVM.VoucherDate;
+            $scope.AddedDate = $scope.salesVM.AddedDate;
             
 
             if ($scope.salesVM.IsPark == 0) {
@@ -706,6 +707,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                             $scope.getData();
 
                             $scope.salesVM = response.data.Data;
+                            $scope.salesVM.AddedDate = $scope.AddedDate;
 
                             $scope.salesVM.BLDate = $scope.BLDate;
                             $scope.salesVM.EXPDate = $scope.EXPDate;
@@ -753,7 +755,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                             $scope.savebtndisable = false;
                             $scope.getData();
                             $scope.salesVM = response.data.Data;
-
+                            $scope.salesVM.AddedDate = $scope.AddedDate;
                             $scope.salesVM.BLDate = $scope.BLDate;
                             $scope.salesVM.EXPDate = $scope.EXPDate;
                             $scope.salesVM.BaseOnDueDate = $scope.BaseDate;
@@ -1169,16 +1171,15 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
     $scope.closeServiceTaxPopUp = function () {
         var salesData = $scope.chargesList[$scope.currentServiceRow];
-        //$scope.chargesList[$scope.currentServiceRow].TaxAmount = 0;
-        $scope.chargesList[$scope.currentServiceRow].Amount = 0;
+        $scope.chargesList[$scope.currentServiceRow].TaxAmount = 0;
+       // $scope.chargesList[$scope.currentServiceRow].Amount = 0;
         angular.forEach($scope.receiveTaxList, function (item) {
             $scope.chargesList[$scope.currentServiceRow].TaxAmount += item.Amount;
         });
-        //$scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount + $scope.chargesList[$scope.currentServiceRow].TaxAmount;
-        $scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount;
+        $scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount + $scope.chargesList[$scope.currentServiceRow].TaxAmount;
+        //$scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount;
 
-        //  $scope.materialMaster = {};
-        //  $scope.ServicetaxPopList = [];
+       
         angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
     };
 
@@ -1823,8 +1824,9 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                         ShowResult(response.data.Message, 'success');
                         $scope.mateId = null;
                         $scope.salesMaterialList.splice($scope.mateIndex, 1);
-                        $scope.getData();
-                        $scope.Clear();
+                        $scope.GetSalesMaterialData($scope.salesVM.Id);
+                        //$scope.getData();
+                        //$scope.Clear();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -1915,7 +1917,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     };
 
     $scope.closeInvoicingPartyPopUp = function () {
-        if ($scope.salesMaterialList.length || $scope.chargesList.length) {
+        //$scope.salesMaterialList
+        if ($scope.selectedMasterOrderItemList.length || $scope.chargesList.length) {
             if (!baseService.isUndefinedOrNull($scope.salesVM.ChangeInvoicingStateId)) {
                 if ($scope.salesVM.PlantStateId == $scope.salesVM.InvoicingStateId == $scope.salesVM.ChangeInvoicingStateId)
                     angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
