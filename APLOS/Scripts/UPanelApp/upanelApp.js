@@ -261,6 +261,7 @@ var upanelApp = angular
     .controller("materialStockController", materialStockController)
     .controller("MaternityLeaveTransactionController", MaternityLeaveTransactionController)
     .controller("misAccountDashboardController", misAccountDashboardController)
+    .controller("LeaveYearEndProcessEncashmentApprovalController", LeaveYearEndProcessEncashmentApprovalController)
 
     //.controller("mpanelDashboardController", mpanelDashboardController)
     //.controller("mpanelLoginController", mpanelLoginController)
