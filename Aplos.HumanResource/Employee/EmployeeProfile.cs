@@ -1272,7 +1272,7 @@ namespace Aplos.HumanResource
                 drLocal["DOB"] = bplib.clsWebLib.DateData_AppToDB(data.DOB, bplib.clsWebLib.DB_DATE_FORMAT);
                 drLocal["BirthdayCelebrationDate"] = bplib.clsWebLib.DateData_AppToDB(data.BirthdayCelebrationDate, bplib.clsWebLib.DB_DATE_FORMAT);
                 drLocal["DOJ"] = bplib.clsWebLib.DateData_AppToDB(data.DOJ, bplib.clsWebLib.DB_DATE_FORMAT);
-
+                drLocal["SalaryPercentage"] = 0;
 
 
                 //drLocal["Ref1Name"] = data.Ref1Name;
