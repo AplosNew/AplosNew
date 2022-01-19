@@ -335,48 +335,189 @@ namespace Library.HumanResource.Payroll.Tax
             }
 
         }
-
+        public void GetTaxPolicyGeneralFormula(string ID, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from TaxExemptionApplicableChild WHERE Id= '" + ID + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
         public void SaveGeneralFormula(TaxExemptionFormula ExemptionFormula, IEnumerable<TaxExemptionFormulaDetail> details)
         {
             try
             {
                 DataSet dsFormula;
                 DataSet dsFormulaDetail;
-               // GetTexPolicyGeneralFormula(GeneralFormula.Id, out dsFormula);
-                //_TexGeneralFormula(ref dsFormula, GeneralFormula);
-                //GetTexPolicyGeneralFormulaa(GeneralFormula.Id, out dsFormulaDetail);
+                GetTaxPolicyGeneralFormula(ExemptionFormula.Id, out dsFormula);
+                _TaxGeneralFormula(ref dsFormula, ExemptionFormula);
+                GetTaxPolicyFormulaDetail(ExemptionFormula.Id, out dsFormulaDetail);
+              
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                //DataRow drF;
-                //while (dsFormulaDetail.Tables[0].DefaultView.Count > 0)
-                //    dsFormulaDetail.Tables[0].DefaultView[0].Delete();
-                //string _Id = dsFormula.Tables[0].Rows[0]["Id"].ToString();
-                //int count = 0;
-                //if (details != null)
-                //{
+                DataRow drF;
+                while (dsFormulaDetail.Tables[0].DefaultView.Count > 0)
+                    dsFormulaDetail.Tables[0].DefaultView[0].Delete();
+                string _Id = dsFormula.Tables[0].Rows[0]["Id"].ToString();
+                int count = 0;
+                if (details != null)
+                {
 
-                //    foreach (var item in details)
-                //    {
-                //        drF = dsFormulaDetail.Tables[0].NewRow();
-                //        count++;
-                //        string pk = _Id + "_" + count;
-                //        drF["Id"] = pk;
-                //        drF["TaxPolicyGeneralId"] = _Id;
-                //        drF["Sequence"] = item.Sequence;
-                //        drF["SalaryHeadID"] = item.SalaryHeadID;
-                //        drF["Component"] = item.Component;
+                    foreach (var item in details)
+                    {
+                        drF = dsFormulaDetail.Tables[0].NewRow();
+                        count++;
+                        string pk = _Id + "_" + count;
+                        drF["Id"] = pk;
+                        drF["ExemptionApplicableChildId"] = _Id;
+                        drF["Sequence"] = item.Sequence;
+                        drF["SalaryHeadID"] = item.SalaryHeadID;
+                        drF["Component"] = item.Component;
+                        drF["AddedBy"] = identity.UserId;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+                        dsFormulaDetail.Tables[0].Rows.Add(drF);
+                    }
 
-                //        dsFormulaDetail.Tables[0].Rows.Add(drF);
-                //    }
+                }
 
-                //}
-
-                //clsStaticInfo _info = new clsStaticInfo();
-               // _info.SaveDataSets(dsFormula, dsFormulaDetail);
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsFormula, dsFormulaDetail);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
+        public void _TaxGeneralFormula(ref DataSet dsSaveExemptionMaster, TaxExemptionFormula ui_master)
+        {
+            try
+            {
+                DataView _dvSave = new DataView(dsSaveExemptionMaster.Tables[0]);
+                _dvSave.RowFilter = "Id ='" + ui_master.Id + "'";
+                if (_dvSave.Count == 0)
+                {
+                    DataRow dr = dsSaveExemptionMaster.Tables[0].NewRow();
+                    _DataEntryCode("ADDNEW", ui_master, ref dr);
+                    dsSaveExemptionMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    DataRow dr = _dvSave[0].Row;
+                    dr.BeginEdit();
+                    _DataEntryCode("Edit", ui_master, ref dr);
+                    dr.EndEdit();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void GetTaxPolicyFormulaDetail(string ID, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from TaxFormulaDetail WHERE ExemptionApplicableChildId= '" + ID + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+        private void _DataEntryCode(string OPN_FLAG, TaxExemptionFormula ui_master, ref DataRow drLocal)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (OPN_FLAG == "ADDNEW")
+                {
+                    clsGenID objGenID = new clsGenID();
+                    objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "TaxExemptionApplicableChild ", out string idFromDB);
+                    string systemID = "TEC-F" + idFromDB;
+                    ui_master.Id = systemID.Trim();
+
+                    drLocal["Id"] = clsWebLib.RetValidLen(ui_master.Id);
+                    drLocal["TaxEarningMasterChildId"] = ui_master.TaxEarningMasterChildId;
+                    drLocal["Formula"] = ui_master.Formula;
+                    drLocal["FormulaID"] = ui_master.FormulaID;
+                    drLocal["Description"] = ui_master.Description;
+                  
+                    drLocal["AddedBy"] = identity.Name;
+                    drLocal["AddedDate"] = clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), clsWebLib.DB_DATE_FORMAT);
+                    drLocal["AddedFromIP"] = identity.IPAddress;
+
+                }
+                else
+                {
+                    drLocal["Formula"] = ui_master.Formula;
+                    drLocal["FormulaID"] = ui_master.FormulaID;
+                    drLocal["Description"] = ui_master.Description;
+                    drLocal["UpdatedBy"] = identity.Name;
+                    drLocal["UpdatedFromIP"] = identity.IPAddress;
+                    drLocal["UpdatedDate"] = clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), clsWebLib.DB_DATE_FORMAT);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }            
+        }
+        public void DeleteFormula(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from taxformuladetail where ExemptionApplicableChildId='" + ID + "'");
+                con.executeQuery("delete from TaxExemptionApplicableChild  where Id='" + ID + "'");
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetFormulaList(string FormulaId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+
+                strSQL = @"SELECT D.Sequence,D.SalaryHeadID
+                        ,SalaryHead= CASE WHEN ISNULL(SD.SalaryHead,'')<>'' THEN SD.SalaryHead ELSE D.Component END,D.Component
+                        FROM taxformuladetail D
+                        LEFT JOIN dbo.SalaryHead SD ON SD.SalaryHeadID=D.SalaryHeadID
+                            WHERE D.ExemptionApplicableChildId = '" + FormulaId + @"' order by Sequence";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
         }
 
         #endregion

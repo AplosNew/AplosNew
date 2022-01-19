@@ -533,6 +533,7 @@ var upanelApp = angular
     .controller('FarmerMasterController', FarmerMasterController)
     .controller('FgPoFormasterOrderController', FgPoFormasterOrderController)
     .controller('finalSettlementController', finalSettlementController)
+    .controller('finalSettlementNewController', finalSettlementNewController)
 
     .controller('finalSettlementReportController', finalSettlementReportController)
     .controller('finalSettlementVoucherController', finalSettlementVoucherController)

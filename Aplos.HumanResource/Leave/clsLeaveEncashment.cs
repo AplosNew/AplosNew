@@ -218,6 +218,46 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
                 objCon = null;
             }
         }//End Function
+        public void GetLeaveBalanceFinalSettlementNew(string EmpSystemId, string DOS, out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"select 
+                             E.SystemId, e.EmployeeCode,e.EmployeeName,t.UserName LeaveType,s.LeaveTypeId,e.LegalDesignationId
+                            ,BroughtForward=isnull(s.BroughtForward,0)+isnull(s.CarryForwardOpeningBalance,0)
+                            ,s.CarryForward
+                            ,s.DaysCanBeSanctioned
+                            ,s.CurrentYearAllocation
+                            ,s.IsYearlyProcessed,s.EncashedInbetween ,s.YearEndEncash
+                            ,LeaveDaysAllowed=isnull(s.BroughtForward,0)+isnull(s.DaysCanBeSanctioned,0)
+                            ,ISNULL( (SELECT sum(m.LvValue) FROM AttdnProcessData m 
+                                        where m.WorkDate BETWEEN S.FromDate and S.ToDate
+                                AND m.EmpSystemID=S.EmployeeId AND m.LTSystemID=S.LeaveTypeId ),0) AS AvailedLeave
+            
+            				,Balance=ISNULL(s.CurrentYearAllocation,0)+ISNULL(s.BroughtForward,0)+ISNULL(s.CarryForwardOpeningBalance,0)
+                            from trn.EmployeeLeaveSummary s 
+                            INNER JOIN LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
+                            INNER JOIN EmployeeInformation e on e.SystemId=s.EmployeeId AND s.PlantId=e.PlantId
+                            
+						   --------------------------------------------------------------------------
+                            where  E.SystemId ='" + EmpSystemId + @"' AND e.DOS BETWEEN s.FromDate AND s.ToDate
+                            ORDER BY  e.EmployeeCodePreFix,e.EmployeeCodeNumeric
+                            ";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
         public void GetEarnLeavePolicy(string PlantId, out System.Data.DataSet dsRef)
         {
@@ -550,13 +590,113 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 
             return ob;
         }
+        public LeaveEncashmentViewModel GetLeaveEncashmentDataForFinalSettlementNew(string EmpSystemId, string LeaveEncashmentDate, string YearNo, string PlantId)
+        {
+            DataSet dsLvEncashment = null;
+            DataSet dsEarnLeavePolicy = null;
+            DataSet dsSalaryDataEmpWise = null;
+            DataSet dsAvailedEncashmentBalance = null;
+
+            DataSet dsSalHd = null;
+            DataTable dtSlrHd = null;
+            string _formulaValue = string.Empty;
+            string sFormulaResult = string.Empty;
+            clsSalaryUtility obSSrecal = new global::clsSalaryUtility();
+            LeaveEncashmentViewModel ob = new LeaveEncashmentViewModel();
+
+
+            clsLeaveYearEndProcess objLeaveYearEndProcessData;
+            objLeaveYearEndProcessData = new clsLeaveYearEndProcess();
+            string EarnleaveID = string.Empty;
+            EarnleaveID = objLeaveYearEndProcessData.GetEarnLeaveID();
+
+            GetEarnLeavePolicy(PlantId, EmpSystemId, out dsEarnLeavePolicy);
+            GetLeaveBalanceFinalSettlementNew(EmpSystemId, LeaveEncashmentDate, out dsLvEncashment);
+            GetSalaryDataEmpWise(EmpSystemId, LeaveEncashmentDate, out dsSalaryDataEmpWise);
+            //GetAvailedEncashmentBalance(EmpSystemId, YearNo, out dsAvailedEncashmentBalance);
+
+            if (dsLvEncashment.Tables[0].Rows.Count > 0)
+            {
+                ob.EmpSystemId = EmpSystemId;
+                ob.EncashmentDate = LeaveEncashmentDate;
+                ob.EmployeeCode = dsLvEncashment.Tables[0].Rows[0]["EmployeeCode"].ToString();
+                ob.EmployeeName = dsLvEncashment.Tables[0].Rows[0]["EmployeeName"].ToString();
+                ob.LeaveType = dsLvEncashment.Tables[0].Rows[0]["LeaveType"].ToString();
+                ob.LeaveTypeId = dsLvEncashment.Tables[0].Rows[0]["LeaveTypeId"].ToString();
+
+
+                ob.BroughtForward = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["BroughtForward"].ToString());
+                ob.DaysCanBeSanctioned = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["DaysCanBeSanctioned"].ToString());
+                ob.CurrentYearAllocation = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["CurrentYearAllocation"].ToString());
+                ob.LeaveDaysAllowed = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["LeaveDaysAllowed"].ToString());
+                ob.AvailedLeave = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["AvailedLeave"].ToString());
+                ob.Days = (decimal)clsStaticInfo.dbl(dsLvEncashment.Tables[0].Rows[0]["Balance"].ToString());
+
+
+                CarryForword objCarryForword = CheckLeavePolicyDetails(PlantId, EmpSystemId, EarnleaveID, Convert.ToDecimal(dsLvEncashment.Tables[0].Rows[0]["Balance"].ToString()));
 
 
 
 
+                if (dsEarnLeavePolicy.Tables[0].Rows.Count > 0)
+                {
+                    DataView dv = new DataView(dsSalaryDataEmpWise.Tables[0]);
+                    if (!string.IsNullOrEmpty(dsEarnLeavePolicy.Tables[0].Rows[0]["LvEncashmentFormulaDesID"].ToString()))
+                    {
+
+
+                        //all head and Salary info
+                        GetSalaryHead(out dsSalHd);
+                        dtSlrHd = dsSalHd.Tables[0];
+
+
+                        //GetSalaryDataEmpWise(sEmpSystemId, Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"]).ToString("dd-MMM-yyyy"), out dsSalaryData);
+                        if (dsSalaryDataEmpWise.Tables[0].Rows.Count == 0)
+                        {
+                            throw new Exception("This Employee has no Approved Salary Structure.");
+                        }
 
 
 
+                        DataTable dtValue = new DataTable();
+                        dtValue.TableName = "TempTable";
+                        dtValue.Columns.Add("SalaryHeadID");
+                        dtValue.Columns.Add("EntryCurrencyID");
+                        dtValue.Columns.Add("Amount");
+
+
+                        for (int i = 0; i < dsSalaryDataEmpWise.Tables[0].Rows.Count; i++)
+                        {
+                            DataRow dtValueRow = dtValue.NewRow();
+                            dtValueRow["SalaryHeadID"] = dsSalaryDataEmpWise.Tables[0].Rows[i]["SalaryHeadID"].ToString().Trim();
+                            dtValueRow["EntryCurrencyID"] = dsSalaryDataEmpWise.Tables[0].Rows[i]["EntryCurrencyID"].ToString().Trim();
+                            dtValueRow["Amount"] = dsSalaryDataEmpWise.Tables[0].Rows[i]["EntryAmount"].ToString().Trim();
+                            dtValue.Rows.Add(dtValueRow);
+                        }
+                        obSSrecal.ReLoadFormulaWithValue(dsEarnLeavePolicy.Tables[0].Rows[0]["LvEncashmentFormulaDesID"].ToString(), ref dtValue, dsSalaryDataEmpWise.Tables[0].Rows[0]["EntryCurrencyID"].ToString().Trim(), "0", out _formulaValue, ref dtSlrHd);
+                        sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString();
+                        ob.Rate = Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult));
+
+
+                    }
+                    else
+                    {
+                        throw new Exception("No Salary Head defined on Earn Leave Policy.");
+                    }
+
+
+                }
+                else
+                {
+                    throw new Exception("Earn Leave Policy not found.");
+                }
+
+
+            }
+
+
+            return ob;
+        }
 
         public void GetMultipleEmployeeLeaveBalance(string PlantId, string YearId, out System.Data.DataSet dsRef)
         {
@@ -2565,6 +2705,9 @@ WHERE m.EffectiveDate<=els.ToDate AND lt.LeaveType='Earn' AND m.PlantID='" + Pla
                     {
                         //edit
                         DataRow dr = dicEncashment[Key];
+                        if (bplib.clsWebLib.GetBoolData(dr["Isdisburse"].ToString()))
+                            continue;
+
                         dr.BeginEdit();
 
                         dr["PlantId"] = PlantId.ToString();

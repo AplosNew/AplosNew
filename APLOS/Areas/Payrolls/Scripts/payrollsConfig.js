@@ -104,6 +104,7 @@
             templateUrl: 'payrolls/FinalSettlementVoucher/Aplos',
             controller: 'finalSettlementVoucherController'
         })
+        
         .when('/salary-process-other-status', {
             templateUrl: 'payrolls/SalaryProcessOtherStatus/Aplos',
             controller: 'SalaryProcessOtherStatusController'
@@ -139,6 +140,10 @@
         .when('/final-settlement-entry', {
             templateUrl: 'payrolls/FinalSettlement/Aplos',
             controller: 'finalSettlementController'
+        })
+        .when('/final-settlement-entry-new', {
+            templateUrl: 'payrolls/FinalSettlement/Aplos',
+            controller: 'finalSettlementNewController'
         })
         .when('/pay-slip', {
             templateUrl: 'payrolls/payslips/aplos',
