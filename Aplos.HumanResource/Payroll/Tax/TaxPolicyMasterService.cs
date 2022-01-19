@@ -521,6 +521,48 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
+       
+        #region Investment Deduction Master Functions
+        
+        public IEnumerable<object> getTaxSavingGroup()
+        {
+            try
+            {
+                string sql = @"Select Id , Username , MaxLimit from hkp.TaxSavingGroup order by [Sequence]";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> getTaxSavingItem()
+        {
+            try
+            {
+                string sql = @"Select Id , Username from hkp.TaxSavingItem";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetTaxType()
+        {
+            try
+            {
+                string strSQL = @"select Id, Category, Username from [dbo].[TaxType]";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        #endregion
 
     }
     public class TaxExemptionFormula

@@ -236,5 +236,47 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
         #endregion
 
+        #region Investment Deduction Functions
+       
+        [HttpGet, Authorize]
+        public ActionResult getTaxSavingGroup()
+        {
+            try
+            {
+                return Json(ds.getTaxSavingGroup(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getTaxSavingItem()
+        {
+            try
+            {
+                return Json(ds.getTaxSavingItem(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetTaxType()
+        {
+            try
+            {
+                return Json(ds.GetTaxType(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        #endregion
+
     }
 }
