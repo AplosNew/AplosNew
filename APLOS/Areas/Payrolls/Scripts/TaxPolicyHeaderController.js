@@ -67,6 +67,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.ClearEarningMaster();
         $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
+        $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
         $scope.GetEarningMasterList();
         updateChild();
         showTabs();
@@ -767,6 +768,20 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     //#endregion
 
     // #region Investment Deduction Functions
+
+    // #region Modal Region
+
+    $scope.InvestDeductModel = {
+        TaxTypeId: null,
+        SystemId: null,
+        UserCode: null,
+        TaxPolicyHeaderId: null,
+        TaxSavingGroupId: null
+    };
+
+    // #endregion
+
+
 
     //Getting the Tax Type
     $scope.TaxTypeList = [];
