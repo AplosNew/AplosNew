@@ -921,80 +921,78 @@ namespace Library.Service.SalesManagements
 
         public void DeleteSalesMaterial(string Id)
         {
-            var flag = false;
+            string strPSQL, strBSQL, strOSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
             try
             {
+                //if (CheckUsing(id))
+                //    throw new CustomException("First delete Operation!");
 
-                _unitOfWork.BeginTransaction();
-                flag = true;
-                var salesMaterial = _salesMaterialRepository.Find(Id);
+                strOSQL = "DELETE FROM TRN.SalesTax WHERE SalesMaterialId='" + Id + "'";
+                strBSQL = "DELETE FROM TRN.SalesMaterial WHERE Id='" + Id + "'";
 
-                var salesMaterialSo = _salesMaterialSORepository.Query(r => r.SalesId == Id).Select().ToList();
-                var salesTaxList = _salesTaxRepository.Query(r => r.SalesMaterialId == salesMaterial.Id).Select().ToList();
-                foreach (var item in salesMaterialSo)
-                {
-                    _salesMaterialSORepository.Delete(item.Id);
-                }
-                foreach (var item in salesTaxList)
-                {
-                    _salesTaxRepository.Delete(item.Id);
-                }
-                _salesMaterialRepository.Delete(Id);
-                _unitOfWork.SaveChanges();
-                flag = false;
-                _unitOfWork.Commit();
-            }
-            catch (CustomException)
-            {
-                throw;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
+                objCon.CommitTransaction();
             }
             catch (Exception ex)
             {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw ex;
+                }
             }
             finally
             {
-                if (flag)
-                    _unitOfWork.Rollback();
+
+                objCon = null;
             }
+
         }
 
         public void DeleteSalesService(string Id)
         {
-            var flag = false;
+            string strPSQL, strBSQL, strOSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
             try
             {
+                strOSQL = "DELETE FROM TRN.SalesTax WHERE SalesServiceId='" + Id + "'";
+                strBSQL = "DELETE FROM TRN.SalesService WHERE Id='" + Id + "'";
 
-                _unitOfWork.BeginTransaction();
-                flag = true;
-                var salesService = _salesServiceRepository.Find(Id);
-                var salesTaxList = _salesTaxRepository.Query(r => r.SalesServiceId == salesService.Id).Select().ToList();
-                foreach (var item in salesTaxList)
-                {
-                    _salesTaxRepository.Delete(item.Id);
-                }
-                _salesServiceRepository.Delete(Id);
-                _unitOfWork.SaveChanges();
-                flag = false;
-                _unitOfWork.Commit();
-            }
-            catch (CustomException)
-            {
-                throw;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
+                objCon.CommitTransaction();
             }
             catch (Exception ex)
             {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw ex;
+                }
             }
             finally
             {
-                if (flag)
-                    _unitOfWork.Rollback();
+                objCon = null;
             }
+           
         }
 
         public void SalesInvoicePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> salesJVDetail, IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList)
@@ -2843,6 +2841,64 @@ namespace Library.Service.SalesManagements
             }
         }
 
+        public void DeleteMasterOrderSalePost(string companyId, string plantId, string salesId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                var writtenOff = _invoiceService.Query(r => r.VoucherId == voucherId && r.WrittenOffAmount > 0).Select().ToList();
+
+                if (writtenOff.Count()>0)
+                    throw new CustomException("Delete is not allow,Please delete Customer Payment Receipt First ! ");
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                vendorAdWrsql = @"update trn.SalesMaterial set VoucherDetailId=null where SalesId='" + salesId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                
+                vendorAdWrsql = @"delete from TRN.InvoiceTaxDetail where InvoiceTaxId in(select Id from trn.InvoiceTax where InvoiceId in(select Id from TRN.Invoice where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.InvoiceTax  where InvoiceId in(select Id from TRN.Invoice where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.InvoiceDetail  where InvoiceId in(select Id from TRN.Invoice where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.Invoice  where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+
+                vendorAdWrsql = @"update trn.Sales set VoucherId=null where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.voucher  where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         public object GetMasterOrderIdBySalesId(string salesId)
         {
             try

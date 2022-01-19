@@ -511,16 +511,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpPost]
         public ActionResult DeleteMasterOrderSalePost(string salesId, string voucherId)
         {
-            AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
-            //if (tDSTaxVoucherId != null)
-            //    throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
-
-            _accountsSalesService.DeleteMasterOrderSalePost(salesId, voucherId);
-
-            //if (type == NewBeneficiaryType.Vendor.ToString())
-            //    _invoiceService.DeleteInventoryPayable(grnId, invoiceId, voucherId);
-            //if (type == NewBeneficiaryType.Employee.ToString())
-            //    _employeePayableService.DeleteGRNBeneficiaryEmployee(grnId, invoiceId, voucherId);
+            
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _salesService.DeleteMasterOrderSalePost(identity.CompanyId, identity.PlantId, salesId, voucherId);
 
             return Json(new { Message = AplosMessage.Deleted });
         }

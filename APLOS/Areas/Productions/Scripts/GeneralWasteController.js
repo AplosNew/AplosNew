@@ -255,27 +255,27 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
             }
         };
 
-        $scope.Delete = function () {
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-                $http({
-                    method: 'POST',
-                    url: $scope.deleteUrl + $scope.ModelNew.Id,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        ClearFields(response.data.Sequence);
-                        $scope.getData();
-                    }
-                    function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                });
-            }
-        };
+        //$scope.Delete = function () {
+        //    if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        //        $http({
+        //            method: 'POST',
+        //            url: $scope.deleteUrl + $scope.ModelNew.Id,
+        //            dataType: 'JSON'
+        //        }).then(function successCallback(response) {
+        //            if (response.data.Error === true) {
+        //                ShowResult(response.data.Message, 'failure');
+        //            }
+        //            else {
+        //                ShowResult(response.data.Message, 'success');
+        //                ClearFields(response.data.Sequence);
+        //                $scope.getData();
+        //            }
+        //            function errorCallBack(response) {
+        //                ShowResult(response.data.Message, 'failure');
+        //            }
+        //        });
+        //    }
+        //};
 
         $scope.Clear = function () {
             ClearFields($scope.GetSequence());

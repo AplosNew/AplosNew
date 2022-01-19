@@ -2284,7 +2284,7 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
         try {
             var file_src = 'OrderManagements/productionOrderReports/LadderPlanStatus?reportFormat=' + reportFormat + '&entityid=' + $scope.EntityId;
             $rootScope.report(file_src);
-
+             
         } catch (e) {
 
         }

@@ -30,11 +30,15 @@ namespace Aplos.Areas.Accounts.Controllers
             _accountsSalesService = accountsSalesService;
         }
 
-        
+
 
         #region Inventory Sales Posting
-        
+
         public ActionResult InventoryReceivable()
+        {
+            return View();
+        }
+        public ActionResult InventorySalesReturnPost()
         {
             return View();
         }
@@ -123,8 +127,56 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
+        #endregion
 
-       
+        #region InventorySales Return Post
+
+        [Authorize, HttpPost]
+        public JsonResult GetInventorySalesReturnForPost(string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetInventorySalesReturnForPost(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventorySalesReturnMaterial(GridParameter parameters, string inveReveiveId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetInvSalesReturnMaterial(parameters, identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventorySaleReturnDetailGLList(string inventorySalesId, string customerId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsInventorySalesService.GetInventorySaleDetailGLListData(identity.CompanyId, identity.PlantId, inventorySalesId, customerId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetBudgetActivityInSalesReturnMaterial(string inventorysalesId, string customerId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetBudgetActivityInSalesReturnMaterial(identity.CompanyId, identity.PlantId, inventorysalesId, customerId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventorySalesReturnInventorySalesBook(string inventorysalesId, string customerId, string taxapplicable)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_accountsSalesService.GetInventorySalesReturnInventorySalesBook(identity.CompanyId, identity.PlantId, inventorysalesId, customerId, taxapplicable), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventorySalesReturnMaterialReceivable(string inveReveiveId, string employeeId, string partyId, string taxapplicable)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetInventorySalesReturnMaterialReceivable(identity.CompanyId, identity.PlantId, inveReveiveId, partyId, taxapplicable), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
     }
 }

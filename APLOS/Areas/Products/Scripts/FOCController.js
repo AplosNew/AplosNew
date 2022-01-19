@@ -4033,6 +4033,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
             $scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
             for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
                 $scope.GetListForMasterOrdernew[i].Tolerance = $scope.productNew.Tolerance;
+                $scope.GetListForMasterOrdernew[i].MaterialStorageId = $scope.productNew.MaterialStorageId;
             }
             for (var i = 0; i < $scope.groupList.length; i++) {
                 $scope.groupList[i].Tolerance = $scope.productNew.Tolerance;

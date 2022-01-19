@@ -1029,7 +1029,7 @@ namespace Library.Service.Accounts
             }
         }
 
-        public IWorkbook IncomeStatement_Report(ExcelEngine excelEngine, string companyId, string plantId, string plantName, string date, string[] parallelCurrencies)
+        public IWorkbook IncomeStatement_Report(ExcelEngine excelEngine, string companyId, string plantId, string plantName, string date, string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel)
         {
             ReportUtility oRU = null;
             IWorkbook workbook = null;
@@ -1037,10 +1037,10 @@ namespace Library.Service.Accounts
             try
             {
                 oRU = new ReportUtility();
-                DataSet dsLocal = GetIncomeStatementInfo(companyId, plantId, date, parallelCurrencies);
+                DataSet dsLocal = GetIncomeStatementInfo(companyId, plantId, date, parallelCurrencies,  isBudgetLevel,  isActivityLevel);
                 workbook = oRU.GetWorkbook(ref excelEngine, 1);
                 sheet1 = workbook.Worksheets[0];
-                CreateSheet_IncomeStatement(ref sheet1, oRU, "Income Statement", "Income Statement Report", dsLocal, companyId, plantId, plantName, date, parallelCurrencies);
+                CreateSheet_IncomeStatement(ref sheet1, oRU, "Income Statement", "Income Statement Report", dsLocal, companyId, plantId, plantName, date, parallelCurrencies, isBudgetLevel, isActivityLevel);
 
                 workbook.Version = ExcelVersion.Excel2013;
                 return workbook;
@@ -1051,14 +1051,14 @@ namespace Library.Service.Accounts
             }
         }
 
-        private void CreateSheet_IncomeStatement(ref IWorksheet sheet, ReportUtility oRU, string SheetHeader, string SheetName, DataSet dslocal, string companyId, string plantId, string plantName, string date, string[] parallelCurrency)
+        private void CreateSheet_IncomeStatement(ref IWorksheet sheet, ReportUtility oRU, string SheetHeader, string SheetName, DataSet dslocal, string companyId, string plantId, string plantName, string date, string[] parallelCurrency, bool isBudgetLevel, bool isActivityLevel)
         {
             DataTable dtGeneralVoucher = null;
             DataTable dtCustomerCheckByCompany = null;
 
             #region List data
 
-            DataSet dsLocal = GetIncomeStatementInfo(companyId, plantId, date, parallelCurrency);
+            DataSet dsLocal = GetIncomeStatementInfo(companyId, plantId, date, parallelCurrency, isBudgetLevel,isActivityLevel);
             dtGeneralVoucher = dsLocal.Tables[0];
 
             DataSet CustomerCheckByCompanyList = GetCustomerCheckByCompany(companyId);
@@ -1385,7 +1385,7 @@ namespace Library.Service.Accounts
             }
         }
 
-        private DataSet GetIncomeStatementInfo(string companyId, string plantId, string date, string[] parallelCurrencies)
+        private DataSet GetIncomeStatementInfo(string companyId, string plantId, string date, string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel)
         {
             GridParameter parameters = null;
             try
@@ -1397,7 +1397,40 @@ namespace Library.Service.Accounts
                 {
                     ExportType = "DATASET"
                 };
-                parameters.CmdText = @"SELECT GL.Id AS AccountCodeId,Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                if (isActivityLevel)
+                {
+                    parameters.CmdText = @"SELECT GL.Id AS AccountCodeId,Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+		                                    sum(VDC.DrAmount) as DrAmount,
+		                                    sum(VDC.CrAmount) as CrAmount,
+                                            sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+											sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+											ACT.BalanceType,
+                                            ACT.Id AS [MainHead],
+											AG.UserName AS [Level],
+		                                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                                            VD.BudgetMasterId, BUD.UserName AS Budget,
+											A.UserName AS Activity,
+                                            A.Id AS ActivityId
+	                                        FROM TRN.VoucherDetailCurrency AS VDC
+		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                                            LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                                            left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+		                                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                                            LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                                            LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                                            LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                                            where act.IsBalanceSheet=0 AND v.PostingDate <= '" + date + @"' AND V.CompanyId='" + companyId + @"'  AND V.PlantId='" + plantId + @"'
+                                            and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id";
+
+                    return _sqlRepository.GetGridData(parameters).Source;
+                }
+                else if (isBudgetLevel && !isActivityLevel)
+                {
+                    parameters.CmdText = @"SELECT GL.Id AS AccountCodeId,Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
 		                                    sum(VDC.DrAmount) as DrAmount,
 		                                    sum(VDC.CrAmount) as CrAmount,
@@ -1422,7 +1455,40 @@ namespace Library.Service.Accounts
                                             and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
                                              group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
 
-                return _sqlRepository.GetGridData(parameters).Source;
+                    return _sqlRepository.GetGridData(parameters).Source;
+
+                }
+                else
+                {
+
+                    parameters.CmdText = @"SELECT GL.Id AS AccountCodeId,Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+		                                    sum(VDC.DrAmount) as DrAmount,
+		                                    sum(VDC.CrAmount) as CrAmount,
+                                            sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+											sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+											ACT.BalanceType,
+                                            ACT.Id AS [MainHead],
+											AG.UserName AS [Level],
+		                                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
+	                                        FROM TRN.VoucherDetailCurrency AS VDC
+		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                                            LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                                            left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+		                                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                                            LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                                            LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                                            LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                                            where act.IsBalanceSheet=0 AND v.PostingDate <= '" + date + @"' AND V.CompanyId='" + companyId + @"'  AND V.PlantId='" + plantId + @"'
+                                            and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode,v.PostingDate,ACT.BalanceType,AG.UserName,ACT.Id";
+
+                    return _sqlRepository.GetGridData(parameters).Source;
+
+                }
+
             }
             catch (Exception)
             {
@@ -1458,7 +1524,7 @@ namespace Library.Service.Accounts
             }
         }
 
-        public IWorkbook IncomeStatement_Report_DateRange(ExcelEngine excelEngine, string companyId,string plantId, string plantName, string fromDate, string toDate,  string[] parallelCurrencies)
+        public IWorkbook IncomeStatement_Report_DateRange(ExcelEngine excelEngine, string companyId,string plantId, string plantName, string fromDate, string toDate,  string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel)
         {
             ReportUtility oRU = null;
             IWorkbook workbook = null;
@@ -1469,7 +1535,7 @@ namespace Library.Service.Accounts
                // DataSet dsLocal = GetIncomeStatementInfoDateRange(companyId, plantId, fromDate, toDate, parallelCurrencies);
                 workbook = oRU.GetWorkbook(ref excelEngine, 1);
                 sheet1 = workbook.Worksheets[0];
-                CreateSheet_IncomeStatement_DateRange(ref sheet1, oRU, "Income Statement", "Income Statement Report", companyId, plantId, plantName, fromDate, toDate, parallelCurrencies);
+                CreateSheet_IncomeStatement_DateRange(ref sheet1, oRU, "Income Statement", "Income Statement Report", companyId, plantId, plantName, fromDate, toDate, parallelCurrencies, isBudgetLevel, isActivityLevel);
 
                 workbook.Version = ExcelVersion.Excel2013;
                 return workbook;
@@ -2104,14 +2170,14 @@ namespace Library.Service.Accounts
             }
         }
         #endregion BL
-        private void CreateSheet_IncomeStatement_DateRange(ref IWorksheet sheet, ReportUtility oRU, string SheetHeader, string SheetName, string companyId,string plantId, string plantName, string fromDate, string toDate, string[] parallelCurrency)
+        private void CreateSheet_IncomeStatement_DateRange(ref IWorksheet sheet, ReportUtility oRU, string SheetHeader, string SheetName, string companyId,string plantId, string plantName, string fromDate, string toDate, string[] parallelCurrency, bool isBudgetLevel, bool isActivityLevel)
         {
             DataTable dtGeneralVoucher = null;
             DataTable dtCustomerCheckByCompany = null;
 
             #region List data
 
-            DataSet dsLocal = GetIncomeStatementInfoDateRange(companyId, plantId, fromDate, toDate, parallelCurrency);
+            DataSet dsLocal = GetIncomeStatementInfoDateRange(companyId, plantId, fromDate, toDate, parallelCurrency, isBudgetLevel, isActivityLevel);
             DataTable dtLocalFTP = GetIncomeStatementInfoDateRangeForThePeriod(companyId, fromDate, toDate, parallelCurrency);
             //DataTable dtLocalFTPMaster = GetIncomeStatementInfoDateRangeForThePeriodMaster(companyId, fromDate, toDate, parallelCurrency);
 
@@ -2971,7 +3037,7 @@ namespace Library.Service.Accounts
                 sheet.Range[RowTotal_current2, sumdrcrCol2].BorderAround(ExcelLineStyle.Hair);
             }
         }
-        private DataSet GetIncomeStatementInfoDateRange(string companyId,string plantId, string fromDate, string toDate,  string[] parallelCurrencies)
+        private DataSet GetIncomeStatementInfoDateRange(string companyId,string plantId, string fromDate, string toDate,  string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel)
         {
             GridParameter parameters = null;
             try
@@ -2983,7 +3049,45 @@ namespace Library.Service.Accounts
                 {
                     ExportType = "DATASET"
                 };
-                parameters.CmdText = @"
+                if (isActivityLevel)
+                {
+                    parameters.CmdText = @"
+
+                    SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    sum(VDC.DrAmount) as DrAmount,
+                    sum(VDC.CrAmount) as CrAmount,
+                    sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+                    sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+                   
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                    VD.BudgetMasterId, BUD.UserName AS Budget,
+					A.UserName AS Activity,
+                    A.Id AS ActivityId
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND v.PostingDate < '" + fromDate + @"' AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
+                  --  ,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id";
+
+                    return _sqlRepository.GetGridData(parameters).Source;
+                }
+                else if (isBudgetLevel && !isActivityLevel)
+                {
+                    parameters.CmdText = @"
 
                     SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
                     VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
@@ -3013,7 +3117,44 @@ namespace Library.Service.Accounts
                   --  ,v.PostingDate
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
 
-                return _sqlRepository.GetGridData(parameters).Source;
+                    return _sqlRepository.GetGridData(parameters).Source;
+
+                }
+                else
+                {
+                    parameters.CmdText = @"
+
+                    SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    sum(VDC.DrAmount) as DrAmount,
+                    sum(VDC.CrAmount) as CrAmount,
+                    sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+                    sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+                   
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND v.PostingDate < '" + fromDate + @"' AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
+                  --  ,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id";
+
+                    return _sqlRepository.GetGridData(parameters).Source;
+
+                }
+              
             }
             catch (Exception)
             {

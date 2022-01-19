@@ -533,6 +533,7 @@ var upanelApp = angular
     .controller('FarmerMasterController', FarmerMasterController)
     .controller('FgPoFormasterOrderController', FgPoFormasterOrderController)
     .controller('finalSettlementController', finalSettlementController)
+    .controller('finalSettlementNewController', finalSettlementNewController)
 
     .controller('finalSettlementReportController', finalSettlementReportController)
     .controller('finalSettlementVoucherController', finalSettlementVoucherController)
@@ -999,7 +1000,8 @@ var upanelApp = angular
     .controller('GeneralWasteController', GeneralWasteController)
     .controller("issueTransactionController", issueTransactionController)
     .controller("EmployeeShiftUpdatesController", EmployeeShiftUpdatesController)
-    .controller("ProductionReportController", ProductionReportController)
+    .controller("ProductionGeneralReportController", ProductionGeneralReportController)
+    .controller("inventorySalesReturnPost", inventorySalesReturnPost)
 
 
     .config(AccessControllerConfig)

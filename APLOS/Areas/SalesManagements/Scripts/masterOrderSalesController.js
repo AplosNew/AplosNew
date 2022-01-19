@@ -657,6 +657,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             $scope.MDate = $scope.salesVM.MatureDate;
             $scope.PDate = $scope.salesVM.PostingDate;
             $scope.VDate = $scope.salesVM.VoucherDate;
+            $scope.AddedDate = $scope.salesVM.AddedDate;
             
 
             if ($scope.salesVM.IsPark == 0) {
@@ -706,6 +707,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                             $scope.getData();
 
                             $scope.salesVM = response.data.Data;
+                            $scope.salesVM.AddedDate = $scope.AddedDate;
 
                             $scope.salesVM.BLDate = $scope.BLDate;
                             $scope.salesVM.EXPDate = $scope.EXPDate;
@@ -753,7 +755,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                             $scope.savebtndisable = false;
                             $scope.getData();
                             $scope.salesVM = response.data.Data;
-
+                            $scope.salesVM.AddedDate = $scope.AddedDate;
                             $scope.salesVM.BLDate = $scope.BLDate;
                             $scope.salesVM.EXPDate = $scope.EXPDate;
                             $scope.salesVM.BaseOnDueDate = $scope.BaseDate;
@@ -1823,8 +1825,9 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                         ShowResult(response.data.Message, 'success');
                         $scope.mateId = null;
                         $scope.salesMaterialList.splice($scope.mateIndex, 1);
-                        $scope.getData();
-                        $scope.Clear();
+                        $scope.GetSalesMaterialData($scope.salesVM.Id);
+                        //$scope.getData();
+                        //$scope.Clear();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -1924,7 +1927,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                 else if ($scope.salesVM.PlantStateId != $scope.salesVM.InvoicingStateId && $scope.salesVM.PlantStateId != $scope.salesVM.ChangeInvoicingStateId)
                     angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
                 else
-                    ShowResult('Change is not allowed', 'failure', 'invoicingPartyPopUp');
+                    //ShowResult('Change is not allowed', 'failure', 'invoicingPartyPopUp');
+                    ShowResult('First delete material.', 'failure', 'invoicingPartyPopUp');
             }
             else
                 angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');

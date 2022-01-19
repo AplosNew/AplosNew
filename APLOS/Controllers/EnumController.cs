@@ -117,6 +117,11 @@ namespace Aplos.Controllers
         {
             return Json(new SelectList(EnumService.GetEnumCbo<BalanceSheetLevel>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetIncomeStatementCbo()
+        {
+            return Json(new SelectList(EnumService.GetEnumCbo<IncomeStatementLevel>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetTrailBalanceLevelCbo()

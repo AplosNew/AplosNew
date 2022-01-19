@@ -1,15 +1,16 @@
 ﻿'use strict';
-ProductionReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function ProductionReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+ProductionGeneralReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function ProductionGeneralReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Production Report';
-    $scope.path = 'Productions/ProductionReport/';
+    $scope.path = 'Productions/ProductionGeneralReport/';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     //Variables 
     $scope.filtersList = [];
     $scope.masterData = [];
     $scope.masterDetailData = [];
     $scope.ColName = 'Master';
-
+    $scope.ChosenPRID = null;
 
 
     // Getting the Filters 
@@ -101,8 +102,9 @@ function ProductionReportController(cboService, commonMessage, $scope, $rootScop
         else {
             $scope.ColName = 'Master';
         }
-
+        
         var PRId = e.data.ProductionOrderId;
+        $scope.ChosenPRID = PRId;
         $http({
             method: 'POST',
             url: $scope.path + 'masterDetail',
@@ -111,6 +113,25 @@ function ProductionReportController(cboService, commonMessage, $scope, $rootScop
             $scope.masterDetailData = [];
             $scope.masterDetailData = resp.data;
             angular.element(document.querySelector('#masterDetail')).modal('show');
+        });
+    }
+
+    //Downloading Of the Reports
+    $scope.getReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getReports",
+            data: { 'PRId': $scope.ChosenPRID},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
         });
     }
 

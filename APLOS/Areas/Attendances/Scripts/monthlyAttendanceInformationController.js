@@ -148,7 +148,7 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
                     //if (reportType === 'EXCEL') {
                     //    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
                     //}
-                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
                 }
             });
 
@@ -249,9 +249,10 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    if (reportType === 'EXCEL') {
-                        $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                    }
+                    //if (reportType === 'EXCEL') {
+                    //    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    //}
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
                 }
             });
 
