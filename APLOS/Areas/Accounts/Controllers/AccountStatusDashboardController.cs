@@ -1753,5 +1753,451 @@ namespace Aplos.Areas.Accounts.Controllers
             }
 
         }
+        private string GetDate(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                return "";
+
+            try
+            {
+                return Convert.ToDateTime(s).ToString("dd-MMM-yyyy");
+            }
+            catch (Exception)
+            {
+                return "";
+            }
+        }
+
+        [HttpGet,Authorize]
+        public ActionResult GRNWithoutInvoiceReportExcelFormat(ReportFormat reportFormat,string ToDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "GRN Without Invoice";
+            var workbook = GetGRNWithoutInvoiceReportWorkSheet(identity.CompanyGroupId,identity.PlantId,identity.CompanyId,ToDate);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+                case ReportFormat.Excel:
+                    return RenderReportAsExcelx(workbook,reportFileName);
+                default:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetGRNWithoutInvoiceReportWorkSheet(string companyGroupId,string plantId, string companyId, string toDate)
+        {
+
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            sheet.Name = "GRNWithoutInvoice";
+
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+
+            DataTable data = GRNWithoutInvoiceList(companyGroupId, plantId, companyId, toDate);
+
+
+            #region Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "GRN No.", 10, ExcelHAlign.HAlignLeft);
+            int ColGRNNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "GRN Date", 10, ExcelHAlign.HAlignLeft);
+            int ColGRNDate = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Doc RefNo", 15, ExcelHAlign.HAlignLeft);
+            int ColDocRefNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Doc Date", 12, ExcelHAlign.HAlignLeft);
+            int ColDocDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Vendor", 18, ExcelHAlign.HAlignLeft);
+            int ColVendor = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Voucher No.", 12, ExcelHAlign.HAlignLeft);
+            int ColVoucherNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Qty", 12, ExcelHAlign.HAlignRight);
+            int ColTransactionQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Currency", 5, ExcelHAlign.HAlignLeft);
+            int ColCurrency = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Amount", 15, ExcelHAlign.HAlignRight);
+            int ColTotalMaterialTranAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Exchange Rate", 15, ExcelHAlign.HAlignRight);
+            int ColToCurrencyRate = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Books val.", 15, ExcelHAlign.HAlignRight);
+            int ColTotalMaterialBooksCurrencyAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PO NO.", 10, ExcelHAlign.HAlignLeft);
+            int ColPOId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PO DocRefNo.", 10, ExcelHAlign.HAlignLeft);
+            int ColPODocRefNo = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "PI No.", 10, ExcelHAlign.HAlignLeft);
+            int ColPINo = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "LC No.", 10, ExcelHAlign.HAlignLeft);
+            int ColPLCRef = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "LC Opening Date", 10, ExcelHAlign.HAlignLeft);
+            int ColLCOpeningDate = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Expiry Date", 10, ExcelHAlign.HAlignLeft);
+            int ColExpiryDate = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "PLC Amount", 15, ExcelHAlign.HAlignRight);
+            int ColPLCAmount = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Contract No.", 10, ExcelHAlign.HAlignLeft);
+            int ColContractNo = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 15, ExcelHAlign.HAlignLeft);
+            int ColCustomer = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "MLC Ref", 10, ExcelHAlign.HAlignLeft);
+            int ColMasterLCRef = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "UD No", 10, ExcelHAlign.HAlignLeft);
+            int ColUDNo = COL;
+
+
+            endCol = COL;
+            #endregion Headers
+
+            var startRow = 0;
+
+            int RowIndex = ROW;
+            startRow = ROW;
+            ROW++;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, ColGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
+                sheet[ROW, ColGRNDate].Text = GetDate(data.Rows[i]["GRNDate"].ToString());
+                sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+                sheet[ROW, ColDocDate].Text = data.Rows[i]["DocDate"].ToString(); 
+                sheet[ROW, ColVendor].Text = data.Rows[i]["Vendor"].ToString();
+                sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+
+                sheet[ROW, ColTransactionQty].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionQty"].ToString());
+                sheet[ROW, ColTransactionQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColTransactionQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColTransactionQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+
+                sheet[ROW, ColTotalMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialTranAmount"].ToString());
+                sheet[ROW, ColTotalMaterialTranAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColTotalMaterialTranAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColTotalMaterialTranAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColToCurrencyRate].Number = clsStaticInfo.dbl(data.Rows[i]["ToCurrencyRate"].ToString());
+                sheet[ROW, ColToCurrencyRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColToCurrencyRate].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColToCurrencyRate].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColTotalMaterialBooksCurrencyAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBooksCurrencyAmount"].ToString());
+                sheet[ROW, ColTotalMaterialBooksCurrencyAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColTotalMaterialBooksCurrencyAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColTotalMaterialBooksCurrencyAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColPOId].Text = data.Rows[i]["POId"].ToString();
+                sheet[ROW, ColPODocRefNo].Text = data.Rows[i]["PODocRefNo"].ToString();
+                sheet[ROW, ColPINo].Text = data.Rows[i]["PINo"].ToString();
+                sheet[ROW, ColPLCRef].Text = data.Rows[i]["PLCRef"].ToString();
+                sheet[ROW, ColLCOpeningDate].Text = data.Rows[i]["LCOpeningDate"].ToString();
+                sheet[ROW, ColExpiryDate].Text = data.Rows[i]["ExpiryDate"].ToString();
+
+                sheet[ROW, ColPLCAmount].Number = clsStaticInfo.dbl(data.Rows[i]["PLCAmount"].ToString());
+                sheet[ROW, ColPLCAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColPLCAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColPLCAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColContractNo].Text = data.Rows[i]["ContractNo"].ToString();
+                sheet[ROW, ColCustomer].Text = data.Rows[i]["Customer"].ToString();
+                sheet[ROW, ColMasterLCRef].Text = data.Rows[i]["MasterLCRef"].ToString();
+                sheet[ROW, ColUDNo].Text = data.Rows[i]["UDNo"].ToString();
+
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.NumberFormat = "#,##0.00";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            report.CompanyHeader(ref sheet, endCol, "GRN Without Invoice", identity.CompanyId);
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+        public DataTable GRNWithoutInvoiceList(string companyGroupId, string plantId, string companyId, string toDate)
+        {
+            try
+            {
+
+                string strSQL = string.Empty;
+                strSQL = @"select IR.Id GRNNo
+                    ,V.VoucherNo
+                    ,IR.PartyId
+					,p.UserName Vendor
+					,IR.PartyType
+                    , IR.DocRefNo
+					,isnull( format( IR.DocDate, 'dd-MMM-yyyy'),'')DocDate
+                    ,IR.GateEntryNo
+					,IR.EntryDate
+                    ,IR.IsApproved
+                    --,IR.POId
+                    -- IR.PurchaseDocumentAcceptanceId
+                    --,GAM.PurchaseDocumentAcceptanceId
+                    ,IR.IsInvoice
+					,IR.GRNType
+					,isnull(format( IR.GRNDate,'dd-MMM-yyyy'),'')GRNDate
+                    ,ISNULL( IR.EmployeeId,'')EmployeeId
+
+                  --  ,IRD.InventoryMaterialId
+                    ,SUM(ISNULL( IRD.TransactionQty ,0))TransactionQty
+					--,IRD.TransactionUoMId
+					--,IRD.BaseUOMId
+                    --,SUM(IRD.TrnCurrencyBaseRate)TrnCurrencyBaseRate
+                   -- ,SUM(IRD.MaterialTranRate)MaterialTranRate
+					,SUM(IRD.MaterialTranAmount)MaterialTranAmount
+                    ,SUM(IRD.TotalTaxAmount)TotalTaxAmount
+					,SUM(IRD.ChargesTranAmount)ChargesTranAmount
+					,SUM(IRD.ChargesTaxTranAmount)ChargesTaxTranAmount
+					,SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount
+
+					,cc.Code ComCurrency
+					--,IRD.BaseQty
+				--	,SUM(IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
+					,C.Code Currency
+				    ,IR.ToCurrencyRate
+                    ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
+             
+				
+                    --,IRD.POId
+					,IRD.IsAsset
+                    ,SUM( IRD.GRNQty)GRNQty
+					, SUM(IRD.GRNTotalAmount)GRNTotalAmount
+                    ,SUM(IRD.GrossAmount)GrossAmount
+					,SUM(IRD.DiscountAmount)DiscountAmount
+
+						--,IRD.IssueQty
+                       -- ,IRD.BaseIssueQty
+
+                     --,po.Id POId 
+					-- ,po.DocRefNo PODocRefNo
+					-- ,po.DocDate PODocDate
+                   -- ,po.PODate
+					--,po.POType
+				--	,po.OrderSpecific
+
+                    --,IR.FixedAssetOrInventory
+                    --,IR.AlongwithInvoice,IR.InvoiceNo,IR.InvoiceDate,IR.BaseOnDueDate
+                    --,IR.BaseNoOfDays,IR.MatureDate,IR.Status,IR.BaseCurrencyId,IR.ToCurrencyRate
+                    --,IR.JWWIPVoucherId,IR.JWGRIRVoucherId,IR.JWChangeInInvVoucherId
+
+                  --  ,plc.Id PurchaseLCId
+				--	,plc.ContractId
+					--, plc.LCRef PLCRef
+                   -- ,plc.LCANo
+                  --  ,isnull( plc.IsAccepptanceFirst,0)IsAccepptanceFirst
+                  --  ,plc.LCDate
+				--	,plc.Type
+				, SUM(isnull( plc.Amount,0) )PLCAmount
+
+				    --,con.Id ContractId 	,con.ContractNo, con.UDNo, cus.UserName Customer
+					--,ML.Id MasterLCId, ML.LCRef MLCRef
+					,Sum(isnull( ml.Amount ,0))MLCAmount
+
+					  ,POId= STUFF((select distinct ','+PG.POId
+			                            FROM TRN.POGGRNMap PG 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+					 ,PODocRefNo= STUFF((select distinct ','+PO.DocRefNo
+			                            from TRN.POGGRNMap PG 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			                            where PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                  
+				    ,PLCRef= STUFF((select distinct ','+PLC.LCRef
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+				    ,PINo= STUFF((select distinct ','+PLC.PINo
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+					--,plc.LCDate LCOpeningDate
+					--,plc.ExpiryDate
+
+               ,LCOpeningDate= STUFF((select distinct ','+FORMAT(PLC.LCDate,'dd-MMM-yyyy')
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+			    ,ExpiryDate= STUFF((select distinct ','+format( PLC.ExpiryDate,'dd-MMM-yyyy')
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+				 --,PLCAmount= STUFF((select distinct ','+PLC.Amount
+			  --                          FROM PurchaseLC PLC 
+     --                                   LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+					--					left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			  --                          WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+			
+				,ContractNo= STUFF((select distinct ','+Con.ContractNo
+			                            FROM Contract Con 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+			,Customer= STUFF((select distinct ','+cus.UserName
+			                            FROM Contract Con 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
+                                        LEFT JOIN hkp.Party cus ON cus.Id= con.CustomerId	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+			,UDNo= STUFF((select distinct ','+Con.UDNo
+			                            FROM Contract Con 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
+                                       -- LEFT JOIN hkp.Party cus ON cus.Id= con.CustomerId	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													
+				,MasterLCRef= STUFF((select distinct ','+mlc.LCRef
+			                            FROM Contract Con 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
+                                        LEFT JOIN MasterLC mlc ON mlc.Id=Con.MasterLCId	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								
+			--	,MLCAmount= STUFF((select distinct ','+mlc.Amount
+			--                            FROM Contract Con 
+   --                                     LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
+   --                                     LEFT JOIN MasterLC mlc ON mlc.Id=Con.MasterLCId	
+			--							left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			--                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+				
+
+				   from trn.InventoryReceive IR  
+                    left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId = IR.Id
+                    LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
+                    left join trn.PurchaseOrder po on po.Id =IRD.POId
+                    left join PurchaseLC plc on plc.Id = po.PurchaseLCId
+                    --LEFT JOIN TRN.GRNAcceptanceMap GAM ON GAM.GRNId =IR.Id
+					left join HKP.party p on p.Id = ir.PartyId
+					left join org.Company Com on Com.Id = IR.CompanyId
+                    LEFT JOIN SCS.Currency CC ON CC.Id = Com.BaseCurrencyId
+					left join [Contract] as Con on plc.ContractId= Con.Id
+					left join MasterLC ML on ML.Id=con.MasterLCId
+                    LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
+					LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
+					--left join HKP.party Cus on cus.Id= con.CustomerId
+					
+                    where IR.CompanyGroupId = '" + companyGroupId + "' AND IR.CompanyId ='" + companyId + "' AND IR.PlantId='" + plantId + @"'
+                    AND  IR.IsInvoice=0 
+					--and isnull(GAM.PurchaseDocumentAcceptanceId,'') is not null
+	                AND IR.Id not in (select InventoryReceiveId from trn.Invoice where InventoryReceiveId<>'')
+					AND IR.Id not in (select InventoryReceiveId from trn.EmployeePayable where InventoryReceiveId<>'')
+					and ir.VoucherId<>''
+                          and IR.GRNDate <='" + toDate + @"'
+			              --and plc.IsAccepptanceFirst=0
+					--AND IR.Id='2021638'
+					group by 
+					IR.Id 
+                    ,V.VoucherNo
+					,cc.Code
+                    ,C.Code 
+                    ,IR.PartyId
+					,IR.PartyType
+                    , IR.DocRefNo
+					, IR.DocDate
+                    ,IR.GateEntryNo
+					,IR.EntryDate
+                    ,IR.IsApproved
+                    --,GAM.PurchaseDocumentAcceptanceId
+                    ,IR.IsInvoice
+					,IR.GRNType
+					,IR.GRNDate
+                    ,IR.EmployeeId
+
+                   -- ,IRD.InventoryMaterialId
+					,IRD.IsAsset
+					,p.UserName
+					,IR.ToCurrencyRate
+					
+                   --  ,po.Id  
+					-- ,po.DocRefNo 
+					-- ,po.DocDate 
+                   -- ,po.PODate
+				--	,po.POType
+					--,po.OrderSpecific
+
+                   -- ,plc.Id 
+					--,plc.ContractId
+					--, plc.LCRef
+                  --  ,plc.LCANo
+                 --   ,plc.IsAccepptanceFirst
+                  --  ,plc.LCDate
+				--	,plc.Type
+					
+
+					-- ,con.Id ,con.ContractNo, con.UDNo, cus.UserName 
+				--	,ML.Id , ML.LCRef, ml.Amount";
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
     }
 }

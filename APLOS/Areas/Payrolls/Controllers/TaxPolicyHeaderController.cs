@@ -15,6 +15,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         TaxPolicyMasterService ds = new TaxPolicyMasterService();
         public TaxPolicyHeaderController()
         {
+            ds = new TaxPolicyMasterService();
         }
 
         #endregion Constructor
@@ -151,7 +152,21 @@ namespace Aplos.Areas.Payrolls.Controllers
         #endregion
 
         #region Formula Rules Functions
-      
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteFormula(string ID)
+        {
+            try
+            {
+                ds.DeleteFormula(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetGeneralFormula(string TaxEarnChildId)
         {
@@ -164,7 +179,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
 
         [HttpPost, Authorize]
         public JsonResult SaveGeneralFormula(TaxExemptionFormula TaxExemptionFormula, IEnumerable<TaxExemptionFormulaDetail> details)
@@ -208,6 +222,18 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetFormulaList(string FormulaId)
+        {
+            try
+            {
+                return Json(ds.GetFormulaList(FormulaId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         #endregion
 
     }

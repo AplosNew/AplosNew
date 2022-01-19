@@ -421,7 +421,9 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         }).then(function successCallback(response) {
             $scope.GeneralTaxFormulaList = response.data;
         });
-    }     
+    }
+
+    $scope.ModalShowName = null;
 
     $scope.AddEntry = function () {
         try {
@@ -430,6 +432,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             var data = gridObj.getSelectedRecords()[0];
             $scope.TaxExemptionFormula.TaxEarningMasterChildId = data.Id;
             $scope.EarningChildId = data.Id;
+            $scope.ModalShowName = data.SalaryHead;
 
             $scope.getGeneralTaxFormula($scope.TaxExemptionFormula.TaxEarningMasterChildId);
 
@@ -473,6 +476,79 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.FormulaChildModel.SalaryHeadFormula = null;
         $scope.FormulaChildModel.FormulaDescription = null;
         $scope.FormulaDetails = [];
+    };
+
+    //#endregion
+
+    // #region Delete Formula Functions
+
+    $scope.ConfirmDeleteFormula = function (obj) {
+        $scope.TaxExemptionFormula.Id = obj.data.Id;
+        $scope.DeleteFormula();
+    };
+
+    $scope.DeleteFormula = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteFormula",
+                data: { ID: $scope.TaxExemptionFormula.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                    $scope.getGeneralTaxFormula($scope.TaxExemptionFormula.TaxEarningMasterChildId);
+                    $scope.ClearFormula();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    //#endregion
+
+    // #region Double Click Formula Grid 
+
+    $scope.GeneralFormula = function (obj) {
+        $scope.TaxExemptionFormula = Object.assign({}, obj.data);
+
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetFormulaList?FormulaId=" + $scope.TaxExemptionFormula.Id
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.FormulaDetails = response.data;
+
+                $scope.FormulaChildModel.FormulaDes = '';
+                $scope.FormulaChildModel.FormulaDesID = '';
+
+                for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                    if (!baseService.isUndefinedOrNull($scope.FormulaChildModel.FormulaDes)) {
+                        $scope.FormulaChildModel.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+
+                        $scope.FormulaChildModel.FormulaDesID += ' ' + ($scope.FormulaDetails[i].SalaryHeadID == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].SalaryHeadID);
+                    } else {
+                        $scope.FormulaChildModel.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                        $scope.FormulaChildModel.FormulaDesID = $scope.FormulaDetails[i].SalaryHeadID;
+                    }
+                }
+
+                $scope.FormulaChildModel.FormulaDescription = $scope.FormulaChildModel.FormulaDes;
+                $scope.FormulaChildModel.FormulaIDDescription = $scope.FormulaChildModel.FormulaDesID;
+
+
+            }
+        });
+
     };
 
     //#endregion
