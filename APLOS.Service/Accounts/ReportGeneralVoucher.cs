@@ -1240,7 +1240,7 @@ namespace Library.Service.Accounts
                     {
                         string ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
 
-                        if (!string.IsNullOrEmpty(BudgetMasterId))
+                        if (!string.IsNullOrEmpty(BudgetMasterId) && string.IsNullOrEmpty(ActivityId))
                         {
                             DataView dvDrCr = new DataView(dsLocal.Tables[0])
                             {
