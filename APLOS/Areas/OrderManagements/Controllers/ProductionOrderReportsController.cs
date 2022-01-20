@@ -7414,10 +7414,7 @@ TNA.SONo, TNA.PRNo
                 sheet[ROW, COL].Text = "Total Production";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colTotalProduction = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Remarks";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colRemarks = COL;
+               
 
                 #endregion columns
 
@@ -7705,76 +7702,116 @@ TNA.SONo, TNA.PRNo
             {
 
                 string strSQL = string.Empty;
-                strSQL = @"select PPL.*,POS.Quantity AS ProductionQuantity,P.UserName Customer,MO.MasterOrderNo,B.UserName Buyer,SO.Id SOId,PO.Id PONo,SO.Qty SOQty,PRS.UserName ProductionOrderStatus,POS.Remarks
-        							,BuyerOrder = REPLACE(REPLACE(
+                strSQL = @"select PPL.*,POS.Quantity AS ProductionQuantity,PRS.UserName ProductionOrderStatus
+
+										,SOQty = (select SUM(SOX.Qty) from trn.SalesOrder AS sox
+        								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+        							                                where podx.ProductionOrderId=po.Id)
+        								,BuyerOrder = REPLACE(REPLACE(
         										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
         																			trn.MasterOrder XMOI 	 
         								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
         								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
         								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-        							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+        							                                where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
         								                		,'&amp;','&'), 'amp;', '')
+										,MasterOrderNo = REPLACE(REPLACE(
+        										 STUFF((select distinct ','+XMOI.Id from 
+        																			trn.MasterOrder XMOI 	 
+        								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+        								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+        								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+        							                                where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+        								                		,'&amp;','&'), 'amp;', '')
+										,PONo=STUFF((select distinct ','+XPO.PONumber from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+																inner join trn.CustomerPO XPO on xpo.id=sox.CustomerPOId
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+															
+										,SOId=STUFF((select distinct ','+sox.Id from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                                        ,SODesc=STUFF((select distinct ','+sox.[Description] from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                                        ,buyer=STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+                                         ,Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			                                                    
+
                                         ,OwnOrder =REPLACE(REPLACE(
+
         										 STUFF((select distinct ','+XMOI.OwnReferenceNo from 
         																			trn.MasterOrder XMOI 	 
         								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
         								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
         								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-        							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+        							                                where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
         									                	,'&amp;','&'), 'amp;', '')
-        							 ,BuyerItem=REPLACE(REPLACE(
+        								 ,BuyerItem=REPLACE(REPLACE(
         										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
         																			trn.MasterOrderItem XMOI 	  
         								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
         								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-        							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+        							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
         										                ,'&amp;','&'), 'amp;', '')	                                                
-                                      ,OwnItem=REPLACE(REPLACE(
+										,OwnItem=REPLACE(REPLACE(
         										STUFF((select distinct ','+XMOI.OwnReferenceNo from 
         																			trn.MasterOrderItem XMOI 	  
         								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
         								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-        							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-        										,'&amp;','&'), 'amp;', '')	 
+        							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+        										,'&amp;','&'), 'amp;', '')  from (select P.PRNo,P.EntityID,P.[Date],P.WorkCenter,P.WorkCenterMasterId,sum(P.PlanTarget) PlanTarget 
+												from (select PPT.ProductionOrderID PRNo,PPT.EntityID,PPT.ProductionDate [Date],ppt.WorkCenterMasterId,WCM.UserName WorkCenter,SUM(PPT.Quantity) [PlanTarget]
+        										
+												from ProductionPlanningType1 PPT
+        										left join SCS.WorkCenterMaster WCM on WCM.Id=PPT.WorkCenterMasterId
+        										group by PPT.ProductionOrderID ,ppt.WorkCenterMasterId,PPT.ProductionDate,WCM.UserName,PPT.EntityID
+        										union all
+        										select PPS.ProductionOrderID PRNo,PPS.EntityID,PPS.ProductionDate [Date],pps.WorkCenterMasterId,WCM.UserName WorkCenter
+        										,SUM(PPS.Quantity) [PlanTarget]
+        										from ProductionPlanningSnapshot2Type1 PPS
+        										left join SCS.WorkCenterMaster WCM on WCM.Id=PPS.WorkCenterMasterId
+        										group by PPS.ProductionOrderID ,PPS.ProductionDate ,pps.WorkCenterMasterId,WCM.UserName,PPS.EntityID
+												union all
+												 select PRS.ProductionOrderID PRNo,PRS.EntityID,PRS.ProductionDate [Date],PRS.WorkCenterMasterId,WCM.UserName WorkCenter
+        										,SUM(0) [PlanTarget] 
+												from trn.ProductionSummary PRS 
+												join trn.ProductionOrder PO ON PO.id=prs.ProductionOrderId
+												join trn.ProductionOrderProcessSet PSS on pss.ProductionOrderId=po.id and pss.IsBaseProcess=1
+												left join SCS.WorkCenterMaster WCM on WCM.Id=PRS.WorkCenterMasterId and wcm.ProcessId=pss.ProcessId
+												group by   PRS.ProductionOrderID ,PRS.ProductionDate ,PRS.WorkCenterMasterId,WCM.UserName,PRS.EntityID
+        										)as P group by P.PRNo,P.EntityID,P.[Date],P.WorkCenter,P.WorkCenterMasterId) PPL 
+        										Left join (select ps.ProductionOrderId PRNo,ps.ProductionDate,ps.WorkCenterMasterId,sum(ps.Quantity) Quantity  from trn.ProductionSummary ps 
+        										group by ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId
+        										) POS on POS.PRNo=PPL.PRNo and pos.ProductionDate=ppl.[Date] and pos.WorkCenterMasterId=ppl.WorkCenterMasterId
+        										left join TRN.ProductionOrder PO on PO.Id=PPL.PRNo
+												left join HKP.ProductionStatus PRS on PRS.Id=PO.ProductionStatusId
+        				
+        				
 
-
-
-        from (select PPT.ProductionOrderID PRNo,PPT.EntityID,PPT.ProductionDate [Date]
-        				,ppt.WorkCenterMasterId,WCM.UserName WorkCenter,SUM(PPT.Quantity) [PlanTarget]
-        				from ProductionPlanningType1 PPT
-        				left join SCS.WorkCenterMaster WCM on WCM.Id=PPT.WorkCenterMasterId
-        				group by PPT.ProductionOrderID ,ppt.WorkCenterMasterId,PPT.ProductionDate,WCM.UserName,PPT.EntityID
-        				union all
-        				select PPS.ProductionOrderID PRNo,PPS.EntityID,PPS.ProductionDate [Date],pps.WorkCenterMasterId,WCM.UserName WorkCenter
-        				,SUM(PPS.Quantity) [PlanTarget]
-        				from ProductionPlanningSnapshot2Type1 PPS
-        				left join SCS.WorkCenterMaster WCM on WCM.Id=PPS.WorkCenterMasterId
-        				group by PPS.ProductionOrderID ,PPS.ProductionDate ,pps.WorkCenterMasterId,WCM.UserName,PPS.EntityID
-                        union all
-                         select PRS.ProductionOrderID PRNo,PRS.EntityID,PRS.ProductionDate [Date],PRS.WorkCenterMasterId,WCM.UserName WorkCenter
-        				,SUM(0) [PlanTarget] 
-                        from trn.ProductionSummary PRS 
-						join trn.ProductionOrder PO ON PO.id=prs.ProductionOrderId
-						join trn.ProductionOrderProcessSet PSS on pss.ProductionOrderId=po.id and pss.IsBaseProcess=1
-                        left join SCS.WorkCenterMaster WCM on WCM.Id=PRS.WorkCenterMasterId and wcm.ProcessId=pss.ProcessId
-                        group by   PRS.ProductionOrderID ,PRS.ProductionDate ,PRS.WorkCenterMasterId,WCM.UserName,PRS.EntityID
-        				) PPL 
-        				Left join (select ps.ProductionOrderId PRNo,ps.ProductionDate,ps.WorkCenterMasterId,sum(ps.Quantity) Quantity,ps.Remarks  from trn.ProductionSummary ps 
-        				group by ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.Remarks
-        				) POS on POS.PRNo=PPL.PRNo and pos.ProductionDate=ppl.Date and pos.WorkCenterMasterId=ppl.WorkCenterMasterId
-        				left join TRN.ProductionOrder PO on PO.Id=PPL.PRNo
-						left join HKP.ProductionStatus PRS on PRS.Id=PO.ProductionStatusId
-        				left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
-        				left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId
-        				left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-        				left join TRN.MasterOrder MO on MO.Id=MOI.MasterOrderId
-        				left join HKP.Party P on P.Id=MO.PartyId
-        				left join HKP.Buyer B on B.Id=MO.BuyerId
-
-
-        				where PPL.EntityID='" + entityid + @"' and PRS.UserName in ('Active','Running') 
-
-        			order by pod.ProductionOrderId,PPL.Date";
+        										where PPL.EntityID='" + entityid + @"' and PRS.UserName in ('Active','Running')";
 
                 return ldPlan = _sqlRepository.GetDataTable(strSQL);
             }
