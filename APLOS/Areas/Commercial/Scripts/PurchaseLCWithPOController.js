@@ -479,9 +479,13 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         $http.get("Commercial/PurchaseLCWithPO/getlist")
             .then(
                 function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.purchaseLCList = response.data;
+
+                    for (var i = 0; i < response.data.length; i++) {
+                        response.data[i]["LCDate"] = new Date(response.data[i]["LCDate"]);
+                        response.data[i]["AmendmentDate"] = new Date(response.data[i]["AmendmentDate"]);
                     }
+                    $scope.purchaseLCList = response.data;
+
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');

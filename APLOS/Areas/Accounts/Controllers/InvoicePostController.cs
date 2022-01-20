@@ -440,7 +440,63 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         #endregion
+        #region Inventory Sales Return
+        [HttpPost]
+        public JsonResult InventorySalesReturnMultipleJournalPosting(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+        , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
+        , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, OtherInvoice otherInvoiceVM)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            if (acceptanceId == null && voucherVM.PaymentTermId == null)
+                throw new CustomException("Please select Payment Term");
 
+            if (voucherDetailVMList != null)
+            {
+                foreach (var item in voucherDetailVMList)
+                {
+
+                    if (item.GLGeneralInfoId == null)
+                        throw new CustomException("GL is Not Mapped !");
+                    if (item.BudgetMasterId == null)
+                        throw new CustomException("Budget is Not Mapped !");
+                    if (item.ActivityId == null)
+                        throw new CustomException("Activity is Not Mapped!");
+
+                }
+
+                if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                    throw new CustomException("Dr Cr Amount not equal");
+            }
+            if (inventoryJVList != null)
+            {
+                foreach (var item in inventoryJVList)
+                {
+
+                    if (item.GLGeneralInfoId == null)
+                        throw new CustomException("Inventory GL is Not Mapped !");
+                    if (item.BudgetMasterId == null)
+                        throw new CustomException("Inventory Budget is Not Mapped !");
+                    if (item.ActivityId == null)
+                        throw new CustomException("Inventory Activity is Not Mapped!");
+
+                }
+
+                if (inventoryJVList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != inventoryJVList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                    throw new CustomException("Inventory Dr Cr Amount not equal");
+            }
+            else
+                throw new CustomException("No Journal");
+
+            _inventoryPayableService.PostMultipleJournalSales(receiveId, acceptanceId, voucherVM, voucherDetailVMList, voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, inventoryJVList, otherInvoiceVM);
+
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+
+        #endregion
         #region Inventory Transfer Posting
 
         [HttpPost]

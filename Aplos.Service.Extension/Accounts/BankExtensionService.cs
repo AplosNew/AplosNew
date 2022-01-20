@@ -252,6 +252,8 @@ namespace Library.Service.Extension.Accounts
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join HKP.Activity XA ON XA.Id=XVD.ActivityId
                     where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                    ,GLT.VoucherDetailId,case when isnull(GLT.ReconcileDate,'')<>'' then FORMAT(GLT.ReconcileDate,'dd-MMM-yyyy') else '' end ReconcileDate
+					,case when isnull(GLT.ReconcileDate,'')<>'' then 'Yes' else 'No' end ReconciliationStatus
                     FROM [TRN].[GLTransactionDetail] AS GLT
                     LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -299,6 +301,8 @@ namespace Library.Service.Extension.Accounts
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join HKP.Activity XA ON XA.Id=XVD.ActivityId
                     where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                    ,GLT.VoucherDetailId,case when isnull(GLT.ReconcileDate,'')<>'' then FORMAT(GLT.ReconcileDate,'dd-MMM-yyyy') else '' end ReconcileDate
+					,case when isnull(GLT.ReconcileDate,'')<>'' then 'Yes' else 'No' end ReconciliationStatus
                     FROM [TRN].[GLTransactionDetail] AS GLT
                     LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId

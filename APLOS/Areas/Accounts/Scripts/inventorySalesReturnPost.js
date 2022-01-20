@@ -330,7 +330,7 @@ function inventorySalesReturnPost(cboService, commonMessage, $scope, $rootScope,
                         $scope.inventorySalesJV.push($scope.newList[i]);
                     }
                 }
-                getVendorPayableGLBudgetActivity(inveReveiveId, customerId);
+                //getVendorPayableGLBudgetActivity(inveReveiveId, customerId);
             });
     }
     

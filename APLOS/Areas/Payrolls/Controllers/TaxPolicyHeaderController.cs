@@ -236,5 +236,82 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
         #endregion
 
+        #region Investment Deduction Functions
+       
+        [HttpGet, Authorize]
+        public ActionResult getTaxSavingGroup()
+        {
+            try
+            {
+                return Json(ds.getTaxSavingGroup(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getTaxSavingItem()
+        {
+            try
+            {
+                return Json(ds.getTaxSavingItem(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetList(string HeaderId)
+        {
+            try
+            {
+                return Json(ds.GetList(HeaderId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetTaxType()
+        {
+            try
+            {
+                return Json(ds.GetTaxType(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult Create(Dictionary<string, object> data)
+        {
+            try {
+                if (data["TaxTypeId"] == null)
+                {
+                    throw new Exception("Select Tax Type");
+                }
+                if (data["TaxSavingGroupId"] == null)
+                {
+                    throw new Exception("Select Tax Saving Group");
+                }
+                var datax = ds.Create(data);
+                return Json(new { Error = false, Data = datax, Message = AplosMessage.Updated });
+            }catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }            
+        }
+
+
+        #endregion
+
     }
 }

@@ -599,6 +599,9 @@ namespace Library.Accounting.Accounts
                 int colCredit = 0;
                 int colBlance = 0;
                 int colDrCr = 0;
+                int colVoucherDetailId = 0;
+                int colReconcileDate = 0;
+                int colReconciliationStatus = 0;
                 //int colLast = xlsCol;
 
                 // Get BankMaster data
@@ -679,6 +682,16 @@ namespace Library.Accounting.Accounts
                 }
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Dr/Cr", 5, ExcelHAlign.HAlignRight); colDrCr = xlsCol;
 
+
+                if (extended == true)
+                {
+                    xlsCol++;
+                    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Id", 15, ExcelHAlign.HAlignCenter); colVoucherDetailId = xlsCol; xlsCol++;
+                    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Reconciliation Date", 20); colReconcileDate = xlsCol; xlsCol++;
+                    reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Reconciliation Status", 20); colReconciliationStatus = xlsCol;
+
+                }
+
                 row++;
                 reportUtility.SetText(ref sheet, row, 2, "Opening Balance", true);
                 sheet.Range[reportUtility.GetColumnNameForXls(colPostingDate) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
@@ -706,57 +719,55 @@ namespace Library.Accounting.Accounts
                 row++;
                 int StartRow = row;
                 // Get bank transaction data.
-               
 
+                int col = 0;
                 var ledgerData = GetBankLedgerData(companyGroupId, companyId, bankMasterId, fromDate, toDate);
                 if (ledgerData.Rows.Count > 0)
                 {
                     for (int i = 0; i < ledgerData.Rows.Count; i++)
                     {
-                        reportUtility.SetText(ref sheet, row, 1, ledgerData.Rows[i]["VoucherNo"].ToString());
-                        //sheet.Range[row, 1].WrapText = true;
-                        reportUtility.SetText(ref sheet, row, 2, Convert.ToDateTime(ledgerData.Rows[i]["PostingDate"].ToString()).ToString("dd-MMM-yyyy"));
-                        reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["OtherSide"].ToString());
-
-                        //sheet.Range[row, 2].WrapText = true;
-                        //reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["OtherSide"].ToString());
-                        //sheet.Range[row, 3].WrapText = true;
-                        reportUtility.SetText(ref sheet, row, 4, ledgerData.Rows[i]["Narration"].ToString());
+                        col = 1;
+                        reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["VoucherNo"].ToString()); col++;
+                        reportUtility.SetText(ref sheet, row, col, Convert.ToDateTime(ledgerData.Rows[i]["PostingDate"].ToString()).ToString("dd-MMM-yyyy")); col++;
+                        reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["OtherSide"].ToString()); col++;
+                        reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["Narration"].ToString()); col++;
                         sheet.Range[row, 4].WrapText = true;
-                        //sheet.Range[reportUtility.GetColumnNameForXls(3) + row + ":" + reportUtility.GetColumnNameForXls(4) + row].Merge();
-
-                        sheet.Range[row, 4].WrapText = true;
-
-                        //sheet.Range[row, 4].ColumnWidth = 40;
-                        //sheet.Range[row, 4].AutofitColumns();
-
                         if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode == bankCurrencyId)
                         {
-                            reportUtility.SetText(ref sheet, row, 5, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
-                            reportUtility.SetText(ref sheet, row, 6, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyDrAmount"].ToString())); col++;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString())); col++;
                         }
                         else
                         {
-                            reportUtility.SetText(ref sheet, row, 5, Convert.ToDouble(ledgerData.Rows[i]["DrAmount"].ToString()));
-                            reportUtility.SetText(ref sheet, row, 6, Convert.ToDouble(ledgerData.Rows[i]["CrAmount"].ToString()));
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["DrAmount"].ToString())); col++;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CrAmount"].ToString())); col++;
                         }
-                        sheet.Range[row, 7].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(7) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(5) + row + "-" + reportUtility.GetColumnNameForXls(6) + row + ")";
-                        sheet.Range[row, 7].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-
-                        colLast = 8;
+                        sheet.Range[row, col].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(7) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(5) + row + "-" + reportUtility.GetColumnNameForXls(6) + row + ")";
+                        sheet.Range[row, col].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                        col++;
+                        colLast = col;
                         // Base currency checking
                         if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
                         {
-                            reportUtility.SetText(ref sheet, row, 8, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
-                            reportUtility.SetText(ref sheet, row, 9, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
-                            sheet.Range[row, 10].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(10) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(8) + row + "-" + reportUtility.GetColumnNameForXls(9) + row + ")";
-                            sheet.Range[row, 10].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                            colLast = 11;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyDrAmount"].ToString())); col++;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString())); col++;
+                            sheet.Range[row, col].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(10) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(8) + row + "-" + reportUtility.GetColumnNameForXls(9) + row + ")"; col++;
+                            sheet.Range[row, col].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                            colLast = col;
                         }
                         
                         sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
                         sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         sheet.Range[row, colLast].VerticalAlignment = ExcelVAlign.VAlignTop;
+                        if (extended == true)
+                        {
+                            col++;
+
+                            reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["VoucherDetailId"].ToString()); col++;
+                            reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["ReconcileDate"].ToString()); col++;
+                            reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["ReconciliationStatus"].ToString());
+
+                        }
                         row++;
                     }
                 }
@@ -837,6 +848,8 @@ namespace Library.Accounting.Accounts
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join HKP.Activity XA ON XA.Id=XVD.ActivityId
                     where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                    ,GLT.VoucherDetailId,case when isnull(GLT.ReconcileDate,'')<>'' then FORMAT(GLT.ReconcileDate,'dd-MMM-yyyy') else '' end ReconcileDate
+					,case when isnull(GLT.ReconcileDate,'')<>'' then 'Yes' else 'No' end ReconciliationStatus
                     FROM [TRN].[GLTransactionDetail] AS GLT
                     LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -884,6 +897,8 @@ namespace Library.Accounting.Accounts
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join HKP.Activity XA ON XA.Id=XVD.ActivityId
                     where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                    ,GLT.VoucherDetailId,case when isnull(GLT.ReconcileDate,'')<>'' then FORMAT(GLT.ReconcileDate,'dd-MMM-yyyy') else '' end ReconcileDate
+					,case when isnull(GLT.ReconcileDate,'')<>'' then 'Yes' else 'No' end ReconciliationStatus
                     FROM [TRN].[GLTransactionDetail] AS GLT
                     LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId

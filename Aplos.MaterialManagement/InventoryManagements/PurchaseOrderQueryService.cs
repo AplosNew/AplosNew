@@ -1661,8 +1661,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						,IM.TransactionQty,ISNULL(IRD.GRNQty,0) ReceiptQty, 0 RejectionQty, 0 ReturnQty,IM.TransactionQty-ISNULL(IRD.GRNQty,0) BalanceQty
 						,ROUND(Isnull(IM.TransactionRate,0),2) TransactionRate
 						,ROUND(Isnull(IM.TransactionAmount,0),2) TransactionAmount
-						,ROUND(Isnull(IM.TotalTaxAmount,0),2) TotalTaxAmount
-						,ROUND(Isnull(IM.ChargesAmount,0),2) ServiceCharge
+						,ROUND(Isnull(POS.TotalTaxAmount,0),2) TotalTaxAmount
+						,ROUND(Isnull(POS.Amount,0),2) ServiceCharge
 						,servicetax.TaxAmount ServiceChargeTax
 						,ROUND(Isnull(IM.BaseAmount,0),2) BaseAmount
 						,IR.AddedBy
@@ -1685,7 +1685,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-                        ,PLC.LCANo,PLC.LCRef,IR.ContractId,IM.RefferenceNo,''RequisitionNo
+                        ,PLC.LCANo,PLC.LCRef,IR.ContractId,IM.RefferenceNo,IM.RequisitionId RequisitionNo
 						from TRN.PurchaseOrderDetail AS IM
 						left JOIN MST.MaterialMaster AS MM ON IM.InventoryMaterialId=MM.Id
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -1708,6 +1708,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
                         LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
 						left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+                        left join TRN.POService POS ON POS.InventoryReceiveId=IR.Id
                         LEFT JOIN (SELECT PODetailsId,SUM(TransactionQty) GRNQty FROM TRN.InventoryReceiveDetail GROUP BY PODetailsId)IRD ON IRD.PODetailsId=IM.Id
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 						FROM [TRN].[PurchaseOrderTax] A

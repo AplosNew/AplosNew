@@ -5,10 +5,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     $scope.Action = 'Save';
     $scope.path = 'Payrolls/TaxPolicyHeader/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
-
   
     // The Tab Switching Code    
-
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -58,7 +56,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         }
     }   
 
-    // Double Click the Main Header Grid
+    // #region  Double Click the Main Header Grid
     $scope.getHeaderDetails = function (e) {
         $scope.Header = e.data;
         if (!$rootScope.isCollapsed) {
@@ -67,12 +65,15 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.ClearEarningMaster();
         $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
+        $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
         $scope.GetEarningMasterList();
+        $scope.getInvestDeductMaster();
         updateChild();
         showTabs();
         
     }
 
+    // #endregion
 
     // #region Header Operations
 
@@ -222,7 +223,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
                 $scope.FormulaChildModel.FormulaDescription = $scope.FormulaChildModel.FormulaDes;
                 $scope.FormulaChildModel.FormulaIDDescription = $scope.FormulaChildModel.FormulaDesID;
-
+                 
 
             }
             else if (formula === 'Operator') {
@@ -632,7 +633,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             TaxableAmountPer: 0,
             ExemptionApplicable: false
         };
-        $scope.EarningMasterModel.HeaderId = $scope.Header.Id;
+        $scope.EarningMasterModel.TaxPolicyHeaderId = $scope.Header.Id;
 
     }
 
@@ -766,4 +767,136 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
+    // #region Investment Deduction Functions
+
+    // #region Modal Region
+
+    $scope.InvestDeductModel = {
+        TaxTypeId: null,
+        SystemId: null,
+        UserCode: null,
+        TaxPolicyHeaderId: null,
+        TaxSavingGroupId: null
+    };
+
+    // #endregion
+
+    // #region Clear Fields Region
+
+    $scope.ClearMasterFields = function () {
+        $scope.Action = 'Save';
+        $scope.InvestDeductModel = {
+            TaxTypeId: null,
+            SystemId: null,
+            TaxPolicyHeaderId: $scope.Header.Id,
+            UserCode: null,
+            TaxSavingGroupId: null
+        };
+        $scope.maxLimit = 0;
+    }
+
+    // #endregion
+
+    // #region DropDownList Functions Region
+
+    //Filling the Max Limit
+    $scope.maxLimit = 0;
+    $scope.fillMaxLimit = function () {
+        for (var i = 0; i < $scope.TaxSavingGroupList.length; i++) {
+            if ($scope.InvestDeductModel.TaxSavingGroupId === $scope.TaxSavingGroupList[i].Id) {
+                $scope.maxLimit = $scope.TaxSavingGroupList[i].MaxLimit;
+            }
+        }
+        document.getElementById("taxGroupLimit").style.display = 'block';
+    }
+       
+    //Getting the Tax Type
+    $scope.TaxTypeList = [];
+    $scope.getTaxType = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetTaxType',
+        }).then(function successCallback(response) {
+            $scope.TaxTypeList = response.data;
+        });
+    }
+    $scope.getTaxType();
+
+    // Tax Saving Group 
+    $scope.TaxSavingGroupList = [];
+    $scope.taxSavingGroup = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path+ 'getTaxSavingGroup',
+            dataType: 'JSON'
+        }).then(function success(response) {
+            $scope.TaxSavingGroupList = response.data;
+        });
+    }
+    $scope.taxSavingGroup();
+
+    // Tax Investment Item
+    $scope.TaxSavingItemList = [];
+    $scope.taxSavingItem = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path +'getTaxSavingItem',
+            dataType: 'JSON'
+        }).then(function success(response) {
+            $scope.TaxSavingItemList = response.data;
+        });
+    }
+    $scope.taxSavingItem();
+
+    //#endregion
+
+    //The Save for the Master
+    $scope.SaveDeductionMaster = function () {
+        if (!baseService.isUndefinedOrNull($scope.InvestDeductModel.UserCode))
+        {
+            $http({
+                method: 'POST',
+                url: $scope.path + "Create",
+                data: { 'data': $scope.InvestDeductModel },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getInvestDeductMaster();
+                    $scope.InvestDeductModel.SystemId = response.data.Data.SystemId;
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        else {
+            ShowResult("Please Enter Data First ...", 'failure');
+        }
+    };
+
+    //Getting the Invest/Deduct Master Data
+
+    $scope.ModelMasterList = [];
+    $scope.getInvestDeductMaster = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetList",
+            params: { HeaderId: $scope.Header.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelMasterList = response.data;
+        });
+    }
+
+    $scope.getDeductionMasterDoubleClick = function (e) {
+        $scope.InvestDeductModel = e.data;
+        $scope.InvestDeductModel.TaxPolicyHeaderId = $scope.Header.Id;
+        // Model which is used as ng-model will come here
+    }
+   
+    //#endregion
 }

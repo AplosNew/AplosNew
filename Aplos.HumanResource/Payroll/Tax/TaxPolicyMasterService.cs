@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Data;
 using Library.Data.Sql;
 using OTSBD;
 using bplib;
-using Library.Service.Helpers;
-using System.IO;
-using Syncfusion.XlsIO;
-using System.Drawing;
 using Library.Crosscutting.Security;
 using System.Threading;
 
@@ -520,6 +515,105 @@ namespace Library.HumanResource.Payroll.Tax
 
         }
 
+        #endregion
+       
+        #region Investment Deduction Master Functions
+        
+        public IEnumerable<object> getTaxSavingGroup()
+        {
+            try
+            {
+                string sql = @"Select Id , Username , MaxLimit from hkp.TaxSavingGroup order by [Sequence]";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> getTaxSavingItem()
+        {
+            try
+            {
+                string sql = @"Select Id , Username from hkp.TaxSavingItem";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetTaxType()
+        {
+            try
+            {
+                string strSQL = @"select Id, Category, Username from [dbo].[TaxType]";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+        public Dictionary<string, object> Create(Dictionary<string, object> dataMaster)
+        {
+            try
+            {
+                string TableName = "dbo.IncomeTaxItemMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where SystemId='" + dataMaster["SystemId"] + "'", out dsMaster, false, "1");
+                DateTime now = DateTime.Today;
+
+                string _Id = "";
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    dataMaster["SystemId"] = now.ToString("yy") + '-' + _Id;
+                    AddNewRow(dsMaster.Tables[0], dataMaster);
+                }
+                else
+                {
+                    _Id = dataMaster["SystemId"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return dataMaster;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        public IEnumerable<object> GetList(string HeaderId)
+        {
+            try
+            {
+                string sql = @"Select itm.SystemId, itm.TaxTypeId , itm.UserCode ,ty.UserName as TaxType ,
+                            tg.Id TaxSavingGroupId,tg.UserName TaxSavingGroup,tg.MaxLimit
+                                from dbo.IncomeTaxItemMaster itm
+								left join hkp.TaxSavingGroup tg on tg.Id = itm.TaxSavingGroupId
+								left join TaxPolicyHeader h on h.Id=itm.TaxPolicyHeaderId
+                                left join dbo.TaxType ty on ty.Id = itm.TaxTypeId
+                                where h.Id='"+HeaderId+"' order by tg.[Sequence]";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+       
         #endregion
 
     }

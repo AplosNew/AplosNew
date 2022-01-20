@@ -7343,6 +7343,12 @@ TNA.SONo, TNA.PRNo
                 sheet[ROW, COL].ColumnWidth = 8;
                 int colPlanCumilative = COL;
                 COL++;
+
+                sheet[ROW, COL].Text = "Production Order Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductionOrderStatus = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Production Quantity";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProductionQty = COL;
@@ -7452,6 +7458,8 @@ TNA.SONo, TNA.PRNo
                     sheet[ROW, colPlanCumilative].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colPlanCumilative].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet[ROW, colPlanCumilative].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    
+                    sheet[ROW, colProductionOrderStatus].Text = data.Rows[i]["ProductionOrderStatus"].ToString();
 
                     sheet[ROW, colProductionQty].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionQuantity"].ToString());
                     sheet[ROW, colProductionQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
@@ -7742,6 +7750,14 @@ TNA.SONo, TNA.PRNo
         				from ProductionPlanningSnapshot2Type1 PPS
         				left join SCS.WorkCenterMaster WCM on WCM.Id=PPS.WorkCenterMasterId
         				group by PPS.ProductionOrderID ,PPS.ProductionDate ,pps.WorkCenterMasterId,WCM.UserName,PPS.EntityID
+                        union all
+                         select PRS.ProductionOrderID PRNo,PRS.EntityID,PRS.ProductionDate [Date],PRS.WorkCenterMasterId,WCM.UserName WorkCenter
+        				,SUM(0) [PlanTarget] 
+                        from trn.ProductionSummary PRS 
+						join trn.ProductionOrder PO ON PO.id=prs.ProductionOrderId
+						join trn.ProductionOrderProcessSet PSS on pss.ProductionOrderId=po.id and pss.IsBaseProcess=1
+                        left join SCS.WorkCenterMaster WCM on WCM.Id=PRS.WorkCenterMasterId and wcm.ProcessId=pss.ProcessId
+                        group by   PRS.ProductionOrderID ,PRS.ProductionDate ,PRS.WorkCenterMasterId,WCM.UserName,PRS.EntityID
         				) PPL 
         				Left join (select ps.ProductionOrderId PRNo,ps.ProductionDate,ps.WorkCenterMasterId,sum(ps.Quantity) Quantity,ps.Remarks  from trn.ProductionSummary ps 
         				group by ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.Remarks
