@@ -775,8 +775,24 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         TaxTypeId: null,
         SystemId: null,
         UserCode: null,
+        ItemApplicable: false,
         TaxPolicyHeaderId: null,
         TaxSavingGroupId: null
+    };
+
+    //The Model for the Child Table
+    $scope.InvestDeductModelChild = {
+        Id: null,
+        isPercentage: "Yes",
+        isFix: false,
+        TaxSavingItemId: null,
+        Limit: null,
+        Remarks: null,
+        IsInvestment: false,
+        IsDeduction: false,
+        IsEarning: false,
+        IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId,
+        Sequence: 0
     };
 
     // #endregion
@@ -788,6 +804,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.InvestDeductModel = {
             TaxTypeId: null,
             SystemId: null,
+            ItemApplicable: false,
             TaxPolicyHeaderId: $scope.Header.Id,
             UserCode: null,
             TaxSavingGroupId: null
@@ -850,7 +867,17 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
-    //The Save for the Master
+    // #region Saving Data Region
+
+    $scope.OpenSavingItemPopup = function () {
+        try {
+            angular.element(document.querySelector('#SavingItemPopup')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
     $scope.SaveDeductionMaster = function () {
         if (!baseService.isUndefinedOrNull($scope.InvestDeductModel.UserCode))
         {
@@ -878,8 +905,19 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         }
     };
 
+    // #endregion
+
     //Getting the Invest/Deduct Master Data
 
+    //Getting the IncomeTax Child Sequence
+    $scope.GetSequenceItemChild = function () {
+        cboService.getSequence($scope.path + 'GetAutoSequenceItemChild', function (data) {
+            $scope.InvestDeductModelChild.Sequence = data;
+        });
+    };
+    $scope.GetSequenceItemChild();
+
+    // Get Item Master Data
     $scope.ModelMasterList = [];
     $scope.getInvestDeductMaster = function () {
         $http({
@@ -894,9 +932,37 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     $scope.getDeductionMasterDoubleClick = function (e) {
         $scope.InvestDeductModel = e.data;
+        $scope.maxLimit = e.data.MaxLimit;
         $scope.InvestDeductModel.TaxPolicyHeaderId = $scope.Header.Id;
+        $scope.getIncomeChildData();
         // Model which is used as ng-model will come here
     }
+
+    //Getting the Child Table
+    $scope.IncomechildData = [];
+    $scope.getIncomeChildData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "getChildList",
+            params: { Id: $scope.InvestDeductModel.SystemId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.IncomechildData = response.data;
+        });
+    }
+
+    $scope.Deduction = function () {
+        if ($scope.InvestDeductModelChild.IsDeduction == true) {
+            $scope.InvestDeductModelChild.IsEarning = false;
+        }
+    };
+    $scope.Earning = function () {
+        if ($scope.InvestDeductModelChild.IsEarning == true) {
+            $scope.InvestDeductModelChild.IsDeduction = false;
+        }
+    };
    
     //#endregion
+
+
 }
