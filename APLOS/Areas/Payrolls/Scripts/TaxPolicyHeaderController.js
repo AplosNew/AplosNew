@@ -780,6 +780,21 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         TaxSavingGroupId: null
     };
 
+    //The Model for the Child Table
+    $scope.InvestDeductModelChild = {
+        Id: null,
+        isPercentage: "Yes",
+        isFix: false,
+        TaxSavingItemId: null,
+        Limit: null,
+        Remarks: null,
+        IsInvestment: false,
+        IsDeduction: false,
+        IsEarning: false,
+        IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId,
+        Sequence: 0
+    };
+
     // #endregion
 
     // #region Clear Fields Region
@@ -854,6 +869,15 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     // #region Saving Data Region
 
+    $scope.OpenSavingItemPopup = function () {
+        try {
+            angular.element(document.querySelector('#SavingItemPopup')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
     $scope.SaveDeductionMaster = function () {
         if (!baseService.isUndefinedOrNull($scope.InvestDeductModel.UserCode))
         {
@@ -919,4 +943,6 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     }
    
     //#endregion
+
+
 }

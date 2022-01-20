@@ -40,7 +40,7 @@
                                 <option value=""></option>
                                 <option value="Metro">Metro</option>
                                 <option value="Non-Metro">Non-Metro</option>
-                             </select>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site" style="margin-top:7px;">
                             <label>
-                                <input type="checkbox" ng-model="Header.Active" >
+                                <input type="checkbox" ng-model="Header.Active">
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
@@ -324,7 +324,7 @@
                                                 <option value=""></option>
                                             </select>
                                         </div>
-                                    </div>                                   
+                                    </div>
                                 </div>
 
                             </div>
@@ -349,11 +349,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label"> <b>Max Limit : {{maxLimit}}</b></label>     
+                                    <label class="col-sm-4 control-label"> <b>Max Limit : {{maxLimit}}</b></label>
                                 </div>
-                           
+
                             </div>
 
                             <div class="common-btn">
@@ -389,7 +389,7 @@
                                     <div class="col-xs-12">
                                         <div class="common-btn" style="margin-right:10px;">
                                             <ul class="list-inline text-right">
-                                                <li> <button ng-disabled="InvestDeductModel.SystemId==null || InvestDeductModel.ItemApplicable==false" ng-click="();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add Item</button></li>
+                                                <li> <button ng-disabled="InvestDeductModel.SystemId==null || InvestDeductModel.ItemApplicable==false" ng-click="OpenSavingItemPopup();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add Item</button></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -398,20 +398,22 @@
                                         <div class="col-xs-12 col-sm-12 col-sm-12">
                                             <div style="color:black;" ej-grid e-datasource="IncomechildData"
                                                  e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
-                                                 e-allowselection="true" @*e-recorddoubleclick="getDeductionMasterDoubleClick"*@ e-filtersettings-filterType="excel"
+                                                 e-allowselection="true" e-filtersettings-filterType="excel"
                                                  e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
                                                 <div e-columns>
-                                                    <div e-column e-field="SystemId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                                    <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
                                                     <div e-column e-field="TaxSavingItem" e-headertext="TaxSavingItem" e-width="80"></div>
-                                                    <div e-column e-field="TaxType" e-headertext="TaxType" e-width="80"></div>
-                                                    <div e-column e-field="TaxSavingGroup" e-headertext="Tax Saving Group" e-width="100"></div>
+                                                    <div e-column e-field="Limit" e-headertext="Limit" e-width="80"></div>
+                                                    <div e-column e-field="IsEarning" e-headertext="IsEarning" e-width="50"></div>
+                                                    <div e-column e-field="IsInvestment" e-headertext="IsInvestment" e-width="50"></div>
+                                                    <div e-column e-field="IsDeduction" e-headertext="IsDeduction" e-width="50"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </fieldset>
-                            </div>                          
-                       
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -490,7 +492,7 @@
 
             </div>
         </div>
-    
+
     </div>
 </div>
 
@@ -561,7 +563,7 @@
         </div>
     </div>
 </div>
-    
+
 <div class="modal fade site-modal in" id="ExemptionPopup">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -708,12 +710,163 @@
                         </script>
                     </div>
                 </div>
-               
-          
+
+
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="SavingItemPopup">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Item Entry :- <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
 
+                <div class="row">
+                    <fieldset class="scheduler-border form-group form-elements" style="width:990px;">
+
+                        <div class="col-xs-12">
+                            <div class="col-xs-6 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" style=" margin-left: -14px;">Description</label>
+                                    <div class="col-sm-8" style=" padding-right: 80px; padding-left: 19px;">
+                                        <input type="text" ng-model="TaxExemptionFormula.Description" class="form-control" maxlength="250">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Salary Head</label>
+                                <div class="col-sm-6">
+                                    <div class="select-style">
+                                        <select ng-model="FormulaChildModel.SalaryHeadIdFormula" id="SalaryHeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in SalaryHeadList">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li> <button ng-click="SetFormula('SHead');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Operator</label>
+                                <div class="col-sm-6">
+                                    <div class="select-style">
+                                        <select ng-model="FormulaChildModel.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li> <button ng-click="SetFormula('Operator');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Precedence</label>
+                                <div class="col-sm-6">
+                                    <div class="select-style">
+                                        <select ng-model="FormulaChildModel.Precedence" class="form-control" name="Precedence">
+                                            <option value=""></option>
+                                            <option value="(">(</option>
+                                            <option value=")">)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li> <button ng-click="SetFormula('Precedence');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Value</label>
+                                <div class="col-sm-6">
+                                    <input type="text" name="Value" ng-model="FormulaChildModel.Value" class="form-control" required maxlength="50">
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li> <button ng-click="SetFormula('Value');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Other</label>
+                                <div class="col-sm-6">
+                                    <div class="select-style">
+                                        <select ng-model="FormulaChildModel.Other" class="form-control" name="Other" tabindex="5">
+                                            <option value=""></option>
+                                            <option value="Actual Amount">Actual Amount</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li> <button ng-click="SetFormula('Other');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="RemoveFormula();" class="btn"><i class="glyphicon glyphicon-backward"></i></button></li>
+                                </ul>
+                            </div>
+                            <div class="form-group">
+                                {{FormulaChildModel.FormulaDescription}}
+                            </div>
+                        </div>
+
+                    </fieldset>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveFormula();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                            <li> <button ng-click="ClearFormula();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" ej-grid e-datasource="GeneralTaxFormulaList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="true" e-recorddoubleclick="GeneralFormula"
+                             e-filtersettings-filterType="excel" e-actioncomplete="actionCompleteSelected">
+                            <div e-columns>
+                                <div e-column e-field="Description" e-headertext="Description" e-width="6"></div>
+                                <div e-column e-field="Formula" e-headertext="Formula" e-width="6"></div>
+                                <div e-column e-headertext="Actions" e-template="#DeleteButtons" e-width="1"></div>
+                            </div>
+                        </div>
+                        <script type="text/ng-template" id="DeleteButtons">
+                            <div class="common-btn">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                                    <i class="glyphicon glyphicon-trash" ng-click="$parent.ConfirmDeleteFormula(this);"></i>
+                                </button>
+                            </div>
+                        </script>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
 
