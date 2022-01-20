@@ -82,11 +82,10 @@ function GateentryTokenController(accountService, addressService, $window, facto
             method: 'GET',
             url: 'Products/GateentryToken/GetAllReqdata'
         }).then(function successCallback(response) {
-            $scope.GateList = response.data;
-            for (var i = 0; i < $scope.GateList.length; i++) {
-
-                response.data[i].EntryDate = new Date($scope.GateList[i].EntryDate);
+            for (var i = 0; i < response.data.length; i++) {
+                response.data[i]["EntryDate"] = new Date(response.data[i]["EntryDate"]);
             }
+            $scope.GateList = response.data;
         });
     }
     $scope.GetGateData();

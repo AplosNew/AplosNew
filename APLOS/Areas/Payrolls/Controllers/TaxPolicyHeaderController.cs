@@ -264,6 +264,32 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetList(string HeaderId)
+        {
+            try
+            {
+                return Json(ds.GetList(HeaderId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult getChildList(string id)
+        {
+            try
+            {
+                return Json(ds.getChildList(id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetTaxType()
         {
@@ -276,6 +302,40 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+        [HttpPost, Authorize]
+        public JsonResult Create(Dictionary<string, object> data)
+        {
+            try {
+                if (data["TaxTypeId"] == null)
+                {
+                    throw new Exception("Select Tax Type");
+                }
+                if (data["TaxSavingGroupId"] == null)
+                {
+                    throw new Exception("Select Tax Saving Group");
+                }
+                var datax = ds.Create(data);
+                return Json(new { Error = false, Data = datax, Message = AplosMessage.Updated });
+            }catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }            
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequenceItemChild()
+        {
+            try
+            {
+                return Json(ds.GetSequenceItemChild(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+       
         #endregion
 
     }

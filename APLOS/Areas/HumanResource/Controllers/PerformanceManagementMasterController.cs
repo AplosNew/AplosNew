@@ -66,14 +66,14 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
-        //[HttpPost]
-        //public ActionResult GetList(string column, string value)
-        //{
-        //    string strkey = "1=1";
-        //    if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-        //        strkey = column + " like '%" + value + "%'";
-        //    return Json(ps.GetList(strkey), JsonRequestBehavior.AllowGet);
-        //}
+        [HttpPost]
+        public ActionResult GetList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            return Json(ps.GetList(strkey), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
