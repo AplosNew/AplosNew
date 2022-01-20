@@ -13,7 +13,9 @@ namespace Library.Model.Inventory
         public string ProductionBookingLevel { get; set; }
         public bool LotNumberMandatory { get; set; }
         public bool LotNumberCapture { get; set; }
-
+        public bool IsSKU3 { get; set; }
+        public bool IsSKU2 { get; set; }
+        public bool IsSKU1 { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

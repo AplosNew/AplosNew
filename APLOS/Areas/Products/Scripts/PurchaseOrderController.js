@@ -160,10 +160,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             //url: $scope.getSearchListUrl,
             url: 'Products/PurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus,
         }).then(function successCallback(response) {
-            $scope.Griddata = response.data;
+          
             for (var i = 0; i < $scope.Griddata.length; i++) {
-                response.data[i].PODate = new Date($scope.Griddata[i].PODate);
+                response.data[i].PODate1 = new Date($scope.Griddata[i].PODate1);
             }
+            $scope.Griddata = response.data;
         });
     };
     $scope.getalldata();
@@ -179,8 +180,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             //url: $scope.getSearchListUrl,
             url: 'Products/PurchaseOrder/GetListForHold11?ApproveRejectHold=' + $scope.ApproveRejectHold,
         }).then(function successCallback(response) {
+           
+            for (var i = 0; i < response.data.length; i++) {
+                response.data[i]["PODate"] = new Date(response.data[i]["PODate"]);
+            }
             $scope.GriddataPoApp = response.data;
-            //entrydata = copy(searchdata);
         });
     };
 
@@ -1015,6 +1019,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             data.Percentage = 0;
         }
         data.TaxAmount = Math.round($scope.serviceModel.TransactionAmount * data.Percentage) / 100;
+        $scope.sumSvcTaxAmount();
     };
     $scope.checkRowValidationService = function (x) {
         ;

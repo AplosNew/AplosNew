@@ -51,13 +51,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
         [Authorize, HttpPost]
-        public ActionResult Get(string Id)
+        public ActionResult GetChildList(string Id)
         {
             try
             {
-                var _master = ps.GetMaster(Id);
                 var _child = ps.GetChild(Id);
-                return Json(new { master = _master , child = _child }, JsonRequestBehavior.AllowGet);
+                return Json(new { child = _child }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -65,15 +64,15 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 
+        }      
+        [HttpPost]
+        public ActionResult GetList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            return Json(ps.GetList(strkey), JsonRequestBehavior.AllowGet);
         }
-        //[HttpPost]
-        //public ActionResult GetList(string column, string value)
-        //{
-        //    string strkey = "1=1";
-        //    if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-        //        strkey = column + " like '%" + value + "%'";
-        //    return Json(ps.GetList(strkey), JsonRequestBehavior.AllowGet);
-        //}
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
