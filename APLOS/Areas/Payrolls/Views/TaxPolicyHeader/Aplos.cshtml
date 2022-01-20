@@ -9,7 +9,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Sequence</label>
                     <div class="col-sm-8">
-                        <input type="text" onkeypress="return isNumber(event)" ng-model="Header.Sequence" class="form-control" maxlength="100" tabindex="2" readonly>
+                        <input type="text" onkeypress="return isNumber(event)" ng-model="Header.Sequence" class="form-control" maxlength="100" readonly>
                     </div>
                 </div>
 
@@ -40,7 +40,7 @@
                                 <option value=""></option>
                                 <option value="Metro">Metro</option>
                                 <option value="Non-Metro">Non-Metro</option>
-                             </select>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site" style="margin-top:7px;">
                             <label>
-                                <input type="checkbox" ng-model="Header.Active" >
+                                <input type="checkbox" ng-model="Header.Active">
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
@@ -324,7 +324,7 @@
                                                 <option value=""></option>
                                             </select>
                                         </div>
-                                    </div>                                   
+                                    </div>
                                 </div>
 
                             </div>
@@ -349,11 +349,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label"> <b>Max Limit : {{maxLimit}}</b></label>     
+                                    <label class="col-sm-4 control-label"> <b>Max Limit : {{maxLimit}}</b></label>
                                 </div>
-                           
+
                             </div>
 
                             <div class="common-btn">
@@ -389,7 +389,7 @@
                                     <div class="col-xs-12">
                                         <div class="common-btn" style="margin-right:10px;">
                                             <ul class="list-inline text-right">
-                                                <li> <button ng-disabled="InvestDeductModel.SystemId==null || InvestDeductModel.ItemApplicable==false" ng-click="();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add Item</button></li>
+                                                <li> <button ng-disabled="InvestDeductModel.SystemId==null || InvestDeductModel.ItemApplicable==false" ng-click="OpenSavingItemPopup();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add Item</button></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -398,20 +398,23 @@
                                         <div class="col-xs-12 col-sm-12 col-sm-12">
                                             <div style="color:black;" ej-grid e-datasource="IncomechildData"
                                                  e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
-                                                 e-allowselection="true" @*e-recorddoubleclick="getDeductionMasterDoubleClick"*@ e-filtersettings-filterType="excel"
+                                                 e-allowselection="true" e-filtersettings-filterType="excel"
                                                  e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
                                                 <div e-columns>
-                                                    <div e-column e-field="SystemId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                                    <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
                                                     <div e-column e-field="TaxSavingItem" e-headertext="TaxSavingItem" e-width="80"></div>
-                                                    <div e-column e-field="TaxType" e-headertext="TaxType" e-width="80"></div>
-                                                    <div e-column e-field="TaxSavingGroup" e-headertext="Tax Saving Group" e-width="100"></div>
+                                                    <div e-column e-field="Limit" e-headertext="Limit" e-width="50"></div>
+                                                    <div e-column e-field="IsEarning" e-headertext="Is Earning" e-width="50"></div>
+                                                    <div e-column e-field="IsInvestment" e-headertext="Is Investment" e-width="50"></div>
+                                                    <div e-column e-field="IsDeduction" e-headertext="Is Deduction" e-width="50"></div>
+                                                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </fieldset>
-                            </div>                          
-                       
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -490,7 +493,7 @@
 
             </div>
         </div>
-    
+
     </div>
 </div>
 
@@ -561,7 +564,7 @@
         </div>
     </div>
 </div>
-    
+
 <div class="modal fade site-modal in" id="ExemptionPopup">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -708,12 +711,109 @@
                         </script>
                     </div>
                 </div>
-               
-          
+
+
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="SavingItemPopup">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"><b> Item Entry :- </b> <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+  
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-elements " ng-form name="InvestDeductChildForm">
+                                <div class=" col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Investment</label>
+                                        <div class="col-sm-2 show-message" style=" margin-top: 7px;">
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="InvestDeductModelChild.IsInvestment" >
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <label class="col-sm-2 control-label">Deduction</label>
+                                        <div class="col-sm-2 show-message" style=" margin-top: 7px;">
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="InvestDeductModelChild.IsDeduction" ng-change="Deduction();">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <label class="col-sm-2 control-label">Earning</label>
+                                        <div class="col-sm-2 show-message" style=" margin-top: 7px;">
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="InvestDeductModelChild.IsEarning" ng-change="Earning();">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
 
+                                    <div class="form-group" >
+                                        <div class="col-sm-6 " style="margin-left: 100px;">
+                                            <input type="radio" id="fix" name="isfill" value="No" ng-model="InvestDeductModelChild.isPercentage">
+                                            <label for="fix">Fixed</label><br>
+                                        </div>
+                                        <div class="col-sm-6 " style="margin-left: -100px;">
+                                            <input type="radio" id="percentage" name="isfill" value="Yes" ng-model="InvestDeductModelChild.isPercentage">
+                                            <label for="Percentage">Percentage</label><br>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Tax Saving Item</label>
+                                        <div class="col-sm-8 show-message">
+                                              <div class="select-style">
+                                                  <select ng-model="InvestDeductModelChild.TaxSavingItemId" class="form-control" ng-options="item.Id as item.Username for item in TaxSavingItemList">
+                                                      <option value=""></option>
+                                                  </select>
+                                              </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class=" col-sm-6 col-md-6">                                    
+
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <input type="text" onkeypress="return isNumber(event)" ng-model="InvestDeductModelChild.Sequence" class="form-control" maxlength="100" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">Limit<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">                                              
+                                            <input type="text" class="form-control" onkeypress="return isNumber(event)" ng-model="InvestDeductModelChild.Limit" name="Limit" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Remarks</label>
+                                        <div class="col-sm-8 show-message">
+                                            <input type="text" class="form-control" ng-model="InvestDeductModelChild.Remarks">
+                                        </div>
+                                    </div>
+                                </div>                               
+                            </div>
+                    </div>             
+                    <div class="common-btn" style="margin-right:30px">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveFormula();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                            <li> <button ng-click="ClearChildFields();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>                   
+            </div>
+        </div>
+    </div>
+</div>
 

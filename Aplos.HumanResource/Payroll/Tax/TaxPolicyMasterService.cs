@@ -516,9 +516,19 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
-       
+
         #region Investment Deduction Master Functions
-        
+
+        #region Data Returning Functions
+        public double GetSequenceItemChild()
+        {
+            string TableName = "dbo.IncomeTaxItemChild";
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
         public IEnumerable<object> getTaxSavingGroup()
         {
             try
@@ -556,6 +566,43 @@ namespace Library.HumanResource.Payroll.Tax
             }
 
         }
+        public IEnumerable<object> GetList(string HeaderId)
+        {
+            try
+            {
+                string sql = @"Select itm.SystemId, itm.TaxTypeId ,itm.ItemApplicable,
+                        itm.UserCode ,ty.UserName as TaxType ,
+                            tg.Id TaxSavingGroupId,tg.UserName TaxSavingGroup,tg.MaxLimit
+                                from dbo.IncomeTaxItemMaster itm
+								left join hkp.TaxSavingGroup tg on tg.Id = itm.TaxSavingGroupId
+								left join TaxPolicyHeader h on h.Id=itm.TaxPolicyHeaderId
+                                left join dbo.TaxType ty on ty.Id = itm.TaxTypeId
+                                where h.Id='" + HeaderId+"' order by tg.[Sequence]";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> getChildList(string id)
+        {
+            try
+            {
+                string sql = @"Select tc.* ,ti.UserName as TaxSavingItem from dbo.IncomeTaxItemChild tc
+                                left join hkp.TaxSavingItem ti on ti.Id = tc.TaxSavingItemId
+                                where tc.IncomeTaxItemMasterId = '"+id+"' order by tc.Sequence";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        #endregion
+      
+        #region Saving Functions
         public Dictionary<string, object> Create(Dictionary<string, object> dataMaster)
         {
             try
@@ -594,40 +641,80 @@ namespace Library.HumanResource.Payroll.Tax
 
             }
         }
-        public IEnumerable<object> GetList(string HeaderId)
+        public string CreateChild(Dictionary<string, object> dataChild, string maxLimit)
         {
             try
             {
-                string sql = @"Select itm.SystemId, itm.TaxTypeId ,itm.ItemApplicable,
-                        itm.UserCode ,ty.UserName as TaxType ,
-                            tg.Id TaxSavingGroupId,tg.UserName TaxSavingGroup,tg.MaxLimit
-                                from dbo.IncomeTaxItemMaster itm
-								left join hkp.TaxSavingGroup tg on tg.Id = itm.TaxSavingGroupId
-								left join TaxPolicyHeader h on h.Id=itm.TaxPolicyHeaderId
-                                left join dbo.TaxType ty on ty.Id = itm.TaxTypeId
-                                where h.Id='" + HeaderId+"' order by tg.[Sequence]";
+                string TableName = "dbo.IncomeTaxItemChild";
+                DataSet dsChild;
+                DataSet dsCheck;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                return _sqlRepository.GetDataCollection(sql, null);
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where IncomeTaxItemMasterId = '" + dataChild["IncomeTaxItemMasterId"] + "' and TaxSavingItemId='" + dataChild["TaxSavingItemId"] + "' ", out dsCheck, false, "1");
+                if (dataChild["Id"] != null)
+                {
+                    if (dsCheck.Tables[0].Rows.Count > 0)
+                    {
+                        if (dsCheck.Tables[0].Rows[0]["Id"].ToString() != dataChild["Id"].ToString())
+                        {
+                            throw new Exception("Same Tax Saving Group and Tax Saving Item is already Present!");
+                        }
+                    }
+
+                }
+                else
+                {
+                    if (dsCheck.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("SameTax Saving Group and Tax Saving Item is already Present!");
+                    }
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + dataChild["Id"] + "'", out dsChild, false, "1");
+
+                double limitToRec = clsStaticInfo.dbl(dataChild["Limit"].ToString());
+                double mL = clsStaticInfo.dbl(maxLimit.ToString());
+
+                string _Id = "";
+                #region data update
+                if (dsChild.Tables[0].Rows.Count == 0)
+                {
+
+                    if (mL < limitToRec)
+                    {
+                        throw new Exception("Limit Exceeds");
+                    }
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    dataChild["Id"] = _Id;
+                    AddNewRow(dsChild.Tables[0], dataChild);
+                }
+                else
+                {
+
+                    double kk = mL - limitToRec;
+                    if (mL < limitToRec)
+                    {
+                        throw new Exception("Limit Exceeds");
+                    }
+                    _Id = dataChild["Id"].ToString();
+                    EditRow(dsChild.Tables[0].Rows[0], dataChild);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+                return "Success";
+
             }
             catch (Exception ex)
             {
-                throw ex;
+                return ex.Message;
             }
         }
-        public IEnumerable<object> getChildList(string id)
-        {
-            try
-            {
-                string sql = @"Select tc.* ,ti.UserName as TaxSavingItem from dbo.IncomeTaxItemChild tc
-                                left join hkp.TaxSavingItem ti on ti.Id = tc.TaxSavingItemId
-                                where tc.IncomeTaxItemMasterId = '"+id+"' order by tc.Sequence";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
+
+        #endregion
 
         #endregion
 

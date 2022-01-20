@@ -290,7 +290,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-
         [HttpGet, Authorize]
         public ActionResult GetTaxType()
         {
@@ -324,7 +323,19 @@ namespace Aplos.Areas.Payrolls.Controllers
             }            
         }
 
-
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequenceItemChild()
+        {
+            try
+            {
+                return Json(ds.GetSequenceItemChild(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+       
         #endregion
 
     }

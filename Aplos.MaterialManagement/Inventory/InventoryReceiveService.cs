@@ -9010,8 +9010,8 @@ ORDER BY tg.[Sequence]";
                         LEFT JOIN TRN.PurchaseOrderDetail AS POD ON POD.RequisitionDetailId= MRD.Id
                         LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.PODetailsId=POD.Id
                         --LEFT JOIN (Select Id,Sum(TransactionQty) TransactionQty,Sum(ApprovedQty) ApprovedQty,Sum(RejectionQty) RejectionQty from TRN.InventoryReceiveDetail group by Id) outIDR ON outIDR.Id=IRD.Id
-                        LEFT JOIN(Select GRNID,Sum(Qty) ApprovedQty, Sum(RejectQty) RejectionQty from TRN.GRNPORequisitionAllocation group by  GRNID) outIDR ON outIDR.GRNID=IRD.Id
-                        --LEFT JOIN (Select ID, Sum(ApprovedQty) Valid, sum(RejectionQty) RejectionQty1 from TRN.InventoryReceiveDetail group by ID) Appnext ON Appnext.Id !=outIDR.GRNID
+                        LEFT JOIN(Select InventoryReceiveDetailId,Sum(Qty) ApprovedQty, Sum(RejectQty) RejectionQty from TRN.GRNPORequisitionAllocation group by  InventoryReceiveDetailId) outIDR ON outIDR.InventoryReceiveDetailId=IRD.Id
+                        --LEFT JOIN (Select ID, Sum(ApprovedQty) Valid, sum(RejectionQty) RejectionQty1 from TRN.InventoryReceiveDetail group by ID) Appnext ON Appnext.Id !=outIDR.InventoryReceiveDetailId
                         --LEFT JOIN(select RequisitionId from TRN.RequisitionIssueDetail R
                         --left join TRn.InventoryIssue  II ON II.Id=R.IssueMasterId
                         --LEFT JOIN TRN.IssueRequest IR ON IR.Id=R.IssueRequestId) remreq ON remreq.RequisitionId=MRM.Id
@@ -9028,10 +9028,10 @@ ORDER BY tg.[Sequence]";
 						
 								   SELECT IRD.Id,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId,IM.SecondCharacteristicsValueId,IM.ThirdCharacteristicsValueId,Sum(IRD.ApprovedQty) TotalQty	
 									FROM TRN.GRNPORequisitionAllocation GRNAll
-									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=GRNAll.GRNID
+									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=GRNAll.InventoryReceiveDetailId
 									LEFT JOIN TRN.InventoryMaterial IM  ON IM.Id=IRD.InventoryMaterialId
 									Group BY IRD.Id,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId,IM.SecondCharacteristicsValueId,IM.ThirdCharacteristicsValueId
-								 ) outIDR1 ON  outIDR1.Id=outIDR.GRNID
+								 ) outIDR1 ON  outIDR1.Id=outIDR.InventoryReceiveDetailId
                        Where isnull(outIDR.ApprovedQty,0) > 0 AND  isnull(outIDR.ApprovedQty,0) !=Isnull(IssuedQtyOut.IssueQty,0) AND MRM.PlantId='" + identity.PlantId + @"'  
                        --AND  remreq.RequisitionId !=MRM.Id";
 

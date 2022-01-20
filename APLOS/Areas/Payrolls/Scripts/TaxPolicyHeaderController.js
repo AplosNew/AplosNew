@@ -780,6 +780,21 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         TaxSavingGroupId: null
     };
 
+    //The Model for the Child Table
+    $scope.InvestDeductModelChild = {
+        Id: null,
+        isPercentage: "Yes",
+        isFix: false,
+        TaxSavingItemId: null,
+        Limit: null,
+        Remarks: null,
+        IsInvestment: false,
+        IsDeduction: false,
+        IsEarning: false,
+        IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId,
+        Sequence: 0
+    };
+
     // #endregion
 
     // #region Clear Fields Region
@@ -795,6 +810,24 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             TaxSavingGroupId: null
         };
         $scope.maxLimit = 0;
+        $scope.IncomechildData = [];
+        $scope.GetSequenceItemChild();
+    }
+
+    $scope.ClearChildFields = function () {
+        $scope.InvestDeductModelChild = {
+            Id: null,
+            isPercentage: "Yes",
+            isFix: false,
+            TaxSavingItemId: null,
+            Limit: null,
+            Remarks: null,
+            IsInvestment: false,
+            IsDeduction: false,
+            IsEarning: false,
+            IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId            
+        };
+        $scope.GetSequenceItemChild();
     }
 
     // #endregion
@@ -854,6 +887,15 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     // #region Saving Data Region
 
+    $scope.OpenSavingItemPopup = function () {
+        try {
+            angular.element(document.querySelector('#SavingItemPopup')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
     $scope.SaveDeductionMaster = function () {
         if (!baseService.isUndefinedOrNull($scope.InvestDeductModel.UserCode))
         {
@@ -885,6 +927,15 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //Getting the Invest/Deduct Master Data
 
+    //Getting the IncomeTax Child Sequence
+    $scope.GetSequenceItemChild = function () {
+        cboService.getSequence($scope.path + 'GetAutoSequenceItemChild', function (data) {
+            $scope.InvestDeductModelChild.Sequence = data;
+        });
+    };
+    $scope.GetSequenceItemChild();
+
+    // Get Item Master Data
     $scope.ModelMasterList = [];
     $scope.getInvestDeductMaster = function () {
         $http({
@@ -917,6 +968,19 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             $scope.IncomechildData = response.data;
         });
     }
+
+    $scope.Deduction = function () {
+        if ($scope.InvestDeductModelChild.IsDeduction == true) {
+            $scope.InvestDeductModelChild.IsEarning = false;
+        }
+    };
+    $scope.Earning = function () {
+        if ($scope.InvestDeductModelChild.IsEarning == true) {
+            $scope.InvestDeductModelChild.IsDeduction = false;
+        }
+    };
    
     //#endregion
+
+
 }
