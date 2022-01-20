@@ -277,6 +277,19 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public ActionResult getChildList(string id)
+        {
+            try
+            {
+                return Json(ds.getChildList(id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetTaxType()
         {
@@ -310,7 +323,19 @@ namespace Aplos.Areas.Payrolls.Controllers
             }            
         }
 
-
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequenceItemChild()
+        {
+            try
+            {
+                return Json(ds.GetSequenceItemChild(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+       
         #endregion
 
     }
