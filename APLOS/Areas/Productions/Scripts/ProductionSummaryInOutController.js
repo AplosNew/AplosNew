@@ -388,6 +388,40 @@ function ProductionSummaryInOutController(cboService, commonMessage, $scope, $ro
         }
     }
 
+    $scope.ProductionOrderList = [];
+    $scope.getProductionOrderPopUp = function () {
+        if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
+            return ShowResult('Please Work Center.', 'failure');
+        }
+        $scope.ProductionOrderList = [];
+        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.ProductionOrderList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+
+    };
+
+    $scope.SetPrOData = function ($event) {
+        $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
+
+        $scope.productionSummaryNew.ProductLibraryId = null;
+        $scope.productionSummaryNew.ProductCode = null;
+        $scope.productionSummaryNew.MasterOrderItemId = null;
+        $scope.productionSummaryNew.SalesOrderId = null;
+
+        angular.element(document.querySelector('#POItemPopup')).modal('hide');
+        $scope.GetTotalProductionBookingQty();
+        $scope.getLotNumberCbo();
+    }
+
     $scope.psdList = [];
     $scope.char1Save = function () {
         try {

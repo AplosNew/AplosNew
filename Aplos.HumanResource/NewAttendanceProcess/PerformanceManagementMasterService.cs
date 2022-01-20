@@ -30,7 +30,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             catch (Exception ex)
             {
                 throw ex;
-                
+
             }
         }
 
@@ -54,7 +54,9 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"select Id from hkp.EmployeeCategory  where Id = '" + Id + "' ";
+                var str = @" select pc.Id,pc.PMSMasterId,pc.EmployeeCategoryId,et.UserName from PMSChild pc
+			 left join hkp.EmployeeCategory et on et.id=pc.EmployeeCategoryId
+where PMSMasterId= '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -63,25 +65,23 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        ////public IEnumerable<object> GetList(string strkey)
-        ////{
-        ////    try
-        ////    {
-        ////        string sql = @"select pm.* , uom.UserName as UOM
-        ////                        from dbo.PMSMaster pm
-        ////                         left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId 
-        ////                        order by wpm.Sequence asc";
+        public IEnumerable<object> GetList(string strkey)
+        {
+            try
+            {
+                string sql = @"select Id, Sequence, Category ,SubCategory, StandardName, UserName, ShortName ,Code ,Active from dbo.PMSMaster 
+                              ";
 
-        ////        return _sqlRepository.GetDataCollection(sql);
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        throw e;
-        ////    }
-        //}
-        
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
-    public Dictionary<string, object> Create(Dictionary<string, object> data, List<string> Employee)
+
+        public Dictionary<string, object> Create(Dictionary<string, object> data, List<string> Employee)
         {
             try
             {
@@ -92,14 +92,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where StandardName = '" + data["StandardName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same StandardName already exists!!!");
-            
+
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName = '" + data["UserName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same UserName already exists!!!");
 
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-              
+
                 string _Id = "";
 
                 #region data Master update
@@ -137,9 +137,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     DataRow dr = dsChild.Tables[0].NewRow();
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("dbo.PMSChild", out _IdC); 
+                    genid.GenID("dbo.PMSChild", out _IdC);
 
-                    dr["Id"] ="PMC"+ _IdC;
+                    dr["Id"] = "PMC" + _IdC;
                     dr["PMSMasterId"] = data["Id"].ToString();
                     dr["EmployeeCategoryId"] = Employee[i].ToString();
                     dr["AddedBy"] = identity.Name;
@@ -164,91 +164,11 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
-               
+
                 throw ex;
 
             }
         }
-        //public string SaveData(IEnumerable<PerformanceModel> DataToSave)
-        //{
-        //    try
-        //    {
-        //        DataSet dsMaster;
-
-        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-        //        if (DataToSave.Count() == 0)
-        //            return "";
-        //        List<PerformanceModel> items = DataToSave.ToList();
-
-        //        con.OpenDataSetThroughAdapter("select * from dbo.PMSMaster where 1=2", out dsMaster, false, "1");
-
-        //        foreach (PerformanceModel item in DataToSave)
-        //        {
-
-        //            if (dsMaster.Tables[0].Rows.Count == 0)
-        //            {
-        //                DataRow dr = dsMaster.Tables[0].NewRow();
-
-
-        //                bplib.clsGenID id = new bplib.clsGenID();
-        //                id.GenIDYearly(DateTime.Now.ToShortDateString(), "PMSMaster", out string NewId);
-
-        //                dr["Sequence"] = item.Sequence;
-        //                dr["Category"] = item.Category;
-        //                dr["SubCategory"] = item.SubCategory;
-        //                dr["StandardName"] = item.StandardName;
-        //                dr["Username"] = item.Username;
-        //                dr["ShortName"] = item.ShortName;
-        //                dr["Code"] = item.Code;
-        //                dr["Active"] = item.Active;
-        //                dr["AddedBy"] = item.AddedBy;
-        //                dr["AddedDate"] = DateTime.Now.ToString();
-        //                dr["AddedFromIP"] = item.AddedFromIP;
-
-        //                dsMaster.Tables[0].Rows.Add(dr);
-
-
-        //            }
-
-        //        }
-        //        clsStaticInfo _info = new clsStaticInfo();
-        //        _info.SaveDataSets(dsMaster);
-        //        string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-        //        if (MasterId.Contains("WT"))
-        //        {
-        //            return "true";
-        //        }
-        //        return "false";
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ex.ToString();
-        //    }
-        //}
-        public class PerformanceModel
-        {
-            public string Sequence { get; set; }
-            public string Category { get; set; }
-            public string SubCategory { get; set; }
-            public string StandardName { get; set; }
-            public string Username { get; set; }
-
-            public string ShortName { get; set; }
-
-            public string Code { get; set; }
-            public string Active { get; set; }
-
-            public DateTime Date { get; set; }
-            public string AddedBy { get; set; }
-            public DateTime AddedDate { get; set; }
-            public string UpdatedBy { get; set; }
-            public DateTime? UpdatedDate { get; set; }
-            public string AddedFromIP { get; set; }
-            public string UpdatedFromIP { get; set; }
-
-        }
-
         public void Delete(string id)
         {
             try
@@ -260,7 +180,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("delete from dbo.PMSChild where EmployeeCategoryId ='" + id + "'");
+                conC.executeQuery("delete from dbo.PMSChild where PMSMasterId ='" + id + "'");
                 conC.CommitTransaction();
 
 
@@ -293,10 +213,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
             }
             dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedDate"] = DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
             dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedDate"] = DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
 
             dt.Rows.Add(dr);
@@ -317,15 +237,40 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
             }
             dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedDate"] = DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-
     }
-   
+
+
+    public class PerformanceModel
+        {
+            public string Sequence { get; set; }
+            public string Category { get; set; }
+            public string SubCategory { get; set; }
+            public string StandardName { get; set; }
+            public string Username { get; set; }
+
+            public string ShortName { get; set; }
+
+            public string Code { get; set; }
+            public string Active { get; set; }
+
+            public DateTime Date { get; set; }
+            public string AddedBy { get; set; }
+            public DateTime AddedDate { get; set; }
+            public string UpdatedBy { get; set; }
+            public DateTime? UpdatedDate { get; set; }
+            public string AddedFromIP { get; set; }
+            public string UpdatedFromIP { get; set; }
+
+        }
+
+       
 
 }
+
    
 
 

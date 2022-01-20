@@ -122,6 +122,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             method: 'GET',
             url: 'Accounts/PostInvoice/GetListForInvPayable',
         }).then(function successCallback(response) {
+            $scope.approvedGRNList = [];
             $scope.approvedGRNList = response.data;
         });
     };
@@ -341,6 +342,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.Action = 'Save';
     $scope.Save = function () {
         try {
+            $scope.InventoryReceiveDetailLists = [];
             angular.copy($scope.modelNew, $scope.model);
             $scope.$broadcast('show-errors-check-validity');
 

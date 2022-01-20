@@ -27,15 +27,10 @@ function IncomeStatementReportController(commonMessage, $scope, $rootScope, base
             $scope.incomeStatementReport.IsActivityLevel = false;
  
         }
-        else if (level == 'Activity') {
-            $scope.incomeStatementReport.IsBudgetLevel = true;
+        if (level == 'Activity') {
+            $scope.incomeStatementReport.IsBudgetLevel = false;
             $scope.incomeStatementReport.IsActivityLevel = true;
   
-        }
-        else if (level == 'AccountGroup') {
-            $scope.incomeStatementReport.isACGroupLevel = true;
-            $scope.incomeStatementReport.IsActivityLevel = true;
-
         }
     };
     $scope.upToLevelList = [];
@@ -46,7 +41,7 @@ function IncomeStatementReportController(commonMessage, $scope, $rootScope, base
             url: "Enum/GetIncomeStatementCbo/"
         }).then(function successCallback(response) {
             $scope.upToLevelList = response.data;
-            $scope.report.IsUpToLevel = response.data[0].Value;
+            $scope.incomeStatementReport.IsUpToLevel = response.data[0].Value;
         });
     };
     $scope.getLevelType();
