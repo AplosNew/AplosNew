@@ -7599,7 +7599,7 @@ TNA.SONo, TNA.PRNo
                 field.NumberFormat = clsStaticInfo.NumberFormat();
                 pivotTable.DataFields.Add(field, "Prod. Qty", PivotSubtotalTypes.Sum);
 
-                field = pivotTable.Fields[colDiff - 1];
+                field = pivotTable.Fields[colDiff - 1]; 
                 field.NumberFormat = clsStaticInfo.NumberFormat();
                 pivotTable.DataFields.Add(field, "Diff", PivotSubtotalTypes.Sum);
 
