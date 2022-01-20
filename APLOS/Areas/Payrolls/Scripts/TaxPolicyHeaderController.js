@@ -909,6 +909,15 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //Getting the Invest/Deduct Master Data
 
+    //Getting the IncomeTax Child Sequence
+    $scope.GetSequenceItemChild = function () {
+        cboService.getSequence($scope.path + 'GetAutoSequenceItemChild', function (data) {
+            $scope.InvestDeductModelChild.Sequence = data;
+        });
+    };
+    $scope.GetSequenceItemChild();
+
+    // Get Item Master Data
     $scope.ModelMasterList = [];
     $scope.getInvestDeductMaster = function () {
         $http({
@@ -941,6 +950,17 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             $scope.IncomechildData = response.data;
         });
     }
+
+    $scope.Deduction = function () {
+        if ($scope.InvestDeductModelChild.IsDeduction == true) {
+            $scope.InvestDeductModelChild.IsEarning = false;
+        }
+    };
+    $scope.Earning = function () {
+        if ($scope.InvestDeductModelChild.IsEarning == true) {
+            $scope.InvestDeductModelChild.IsDeduction = false;
+        }
+    };
    
     //#endregion
 

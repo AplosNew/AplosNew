@@ -520,6 +520,15 @@ namespace Library.HumanResource.Payroll.Tax
         #region Investment Deduction Master Functions
 
         #region Data Returning Functions
+        public double GetSequenceItemChild()
+        {
+            string TableName = "dbo.IncomeTaxItemChild";
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
         public IEnumerable<object> getTaxSavingGroup()
         {
             try
