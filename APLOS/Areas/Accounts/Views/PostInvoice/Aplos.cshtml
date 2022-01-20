@@ -171,7 +171,7 @@
                                     <div e-columns>
                                         <div e-column e-headertext="" e-headertemplateid="#headerTemplateDetail" e-template="#checkboxTemplateDetail" e-textalign="center" e-width="30"></div>
                                         <div e-column e-field="InventoryReceiveId" e-headertext="GRN No" e-width="50" e-filter="false"></div>
-                                        <div e-column e-field="InventoryReceiveDetailId" e-headertext="Detail No" e-width="50"></div>
+                                        <div e-column e-field="InventoryReceiveDetailId" e-headertext="Detail No" e-width="70"></div>
                                         <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="80"></div>
                                         <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
                                         <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
@@ -203,8 +203,8 @@
 
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li> <button ng-click="Save();" ng-disabled="voucher.IsPark=='Posted'" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li> <button data-toggle="modal" ng-disabled="voucher.IsPark=='Posted'" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>

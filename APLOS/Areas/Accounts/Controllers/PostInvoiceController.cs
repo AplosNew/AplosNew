@@ -105,17 +105,18 @@ namespace Aplos.Areas.Accounts.Controllers
                     }
 
                     masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
+                    int count = 0;
                     if (dataList != null)
                     {
                         foreach (var item in dataList)
                         {
+                            count++;
                             DataView dv = new DataView(dsDetails.Tables[0]);
                             dv.RowFilter = "Id='" + item["Id"] + "'";
 
                             if (dv.Count == 0)
                             {
-                                item["Id"] = GetPK();
+                                item["Id"] = masterId+"-"+ count;
                                 item["PostGRNInvoiceId"] = masterId;
                                 AddNewRow(dsDetails.Tables[0], item);
                             }
