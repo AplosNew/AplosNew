@@ -314,6 +314,19 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Tax Saving Group</label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select ng-model="InvestDeductModel.TaxSavingGroupId"
+                                                    class="form-control" ng-change="fillMaxLimit();"
+                                                    ng-options="item.Id as item.Username for item in TaxSavingGroupList">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>                                   
+                                </div>
+
                             </div>
 
                             <div class="col-xs-12 col-sm-6 col-md-6">
@@ -326,21 +339,21 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">Tax Saving Group</label>
-                                    <div class="col-sm-4 show-message">
-                                        <div class="select-style">
-                                            <select ng-model="InvestDeductModel.TaxSavingGroupId"
-                                                    class="form-control" ng-change="fillMaxLimit();"
-                                                    ng-options="item.Id as item.Username for item in TaxSavingGroupList">
-                                                <option value=""></option>
-                                            </select>
+                                    <label class="col-sm-4 control-label">Item Applicable</label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site" style="margin-top:7px;">
+                                            <label>
+                                                <input type="checkbox" ng-model="InvestDeductModel.ItemApplicable">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
                                         </div>
                                     </div>
-                                    <div id="taxGroupLimit" style="display:none; margin-top:10px;" class="col-sm-4 show-message">
-                                        <b>Max Limit : {{maxLimit}}</b>
-                                    </div>
                                 </div>
-
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"> <b>Max Limit : {{maxLimit}}</b></label>     
+                                </div>
+                           
                             </div>
 
                             <div class="common-btn">
@@ -361,97 +374,47 @@
                                             <div e-column e-field="UserCode" e-headertext="UserCode" e-width="80"></div>
                                             <div e-column e-field="TaxType" e-headertext="TaxType" e-width="80"></div>
                                             <div e-column e-field="TaxSavingGroup" e-headertext="Tax Saving Group" e-width="100"></div>
+                                            <div e-column e-field="ItemApplicable" e-headertext="Item Applicable" e-width="50"></div>
+                                            <div e-column e-field="MaxLimit" e-headertext="MaxLimit" e-visible="false"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
+                            <div><br /></div>
                             <div class="col-xs-12">
                                 <fieldset class="scheduler-border">
-                                    <legend class="scheduler-border"><b> Item Level </b> </legend>
+                                    <legend class="scheduler-border"><b> Item Level Configuration </b> </legend>
 
-                                    @*<div class="col-xs-12 col-sm-6 col-md-6 ">
-
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">SalaryHead<sup>*</sup></label>
-                                            <div class="col-sm-8 show-message">
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="EarningMasterModel.SalaryHeadId" name="SalaryHead"
-                                                            ng-options="item.Value as item.Text for item in SalaryHeadList" required>
-                                                        <option value="">--Select--</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                    <div class="col-xs-12">
+                                        <div class="common-btn" style="margin-right:10px;">
+                                            <ul class="list-inline text-right">
+                                                <li> <button ng-disabled="InvestDeductModel.SystemId==null || InvestDeductModel.ItemApplicable==false" ng-click="();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add Item</button></li>
+                                            </ul>
                                         </div>
-
-                                        <div class="form-group" show-errors>
-                                            <label class="col-sm-4 control-label">Taxable Amount %</label>
-                                            <div class="col-sm-8 show-message">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxableAmountPer" class="form-control" maxlength="100">
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group" show-errors>
-                                            <label class="col-sm-4 control-label">Exemption On</label>
-                                            <div class="col-sm-4">
-                                                <div class="checkbox-site radio">
-                                                    <label>
-                                                        <input ng-disabled="EarningMasterModel.ExemptionApplicable == false" type="radio"
-                                                               ng-model="EarningMasterModel.IsLessOrMore" name="Less" value="Which Ever Is Less">
-                                                        <span class="cr"><i class="cr-icon"></i></span>Which Ever Is Less
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="checkbox-site radio">
-                                                    <label>
-                                                        <input ng-disabled="EarningMasterModel.ExemptionApplicable == false" type="radio" ng-model="EarningMasterModel.IsLessOrMore"
-                                                               name="More" value="Which Ever Is More">
-                                                        <span class="cr"><i class="cr-icon"></i></span>Which Ever Is More
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                     </div>
 
-                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
-
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Exemption Applicable</label>
-                                            <div class="col-sm-8">
-                                                <div class="checkbox-site" style="margin-top:7px;">
-                                                    <label>
-                                                        <input type="checkbox" ng-model="EarningMasterModel.ExemptionApplicable">
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
+                                    <div class="row" style="margin:10px;">
+                                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                                            <div style="color:black;" ej-grid e-datasource="IncomechildData"
+                                                 e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                                                 e-allowselection="true" @*e-recorddoubleclick="getDeductionMasterDoubleClick"*@ e-filtersettings-filterType="excel"
+                                                 e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                                                <div e-columns>
+                                                    <div e-column e-field="SystemId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                                    <div e-column e-field="TaxSavingItem" e-headertext="TaxSavingItem" e-width="80"></div>
+                                                    <div e-column e-field="TaxType" e-headertext="TaxType" e-width="80"></div>
+                                                    <div e-column e-field="TaxSavingGroup" e-headertext="Tax Saving Group" e-width="100"></div>
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <div class="form-group" show-errors>
-                                            <label class="col-sm-4 control-label">Taxable Amount Fix</label>
-                                            <div class="col-sm-8 show-message">
-                                                <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxableAmountFix" class="form-control" maxlength="100">
-                                            </div>
-                                        </div>
-                                    </div>*@
-
+                                    </div>
                                 </fieldset>
-                            </div>
-
-                            <div class="col-xs-12">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li> <button ng-click="SaveDeductionMaster();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                        <li> <button ng-click="ClearEarningMaster();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                    </ul>
-                                </div>
-                            </div>
+                            </div>                          
+                       
                         </div>
                     </div>
                 </div>
-
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                     <div class="row" ng-form name="ChildForm" id="Allowed">

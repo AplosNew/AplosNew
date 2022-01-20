@@ -775,6 +775,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         TaxTypeId: null,
         SystemId: null,
         UserCode: null,
+        ItemApplicable: false,
         TaxPolicyHeaderId: null,
         TaxSavingGroupId: null
     };
@@ -788,6 +789,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.InvestDeductModel = {
             TaxTypeId: null,
             SystemId: null,
+            ItemApplicable: false,
             TaxPolicyHeaderId: $scope.Header.Id,
             UserCode: null,
             TaxSavingGroupId: null
@@ -850,7 +852,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
-    //The Save for the Master
+    // #region Saving Data Region
+
     $scope.SaveDeductionMaster = function () {
         if (!baseService.isUndefinedOrNull($scope.InvestDeductModel.UserCode))
         {
@@ -878,6 +881,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         }
     };
 
+    // #endregion
+
     //Getting the Invest/Deduct Master Data
 
     $scope.ModelMasterList = [];
@@ -894,8 +899,23 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     $scope.getDeductionMasterDoubleClick = function (e) {
         $scope.InvestDeductModel = e.data;
+        $scope.maxLimit = e.data.MaxLimit;
         $scope.InvestDeductModel.TaxPolicyHeaderId = $scope.Header.Id;
+        $scope.getIncomeChildData();
         // Model which is used as ng-model will come here
+    }
+
+    //Getting the Child Table
+    $scope.IncomechildData = [];
+    $scope.getIncomeChildData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "getChildList",
+            params: { Id: $scope.InvestDeductModel.SystemId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.IncomechildData = response.data;
+        });
     }
    
     //#endregion

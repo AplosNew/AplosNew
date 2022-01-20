@@ -598,13 +598,14 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string sql = @"Select itm.SystemId, itm.TaxTypeId , itm.UserCode ,ty.UserName as TaxType ,
+                string sql = @"Select itm.SystemId, itm.TaxTypeId ,itm.ItemApplicable,
+                        itm.UserCode ,ty.UserName as TaxType ,
                             tg.Id TaxSavingGroupId,tg.UserName TaxSavingGroup,tg.MaxLimit
                                 from dbo.IncomeTaxItemMaster itm
 								left join hkp.TaxSavingGroup tg on tg.Id = itm.TaxSavingGroupId
 								left join TaxPolicyHeader h on h.Id=itm.TaxPolicyHeaderId
                                 left join dbo.TaxType ty on ty.Id = itm.TaxTypeId
-                                where h.Id='"+HeaderId+"' order by tg.[Sequence]";
+                                where h.Id='" + HeaderId+"' order by tg.[Sequence]";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -613,7 +614,21 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-       
+        public IEnumerable<object> getChildList(string id)
+        {
+            try
+            {
+                string sql = @"Select tc.* ,ti.UserName as TaxSavingItem from dbo.IncomeTaxItemChild tc
+                                left join hkp.TaxSavingItem ti on ti.Id = tc.TaxSavingItemId
+                                where tc.IncomeTaxItemMasterId = '"+id+"' order by tc.Sequence";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         #endregion
 
     }
