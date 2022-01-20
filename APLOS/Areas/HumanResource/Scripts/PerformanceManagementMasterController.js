@@ -28,7 +28,21 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
             $scope.GetSequence();
         });
     }
+
+    $scope.getDataChild = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+            ClearFields(response.data.Sequence);
+            $scope.GetSequence();
+        });
+    }
     $scope.getData();
+
 
 
     $scope.getEmployee = function () {

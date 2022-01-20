@@ -28,6 +28,7 @@ function EntitySFGInventoryController(commonMessage, $scope, $rootScope, baseSer
         , SFGInventoryId: null
         , LotNumberCapture: false
         , LotNumberMandatory: false
+        , IsSKU1: false, IsSKU2: false, IsSKU3: false
     };
 
     // #region DDL
