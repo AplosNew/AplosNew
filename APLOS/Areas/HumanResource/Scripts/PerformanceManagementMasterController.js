@@ -5,32 +5,31 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/PerformanceManagementMaster/';
-    /*$scope.getListUrl = $scope.path + 'getlist';*/
+    $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
-  /*  baseService.init($scope.getListUrl);*/
+    baseService.init($scope.getListUrl);
     $scope.searchBy = null; $scope.search = null;
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
-
-  
-    $scope.ID = null;
     $scope.EmployeeList = [];
     $scope.EmployeeId = null;
 
-    //$scope.getData = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + "GetList",
-    //        data: { column: $scope.searchBy, value: $scope.search },
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        $scope.ModelList = response.data;
-    //        ClearFields(response.data.Sequence);
-    //        $scope.GetSequence();
-    //    });
-    //}
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+            ClearFields(response.data.Sequence);
+            $scope.GetSequence();
+        });
+    }
+    $scope.getData();
+
 
     $scope.getEmployee = function () {
         $http({
@@ -58,7 +57,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
         UserName: null,
         ShortName: null,
         Code: null,
-        Active: null,
+        Active: true,
         Remarks:null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -106,12 +105,12 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
 
 
         });
-
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
+            $scope.ModelNew = Object.assign({}, args.data);
+            $scope.Action = 'Update';
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        };
 
     $scope.Save = function () {
        $scope.$broadcast('show-errors-check-validity');
@@ -172,10 +171,24 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
 
     function ClearFields(seq) {
         $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
-        $scope.EmployeeIds = [];
-        $scope.SelEmpList = [];
+        $scope.ModelNew = {
+            Id: null,
+            Sequence: 0,
+            Category: null,
+            SubCategory: null,
+            StandardName: null,
+            UserName: null,
+            ShortName: null,
+            Code: null,
+            Active: true,
+            Remarks: null,
+        };
+            $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+            $scope.ModelNew.Sequence = seq;
+
+            $scope.EmployeeIds = [];
+            $scope.SelEmpList = [];
+     
     }
 
     // Addition of the Modal Operations for PMS Child
