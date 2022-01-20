@@ -810,6 +810,24 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             TaxSavingGroupId: null
         };
         $scope.maxLimit = 0;
+        $scope.IncomechildData = [];
+        $scope.GetSequenceItemChild();
+    }
+
+    $scope.ClearChildFields = function () {
+        $scope.InvestDeductModelChild = {
+            Id: null,
+            isPercentage: "Yes",
+            isFix: false,
+            TaxSavingItemId: null,
+            Limit: null,
+            Remarks: null,
+            IsInvestment: false,
+            IsDeduction: false,
+            IsEarning: false,
+            IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId            
+        };
+        $scope.GetSequenceItemChild();
     }
 
     // #endregion
