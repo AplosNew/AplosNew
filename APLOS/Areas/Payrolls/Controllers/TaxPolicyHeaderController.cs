@@ -264,6 +264,19 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetList(string HeaderId)
+        {
+            try
+            {
+                return Json(ds.GetList(HeaderId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetTaxType()
         {
