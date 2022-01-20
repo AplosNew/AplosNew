@@ -633,7 +633,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             TaxableAmountPer: 0,
             ExemptionApplicable: false
         };
-        $scope.EarningMasterModel.HeaderId = $scope.Header.Id;
+        $scope.EarningMasterModel.TaxPolicyHeaderId = $scope.Header.Id;
 
     }
 
@@ -781,8 +781,35 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     // #endregion
 
+    // #region Clear Fields Region
 
+    $scope.ClearMasterFields = function () {
+        $scope.Action = 'Save';
+        $scope.InvestDeductModel = {
+            TaxTypeId: null,
+            SystemId: null,
+            TaxPolicyHeaderId: $scope.Header.Id,
+            UserCode: null,
+            TaxSavingGroupId: null
+        };
+        $scope.maxLimit = 0;
+    }
 
+    // #endregion
+
+    // #region DropDownList Functions Region
+
+    //Filling the Max Limit
+    $scope.maxLimit = 0;
+    $scope.fillMaxLimit = function () {
+        for (var i = 0; i < $scope.TaxSavingGroupList.length; i++) {
+            if ($scope.InvestDeductModel.TaxSavingGroupId === $scope.TaxSavingGroupList[i].Id) {
+                $scope.maxLimit = $scope.TaxSavingGroupList[i].MaxLimit;
+            }
+        }
+        document.getElementById("taxGroupLimit").style.display = 'block';
+    }
+       
     //Getting the Tax Type
     $scope.TaxTypeList = [];
     $scope.getTaxType = function () {
@@ -820,6 +847,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         });
     }
     $scope.taxSavingItem();
+
+    //#endregion
 
     //#endregion
 }

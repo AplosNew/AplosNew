@@ -561,6 +561,45 @@ namespace Library.HumanResource.Payroll.Tax
             }
 
         }
+        public Dictionary<string, object> Create(Dictionary<string, object> dataMaster)
+        {
+            try
+            {
+                string TableName = "dbo.IncomeTaxItemMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where SystemId='" + dataMaster["SystemId"] + "'", out dsMaster, false, "1");
+                DateTime now = DateTime.Today;
+
+                string _Id = "";
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    dataMaster["SystemId"] = now.ToString("yy") + '-' + _Id;
+                    AddNewRow(dsMaster.Tables[0], dataMaster);
+                }
+                else
+                {
+                    _Id = dataMaster["SystemId"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return dataMaster;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
 
         #endregion
 
