@@ -1019,6 +1019,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             data.Percentage = 0;
         }
         data.TaxAmount = Math.round($scope.serviceModel.TransactionAmount * data.Percentage) / 100;
+        $scope.sumSvcTaxAmount();
     };
     $scope.checkRowValidationService = function (x) {
         ;
