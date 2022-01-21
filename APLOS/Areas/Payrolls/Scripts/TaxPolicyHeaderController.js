@@ -1012,6 +1012,17 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         // Model which is used as ng-model will come here
     }
 
+    $scope.getDeductionChildDoubleClick = function (e) {
+        try {
+
+            $scope.InvestDeductModelChild = e.data;
+            $scope.InvestDeductModel.IncomeTaxItemMasterId = $scope.InvestDeductModel.SystemId;
+            angular.element(document.querySelector('#SavingItemPopup')).modal('show');
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
     //Getting the Child Table
     $scope.IncomechildData = [];
     $scope.getIncomeChildData = function () {
