@@ -769,10 +769,10 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label class="col-sm-4 control-label">Tax Saving Item</label>
+                                        <label class="col-sm-4 control-label">Tax Saving Item<sup>*</sup></label>
                                         <div class="col-sm-8 show-message">
                                               <div class="select-style">
-                                                  <select ng-model="InvestDeductModelChild.TaxSavingItemId" class="form-control" ng-options="item.Id as item.Username for item in TaxSavingItemList">
+                                                  <select ng-model="InvestDeductModelChild.TaxSavingItemId" class="form-control" ng-options="item.Id as item.Username for item in TaxSavingItemList" required>
                                                       <option value=""></option>
                                                   </select>
                                               </div>
@@ -808,7 +808,7 @@
                     </div>             
                     <div class="common-btn" style="margin-right:30px">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveFormula();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                            <li> <button ng-click="SaveDeductionChild();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
                             <li> <button ng-click="ClearChildFields();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>                   
