@@ -3481,7 +3481,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+        location.href = "Products/InventoryReceive/FOCReport?grnId=" + data.Id;
     };
     $scope.PaymentModeList = [];
     $scope.PaymentModeByPaymentTerm = function () {

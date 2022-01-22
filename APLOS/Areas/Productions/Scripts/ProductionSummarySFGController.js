@@ -402,13 +402,18 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.Sequence = 0;
     $scope.SeqProcess = null;
     $scope.IsCrossAllowed = null;
+    $scope.LotNumberList = [];
+    $scope.disGo = false;
+    $scope.PQEnable = true;
+    $scope.LotNumberCapture = false;
+    $scope.LotNumberMandatory = false;
+    $scope.IsSKU1 = false;
+    $scope.IsSKU2 = false;
+    $scope.IsSKU3 = false;
 
     $scope.changeProcess = function () {
         $scope.Process = $("#Process option:selected").text();
         $scope.Status = null;
-        $scope.Status = $.grep($scope.listFromProcessOrSFGInventory, function (item) {
-            return item.FromId === $scope.productionSummaryNew.ProcessId;
-        })[0].Status;
 
         for (var i = 0; i < $scope.listFromProcessOrSFGInventory.length; i++) {
             if ($scope.productionSummaryNew.ProcessId === $scope.listFromProcessOrSFGInventory[i].FromId) {
@@ -418,48 +423,39 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                 $scope.IsFirst = $scope.listFromProcessOrSFGInventory[i].IsFirst;
                 $scope.Status = $scope.listFromProcessOrSFGInventory[i].Status;
                 $scope.IsCrossAllowed = $scope.listFromProcessOrSFGInventory[i].IsCrossAllowed;
+                $scope.IsSKU1 = $scope.listFromProcessOrSFGInventory[i].IsSKU1;
+                $scope.IsSKU2 = $scope.listFromProcessOrSFGInventory[i].IsSKU2;
+                $scope.IsSKU3 = $scope.listFromProcessOrSFGInventory[i].IsSKU3;
                 $scope.Sequence = $scope.listFromProcessOrSFGInventory[i].Sequence - 1;
                 break;
             }
         }
 
-        //$scope.SeqProcess = $.grep($scope.listFromProcessOrSFGInventory, function (item) {
-        //    return item.Sequence === $scope.Sequence;
-        //})[0].FromId;
-
-        if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
-            $scope.ProductionLevel = 'Production Order';
-            $scope.PQEnable = false;
-            $scope.disGo = false;
-        }
-        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
-
+       
+         if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
             $scope.ProductionLevel = 'Sales Order';
             $scope.PQEnable = false;
             $scope.disGo = false;
         }
-        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU1') {
-
-            $scope.ProductionLevel = 'Sales Order';
-            $scope.PQEnable = true;
+        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
+            $scope.ProductionLevel = 'Master Order Item';
+            $scope.PQEnable = false;
             $scope.disGo = false;
         }
-        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU2') {
-
-            $scope.ProductionLevel = 'Sales Order';
-            $scope.PQEnable = true;
-            $scope.disGo = false;
-        }
-        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU3') {
-
-            $scope.ProductionLevel = 'Sales Order';
-            $scope.PQEnable = true;
+        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductCode') {
+            $scope.ProductionLevel = 'Product Code';
+            $scope.PQEnable = false;
             $scope.disGo = false;
         }
         else {
             $scope.disGo = true;
             $scope.PQEnable = true;
             throw 'Production Booking Level is not defined for selected process.';
+        }
+
+        if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true) {
+            $scope.PQEnable = true;
+            $scope.disGo = false;
         }
 
         $scope.loadWC($scope.productionSummaryNew.ProcessId);
@@ -507,76 +503,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         }
     };
 
-    $scope.LotNumberList = [];
-    $scope.disGo = false;
-    $scope.PQEnable = true;
-    $scope.LotNumberCapture = false;
-    $scope.LotNumberMandatory = false;
-    $scope.IsSKU1 = false;
-    $scope.IsSKU2 = false;
-    $scope.IsSKU3 = false;
-    $scope.getProdLevel = function () {
-        try {
-            $scope.productionSummaryNew.ProductionBookingLevel = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].ProductionBookingLevel;
-
-            $scope.LotNumberCapture = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].LotNumberCapture;
-
-            $scope.LotNumberMandatory = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].LotNumberMandatory;
-
-            $scope.IsSKU1 = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsSKU1;
-
-            $scope.IsSKU2 = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsSKU2;
-
-            $scope.IsSKU3 = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsSKU3;
-
-            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
-                $scope.ProductionLevel = 'Production Order';
-                $scope.PQEnable = false;
-                $scope.disGo = false;
-            }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
-                $scope.ProductionLevel = 'Sales Order';
-                $scope.PQEnable = false;
-                $scope.disGo = false;
-            }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
-                $scope.ProductionLevel = 'Master Order Item';
-                $scope.PQEnable = false;
-                $scope.disGo = false;
-            }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductCode') {
-                $scope.ProductionLevel = 'Product Code';
-                $scope.PQEnable = false;
-                $scope.disGo = false;
-            }
-            else {
-                $scope.disGo = true;
-                $scope.PQEnable = true;
-                throw 'Production Booking Level is not defined for selected process.';
-            }
-
-            if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true) {
-                $scope.PQEnable = true;
-                $scope.disGo = false;
-            }
-
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
+  
     //#endregion SFG Movement
 
     $scope.SOItemList = [];
@@ -885,7 +812,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
     $scope.CharacteristicsValueId = null;
     $scope.characteristicsValueList = [];
-    $scope.showFirstPopup = function (master) {
+    $scope.XshowFirstPopup = function (master) {
         try {
             $scope.productionSummaryNew.Id = master.Id;
             $scope.productionSummaryNew.MaterialMasterId = master.MaterialMasterId;
@@ -919,6 +846,137 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         }
     };
 
+    $scope.CharacteristicsValueId = null;
+    $scope.characteristicsValueList = [];
+    $scope.showFirstPopup = function (master) {
+        try {
+            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionOrderId)) {
+                    throw "Production Order is required.";
+                }
+            }
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.SalesOrderId)) {
+                    throw "Sales Order is required.";
+                }
+            }
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.MasterOrderItemId)) {
+                    throw "Master Order Item is required.";
+                }
+            }
+            else {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductLibraryId)) {
+                    throw "Product Code is required.";
+                }
+            }
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionGrade)) {
+                throw "Grade is required.";
+            }
+            $scope.productionSummaryNew.Id = master.Id;
+            $scope.productionSummaryNew.MaterialMasterId = master.MaterialMasterId;
+            $scope.productionSummaryNew.SalesOrderId = master.SalesOrderId;
+            $scope.productionSummaryNew.ProductionOrderId = master.ProductionOrderId;
+            $scope.productionSummaryNew.MasterOrderItemId = master.MasterOrderItemId;
+            $scope.productionSummaryNew.ProductLibraryId = master.ProductLibraryId;
+            $scope.productionSummaryNew.ArticleId = master.ArticleId;
+            $scope.productionSummaryNew.CharCount = master.CharCount;
+
+            $scope.GetcharacteristicsValueList(master.SalesOrderId);
+
+            angular.element(document.querySelector('#firstPopup')).modal('show');
+
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    }
+
+    $scope.showSecondPopup = function (master) {
+        try {
+            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionOrderId)) {
+                    throw "Production Order is required.";
+                }
+            }
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.SalesOrderId)) {
+                    throw "Sales Order is required.";
+                }
+            }
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.MasterOrderItemId)) {
+                    throw "Master Order Item is required.";
+                }
+            }
+            else {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductLibraryId)) {
+                    throw "Product Code is required.";
+                }
+            }
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionGrade)) {
+                throw "Grade is required.";
+            }
+            $scope.productionSummaryNew.Id = master.Id;
+            $scope.productionSummaryNew.MaterialMasterId = master.MaterialMasterId;
+            $scope.productionSummaryNew.SalesOrderId = master.SalesOrderId;
+            $scope.productionSummaryNew.ProductionOrderId = master.ProductionOrderId;
+            $scope.productionSummaryNew.MasterOrderItemId = master.MasterOrderItemId;
+            $scope.productionSummaryNew.ProductLibraryId = master.ProductLibraryId;
+            $scope.productionSummaryNew.ArticleId = master.ArticleId;
+            $scope.productionSummaryNew.CharCount = master.CharCount;
+
+            $scope.GetcharacteristicsValueList(master.SalesOrderId);
+
+            angular.element(document.querySelector('#firstPopup')).modal('show');
+
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    }
+
+    $scope.showBothPopup = function (master) {
+        try {
+            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionOrderId)) {
+                    throw "Production Order is required.";
+                }
+            }
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.SalesOrderId)) {
+                    throw "Sales Order is required.";
+                }
+            }
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.MasterOrderItemId)) {
+                    throw "Master Order Item is required.";
+                }
+            }
+            else {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductLibraryId)) {
+                    throw "Product Code is required.";
+                }
+            }
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionGrade)) {
+                throw "Grade is required.";
+            }
+            $scope.productionSummaryNew.Id = master.Id;
+            $scope.productionSummaryNew.MaterialMasterId = master.MaterialMasterId;
+            $scope.productionSummaryNew.SalesOrderId = master.SalesOrderId;
+            $scope.productionSummaryNew.ProductionOrderId = master.ProductionOrderId;
+            $scope.productionSummaryNew.MasterOrderItemId = master.MasterOrderItemId;
+            $scope.productionSummaryNew.ProductLibraryId = master.ProductLibraryId;
+            $scope.productionSummaryNew.ArticleId = master.ArticleId;
+            $scope.productionSummaryNew.CharCount = master.CharCount;
+
+            $scope.GetBothcharacteristicsValueList(master.SalesOrderId);
+
+            angular.element(document.querySelector('#secondPopup')).modal('show');
+
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    }
+
     $scope.GetcharacteristicsValueList = function (soId) {
         cboService.getCharacteristicsValueCbo(soId, function (result) {
             $scope.characteristicsValueList = result;
@@ -927,6 +985,26 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
             }
             $scope.getCharInfo();
         });
+    };
+
+    $scope.GetBothcharacteristicsValueList = function (soId) {
+        cboService.getCharacteristicsValueCbo(soId, function (result) {
+            $scope.characteristicsValueList = result;
+            if (baseService.arrayLength($scope.characteristicsValueList) > 0) {
+                $scope.CharacteristicsValueId = $scope.characteristicsValueList[0].Value;
+            }
+            $scope.getChar2Info();
+        });
+    }
+
+    $scope.getChar2Info = function () {
+        $scope.ProductionSummaryDetail = [];
+
+        $http.get('Productions/Productionsummary/GetCharInfo?masterid=' + $scope.productionSummaryNew.Id + '&workdate=' + $scope.productionSummaryNew.ProductionDate + '&mmid=' + $scope.productionSummaryNew.MaterialMasterId + '&soid=' + $scope.productionSummaryNew.SalesOrderId + '&artid=' + $scope.productionSummaryNew.ArticleId + '&CharCount=' + $scope.productionSummaryNew.CharCount + '&CharacteristicsValueId=' + $scope.CharacteristicsValueId)
+            .then(function (response) {
+                $scope.ProductionSummaryDetail = [];
+                $scope.ProductionSummaryDetail = response.data;
+            });
     };
 
     $scope.ProductionSummaryDetail = [];
