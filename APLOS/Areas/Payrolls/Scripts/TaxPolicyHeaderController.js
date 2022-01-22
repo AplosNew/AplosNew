@@ -66,6 +66,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
         $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
+        $scope.TaxYearModel.HeaderId = e.data.Id;
         $scope.GetEarningMasterList();
         $scope.getInvestDeductMaster();
         updateChild();
@@ -1050,6 +1051,27 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     //#endregion
 
     //#endregion
+
+    // #region TaxYear Tagging Functions
+
+    $scope.TaxYearModel = {
+        Id: null,
+        HeaderId: null,
+        TaxYearId: null,
+    };
+
+    $scope.TaxYearList = [];
+    $scope.getTaxYearList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getTaxYearList'
+        }).then(function success(response) {
+            $scope.TaxYearList = response.data;
+        })
+    }
+    $scope.getTaxYearList();
+
+    // #endregion
 
 
 }

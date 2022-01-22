@@ -718,6 +718,36 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
+        #region TaxYear Tagging Functions
+        public IEnumerable<object> GetTaxYearMasterList(string Id)
+        {
+            try
+            {
+                var str = @"select th.HeaderId,th.Id,st.TaxYearName,st.StartDate,st.EndDate,st.TaxYearCode
+                from TaxYearHeaderTagging th left join [SCS].[TaxYear] st on st.id=th.taxyearid
+                where th.headerId='"+Id+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> getTaxYearList()
+        {
+            try
+            {
+                var str = @"select Id as Value,TaxYearName as Text from [SCS].[TaxYear] where Active=1";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion
+
     }
     public class TaxExemptionFormula
     {
