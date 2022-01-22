@@ -507,9 +507,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
             .then(
                 function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.ProductionOrderList = response.data;
-                    }
+                    $scope.ProductionOrderList = response.data;
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
