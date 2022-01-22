@@ -984,6 +984,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     };
 
     $scope.ShowJournalPopUp = function (data) {
+        $scope.salesdb = {};
         $scope.salesdb = data;
         getmasterOrderSalesJournalList(data.Id, data.TaxApplicable, data.PartyAccountGroupId);
         angular.element(document.querySelector('#JournalPopUp')).modal('show');
@@ -1158,6 +1159,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     }
 
     $scope.CloseJournalPopUp = function () {
+        $scope.salesdb = {};
         angular.element(document.querySelector('#JournalPopUp')).modal('hide');
     }
 
