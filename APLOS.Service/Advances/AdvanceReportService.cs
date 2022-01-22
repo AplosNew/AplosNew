@@ -1610,6 +1610,7 @@ namespace Library.Service.Advances
 
             int xlsCol = 1;
             int colGl = 0;
+            int colPurpose = 0;
             int colinrDebit = 0;
             int colinrCredit = 0;
             int colusdDebit = 0;
@@ -1668,7 +1669,10 @@ namespace Library.Service.Advances
             row++;
 
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); colGl = xlsCol; xlsCol++; xlsCol++;
-            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge(); xlsCol++;
+            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge(); xlsCol++;
+
+            //reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Purpose"); colPurpose = xlsCol; xlsCol++; xlsCol++;
+
 
             if (companyCurrencyId != transcationCurrency)
             {
@@ -1698,7 +1702,9 @@ namespace Library.Service.Advances
 
                     reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dsLocal.Rows[i]["Activity"]);
 
-                    sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
+                    sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge();
+
+                    //reportUtility.SetText(ref sheet, row, colPurpose, dsLocal.Rows[i]["Purpose"].ToString());
 
                     if (companyCurrencyId != transcationCurrency)
                     {
@@ -1718,7 +1724,7 @@ namespace Library.Service.Advances
                     sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
                     row++;
-
+                     
                     glName = string.Empty;
 
                 }
