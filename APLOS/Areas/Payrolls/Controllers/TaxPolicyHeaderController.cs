@@ -411,6 +411,22 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult SaveTaxYearTagging(Dictionary<string, object> TaxYearData)
+        {
+            try
+            {
+                var id = ds.saveTaxYearEntry(TaxYearData);
+                return Json(new { Error = false, Data = id, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
         #endregion
 
 

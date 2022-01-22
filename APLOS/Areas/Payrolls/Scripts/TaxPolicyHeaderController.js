@@ -70,6 +70,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.GetEarningMasterList();
         $scope.getInvestDeductMaster();
         updateChild();
+        updateTaxDataChild();
         showTabs();
         
     }
@@ -1070,6 +1071,38 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         })
     }
     $scope.getTaxYearList();
+
+    $scope.SaveTaxYearTagging = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.TaxYearForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveTaxYearTagging',
+                data: { 'TaxYearData': $scope.TaxYearModel }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    console.log(response.data.Data);
+                    updateTaxDataChild();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    }
+    $scope.TaxDataList = [];
+    function updateTaxDataChild() {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getTaxYearMasterData',
+            data: { 'Id': $scope.TaxYearModel.HeaderId }
+        }).then(function success(resp) {            
+            $scope.TaxDataList = resp.data;
+        });
+    }
 
     // #endregion
 

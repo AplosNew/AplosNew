@@ -745,6 +745,50 @@ namespace Library.HumanResource.Payroll.Tax
                 throw e;
             }
         }
+        public Dictionary<string, object> saveTaxYearEntry(Dictionary<string, object> TaxYearData)
+        {
+            try
+            {
+                string TableName = "dbo.TaxYearHeaderTagging";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId ='" + TaxYearData["HeaderId"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    TaxYearData["Id"] = "THT" + _Id;
+                    AddNewRow(dsMaster.Tables[0], TaxYearData);
+                }
+                else if (dsMaster.Tables[0].Rows.Count == 0 
+                    && clsWebLib.RetValidLen(TaxYearData["Id"]).ToString() !="")
+                    
+                {
+                    _Id = TaxYearData["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], TaxYearData);                   
+                }
+                else
+                {
+                    throw new Exception("Already Tax Year is Present!");
+                }
+
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return TaxYearData;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         #endregion
 
