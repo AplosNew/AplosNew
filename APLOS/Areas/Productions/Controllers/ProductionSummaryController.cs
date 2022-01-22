@@ -290,9 +290,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSFGSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string status, bool IsFirst)
+        public ActionResult GetSFGSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string status, bool IsFirst, string ProductionOrderId)
         {
-            return Json(_productionSummaryData.GetSFGSOItem(entityid, workCenterMasterId, productionLevel, processId, status, IsFirst), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetSFGSOItem(entityid, workCenterMasterId, productionLevel, processId, status, IsFirst, ProductionOrderId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -382,6 +382,14 @@ namespace Aplos.Areas.Productions.Controllers
 
                 if (IsFirst == false)
                 {
+                    if (status == "INVENTORY")
+                    {
+                        processId = ps.FromSFGInventoryId;
+                    }
+                    else
+                    {
+                        processId = ps.ProcessId;
+                    }
                     var wipData = _productionSummaryData.GetWIPQtyValidation(ps.Id, ps.EntityId, processId, ps.WorkCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed);
 
                     if (wipData != null)
