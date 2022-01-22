@@ -804,7 +804,7 @@ namespace Aplos.Areas.Commercial.Controllers
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                                     InvPP.StandardName ,ISNULL(PO.OrderSpecific,'')OrderSpecifi,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
                                     ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='MaterialPO',CC.UserName CustomerName
-                                    ,IsFirst=case when GRN.GRNId>0 then 1 else 0 end
+                                    ,IsFirst=case when GRN.GRNId>0 then 1 else 0 end,PO.DocRefNo
                                     FROM TRN.PurchaseOrder PO
                                     INNER JOIN (SELECT SUM(TransactionAmount) TransactionAmount, InventoryReceiveId 
 							        FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.Id
@@ -820,7 +820,7 @@ namespace Aplos.Areas.Commercial.Controllers
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                                     InvPP.StandardName ,ISNULL(PO.OrderSpecific,'')OrderSpecifi,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
                                     ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='ServicePO',CC.UserName CustomerName
-                                    ,IsFirst=case when GRN.GRNId>0 then 1 else 0 end
+                                    ,IsFirst=case when GRN.GRNId>0 then 1 else 0 end,PO.DocRefNo
                                     FROM [TRN].[ServicePOMaster] PO
                                     INNER JOIN (SELECT SUM(Amount) TransactionAmount, ServicePOMasterId 
 							        FROM [TRN].[ServicePODetail] GROUP BY ServicePOMasterId) POD ON POD.ServicePOMasterId=PO.Id
@@ -836,7 +836,7 @@ namespace Aplos.Areas.Commercial.Controllers
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                                     InvPP.StandardName ,ISNULL(PO.OrderSpecific,'')OrderSpecifi,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
                                     ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='OutSourcePO',CC.UserName CustomerName
-                                    ,IsFirst=0
+                                    ,IsFirst=0,PO.DocRefNo
                                     FROM [dbo].[OSTransformationPO] PO
                                     INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, OSTransformationPOId 
 							        FROM [dbo].[OSTransformationPODetail] GROUP BY OSTransformationPOId) POD ON POD.OSTransformationPOId=PO.Id
@@ -864,7 +864,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 var sql = @"SELECT 
                             distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                             InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecific,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='MaterialPO',PLC.LCRef
+                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='MaterialPO',PLC.LCRef,PO.DocRefNo
                             FROM TRN.PurchaseOrder PO
                             INNER JOIN (SELECT SUM(TransactionAmount) TransactionAmount, InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.Id
                             LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
@@ -876,7 +876,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     SELECT 
                             distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                             InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecific,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='ServicePO',PLC.LCRef
+                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='ServicePO',PLC.LCRef,PO.DocRefNo
                             FROM TRN.[ServicePOMaster] PO
                             INNER JOIN (SELECT SUM(Amount) TransactionAmount, ServicePOMasterId FROM [TRN].[ServicePODetail] GROUP BY ServicePOMasterId) POD ON POD.ServicePOMasterId=PO.Id
                             LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
@@ -888,7 +888,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     SELECT 
                             distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                             InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecific,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='OutSourcePO',PLC.LCRef
+                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='OutSourcePO',PLC.LCRef,PO.DocRefNo
                             FROM [dbo].[OSTransformationPO] PO
                             INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, OSTransformationPOId FROM [dbo].[OSTransformationPODetail] GROUP BY OSTransformationPOId) POD ON POD.OSTransformationPOId=PO.Id
                             LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
