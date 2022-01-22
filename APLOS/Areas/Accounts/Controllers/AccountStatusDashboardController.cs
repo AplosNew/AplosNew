@@ -1976,24 +1976,24 @@ namespace Aplos.Areas.Accounts.Controllers
             report.SetHeaderText(ref sheet, ROW, 1, "Total", 10, ExcelHAlign.HAlignLeft);
             sheet.Range[ROW, ColGRNDate, ROW , ColCurrency].Merge();
 
-            sheet[ROW, ColTotalMaterialTranAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount)  + (ROW-1).ToString()+")";
-            sheet[ROW, ColTotalMaterialTranAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-            sheet[ROW, ColTotalMaterialTranAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet[ROW, ColTotalMaterialTranAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            sheet[ROW, ColTotalMaterialTranAmount].CellStyle.Font.Bold = true;
-            sheet.Range[ROW, ColToCurrencyRate, ROW, ColToCurrencyRate].Merge();
+            //sheet[ROW, ColTotalMaterialTranAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount)  + (ROW-1).ToString()+")";
+            //sheet[ROW, ColTotalMaterialTranAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            //sheet[ROW, ColTotalMaterialTranAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet[ROW, ColTotalMaterialTranAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //sheet[ROW, ColTotalMaterialTranAmount].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, ColToCurrencyRate, ROW, ColToCurrencyRate].Merge();
 
-            sheet[ROW, ColInvoiceAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColInvoiceAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColInvoiceAmount) + (ROW - 1).ToString() + ")";
-            sheet[ROW, ColInvoiceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-            sheet[ROW, ColInvoiceAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet[ROW, ColInvoiceAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            sheet[ROW, ColInvoiceAmount].CellStyle.Font.Bold = true;
+            //sheet[ROW, ColInvoiceAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColInvoiceAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColInvoiceAmount) + (ROW - 1).ToString() + ")";
+            //sheet[ROW, ColInvoiceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            //sheet[ROW, ColInvoiceAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet[ROW, ColInvoiceAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //sheet[ROW, ColInvoiceAmount].CellStyle.Font.Bold = true;
 
-            sheet[ROW, ColBalance].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBalance) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBalance) + (ROW - 1).ToString() + ")";
-            sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-            sheet[ROW, ColBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet[ROW, ColBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            sheet[ROW, ColBalance].CellStyle.Font.Bold = true;
+            //sheet[ROW, ColBalance].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBalance) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBalance) + (ROW - 1).ToString() + ")";
+            //sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            //sheet[ROW, ColBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet[ROW, ColBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //sheet[ROW, ColBalance].CellStyle.Font.Bold = true;
 
             sheet[ROW, ColTotalMaterialBooksCurrencyAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialBooksCurrencyAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialBooksCurrencyAmount) + (ROW - 1).ToString() + ")";
             sheet[ROW, ColTotalMaterialBooksCurrencyAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
@@ -2002,11 +2002,11 @@ namespace Aplos.Areas.Accounts.Controllers
             sheet[ROW, ColTotalMaterialBooksCurrencyAmount].CellStyle.Font.Bold = true;
             sheet.Range[ROW, ColPONo, ROW, ColExpiryDate].Merge();
 
-            sheet[ROW, ColPLCAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + (ROW - 1).ToString() + ")";
-            sheet[ROW, ColPLCAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-            sheet[ROW, ColPLCAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet[ROW, ColPLCAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            sheet[ROW, ColPLCAmount].CellStyle.Font.Bold = true;
+            //sheet[ROW, ColPLCAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + (ROW - 1).ToString() + ")";
+            //sheet[ROW, ColPLCAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            //sheet[ROW, ColPLCAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet[ROW, ColPLCAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //sheet[ROW, ColPLCAmount].CellStyle.Font.Bold = true;
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.NumberFormat = "#,##0.00";
