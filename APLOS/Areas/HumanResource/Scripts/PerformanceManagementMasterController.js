@@ -30,7 +30,6 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     }
     $scope.getData();
 
-
     $scope.getEmployee = function () {
         $http({
             method: 'POST',
@@ -71,27 +70,24 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
         });
     };
     $scope.GetSequence();
-
-    $scope.Get = function (args) {
-
-        var AllData = [];
+    $scope.SelEmpList = [];
+    $scope.GetChildList = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "Get",
-            data: {'Id':args.data.Id},
+            url: $scope.path + "GetChildList",
+            data: { 'Id': $scope.ChildMasterID },
             dataType: 'JSON'
         }).then(function successCallback(resp) {
-            $scope.EmployeeIds = [];
-            $scope.SelEmpList = [];
-            AllData = resp.data.master;
+
+            $scope.EmployeeIds = [];            
             var child = resp.data.child;
             var ob = {};
-            $scope.ModelNew = Object.assign({}, AllData[0]);
             for (var i = 0; i < child.length; i++) {
-                ob[child[i].EmployeeId] = true;
-                $scope.EmployeeIds.push(child[i].EmployeeId);
-                
+                ob[child[i].EmployeeCategoryId] = true;
+                $scope.EmployeeIds.push(child[i].EmployeeCategoryId);
+
             }
+            //EmployeeList
 
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
                 if ($scope.EmployeeList[i].Id in ob) {
@@ -102,15 +98,20 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
                     $scope.EmployeeList[i].isSelected = false;
                 }
             }
-
-
         });
-            $scope.ModelNew = Object.assign({}, args.data);
-            $scope.Action = 'Update';
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        };
+    }
+
+    $scope.ChildMasterID = null;
+    $scope.Get = function (args) {
+
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+        $scope.ChildMasterID = args.data.Id;
+        $scope.GetChildList();
+    };
 
     $scope.Save = function () {
        $scope.$broadcast('show-errors-check-validity');

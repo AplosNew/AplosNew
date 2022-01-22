@@ -21610,78 +21610,30 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 //}
 
-                var sql = @"select IR.Id GRNNo
-                    ,V.VoucherNo
-                    ,IR.PartyId
-					,p.UserName Vendor
-					,IR.PartyType
-                    , IR.DocRefNo
-					,isnull( format( IR.DocDate, 'dd-MMM-yyyy'),'')DocDate
-                    ,IR.GateEntryNo
-					,IR.EntryDate
-                    ,IR.IsApproved
-                    --,IR.POId
-                    -- IR.PurchaseDocumentAcceptanceId
-                    --,GAM.PurchaseDocumentAcceptanceId
-                    ,IR.IsInvoice
-					,IR.GRNType
-					,isnull(format( IR.GRNDate,'dd-MMM-yyyy'),'')GRNDate
-                    ,ISNULL( IR.EmployeeId,'')EmployeeId
-
-                  --  ,IRD.InventoryMaterialId
-                    ,SUM(ISNULL( IRD.TransactionQty ,0))TransactionQty
-					--,IRD.TransactionUoMId
-					--,IRD.BaseUOMId
-                    --,SUM(IRD.TrnCurrencyBaseRate)TrnCurrencyBaseRate
-                   -- ,SUM(IRD.MaterialTranRate)MaterialTranRate
-					,SUM(IRD.MaterialTranAmount)MaterialTranAmount
-                    ,SUM(IRD.TotalTaxAmount)TotalTaxAmount
-					,SUM(IRD.ChargesTranAmount)ChargesTranAmount
-					,SUM(IRD.ChargesTaxTranAmount)ChargesTaxTranAmount
-					,SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount
-
+                var sql = @"select IR.Id GRNNo ,V.VoucherNo,IR.PartyId,p.UserName Vendor,IR.PartyType, IR.DocRefNo,isnull( format( IR.DocDate, 'dd-MMM-yyyy'),'')DocDate
+                    ,IR.GateEntryNo,IR.EntryDate,IR.IsApproved ,IR.IsInvoice,IR.GRNType
+					,isnull(format( IR.GRNDate,'dd-MMM-yyyy'),'')GRNDate ,ISNULL( IR.EmployeeId,'')EmployeeId
+                    ,ISNULL( IRD.TransactionQty ,0)TransactionQty
+					,IRD.MaterialTranAmount
+                    ,IRD.TotalTaxAmount
+					,IRD.ChargesTranAmount
+					,IRD.ChargesTaxTranAmount
+					,IRD.TotalMaterialTranAmount
+					,ISNULL(ISNULL(IV.InvoiceAmount,ISNULL(PGIV.TransactionAmount,0)),0)InvoiceAmount
+					,(IRD.MaterialTranAmount-ISNULL(IV.InvoiceAmount,0)-ISNULL(PGIV.TransactionAmount,0)) Balance
 					,cc.Code ComCurrency
-					--,IRD.BaseQty
-				--	,SUM(IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
 					,C.Code Currency
 				    ,IR.ToCurrencyRate
-                    ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
-             
-				
-                    --,IRD.POId
-					,IRD.IsAsset
-                    ,SUM( IRD.GRNQty)GRNQty
-					, SUM(IRD.GRNTotalAmount)GRNTotalAmount
-                    ,SUM(IRD.GrossAmount)GrossAmount
-					,SUM(IRD.DiscountAmount)DiscountAmount
-
-						--,IRD.IssueQty
-                       -- ,IRD.BaseIssueQty
-
-                     --,po.Id POId 
-					-- ,po.DocRefNo PODocRefNo
-					-- ,po.DocDate PODocDate
-                   -- ,po.PODate
-					--,po.POType
-				--	,po.OrderSpecific
-
-                    --,IR.FixedAssetOrInventory
-                    --,IR.AlongwithInvoice,IR.InvoiceNo,IR.InvoiceDate,IR.BaseOnDueDate
-                    --,IR.BaseNoOfDays,IR.MatureDate,IR.Status,IR.BaseCurrencyId,IR.ToCurrencyRate
-                    --,IR.JWWIPVoucherId,IR.JWGRIRVoucherId,IR.JWChangeInInvVoucherId
-
-                  --  ,plc.Id PurchaseLCId
-				--	,plc.ContractId
-					--, plc.LCRef PLCRef
-                   -- ,plc.LCANo
-                  --  ,isnull( plc.IsAccepptanceFirst,0)IsAccepptanceFirst
-                  --  ,plc.LCDate
-				--	,plc.Type
-				, SUM(isnull( plc.Amount,0) )PLCAmount
+                    ,IRD.TotalMaterialBooksCurrencyAmount
+                    ,IRD.GRNQty
+					, IRD.GRNTotalAmount
+                    ,IRD.GrossAmount
+					,IRD.DiscountAmount
+				, isnull( plc.Amount,0) PLCAmount
 
 				    --,con.Id ContractId 	,con.ContractNo, con.UDNo, cus.UserName Customer
 					--,ML.Id MasterLCId, ML.LCRef MLCRef
-					,Sum(isnull( ml.Amount ,0))MLCAmount
+					,isnull( ml.Amount ,0)MLCAmount
 
 					  ,POId= STUFF((select distinct ','+PG.POId
 			                            FROM TRN.POGGRNMap PG 
@@ -21705,10 +21657,6 @@ group by Id) O60 ON O60.Id=IV.Id
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
 										left join TRN.POGGRNMap pg on pg.PoId= po.Id
 			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-					--,plc.LCDate LCOpeningDate
-					--,plc.ExpiryDate
-
                ,LCOpeningDate= STUFF((select distinct ','+FORMAT(PLC.LCDate,'dd-MMM-yyyy')
 			                            FROM PurchaseLC PLC 
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
@@ -21759,17 +21707,17 @@ group by Id) O60 ON O60.Id=IV.Id
 			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 								
-			--	,MLCAmount= STUFF((select distinct ','+mlc.Amount
-			--                            FROM Contract Con 
-   --                                     LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
-   --                                     LEFT JOIN MasterLC mlc ON mlc.Id=Con.MasterLCId	
-			--							left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			--                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-				
-
+			
 				   from trn.InventoryReceive IR  
-                    left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId = IR.Id
+                    --left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId = IR.Id
+					LEFT JOIN (SELECT InventoryReceiveId,POId,SUM(MaterialTranAmount) MaterialTranAmount
+											,SUM(ISNULL( TransactionQty ,0))TransactionQty
+											,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
+											,SUM(ChargesTaxTranAmount) ChargesTaxTranAmount ,SUM(TotalTaxAmount)TotalTaxAmount
+											,SUM(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
+											,SUM(GRNQty)GRNQty, SUM(GRNTotalAmount)GRNTotalAmount
+											,SUM(GrossAmount)GrossAmount,SUM(DiscountAmount)DiscountAmount
+											FROM TRN.InventoryReceiveDetail GROUP BY InventoryReceiveId,POId) AS IRD ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
                     left join trn.PurchaseOrder po on po.Id =IRD.POId
                     left join PurchaseLC plc on plc.Id = po.PurchaseLCId
@@ -21781,58 +21729,27 @@ group by Id) O60 ON O60.Id=IV.Id
 					left join MasterLC ML on ML.Id=con.MasterLCId
                     LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
 					LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
-					--left join HKP.party Cus on cus.Id= con.CustomerId
+					LEFT JOIN (SELECT InventoryReceiveId,SUM(Amount) InvoiceAmount
+											FROM TRN.Invoice GROUP BY InventoryReceiveId) AS IV ON IV.InventoryReceiveId=IR.Id
+					LEFT JOIN (SELECT PGD.InventoryReceiveId,SUM(ISNULL(PGD.TransactionAmount,0)) TransactionAmount
+											FROM TRN.Invoice I
+											INNER JOIN dbo.PostGRNInvoiceDetail PGD ON PGD.PostGRNInvoiceId=I.PostGRNInvoiceId
+											GROUP BY PGD.InventoryReceiveId) AS PGIV ON PGIV.InventoryReceiveId=IR.Id
 					
                     where IR.CompanyGroupId = '" + companyGroupId + "' AND IR.CompanyId ='" + companyId + "' AND IR.PlantId='" + plantId + @"'
                     AND  IR.IsInvoice=0 
 					--and isnull(GAM.PurchaseDocumentAcceptanceId,'') is not null
-	                AND IR.Id not in (select InventoryReceiveId from trn.Invoice where InventoryReceiveId<>'')
+	                --AND IR.Id not in (select InventoryReceiveId from trn.Invoice where InventoryReceiveId<>'')
+					AND (IRD.MaterialTranAmount-ISNULL(IV.InvoiceAmount,0)-ISNULL(PGIV.TransactionAmount,0))>0
 					AND IR.Id not in (select InventoryReceiveId from trn.EmployeePayable where InventoryReceiveId<>'')
 					and ir.VoucherId<>''
-                          and IR.GRNDate <='" + toDate + @"'
-			              --and plc.IsAccepptanceFirst=0
+                    and IR.GRNDate <='" + toDate + @"'
+			        --and plc.IsAccepptanceFirst=0
 					--AND IR.Id='2021638'
-					group by 
-					IR.Id 
-                    ,V.VoucherNo
-					,cc.Code
-                    ,C.Code 
-                    ,IR.PartyId
-					,IR.PartyType
-                    , IR.DocRefNo
-					, IR.DocDate
-                    ,IR.GateEntryNo
-					,IR.EntryDate
-                    ,IR.IsApproved
-                    --,GAM.PurchaseDocumentAcceptanceId
-                    ,IR.IsInvoice
-					,IR.GRNType
-					,IR.GRNDate
-                    ,IR.EmployeeId
-
-                   -- ,IRD.InventoryMaterialId
-					,IRD.IsAsset
-					,p.UserName
-					,IR.ToCurrencyRate
-					
-                   --  ,po.Id  
-					-- ,po.DocRefNo 
-					-- ,po.DocDate 
-                   -- ,po.PODate
-				--	,po.POType
-					--,po.OrderSpecific
-
-                   -- ,plc.Id 
-					--,plc.ContractId
-					--, plc.LCRef
-                  --  ,plc.LCANo
-                 --   ,plc.IsAccepptanceFirst
-                  --  ,plc.LCDate
-				--	,plc.Type
-					
-
-					-- ,con.Id ,con.ContractNo, con.UDNo, cus.UserName 
-				--	,ML.Id , ML.LCRef, ml.Amount ";
+					--group by 
+					--IR.Id  ,V.VoucherNo,cc.Code   ,C.Code   ,IR.PartyId	,IR.PartyType , IR.DocRefNo	, IR.DocDate
+                    --  ,IR.GateEntryNo	,IR.EntryDate    ,IR.IsApproved ,IR.IsInvoice,IR.GRNType	,IR.GRNDate   ,IR.EmployeeId
+					--,IRD.IsAsset,p.UserName,IR.ToCurrencyRate ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

@@ -54,7 +54,9 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"select Id from hkp.EmployeeCategory  where Id = '" + Id + "' ";
+                var str = @" select pc.Id,pc.PMSMasterId,pc.EmployeeCategoryId,et.UserName from PMSChild pc
+			 left join hkp.EmployeeCategory et on et.id=pc.EmployeeCategoryId
+where PMSMasterId= '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -67,7 +69,8 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string sql = @"select Id, Sequence, Category ,SubCategory, StandardName, UserName, ShortName ,Code ,Active from dbo.PMSMaster";
+                string sql = @"select Id, Sequence, Category ,SubCategory, StandardName, UserName, ShortName ,Code ,Active from dbo.PMSMaster 
+                              ";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -85,6 +88,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                 //Master Table - PMSMaster
                 string TableName = "dbo.PMSMaster";
                 DataSet dsMaster;
+
+                if (Employee == null)
+                {
+                    throw new Exception("Please Select EmployeeType !!");
+                }
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where StandardName = '" + data["StandardName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)

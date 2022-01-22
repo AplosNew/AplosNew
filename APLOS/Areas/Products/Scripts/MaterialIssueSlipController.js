@@ -2,8 +2,6 @@
 MaterialIssueSlipController.$inject = ['addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller', '$location'];
 function MaterialIssueSlipController(addressService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $location) {
 
-
-
 	///////////////////////////////////////////////Material Issue Slip///////////////////////////
 
 	$scope.Action = 'Save';
@@ -134,10 +132,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 		$scope.bulletintab = false;
 
-		//$scope.Action = 'Update';
-		//if (!$rootScope.isCollapsed) {
-		//	$rootScope.toggle();
-		//}
 	};
 
 
@@ -163,23 +157,11 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	}
 
 	$scope.filterComplete = function () {
-
-		//var gridObj = $("#GridSOItemSelected").data("ejGrid");
-		//var filteredRecords = gridObj.getFilteredRecords();
-		//if (angular.isUndefinedOrNull(filteredRecords) == false) {
-		//	if (filteredRecords.length > 0) {
 		if ($scope.SOListSelected.Active === true) {
 			var parameters = [];
 			parameters.push({ "Key": "SalesOrderId", "Value": getString(filteredRecords, "SalesOrderId") });
 			$scope.GetMaterialWithSKUData(parameters);
 		}
-
-		//}
-		//else {
-		//	$scope.GetMaterialWithSKUData(null);
-		//}
-		//}
-
 	}
 	var getString = function (data, column) {
 		var string = "''";
@@ -268,45 +250,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			}).then(function successCallback(response) {
 				$scope.FilterList123 = response.data;
 
-				//for (var i = 0; i < $scope.FilterList123.length; i++) {
-
-				//	if (baseService.isUndefinedOrNull($scope.FilterList123[i].RwFirstCharacteristicsValueId))
-				//		var getRow = $filter("filter")($scope.MaterialColorList, { "SalesOrderId": $scope.FilterList123[i].SalesOrderId, "Active": true });
-				//	else
-				//		var getRow = $filter("filter")($scope.MaterialColorList, { "SOMATART": $scope.FilterList123[i].SOFSTId, "Active": true });
-
-
-
-				//	if (getRow[0] != null) {
-				//		var RequisitionForQty = 0;
-				//		var resConPlQrt = 0;
-				//		for (var j = 0; j < getRow.length; j++) {
-				//			//if (getRow.RequisitionForQty == 'NaN') {
-				//			//	getRow.RequisitionForQty = 0;
-				//			//}
-				//			RequisitionForQty += Math.round((getRow[j].RequisitionForQty) * 100 + Number.EPSILON) / 100;//getRow[j].RequisitionForQty;
-
-
-
-
-				//		}
-				//		if (RequisitionForQty == 'NaN' || baseService.isUndefinedOrNull(RequisitionForQty)) {
-				//			RequisitionForQty = 0;
-				//		}
-				//		var resConPlQrt = $scope.FilterList123[i].Consumption * RequisitionForQty;
-				//		var Wastage = (resConPlQrt * $scope.FilterList123[i].WastagePer) / 100;
-				//		$scope.FilterList123[i].RequisitionQty = ($scope.FilterList123[i].Consumption * RequisitionForQty) + Wastage;
-				//		$scope.FilterList123[i].RequisitionQtyOrginal = ($scope.FilterList123[i].Consumption * RequisitionForQty) + Wastage;
-				//		$scope.FilterList123[i].RequestedQtyOrginal = ($scope.FilterList123[i].Consumption * RequisitionForQty) + Wastage;
-				//		//$scope.FilterList123[i].RequestedQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
-
-
-				//	}
-
-
-				//}
-
-
 			});
 
 
@@ -345,18 +288,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	$scope.NotificationSettingStatus = function () {
@@ -405,10 +336,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 	}
 
-
-
-
-	//#endregion
 	$scope.IssueDetailData = function () {
 		//debugger;
 		$http({
@@ -422,29 +349,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		});
 	}
 	$scope.IssueDetailData();
-	//$window.onresize = function (event) {
-
-	//	$scope.actionCompleteSelected();
-
-	//};
-	//$scope.actionCompleteSelected = function (args) {
-	//	try {
-	//		if (args.requestType === "refresh") {
-	//			var gridObj = $("#GridIssueSlipMaterial").ejGrid("instance");
-	//			var scrollerwidth = $("#scroll").width();//Obtain the width of the container
-
-	//			//   $("#GridReq").children('.e-grid.e-headercell').css('height', '100px');              
-	//			gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });//pass the obtainer width and height to gridmodel options
-	//			gridObj.windowonresize();
-	//		}
-	//	} catch (e) {
-	//		//$scope.ShowResultCustom(e, 'failure');
-	//	}
-	//};
-
-
-
-
+	
 	$scope.FilterList123 = [];
 
 	$scope.data1 = $scope.lst;
@@ -590,21 +495,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		location.href = "Products/GoodsReceiveNote/IssueRequestReport?issueId=" + data.Id;
 
 	};
-
-
-	//  $scope.IssueRequestReportprint = function (z) {
-
-	//      var x = "#" + z;
-	//      var gridObj = $(x).data("ejGrid");
-	////getting corresponding record             
-	//var data = gridObj.getSelectedRecords()[0];
-	////alert('jj' + data.Id);
-	//// $scope.valuePassInDelModal(data); 
-	//location.href = "Products/GoodsReceiveNote/IssueRequestReport?issueId=" + data.Id;
-
-	//  };
-
-
 	$scope.IssueRequestReport = [{
 		type: "details", buttonOptions: {
 			text: "Print",
@@ -636,135 +526,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			click: $scope.IssueWithReqPOGRNReportprint
 		}
 	}];
-
-
-	//$scope.Resignation = {
-	//	Id: null,
-	//	ResignationDate: null,
-	//	Reason: null,
-	//	Image: null,
-	//	imageSrc: null,
-	//	AttachLetter: null,
-	//	ApprovedDate: null,
-	//	EffectiveDate: null,
-	//	ApprovedEffectiveDate: null,
-	//	Remarks: null,
-	//	EmployeeId: null,
-	//	PlantId: null,
-	//	CompanyId: null,
-	//	EmployeeName: null,
-	//	EmployeeCode: null,
-	//	Designation: null,
-	//	Picture: null,
-	//	GivenDesignation: null,
-	//	EmployeeCategory: null,
-	//	DOJ: null,
-	//	DOC: null,
-	//	IsPastResignationAllowed: false,
-	//	PastResignationDaysAllowed: null,
-	//	EmpPicPath: null,
-	//	ApprovalStatus: null,
-	//	Entity: null
-	//};
-
-	//cboService.getCboPlantByCompany(null, function (result) {
-	//	$scope.PlantList = result;
-	//});
-
-	//function setUserImage(data) {
-	//	if (!baseService.isUndefinedOrNull(data.SystemId)) {
-	//		//$scope.imageSrc = $rootScope.HRMSImage + data.EmpPicPath;
-	//		//$scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
-	//		$scope.imageBtnDisable = true;
-	//		$scope.employee.EmpPicPath = data.EmpPicPath;
-	//	}
-	//	else {
-	//		$scope.imageBtnDisable = false;
-	//		$scope.employee.EmpPicPath = null;
-	//	}
-	//}
-
-	//$scope.getFile = function () {
-	//	$scope.progress = 0;
-	//	fileReader.readAsDataUrl($scope.file, $scope)
-	//		.then(function (result) {
-	//			$scope.imageSrc = result;
-	//		});
-	//};
-
-	//$scope.showEntity = function () {
-	//	$http.get('employees/resignation/getentitybyemployee')
-	//		.then(function (response) {
-	//			$scope.entityList = response.data;
-	//		});
-	//	angular.element(document.querySelector('#entityPopUp')).modal('show');
-	//};
-	//$scope.roleWiseMessage = function () {
-	//	$http.get('employees/resignation/getEntity')
-	//		.then(function successCallback(response) {
-	//			if (!baseService.isUndefinedOrNull(response.data.Message)) {
-	//				$scope.message = response.data.Message;
-	//			}
-	//			else {
-	//				$scope.message = response.data;
-	//			}
-	//		}
-	//		), function errorCallBack(response) {
-	//			showResult(response.data.Message, 'failure');
-	//		};
-	//};
-	//$scope.roleWiseMessage();
-
-	//$scope.Save = function () {
-	//	try {
-	//		Validate();
-	//		if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-	//			throw $scope.filedata.name + ' File size must be below 2 mb';
-	//		var fileName = null;
-	//		if (!baseService.isUndefinedOrNull($scope.filedata))
-	//			fileName = $scope.filedata.name;
-	//		//$scope.Resignation.AttachLetter = fileName;
-
-	//		$scope.savedisable = true;
-
-	//		var formData = new FormData();
-	//		$http({
-	//			method: 'POST',
-	//			url: 'employees/resignation/create',
-	//			headers: { 'Content-Type': undefined },
-	//			transformRequest: function (data) {
-	//				formData.append('Resignation', angular.toJson(data.Resignation));
-	//				if (baseService.isUndefinedOrNull($scope.filedata) === false) {
-	//					formData.append('file', data.file);
-	//				}
-	//				return formData;
-	//			},
-	//			data: { 'Resignation': $scope.Resignation, 'file': $scope.filedata }
-	//		}).then(function successCallback(response) {
-	//			if (response.data.Error === true) {
-	//				$scope.btnDisable = false;
-	//				$scope.savedisable = false;
-	//				ShowResult(response.data.Message, 'failure');
-	//			}
-	//			else {
-	//				ShowResult(response.data.Message, 'success');
-	//				$scope.Clear();
-	//				$scope.filedata = {};
-	//				document.getElementById('abc').value = ''
-	//				$scope.savedisable = false;
-	//			}
-	//		}, function errorCallback(response) {
-	//			$scope.savedisable = false;
-	//			ShowResult(response.status.Message, 'failure');
-	//		});
-	//		$scope.savedisable = false;
-	//		return true;
-	//	} catch (e) {
-	//		$scope.savedisable = false;
-
-	//		ShowResult(e, 'failure');
-	//	}
-	//};
 
 	$scope.loadNewEmployee = function () {
 		$scope.excluedEmpColumn = ['Email', 'Reason', 'position', 'ResignationDate', 'AttachLetter', 'ApprovalStatus', 'EffectiveDate', 'Picture', 'IsPastResignationAllowed', 'PastResignationDaysAllowed', 'EmployeeCategory'];
@@ -1001,16 +762,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		var gridObj = $("#Grid22").data("ejGrid");
 		gridObj.clearFiltering();
 
-		//$scope.data = [];
-		//var gridObj = $("#Grid").data("ejGrid");
-		//gridObj.refreshContent(true);  
-
-		//ClearOb($scope.Resignation);
-		//$scope.Action = 'Save';
-		//$scope.filedata = null;
-		//document.getElementById('abc').value = null;
-		//$scope.Resignation.AttachLetter = null;
-		//$scope.imageSrc = virtualPath.EmployeePic + '';
 		$scope.productNew.ProcessId = '';
 		$scope.productNew.CheckedBy = '';
 	};
@@ -1168,18 +919,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
 	$scope.materialValidation = function () {
-		//var getRow = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.detailModel.MaterialMasterId });
-		//var getRow2 = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.detailModel.MaterialMasterId, "ArticleId": $scope.detailModel.ArticleId });
-		//var getRow3 = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.detailModel.MaterialMasterId, "ArticleId": $scope.detailModel.ArticleId, "FirstCharacteristicsValueId": $scope.detailModel.FirstCharacteristicsValueId });
-		//getRow == 0 || getRow2 == 0 ||
-		//if (getRow3 == 0) {
 		$scope.invalid = true;
-		// }
-		//else {
-		//ShowResult('Material Combination Already Exist');
-		// $scope.invalid = false;
-		// }
-
+		
 	}
 	$scope.detailSave = function () {
 
@@ -1284,7 +1025,10 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		//debugger;
 
 		try {
-
+			if ($scope.FilterList123.length == 0) {
+				ShowResult('Please Add Issue Slip', 'failure');
+				return false;
+			}
 			//$scope.GetListForMasterOrdernew = [];
 			for (var i = 0; i < $scope.FilterList123.length; i++) {
 				if ($scope.FilterList123[i].check === true) {
@@ -1305,25 +1049,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 						return false;
 					}
 
-
-
-
-					//else if ($scope.FilterList123[i].RejectedQty === 0) {
-					//	ShowResult('Enter Rejection Qty', 'failure');
-					//	return false;
-					//}
-					//else if ($scope.FilterList123[i].RequestedQty > $scope.FilterList123[i].TotalQty) {
-					//	ShowResult('Requested Qty can not grater than total qty', 'failure');
-					//	return false;
-					//}
-					//else if ($scope.FilterList123[i].RejectedQty > $scope.FilterList123[i].RejectionQty1) {
-					//	ShowResult('Rejection Qty can not grater than Own Rejected Qty', 'failure');
-					//	return false;
-					//}
-					//else if (baseService.isUndefinedOrNull($scope.FilterList123[i].ExpenseActivityId) && $scope.FilterList123[i].check === true) {
-					//	ShowResult('Please select Expense Activity Code', 'failure');
-					//	return false;
-					//}
 					else {
 						$scope.FilterList123New.push($scope.FilterList123[i]);
 					}
@@ -1543,15 +1268,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			angular.element(document.querySelector("#cancelPopUp")).modal("show");
 		}
 	};
-
-	//$scope.setSelected = function (data) {
-	//	//debugger;
-	//	$scope.FilterList1[$scope.issueSlipDetailIndex].GLGeneralInfoId = data.GLGeneralInfoId;
-	//	$scope.FilterList1[$scope.issueSlipDetailIndex].BudgetMasterId = data.BudgetMasterId;
-	//	$scope.FilterList1[$scope.issueSlipDetailIndex].ExpenseActivityId = data.ActivityId;
-	//	$scope.FilterList1[$scope.issueSlipDetailIndex].GLBudgetActivity = data.GLGeneralInfoCode + '-' + data.ActivityName;
-	//	angular.element(document.querySelector("#GLPopUp")).modal("hide");
-	//};
 	$scope.setSelected = function (data) {
 		//debugger;
 		$scope.FilterList123[$scope.issueSlipDetailIndex].GLGeneralInfoId = data.GLGeneralInfoId;
@@ -1574,10 +1290,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	}
 	$scope.GetSupervisorCboList();
 	//********** To Checked By**************
-
-
-
-
 
 	function getInventoryMaterialList(inveReveiveId) {
 		$scope.masterId = inveReveiveId;
@@ -1766,11 +1478,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	}
 	$scope.GetFilterForIssue();
 	//**********Issue**************
-
-
-
-
-
 
 	//**********IssueSlipChecked Approved**************
 
@@ -1967,8 +1674,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
 	$scope.IssueSlipApproved = function () {
-		//var str = $('#combo-default12').val();
-		//var Id = str.substring(0, str.indexOf('-'));
+		
 		if ($scope.podata.CheckedByStatus === null || $scope.podata.CheckedByStatus === "") {
 			ShowResult("Please Select Checked By Status", 'failure');
 			return false;
@@ -2065,11 +1771,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		//debugger;
 		var x = $event;
 		$scope.IssueId = x.data.Id;
-		//$scope.modelNew.OperationMasterIdID = x.data.Id;
-		//$scope.GetDataByMasterOrderIdfn($scope.OMId);
-		//$scope.GetDataByMasterOrderIdfnMP1($scope.OMId);
-		//$scope.GetOperationPositionMPBudget();
-		//$scope.GetAutoSequenceForManPower();
+		
 		$scope.GetRequisitionIssueDetail($scope.IssueId);
 		$scope.Action1 = 'Update';
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -2203,22 +1905,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	$scope.getDataMaterialWise = function () {
 	
 		$scope.IssueSlipType = 'InventorySlip';
-		//$scope.GetIssueSlipFilterData();
-		//tarek
-		////$scope.uom();
-		////debugger;
-		////alert('gg');
-		//var obj1 = $("#Grid22").ejGrid("instance");
-		//var sd1 = obj1.getFilteredRecords();
-		//if (sd1.length == 0) {
-		//	sd1 = obj1.model.dataSource;
-		//	//alert('1' +1);
-		//}
-		//for (var i = 0; i < sd1.length; i++) {
-		//	$scope.FilterList123.push(sd1[i]);
-
-
-		//}
 		angular.element(document.querySelector('#ListIssueSlipPopup')).modal('show');
 	}
 	$scope.IssueSlipTypeHide = function () {
@@ -2388,22 +2074,14 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 					scrollSettings: { width: "auto", height: "2" },
 
 					columns: [
-						//{ headerText: "Entity Name", field: "EntityName", width: 100 },
-						//{ headerText: "ActivityName", field: "UserName", width: 100 },
 						{ headerText: "Material Type", field: "MaterialType", width: 100 },
 						{ headerText: "Group Name", field: "MaterialMasterGroupName", width: 100 },
-						//{ headerText: "Group Name2", field: "MaterialMasterGroupName", width: 90 },
 						{ headerText: "Material Name", field: "MaterialMasterName", width: 100 },
 						{ headerText: "Article", field: "StandardName", width: 100 },
 						{ headerText: "Sku1", field: "FirstCharacteristicsValue", width: 60 },
 						{ headerText: "Sku2", field: "SecondCharacteristicsValue", width: 60 },
 						{ headerText: "Sku3", field: "ThirdCharacteristicsValue", width: 60 },
 						{ headerText: "Country Name", field: "CountryName", width: 60 }
-
-						//{ headerText: "RequisitionBy", field: "AddedBy", width: 85 },
-						//{ headerText: "RequisitionNo", field: "RequisitionNo", width: 95 },
-						//{ headerText: "Department Name", field: "DepartmentName", width: 100 }
-
 
 					]
 				});
@@ -2539,53 +2217,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
 	$scope.Change = function (event, index, x) {
-		//debugger;
-		//if (baseService.isUndefinedOrNull(x.TransactionQty)) {
-		//	ShowResult('Enter the current qty', 'failure');
-		//}
-		//else {
-		//	if (event.currentTarget.checked) {
-		//		$scope.inventoryMaterialListPO[index].check = true;
-		//		$scope.index = index;
-		//		//$scope.staus = false;
-		//		x.enableid = false;
-
-		//		if (x.POQty === (x.GRNRcvQty + x.TransactionQty)) {
-		//			x.POClosStatus = true;
-		//		}
-		//		else if (x.POQty < (x.GRNRcvQty + x.TransactionQty) && x.Tolerance > 0) {// Condition is added for if receive more qty
-		//			x.POClosStatus = true;
-		//		}
-
-		//		else if (x.POQty > (x.GRNRcvQty + x.TransactionQty)) {
-		//			$scope.PODetailId = x.PODetailId;
-		//			$scope.message = 'Are you want to close this PO line item?';
-		//			angular.element(document.querySelector('#ConfirmationForReqClosePopUp')).modal('show');
-		//		}
-
-		//	}
-		//	else {
-		//		$scope.inventoryMaterialListPO[index].check = false;
-		//		x.enableid = true;
-		//		//$scope.index = index;
-		//		x.POClosStatus = false;
-		//		x.TransactionQty = "";
-		//		x.Balance = x.POQty - x.GRNRcvQty;//parseFloat(x.POQty - x.GRNRcvQty).toFixed(2);
-		//	}
-
-
-		//}
-		//$scope.TabChabge();
-
-		////if (event.currentTarget.checked) {
-		////    $scope.index = index;
-		////    //$scope.staus = false;
-		////    x.enableid = false;
-		////}
-		////else {
-		////    x.enableid = true;
-		////    //$scope.index = index;
-		////}
+		
 	}
 	$scope.IssueSlipType = '';
 	$scope.uiType = function () {
@@ -2609,20 +2241,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	}
 
 	$scope.showMaterialWiseStockModal = function (x, index) {
-		//$scope.getalldata();
-		//debugger
-		//$scope.status = 'PO';
-		//if ($scope.status === 'PO') {
-		//	$scope.status = 'PO';
-		//	//alert('1');
-		//	$scope.productNew.PO = 'PO';
-		//	$scope.getalldata();
-		//}
-		//else if ($scope.status === 'Acceptance') {
-		//	$scope.status = 'Acceptance';
-		//	$scope.productNew.PO = 'Acceptance';
-		//	$scope.getalldata();
-		//}
+		
 		$scope.GetSOWiseMaterialStock(x, index);
 		angular.element(document.querySelector('#POPopUp')).modal('show');
 
@@ -2636,10 +2255,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	$scope.ConvertedDataRowList = [];
 	$scope.GetListForMasterOrderTemp = [];
 	$scope.ConvertedDataRow = function (data) {
-		//var gridObj = $("#GridReq").data("ejGrid");
-		//var gridObjUpdate = $("#PODetailUpdate").data("ejGrid");
-		//var x = $event;
-		//var res = x.data;
+		
 		debugger;
 		$http({
 			method: 'POST',
@@ -2661,24 +2277,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 				}
 			
-
-
-				//if ($scope.FilterList123[i].MaterialMasterId === $scope.ConvertedDataRowList.data.MaterialMasterId
-				//	&& $scope.FilterList123[i].ArticleId === $scope.ConvertedDataRowList.data.ArticleId
-				//	&& $scope.FilterList123[i].Skuvalue1 === $scope.ConvertedDataRowList.data.Skuvalue1
-				//	&& $scope.FilterList123[i].Skuvalue2 === $scope.ConvertedDataRowList.data.Skuvalue2
-				//	&& $scope.FilterList123[i].Skuvalue3 === $scope.ConvertedDataRowList.data.Skuvalue3
-				//	&& $scope.FilterList123[i].SalesOrderId === $scope.ConvertedDataRowList.data.SalesOrderId) {
-				//	if ($scope.FilterList123[i].TransactionUoMId != $scope.ConvertedDataRowList.data.TransactionUoMId) {
-				//		ShowResult('For same material UoM can not difference', 'failure');
-				//		return false;
-				//	}
-					
-
-
-
-				//}
-
 				var getRow1 = $filter("filter")($scope.FilterList123, { "MaterialMasterId": $scope.FilterList123[i].MaterialMasterId, "ArticleId": $scope.FilterList123[i].ArticleId, "BOQDFirstCharacteristicsValueId": $scope.FilterList123[i].BOQDFirstCharacteristicsValueId, "BOQDSecondCharacteristicsValueId": $scope.FilterList123[i].BOQDSecondCharacteristicsValueId, "BOQDThirdCharacteristicsValueId": $scope.FilterList123[i].BOQDThirdCharacteristicsValueId,'check':true });
 				if (getRow1.length > 1) {
 					for (var i12 = 0; i12 < getRow1.length; i12++) {
@@ -2691,16 +2289,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 				}
 				
 			}
-
-			
-
-
-
-			//gridObj.refreshContent(true);
-			//gridObjUpdate.refreshContent(true);
-
-			//gridObj.refreshTemplate();
-			//gridObjUpdate.refreshTemplate();
 
 		});
 
@@ -2731,14 +2319,26 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	};
 
 	$scope.AddRow = function () {
-		var Id = "''";
-		$scope.FilterList123 = [];
-		for (var i = 0; i < $scope.IssueSlipListPopup.length; i++) {
-			if ($scope.IssueSlipListPopup[i].check == true) {
-				$scope.FilterList123.push($scope.IssueSlipListPopup[i]);
-				Id += ",'" + $scope.IssueSlipListPopup[i].MaterialMasterId + "'";
-            }
+		if ($scope.Action1 === 'Save') {
+			var Id = "''";
+			$scope.FilterList123 = [];
+			for (var i = 0; i < $scope.IssueSlipListPopup.length; i++) {
+				if ($scope.IssueSlipListPopup[i].check == true) {
+					$scope.FilterList123.push($scope.IssueSlipListPopup[i]);
+					Id += ",'" + $scope.IssueSlipListPopup[i].MaterialMasterId + "'";
+				}
+			}
 		}
+		else {
+			var Id = "''";
+			for (var i = 0; i < $scope.IssueSlipListPopup.length; i++) {
+				if ($scope.IssueSlipListPopup[i].check == true) {
+					$scope.FilterList123.push($scope.IssueSlipListPopup[i]);
+					Id += ",'" + $scope.IssueSlipListPopup[i].MaterialMasterId + "'";
+				}
+			}
+        }
+		
 
 		angular.element(document.querySelector('#ListIssueSlipPopup')).modal('hide');
 		$scope.getUoM(Id);
