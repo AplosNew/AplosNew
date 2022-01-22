@@ -1724,7 +1724,7 @@ namespace Library.Service.Advances
                     sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
                     row++;
-
+                     
                     glName = string.Empty;
 
                 }
