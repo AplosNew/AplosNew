@@ -619,7 +619,7 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
-                    dataMaster["SystemId"] = now.ToString("yy") + '-' + _Id;
+                    dataMaster["SystemId"] = "ITM" + _Id;
                     AddNewRow(dsMaster.Tables[0], dataMaster);
                 }
                 else
@@ -687,7 +687,7 @@ namespace Library.HumanResource.Payroll.Tax
                     clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    dataChild["Id"] = _Id;
+                    dataChild["Id"] = "ITC"+_Id;
                     AddNewRow(dsChild.Tables[0], dataChild);
                 }
                 else

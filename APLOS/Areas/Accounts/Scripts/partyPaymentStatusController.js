@@ -4190,9 +4190,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.TotalGRNWithoutInvoice = [{
         title: "Total", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialTranAmount", dataMember: "TotalMaterialTranAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialBooksCurrencyAmount", dataMember: "TotalMaterialBooksCurrencyAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PLCAmount", dataMember: "PLCAmount", format: "{0:N2}" }
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialTranAmount", dataMember: "TotalMaterialTranAmount", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "InvoiceAmount", dataMember: "InvoiceAmount", format: "{0:N2}" },
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialBooksCurrencyAmount", dataMember: "TotalMaterialBooksCurrencyAmount", format: "{0:N2}" }
+            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PLCAmount", dataMember: "PLCAmount", format: "{0:N2}" }
         ],
         showCaptionSummary: true
     }];

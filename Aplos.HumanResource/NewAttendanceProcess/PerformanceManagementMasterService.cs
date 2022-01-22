@@ -88,6 +88,12 @@ where PMSMasterId= '" + Id + "' ";
                 //Master Table - PMSMaster
                 string TableName = "dbo.PMSMaster";
                 DataSet dsMaster;
+
+                if (Employee == null)
+                {
+                    throw new Exception("Please Select EmployeeType !!");
+                }
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where StandardName = '" + data["StandardName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)

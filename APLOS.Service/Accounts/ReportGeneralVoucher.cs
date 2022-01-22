@@ -1240,7 +1240,7 @@ namespace Library.Service.Accounts
                     {
                         string ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
 
-                        if (!string.IsNullOrEmpty(BudgetMasterId))
+                        if (!string.IsNullOrEmpty(BudgetMasterId) && string.IsNullOrEmpty(ActivityId))
                         {
                             DataView dvDrCr = new DataView(dsLocal.Tables[0])
                             {
@@ -1365,7 +1365,7 @@ namespace Library.Service.Accounts
                     {
                         string ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
 
-                        if (!string.IsNullOrEmpty(BudgetMasterId))
+                        if (!string.IsNullOrEmpty(BudgetMasterId) && string.IsNullOrEmpty(ActivityId))
                         {
                             DataView dvDrCr = new DataView(dsLocal.Tables[0])
                             {
@@ -2718,7 +2718,7 @@ namespace Library.Service.Accounts
                         BudgetMasterId = dtDr.Rows[n]["BudgetMasterId"].ToString();
                         ActivityId = dtDr.Rows[n]["ActivityId"].ToString();
                     }
-                    else if (isBudgetLevel)
+                    else if (isBudgetLevel == true && isActivityLevel==false)
                     {
                         AccountCodeId = dtDr.Rows[n]["GLGeneralInfoCode"].ToString();
                         BudgetMasterId = dtDr.Rows[n]["BudgetMasterId"].ToString();
@@ -2855,7 +2855,7 @@ namespace Library.Service.Accounts
                 sheet.Range[_rowL, 1].Text = "Profit/Loss ";
                 sheet.Range[_rowL, 1].CellStyle.Font.Bold = true;
                 sheet.Range[_rowL, 1].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[_rowL, sumdrcrCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[_rowL, 1].BorderAround(ExcelLineStyle.Hair);
 
 
                 for (int CL = colOpeningBalance; CL <= colHeaderClosingBalance; CL++)
