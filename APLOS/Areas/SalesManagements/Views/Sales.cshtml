@@ -1125,6 +1125,14 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header"> Journal</div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" >
+                    <label class="col-sm-6 control-label" data-placement="top" title="Cost and Manufacture">Invoice No<sup>*</sup></label>
+                    <div class="col-sm-6 show-message">
+                        <input id="InvoiceNo" type="text" name="InvoiceNo" ng-disabled="true" ng-model="salesdb.InvoiceNo" class="form-control">
+                    </div>
+                </div>
+            </div>
             <div class="modal-body">
                 <div class="col-xs-12">
                     <fieldset class="scheduler-border">

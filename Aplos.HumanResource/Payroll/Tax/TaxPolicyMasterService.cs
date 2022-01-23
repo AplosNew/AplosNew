@@ -718,6 +718,80 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
+        #region TaxYear Tagging Functions
+        public IEnumerable<object> GetTaxYearMasterList(string Id)
+        {
+            try
+            {
+                var str = @"select th.HeaderId,th.Id,st.TaxYearName,st.StartDate,st.EndDate,st.TaxYearCode
+                from TaxYearHeaderTagging th left join [SCS].[TaxYear] st on st.id=th.taxyearid
+                where th.headerId='"+Id+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> getTaxYearList()
+        {
+            try
+            {
+                var str = @"select Id as Value,TaxYearName as Text from [SCS].[TaxYear] where Active=1";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public Dictionary<string, object> saveTaxYearEntry(Dictionary<string, object> TaxYearData)
+        {
+            try
+            {
+                string TableName = "dbo.TaxYearHeaderTagging";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId ='" + TaxYearData["HeaderId"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    TaxYearData["Id"] = "THT" + _Id;
+                    AddNewRow(dsMaster.Tables[0], TaxYearData);
+                }
+                else if (dsMaster.Tables[0].Rows.Count == 0 
+                    && clsWebLib.RetValidLen(TaxYearData["Id"]).ToString() !="")
+                    
+                {
+                    _Id = TaxYearData["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], TaxYearData);                   
+                }
+                else
+                {
+                    throw new Exception("Already Tax Year is Present!");
+                }
+
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return TaxYearData;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion
+
     }
     public class TaxExemptionFormula
     {

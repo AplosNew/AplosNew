@@ -66,9 +66,11 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
         $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
+        $scope.TaxYearModel.HeaderId = e.data.Id;
         $scope.GetEarningMasterList();
         $scope.getInvestDeductMaster();
         updateChild();
+        updateTaxDataChild();
         showTabs();
         
     }
@@ -1050,6 +1052,59 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     //#endregion
 
     //#endregion
+
+    // #region TaxYear Tagging Functions
+
+    $scope.TaxYearModel = {
+        Id: null,
+        HeaderId: null,
+        TaxYearId: null,
+    };
+
+    $scope.TaxYearList = [];
+    $scope.getTaxYearList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getTaxYearList'
+        }).then(function success(response) {
+            $scope.TaxYearList = response.data;
+        })
+    }
+    $scope.getTaxYearList();
+
+    $scope.SaveTaxYearTagging = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.TaxYearForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveTaxYearTagging',
+                data: { 'TaxYearData': $scope.TaxYearModel }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    console.log(response.data.Data);
+                    updateTaxDataChild();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    }
+    $scope.TaxDataList = [];
+    function updateTaxDataChild() {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getTaxYearMasterData',
+            data: { 'Id': $scope.TaxYearModel.HeaderId }
+        }).then(function success(resp) {            
+            $scope.TaxDataList = resp.data;
+        });
+    }
+
+    // #endregion
 
 
 }

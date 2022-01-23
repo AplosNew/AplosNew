@@ -113,7 +113,7 @@ namespace Library.MaterialManagement.Products
 
                 _unitOfWork.BeginTransaction();
                 var currentId1 = _issueRequestRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[IssueRequest]  WHERE IssueRequestMasterId ='{Issentry.Id}'").First();
-
+                var currentBOQMapId = currentId1;
                 if (identity.EmployeeId == Issentry.CheckedBy)
                 {
                     throw new CustomException("Please select another employee for Check by.");
@@ -276,11 +276,11 @@ namespace Library.MaterialManagement.Products
                         if (string.IsNullOrEmpty(itemDetailentity.Id))
                         {
                             var NewId = Issentry.Id + "-";
-                            currentId1++;
+                            currentBOQMapId++;
                             //grndId = NewId + currentId1;
                             var IssueRequestBOQMap = new IssueRequestBOQMap
                             {
-                                Id = NewId + currentId1,
+                                Id = NewId + currentBOQMapId,
                                 IssueRequestDetailId = slipDetailId,
                                 BOQID = itemDetailentity.BOQId,
                                 Qty = Convert.ToDecimal(itemDetailentity.RequestedQty)
@@ -469,6 +469,7 @@ namespace Library.MaterialManagement.Products
 
                             }
                             var FilterentityData = entity.Where(r => r.MaterialMasterId == Material && r.ArticleId == Article && r.BOQDFirstCharacteristicsValueId == SKU1 && r.BOQDSecondCharacteristicsValueId == SKU2 && r.BOQDThirdCharacteristicsValueId == SKU3 && r.SalesOrderId == itemDetail.SalesOrderId && r.TransactionUoMId == TransactionUoMId).ToList();
+
                             foreach (var itemDetailentity in FilterentityData)
                             {
 
@@ -527,15 +528,9 @@ namespace Library.MaterialManagement.Products
                                 ThirdCharacteristicsId = itemDetail.ThirdCharacteristicsId,
                                 ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId,
                                 InventoryMaterialId = itemDetail.InventoryMaterialId
-                                //Preparedby = identity.EmployeeId,
-                                //CheckedBy = itemDetail.CheckedBy,
-                                //CheckedByStatus = "ForChecked",
-
                             };
                             try
                             {
-                                //InsertGraph(receiveDetail); AuditService.UpdatedLog(receiveDetail);
-
                                 AuditService.UpdatedLog(IssueRequstD);
                                 _issueRequestRepository.Update(IssueRequstD);
 

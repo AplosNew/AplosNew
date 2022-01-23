@@ -113,8 +113,9 @@
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="EarningMasterChild" role="tab" data-toggle="tab">Earning Master</a></li>
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="InvestmentDeductionMaster" role="tab" data-toggle="tab">Investment <strong>/</strong> Deduction Master</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Tagging</a></li>
-                </ul>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="TaxYearTagging" role="tab" data-toggle="tab">Tax Year Tagging</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Tagging</a></li>
+                 </ul>
             </div>
             <div class="tab-content">
 
@@ -420,13 +421,64 @@
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="row" ng-form name="TaxYearForm" id="Allowed">
+                        <div class="row" style="padding:10px;">
+                            <div class="col-xs-6 col-lg-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Header Id</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="TaxYearModel.HeaderId" class="form-control" maxlength="100" readonly>
+                                    </div>
+                                </div>                             
+
+                            </div>
+
+                            <div class="col-lg-6 col-xs-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Tax Year<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="TaxYearModel.TaxYearId" name="TaxYear"
+                                                    ng-options="item.Value as item.Text for item in TaxYearList" required>
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SaveTaxYearTagging();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div style="color:black;" id="TaxYearGrid" ej-grid e-datasource="TaxDataList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
+                                     e-allowselection="true" e-filtersettings-filterType="excel"
+                                     e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                                    <div e-columns>
+                                        <div e-column e-field="HeaderId" e-headertext="Header Id" e-width="70"></div>
+                                        <div e-column e-field="TaxYearName" e-headertext="TaxYear" e-width="120"></div>
+                                    </div>
+                                </div>                                
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                     <div class="row" ng-form name="ChildForm" id="Allowed">
                         <div class="row" style="padding:10px;">
                             <div class="col-xs-6 col-lg-6">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Header Id</label>
                                     <div class="col-sm-8">
-                                        <input type="text" ng-model="Child.HeaderId" class="form-control" maxlength="100" tabindex="2" readonly>
+                                        <input type="text" ng-model="Child.HeaderId" class="form-control" maxlength="100" readonly>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -458,7 +510,7 @@
 
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
-                                        <li> <button ng-click="saveChild();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add </button></li>
+                                        <li> <button ng-click="saveChild();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add </button></li>
                                     </ul>
                                 </div>
                             </div>

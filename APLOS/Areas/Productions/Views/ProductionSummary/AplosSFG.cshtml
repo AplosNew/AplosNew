@@ -427,12 +427,18 @@
     </div>
 
     <div class="col-xs-12" ng-show="IsGo===true">
-        <div class="common-btn">
+        @*<div class="common-btn">
             <ul class="list-inline text-left">
                 <li><button ng-click="showFirstPopup(productionSummaryNew);" ng-disabled="productionSummaryNew.ProductionBookingLevel==='ProductionOrder' || productionSummaryNew.ProductionBookingLevel==='SalesOrder'" class="btn" tabindex="9"><i class="glyphicon glyphicon-list"></i> SKU</button></li>
             </ul>
+        </div>*@
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li><button ng-click="showFirstPopup(productionSummaryNew);" ng-show="IsSKU1==true && IsSKU2==false" class="btn"><i class="glyphicon glyphicon-list"></i> SKU</button></li>
+                <li><button ng-click="showSecondPopup(productionSummaryNew);" ng-show="IsSKU1==false && IsSKU2==true" class="btn"><i class="glyphicon glyphicon-list"></i> SKU</button></li>
+                <li><button ng-click="showBothPopup(productionSummaryNew);" ng-show="IsSKU1==true && IsSKU2==true" class="btn"><i class="glyphicon glyphicon-list"></i> SKU</button></li>
+            </ul>
         </div>
-
     </div>
     <div class="clearfix"></div>
     <div class="common-btn" ng-show="IsGo===true">
@@ -800,7 +806,7 @@
                             <label class="col-sm-4 control-label">Characteristics Value</label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="CharacteristicsValueId" name="Characteristics Value" ng-change="getCharInfo();"
+                                    <select class="form-control" ng-model="CharacteristicsValueId" name="Characteristics Value" ng-change="getChar2Info();"
                                             ng-options="item.Value as item.Text for item in characteristicsValueList">
                                         <option value=""></option>
                                     </select>

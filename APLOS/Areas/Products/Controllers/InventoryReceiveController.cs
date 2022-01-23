@@ -1596,6 +1596,16 @@ namespace Aplos.Areas.Products.Controllers
 
 		#endregion
 
+		[Authorize, HttpGet]
+		public ActionResult FOCReport(string grnId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+			_inventoryReveiveService.GetFocReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+			return null;
+		}
+
 	}
 
 

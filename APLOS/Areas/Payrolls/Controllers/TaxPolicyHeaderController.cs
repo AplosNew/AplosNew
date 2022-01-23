@@ -383,5 +383,52 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
+        #region TaxYear Tagging Functions
+
+        [HttpGet, Authorize]
+        public ActionResult getTaxYearList()
+        {
+            try
+            {
+                return Json(ds.getTaxYearList(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult getTaxYearMasterData(string Id)
+        {
+            try
+            {
+                return Json(ds.GetTaxYearMasterList(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SaveTaxYearTagging(Dictionary<string, object> TaxYearData)
+        {
+            try
+            {
+                var id = ds.saveTaxYearEntry(TaxYearData);
+                return Json(new { Error = false, Data = id, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        #endregion
+
+
     }
 }
