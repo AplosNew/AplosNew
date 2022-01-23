@@ -997,6 +997,16 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         });
     }
 
+    $scope.getCharInfo = function () {
+        $scope.ProductionSummaryDetail = [];
+
+        $http.get('Productions/Productionsummary/GetChar1Info?masterid=' + $scope.productionSummaryNew.Id + '&soid=' + $scope.productionSummaryNew.SalesOrderId)
+            .then(function (response) {
+                $scope.ProductionSummaryDetail = [];
+                $scope.ProductionSummaryDetail = response.data;
+            });
+    };
+
     $scope.getChar2Info = function () {
         $scope.ProductionSummaryDetail = [];
 
@@ -1041,26 +1051,26 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
             })
     };
 
-    $scope.getCharInfo = function () {
+    //$scope.getCharInfo = function () {
 
-        $scope.ProductionSummaryDetail = [];
-        if ($scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU1') {
-            $http.get('Productions/Productionsummary/GetChar1Info?masterid=' + $scope.productionSummaryNew.Id + '&soid=' + $scope.productionSummaryNew.SalesOrderId)
-                .then(function (response) {
-                    $scope.ProductionSummaryDetail = [];
-                    $scope.ProductionSummaryDetail = response.data;
-                });
-        }
-        else {
-            $http.get('Productions/Productionsummary/GetCharInfo?masterid=' + $scope.productionSummaryNew.Id + '&workdate=' + $scope.productionSummaryNew.ProductionDate + '&mmid=' + $scope.productionSummaryNew.MaterialMasterId + '&soid=' + $scope.productionSummaryNew.SalesOrderId + '&artid=' + $scope.productionSummaryNew.ArticleId + '&CharCount=' + $scope.productionSummaryNew.CharCount + '&CharacteristicsValueId=' + $scope.CharacteristicsValueId)
-                .then(function (response) {
-                    $scope.ProductionSummaryDetail = [];
-                    $scope.ProductionSummaryDetail = response.data;
-                });
-        }
+    //    $scope.ProductionSummaryDetail = [];
+    //    if ($scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU1') {
+    //        $http.get('Productions/Productionsummary/GetChar1Info?masterid=' + $scope.productionSummaryNew.Id + '&soid=' + $scope.productionSummaryNew.SalesOrderId)
+    //            .then(function (response) {
+    //                $scope.ProductionSummaryDetail = [];
+    //                $scope.ProductionSummaryDetail = response.data;
+    //            });
+    //    }
+    //    else {
+    //        $http.get('Productions/Productionsummary/GetCharInfo?masterid=' + $scope.productionSummaryNew.Id + '&workdate=' + $scope.productionSummaryNew.ProductionDate + '&mmid=' + $scope.productionSummaryNew.MaterialMasterId + '&soid=' + $scope.productionSummaryNew.SalesOrderId + '&artid=' + $scope.productionSummaryNew.ArticleId + '&CharCount=' + $scope.productionSummaryNew.CharCount + '&CharacteristicsValueId=' + $scope.CharacteristicsValueId)
+    //            .then(function (response) {
+    //                $scope.ProductionSummaryDetail = [];
+    //                $scope.ProductionSummaryDetail = response.data;
+    //            });
+    //    }
 
-        //}//CharCount 2
-    };
+    //    //}//CharCount 2
+    //};
 
     $scope.closeCharPopUp = function () {
         angular.element(document.querySelector('#firstPopup')).modal('hide');
