@@ -103,7 +103,7 @@ namespace Library.OrderManagement.Sales
 
 					   LEFT JOIN TRN.ProductDefinition AS PD ON PD.MaterialMasterId=MOI.MaterialMasterId
 					   LEFT JOIN MST.ProductMaster AS PM ON PM.Id=PD.ProductMasterId
-                       JOIN (SELECT SUM(TransactionQty) TransactionQty,SalesOrderId FROM TRN.SalesMaterial GROUP BY  SalesOrderId) SM ON SM.SalesOrderId=SO.Id
+                       LEFT JOIN (SELECT SUM(TransactionQty) TransactionQty,SalesOrderId FROM TRN.SalesMaterial GROUP BY  SalesOrderId) SM ON SM.SalesOrderId=SO.Id
 
                     WHERE MOI.Id " + masterOrderId + " ORDER BY SO.DeliveryDate";
                 return _sqlRepository.GetDataCollection(sql);
