@@ -663,7 +663,34 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion Purchase Order Register
 
         #region Service PO Register
+        [Authorize, HttpPost]
+        public JsonResult GetServicePurchaseOrderRegister(string fromDate, string toDate, string Type)
+        {
+            try
+            {
+                DateTime fDate = DateTime.Parse(fromDate);
+                DateTime tDate = DateTime.Parse(toDate);
+                if (fromDate == null || fromDate == "")
+                {
+                    throw new CustomException("Select From Date");
+                }
+                else if (toDate == null || toDate == "")
+                {
+                    throw new CustomException("Select To Date");
+                }
 
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
+                var jsondata = Json(obj.ServicePurchaseOrderRegisterData(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         [Authorize, HttpGet]
         public ActionResult ServicePORegisterReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
         {
