@@ -1003,6 +1003,7 @@ var upanelApp = angular
     .controller("EmployeeShiftUpdatesController", EmployeeShiftUpdatesController)
     .controller("ProductionGeneralReportController", ProductionGeneralReportController)
     .controller("inventorySalesReturnPost", inventorySalesReturnPost)
+    .controller("ServicePORegisterController", ServicePORegisterController)
 
 
     .config(AccessControllerConfig)

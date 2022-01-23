@@ -1629,6 +1629,26 @@ namespace Library.MaterialManagement.InventoryManagements
             }
         }
 
+        public IWorkbook CreateServicePurchaseOrderRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type)
+        {
+            try
+            {
+
+                var excelEngine = new ExcelEngine();
+                var report = new Service.Helpers.ReportUtility();
+                var workbook = report.GetWorkbook(ref excelEngine, 2);
+                var sheet1 = workbook.Worksheets[0];
+                var Head = "Service PO Register Report";
+                CreatePurchaseOrderRegisterReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
+                workbook.Version = ExcelVersion.Excel2016;
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         private void CreatePurchaseOrderRegisterReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

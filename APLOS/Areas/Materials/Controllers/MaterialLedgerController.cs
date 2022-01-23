@@ -149,6 +149,10 @@ namespace Aplos.Areas.Materials.Controllers
         {
             return View();
         }
+        public ActionResult ServicePORegister()
+        {
+            return View();
+        }
 
         [Authorize, HttpPost]
 		public JsonResult GetMaterialLedger(string fromDate,string toDate)
@@ -625,7 +629,9 @@ namespace Aplos.Areas.Materials.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
-                return Json(obj.PurchaseOrderRegisterData(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(obj.PurchaseOrderRegisterData(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -656,6 +662,29 @@ namespace Aplos.Areas.Materials.Controllers
 
         #endregion Purchase Order Register
 
+        #region Service PO Register
+
+        [Authorize, HttpGet]
+        public ActionResult ServicePORegisterReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            plantId = identity.PlantId;
+            var reportFileName = "Service PO Register Report" + fromDate + "To" + toDate + "";
+            Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
+            var workbook = obj.CreateServicePurchaseOrderRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+                default:
+                    return View();
+            }
+        }
+
+        #endregion
 
         #region service-acknowledgement-register
         public JsonResult GetServiceAcknowledgementRegister(string fromDate, string toDate, string Type)
