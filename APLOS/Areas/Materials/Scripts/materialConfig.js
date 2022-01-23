@@ -243,6 +243,9 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/Rack/Aplos',
             controller: 'RackController'
         })
-        
+        .when('/service-po-register', {
+            templateUrl: 'materials/MaterialLedger/ServicePORegister',
+            controller: 'ServicePORegisterController'
+        })
        
 };
