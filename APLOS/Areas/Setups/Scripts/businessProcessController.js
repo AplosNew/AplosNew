@@ -211,6 +211,32 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
         }
     };
 
+    $scope.GetBPPopUp = function (data) {
+        angular.element(document.querySelector('#BPTablePopUp')).modal('show');
+    }
+
+    $scope.SaveBPTable = function () {
+        try {
+            $http({
+                method: 'post',
+                url: 'Setups/BusinessProcess/SaveBPTable',
+                data: { 'BusinessProcess': $scope.brandNew.UserName },
+                dataType: 'json'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
     // #region Tab
 
     $scope.tab = 1;

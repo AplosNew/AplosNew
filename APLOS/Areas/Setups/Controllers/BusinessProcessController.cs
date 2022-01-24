@@ -228,5 +228,32 @@ namespace Aplos.Areas.Setups.Controllers
                 
             };
         }
+
+        public JsonResult SaveBPTable(string BusinessProcess)
+        {
+            string schema = "BPDT.";
+            string sql = @"CREATE TABLE "+schema+""+BusinessProcess+" (Id Varchar(30) primary key);";
+            return new JsonResult
+            {
+                ContentEncoding = Encoding.UTF8,
+                ContentType = "application/json;",
+                Data = _sqlRepository.GetDataCollection(sql),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+
+            };
+        }
+
+        public JsonResult SaveAlterBPTable(string BusinessProcess, string columnName, string dataType)
+        {
+            string sql = @"ALTER TABLE 'BPDT." + BusinessProcess + "' ADD Column '"+ columnName + "' '"+dataType+"'";
+            return new JsonResult
+            {
+                ContentEncoding = Encoding.UTF8,
+                ContentType = "application/json;",
+                Data = _sqlRepository.GetDataCollection(sql),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+
+            };
+        }
     }
 }
