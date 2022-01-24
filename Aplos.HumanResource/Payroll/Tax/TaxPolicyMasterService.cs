@@ -288,7 +288,7 @@ namespace Library.HumanResource.Payroll.Tax
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
+                    clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
                     Header["Id"] ="TMC"+ _Id;
@@ -456,7 +456,8 @@ namespace Library.HumanResource.Payroll.Tax
                     drLocal["Formula"] = ui_master.Formula;
                     drLocal["FormulaID"] = ui_master.FormulaID;
                     drLocal["Description"] = ui_master.Description;
-                  
+                    drLocal["IsUserDefined"] = ui_master.IsUserDefined;
+
                     drLocal["AddedBy"] = identity.Name;
                     drLocal["AddedDate"] = clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), clsWebLib.DB_DATE_FORMAT);
                     drLocal["AddedFromIP"] = identity.IPAddress;
@@ -467,6 +468,7 @@ namespace Library.HumanResource.Payroll.Tax
                     drLocal["Formula"] = ui_master.Formula;
                     drLocal["FormulaID"] = ui_master.FormulaID;
                     drLocal["Description"] = ui_master.Description;
+                    drLocal["IsUserDefined"] = ui_master.IsUserDefined;
                     drLocal["UpdatedBy"] = identity.Name;
                     drLocal["UpdatedFromIP"] = identity.IPAddress;
                     drLocal["UpdatedDate"] = clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), clsWebLib.DB_DATE_FORMAT);
@@ -723,9 +725,9 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                var str = @"select th.HeaderId,th.Id,st.TaxYearName,st.StartDate,st.EndDate,st.TaxYearCode
+                var str = @"select th.HeaderId,th.Id,st.TaxYearName,st.StartDate,st.EndDate,st.TaxYearCode,th.TaxYearId
                 from TaxYearHeaderTagging th left join [SCS].[TaxYear] st on st.id=th.taxyearid
-                where th.headerId='"+Id+"'";
+                where th.headerId='" + Id+ "'ORDER BY st.StartDate asc";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -752,7 +754,7 @@ namespace Library.HumanResource.Payroll.Tax
                 string TableName = "dbo.TaxYearHeaderTagging";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId ='" + TaxYearData["HeaderId"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId ='" + TaxYearData["HeaderId"] + "' and TaxYearId='"+ TaxYearData["TaxYearId"] +"'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -765,17 +767,10 @@ namespace Library.HumanResource.Payroll.Tax
 
                     TaxYearData["Id"] = "THT" + _Id;
                     AddNewRow(dsMaster.Tables[0], TaxYearData);
-                }
-                else if (dsMaster.Tables[0].Rows.Count == 0 
-                    && clsWebLib.RetValidLen(TaxYearData["Id"]).ToString() !="")
-                    
-                {
-                    _Id = TaxYearData["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], TaxYearData);                   
-                }
+                }              
                 else
                 {
-                    throw new Exception("Already Tax Year is Present!");
+                    throw new Exception("Already Same Tax Year is Present!");
                 }
 
                 #endregion data update
@@ -800,6 +795,7 @@ namespace Library.HumanResource.Payroll.Tax
         public string Formula { get; set; }
         public string FormulaID { get; set; }
         public string Description { get; set; }
+        public string IsUserDefined { get; set; }
     }
 
     public class TaxExemptionFormulaDetail
