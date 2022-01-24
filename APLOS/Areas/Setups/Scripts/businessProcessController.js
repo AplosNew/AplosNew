@@ -148,14 +148,67 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
         Column10: null
     }
 
-    extraBPList = [];
+    $scope.extraBPList = [];
     $scope.GetBPPopUp = function () {
         var obj = {};
 
+        $scope.extraBPList = [];
+        $http({
+            method: 'GET',
+            url: 'Setups/BusinessProcess/GetDynamicColList?businessProcessId=' + $scope.brandNew.Id,
+        }).then(function successCallback(response) {
+            $scope.extraBPList = response.data;
+            if (baseService.arrayLength($scope.extraBPList) == 0) {
+                obj.Id = null;
+                obj.BusinessProcessId = null;
+                obj.Column1 = null;
+                obj.Column2 = null;
+                obj.Column3 = null;
+                obj.Column4 = null;
+                obj.Column5 = null;
+                obj.Column6 = null;
+                obj.Column7 = null;
+                obj.Column8 = null;
+                obj.Column9 = null;
+                obj.Column10 = null
+                $scope.extraBPList.push(obj);
+            }
+        })
 
         angular.element(document.querySelector('#BPPopUp')).modal('show');
     }
 
+    function getBPSData(BusinessProcessId) {
+        $scope.extraBPList = [];
+        $http({
+            method: 'GET',
+            url: 'Setups/BusinessProcess/GetDynamicColList?businessProcessId=' + BusinessProcessId,
+        }).then(function successCallback(response) {
+            $scope.extraBPList = response.data;
+        })
+    }
 
+    $scope.SaveBPS = function () {
+        try {
+            $http({
+                method: 'post',
+                url: 'Setups/BusinessProcess/SaveBPSatting',
+                data: { 'funds': $scope.extraBPList, 'BusinessProcessId': $scope.brandNew.Id },
+                dataType: 'json'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    getBPSData($scope.brandNew.Id);
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
 }

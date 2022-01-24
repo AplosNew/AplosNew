@@ -95,19 +95,50 @@
 <confirm-modal></confirm-modal>
 
 <div class="modal fade site-modal in" id="BPPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Business Process</h4>
+                <h4 class="modal-title">Business Process: {{brandNew.UserName}}</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
-
-                    
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Column1</th>
+                                    <th>Column2</th>
+                                    <th>Column3</th>
+                                    <th>Column4</th>
+                                    <th>Column5</th>
+                                    <th>Column6</th>
+                                    <th>Column7</th>
+                                    <th>Column8</th>
+                                    <th>Column9</th>
+                                    <th>Column10</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in extraBPList">
+                                    <td><input type="text" name="Column1" ng-model="x.Column1" class="col-sm-2 form-control" /></td>
+                                    <td><input type="text" name="Column2" ng-model="x.Column2" class="col-sm-2 form-control"></td>
+                                    <td><input type="text" name="Column3" ng-model="x.Column3" class="col-sm-2 form-control"></td>
+                                    <td><input type="text" name="Column4" ng-model="x.Column4" class="col-sm-2 form-control" /></td>
+                                    <td><input type="text" name="Column5" ng-model="x.Column5" class="col-sm-2 form-control"></td>
+                                    <td><input type="text" name="Column6" ng-model="x.Column6" class="col-sm-2 form-control"></td>
+                                    <td><input type="text" name="Column7" ng-model="x.Column7" class="col-sm-2 form-control" /></td>
+                                    <td><input type="text" name="Column8" ng-model="x.Column8" class="col-sm-2 form-control"></td>
+                                    <td><input type="text" name="Column9" ng-model="x.Column9" class="col-sm-2 form-control"></td>
+                                    <td><input type="text" name="Column10" ng-model="x.Column10" class="col-sm-2 form-control"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveBP();" class="btn"><i class="glyphicon glyphicon-floppy-save"></i> Save</button></li>
+                        <li> <button ng-click="SaveBPS();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Save</button></li>
                     </ul>
                 </div>
             </div>

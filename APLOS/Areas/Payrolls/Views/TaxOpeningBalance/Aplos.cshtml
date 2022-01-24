@@ -1,0 +1,187 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Tax Opening Balance
+</h3>
+
+<div class="form-elements form-horizontal" ng-form name="EmployeeInfoModelForm">
+    <div class="row">
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Tax Type <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="OpeningBalanceModel.TaxTypeId" ng-change="">
+                            <option value=""></option>
+                            <option ng-repeat="option in TaxTypeList" value="{{option.Id}}">{{option.Username}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Select <sup>*</sup></label>
+                <div class="input-group">
+                    <div class="col-sm-2">
+                        <span class="input-group-btn">
+                            <button name="submit" ng-disabled="OpeningBalanceModel.TaxYearId==null || OpeningBalanceModel.CityOfResidence==null ||
+                                    OpeningBalanceModel.TaxTypeId==null"
+                                    ng-click="getPopUpData();" class="btn single-small-btn">
+                                <i class="cr-icon glyphicon glyphicon-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+          
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">City Of Residence <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="OpeningBalanceModel.CityOfResidence" required>
+                            <option value=""></option>
+                            <option value="Metro">Metro</option>
+                            <option value="Non-Metro">Non-Metro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class=" col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Emp. Code</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.EmployeeCode}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Emp. Name</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.EmployeeName}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Gender</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.GenderID}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">DOJ</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.DOJ}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">DOB</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.DOB}}</label>
+                </div>
+
+            </div>
+
+            <div class=" col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Department</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.Department}}</label>
+                </div>
+                <div class="form-group">
+                    <br />
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Tax Policy:</label>
+                    <label class="col-sm-6 control-label">{{TaxPolicyName}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Age:</label>
+                    <label class="col-sm-6 control-label">{{DurationYear}} Year, {{DurationMonth}}  Month</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Designation</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.LegalDesignation}}</label>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Tax Year <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="OpeningBalanceModel.TaxYearId" name="TaxYear"
+                                ng-options="item.Value as item.Text for item in YearList" required>
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div></div>
+
+            <div class="form-group">
+                <div class="col-sm-8">
+                    <div>
+                        <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 263px; border: 1px solid; height: 200px; width: 200px;" />
+                    </div>
+                </div>
+            </div>
+       
+        </div>
+    </div>
+
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" aria-controls="OB" role="tab" data-toggle="tab" ng-show="taxb == 0">Opening Balance</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" aria-controls="DED" role="tab" data-toggle="tab">Deduction</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" aria-controls="Inc" role="tab" data-toggle="tab">Income</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" aria-controls="INV" role="tab" data-toggle="tab">Investment</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);" aria-controls="Tax" role="tab" data-toggle="tab">Taxable Income Para.</a></li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-show="taxb == 0">
+               
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+             
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+               
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+              
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+            
+            </div>
+    
+    </div>
+
+    </div>
+    
+</div>
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                            <div e-column e-field="CutOffDate" e-headertext="CutOff Date" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="confirmMasterPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteMaster();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmFileDelete" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteFile()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmFileDeletes" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteInfoFile()"></confirm-archive-generic>

@@ -175,7 +175,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         TaxEarningMasterChildId: null,
         Formula: null,
         FormulaID: null,
-        Description: null       
+        Description: null,
+        IsUserDefined: false
     }
 
     $scope.FormulaChildModel = {
@@ -472,7 +473,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             TaxEarningMasterChildId: $scope.EarningChildId,
             Formula: null,
             FormulaID: null,
-            Description: null
+            Description: null,
+            IsUserDefined: false
         }
 
         $scope.FormulaArray = [];
@@ -580,7 +582,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         Active: false,
         TaxableAmountFix: 0,
         TaxableAmountFix: 0,
-        ExemptionApplicable: false
+        ExemptionApplicable: false,
+        IsUserDefined: false
     };
 
 
@@ -633,7 +636,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             IsLessOrMore: null,
             TaxableAmountFix: 0,
             TaxableAmountPer: 0,
-            ExemptionApplicable: false
+            ExemptionApplicable: false,
+            IsUserDefined: false
         };
         $scope.EarningMasterModel.TaxPolicyHeaderId = $scope.Header.Id;
 
@@ -1061,6 +1065,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         TaxYearId: null,
     };
 
+    // #region TaxYear Data Fetching Functions
     $scope.TaxYearList = [];
     $scope.getTaxYearList = function () {
         $http({
@@ -1071,6 +1076,19 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         })
     }
     $scope.getTaxYearList();
+
+    $scope.TaxDataList = [];
+    function updateTaxDataChild() {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getTaxYearMasterData',
+            data: { 'Id': $scope.TaxYearModel.HeaderId }
+        }).then(function success(resp) {
+            $scope.TaxDataList = resp.data;
+        });
+    }
+
+    // #endregion
 
     $scope.SaveTaxYearTagging = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -1093,16 +1111,15 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             }
         }
     }
-    $scope.TaxDataList = [];
-    function updateTaxDataChild() {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'getTaxYearMasterData',
-            data: { 'Id': $scope.TaxYearModel.HeaderId }
-        }).then(function success(resp) {            
-            $scope.TaxDataList = resp.data;
-        });
+    
+    // #region  Double Click the TaxYear Grid
+    $scope.getTaxYearDetails = function (e) {
+        $scope.TaxYearModel.Id = e.data.Id;
+        $scope.TaxYearModel.TaxYearId = e.data.TaxYearId;
+        $scope.TaxYearModel.HeaderId = e.data.HeaderId;
     }
+
+    // #endregion
 
     // #endregion
 
