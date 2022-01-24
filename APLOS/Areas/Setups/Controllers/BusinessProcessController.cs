@@ -11,6 +11,7 @@ using Library.Service.Setups;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -215,5 +216,17 @@ namespace Aplos.Areas.Setups.Controllers
             dr.EndEdit();
         }
 
+        public JsonResult GetQueryResult()
+        {
+            string sql;
+            return new JsonResult
+            {
+                ContentEncoding = Encoding.UTF8,
+                ContentType = "application/json;",
+                Data = _sqlRepository.GetDataCollection(sql),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                
+            };
+        }
     }
 }
