@@ -27,7 +27,7 @@ function ServicePORegisterController(fileReader, commonMessage, $scope, $rootSco
         }
         $http({
             method: 'POST',
-            url: 'Materials/MaterialLedger/GetPurchaseOrderRegister',
+            url: 'Materials/MaterialLedger/GetServicePurchaseOrderRegister',
             data: {
                 fromDate: $scope.report.FromDate,
                 toDate: $scope.report.ToDate,
