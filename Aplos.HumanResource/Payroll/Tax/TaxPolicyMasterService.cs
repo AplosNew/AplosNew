@@ -869,6 +869,40 @@ namespace Library.HumanResource.Payroll.Tax
             }
 
         }
+
+        public IEnumerable<object> GetTaxPolicy(string Residence,string YearId,string Gender)
+        {
+            try
+            {
+                string MValue="", FValue="";
+                if(Gender=="Male" || Gender=="M")
+                {
+                    MValue = "1";
+                    FValue = "0";
+                }
+                else if(Gender == "Female" || Gender == "F")
+                {
+                    FValue = "1";
+                    MValue = "0";
+                }
+
+                string strSQL = @"SELECT th.Id,th.UserName as as PolicyHeaderName,th.AgeFrom,th.AgeTo,
+                ty.TaxYearName,format(ty.StartDate,'yyyy-MMM-dd')as 
+                StartDate,format(ty.EndDate,'yyyy-MMM-dd') as EndDate 
+                from TaxPolicyHeader th left join 
+                TaxYearHeaderTagging tht on tht.HeaderId=th.Id
+                left join scs.TaxYear ty on ty.Id=tht.TaxYearId
+                where th.CityOfResidence='" + Residence+@"' and th.Male='"+MValue+@"'
+                and th.Female='"+FValue+"' and ty.Id='"+YearId+"'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
     }
 }
 

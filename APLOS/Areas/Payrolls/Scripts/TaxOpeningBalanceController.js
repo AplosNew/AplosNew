@@ -48,23 +48,12 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         $scope.EmployeeInfoModel.GenderID = data.GenderID;
         $scope.EmployeeInfoModel.Department = data.Department;
         $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
-        $scope.getData();
-       
+        $scope.getData();       
         $scope.countDate();
+        $scope.GetTaxPolicyList();
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
-    //#region Tab
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-    };
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-    // #endregion Tab
-
-    
 
     $scope.EmployeeListTemp = [];
     $scope.saveemployeedata = function (data) {
@@ -125,22 +114,43 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
     $scope.getData();    
     //#endregion
 
+    //#region Tab
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+    // #endregion Tab
+
+    $scope.TaxPolicyList = [];
+    $scope.GetTaxPolicyList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetTaxPolicy",
+            data: {
+                'Residence': $scope.OpeningBalanceModel.CityOfResidence,
+                'YearId': $scope.OpeningBalanceModel.TaxYearId,
+                'Gender': $scope.EmployeeInfoModel.GenderID
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.TaxPolicyList = [];
+            $scope.TaxPolicyList = response.data;
+            $scope.TaxPolicyName = response.data.PolicyHeaderName;
+        });
+    }
+
 
     $scope.OpeningBalanceModel = {
         Id: null,
         EmpSystemId: null,
         TaxYearId: null,
         TaxTypeId: null,
+        CityOfResidence: null
     }
-
-    $scope.ProfessionalTaxOB = {
-        Id: null,
-        EmpSystemId: null,
-        TaxYearId: null,
-        TaxTypeId: null,
-        OpeningTaxableIncomeEarned: null,
-        OpeningTaxPaid: null,
-    }
+    
     $scope.EmployeeListTemp = [];  
     $scope.TaxPolicyName = null;
 
@@ -177,7 +187,5 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
 
     };
 
-    //#endregion
-
-   
+    //#endregion   
 }

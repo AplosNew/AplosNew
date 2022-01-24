@@ -7,7 +7,7 @@
         <div class="clearfix"></div>
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label">Tax Type</label>
+                <label class="col-sm-4 control-label">Tax Type <sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
                         <select class="form-control" ng-model="OpeningBalanceModel.TaxTypeId" ng-change="">
@@ -18,15 +18,33 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label">Employee Select<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Employee Select <sup>*</sup></label>
                 <div class="input-group">
                     <div class="col-sm-2">
                         <span class="input-group-btn">
-                            <button name="submit" ng-click="getPopUpData();" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-disabled="OpeningBalanceModel.TaxYearId==null || OpeningBalanceModel.CityOfResidence==null ||
+                                    OpeningBalanceModel.TaxTypeId==null"
+                                    ng-click="getPopUpData();" class="btn single-small-btn">
+                                <i class="cr-icon glyphicon glyphicon-search"></i>
+                            </button>
                         </span>
                     </div>
                 </div>
             </div>
+          
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">City Of Residence <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="OpeningBalanceModel.CityOfResidence" required>
+                            <option value=""></option>
+                            <option value="Metro">Metro</option>
+                            <option value="Non-Metro">Non-Metro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class=" col-md-6">
                 <div class="form-group">
                     <label class="col-sm-6 control-label">Emp. Code</label>
@@ -50,6 +68,7 @@
                 </div>
 
             </div>
+
             <div class=" col-md-6">
                 <div class="form-group">
                     <label class="col-sm-6 control-label">Department</label>
@@ -71,11 +90,12 @@
                     <label class="col-sm-6 control-label">{{EmployeeInfoModel.LegalDesignation}}</label>
                 </div>
             </div>
+
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
 
             <div class="form-group">
-                <label class="col-sm-4 control-label">Tax Year</label>
+                <label class="col-sm-4 control-label">Tax Year <sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
                         <select class="form-control" ng-model="OpeningBalanceModel.TaxYearId" name="TaxYear"
@@ -86,6 +106,8 @@
                 </div>
             </div>
 
+            <div></div>
+
             <div class="form-group">
                 <div class="col-sm-8">
                     <div>
@@ -93,6 +115,7 @@
                     </div>
                 </div>
             </div>
+       
         </div>
     </div>
 
