@@ -10,7 +10,7 @@
                 <label class="col-sm-4 control-label">Tax Type</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ProfessionalTaxOB.TaxTypeId" ng-change="GetDedInvest();GetDedInvestDed();GetTaxableIncomePara();GetIncomeTabValue();">
+                        <select class="form-control" ng-model="OpeningBalanceModel.TaxTypeId" ng-change="">
                             <option value=""></option>
                             <option ng-repeat="option in TaxTypeList" value="{{option.Id}}">{{option.Username}}</option>
                         </select>
@@ -73,17 +73,19 @@
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
+
             <div class="form-group">
                 <label class="col-sm-4 control-label">Tax Year</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ProfessionalTaxOB.TaxYearId" ng-change="TabShow();GetDedInvest();GetDedInvestDed();GetTaxableIncomePara();GetIncomeTabValue();">
-                            <option value=""></option>
-                            <option ng-repeat="option in YearList" value="{{option.TaxYearID}}">{{option.TaxYearName}}</option>
+                        <select class="form-control" ng-model="OpeningBalanceModel.TaxYearId" name="TaxYear"
+                                ng-options="item.Value as item.Text for item in YearList" required>
+                            <option value="">--Select--</option>
                         </select>
                     </div>
                 </div>
             </div>
+
             <div class="form-group">
                 <div class="col-sm-8">
                     <div>
