@@ -14,10 +14,10 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
 
     $scope.brand = {
         Id: null
-        ,CompanyGroupId: null
-        ,BusinessProcessName: null
-        ,UserName: null
-        ,Type: null
+        , CompanyGroupId: null
+        , BusinessProcessName: null
+        , UserName: null
+        , Type: null
     };
     angular.copy($scope.brand, $scope.brandNew);
     $rootScope.searchByList = [
@@ -130,6 +130,32 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
     function ClearFields() {
         $scope.Action = 'Save';
         $scope.brand = {};
-        $scope.brandNew = { CompanyGroupId: $scope.brandNew.CompanyGroupId};
+        $scope.brandNew = { CompanyGroupId: $scope.brandNew.CompanyGroupId };
     }
+
+    $scope.model = {
+        Id: null,
+        BusinessProcessId: null,
+        Column1: null,
+        Column2: null,
+        Column3: null,
+        Column4: null,
+        Column5: null,
+        Column6: null,
+        Column7: null,
+        Column8: null,
+        Column9: null,
+        Column10: null
+    }
+
+    extraBPList = [];
+    $scope.GetBPPopUp = function () {
+        var obj = {};
+
+
+        angular.element(document.querySelector('#BPPopUp')).modal('show');
+    }
+
+
+
 }

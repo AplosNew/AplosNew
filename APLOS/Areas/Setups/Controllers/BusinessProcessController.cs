@@ -4,8 +4,10 @@ using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Setups;
+using System;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -18,10 +20,11 @@ namespace Aplos.Areas.Setups.Controllers
         #region Constructor
 
         private readonly IBusinessProcessService _brandService;
-
-        public BusinessProcessController(IBusinessProcessService brandService)
+        private readonly ISqlRepository _sqlRepository;
+        public BusinessProcessController(IBusinessProcessService brandService, ISqlRepository R)
         {
             _brandService = brandService;
+            _sqlRepository = R;
         }
 
         #endregion Constructor
@@ -64,6 +67,20 @@ namespace Aplos.Areas.Setups.Controllers
         {
             _brandService.Delete(id);
             return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpGet,Authorize]
+        public JsonResult GetDynamicColList(string businessProcessId)
+        {
+            try
+            {
+               string  sql= @"SELECT * FROM dbo.FabricRollManagementColSetting Where ISNULL(BusinessProcessId,'"+businessProcessId+ "')='" + businessProcessId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql),JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+              throw ex;
+            }
         }
     }
 }
