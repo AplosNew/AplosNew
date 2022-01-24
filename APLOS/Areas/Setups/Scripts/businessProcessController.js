@@ -14,10 +14,10 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
 
     $scope.brand = {
         Id: null
-        ,CompanyGroupId: null
-        ,BusinessProcessName: null
-        ,UserName: null
-        ,Type: null
+        , CompanyGroupId: null
+        , BusinessProcessName: null
+        , UserName: null
+        , Type: null
     };
     angular.copy($scope.brand, $scope.brandNew);
     $rootScope.searchByList = [
@@ -130,6 +130,85 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
     function ClearFields() {
         $scope.Action = 'Save';
         $scope.brand = {};
-        $scope.brandNew = { CompanyGroupId: $scope.brandNew.CompanyGroupId};
+        $scope.brandNew = { CompanyGroupId: $scope.brandNew.CompanyGroupId };
     }
+
+    $scope.model = {
+        Id: null,
+        BusinessProcessId: null,
+        Column1: null,
+        Column2: null,
+        Column3: null,
+        Column4: null,
+        Column5: null,
+        Column6: null,
+        Column7: null,
+        Column8: null,
+        Column9: null,
+        Column10: null
+    }
+
+    $scope.extraBPList = [];
+    $scope.GetBPPopUp = function () {
+        var obj = {};
+
+        $scope.extraBPList = [];
+        $http({
+            method: 'GET',
+            url: 'Setups/BusinessProcess/GetDynamicColList?businessProcessId=' + $scope.brandNew.Id,
+        }).then(function successCallback(response) {
+            $scope.extraBPList = response.data;
+            if (baseService.arrayLength($scope.extraBPList) == 0) {
+                obj.Id = null;
+                obj.BusinessProcessId = null;
+                obj.Column1 = null;
+                obj.Column2 = null;
+                obj.Column3 = null;
+                obj.Column4 = null;
+                obj.Column5 = null;
+                obj.Column6 = null;
+                obj.Column7 = null;
+                obj.Column8 = null;
+                obj.Column9 = null;
+                obj.Column10 = null
+                $scope.extraBPList.push(obj);
+            }
+        })
+
+        angular.element(document.querySelector('#BPPopUp')).modal('show');
+    }
+
+    function getBPSData(BusinessProcessId) {
+        $scope.extraBPList = [];
+        $http({
+            method: 'GET',
+            url: 'Setups/BusinessProcess/GetDynamicColList?businessProcessId=' + BusinessProcessId,
+        }).then(function successCallback(response) {
+            $scope.extraBPList = response.data;
+        })
+    }
+
+    $scope.SaveBPS = function () {
+        try {
+            $http({
+                method: 'post',
+                url: 'Setups/BusinessProcess/SaveBPSatting',
+                data: { 'funds': $scope.extraBPList, 'BusinessProcessId': $scope.brandNew.Id },
+                dataType: 'json'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    getBPSData($scope.brandNew.Id);
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
 }

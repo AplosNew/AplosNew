@@ -1995,6 +1995,7 @@
     <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JWReceiptController.js" />
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
+    <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataMasterController.js" />
@@ -3951,6 +3952,7 @@
     <Content Include="Areas\Attendances\Views\LeaveYearEndProcessEncashmentApproval\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\LeaveYearEndProcess\Approval.cshtml" />
     <Content Include="Areas\Accounts\Views\InventorySale\_ApprovedSalesReturnDetailPopUp.cshtml" />
+    <Content Include="Areas\Materials\Views\MaterialLedger\ServicePORegister.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

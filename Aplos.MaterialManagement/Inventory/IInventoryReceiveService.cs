@@ -71,6 +71,7 @@ namespace Library.MaterialManagement.Inventory
         void PaymentHold(IEnumerable<InventoryReceive> entities);
         
         void InventoryReceive(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
+        void GetFocReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
         void PurchaseReturnReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
         void InventoryIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
