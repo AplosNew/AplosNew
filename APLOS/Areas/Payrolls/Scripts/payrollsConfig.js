@@ -292,6 +292,11 @@
             controller: 'TaxOBController'
         })
 
+        .when('/tax-opening-balance', {
+            templateUrl: 'Payrolls/TaxOpeningBalance/Aplos',
+            controller: 'TaxOpeningBalanceController'
+        })
+
         .when('/late-deduction', {
             templateUrl: 'Payrolls/LateDeduction/Aplos',
             controller: 'LateDeductionController'
