@@ -102,7 +102,7 @@ namespace Library.Service.Advances
             if (companyCurrencyId != headerData["CurrencyId"].ToString())
             {
                 report.SetHeaderText(ref sheet, _rowL - 1, headreColIndex, headerData["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
-                //  sheet[_rowL - 1, headreColIndex, _rowL - 1, headreColIndex + 1].Merge();
+                sheet[_rowL - 1, headreColIndex, _rowL - 1, headreColIndex + 1].Merge();
                 sheet[_rowL - 1, headreColIndex, _rowL - 1, headreColIndex + 1].BorderAround(ExcelLineStyle.Thin);
                 report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Debit", 12);
                 headreColIndex++;
