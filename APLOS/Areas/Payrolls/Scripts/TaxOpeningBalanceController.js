@@ -27,7 +27,7 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
-    $scope.leaveApplication = {
+    $scope.EmployeeModel = {
         EmployeeCode: null,
         EmpSystemID: null,
         EmployeeName: null,
@@ -36,33 +36,31 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         DOC: null,
         DOB: null,
     };
-    $scope.leaveApplicationNew = Object.assign({}, $scope.leaveApplication);
+    $scope.EmployeeInfoModel = Object.assign({}, $scope.EmployeeModel);
 
 
     $scope.setEmpData = function (obj) {
         $scope.Clear();
         var data = obj.data;
 
-        $scope.leaveApplicationNew.EmployeeCode = data.EmployeeCode;
-        $scope.leaveApplicationNew.EmpSystemID = data.SystemID;
-        $scope.leaveApplicationNew.EmployeeName = data.EmployeeName;
-        $scope.leaveApplicationNew.LegalDesignation = data.LegalDesignation;
-        $scope.leaveApplicationNew.DOJ = data.DOJ;
-        $scope.leaveApplicationNew.DOC = data.DOC;
-        $scope.leaveApplicationNew.DOB = data.DOB;
-        $scope.leaveApplicationNew.GenderID = data.GenderID;
-        $scope.leaveApplicationNew.Department = data.Department;
+        $scope.EmployeeInfoModel.EmployeeCode = data.EmployeeCode;
+        $scope.EmployeeInfoModel.EmpSystemID = data.SystemID;
+        $scope.EmployeeInfoModel.EmployeeName = data.EmployeeName;
+        $scope.EmployeeInfoModel.LegalDesignation = data.LegalDesignation;
+        $scope.EmployeeInfoModel.DOJ = data.DOJ;
+        $scope.EmployeeInfoModel.DOC = data.DOC;
+        $scope.EmployeeInfoModel.DOB = data.DOB;
+        $scope.EmployeeInfoModel.GenderID = data.GenderID;
+        $scope.EmployeeInfoModel.Department = data.Department;
         $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
-        $scope.getData($scope.leaveApplicationNew.EmpSystemID);
-        $scope.TabShow($scope.leaveApplicationNew.DOJ);
-        //$scope.saveemployeedata(obj.data);
+        $scope.getData($scope.EmployeeInfoModel.EmpSystemID);
+        $scope.TabShow($scope.EmployeeInfoModel.DOJ);
         $scope.getMasterData();
         $scope.GetDedInvest();
         $scope.GetIncomeTabValue();
         $scope.GetDedInvestDed();
-        $scope.GetTaxableIncomePara();
+       
         $scope.countDate();
-        //$scope.getFileList();
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
@@ -70,6 +68,7 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         ClearFields();
         return true;
     };
+
     //#region Tab
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -82,11 +81,11 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
 
     function ClearFields() {
         $scope.Action = 'Save';
-        $scope.leaveApplication = { SectionId: $scope.leaveApplication.SectionId };
-        $scope.leaveApplicationNew = { SectionId: $scope.leaveApplicationNew.SectionId };
+        $scope.EmployeeModel = { SectionId: $scope.EmployeeModel.SectionId };
+        $scope.EmployeeInfoModel = { SectionId: $scope.EmployeeInfoModel.SectionId };
         $scope.employeeInfo = [];
-        $scope.leaveApplications = [];
-        $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
+        $scope.EmployeeModels = [];
+        $scope.EmployeeInfoModel.LeaveDayType = 'FullDay';
         $scope.LeaveBalanceList = [];
         $scope.LeaveTransactionList = [];
         $scope.imageSrc = virtualPath.EmployeePic + '';
@@ -137,14 +136,13 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
     $scope.YearList = [];
     $scope.TaxTypeList = [];
     $scope.getData = function () {
-        //----------------------GetTaxYear
-        $http({
+         $http({
             method: 'GET',
             url: $scope.path + 'GetTaxYear',
         }).then(function successCallback(response) {
             $scope.YearList = response.data;
         });
-        //----------------------GetTaxType
+
         $http({
             method: 'GET',
             url: $scope.path + 'GetTaxType',
@@ -153,12 +151,13 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         });
     }
     $scope.getData();
+
     $scope.taxb = 0;
     $scope.TabShow = function (empDoj) {
         //$scope.EmpDoj = empDoj;
         $http({
             method: 'GET',
-            url: $scope.path + 'GetTabValue?Doj=' + $scope.leaveApplicationNew.DOJ + '&TaxYeadId=' + $scope.ProfessionalTaxOB.TaxYearId,
+            url: $scope.path + 'GetTabValue?Doj=' + $scope.EmployeeInfoModel.DOJ + '&TaxYeadId=' + $scope.ProfessionalTaxOB.TaxYearId,
         }).then(function successCallback(response) {
             if (response.data.length == 0) {
                 $scope.taxb = 1;
@@ -185,48 +184,24 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
     $scope.ProfessionalTaxOB.TaxYearId = null;
     $scope.ProfessionalTaxOB.TaxTypeId = null;
     $scope.getMasterData = function (empId) {
-        $scope.leaveApplicationNew.OpeningTaxableIncomeEarned = null;
-        $scope.leaveApplicationNew.OpeningTaxPaid = null;
+        $scope.EmployeeInfoModel.OpeningTaxableIncomeEarned = null;
+        $scope.EmployeeInfoModel.OpeningTaxPaid = null;
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-            data: { 'TaxYear': $scope.ProfessionalTaxOB.TaxYearId, 'TaxType': $scope.ProfessionalTaxOB.TaxTypeId, 'empid': $scope.leaveApplicationNew.EmpSystemID },
+            data: { 'TaxYear': $scope.ProfessionalTaxOB.TaxYearId, 'TaxType': $scope.ProfessionalTaxOB.TaxTypeId, 'empid': $scope.EmployeeInfoModel.EmpSystemID },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             //$scope.EmployeeListTemp = response.data;
             if (baseService.arrayLength(response.data) > 0) {
 
-                $scope.leaveApplicationNew.Id = response.data[0].Id;
-                $scope.leaveApplicationNew.OpeningTaxableIncomeEarned = response.data[0].OpeningTaxableIncomeEarned;
-                $scope.leaveApplicationNew.OpeningTaxPaid = response.data[0].OpeningTaxPaid;
+                $scope.EmployeeInfoModel.Id = response.data[0].Id;
+                $scope.EmployeeInfoModel.OpeningTaxableIncomeEarned = response.data[0].OpeningTaxableIncomeEarned;
+                $scope.EmployeeInfoModel.OpeningTaxPaid = response.data[0].OpeningTaxPaid;
             }
         });
     }
     $scope.getMasterData();
-
-    $scope.Save = function () {
-        $scope.leaveApplicationNew.TaxYearId = $scope.ProfessionalTaxOB.TaxYearId;
-        $scope.leaveApplicationNew.TaxTypeId = $scope.ProfessionalTaxOB.TaxTypeId;
-        //$scope.leaveApplicationNew.OpeningTaxableIncomeEarned;
-        $http({
-            method: 'POST',
-            url: $scope.saveUrl,
-            data: { 'EmpList': $scope.leaveApplicationNew },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.getData($scope.leaveApplicationNew.EmpSystemID);
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-    };
-
 
     $scope.ClearM = function () {
         ClearMFields();
@@ -237,13 +212,13 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         $scope.Action = 'Save';
         $scope.ProfessionalTaxOB.TaxYearId = null;
         $scope.ProfessionalTaxOB.TaxTypeId = null;
-        $scope.leaveApplicationNew.EmployeeCode = null;
-        $scope.leaveApplicationNew.EmployeeName = null;
-        $scope.leaveApplicationNew.DOJ = null;
-        $scope.leaveApplicationNew.LegalDesignation = null;
-        $scope.leaveApplicationNew.OpeningTaxableIncomeEarned = null;
-        $scope.leaveApplicationNew.OpeningTaxPaid = null;
-        $scope.leaveApplicationNew.Id = null;
+        $scope.EmployeeInfoModel.EmployeeCode = null;
+        $scope.EmployeeInfoModel.EmployeeName = null;
+        $scope.EmployeeInfoModel.DOJ = null;
+        $scope.EmployeeInfoModel.LegalDesignation = null;
+        $scope.EmployeeInfoModel.OpeningTaxableIncomeEarned = null;
+        $scope.EmployeeInfoModel.OpeningTaxPaid = null;
+        $scope.EmployeeInfoModel.Id = null;
         $scope.YearList = [];
         $scope.TaxTypeList = [];
     }
@@ -277,50 +252,9 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
     };
     //#endregion
 
-    $scope.InvestMentTax = [];
-    $scope.IncomeTax = [];
-    $scope.DeductionTax = [];
-
-    $scope.GetDedInvest = function () {
-        //$scope.EmpDoj = empDoj;
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetIncomeTaxTransaction?TaxYear=' + $scope.ProfessionalTaxOB.TaxYearId + '&TaxType=' + $scope.ProfessionalTaxOB.TaxTypeId + '&empId=' + $scope.leaveApplicationNew.EmpSystemID,
-        }).then(function successCallback(response) {
-            $scope.InvestMentTax = response.data;
-        });
-    };
-
-    $scope.GetIncomeTabValue = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetIncomeTabValue?TaxYear=' + $scope.ProfessionalTaxOB.TaxYearId + '&TaxType=' + $scope.ProfessionalTaxOB.TaxTypeId + '&empId=' + $scope.leaveApplicationNew.EmpSystemID,
-        }).then(function successCallback(response) {
-            $scope.IncomeTax = response.data;
-        });
-    };
-
-    $scope.GetDedInvestDed = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetIncomeTaxTransactionDed?TaxYear=' + $scope.ProfessionalTaxOB.TaxYearId + '&TaxType=' + $scope.ProfessionalTaxOB.TaxTypeId + '&empId=' + $scope.leaveApplicationNew.EmpSystemID,
-        }).then(function successCallback(response) {
-            $scope.DeductionTax = response.data;
-        });
-    }
-    $scope.TaxableIncomePara = [];
+    
     $scope.TaxPolicyName = null;
-    $scope.GetTaxableIncomePara = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetTaxableIncomePara?TaxYear=' + $scope.ProfessionalTaxOB.TaxYearId + '&TaxType=' + $scope.ProfessionalTaxOB.TaxTypeId + '&empId=' + $scope.leaveApplicationNew.EmpSystemID,
-        }).then(function successCallback(response) {
-            $scope.TaxableIncomePara = response.data;
-            if (response.data.length > 0) {
-                $scope.TaxPolicyName = response.data[0].TaxPolicyName;
-            }
-        });
-    }
+   
 
     $scope.CheckValidation = function (args) {
         if (args.isInteraction == false)
@@ -348,130 +282,13 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
 
         var gridObj = $("#Grid3").data("ejGrid");
         gridObj.refreshContent();
-    }
-
-    //#region save ---investment / deduction ---
-    $scope.InvestMent = [];
-
-    $scope.InvestMent = {
-        Id: null,
-        EmpSystemId: null,
-        TaxYearId: null,
-        TaxTypeId: null,
-    }
-
-    $scope.SaveDeduction = function () {
-        try {
-            $scope.InvestMent.TaxYearId = $scope.ProfessionalTaxOB.TaxYearId;
-            $scope.InvestMent.TaxTypeId = $scope.ProfessionalTaxOB.TaxTypeId;
-            $scope.InvestMent.EmpSystemId = $scope.leaveApplicationNew.EmpSystemID;
-            $http({
-                method: 'POST',
-                url: $scope.path + 'SaveInvestment',
-                data: { 'Investment': $scope.InvestMent, 'ChildList': $scope.DeductionTax },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetDedInvestDed();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        } catch (e) {
-            ShowResult(e, 'info');
-        }
-    };
-    $scope.SaveInvestment = function () {
-        try {
-            $scope.InvestMent.TaxYearId = $scope.ProfessionalTaxOB.TaxYearId;
-            $scope.InvestMent.TaxTypeId = $scope.ProfessionalTaxOB.TaxTypeId;
-            $scope.InvestMent.EmpSystemId = $scope.leaveApplicationNew.EmpSystemID;
-
-            $http({
-                method: 'POST',
-                url: $scope.path + 'SaveInvestment',
-                data: { 'Investment': $scope.InvestMent, 'ChildList': $scope.InvestMentTax },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetDedInvest();
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-        } catch (e) {
-            ShowResult(e, 'info');
-        }
-    };
-    $scope.SaveIncome = function () {
-        try {
-            $scope.InvestMent.TaxYearId = $scope.ProfessionalTaxOB.TaxYearId;
-            $scope.InvestMent.TaxTypeId = $scope.ProfessionalTaxOB.TaxTypeId;
-            $scope.InvestMent.EmpSystemId = $scope.leaveApplicationNew.EmpSystemID;
-            $http({
-                method: 'POST',
-                url: $scope.path + 'SaveInvestment',
-                data: { 'Investment': $scope.InvestMent, 'ChildList': $scope.IncomeTax },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetIncomeTabValue();
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        } catch (e) {
-            ShowResult(e, 'info');
-        }
-    };
-    $scope.SaveTaxableIncomeEx = function () {
-        try {
-            $scope.InvestMent.TaxYearId = $scope.ProfessionalTaxOB.TaxYearId;
-            $scope.InvestMent.TaxTypeId = $scope.ProfessionalTaxOB.TaxTypeId;
-            $scope.InvestMent.EmpSystemId = $scope.leaveApplicationNew.EmpSystemID;
-            $http({
-                method: 'POST',
-                url: $scope.path + 'SaveTaxableIncomeEx',
-                data: { 'Investment': $scope.InvestMent, 'ChildList': $scope.TaxableIncomePara },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetTaxableIncomePara();
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        } catch (e) {
-            ShowResult(e, 'info');
-        }
-    };
-    //#endregion
+    }  
 
     //#region AGE CALCUALTE
     $scope.DurationYear = 0;
     $scope.DurationMonth = 0;
     $scope.countDate = function () {
-        var st = new Date($scope.leaveApplicationNew.DOB);
+        var st = new Date($scope.EmployeeInfoModel.DOB);
         var ed = new Date();
 
         var nowyear = ed.getFullYear();

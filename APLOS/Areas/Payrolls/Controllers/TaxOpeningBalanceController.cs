@@ -45,11 +45,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             _employeeProfileService = employeeProfileService;
             tob = new TaxOpeningBalanceService();
         }
-
-        #endregion Constructor
-
-        #region View
-
+       
         public ActionResult Aplos()
         {
             return View();
@@ -57,7 +53,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region -- Get --
+        #region 
         [HttpGet, Authorize]
         public ActionResult GetEmployeeList()
         {
@@ -72,9 +68,8 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IncomeTaxPolicy ep = new IncomeTaxPolicy();
-                return Json(ep.GetCompTaxYear(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+                TaxPolicyMasterService tm = new TaxPolicyMasterService();
+                return Json(tm.getTaxYearList(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -102,8 +97,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IncomeTaxPolicy ep = new IncomeTaxPolicy();
-                return Json(ep.GetIncomeTaxType(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+                return Json(tob.GetIncomeTaxType(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -111,66 +105,10 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetIncomeTaxTransaction(string TaxYear, string TaxType, string empId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IncomeTaxPolicy ep = new IncomeTaxPolicy();
-                return Json(ep.GetIncomeTaxTransactionInv(TaxYear, TaxType, empId, identity.CompanyId), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
+      
 
-        [HttpGet, Authorize]
-        public ActionResult GetTaxableIncomePara(string TaxYear, string TaxType, string empId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IncomeTaxPolicy ep = new IncomeTaxPolicy();
-                return Json(ep.GetTaxableIncomePara(TaxYear, TaxType, empId, identity.PlantId), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetIncomeTabValue(string TaxYear, string TaxType, string empId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IncomeTaxPolicy ep = new IncomeTaxPolicy();
-                return Json(ep.GetIncomeTabValue(TaxYear, TaxType, empId, identity.CompanyId), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetIncomeTaxTransactionDed(string TaxYear, string TaxType, string empId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IncomeTaxPolicy ep = new IncomeTaxPolicy();
-                return Json(ep.GetIncomeTaxTransactionDed(TaxYear, TaxType, empId, identity.CompanyId), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
+     
+              
         [HttpPost, Authorize]
         public ActionResult GetList(string TaxYear, string TaxType, string empid)
         {
@@ -196,172 +134,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region -- Save --
-        [HttpPost]
-        public JsonResult Create(EmpLists EmpList)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //EmpList.AddedBy = identity.Name;
-                TaxOB ep = new TaxOB();
-                ep.SaveMaster(EmpList);
-                return Json(new { Error = false, Data = EmpList, Message = AplosMessage.Updated });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-
-        [Authorize, HttpPost]
-        public JsonResult SaveInvestment(IncomeTaxItemTransaction Investment, List<IncTaxItmChild> ChildList)
-        {
-            try
-            {
-                #region Validation
-                if (string.IsNullOrEmpty(Investment.EmpSystemID))
-                {
-                    throw new Exception("Select Employee ..");
-                }
-                if (string.IsNullOrEmpty(Investment.TaxTypeId))
-                {
-                    throw new Exception("Select Tax Type..");
-                }
-                if (string.IsNullOrEmpty(Investment.TaxYearId))
-                {
-                    throw new Exception("Select Tax Year");
-                }
-                List<IncTaxItmChild> SaveList = new List<IncTaxItmChild>();
-                for (int i = 0; i < ChildList.Count; i++)
-                {
-                    if (ChildList[i].IsSelect)
-                    {
-                        if (clsStaticInfo.dbl(ChildList[i].Value) <= 0)
-                        {
-                            throw new Exception("Selected Line Item must have value..");
-                        }
-                        else
-                        {
-                            //SaveList.Add(ChildList[i]);
-                        }
-                    }
-                    if (ChildList[i].IsSelect == false && ChildList[i].Value > 0)
-                    {
-                        //throw new Exception("Select the Value provided line item..");
-                    }
-                }
-                if (ChildList.Count == 0)
-                {
-                    throw new Exception("Nothing to Update..");
-                }
-
-                ChildList = ChildList.OrderBy(w => w.GroupId).ToList();
-
-
-                string _tempGroup = "";
-                double GroupTotalVallue = 0;
-                for (var i = 0; i < ChildList.Count; i++)
-                {
-                    if (i > 0)
-                    {
-                        if (_tempGroup != ChildList[i].GroupId)
-                        {
-                            if (GroupTotalVallue > clsStaticInfo.dbl(ChildList[i].MaxLimit))
-                                throw new Exception("Total group value Cannot be greater than Tax group amount Limit");
-                            GroupTotalVallue = 0;
-                        }
-                    }
-                    if (clsStaticInfo.dbl(ChildList[i].TaxSavingItemLimit) < clsStaticInfo.dbl(ChildList[i].Value))
-                    {
-                        throw new Exception("Value Cannot be greater than Tax Saving Item Limit");
-                    }
-                    GroupTotalVallue += clsStaticInfo.dbl(ChildList[i].Value);
-
-                    _tempGroup = ChildList[i].GroupId;
-                }
-
-                if (GroupTotalVallue > clsStaticInfo.dbl(ChildList[ChildList.Count - 1].MaxLimit))
-                    throw new Exception("Total Group value Cannot be greater than Tax group amount Limit");
-
-
-                #endregion
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                TaxOB ep = new TaxOB();
-                ep.SaveInvsmnt(Investment, ChildList);
-                return Json(new { Error = false, Data = Investment, Message = AplosMessage.Updated });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-        [Authorize, HttpPost]
-        public JsonResult SaveTaxableIncomeEx(IncomeTaxItemTransaction Investment, List<TaxableIncomeparameter> ChildList)
-        {
-            try
-            {
-                #region Validation
-                if (string.IsNullOrEmpty(Investment.EmpSystemID))
-                {
-                    throw new Exception("Select Employee ..");
-                }
-                if (string.IsNullOrEmpty(Investment.TaxTypeId))
-                {
-                    throw new Exception("Select Tax Type..");
-                }
-                if (string.IsNullOrEmpty(Investment.TaxYearId))
-                {
-                    throw new Exception("Select Tax Year");
-                }
-                List<TaxableIncomeparameter> SaveList = new List<TaxableIncomeparameter>();
-
-                bool selected = false;
-
-                foreach (TaxableIncomeparameter item in ChildList)
-                {
-                    if (string.IsNullOrEmpty(item.OptionBase) || item.OptionBase == "null")
-                        continue;
-
-                    var allSameOptions = ChildList.Where(e=>e.OptionBase==item.OptionBase);
-                    selected = false;
-                    foreach (var option in allSameOptions)
-                    {
-                        if (option.IsSelect)
-                            selected = true;
-                    }
-                    if (selected == false)
-                        throw new Exception("Please select any option from "+ item.OptionBase + "");
-
-                }
-
-                for (int i = 0; i < ChildList.Count; i++)
-                {
-                    if (ChildList[i].IsSelect)
-                    {
-                        SaveList.Add(ChildList[i]);
-                    }
-                }
-                if (SaveList.Count == 0)
-                {
-                    throw new Exception("Nothing to Update..");
-                }
-                #endregion
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                TaxOB ep = new TaxOB();
-                ep.SaveTaxableIncomeEx(Investment, SaveList);
-                return Json(new { Error = false, Data = Investment, Message = AplosMessage.Updated });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-        #endregion
-
+     
         #region
 
         [HttpPost, Authorize]

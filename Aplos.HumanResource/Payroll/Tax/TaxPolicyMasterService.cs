@@ -855,6 +855,20 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
 
+        public IEnumerable<object> GetIncomeTaxType()
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"select Id, Category, Username from [dbo].[TaxType] where Category ='Income Tax'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
     }
 }
 
