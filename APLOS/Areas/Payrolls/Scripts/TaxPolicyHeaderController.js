@@ -175,7 +175,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         TaxEarningMasterChildId: null,
         Formula: null,
         FormulaID: null,
-        Description: null       
+        Description: null,
+        IsUserDefined: false
     }
 
     $scope.FormulaChildModel = {
@@ -472,7 +473,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             TaxEarningMasterChildId: $scope.EarningChildId,
             Formula: null,
             FormulaID: null,
-            Description: null
+            Description: null,
+            IsUserDefined: false
         }
 
         $scope.FormulaArray = [];
@@ -580,7 +582,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         Active: false,
         TaxableAmountFix: 0,
         TaxableAmountFix: 0,
-        ExemptionApplicable: false
+        ExemptionApplicable: false,
+        IsUserDefined: false
     };
 
 
@@ -633,7 +636,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             IsLessOrMore: null,
             TaxableAmountFix: 0,
             TaxableAmountPer: 0,
-            ExemptionApplicable: false
+            ExemptionApplicable: false,
+            IsUserDefined: false
         };
         $scope.EarningMasterModel.TaxPolicyHeaderId = $scope.Header.Id;
 

@@ -247,8 +247,19 @@
                                                 <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxableAmountFix" class="form-control" maxlength="100">
                                             </div>
                                         </div>
+                                       
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Is User Defined</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site" style="margin-top:7px;">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="EarningMasterModel.IsUserDefined">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-
                                 </fieldset>
                             </div>
 
@@ -726,6 +737,19 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Is User Defined</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site" style="margin-top:7px;">
+                                        <label>
+                                            <input type="checkbox" ng-model="TaxExemptionFormula.IsUserDefined">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="common-btn">
