@@ -6,6 +6,10 @@ using OTSBD;
 using bplib;
 using Library.Crosscutting.Security;
 using System.Threading;
+using Library.Data;
+using Library.Service.Enums;
+using Library.Service.Logs;
+using System.Reflection;
 
 namespace Library.HumanResource.Payroll.Tax
 { 
@@ -805,6 +809,52 @@ namespace Library.HumanResource.Payroll.Tax
         public string SalaryHeadID { get; set; }
         public string ExemptionApplicableChildId { get; set; }
         public string Component { get; set; }
+    }
+
+    public class TaxOpeningBalanceService
+    {
+        ISqlRepository _sqlRepository;
+        public TaxOpeningBalanceService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        public IEnumerable<object> GetEmployeeList(string plantId, string companyId)
+        {
+            try
+            {
+                string CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,FORMAT(ob.CutOffDate,'dd-MMM-yyyy')CutOffDate,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        ,PL.UserName Plant,LGD.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ
+										,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,Emp.GenderID,
+                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,dm.UserName DesignationGroup,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=E.LineId
+                                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EMP.LegalDesignationId
+										LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+										left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+										left join HKP.Designation DeG on DeG.Id=dm.DesignationId
+										Left Join SCS.OpeningBalanceCutOffDate ob on ob.PlantId = EMP.PlantId and ob.ModuleName = 'HR'
+                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' 
+                                        ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
     }
 }
 

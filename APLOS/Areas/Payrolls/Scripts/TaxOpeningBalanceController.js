@@ -16,7 +16,7 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         $scope.employee = [];
         $http({
             method: 'GET',
-            url: 'Payrolls/TaxOB/getemployeelist'
+            url: $scope.path+ 'getemployeelist'
         }).then(function successCallback(response) {
             $scope.employee = response.data;
         });

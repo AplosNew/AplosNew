@@ -107,212 +107,24 @@
 
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-show="taxb == 0">
-                @*OB*@
+               
 
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Taxable Income</label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57" ng-model="leaveApplicationNew.OpeningTaxableIncomeEarned" class="form-control" required tabindex="5" maxlength="50">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
-
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Paid Tax</label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57" ng-model="leaveApplicationNew.OpeningTaxPaid" class="form-control" required tabindex="5" maxlength="50">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                    </ul>
-                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                @*INV*@
-                <div class="row">
-                    <div class="table-responsive aplos-grid">
-                        <div style="color:black;" id="Grid1" ej-grid e-datasource="InvestMentTax"
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                            <div e-columns>
-                                <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="1"></div>
-                                <div e-column e-field="TaxGroup" e-headertext="Tax Saving Group" e-width="8"></div>
-                                <div e-column e-field="MaxLimit" e-headertext="TaxGroup MaxLimit" e-width="3"></div>
-                                <div e-column e-field="TaxSavingItem" e-headertext="Tax Saving Item" e-width="5"></div>
-                                <div e-column e-field="TaxSavingItemLimit" e-headertext="Tax Saving Item Limit" e-width="3"></div>
-                                <div e-column e-field="Tax" e-headertext="Tax" e-width="2"></div>
-                                <div e-column e-field="Taxable" e-headertext="Taxable" e-width="2"></div>
-                                <div e-column e-template="#ValueT" e-headertext="Value" e-width="3"></div>
-                                <div e-column e-template="#IncomeFiles" e-headertext="Attachment" e-width="5"></div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveInvestment();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                    </ul>
-                </div>
-                <script type="text/template" id="ValueT">
-                    <input type="text" name="Value" ng-model="data.Value" class="form-control" required tabindex="5" maxlength="50">
-                </script>
-
-                <script type="text/template" id="checkboxTemplate">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" />
-                </script>
-
+             
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-                @*DED*@
-                <div class="row">
-                    <div class="table-responsive aplos-grid">
-                        @*IncTaxItmChildId*@
-                        <div style="color:black;" id="Grid2" ej-grid e-datasource="DeductionTax"
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                            <div e-columns>
-                                <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplatee" e-textalign="center" e-width="1"></div>
-                                <div e-column e-field="TaxGroup" e-headertext="Tax Saving Group" e-width="6"></div>
-                                <div e-column e-field="MaxLimit" e-headertext="TaxGroup MaxLimit" e-width="3"></div>
-                                <div e-column e-field="TaxSavingItem" e-headertext="Tax Saving Item" e-width="5"></div>
-                                <div e-column e-field="TaxSavingItemLimit" e-headertext="Tax Saving Item Limit" e-width="3"></div>
-                                <div e-column e-field="Tax" e-headertext="Tax" e-width="2"></div>
-                                <div e-column e-field="Taxable" e-headertext="Taxable" e-width="2"></div>
-                                <div e-column e-field="Type" e-headertext="Type" e-width="2"></div>
-                                <div e-column e-template="#Valuee" e-headertext="Value" e-width="3"></div>
-                                <div e-column e-template="#Files" e-headertext="Attachment" e-width="5"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <script type="text/template" id="Valuee">
-                    <input type="text" name="Value" ng-model="data.Value" class="form-control" required tabindex="5" maxlength="50">
-                </script>
-                <script type="text/template" id="checkboxTemplatee">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" />
-                </script>
-                <script type="text/template" id="Files">
-                    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||  data.FileName == ''" >
-                        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" @*e-height="30"*@ e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" @*e-error="errorUpload"*@></div>
-                    </div>
-                    <div class="col-md-8" ng-hide="data.FileName==null ">
-                        <a href="POPResources/TaxOpeningBalance/{{data.FileName}}" >
-                            <span style="height:20px;width:20px;color:blue;">
-                                {{data.FileName}}
-                            </span>
-                        </a>
-                    </div>
-                    <div class="col-md-4" ng-hide="data.FileName==null ">
-                        <button  name="submit" e-id="{{data.Id}}" ng-click="$parent.confirmFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>                        
-                    </div>
-                </script>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveDeduction();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                    </ul>
-                </div>
+               
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                <div class="row">
-                    <div class="table-responsive aplos-grid">
-                        <div style="color:black;" id="Grid3" ej-grid e-datasource="IncomeTax"
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                            <div e-columns>
-                                <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateee" e-textalign="center" e-width="1"></div>
-                                <div e-column e-field="TaxGroup" e-headertext="Tax Saving Group" e-width="8"></div>
-                                <div e-column e-field="MaxLimit" e-headertext="TaxGroup MaxLimit" e-width="3"></div>
-                                <div e-column e-field="TaxSavingItem" e-headertext="Tax Saving Item" e-width="5"></div>
-                                <div e-column e-field="TaxSavingItemLimit" e-headertext="Tax Saving Item Limit" e-width="3"></div>
-                                <div e-column e-field="Tax" e-headertext="Tax" e-width="2"></div>
-                                <div e-column e-field="Taxable" e-headertext="Taxable" e-width="2"></div>
-                                <div e-column e-field="Type" e-headertext="Type" e-width="3"></div>
-                                <div e-column e-template="#ValueeT" e-headertext="Value" e-width="5"></div>
-                                <div e-column e-template="#IncomeFiles" e-headertext="Attachment" e-width="5"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveIncome();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                    </ul>
-                </div>
-                <script type="text/template" id="ValueeT">
-                    <input type="text" name="Value" ng-model="data.Value" class="form-control" required tabindex="5" maxlength="50">
-                </script>
-                <script type="text/template" id="checkboxTemplateee">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" />
-                </script>
-                <script type="text/template" id="IncomeFiles">
-                    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||  data.FileName == ''">
-                        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" ></div>
-                    </div>
-                    <div class="col-md-8" ng-hide="data.FileName==null ">
-                        <a href="POPResources/TaxOpeningBalance/{{data.FileName}}">
-                            <span style="height:20px;width:20px;color:blue;">
-                                {{data.FileName}}
-                            </span>
-                        </a>
-                    </div>
-                    <div class="col-md-4" ng-hide="data.FileName==null ">
-                        <button name="submit" e-id="{{data.Id}}" ng-click="$parent.confirmFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
-                    </div>
-                </script>
+              
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
-                <div class="row">
-                    <div class="table-responsive aplos-grid">
-                        <div style="color:black;" id="Grid3" ej-grid e-datasource="TaxableIncomePara"
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                            <div e-columns>
-                                <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateTaxableIncomePara" e-textalign="center" e-width="1"></div>
-                                <div e-column e-field="Descriptions" e-headertext="Descriptions" e-width="6"></div>
-                                <div e-column e-field="Description" e-headertext="Description" e-width="3"></div>
-                                <div e-column e-field="OptionBase" e-headertext="Option Base" e-width="3"></div>
-                                <div e-column e-template="#templateValue" e-headertext="Value" e-width="5"></div>
-                                <div e-column e-template="#TaxableIncomeFiles" e-headertext="Attachment" e-width="5"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveTaxableIncomeEx();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                    </ul>
-                </div>
-                <script type="text/template" id="templateValue">
-                    <input type="text" name="Value" ng-model="data.Value" ng-disabled="data.IsEnable" class="form-control" required tabindex="5" maxlength="50">
-                </script>
-                <script type="text/template" id="checkboxTemplateTaxableIncomePara">
-                    <input type="checkbox" e-id="{{data.TaxFormulaId}}" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" e-change="$parent.CheckValidation" />
-                </script>
-                <script type="text/template" id="TaxableIncomeFiles">
-                    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||  data.FileName == ''">
-                        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getTaxableIncomeFileList" e-showroundedcorner="false" e-autoupload="true" e-begin="$parent.onBeginUploadTaxableIncome" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"></div>
-                    </div>
-                    <div class="col-md-8" ng-hide="data.FileName==null ">
-                        <a href="POPResources/TaxOpeningBalance/{{data.FileName}}">
-                            <span style="height:20px;width:20px;color:blue;">
-                                {{data.FileName}}
-                            </span>
-                        </a>
-                    </div>
-                    <div class="col-md-4" ng-hide="data.FileName==null ">
-                        <button name="submit" e-id="{{data.Id}}" ng-click="$parent.confirmTaxableIncomeFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
-                    </div>
-                </script>
+            
             </div>
-        </div>
+    
     </div>
+
 </div>
 
 <div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
