@@ -2501,8 +2501,6 @@ namespace Library.Service.Accounts
                 var mainColIndex = 1;
 
                 oRU.SetHeaderText(ref sheet, _rowL, headreColIndex, "Account Name", 38); headreColIndex++;
-
-
                 if (isBudgetLevel == true)
                 {
                     oRU.SetHeaderText(ref sheet, _rowL, headreColIndex, nameof(Budget), 38); headreColIndex++;
@@ -2609,7 +2607,7 @@ namespace Library.Service.Accounts
                             };
                             dvDrCrFTP = new DataView(dtLocalFTP)
                             {
-                                RowFilter = " GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'"
+                                RowFilter = "GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'"
                             };
                         }
                         else if (isBudgetLevel == false && isActivityLevel == false)
@@ -2651,15 +2649,15 @@ namespace Library.Service.Accounts
                                 throw ex;
                             }
                         }
-
-                        if (dvDrCrFTP.ToTable().Rows.Count != 0)
+                        DataTable dtDrCrFTP = dvDrCrFTP.ToTable();
+                        if (dtDrCrFTP.Rows.Count != 0)
                         {
                             try
                             {
                                 oRU.SetText(ref sheet, _rowL, colHeaderForThePeriod, Convert.ToDouble(dvDrCrFTP.ToTable().Rows[0]["CRcumulative"].ToString()));
                                 if (p == 0)
                                 {
-                                    _Total_Amount_DateRange += Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
+                                    _Total_Amount_DateRange += Convert.ToDouble(dtDrCrFTP.Rows[0]["CRcumulative"].ToString());
                                 }
                             }
                             catch (Exception ex)
