@@ -723,9 +723,9 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                var str = @"select th.HeaderId,th.Id,st.TaxYearName,st.StartDate,st.EndDate,st.TaxYearCode
+                var str = @"select th.HeaderId,th.Id,st.TaxYearName,st.StartDate,st.EndDate,st.TaxYearCode,th.TaxYearId
                 from TaxYearHeaderTagging th left join [SCS].[TaxYear] st on st.id=th.taxyearid
-                where th.headerId='"+Id+"'";
+                where th.headerId='" + Id+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -767,7 +767,7 @@ namespace Library.HumanResource.Payroll.Tax
                     AddNewRow(dsMaster.Tables[0], TaxYearData);
                 }
                 else if (dsMaster.Tables[0].Rows.Count == 0 
-                    && clsWebLib.RetValidLen(TaxYearData["Id"]).ToString() !="")
+                    || clsWebLib.RetValidLen(TaxYearData["Id"]).ToString() !="")
                     
                 {
                     _Id = TaxYearData["Id"].ToString();
