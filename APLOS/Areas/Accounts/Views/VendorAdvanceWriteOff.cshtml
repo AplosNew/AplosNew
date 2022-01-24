@@ -50,6 +50,19 @@
                 </div>
             </div>
         </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Settlement Type<sup>*</sup></label>
+            <div class="col-sm-8 radio">
+                <label>
+                    <input ng-click="changeSettlementType()" type="radio" name="SettlementType" ng-model="advance.SettlementType" value="@Library.Model.Payments.SettlementType.SetOff.ToString()">
+                    <span class="cr" tabindex="8"><i class="cr-icon"></i></span>Set-off
+                </label>
+                <label>
+                    <input ng-click="changeSettlementType()" type="radio" name="SettlementType" ng-model="advance.SettlementType" value="@Library.Model.Payments.SettlementType.Return.ToString()">
+                    <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Payments.SettlementType.Return.ToString()
+                </label>
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group" show-errors>
@@ -68,6 +81,47 @@
             <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="Doc Date" ng-model="advance.DocDate" datepicker="checkDocDate();" required class="form-control" tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
+            <label class="col-sm-4 control-label">Payment Source<sup>*</sup></label>
+            <div class="col-sm-8 radio">
+                <label>
+                    <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
+                    <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
+                </label>
+                <label>
+                    <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
+                    <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
+                </label>
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'&&advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
+            <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="BankName" ng-model="advance.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{advance.BankName}}" tooltip>
+                    <span class="input-group-btn">
+                        <button ng-click="showBankPopUp(advance.EntityId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'&&advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">
+            <label class="col-sm-4 control-label">Cash<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="CashName" ng-model="advance.CashName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showCashPopUp(null, advance.EntityId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
+            <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" name="Amount" ng-model="advance.Amount" class="form-control text-right" tabindex="4" autocomplete="off" n-decimals="2">
             </div>
         </div>
     </div>
@@ -99,7 +153,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-12">
+    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.SetOff.ToString()'">
         <div class="common-btn">
             <ul class="list-inline text-left">
                 <li ng-show="advance.PartyId"><button ng-click="showInvoicePopUp(advance.PartyId);" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i> Select Invoice</button></li>
@@ -229,6 +283,8 @@
 </div>
 @Html.Partial("~/Areas/Accounts/Views/_VendorInvoicePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_VendorAdvancePopUp.cshtml")
+@Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
+@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
 <toaster-container toaster-options="{'close-button':true, 'animation-class': 'toast-top-center'}"></toaster-container>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherId)"></confirm-archive-generic>

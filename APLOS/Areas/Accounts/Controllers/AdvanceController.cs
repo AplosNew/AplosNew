@@ -608,14 +608,20 @@ namespace Aplos.Areas.Accounts.Controllers
             advanceVM.CompanyId = identity.CompanyId;
             advanceVM.PlantId = identity.PlantId;
             advanceVM.IsPark = true;
-            foreach (var advanceDetailVM in advanceDetailVMList)
+            var CurrencyId = "";
+            if (advanceDetailVMList!=null)
             {
-                if (advanceDetailVM.DrAmount == 0 || advanceDetailVM.DrAmount.ToString() == null)
-                    throw new CustomException(" Amount should more than 0");
+                CurrencyId = advanceDetailVMList.FirstOrDefault().CurrencyId;
+                foreach (var advanceDetailVM in advanceDetailVMList)
+                {
+                    if (advanceDetailVM.DrAmount == 0 || advanceDetailVM.DrAmount.ToString() == null)
+                        throw new CustomException(" Amount should more than 0");
+                }
             }
+           
             advanceVM.SourceType = SourceType.VendorAdvanceWriteOff.ToString();
             advanceVM.PartyType = PartyType.Vendor.ToString();
-            if(advanceVM.CurrencyId != advanceDetailVMList.FirstOrDefault().CurrencyId)
+            if(advanceVM.CurrencyId != CurrencyId && CurrencyId!="")
             {
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertVendorAdvanceWriteOffDifferentCurrency(advanceVM, advanceDetailVMList)) });
             }
