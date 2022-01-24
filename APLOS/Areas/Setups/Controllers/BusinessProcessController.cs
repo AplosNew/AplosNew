@@ -218,7 +218,7 @@ namespace Aplos.Areas.Setups.Controllers
 
         public JsonResult GetQueryResult()
         {
-            string sql;
+            string sql=null;
             return new JsonResult
             {
                 ContentEncoding = Encoding.UTF8,
