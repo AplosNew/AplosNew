@@ -1,10 +1,10 @@
 ﻿'use strict';
-TaxOpeningBalanceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'fileReader'];
-function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, fileReader) {
-    $rootScope.title = 'Tax Opening Balance';
+EmployeeIncomeTaxController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'fileReader'];
+function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, fileReader) {
+    $rootScope.title = 'Employee Income Tax';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'Payrolls/TaxOpeningBalance/';
+    $scope.path = 'Payrolls/EmployeeIncomeTax/';
     $scope.employee = [];
 
     //#region employee Load
@@ -37,7 +37,7 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
     $scope.setEmpData = function (obj) {
       
         var data = obj.data;
-
+        $scope.TaxPolicyName = null;
         $scope.EmployeeInfoModel.EmployeeCode = data.EmployeeCode;
         $scope.EmployeeInfoModel.EmpSystemID = data.SystemID;
         $scope.EmployeeInfoModel.EmployeeName = data.EmployeeName;
@@ -130,20 +130,20 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
             method: 'POST',
             url: $scope.path + "GetTaxPolicy",
             data: {
-                'Residence': $scope.OpeningBalanceModel.CityOfResidence,
-                'YearId': $scope.OpeningBalanceModel.TaxYearId,
+                'Residence': $scope.EmployeeIncomeTaxModel.CityOfResidence,
+                'YearId': $scope.EmployeeIncomeTaxModel.TaxYearId,
                 'Gender': $scope.EmployeeInfoModel.GenderID
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.TaxPolicyList = [];
             $scope.TaxPolicyList = response.data;
-            $scope.TaxPolicyName = response.data.PolicyHeaderName;
+            $scope.TaxPolicyName = response.data[0].PolicyHeaderName;
         });
     }
 
 
-    $scope.OpeningBalanceModel = {
+    $scope.EmployeeIncomeTaxModel = {
         Id: null,
         EmpSystemId: null,
         TaxYearId: null,

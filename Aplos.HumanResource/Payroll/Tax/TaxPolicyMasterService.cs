@@ -576,7 +576,7 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string sql = @"Select itm.SystemId, itm.TaxTypeId ,itm.ItemApplicable,
+                string sql = @"Select itm.SystemId, itm.TaxTypeId ,
                         itm.UserCode ,ty.UserName as TaxType ,
                             tg.Id TaxSavingGroupId,tg.UserName TaxSavingGroup,tg.MaxLimit
                                 from dbo.IncomeTaxItemMaster itm
@@ -811,10 +811,10 @@ namespace Library.HumanResource.Payroll.Tax
         public string Component { get; set; }
     }
 
-    public class TaxOpeningBalanceService
+    public class EmployeeIncomeTaxService
     {
         ISqlRepository _sqlRepository;
-        public TaxOpeningBalanceService()
+        public EmployeeIncomeTaxService()
         {
             _sqlRepository = new SqlRepository();
         }
@@ -886,7 +886,7 @@ namespace Library.HumanResource.Payroll.Tax
                     MValue = "0";
                 }
 
-                string strSQL = @"SELECT th.Id,th.UserName as as PolicyHeaderName,th.AgeFrom,th.AgeTo,
+                string strSQL = @"SELECT th.Id,th.UserName as PolicyHeaderName,th.AgeFrom,th.AgeTo,
                 ty.TaxYearName,format(ty.StartDate,'yyyy-MMM-dd')as 
                 StartDate,format(ty.EndDate,'yyyy-MMM-dd') as EndDate 
                 from TaxPolicyHeader th left join 
@@ -894,6 +894,14 @@ namespace Library.HumanResource.Payroll.Tax
                 left join scs.TaxYear ty on ty.Id=tht.TaxYearId
                 where th.CityOfResidence='" + Residence+@"' and th.Male='"+MValue+@"'
                 and th.Female='"+FValue+"' and ty.Id='"+YearId+"'";
+
+                string sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit
+from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
+it.SystemId=itc.IncomeTaxItemMasterId
+left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
+left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId
+where TaxPolicyHeaderId='TH2'";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)

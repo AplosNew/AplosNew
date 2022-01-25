@@ -1886,7 +1886,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
 					,0 TransactionQty,0 ReceiptQty, 0 RejectionQty, 0 ReturnQty,0 BalanceQty
 					,0 TransactionRate
-					,IM.Amount TransactionAmount
+					,IM.Amount TransactionAmount ,ISNULL(SA.Amount,0) ReceiptAmount,BalanceAmount=IM.Amount-ISNULL(SA.Amount,0)
 					,ROUND(Isnull(servicetax.TaxAmount,0),2) TotalTaxAmount
 					,0 ServiceCharge
 					,0 ServiceChargeTax
@@ -1922,7 +1922,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 					LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 					LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
-
+                    LEFT JOIN (SELECT SAM.ServicePOId,SAD.ServicePODetailId,SUM(SAD.Amount) Amount FROM TRN.ServiceAcknowledgementDetail SAD 
+								JOIN TRN.ServiceAcknowledgementMaster SAM ON SAM.Id=SAD.ServiceAcknowledgementMasterId GROUP BY SAM.ServicePOId,SAD.ServicePODetailId) SA ON 
+							SA.ServicePODetailId=IM.Id
 
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 					FROM [TRN].[ServicePOTax] A
@@ -2383,8 +2385,8 @@ namespace Library.MaterialManagement.InventoryManagements
                 report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["HSNCode"].ToString()); col++;
                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionRate"].ToString())); col++;
                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionAmount"].ToString())); col++;
-                report.SetText(ref sheet1, _rowL, col, 0); col++;
-                report.SetText(ref sheet1, _rowL, col, 0); col++;
+                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ReceiptAmount"].ToString())); col++;
+                report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BalanceAmount"].ToString())); col++;
                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalTaxAmount"].ToString())); col++;
                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceCharge"].ToString())); col++;
                 report.SetText(ref sheet1, _rowL, col, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ServiceChargeTax"].ToString())); col++;
