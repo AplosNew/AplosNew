@@ -886,7 +886,7 @@ namespace Library.HumanResource.Payroll.Tax
                     MValue = "0";
                 }
 
-                string strSQL = @"SELECT th.Id,th.UserName as as PolicyHeaderName,th.AgeFrom,th.AgeTo,
+                string strSQL = @"SELECT th.Id,th.UserName as PolicyHeaderName,th.AgeFrom,th.AgeTo,
                 ty.TaxYearName,format(ty.StartDate,'yyyy-MMM-dd')as 
                 StartDate,format(ty.EndDate,'yyyy-MMM-dd') as EndDate 
                 from TaxPolicyHeader th left join 

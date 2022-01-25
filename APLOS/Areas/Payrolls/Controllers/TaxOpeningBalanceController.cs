@@ -72,7 +72,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-        [HttpGet, Authorize]
+        [HttpPost, Authorize]
         public ActionResult GetTaxPolicy(string Residence, string YearId, string Gender)
         {
             try

@@ -2308,20 +2308,20 @@ namespace Library.Service.Accounts
             DataTable dtTemp = dsLocal.Tables[0].Clone();
             dtTemp.Merge(dsLocal.Tables[0]);
             dtTemp.Merge(dtLocalFTP);
-            DataTable dtLocalFTPMaster=null;
-            if (isBudgetLevel==true)
+            DataTable dtLocalFTPMaster = null;
+            if (isBudgetLevel == true)
             {
-                 dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode", "BudgetMasterId", "Budget");
+                dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode", "BudgetMasterId", "Budget");
 
             }
-            if (isActivityLevel==true)
+            if (isActivityLevel == true)
             {
-                 dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode", "BudgetMasterId", "Budget", "ActivityId", "Activity");
+                dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode", "BudgetMasterId", "Budget", "ActivityId", "Activity");
 
             }
-            if (isBudgetLevel == false && isActivityLevel==false)
+            if (isBudgetLevel == false && isActivityLevel == false)
             {
-                 dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode");
+                dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode");
 
             }
 
@@ -2542,7 +2542,7 @@ namespace Library.Service.Accounts
                 for (int n = 0; n < dtCr.Rows.Count; n++)
                 {
                     mainColIndex = 1;
-                       _rowL++;
+                    _rowL++;
                     string ActivityId = "";
                     string AccountCodeId = "";
                     string BudgetMasterId = "";
@@ -2552,7 +2552,7 @@ namespace Library.Service.Accounts
                         BudgetMasterId = dtCr.Rows[n]["BudgetMasterId"].ToString();
                         ActivityId = dtCr.Rows[n]["ActivityId"].ToString();
                     }
-                    else if (isBudgetLevel==true)
+                    else if (isBudgetLevel == true)
                     {
                         AccountCodeId = dtCr.Rows[n]["GLGeneralInfoCode"].ToString();
                         BudgetMasterId = dtCr.Rows[n]["BudgetMasterId"].ToString();
@@ -2585,10 +2585,10 @@ namespace Library.Service.Accounts
 
                     for (int p = 0; p < dtParallelCurrency.Rows.Count; p++)
                     {
-                        DataView dvDrCr=null;
-                        DataView dvDrCrFTP=null;
+                        DataView dvDrCr = null;
+                        DataView dvDrCrFTP = null;
                         string ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
-                        if (isBudgetLevel==true)
+                        if (isBudgetLevel == true)
                         {
                             dvDrCr = new DataView(dsLocal.Tables[0])
                             {
@@ -2706,7 +2706,7 @@ namespace Library.Service.Accounts
                 for (int n = 0; n < dtDr.Rows.Count; n++)
                 {
                     mainColIndex = 1;
-                       _rowL++;
+                    _rowL++;
                     string ActivityId = "";
                     string AccountCodeId = "";
                     string BudgetMasterId = "";
@@ -2716,7 +2716,7 @@ namespace Library.Service.Accounts
                         BudgetMasterId = dtDr.Rows[n]["BudgetMasterId"].ToString();
                         ActivityId = dtDr.Rows[n]["ActivityId"].ToString();
                     }
-                    else if (isBudgetLevel == true && isActivityLevel==false)
+                    else if (isBudgetLevel == true && isActivityLevel == false)
                     {
                         AccountCodeId = dtDr.Rows[n]["GLGeneralInfoCode"].ToString();
                         BudgetMasterId = dtDr.Rows[n]["BudgetMasterId"].ToString();
@@ -2747,27 +2747,27 @@ namespace Library.Service.Accounts
                         string ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
                         DataView dvDrCr = new DataView(dsLocal.Tables[0]);
                         DataView dvDrCrFTP = new DataView(dtLocalFTP);
-                        if (isBudgetLevel==true)
+                        if (isBudgetLevel == true)
                         {
-                             dvDrCr = new DataView(dsLocal.Tables[0])
+                            dvDrCr = new DataView(dsLocal.Tables[0])
                             {
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "'"
                             };
-                             dvDrCrFTP = new DataView(dtLocalFTP)
+                            dvDrCrFTP = new DataView(dtLocalFTP)
                             {
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "'"
                             };
                         }
-                        else if (isActivityLevel==true)
+                        else if (isActivityLevel == true)
                         {
-                             dvDrCr = new DataView(dsLocal.Tables[0])
+                            dvDrCr = new DataView(dsLocal.Tables[0])
                             {
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'"
-                             };
-                             dvDrCrFTP = new DataView(dtLocalFTP)
+                            };
+                            dvDrCrFTP = new DataView(dtLocalFTP)
                             {
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'"
-                             };
+                            };
                         }
                         else if (isBudgetLevel == false && isActivityLevel == false)
                         {
@@ -2780,7 +2780,7 @@ namespace Library.Service.Accounts
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "'"
                             };
                         }
-                        
+
 
                         if (p == 0)
                         {
@@ -3446,7 +3446,7 @@ namespace Library.Service.Accounts
                     return _sqlRepository.GetGridData(parameters).Source;
 
                 }
-                else 
+                else
                 {
                     parameters.CmdText = @"
 
@@ -3540,7 +3540,7 @@ namespace Library.Service.Accounts
         }
 
 
-        private DataTable GetIncomeStatementInfoDateRangeForThePeriod(string companyId, string fromDate, string toDate, string[] parallelCurrencies,bool isBudgetLevel,bool isActivityLevel)
+        private DataTable GetIncomeStatementInfoDateRangeForThePeriod(string companyId, string fromDate, string toDate, string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel)
         {
             string strSql = "";
             try
@@ -3584,7 +3584,7 @@ namespace Library.Service.Accounts
 
                     return _sqlRepository.GetDataTable(strSql);
                 }
-               else if (isActivityLevel && !isBudgetLevel)
+                else if (isActivityLevel && !isBudgetLevel)
                 {
                     strSql = @"                   
                     SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
@@ -3647,7 +3647,7 @@ namespace Library.Service.Accounts
 
                     return _sqlRepository.GetDataTable(strSql);
                 }
-              
+
             }
             catch (Exception)
             {
