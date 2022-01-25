@@ -80,8 +80,14 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
     $scope.EntityList = [];
     $scope.getEntityWithChange = function () {
         $scope.EntityList = [];
-        cboService.getCboEntityByPlant(null, $scope.selectedValues.CompanyId, $scope.selectedValues.PlantId, function (result) {
-            $scope.EntityList = result;
+        $http({
+            method: 'POST',
+            url: $scope.path + "getEnity",
+            data: { 'PlantId': $scope.selectedValues.PlantId, 'CompId': $scope.selectedValues.CompanyId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EntityList = [];
+            $scope.EntityList = response.data;
         });
     };
     $scope.ItemList = [];

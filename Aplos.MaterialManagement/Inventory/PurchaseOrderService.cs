@@ -11202,36 +11202,49 @@ ORDER BY IR.ID DESC";
             int ROW = 0; int COL = 0;
             wTable.ResetCells(1, LasColumnIndex + 1);
             WTableRow TemplateRow = wTable.Rows[0].Clone();
+
             #region column headers
             document.EnsureMinimal();
+
             //wTable.Title = "Material Details";
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PO Detail Id");
+            range.ApplyCharacterFormat(FontBold);
             int colRowId = COL; COL++;
+            wTable.Rows[ROW].Cells[colRowId].Width = 40;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Service Name");
             range.ApplyCharacterFormat(FontBold);
             int colSN = COL; COL++;
+            wTable.Rows[ROW].Cells[colSN].Width = 80;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
             range.ApplyCharacterFormat(FontBold);
             int colDescription = COL; COL++;
-
+            wTable.Rows[ROW].Cells[colDescription].Width = 200;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
+            wTable.Rows[ROW].Cells[colQty].Width = 60;
+
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
             range.ApplyCharacterFormat(FontBold);
             int colUoM = COL; COL++;
+            wTable.Rows[ROW].Cells[colUoM].Width = 40;
+
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
+            wTable.Rows[ROW].Cells[colRate].Width = 60;
+
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Currency");
             range.ApplyCharacterFormat(FontBold);
             int colCurrency = COL; /*COL++;*/
+            wTable.Rows[ROW].Cells[colCurrency].Width = 45;
+
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount(TRN)");
             //range.ApplyCharacterFormat(FontBold);

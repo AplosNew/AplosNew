@@ -21,6 +21,8 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
     $scope.partyType = 'Vendor';
     $scope.isAdvance = true;
     $controller('partyBaseController', { $scope: $scope, $http: $http });
+    $controller("bankBaseController", { $scope: $scope, $http: $http });
+    $controller("cashBaseController", { $scope: $scope, $http: $http });
 
     baseService.init($scope.listUrl, null, null, "DESC", "PostingDate", "VoucherNo");
     $scope.getData = function (pageno) {
@@ -187,7 +189,9 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
         BankAccountNumber: null,
         BankGL: null,
         BankGLGeneralInfoId: null,
-        AdvancePostingDate: null
+        AdvancePostingDate: null,
+        SettlementType: "SetOff"
+        //PaymentSource: 'Bank'
     };
 
     $scope.voucherDetail = {
@@ -388,7 +392,7 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
             return true;
         }
         var vdetailDr = $filter('filter')($scope.voucherDetailList, { TrnType: 'Dr' });
-        if (vdetailDr.length === 0) {
+        if (vdetailDr.length === 0 && $scope.advance.SettlementType === 'SetOff') {
             ShowResult('Please add Invoice!', 'failure');
             return true;
         }
@@ -396,18 +400,29 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
             ShowResult('Posting is not possible before Advance!', 'failure');
             return true;
         }
+        if ($scope.advance.PaymentSource === 'Bank' && $scope.advance.SettlementType === 'Return' && $scope.advance.BankMasterId == null) {
+            ShowResult("Please select Bank!", "failure");
+            return true;
+        }
+        if ($scope.advance.PaymentSource === 'Cash' && $scope.advance.SettlementType === 'Return' && $scope.advance.CashMasterId == null) {
+            ShowResult("Please select Bank!", "failure");
+            return true;
+        }
         $scope.invoice1stCurrencyId = "";
-        $scope.invoice1stCurrencyId = $scope.voucherDetailList[0].CurrencyId;
-        for (var i = 0; i < $scope.voucherDetailList.length; i++) {
-            if (new Date($scope.voucherDetailList[i].PostingDate) > new Date($scope.advance.PostingDate)) {
-                ShowResult('Posting is not possible before Invoice!', 'failure');
-                return true;
-            }
-            if ($scope.invoice1stCurrencyId != $scope.voucherDetailList[i].CurrencyId) {
-                ShowResult('Please add Same Currency Invoice!', 'failure');
-                return true;
-            }
-        };
+        if ($scope.voucherDetailList.length > 0) {
+            $scope.invoice1stCurrencyId = $scope.voucherDetailList[0].CurrencyId;
+            for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+                if (new Date($scope.voucherDetailList[i].PostingDate) > new Date($scope.advance.PostingDate)) {
+                    ShowResult('Posting is not possible before Invoice!', 'failure');
+                    return true;
+                }
+                if ($scope.invoice1stCurrencyId != $scope.voucherDetailList[i].CurrencyId) {
+                    ShowResult('Please add Same Currency Invoice!', 'failure');
+                    return true;
+                }
+            };
+        }
+        
         $scope.DrAmountSubTotal = $filter('sumByKey')($filter('filter')($scope.voucherDetailList), 'DrAmount');
         if (parseFloat($scope.advance.AdvanceAmount) * parseFloat($scope.advance.CompanyCurrencyRate) < parseFloat($scope.DrAmountSubTotal)) {
             ShowResult("Invoice  Amount should not exceed Advance Amount.", "failure");
@@ -493,6 +508,8 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
         $scope.advance.VoucherDate = $filter('date')(Date.now(), 'dd-MMM-yyyy');
         $scope.voucherDetailCurrencyList = [];
         $scope.voucherDetailList = [];
+        $scope.advance.SettlementType = "SetOff";
+        //$scope.advance.PaymentSource = "Bank";
     }
 
     $scope.GetCurrencyExchangeRateList = function () {
@@ -791,6 +808,123 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
         $scope.voucherId = voucherId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
+
+    $scope.changeSettlementType = function () {
+    };
+
+    $scope.closeBankPopUp = function () {
+        if ($scope.bankIndex !== -1) {
+            var bank = $scope.bankList[$scope.bankIndex];
+            if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
+                ShowResult("Please select currency!", "failure", "bankPopUp");
+                return;
+            }
+            if (baseService.isUndefinedOrNull(bank.GLGeneralInfoId)) {
+                ShowResult("Bank GL not found!", "failure", "bankPopUp");
+                return;
+            }
+            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(bank.BudgetMasterId)) {
+                ShowResult("Bank budget not found!", "failure", "bankPopUp");
+                return;
+            }
+            else if (baseService.isUndefinedOrNull(bank.CurrencyId)) {
+                ShowResult("Bank transaction currency not found!", "failure", "bankPopUp");
+                return;
+            }
+            else {
+                $scope.advance.AccountTitle = bank.AccountTitle;
+                $scope.advance.BankName = bank.AccountTitle;
+                $scope.advance.BankMasterId = bank.BankMasterId;
+                setBankGL(bank);
+            }
+        }
+        $scope.hideBankPopUp();
+    };
+
+    function setBankGL(bank) {
+        $scope.advance.BankCurrencyId = bank.CurrencyId;
+        $scope.advance.GLGeneralInfoId = bank.GLGeneralInfoId;
+        $scope.advance.GLGeneralInfoCode = bank.GLGeneralInfoCode;
+        $scope.advance.GLGeneralInfoName = bank.GLGeneralInfoName;
+        $scope.advance.BudgetMasterId = bank.BudgetMasterId;
+        $scope.advance.BudgetCode = bank.BudgetCode;
+        $scope.advance.BudgetName = bank.BudgetName;
+        $scope.advance.ActivityId = bank.ActivityId;
+        $scope.advance.ActivityCode = bank.ActivityCode;
+        $scope.advance.ActivityName = bank.ActivityName;
+        $scope.advance.InvoiceDetailId = bank.BankMasterId;
+        $scope.advance.TrnType = "Cr";
+        //$scope.advance.CompanyCurrencyRate = 1;
+    }
+
+    $scope.clearBankPopUp = function () {
+        $scope.isBankAmount = false;
+        $scope.advance.AccountTitle = null;
+        $scope.advance.BankName = null;
+        $scope.advance.BankMasterId = null;
+        $scope.advance.BankCurrencyId = null;
+        $scope.advance.CashMasterId = null;
+        $scope.advance.CashName = null;
+        $scope.advance.CashCurrencyId = null;
+        $scope.advance.GLGeneralInfoId = null;
+        $scope.advance.GLGeneralInfoCode = null;
+        $scope.advance.GLGeneralInfoName = null;
+        $scope.advance.BudgetMasterId = null;
+        $scope.advance.BudgetCode = null;
+        $scope.advance.BudgetName = null;
+        $scope.advance.ActivityId = null;
+        $scope.advance.ActivityCode = null;
+        $scope.advance.ActivityName = null;
+
+    };
+
+    $scope.closeCashPopUp = function () {
+        if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
+            ShowResult('Please select currency!', 'failure', 'cashPopUp');
+            return;
+        }
+        if ($scope.cashIndex !== -1) {
+            var cash = $scope.cashList[$scope.cashIndex];
+            if (baseService.isUndefinedOrNull(cash.GLGeneralInfoId)) {
+                ShowResult('Cash GL not found!', 'failure', 'cashPopUp');
+                return;
+            }
+            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(cash.BudgetMasterId)) {
+                ShowResult('Cash budget not found!', 'failure', 'cashPopUp');
+                return;
+            }
+            else if (baseService.isUndefinedOrNull(cash.CurrencyId)) {
+                ShowResult('Cash transaction currency not found!', 'failure', 'cashPopUp');
+                return;
+            }
+            else {
+                $scope.advance.CashMasterId = cash.Id;
+                $scope.advance.CashName = cash.CashName;
+                setCashGL(cash);
+            }
+        }
+        $scope.hideCashPopUp();
+    };
+
+    function setCashGL(cash) {
+        $scope.advance.CashCurrencyId = cash.CurrencyId;
+        $scope.advance.GLGeneralInfoId = cash.GLGeneralInfoId;
+        $scope.advance.GLGeneralInfoCode = cash.GLGeneralInfoCode;
+        $scope.advance.GLGeneralInfoName = cash.GLGeneralInfoName;
+        $scope.advance.BudgetMasterId = cash.BudgetMasterId;
+        $scope.advance.BudgetCode = cash.BudgetCode;
+        $scope.advance.BudgetName = cash.BudgetName;
+        $scope.advance.ActivityId = cash.ActivityId;
+        $scope.advance.ActivityCode = cash.ActivityCode;
+        $scope.advance.ActivityName = cash.ActivityName;
+        $scope.advance.InvoiceDetailId = cash.Id;
+        $scope.advance.TrnType = "Cr";
+        //$scope.advance.CompanyCurrencyRate = 1;
+    }
+
+    $scope.clearCashPopUp = function () {
+        $scope.clearBankPopUp();
     };
 
 }

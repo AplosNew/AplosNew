@@ -160,7 +160,28 @@
                     <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
                     <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
                     <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
+                    
+                    <div e-column e-field="" e-headertext="" e-width="50">
+                        @*<thead>
+                            <tr>
+                                <th>Action</th>
+                            </tr>
+                        </thead>*@
+                        <tbody>
+                            <tr>
+                                <td class="text-right">
+                                    <ul class="list-inline action-list">
+                                        <li><a class="btn btn-action" href="Commercial/AutoLoan/GetAutoLoanReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                                        <li><a class="btn btn-action" href="Commercial/AutoLoan/GetAutoLoanReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </div>
+                    
                 </div>
+
             </div>
         </div>
 

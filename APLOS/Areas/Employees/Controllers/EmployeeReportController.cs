@@ -224,7 +224,7 @@ namespace Aplos.Areas.Employees.Controllers
                     return RenderReportAsPdf(workbook, reportFileName);
 
                 case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
+                    return RenderReportAsExcelx(workbook, reportFileName);
 
                 default:
                     return View();
