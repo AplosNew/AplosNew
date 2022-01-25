@@ -503,7 +503,7 @@ namespace Library.OrderManagement.Production
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
 									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PD.ProductionOrderId
-								   WHERE PS.UserName = 'Running' AND POSP.ProcessId = '"+processId+@"'
+								   WHERE PS.UserName = 'Running' --AND POSP.ProcessId = '"+processId+@"'
 								   GROUP BY PO.Id,PS.UserName,PO.RequiredTimeUnit,PD.Product,PD.ProductCategory,PD.Buyer,PD.Customer,PD.BuyerOrder,PD.BuyerItem,PD.OwnOrder,PD.OwnItem
 								   ,PD.Description,PD.PONumber,PO.EntityId,E.UserName,PQ.Qty,PRS.TotalProductionQty";
 
