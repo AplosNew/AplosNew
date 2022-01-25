@@ -48,6 +48,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         $scope.EmployeeInfoModel.GenderID = data.GenderID;
         $scope.EmployeeInfoModel.Department = data.Department;
         $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
+        $scope.EmployeeIncomeTaxModel.EmpSystemId = data.SystemID;
         $scope.getData();       
         $scope.countDate();
         $scope.GetTaxPolicyList();
@@ -148,7 +149,8 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         EmpSystemId: null,
         TaxYearId: null,
         TaxTypeId: null,
-        CityOfResidence: null
+        CityOfResidence: null,
+        CurrentAge:null
     }
     
     $scope.EmployeeListTemp = [];  
@@ -185,6 +187,9 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         $scope.DurationYear = age;
         $scope.DurationMonth = age_month;
 
+
+        $scope.EmployeeIncomeTaxModel.CurrentAge = $scope.DurationYear + " Year" +
+            $scope.DurationMonth + " Month";
     };
 
     //#endregion   

@@ -22,7 +22,7 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #region Add/Edit Section
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             DataRow dr = dt.NewRow();
@@ -42,7 +42,7 @@ namespace Library.HumanResource.Payroll.Tax
             dt.Rows.Add(dr);
         }
 
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        public void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             dr.BeginEdit();
@@ -814,6 +814,7 @@ namespace Library.HumanResource.Payroll.Tax
     public class EmployeeIncomeTaxService
     {
         ISqlRepository _sqlRepository;
+        TaxPolicyMasterService _tax = new TaxPolicyMasterService();
         public EmployeeIncomeTaxService()
         {
             _sqlRepository = new SqlRepository();
@@ -909,6 +910,43 @@ where TaxPolicyHeaderId='TH2'";
                 throw (ex);
             }
 
+        }
+
+        public Dictionary<string, object> Create(Dictionary<string, object> dataMaster)
+        {
+            try
+            {
+                string TableName = "dbo.EmployeeIncomeTaxMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + dataMaster["Id"] + "'", out dsMaster, false, "1");
+                DateTime now = DateTime.Today;
+
+                string _Id = "";
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    dataMaster["Id"] = "EIT" + _Id;
+                    _tax.AddNewRow(dsMaster.Tables[0], dataMaster);
+                }
+                else
+                {
+                    _Id = dataMaster["Id"].ToString();
+                    _tax.EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return dataMaster;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
     }
