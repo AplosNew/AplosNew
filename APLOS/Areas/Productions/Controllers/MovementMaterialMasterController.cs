@@ -58,6 +58,12 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
+        [Authorize , HttpPost]
+        public ActionResult getEnity(string PlantId , string CompId)
+        {
+            return Json(det.GetEntity(PlantId, CompId) , JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public ActionResult GetStorageLoc(string PlantId, string CompId)
         {
