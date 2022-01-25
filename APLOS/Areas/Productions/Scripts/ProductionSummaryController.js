@@ -651,7 +651,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             $scope.productionSummaryNew.ArticleId = master.ArticleId;
             $scope.productionSummaryNew.CharCount = master.CharCount;
 
-            $scope.GetcharacteristicsValueList(master.SalesOrderId);
+            $scope.GetcharacteristicsValueList(master.ProductionOrderId);
 
             angular.element(document.querySelector('#firstPopup')).modal('show');
 
@@ -694,7 +694,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             $scope.productionSummaryNew.ArticleId = master.ArticleId;
             $scope.productionSummaryNew.CharCount = master.CharCount;
 
-            $scope.GetcharacteristicsValueList(master.SalesOrderId);
+            $scope.GetcharacteristicsValueList(master.ProductionOrderId);
 
             angular.element(document.querySelector('#firstPopup')).modal('show');
 
@@ -747,7 +747,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
 
     $scope.GetcharacteristicsValueList = function (soId) {
-        cboService.getCharacteristicsValueCbo(soId, function (result) {
+        cboService.getCharacteristicsValueByPrCbo(soId, function (result) {
             $scope.characteristicsValueList = result;
             if (baseService.arrayLength($scope.characteristicsValueList) > 0) {
                 $scope.CharacteristicsValueId = $scope.characteristicsValueList[0].Value;
@@ -803,7 +803,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.getCharInfo = function () {
         $scope.ProductionSummaryDetail = [];
 
-        $http.get('Productions/Productionsummary/GetChar1Info?masterid=' + $scope.productionSummaryNew.Id + '&soid=' + $scope.productionSummaryNew.SalesOrderId)
+        $http.get('Productions/Productionsummary/GetChar1InfobyPrO?masterid=' + $scope.productionSummaryNew.Id + '&soid=' + $scope.productionSummaryNew.ProductionOrderId)
             .then(function (response) {
                 $scope.ProductionSummaryDetail = [];
                 $scope.ProductionSummaryDetail = response.data;
@@ -885,11 +885,12 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.ProductionBookingLevel = ProductionBookingLevel;
         $scope.Action = 'Update';
         if ($scope.IsSKU1 == true && $scope.IsSKU2 == false && $scope.IsSKU3 == false) {
-            $scope.GetcharacteristicsValueList($scope.productionSummaryNew.SalesOrderId);
+            $scope.GetcharacteristicsValueList($scope.productionSummaryNew.ProductionOrderId);
+            //$scope.GetcharacteristicsValueList($scope.productionSummaryNew.SalesOrderId);
             //$scope.getChar1($scope.productionSummaryNew.Id, $scope.productionSummaryNew.SalesOrderId);
         }
         if ($scope.IsSKU1 == false && $scope.IsSKU2 == true && $scope.IsSKU3 == false) {
-            $scope.GetcharacteristicsValueList($scope.productionSummaryNew.SalesOrderId);
+            $scope.GetcharacteristicsValueList($scope.productionSummaryNew.ProductionOrderId);
             //$scope.getChar1($scope.productionSummaryNew.Id, $scope.productionSummaryNew.SalesOrderId);
         }
         if ($scope.IsSKU1 == true && $scope.IsSKU2 == true) {
