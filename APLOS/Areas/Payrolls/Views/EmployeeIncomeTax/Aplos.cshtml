@@ -1,5 +1,5 @@
 ﻿<h3 class="site-heading">
-    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Tax Opening Balance
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Income Tax
 </h3>
 
 <div class="form-elements form-horizontal" ng-form name="EmployeeInfoModelForm">
@@ -10,7 +10,7 @@
                 <label class="col-sm-4 control-label">Tax Type <sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="OpeningBalanceModel.TaxTypeId" ng-change="">
+                        <select class="form-control" ng-model="EmployeeIncomeTaxModel.TaxTypeId" ng-change="">
                             <option value=""></option>
                             <option ng-repeat="option in TaxTypeList" value="{{option.Id}}">{{option.Username}}</option>
                         </select>
@@ -22,8 +22,8 @@
                 <div class="input-group">
                     <div class="col-sm-2">
                         <span class="input-group-btn">
-                            <button name="submit" ng-disabled="OpeningBalanceModel.TaxYearId==null || OpeningBalanceModel.CityOfResidence==null ||
-                                    OpeningBalanceModel.TaxTypeId==null"
+                            <button name="submit" ng-disabled="EmployeeIncomeTaxModel.TaxYearId==null || EmployeeIncomeTaxModel.CityOfResidence==null ||
+                                    EmployeeIncomeTaxModel.TaxTypeId==null"
                                     ng-click="getPopUpData();" class="btn single-small-btn">
                                 <i class="cr-icon glyphicon glyphicon-search"></i>
                             </button>
@@ -36,7 +36,7 @@
                 <label class="col-sm-4 control-label">City Of Residence <sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="OpeningBalanceModel.CityOfResidence" required>
+                        <select class="form-control" ng-model="EmployeeIncomeTaxModel.CityOfResidence" required>
                             <option value=""></option>
                             <option value="Metro">Metro</option>
                             <option value="Non-Metro">Non-Metro</option>
@@ -98,7 +98,7 @@
                 <label class="col-sm-4 control-label">Tax Year <sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="OpeningBalanceModel.TaxYearId" name="TaxYear"
+                        <select class="form-control" ng-model="EmployeeIncomeTaxModel.TaxYearId" name="TaxYear"
                                 ng-options="item.Value as item.Text for item in YearList" required>
                             <option value="">--Select--</option>
                         </select>
