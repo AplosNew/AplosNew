@@ -144,6 +144,52 @@ namespace Library.Service.Productions
             }
         }
 
+        public IEnumerable<object> GetChar1InfobyPrO(string id, string soid)
+        {
+            try
+            {
+
+                string _sql = @"SELECT
+                                    psd.Id,so.id SalesOrderId, 
+                                    c1.UserName FirstChar,cv1.UserName FirstCharValue                                   
+                                    --,fc.Qty Characteristics1Qty
+									,fc.Id FCharId,fc.CharacteristicsId Characteristics1Id
+									,fc.CharacteristicsValueId Characteristics1ValueId
+                                    ,psd.Qty
+                                    FROM  TRN.SalesOrder so
+                                    LEFT JOIN TRN.MasterOrderItem moi on so.MasterOrderItemId=moi.id
+                                    LEFT JOIN MST.MaterialMaster mm on mm.id=moi.MaterialMasterId
+                                    --LEFT JOIN [MST].[MaterialMasterCharacteristics] mmc on mmc.MaterialMasterId=mm.id
+                                    LEFT JOIN [TRN].[FirstCharacteristics] fc on so.id=fc.SalesOrderId --and fc.CharacteristicsId=mmc.CharacteristicsId
+
+                                    LEFT JOIN HKP.Characteristics c1 on c1.id=fc.CharacteristicsId  
+                                    LEFT JOIN HKP.CharacteristicsValue cv1 on cv1.id=fc.CharacteristicsValueId
+
+                                    --transaction tables
+									LEFT JOIN (
+									SELECT d.Id,d.FCharId
+												,d.SCharId,d.TCharId
+												,d.Qty
+												,p.MaterialMasterId
+												,p.ArticleId
+												,p.SalesOrderId
+												FROM TRN.ProductionSummary p 
+												LEFT JOIN TRN.ProductionSummaryDetail d on p.id=d.ProductionSummaryId 
+
+												where p.Id= '" + id + @"'                                                
+									) psd on psd.SalesOrderId=so.id and psd.MaterialMasterId=moi.MaterialMasterId and psd.ArticleId=moi.ArticleId
+									AND psd.FCharId=fc.Id 
+                                     WHERE so.id=(Select SalesOrderId from TRN.ProductionOrderDetail Where ProductionOrderId='"+soid+"')";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Machine.ToString()));
+            }
+        }
+
         public IEnumerable<object> GetMentorAndRespPersonByWCM(string wcmId)
         {
             try
@@ -292,6 +338,16 @@ namespace Library.Service.Productions
         {
             var sql = @"SELECT C.Id, C.UserName FROM [TRN].[FirstCharacteristics] FC
                         LEFT JOIN hkp.CharacteristicsValue C ON C.Id=FC.CharacteristicsValueId where FC.SalesOrderId='" + soid + "'";
+            return _sqlRepository.GetCombo(sql, "Id", "UserName");
+        }
+
+        public IEnumerable<ComboModel> GetCharacteristicsValueByPrOCbo(string soid)
+        {
+           
+            string sql = @"SELECT C.Id, C.UserName FROM [TRN].[FirstCharacteristics] FC
+                            LEFT JOIN hkp.CharacteristicsValue C ON C.Id=FC.CharacteristicsValueId 
+                            LEFT JOIN TRN.ProductionOrderDetail PD ON PD.SalesOrderId=FC.SalesOrderId
+                            where PD.ProductionOrderId='" + soid + "'";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
 
