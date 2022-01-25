@@ -62,7 +62,6 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }       
-        $scope.ClearEarningMaster();
         $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
         $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
@@ -124,9 +123,19 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.Header = response.data.Data;
-                    $scope.EarningMasterModel.HeaderId = response.data.Data.Id;
-                    $scope.Child.HeaderId = response.data.Data.Id;
+
+                    // Assigning Variables
+                    $scope.EarningMasterModel.TaxPolicyHeaderId = $scope.Header.Id;
+                    $scope.Child.HeaderId = $scope.Header.Id;
+                    $scope.InvestDeductModel.TaxPolicyHeaderId = $scope.Header.Id;
+                    $scope.TaxYearModel.HeaderId = $scope.Header.Id;
+
+                    // Calling Functions
                     $scope.getHeader();
+                    $scope.GetEarningMasterList();
+                    $scope.getInvestDeductMaster();
+                    updateChild();
+                    updateTaxDataChild();
                     showTabs();                   
                 }
             }), function errorCallBack(response) {
@@ -1082,7 +1091,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $http({
             method: 'POST',
             url: $scope.path + 'getTaxYearMasterData',
-            data: { 'Id': $scope.TaxYearModel.HeaderId }
+            data: { 'Id': $scope.Header.Id }
         }).then(function success(resp) {
             $scope.TaxDataList = resp.data;
         });

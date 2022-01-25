@@ -138,7 +138,7 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         }).then(function successCallback(response) {
             $scope.TaxPolicyList = [];
             $scope.TaxPolicyList = response.data;
-            $scope.TaxPolicyName = response.data.PolicyHeaderName;
+            $scope.TaxPolicyName = response.data[0].PolicyHeaderName;
         });
     }
 
