@@ -11,6 +11,7 @@ using Library.Service.Setups;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -215,5 +216,44 @@ namespace Aplos.Areas.Setups.Controllers
             dr.EndEdit();
         }
 
+        public JsonResult GetQueryResult()
+        {
+            string sql=null;
+            return new JsonResult
+            {
+                ContentEncoding = Encoding.UTF8,
+                ContentType = "application/json;",
+                Data = _sqlRepository.GetDataCollection(sql),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                
+            };
+        }
+
+        public JsonResult SaveBPTable(string BusinessProcess)
+        {
+            string schema = "BPDT.";
+            string sql = @"CREATE TABLE "+schema+""+BusinessProcess+" (Id Varchar(30) primary key);";
+            return new JsonResult
+            {
+                ContentEncoding = Encoding.UTF8,
+                ContentType = "application/json;",
+                Data = _sqlRepository.GetDataCollection(sql),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+
+            };
+        }
+
+        public JsonResult SaveAlterBPTable(string BusinessProcess, string columnName, string dataType)
+        {
+            string sql = @"ALTER TABLE 'BPDT." + BusinessProcess + "' ADD Column '"+ columnName + "' '"+dataType+"'";
+            return new JsonResult
+            {
+                ContentEncoding = Encoding.UTF8,
+                ContentType = "application/json;",
+                Data = _sqlRepository.GetDataCollection(sql),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+
+            };
+        }
     }
 }

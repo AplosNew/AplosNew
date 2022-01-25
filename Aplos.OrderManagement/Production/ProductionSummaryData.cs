@@ -503,7 +503,7 @@ namespace Library.OrderManagement.Production
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
 									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PD.ProductionOrderId
-								   WHERE PS.UserName = 'Running' AND POSP.ProcessId = '"+processId+@"'
+								   WHERE PS.UserName = 'Running' --AND POSP.ProcessId = '"+processId+@"'
 								   GROUP BY PO.Id,PS.UserName,PO.RequiredTimeUnit,PD.Product,PD.ProductCategory,PD.Buyer,PD.Customer,PD.BuyerOrder,PD.BuyerItem,PD.OwnOrder,PD.OwnItem
 								   ,PD.Description,PD.PONumber,PO.EntityId,E.UserName,PQ.Qty,PRS.TotalProductionQty";
 
@@ -1571,8 +1571,8 @@ namespace Library.OrderManagement.Production
             {
                 salesOrderId = "null";
             }
-            if (IsCrossAllowed == false)
-            {
+            //if (IsCrossAllowed == false)
+            //{
                 if (status == "PROCESS")
                 {
                     sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
@@ -1607,42 +1607,42 @@ namespace Library.OrderManagement.Production
                                WHERE ps.FromSFGInventoryId='" + processId + @"' AND PS.EntityId='" + EntityId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
                                ) AS K ";
                 }
-            }
-            else
-            {
-                if (status == "PROCESS")
-                {
-                    sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
-                            (
-                            SELECT ps.ProductionOrderId,PS.ToWorkCenterMasterId AS WorkCenterMasterId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.ToProcessId ProcessId,PS.SalesOrderId
-                            FROM trn.ProductionSummary AS ps
-                            WHERE ps.ToProcessId='" + processId + @"' AND ps.ToWorkCenterMasterId='" + workCenterMasterId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
-                            union all
-                            SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,0 AS InQuantity, Quantity,0 AS KillQuantity,PS.ProcessId,PS.SalesOrderId
-                            FROM trn.ProductionSummary AS ps
-                            WHERE ps.ProcessId='" + processId + @"' AND ps.WorkCenterMasterId='" + workCenterMasterId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
-                            ) AS K ";
+            //}
+            //else
+            //{
+            //    if (status == "PROCESS")
+            //    {
+            //        sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
+            //                (
+            //                SELECT ps.ProductionOrderId,PS.ToWorkCenterMasterId AS WorkCenterMasterId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.ToProcessId ProcessId,PS.SalesOrderId
+            //                FROM trn.ProductionSummary AS ps
+            //                WHERE ps.ToProcessId='" + processId + @"' AND ps.ToWorkCenterMasterId='" + workCenterMasterId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
+            //                union all
+            //                SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,0 AS InQuantity, Quantity,0 AS KillQuantity,PS.ProcessId,PS.SalesOrderId
+            //                FROM trn.ProductionSummary AS ps
+            //                WHERE ps.ProcessId='" + processId + @"' AND ps.WorkCenterMasterId='" + workCenterMasterId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
+            //                ) AS K ";
 
-                }
-                else
-                {
-                    sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
-                               (SELECT ps.ProductionOrderId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.FromSFGInventoryId,PS.SalesOrderId
-                               FROM trn.ProductionSummary AS ps
-                               WHERE ps.ToSFGInventoryId='" + processId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
-                               union all
+            //    }
+            //    else
+            //    {
+            //        sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
+            //                   (SELECT ps.ProductionOrderId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.FromSFGInventoryId,PS.SalesOrderId
+            //                   FROM trn.ProductionSummary AS ps
+            //                   WHERE ps.ToSFGInventoryId='" + processId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
+            //                   union all
 
-                               SELECT ps.ProductionOrderId,0 AS InQuantity,case when ps.ProductionGrade='A' THEN Quantity else 0 END AS OutQuantity,0 AS KillQuantity,PS.FromSFGInventoryId ,PS.SalesOrderId
-                               FROM trn.ProductionSummary AS ps
-                               WHERE ps.FromSFGInventoryId='" + processId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
-                               union all
+            //                   SELECT ps.ProductionOrderId,0 AS InQuantity,case when ps.ProductionGrade='A' THEN Quantity else 0 END AS OutQuantity,0 AS KillQuantity,PS.FromSFGInventoryId ,PS.SalesOrderId
+            //                   FROM trn.ProductionSummary AS ps
+            //                   WHERE ps.FromSFGInventoryId='" + processId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
+            //                   union all
 
-                               SELECT ps.ProductionOrderId,0 AS InQuantity,0 AS OutQuantity,case when ps.ProductionGrade<>'A' THEN Quantity else 0 END AS KillQuantity,PS.FromSFGInventoryId,PS.SalesOrderId
-                               FROM trn.ProductionSummary AS ps
-                               WHERE ps.FromSFGInventoryId='" + processId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
-                               ) AS K ";
-                }
-            }
+            //                   SELECT ps.ProductionOrderId,0 AS InQuantity,0 AS OutQuantity,case when ps.ProductionGrade<>'A' THEN Quantity else 0 END AS KillQuantity,PS.FromSFGInventoryId,PS.SalesOrderId
+            //                   FROM trn.ProductionSummary AS ps
+            //                   WHERE ps.FromSFGInventoryId='" + processId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
+            //                   ) AS K ";
+            //    }
+            //}
             return _sqlRepository.GetData(sql);
         }
 
