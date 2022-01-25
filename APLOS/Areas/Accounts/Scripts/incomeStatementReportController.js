@@ -1,13 +1,13 @@
 ﻿'use strict';
-IncomeStatementReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter','$window'];
+IncomeStatementReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$window'];
 function IncomeStatementReportController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window) {
     $rootScope.title = 'Income Statement';
     $scope.parallelCurrencyList = [];
-     
+
     $scope.incomeStatementReport = {
         Date: $filter('dateFiltering')(Date.now()),
-       // CutOffDate: $filter('dateFiltering')(Date.now()), //checkCutOffDate
-      //  ParallelCurrencyId: null,
+        // CutOffDate: $filter('dateFiltering')(Date.now()), //checkCutOffDate
+        //  ParallelCurrencyId: null,
         Type: 'AsOnDate',
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now()),
@@ -17,20 +17,22 @@ function IncomeStatementReportController(commonMessage, $scope, $rootScope, base
         isACGroupLevel: false,
     };
     $scope.LevelAssaign = function (level) {
+        $scope.incomeStatementReport.IsBudgetLevel = false;
+        $scope.incomeStatementReport.IsActivityLevel = false;
         if (level == 'GL') {
-            $scope.report.IsBudgetLevel = false;
-            $scope.report.IsActivityLevel = false;
-        
+            $scope.incomeStatementReport.IsBudgetLevel = false;
+            $scope.incomeStatementReport.IsActivityLevel = false;
+
         }
         if (level == 'Budget') {
             $scope.incomeStatementReport.IsBudgetLevel = true;
             $scope.incomeStatementReport.IsActivityLevel = false;
- 
+
         }
         if (level == 'Activity') {
             $scope.incomeStatementReport.IsBudgetLevel = false;
             $scope.incomeStatementReport.IsActivityLevel = true;
-  
+
         }
     };
     $scope.upToLevelList = [];
@@ -146,16 +148,16 @@ function IncomeStatementReportController(commonMessage, $scope, $rootScope, base
     };
 
     //New Format for income statement
-   // $rootScope.title = 'Trial Balance';
+    // $rootScope.title = 'Trial Balance';
     //var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     //var firstDay = new Date(y, m, 1);
 
-  
-        //$scope.$broadcast('show-errors-check-validity');
-        //if ($scope.form.$valid) {
-        //    if ($scope.currencyIds.length === 0) return ShowResult('Currency required', 'failure');
-        //    location.href = 'accounts/voucher/incomestatementreport?date=' + $scope.incomeStatementReport.Date + '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds));
-        //}
+
+    //$scope.$broadcast('show-errors-check-validity');
+    //if ($scope.form.$valid) {
+    //    if ($scope.currencyIds.length === 0) return ShowResult('Currency required', 'failure');
+    //    location.href = 'accounts/voucher/incomestatementreport?date=' + $scope.incomeStatementReport.Date + '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds));
+    //}
 
 
     //$scope.getReport = function () {
