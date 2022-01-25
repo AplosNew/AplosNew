@@ -1886,7 +1886,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
 					,0 TransactionQty,0 ReceiptQty, 0 RejectionQty, 0 ReturnQty,0 BalanceQty
 					,0 TransactionRate
-					,IM.Amount TransactionAmount ,ISNULL(SA.Amount,0) ReceiptAmount
+					,IM.Amount TransactionAmount ,ISNULL(SA.Amount,0) ReceiptAmount,BalanceAmount=IM.Amount-ISNULL(SA.Amount,0)
 					,ROUND(Isnull(servicetax.TaxAmount,0),2) TotalTaxAmount
 					,0 ServiceCharge
 					,0 ServiceChargeTax
