@@ -1886,7 +1886,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
 					,0 TransactionQty,0 ReceiptQty, 0 RejectionQty, 0 ReturnQty,0 BalanceQty
 					,0 TransactionRate
-					,IM.Amount TransactionAmount
+					,IM.Amount TransactionAmount ,ISNULL(SA.Amount,0) ReceiptAmount
 					,ROUND(Isnull(servicetax.TaxAmount,0),2) TotalTaxAmount
 					,0 ServiceCharge
 					,0 ServiceChargeTax
@@ -1922,7 +1922,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 					LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 					LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
-
+                    LEFT JOIN (SELECT SAM.ServicePOId,SAD.ServicePODetailId,SUM(SAD.Amount) Amount FROM TRN.ServiceAcknowledgementDetail SAD 
+								JOIN TRN.ServiceAcknowledgementMaster SAM ON SAM.Id=SAD.ServiceAcknowledgementMasterId GROUP BY SAM.ServicePOId,SAD.ServicePODetailId) SA ON 
+							SA.ServicePODetailId=IM.Id
 
 					LEFT JOIN (SELECT A.ServicePODetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 					FROM [TRN].[ServicePOTax] A
