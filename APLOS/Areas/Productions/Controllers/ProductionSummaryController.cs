@@ -405,22 +405,22 @@ namespace Aplos.Areas.Productions.Controllers
 
                 }
 
-                if (IsFirst == true && status == "INVENTORY")
-                {
-                    var wipData = _productionSummaryData.GetWIPQtyValidation(ps.Id, ps.EntityId, processId, ps.WorkCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed);
+                //if (IsFirst == true && status == "INVENTORY")
+                //{
+                //    var wipData = _productionSummaryData.GetWIPQtyValidation(ps.Id, ps.EntityId, processId, ps.WorkCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed);
 
-                    if (wipData != null)
-                    {
-                        decimal InQ = Convert.ToDecimal(wipData["InQuantity"].ToString());
-                        decimal OutQ = Convert.ToDecimal(wipData["OutQuantity"].ToString());
+                //    if (wipData != null)
+                //    {
+                //        decimal InQ = Convert.ToDecimal(wipData["InQuantity"].ToString());
+                //        decimal OutQ = Convert.ToDecimal(wipData["OutQuantity"].ToString());
 
-                        if (InQ - (OutQ + ps.Quantity) < 0)
-                        {
-                            throw new Exception("Total out quantity is greater than total in quantity.");
-                        }
-                    }
+                //        if (InQ - (OutQ + ps.Quantity) < 0)
+                //        {
+                //            throw new Exception("Total out quantity is greater than total in quantity.");
+                //        }
+                //    }
 
-                }
+                //}
 
 
 
