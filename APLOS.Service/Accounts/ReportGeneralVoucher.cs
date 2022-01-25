@@ -2804,8 +2804,7 @@ namespace Library.Service.Accounts
                             }
                             catch (Exception ex)
                             {
-
-
+                                throw ex;
                             }
                         }
 
