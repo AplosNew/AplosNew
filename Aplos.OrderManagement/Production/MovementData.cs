@@ -1283,7 +1283,21 @@ namespace Library.Service.Productions
 
         }
 
+        public IEnumerable<object> GetEntity(string PlantId, string CompId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var _sql = @"select UserName as Text,Id as Value from org.Entity where CompanyId='" + CompId + "'" +
+                    " and PlantId='" + PlantId + "'";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
 
+        }
         public IEnumerable<object> GetList(string column, string value)
         {
             try
@@ -1919,6 +1933,7 @@ namespace Library.Service.Productions
             }
 
         }
+
 
         public IEnumerable<object> GetFrom(string EntityId, string PurposeId)
         {
