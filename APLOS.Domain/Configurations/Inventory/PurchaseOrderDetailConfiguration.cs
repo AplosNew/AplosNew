@@ -13,11 +13,11 @@ namespace Library.Model.Configurations.Inventory
             Property(t => t.BaseQty).HasPrecision(18, 10);
             Property(t => t.BaseUoMFactor).HasPrecision(18, 10);
             Property(t => t.TransactionRate).HasPrecision(18, 4);
-            Property(t => t.TransactionAmount).HasPrecision(18, 2);
-            Property(t => t.BaseAmount).HasPrecision(18, 2);
+            Property(t => t.TransactionAmount).HasPrecision(20, 10);
+            Property(t => t.BaseAmount).HasPrecision(20, 10);
             Property(t => t.IssueQty).HasPrecision(18, 10);
-            Property(t => t.TotalTaxAmount).HasPrecision(18, 2);
-            Property(t => t.ChargesAmount).HasPrecision(18, 2);
+            Property(t => t.TotalTaxAmount).HasPrecision(20, 10);
+            Property(t => t.ChargesAmount).HasPrecision(20, 10);
             ToTable(nameof(PurchaseOrderDetail), DbSchema.Transaction);
             Ignore(r => r.ModelState);
         }
