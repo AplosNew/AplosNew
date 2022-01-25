@@ -358,6 +358,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getLineCboBySubSection: getLineCboBySubSection
         , getCharacteristicsValueCbo: getCharacteristicsValueCbo
         , getCharacteristicsValueCboByCharacteristicsId: getCharacteristicsValueCboByCharacteristicsId
+        , getCharacteristicsValueByPrCbo: getCharacteristicsValueByPrCbo
         , getProductionBookingPeriodCbo: getProductionBookingPeriodCbo
         , getSizeGroupCbo: getSizeGroupCbo
         , getAttachmentCbo: getAttachmentCbo
@@ -405,7 +406,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboRestType: getCboRestType
         , GetAdditionalPayDayCbo: GetAdditionalPayDayCbo
         , getCboVoucherTypeAutoLoanList: getCboVoucherTypeAutoLoanList
-        
+
     };
 
 
@@ -459,8 +460,8 @@ function cboService($http, $window, $rootScope, baseService) {
     function getSlrHeadCbo(callback) {
         base('Employees/AllowanceDaily/GetSalaryHeadCbo', callback);
     }
-    function getCurrencyCbo(plantId,callback) {
-        base('Payrolls/CurrencyRule/GetCurrencyCbo?plantId='+plantId, callback);
+    function getCurrencyCbo(plantId, callback) {
+        base('Payrolls/CurrencyRule/GetCurrencyCbo?plantId=' + plantId, callback);
     }
     function getDailyAllowanceCbo(callback) {
         base('humanresource/AttendanceManagement/GetDailyAllowanceCbo', callback);
@@ -538,9 +539,12 @@ function cboService($http, $window, $rootScope, baseService) {
     function getCharacteristicsValueCbo(soid, callback) {
         base('productions/productionsummary/getcharacteristicsvaluecbo?soid=' + soid, callback);
     }
-    function getCharacteristicsValueCboByCharacteristicsId(materialMasterId,characteristicsId, valueAssignmentLevel, callback) {
-        base('Materials/CharacteristicsValue/GetCharacteristicsValueCboByCharacteristicsId?materialMasterId=' + materialMasterId+'&characteristicsId=' + characteristicsId +'&valueAssignmentLevel=' + valueAssignmentLevel,callback);
-        
+    function getCharacteristicsValueByPrCbo(soid, callback) {
+        base('productions/productionsummary/getcharacteristicsvaluebyprocbo?soid=' + soid, callback);
+    }
+    function getCharacteristicsValueCboByCharacteristicsId(materialMasterId, characteristicsId, valueAssignmentLevel, callback) {
+        base('Materials/CharacteristicsValue/GetCharacteristicsValueCboByCharacteristicsId?materialMasterId=' + materialMasterId + '&characteristicsId=' + characteristicsId + '&valueAssignmentLevel=' + valueAssignmentLevel, callback);
+
     }
     function getSectionCboByDepartment(deptID, callback) {
         base('humanresource/dailydaystatus/getsectioncbobydepartment?deptID=' + deptID, callback);
@@ -1116,8 +1120,8 @@ function cboService($http, $window, $rootScope, baseService) {
         base('accounts/EmployeeTransaction/GetCboEmployeeTransactionType', callback);
     }
 
-    function getEmpTrnTypeByAdvanceType(advanceType,callback) {
-        base('accounts/EmployeeTransaction/GetEmpTrnTypeByAdvanceType?advanceType='+ advanceType, callback);
+    function getEmpTrnTypeByAdvanceType(advanceType, callback) {
+        base('accounts/EmployeeTransaction/GetEmpTrnTypeByAdvanceType?advanceType=' + advanceType, callback);
     }
 
     function getCboAdvPayTranType(callback) {
@@ -1434,14 +1438,14 @@ function cboService($http, $window, $rootScope, baseService) {
     function getCboVoucherTypePostInvoiceList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypePostInvoiceList', callback);
     }
-    
+
     function getCboVoucherTypeReceivableFromOthersList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeReceivableFromOthersList', callback);
     }
     function getCboVoucherTypeOutSourceBillingList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeOutSourceBillingList', callback);
     }
-    
+
     function getCboVoucherTypePackingJournalList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypePackingJournalList', callback);
     }
@@ -1468,7 +1472,7 @@ function cboService($http, $window, $rootScope, baseService) {
     function getCboVoucherTypePartyReconcilliationList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypePartyReconcilliationList', callback);
     }
-    
+
 
     function getCboVoucherTypeEmployeePaymentList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeEmployeePaymentList', callback);
