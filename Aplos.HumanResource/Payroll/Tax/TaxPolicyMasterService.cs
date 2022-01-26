@@ -22,7 +22,7 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #region Add/Edit Section
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             DataRow dr = dt.NewRow();
@@ -42,7 +42,7 @@ namespace Library.HumanResource.Payroll.Tax
             dt.Rows.Add(dr);
         }
 
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        public void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             dr.BeginEdit();
@@ -576,7 +576,7 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string sql = @"Select itm.SystemId, itm.TaxTypeId ,itm.ItemApplicable,
+                string sql = @"Select itm.SystemId, itm.TaxTypeId ,
                         itm.UserCode ,ty.UserName as TaxType ,
                             tg.Id TaxSavingGroupId,tg.UserName TaxSavingGroup,tg.MaxLimit
                                 from dbo.IncomeTaxItemMaster itm
@@ -811,10 +811,11 @@ namespace Library.HumanResource.Payroll.Tax
         public string Component { get; set; }
     }
 
-    public class TaxOpeningBalanceService
+    public class EmployeeIncomeTaxService
     {
         ISqlRepository _sqlRepository;
-        public TaxOpeningBalanceService()
+        TaxPolicyMasterService _tax = new TaxPolicyMasterService();
+        public EmployeeIncomeTaxService()
         {
             _sqlRepository = new SqlRepository();
         }
@@ -894,6 +895,14 @@ namespace Library.HumanResource.Payroll.Tax
                 left join scs.TaxYear ty on ty.Id=tht.TaxYearId
                 where th.CityOfResidence='" + Residence+@"' and th.Male='"+MValue+@"'
                 and th.Female='"+FValue+"' and ty.Id='"+YearId+"'";
+
+                string sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit
+from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
+it.SystemId=itc.IncomeTaxItemMasterId
+left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
+left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId
+where TaxPolicyHeaderId='TH2'";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -901,6 +910,43 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
 
+        }
+
+        public Dictionary<string, object> Create(Dictionary<string, object> dataMaster)
+        {
+            try
+            {
+                string TableName = "dbo.EmployeeIncomeTaxMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + dataMaster["Id"] + "'", out dsMaster, false, "1");
+                DateTime now = DateTime.Today;
+
+                string _Id = "";
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    dataMaster["Id"] = "EIT" + _Id;
+                    _tax.AddNewRow(dsMaster.Tables[0], dataMaster);
+                }
+                else
+                {
+                    _Id = dataMaster["Id"].ToString();
+                    _tax.EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return dataMaster;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
     }

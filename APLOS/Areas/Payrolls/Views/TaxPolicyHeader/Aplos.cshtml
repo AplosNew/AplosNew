@@ -327,16 +327,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">Tax Saving Group</label>
-                                    <div class="col-sm-8 show-message">
-                                        <div class="select-style">
-                                            <select ng-model="InvestDeductModel.TaxSavingGroupId"
-                                                    class="form-control" ng-change="fillMaxLimit();"
-                                                    ng-options="item.Id as item.Username for item in TaxSavingGroupList">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                    </div>
+                                    <label class="col-sm-4 control-label"> <b>Max Limit : {{maxLimit}}</b></label>
                                 </div>
 
                             </div>
@@ -351,19 +342,16 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">Item Applicable</label>
-                                    <div class="col-sm-8">
-                                        <div class="checkbox-site" style="margin-top:7px;">
-                                            <label>
-                                                <input type="checkbox" ng-model="InvestDeductModel.ItemApplicable">
-                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                            </label>
+                                    <label class="col-sm-4 control-label">Tax Saving Group</label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select ng-model="InvestDeductModel.TaxSavingGroupId"
+                                                    class="form-control" ng-change="fillMaxLimit();"
+                                                    ng-options="item.Id as item.Username for item in TaxSavingGroupList">
+                                                <option value=""></option>
+                                            </select>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label"> <b>Max Limit : {{maxLimit}}</b></label>
                                 </div>
 
                             </div>
@@ -386,8 +374,7 @@
                                             <div e-column e-field="UserCode" e-headertext="UserCode" e-width="80"></div>
                                             <div e-column e-field="TaxType" e-headertext="TaxType" e-width="80"></div>
                                             <div e-column e-field="TaxSavingGroup" e-headertext="Tax Saving Group" e-width="100"></div>
-                                            <div e-column e-field="ItemApplicable" e-headertext="Item Applicable" e-width="50"></div>
-                                            <div e-column e-field="MaxLimit" e-headertext="MaxLimit" e-visible="false"></div>
+                                            <div e-column e-field="MaxLimit" e-headertext="MaxLimit" e-width="50"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -401,7 +388,7 @@
                                     <div class="col-xs-12">
                                         <div class="common-btn" style="margin-right:10px;">
                                             <ul class="list-inline text-right">
-                                                <li> <button ng-disabled="InvestDeductModel.SystemId==null || InvestDeductModel.ItemApplicable==false" ng-click="OpenSavingItemPopup();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add Item</button></li>
+                                                <li> <button ng-disabled="InvestDeductModel.SystemId==null" ng-click="OpenSavingItemPopup();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add Item</button></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -419,6 +406,7 @@
                                                     <div e-column e-field="IsEarning" e-headertext="Is Earning" e-width="50"></div>
                                                     <div e-column e-field="IsInvestment" e-headertext="Is Investment" e-width="50"></div>
                                                     <div e-column e-field="IsDeduction" e-headertext="Is Deduction" e-width="50"></div>
+                                                    <div e-column e-field="DocumentApplicable" e-headertext="Document Applicable" e-width="50"></div>
                                                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
                                                 </div>
                                             </div>
@@ -812,7 +800,7 @@
                                         <div class="col-sm-2 show-message" style=" margin-top: 7px;">
                                             <div class="checkbox-site">
                                                 <label>
-                                                    <input type="checkbox" ng-model="InvestDeductModelChild.IsInvestment" >
+                                                    <input type="checkbox" ng-model="InvestDeductModelChild.IsInvestment">
                                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                                 </label>
                                             </div>
@@ -837,7 +825,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group" >
+                                    <div class="form-group">
                                         <div class="col-sm-6 " style="margin-left: 100px;">
                                             <input type="radio" id="fix" name="isfill" value="No" ng-model="InvestDeductModelChild.isPercentage">
                                             <label for="fix">Fixed</label><br>
@@ -851,17 +839,24 @@
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label">Tax Saving Item<sup>*</sup></label>
                                         <div class="col-sm-8 show-message">
-                                              <div class="select-style">
-                                                  <select ng-model="InvestDeductModelChild.TaxSavingItemId" class="form-control" ng-options="item.Id as item.Username for item in TaxSavingItemList" required>
-                                                      <option value=""></option>
-                                                  </select>
-                                              </div>
+                                            <div class="select-style">
+                                                <select ng-model="InvestDeductModelChild.TaxSavingItemId" class="form-control" ng-options="item.Id as item.Username for item in TaxSavingItemList" required>
+                                                    <option value=""></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Remarks</label>
+                                        <div class="col-sm-8 show-message">
+                                            <input type="text" class="form-control" ng-model="InvestDeductModelChild.Remarks">
                                         </div>
                                     </div>
 
                                 </div>
 
-                                <div class=" col-sm-6 col-md-6">                                    
+                                <div class=" col-sm-6 col-md-6">
 
                                     <div class="form-group" show-errors>
                                         <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
@@ -872,20 +867,26 @@
 
                                     <div class="form-group" show-errors>
                                         <label class="col-sm-4 control-label">Limit<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">                                              
+                                        <div class="col-sm-8 show-message">
                                             <input type="text" class="form-control" onkeypress="return isNumber(event)" ng-model="InvestDeductModelChild.Limit" name="Limit" required>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label class="col-sm-4 control-label">Remarks</label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" class="form-control" ng-model="InvestDeductModelChild.Remarks">
+                                        <label class="col-sm-4 control-label">Document Applicable</label>
+                                        <div class="col-sm-8">
+                                            <div class="checkbox-site" style="margin-top:7px;">
+                                                <label>
+                                                    <input type="checkbox" ng-model="InvestDeductModelChild.DocumentApplicable">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </div>                                    
                                 </div>                               
                             </div>
-                    </div>             
+                    </div>   
+                
                     <div class="common-btn" style="margin-right:30px">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="SaveDeductionChild();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
