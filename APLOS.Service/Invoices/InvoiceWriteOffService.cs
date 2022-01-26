@@ -3875,7 +3875,7 @@ namespace Library.Service.Invoices
                         PartyId = null,
                         PartyPlantId = null,
                         PartyType = "Bank",
-                        CurrencyId = item.CurrencyId,
+                        CurrencyId = item.BankCurrencyId,
                         Amount = voucherVM.Amount,
                         VoucherDate = voucherVM.VoucherDate,
                         PostingDate = voucherVM.PostingDate,

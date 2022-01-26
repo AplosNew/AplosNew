@@ -1249,6 +1249,10 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
                 ShowResult("Bank Transaction Currency not found!", "failure", "loanPopUp");
                 return;
             }
+            else if ($scope.voucher.CurrencyId != bank.CurrencyId) {
+                ShowResult("Please Select same Currency Loan!", "failure", "loanPopUp");
+                return;
+            }
             else {
                 var getRow = null;
                 getRow = $filter("filter")($scope.bankDetailList, { "BankMasterId": bank.BankMasterId });
