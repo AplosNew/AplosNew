@@ -213,6 +213,7 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
 
     $scope.GetBPPopUp = function (data) {
         angular.element(document.querySelector('#BPTablePopUp')).modal('show');
+        $scope.GetBusinessProcessDataTable(data.UserName);
     }
 
     $scope.SaveBPTable = function () {
@@ -220,7 +221,7 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
             $http({
                 method: 'post',
                 url: 'Setups/BusinessProcess/SaveBPTable',
-                data: { 'BusinessProcess': $scope.brandNew.UserName },
+                data: { 'BusinessProcess': $scope.brandNew.BusinessProcessName },
                 dataType: 'json'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -236,6 +237,78 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
             ShowResult(e, 'failure');
         }
     };
+
+    $scope.ModelNew = {
+        TableColumn:null,
+        DataType:null,
+        NullAble:"NULL"
+    }
+
+    $scope.TableColumnList = [];
+    cboService.getEnumCbo('Enum/GetTableColumnEnumCbo', function (result) {
+        $scope.TableColumnList = result;
+    });
+
+    $scope.DataTypeList = [];
+    cboService.getEnumCbo('Enum/GetDataTypeEnumCbo', function (result) {
+        $scope.DataTypeList = result;
+    });
+
+    $scope.SaveBPTableColumn = function () {
+        try {
+            $http({
+                method: 'post',
+                url: 'Setups/BusinessProcess/SaveAlterBPTable',
+                data: { 'BusinessProcess': $scope.brandNew.BusinessProcessName, 'columnName': $scope.ModelNew.TableColumn, 'dataType': $scope.ModelNew.DataType, 'nullable': $scope.ModelNew.NullAble },
+                dataType: 'json'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.DeleteBPTableColumn = function () {
+        try {
+            $http({
+                method: 'post',
+                url: 'Setups/BusinessProcess/DropAlterBPTable',
+                data: { 'BusinessProcess': $scope.brandNew.BusinessProcessName, 'columnName': $scope.ModelNew.TableColumn },
+                dataType: 'json'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.tablecolList = [];
+    $scope.GetBusinessProcessDataTable = function (bp) {
+     
+        $scope.tablecolList = [];
+        $http({
+            method: 'GET',
+            url: 'Setups/BusinessProcess/GetBusinessProcessDataTable?businessProcess=' + bp,
+        }).then(function successCallback(response) {
+            $scope.tablecolList = response.data;
+        })
+    }
 
     // #region Tab
 

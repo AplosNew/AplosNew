@@ -315,7 +315,7 @@ var tpanelApp = angular.module('tpanelApp', ['ngRoute', 'ngCookies', 'angularUti
             $("#dialogMessage").ejDialog("setTitle", headerText);
             $("#dialogMessage").ejDialog("open");
         }
-        $rootScope.MyTeacheruserImage = virtualPath.EmployeePic;
+        $rootScope.MyAppuserImage = virtualPath.EmployeePic;
     }])
     .filter('safecontent', safecontent)
     .filter('dateFiltering', dateFiltering)

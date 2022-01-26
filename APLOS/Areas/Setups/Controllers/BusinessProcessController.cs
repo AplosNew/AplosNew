@@ -73,17 +73,17 @@ namespace Aplos.Areas.Setups.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public JsonResult GetDynamicColList(string businessProcessId)
         {
             try
             {
-               string  sql= @"SELECT * FROM dbo.FabricRollManagementColSetting Where ISNULL(BusinessProcessId,'"+businessProcessId+ "')='" + businessProcessId + "'";
-                return Json(_sqlRepository.GetDataCollection(sql),JsonRequestBehavior.AllowGet);
+                string sql = @"SELECT * FROM dbo.FabricRollManagementColSetting Where ISNULL(BusinessProcessId,'" + businessProcessId + "')='" + businessProcessId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-              throw ex;
+                throw ex;
             }
         }
 
@@ -92,11 +92,11 @@ namespace Aplos.Areas.Setups.Controllers
         {
             try
             {
-              
+
                 SaveData(funds, BusinessProcessId);
 
 
-                return Json(new {Message = AplosMessage.Insert });
+                return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -122,11 +122,11 @@ namespace Aplos.Areas.Setups.Controllers
             string id = string.Empty;
             try
             {
-                
+
                 #region FUND 
 
                 DataSet dsChild;
-               
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.FabricRollManagementColSetting where  BusinessProcessId='" + BusinessProcessId + "'", out dsChild, false, "1");
                 #region data update
@@ -218,21 +218,21 @@ namespace Aplos.Areas.Setups.Controllers
 
         public JsonResult GetQueryResult()
         {
-            string sql=null;
+            string sql = null;
             return new JsonResult
             {
                 ContentEncoding = Encoding.UTF8,
                 ContentType = "application/json;",
                 Data = _sqlRepository.GetDataCollection(sql),
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                
+
             };
         }
 
         public JsonResult SaveBPTable(string BusinessProcess)
         {
             string schema = "BPDT.";
-            string sql = @"CREATE TABLE "+schema+""+BusinessProcess+" (Id Varchar(30) primary key);";
+            string sql = @"CREATE TABLE " + schema + "" + BusinessProcess + " (Id Varchar(30) primary key, Sequence decimal(18,2) NULL, UserName varchar(50) NULL);";
             return new JsonResult
             {
                 ContentEncoding = Encoding.UTF8,
@@ -243,9 +243,27 @@ namespace Aplos.Areas.Setups.Controllers
             };
         }
 
-        public JsonResult SaveAlterBPTable(string BusinessProcess, string columnName, string dataType)
+
+        public JsonResult SaveAlterBPTable(string BusinessProcess, string columnName, string dataType, string nullable)
         {
-            string sql = @"ALTER TABLE 'BPDT." + BusinessProcess + "' ADD Column '"+ columnName + "' '"+dataType+"'";
+            string schema = "BPDT.";
+            if (dataType == "varchar30")
+            {
+                dataType = "varchar(30)";
+            }
+            if (dataType == "varchar90")
+            {
+                dataType = "varchar(90)";
+            }
+            if (dataType == "varchar250")
+            {
+                dataType = "varchar(250)";
+            }
+            if (dataType == "DECIMAL")
+            {
+                dataType = "decimal(18,4)";
+            }
+            string sql = @"ALTER TABLE " + schema + "" + BusinessProcess + " ADD " + columnName + " " + dataType + " " + nullable + "";
             return new JsonResult
             {
                 ContentEncoding = Encoding.UTF8,
@@ -255,5 +273,79 @@ namespace Aplos.Areas.Setups.Controllers
 
             };
         }
+
+        //private void SaveBusinessProcessDataTableColumnCreationData(string BusinessProcessId,string columnName, string dataType, string nullable)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    ConnectionManager.DAL.ConManager objCon;
+        //    try
+        //    {
+
+        //        #region FUND 
+
+        //        DataSet dsChild;
+
+        //        objCon = new ConnectionManager.DAL.ConManager("1");
+        //        objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.BusinessProcessDataTableColumnCreation where  Id=''", out dsChild, false, "1");
+        //        #region data save&update
+        //        DataView dv = new DataView(dsChild.Tables[0]);
+        //        dv.RowFilter = "Id='""'";
+
+        //        if (dv.Count == 0)
+        //        {
+        //            item["Id"] = GetPK();
+        //            item["BusinessProcessId"] = BusinessProcessId;
+
+        //            AddNewRow(dsChild.Tables[0], item);
+        //        }
+        //        else
+        //        {
+        //            DataRow drmo = dv[0].Row;
+        //            EditRow(drmo, item);
+        //        }
+        //        #endregion
+
+        //        #endregion
+
+        //        clsStaticInfo obj = new clsStaticInfo();
+        //        obj.SaveDataSets(dsChild);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw (ex);
+        //    }
+        //}
+
+        public JsonResult DropAlterBPTable(string BusinessProcess, string columnName)
+        {
+            string schema = "BPDT.";
+            string sql = @"ALTER TABLE " + schema + "" + BusinessProcess + " DROP COLUMN " + columnName + "";
+            return new JsonResult
+            {
+                ContentEncoding = Encoding.UTF8,
+                ContentType = "application/json;",
+                Data = _sqlRepository.GetDataCollection(sql),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+
+            };
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetBusinessProcessDataTable(string businessProcess)
+        {
+            try
+            {
+                string schema = "BPDT.";
+                var _sql = @"SELECT * FROM " + schema + "" + businessProcess + "";
+                return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
 }
