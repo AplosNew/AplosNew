@@ -4416,7 +4416,7 @@ namespace Library.MaterialManagement.Inventory
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
-
+                    sql = @"";
                 }
                 return _sqlRepository.GetDataCollection(sql);
 
