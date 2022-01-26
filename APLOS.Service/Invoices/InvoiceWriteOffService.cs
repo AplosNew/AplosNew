@@ -64,7 +64,7 @@ namespace Library.Service.Invoices
         private readonly IInvoiceService _invoiceService;
         private readonly IRepositoryAsync<FinancingTypeGL> _financingTypeGLRepository;
         private readonly IRepositoryAsync<BankCharge> _bankChargeRepository;
-
+        private readonly IFinancingService _financingService;
 
         public InvoiceWriteOffService(
               IRepositoryAsync<InvoiceWriteOff> invoiceWriteOffRepository
@@ -96,6 +96,7 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<MultiplePayment> multiplePaymentRepository
             , IRepositoryAsync<FinancingTypeGL> financingTypeGLRepository
             , IRepositoryAsync<BankCharge> bankChargeRepository
+            , IFinancingService financingService
             ) : base(invoiceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
             _sqlRepository = sqlRepository;
@@ -126,6 +127,7 @@ namespace Library.Service.Invoices
             _multiplePaymentRepository = multiplePaymentRepository;
             _financingTypeGLRepository = financingTypeGLRepository;
             _bankChargeRepository = bankChargeRepository;
+            _financingService = financingService;
         }
 
         public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff)
@@ -3855,6 +3857,86 @@ namespace Library.Service.Invoices
                         });
                         totalCurrencyAmountDr += item.BaseDrAmount;// Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate,2);
                     }
+
+                    #region Loan Writeoff
+                    if(item.SourceType == "Loan")
+                    { 
+                    var financinWriteOff = new FinancingWriteOff
+                    {
+                        CompanyGroupId = voucherVM.CompanyGroupId,
+                        CompanyId = voucherVM.CompanyId,
+                        PlantId = voucherVM.PlantId,
+                        EntityId = voucherVM.EntityId,
+                        BankMasterId = voucherVM.BankMasterId,
+                        CashMasterId = voucherVM.CashMasterId,
+                        VoucherTypeId = voucherVM.VoucherTypeId,
+                        FinancingId = voucherVM.FinancingId,
+                        FinancingTypeId = item.FinancingTypeId,
+                        PartyId = null,
+                        PartyPlantId = null,
+                        PartyType = "Bank",
+                        CurrencyId = item.CurrencyId,
+                        Amount = voucherVM.Amount,
+                        VoucherDate = voucherVM.VoucherDate,
+                        PostingDate = voucherVM.PostingDate,
+                        DocDate = voucherVM.DocDate,
+                        DocRefNo = voucherVM.DocRefNo,
+                        Narration = voucherVM.Narration,
+                        SourceType = voucherVM.SourceType.ToString(),
+                        FiscalYearId = voucherVM.FiscalYearId,
+                        FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                        TaxYearId = voucherVM.TaxYearId,
+                        TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                        IsPark = voucherVM.IsPark
+                    };
+                    var financing = _financingService.FindFinancing(voucherVM.FinancingId);
+                    if (voucherVM.Amount > 0)
+                    {
+                        _financingService.InsertFinancingWriteOff(financinWriteOff);
+                        // INSERT INTO Financing TABLE
+                        financing.WrittenOffAmount += voucherVM.Amount;
+                        _financingService.UpdateFinancing(financing);
+
+                    }
+                    // INSERT INTO Voucher
+
+                   
+                    financinWriteOff.FinancingNo = voucher.VoucherNo;
+                    // Set to Financing
+                    financinWriteOff.VoucherId = voucher.Id;
+
+                    // INSERT INTO FinancingDetail
+                    var financingDetailWriteOff = new FinancingDetailWriteOff
+                    {
+                        Amount = voucherVM.Amount,
+                        FinancingWriteOffId = financinWriteOff.Id,
+                        FinancingId = financinWriteOff.FinancingId,
+                        FinancingDetailId = voucherVM.FinancingDetailId,
+                        WrittenOffAmount = voucherVM.Amount,
+                        BankMasterId = voucherVM.BankMasterId,
+                        CashMasterId = voucherVM.CashMasterId
+                    };
+
+
+                    //Update Financing Detail
+                    var gl = _financingTypeGLService.GetInvestmentGL(financing.CompanyId, financing.FinancingTypeId);
+                    var financingDetail = _financingService.FindFinancingDetail(voucherVM.FinancingDetailId);
+                    financingDetail.WrittenOffAmount += voucherVM.Amount;
+                    if (voucherVM.Amount > 0)
+                    {
+                        _financingService.UpdateFinancingDetail(financingDetail);
+                    }
+                    financingDetailWriteOff.GLGeneralInfoId = gl.LiabilityGLId;
+                    financingDetailWriteOff.BudgetMasterId = gl.LiabilityBudgetMasterId;
+                    financingDetailWriteOff.ActivityId = gl.LiabilityActivityId;
+
+                    if (voucherVM.Amount > 0)
+                    {
+                        _financingService.InsertFinancingWriteOffDetail(financinWriteOff, financingDetailWriteOff, 1);
+                        
+                    }
+                  }
+                    #endregion
 
                 }
 
