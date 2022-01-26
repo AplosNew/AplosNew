@@ -1,30 +1,24 @@
 ﻿using Library.Core;
+using Library.Model.Invoices;
 using System;
-using System.Xml.Serialization;
 
 namespace Library.Model.Inventory
 {
-    public class PurchaseReturnTax : BaseModel
+    public class GRNBOQMAP : BaseModel
     {
         #region Scalar Properties
 
         public string Id { get; set; }
 
-        public string PurchaseReturnDetailId { get; set; }
-        public string ServiceMasterId { get; set; } 
-        
-        public string TaxCategoryId { get; set; }
+        public InventoryReceiveDetail InventoryReceiveDetail { get; set; }
+        public string InventoryReceiveDetailId { get; set; }
+        public string BOQDetailId { get; set; }
+        public decimal TransactionQty { get; set; }
+        public decimal? BaseQty { get; set; }
+        public decimal POBOQQty { get; set; }
+        public string BaseUoMId { get; set; }
+        public string POUoMId { get; set; }
 
-        public string HSNCodeId { get; set; }
-        public decimal Percentage { get; set; }
-        public decimal TaxAmount { get; set; }
-
-        public PurchaseReturnService PurchaseReturnService { get; set; }  
-        public string PurchaseReturnServiceId { get; set; }
- 
-
-
-        public string PurchaseReturnId { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
@@ -64,11 +58,5 @@ namespace Library.Model.Inventory
 
         #endregion Audit Properties
 
-        #region Navigation Properties
-
-      
-        public string PODetailId { get; set; }
-       
-        #endregion Navigation Properties
     }
 }

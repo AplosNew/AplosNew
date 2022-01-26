@@ -1,10 +1,10 @@
 ﻿'use strict';
-TaxOpeningBalanceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'fileReader'];
-function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, fileReader) {
-    $rootScope.title = 'Tax Opening Balance';
+EmployeeIncomeTaxController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'fileReader'];
+function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, fileReader) {
+    $rootScope.title = 'Employee Income Tax';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'Payrolls/TaxOpeningBalance/';
+    $scope.path = 'Payrolls/EmployeeIncomeTax/';
     $scope.employee = [];
 
     //#region employee Load
@@ -37,7 +37,7 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
     $scope.setEmpData = function (obj) {
       
         var data = obj.data;
-
+        $scope.TaxPolicyName = null;
         $scope.EmployeeInfoModel.EmployeeCode = data.EmployeeCode;
         $scope.EmployeeInfoModel.EmpSystemID = data.SystemID;
         $scope.EmployeeInfoModel.EmployeeName = data.EmployeeName;
@@ -48,6 +48,7 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         $scope.EmployeeInfoModel.GenderID = data.GenderID;
         $scope.EmployeeInfoModel.Department = data.Department;
         $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
+        $scope.EmployeeIncomeTaxModel.EmpSystemId = data.SystemID;
         $scope.getData();       
         $scope.countDate();
         $scope.GetTaxPolicyList();
@@ -130,8 +131,8 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
             method: 'POST',
             url: $scope.path + "GetTaxPolicy",
             data: {
-                'Residence': $scope.OpeningBalanceModel.CityOfResidence,
-                'YearId': $scope.OpeningBalanceModel.TaxYearId,
+                'Residence': $scope.EmployeeIncomeTaxModel.CityOfResidence,
+                'YearId': $scope.EmployeeIncomeTaxModel.TaxYearId,
                 'Gender': $scope.EmployeeInfoModel.GenderID
             },
             dataType: 'JSON'
@@ -143,12 +144,13 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
     }
 
 
-    $scope.OpeningBalanceModel = {
+    $scope.EmployeeIncomeTaxModel = {
         Id: null,
         EmpSystemId: null,
         TaxYearId: null,
         TaxTypeId: null,
-        CityOfResidence: null
+        CityOfResidence: null,
+        CurrentAge:null
     }
     
     $scope.EmployeeListTemp = [];  
@@ -185,6 +187,9 @@ function TaxOpeningBalanceController(cboService, commonMessage, $scope, $rootSco
         $scope.DurationYear = age;
         $scope.DurationMonth = age_month;
 
+
+        $scope.EmployeeIncomeTaxModel.CurrentAge = $scope.DurationYear + " Year" +
+            $scope.DurationMonth + " Month";
     };
 
     //#endregion   

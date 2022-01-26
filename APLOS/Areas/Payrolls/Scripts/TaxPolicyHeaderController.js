@@ -789,8 +789,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     $scope.InvestDeductModel = {
         TaxTypeId: null,
         SystemId: null,
-        UserCode: null,
-        ItemApplicable: false,
+        UserCode: null,       
         TaxPolicyHeaderId: null,
         TaxSavingGroupId: null
     };
@@ -807,7 +806,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         IsDeduction: false,
         IsEarning: false,
         IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId,
-        Sequence: 0
+        Sequence: 0,
+        DocumentApplicable: false
     };
 
     // #endregion
@@ -818,8 +818,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.Action = 'Save';
         $scope.InvestDeductModel = {
             TaxTypeId: null,
-            SystemId: null,
-            ItemApplicable: false,
+            SystemId: null,            
             TaxPolicyHeaderId: $scope.Header.Id,
             UserCode: null,
             TaxSavingGroupId: null
@@ -840,6 +839,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             IsInvestment: false,
             IsDeduction: false,
             IsEarning: false,
+            DocumentApplicable: false,
             IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId            
         };
         $scope.GetSequenceItemChild();

@@ -3407,6 +3407,37 @@ namespace Library.Service.Accounts
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id
+UNION ALL
+					SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    0 DrAmount,
+                    0 CrAmount,
+                    0 DRcumulative,
+                    0 CRcumulative,
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                    VD.BudgetMasterId, BUD.UserName AS Budget,
+					A.UserName AS Activity,
+                    A.Id AS ActivityId
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND v.PostingDate between '" + fromDate + @"' and '" + toDate + @"' 
+                     AND A.Id NOT IN (SELECT VDA.ActivityId
+                                       FROM TRN.Voucher VA INNER JOIN TRN.VoucherDetail VDA ON VA.ID=VDA.VoucherId WHERE VA.PostingDate < '" + fromDate + @"')
+                    AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id";
 
                     return _sqlRepository.GetGridData(parameters).Source;
@@ -3441,6 +3472,39 @@ namespace Library.Service.Accounts
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName
+
+UNION ALL
+					
+					 SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    0 DrAmount,
+                    0 CrAmount,
+                    0 DRcumulative,
+                    0 CRcumulative,
+                   
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                    VD.BudgetMasterId, BUD.UserName AS Budget
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND  v.PostingDate between '" + fromDate + @"' and '" + toDate + @"' 
+                     AND A.Id NOT IN (SELECT VDA.ActivityId
+                                       FROM TRN.Voucher VA INNER JOIN TRN.VoucherDetail VDA ON VA.ID=VDA.VoucherId WHERE VA.PostingDate < '" + fromDate + @"')
+                    AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
+                  --  ,v.PostingDate
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
 
                     return _sqlRepository.GetGridData(parameters).Source;
@@ -3472,6 +3536,39 @@ namespace Library.Service.Accounts
                     LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
                     LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                     where act.IsBalanceSheet=0 AND v.PostingDate < '" + fromDate + @"' AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
+                  --  ,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id
+
+
+	UNION ALL
+					
+				    SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    0 DrAmount,
+                    0 CrAmount,
+                    0 DRcumulative,
+                    0 CRcumulative,
+                    
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND v.PostingDate between '" + fromDate + @"' and '" + toDate + @"' 
+                     AND A.Id NOT IN (SELECT VDA.ActivityId
+                                       FROM TRN.Voucher VA INNER JOIN TRN.VoucherDetail VDA ON VA.ID=VDA.VoucherId WHERE VA.PostingDate < '" + fromDate + @"')
+                     AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"'
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
@@ -3586,7 +3683,7 @@ namespace Library.Service.Accounts
                 }
                 else if (isActivityLevel && !isBudgetLevel)
                 {
-                    strSql = @"                   
+                    strSql = @"                
                     SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
                     VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
                     

@@ -10,22 +10,22 @@ using Library.HumanResource.Payroll.Tax;
 namespace Aplos.Areas.Payrolls.Controllers
 {
 
-    public class TaxOpeningBalanceController : BaseController
+    public class EmployeeIncomeTaxController : BaseController
     {
 
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
         private readonly IEmployeeProfileService _employeeProfileService;
-        
-        TaxOpeningBalanceService tob = new TaxOpeningBalanceService();
+
+        EmployeeIncomeTaxService eit = new EmployeeIncomeTaxService();
 
 
-        public TaxOpeningBalanceController(ISqlRepository R, IEmployeeProfileService employeeProfileService)
+        public EmployeeIncomeTaxController(ISqlRepository R, IEmployeeProfileService employeeProfileService)
         {
             _sqlRepository = R;
             _employeeProfileService = employeeProfileService;
-            tob = new TaxOpeningBalanceService();
+            eit = new EmployeeIncomeTaxService();
         }
        
         public ActionResult Aplos()
@@ -40,7 +40,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         public ActionResult GetEmployeeList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            JsonResult json = Json(tob.GetEmployeeList(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(eit.GetEmployeeList(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -64,7 +64,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                return Json(tob.GetIncomeTaxType(), JsonRequestBehavior.AllowGet);
+                return Json(eit.GetIncomeTaxType(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -77,7 +77,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                return Json(tob.GetTaxPolicy(Residence,YearId,Gender), JsonRequestBehavior.AllowGet);
+                return Json(eit.GetTaxPolicy(Residence,YearId,Gender), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
