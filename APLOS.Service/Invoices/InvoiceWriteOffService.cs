@@ -3870,7 +3870,7 @@ namespace Library.Service.Invoices
                         BankMasterId = voucherVM.BankMasterId,
                         CashMasterId = voucherVM.CashMasterId,
                         VoucherTypeId = voucherVM.VoucherTypeId,
-                        FinancingId = voucherVM.FinancingId,
+                        FinancingId = item.FinancingId,
                         FinancingTypeId = item.FinancingTypeId,
                         PartyId = null,
                         PartyPlantId = null,
@@ -3889,7 +3889,7 @@ namespace Library.Service.Invoices
                         TaxYearPeriodId = voucherVM.TaxYearPeriodId,
                         IsPark = voucherVM.IsPark
                     };
-                    var financing = _financingService.FindFinancing(voucherVM.FinancingId);
+                    var financing = _financingService.FindFinancing(item.FinancingId);
                     if (voucherVM.Amount > 0)
                     {
                         _financingService.InsertFinancingWriteOff(financinWriteOff);
@@ -3911,7 +3911,7 @@ namespace Library.Service.Invoices
                         Amount = voucherVM.Amount,
                         FinancingWriteOffId = financinWriteOff.Id,
                         FinancingId = financinWriteOff.FinancingId,
-                        FinancingDetailId = voucherVM.FinancingDetailId,
+                        FinancingDetailId = item.FinancingDetailId,
                         WrittenOffAmount = voucherVM.Amount,
                         BankMasterId = voucherVM.BankMasterId,
                         CashMasterId = voucherVM.CashMasterId
@@ -3920,7 +3920,7 @@ namespace Library.Service.Invoices
 
                     //Update Financing Detail
                     var gl = _financingTypeGLService.GetInvestmentGL(financing.CompanyId, financing.FinancingTypeId);
-                    var financingDetail = _financingService.FindFinancingDetail(voucherVM.FinancingDetailId);
+                    var financingDetail = _financingService.FindFinancingDetail(item.FinancingDetailId);
                     financingDetail.WrittenOffAmount += voucherVM.Amount;
                     if (voucherVM.Amount > 0)
                     {
