@@ -2738,5 +2738,10 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         return true;
     };
 
+    $scope.SalesInvoiceReport = function (data) {
+        location.href = "Sales/SalesInvoice?salesId=" + data.Id;
+    };
+
+
 
 }

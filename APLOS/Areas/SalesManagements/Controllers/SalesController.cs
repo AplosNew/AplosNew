@@ -315,7 +315,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
             return View();
         }
+        [Authorize, HttpGet]
+        public ActionResult SalesInvoice(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+            _salesReportService.SalesInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
+
+            return View();
+        }
 
         #endregion
 

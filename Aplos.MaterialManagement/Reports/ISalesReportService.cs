@@ -8,5 +8,6 @@ namespace Library.MaterialManagement.Reports
         void GetSalesWordReportService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
        void LocalTaxInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
         void CommercialInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
+        void SalesInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
     }
 }
