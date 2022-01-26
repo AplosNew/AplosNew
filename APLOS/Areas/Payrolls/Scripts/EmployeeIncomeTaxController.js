@@ -140,9 +140,9 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             $scope.TaxPolicyList = [];
             $scope.TaxPolicyList = response.data;
             $scope.TaxPolicyName = response.data[0].PolicyHeaderName;
+            $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId = response.data[0].PolicyHeaderId;
         });
     }
-
 
     $scope.EmployeeIncomeTaxModel = {
         Id: null,
@@ -150,13 +150,15 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         TaxYearId: null,
         TaxTypeId: null,
         CityOfResidence: null,
-        CurrentAge:null
+        CurrentAge: null,
+        TaxPolicyHeaderId: null
     }
     
     $scope.EmployeeListTemp = [];  
     $scope.TaxPolicyName = null;
 
     //#region AGE CALCUALTE
+
     $scope.DurationYear = 0;
     $scope.DurationMonth = 0;
     $scope.countDate = function () {
@@ -193,4 +195,5 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     };
 
     //#endregion   
+
 }
