@@ -43,7 +43,7 @@ function ppanelLoginController($scope, $rootScope, $routeParams, $http, $filter,
                         $cookies.put("MyParentsplantName", response.data.result.PlantName);
                         $cookies.put("MyParentsemployeeName", response.data.result.EmployeeName);
 
-                        $cookies.put("MyParentsuserImage", response.data.profile.EmpPicPath);
+                        $cookies.put("MyAppuserImage", response.data.profile.EmpPicPath);
                         $window.location = 'ppanel#!/teacher-schedule';
                     }
                 }
