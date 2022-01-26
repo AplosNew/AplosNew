@@ -816,6 +816,7 @@ var upanelApp = angular
     .controller("OSTransformationPOController", OSTransformationPOController)
     .controller("ProfessionalTaxOBController", ProfessionalTaxOBController)
     .controller("TaxOBController", TaxOBController)
+    .controller("EmployeeIncomeTaxController", EmployeeIncomeTaxController)
     .controller("LateDeductionController", LateDeductionController)
     .controller("EmployeeDayStatusReportController", EmployeeDayStatusReportController)
     .controller("VoucherController", VoucherController)

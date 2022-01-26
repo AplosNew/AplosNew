@@ -665,6 +665,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 				//}
 
 				if ($scope.Action === "Save") {
+					$scope.inventoryMaterialListPOnew = [];
 					for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
 						if ($scope.inventoryMaterialList[i].check == true) {
 							$scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialList[i]);
@@ -712,44 +713,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 					
 				}
 				else if ($scope.Action === "Update") {
-					//$scope.product.Id = $scope.POReturnNo;
-					//for (var i3 = 0; i3 < $scope.inventoryMaterialList.length; i3++) {
-					//	if ($scope.inventoryMaterialList[i3].check == true) {
-					//		$scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialList[i3]);
-					//	}
-					//	else {
-
-					//	}
-					//}
-
-					//$http({
-					//	method: 'POST',
-					//	url: $scope.saveUrl,
-					//	data:
-					//	{
-					//		'entity': $scope.product,
-					//		'entityMatAndImat': $scope.inventoryMaterialListPOnew,
-					//		'receiveTaxList': $scope.POMaterialTaxList,
-					//		'GRNType': 'Update',
-					//		'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
-					//		'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
-					//	},
-					//	dataType: 'JSON'
-					//}).then(function successCallback(response) {
-					//	if (response.data.Error === true) {
-					//		ShowResult(response.data.Message, 'failure');
-					//	}
-					//	else {
-					//		ShowResult(response.data.Message, 'success');
-					//		$scope.setTabGRNList(1);
-					//		$scope.getalldataMaster();
-					//		$scope.PurchaserReturnListDetails();
-
-
-					//	}
-					//}, function errorCallBack(response) {
-					//	ShowResult(response.data.Message, 'failure');
-					//});
+					
 				}
 			}
 		} catch (e) {

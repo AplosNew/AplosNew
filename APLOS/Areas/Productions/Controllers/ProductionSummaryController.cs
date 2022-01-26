@@ -76,6 +76,11 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(_ProductionSummaryService.GetCharacteristicsValueCbo(soid), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetCharacteristicsValueByPrOCbo(string soid)
+        {
+            return Json(_ProductionSummaryService.GetCharacteristicsValueByPrOCbo(soid), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetLotNumberCbo(string SalesOrderId, string ProductionOrderId, string ProcessId, string productionLevel)
@@ -226,6 +231,11 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetChar1Info(string masterid, string soid)
         {
             return Json(_ProductionSummaryService.GetChar1Info(masterid, soid), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetChar1InfobyPrO(string masterid, string soid)
+        {
+            return Json(_ProductionSummaryService.GetChar1InfobyPrO(masterid, soid), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetLineItemGrid(string entityid, string processid, string workdate, string shiftid, string wcid, string ProductionLevel)
@@ -405,22 +415,22 @@ namespace Aplos.Areas.Productions.Controllers
 
                 }
 
-                if (IsFirst == true && status == "INVENTORY")
-                {
-                    var wipData = _productionSummaryData.GetWIPQtyValidation(ps.Id, ps.EntityId, processId, ps.WorkCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed);
+                //if (IsFirst == true && status == "INVENTORY")
+                //{
+                //    var wipData = _productionSummaryData.GetWIPQtyValidation(ps.Id, ps.EntityId, processId, ps.WorkCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed);
 
-                    if (wipData != null)
-                    {
-                        decimal InQ = Convert.ToDecimal(wipData["InQuantity"].ToString());
-                        decimal OutQ = Convert.ToDecimal(wipData["OutQuantity"].ToString());
+                //    if (wipData != null)
+                //    {
+                //        decimal InQ = Convert.ToDecimal(wipData["InQuantity"].ToString());
+                //        decimal OutQ = Convert.ToDecimal(wipData["OutQuantity"].ToString());
 
-                        if (InQ - (OutQ + ps.Quantity) < 0)
-                        {
-                            throw new Exception("Total out quantity is greater than total in quantity.");
-                        }
-                    }
+                //        if (InQ - (OutQ + ps.Quantity) < 0)
+                //        {
+                //            throw new Exception("Total out quantity is greater than total in quantity.");
+                //        }
+                //    }
 
-                }
+                //}
 
 
 
