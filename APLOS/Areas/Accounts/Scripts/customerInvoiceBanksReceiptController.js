@@ -679,6 +679,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
                 getRow = $filter("filter")($scope.bankDetailList, { "BankMasterId": bank.BankMasterId });
                 if (getRow.length === 0) {
                     $scope.bankDetail = {};
+                    $scope.bankDetail.SourceType = "Bank";
                     $scope.bankDetail.AccountTitle = bank.AccountTitle;
                     $scope.bankDetail.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
                     $scope.bankDetail.BankMasterId = bank.BankMasterId;
@@ -692,7 +693,11 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
                     $scope.bankDetail.ActivityName = bank.ActivityName;
                     $scope.bankDetail.BankCurrencyId = bank.CurrencyId;
                     $scope.bankDetail.CurrencyCode=$scope.voucher.CurrencyCode;
-                    $scope.bankDetail.BankCurrencyCode=bank.CurrencyCode;
+                    $scope.bankDetail.BankCurrencyCode = bank.CurrencyCode;
+                    $scope.bankDetail.FinancingId = "";
+                    $scope.bankDetail.FinancingDetailId = "";
+                    $scope.bankDetail.FinancingTypeId = "";
+                    $scope.bankDetail.Balance = 0;
                     $scope.bankDetail.Amount = null;
                     $scope.bankDetail.BaseDrAmount = null;
                     $scope.bankDetailList.push($scope.bankDetail);
@@ -1206,6 +1211,121 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
 
+    $scope.loanDataList = [];
+    $scope.getPopUpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/Loan/GetLoanPopUpListForSalesRealization?transactionType=' + "LoanTaken"
+        }).then(function successCallback(response) {
+            $scope.loanDataList = response.data;
+            for (var i = 0; i < $scope.loanDataList.length; i++) {
+                response.data[i].PostingDateNew = new Date($scope.loanDataList[i].PostingDateNew);
+                response.data[i].DocDate = new Date($scope.loanDataList[i].DocDate);
+            }
+        });
+    };
+    $scope.showloanPopUp = function () {
+        $scope.getPopUpData();
+        angular.element(document.querySelector('#loanPopUp')).modal('show');
+    };
+    $scope.closeloanPopUp = function () {
+        angular.element(document.querySelector("#loanPopUp")).modal("hide");
+    };
+    $scope.closeloanPopUpSelected = function (x) {
+        var bank = x.data;
+            if (baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+                ShowResult("Please Select Currency !", "failure", "loanPopUp");
+                return;
+            }
+            if (baseService.isUndefinedOrNull(bank.GLGeneralInfoId)) {
+                ShowResult("Bank GL not found!", "failure", "loanPopUp");
+                return;
+            }
+            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(bank.BudgetMasterId)) {
+                ShowResult("Bank Budget not found!", "failure", "loanPopUp");
+                return;
+            }
+            else if (baseService.isUndefinedOrNull(bank.CurrencyId)) {
+                ShowResult("Bank Transaction Currency not found!", "failure", "loanPopUp");
+                return;
+            }
+            else if ($scope.voucher.CurrencyId != bank.CurrencyId) {
+                ShowResult("Please Select same Currency Loan!", "failure", "loanPopUp");
+                return;
+            }
+            else {
+                var getRow = null;
+                getRow = $filter("filter")($scope.bankDetailList, { "BankMasterId": bank.BankMasterId });
+                if (getRow.length === 0) {
+                    $scope.bankDetail = {};
+                    $scope.bankDetail.SourceType = "Loan";
+                    $scope.bankDetail.AccountTitle = bank.AccountTitle;
+                    $scope.bankDetail.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
+                    $scope.bankDetail.BankMasterId = bank.BankMasterId;
+                    $scope.bankDetail.BankCurrencyId = bank.CurrencyId;
+
+                    $scope.bankDetail.GLGeneralInfoId = bank.GLGeneralInfoId;
+                    $scope.bankDetail.GLGeneralInfoName = "";
+                    $scope.bankDetail.BudgetMasterId = bank.BudgetMasterId;
+                    $scope.bankDetail.BudgetName = "";
+                    $scope.bankDetail.ActivityId = bank.ActivityId;
+                    $scope.bankDetail.ActivityName = "";
+                    $scope.bankDetail.BankCurrencyId = bank.CurrencyId;
+                    $scope.bankDetail.CurrencyCode = $scope.voucher.CurrencyCode;
+                    $scope.bankDetail.BankCurrencyCode = bank.CurrencyCode;
+                    $scope.bankDetail.FinancingId = bank.FinancingId;
+                    $scope.bankDetail.FinancingDetailId = bank.FinancingDetailId;
+                    $scope.bankDetail.FinancingTypeId = bank.FinancingTypeId;
+                    $scope.bankDetail.Balance = bank.Balance;
+                    $scope.bankDetail.Amount = null;
+                    $scope.bankDetail.BaseDrAmount = null;
+                    $scope.bankDetailList.push($scope.bankDetail);
+                    $scope.checkBankAmount();
+                   
+                }
+                else {
+                    ShowResult(bank.AccountTitle + " already  Exist", "failure", "loanPopUp");
+                }
+            }
+        
+        //$scope.voucher.FinancingId = data.FinancingId;
+        //$scope.voucher.FinancingDetailId = data.FinancingDetailId;
+        //$scope.voucher.FinancingTypeId = data.FinancingTypeId;
+        //$scope.voucher.VoucherNo = data.VoucherNo;
+        //$scope.voucher.PartyName = data.Particulars;
+        //$scope.voucher.PartyId = data.PartyId;
+        //$scope.voucher.PartyType = data.PartyType;
+        //$scope.voucher.PartyPlantName = data.PartyPlantName;
+        //$scope.voucher.CurrencyId = data.CurrencyId;
+        //$scope.voucher.CurrencyCode = data.CurrencyCode;
+        //$scope.voucher.EntityId = data.EntityId;
+        //$scope.voucher.CompanyId = data.CompanyId;
+        //$scope.voucher.PlantId = data.PlantId;
+        //$scope.voucher.LoanAmount = data.LoanAmount;
+        //$scope.voucher.LoanSetOff = data.LoanPayment;
+        //$scope.voucher.InitialSactionAmount = data.InitialSactionAmount;
+        //$scope.voucher.AdditionalLoanAmount = data.AdditionalLoanAmount;
+        //$scope.voucher.TotalInterestPayableAmount = data.InterestAmount;
+        //$scope.voucher.InterestAmount = data.InterestAmount - data.OtherExpensesPayable;
+        //$scope.voucher.OtherExpensesPayable = data.OtherExpensesPayable;
+        //$scope.voucher.Balance = data.Balance;
+        //$scope.voucher.LoanDocRefNo = data.DocRefNo;
+        //$scope.voucher.LoanPostingDate = data.PostingDate;
+        //$scope.voucher.LoanDocDate = data.DocDateNew;
+        //$scope.voucher.InterestWriteOff = data.InterestWriteOff;
+        //$scope.voucher.InterestBalance = data.InterestBalance;
+        //$scope.voucher.InterestCashPayment = data.InterestCashPayment;
+
+        //$scope.voucher.OtherBankMasterId = data.OtherBankMasterId;
+        //$scope.voucher.ToCurrencyRate = data.CompanyCurrencyRate;
+        //$scope.getPartyPlantList(data.PartyId);
+        //$scope.voucher.PartyPlantId = data.PartyPlantId;
+        //$scope.voucher.TotalAmount = '';
+        //$scope.voucher.InterestPaymentAmount = '';
+        //$scope.voucher.InterestCashAmount = '';
+        //$scope.GetCurrencyExchangeRateList();
+        angular.element(document.querySelector("#loanPopUp")).modal("hide");
+    };
 
     //$scope.getvouchardetailjs = function (obj) {
     //    var reportformat = "pdf";

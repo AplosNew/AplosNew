@@ -3908,11 +3908,7 @@ namespace Library.MaterialManagement.Inventory
                     itemDetail.PlantId = identity.PlantId;
                     Temppodetailid = itemDetail.InventoryReceiveDetailId;
                     itemDetail.IsNonCreditable = entity.IsNonCreditable;
-                    //if (CheckItemExist(itemDetail))
-                    //	throw new CustomException(itemDetail.MaterialMasterName + " already received");
-
-                    //ResetCurrencyRate(itemDetail);
-
+                   
                     if (itemDetail.IsNotNull())
                     {
 
@@ -4024,30 +4020,7 @@ namespace Library.MaterialManagement.Inventory
                             itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
 
                         }
-                        //if (itemDetail.PurchaseDocumentAcceptanceId == null && itemDetail.PurchaseDocumentAcceptanceDetailId == null)
-                        //{
-
-                        //	var poDetail = _poDetailRepository.Query(r => r.Id == itemDetail.PODetailsID).Select().FirstOrDefault();
-                        //	if (poDetail == null)
-                        //		throw new CustomException("PO Details Or Inventory Details not found!");
-
-
-                        //	poDetail.GRNRcvQty += itemDetail.TransactionQty;
-                        //	if (poDetail.TransactionQty < poDetail.GRNRcvQty)
-                        //		throw new CustomException("Received Qty can not cross balance Qty.");
-                        //	//poDetail.QtyStatus = poDetail.BaseQty == poDetail.GRNRcvQty;
-
-                        //	AuditService.UpdatedLog(poDetail);
-                        //	_poDetailRepository.Update(poDetail);
-
-                        //}
-
-
-
-
-                        // Insert in receive detail
-                        //if (string.IsNullOrEmpty(itemDetail.Id))
-                        //{
+                        
                         var NewId = entity.Id + "-";
                         if (entity.GRNType == "Save")
                         {
@@ -4063,46 +4036,6 @@ namespace Library.MaterialManagement.Inventory
                             itemDetail.InventoryReceiveDetailId = itemDetail.InventoryServiceId;
 
                         }
-
-                        //decimal totalIssuedAmount = Convert.ToDecimal(_PurchaseReturnDetailRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(ISH.TotalBaseAmount),0)+isnull(sum(PR.TotalMaterialTranAmount),0)+isnull(sum(PSAH.TotalAmount),0)+isnull(sum(IIH.TotalAmount),0)+isnull(sum(InvS.TotalAmount),0)) -isnull(sum(IIR.TotalAmount),0)) 
-                        //																										FROM TRN.InventoryReceiveDetail IRD
-                        //																										left join trn.InventorySalesHistory ISH ON ISH.InventoryReceiveDetailId=IRD.Id
-                        //																										LEFT JOIN trn.PurchaseReturnDetail PR ON PR.InventoryReceiveDetailId=IRD.Id
-                        //																										LEFT JOIN trn.PhysicalStockAdjustmentHistory PSAH ON PSAH.InventoryReceiveDetailId=IRD.Id
-                        //																										LEFT join [TRN].[InventoryIssueHistory] IIH ON IIH.InventoryReceiveDetailId=IRD.Id
-                        //																										LEFT JOIN TRN.InventoryScrapHistory InvS ON InvS.InventoryReceiveDetailId=IRD.Id
-                        //																										LEFT join TRN.InventoryIssueReturnHistory IIR ON IIR.InventoryReceiveDetailId=IRD.Id
-                        //																									    WHERE  IRD.Id='" + itemDetail.InventoryReceiveDetailId + "'").FirstOrDefault());
-
-
-
-                        //if (itemDetail.TransactionUoMId == entityMat.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId).Select(t => t.TransactionUoMId).FirstOrDefault())
-                        //{
-                        //	detailtrnAmount = Convert.ToDecimal((itemDetail.TotalMaterialTranAmount - totalIssuedAmount) - (((itemDetail.TransactionQty - (itemDetail.IssueQty + itemDetail.PurchaseReturnQty + itemDetail.ReductionByAdjustmentQty + itemDetail.InventorySalesQty + itemDetail.InventoryScrapQty) - itemDetail.IssueReturnQty) - itemDetail.RequisitionQty) * (itemDetail.TotalMaterialTranAmount / itemDetail.TransactionQty)));
-                        //	var newgrn = new InventoryIssueHistory
-                        //	{
-                        //		TotalAmount = Convert.ToDecimal((itemDetail.TotalMaterialTranAmount - totalIssuedAmount) - (((itemDetail.TransactionQty - (itemDetail.IssueQty + itemDetail.PurchaseReturnQty + itemDetail.ReductionByAdjustmentQty + itemDetail.InventorySalesQty + itemDetail.InventoryScrapQty) - itemDetail.IssueReturnQty) - itemDetail.RequisitionQty) * (itemDetail.TotalMaterialTranAmount / itemDetail.TransactionQty))),
-                        //		InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId
-                        //	};
-                        //	GRNCalculateList.Add(newgrn);
-
-
-                        //	totalGRNQty = Convert.ToDecimal(itemDetail.RequisitionQty);
-
-                        //}
-                        //else
-                        //{
-                        //	detailtrnAmount = Convert.ToDecimal(itemDetail.MaterialTranAmount - ((((itemDetail.TransactionQty - (itemDetail.IssueQty + itemDetail.PurchaseReturnQty + itemDetail.ReductionByAdjustmentQty + itemDetail.InventorySalesQty + itemDetail.InventoryScrapQty) - itemDetail.IssueReturnQty) * itemDetail.BaseUoMFactor) - itemDetail.RequisitionQty) * (itemDetail.TotalMaterialTranAmount / itemDetail.TransactionQty)));
-                        //	var newgrn = new InventoryIssueHistory
-                        //	{
-                        //		TotalAmount = Convert.ToDecimal(itemDetail.MaterialTranAmount - ((((itemDetail.TransactionQty - (itemDetail.IssueQty + itemDetail.PurchaseReturnQty + itemDetail.ReductionByAdjustmentQty + itemDetail.InventorySalesQty + itemDetail.InventoryScrapQty) - itemDetail.IssueReturnQty) * itemDetail.BaseUoMFactor) - itemDetail.RequisitionQty) * (itemDetail.TotalMaterialTranAmount / itemDetail.TransactionQty))),
-                        //		InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId
-                        //	};
-                        //	GRNCalculateList.Add(newgrn);
-                        //	totalGRNQty = Convert.ToDecimal(itemDetail.RequisitionQty);
-                        //}
-
-
 
                         var receiveDetail = new PurchaseReturnDetail
                         {
@@ -4134,33 +4067,10 @@ namespace Library.MaterialManagement.Inventory
                             TrnCurrencyBaseRate = Math.Round(Convert.ToDecimal(itemDetail.TrnCurrencyBaseRate), 4),
                             BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(itemDetail.BooksCurrencyBaseRate), 4),
                             CountryId = itemDetail.CountryId,
-                            //POId = itemDetail.POID,
-                            //PODetailsId = itemDetail.PODetailsID,
-                            //BaseIssueQty = itemDetail.BaseIssueQty,
-                            //ShortageQty = 0,
-                            //RejectionQty = 0,
-                            //ApprovedQty = 0,
-                            //ShortageRatePercent = 0,
-                            //ShortageValue = 0,
-                            //RejectRatePercent = 0,
-                            //RejectValue = 0,
-                            //RejectClamPercent = 0,
-                            //RequisitionId = itemDetail.RequisitionId,
-                            //RequisitionDetailId = itemDetail.RequisitionDetailId,
                             Description = itemDetail.Description,
-                            //ShortRejFlag = itemDetail.ShortRejFlag,
-                            //PostDrGLGeneralInfoId = itemDetail.MaterialMasterId,
-                            //PostDrBudgetMasterId = itemDetail.MaterialMasterId,
-                            //PostDrActivityId = itemDetail.MaterialMasterId,
-                            //PostCRGLGeneralInfoId = itemDetail.MaterialMasterId,
-                            //PostCRBudgetMasterId = itemDetail.PostCRBudgetMasterId,
-                            //PostCRActivityId = itemDetail.PostCRActivityId,
-                            //CapitalizeVoucherDetailId = itemDetail.CapitalizeVoucherDetailId,
                             IsAsset = false,
                             InventoryReceiveId = entity.InventoryReceiveId,
                             InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId,
-                            //PurchaseDocumentAcceptanceId = itemDetail.PurchaseDocumentAcceptanceId,
-                            //PurchaseDocumentAcceptanceDetailId = itemDetail.PurchaseDocumentAcceptanceDetailId,
                             InventoryMaterialId = itemDetail.InventoryMaterialId
                         };
                         try
@@ -4207,24 +4117,19 @@ namespace Library.MaterialManagement.Inventory
                         {
 
                         }
-                        //}
                     }
-
-                    // insert in receive tax
 
                     if (taxCategoryList.IsNotNull())
                     {
                         if (string.IsNullOrEmpty(itemDetail.Id))
                         {
-                            //var currentId = 0;
-                            //var currentId = _PurchaseReturnTaxRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseReturnTax] WHERE PurchaseReturnDetailId='{grndId}'").First();
                             foreach (var item in taxCategoryList.Where(r => r.PODetailId == Temppodetailid))//
                             {
                                 //currentId++;
                                 item.Id = GetPurchaseReturnTaxPK();
                                 item.PurchaseReturnId = entity.Id;//itemDetail.InventoryReceiveId;
                                 item.PurchaseReturnDetailId = grndId;
-                                item.InventoryServiceId = null;
+                                item.PurchaseReturnServiceId = null;
                                 item.TaxAmount = Math.Round(Convert.ToDecimal(item.TaxAmount), 2);
                                 AuditService.AddedLog(item);
                                 _PurchaseReturnTaxRepository.Insert(item);
@@ -4232,15 +4137,13 @@ namespace Library.MaterialManagement.Inventory
                         }
                         else
                         {
-                            //var currentId = 0;
-                            //var currentId = _PurchaseReturnTaxRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseReturnTax] WHERE PurchaseReturnDetailId='{grndId}'").First();
                             foreach (var item in taxCategoryList.Where(r => r.PODetailId == Temppodetailid))//
                             {
                                 //currentId++;
                                 item.Id = item.Id;
                                 item.PurchaseReturnId = entity.Id;//itemDetail.InventoryReceiveId;
                                 item.PurchaseReturnDetailId = grndId;
-                                item.InventoryServiceId = null;
+                                item.PurchaseReturnServiceId = null;
                                 item.TaxAmount = Math.Round(Convert.ToDecimal(item.TaxAmount), 2);
                                 AuditService.UpdatedLog(item);
                                 _PurchaseReturnTaxRepository.Update(item);
@@ -4248,10 +4151,6 @@ namespace Library.MaterialManagement.Inventory
                         }
 
                     }
-
-
-
-
                 }
 
                 #region Service
@@ -4278,14 +4177,14 @@ namespace Library.MaterialManagement.Inventory
                             _PurchaseReturnServiceRepository.Insert(service);
                             if (ServicetaxCategoryList.IsNotNull())
                             {
-                                var crrId = _PurchaseReturnTaxRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseReturnTax] WHERE InventoryServiceId='{service.Id}'").First();
+                                var crrId = _PurchaseReturnTaxRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseReturnTax] WHERE PurchaseReturnServiceId='{service.Id}'").First();
                                 foreach (var item in ServicetaxCategoryList.Where(r => r.ServiceMasterId == service.ServiceMasterId))
                                 {
                                     crrId++;
                                     item.Id = GetPurchaseReturnTaxPK();// MakePK(service.Id, crrId, 2);
                                     item.PurchaseReturnId = entity.Id;
                                     item.PurchaseReturnDetailId = null;
-                                    item.InventoryServiceId = service.Id;
+                                    item.PurchaseReturnServiceId = service.Id;
                                     item.TaxAmount = Math.Round(Convert.ToDecimal(item.TaxAmount), 2);
 
                                     AuditService.AddedLog(item);
@@ -4439,7 +4338,7 @@ namespace Library.MaterialManagement.Inventory
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
-
+                    sql = @"";
                 }
                 return _sqlRepository.GetDataCollection(sql);
 

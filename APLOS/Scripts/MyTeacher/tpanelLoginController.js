@@ -43,7 +43,7 @@ function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter,
                         $cookies.put("MyTeacherplantName", response.data.result.PlantName);
                         $cookies.put("MyTeacheremployeeName", response.data.result.EmployeeName);
 
-                        $cookies.put("MyTeacheruserImage", response.data.profile.EmpPicPath);
+                        $cookies.put("MyAppuserImage", response.data.profile.EmpPicPath);
                        // $window.location = 'myTeacher#!/dashboard';
                         $window.location = 'tpanel#!/task-list';
                     }

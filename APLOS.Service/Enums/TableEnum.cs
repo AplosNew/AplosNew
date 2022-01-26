@@ -3,7 +3,20 @@
     public enum TableColumnEnum
     {
         Remarks,
-        Group,
+        Grouping,
+        UoM,
+        Length,
+        Weight,
+        Shrinkage,
+    }
 
+    public enum DataType
+    {
+        varchar30,
+        varchar90,
+        varchar250,
+        INT,
+        bit,
+        DECIMAL
     }
 }

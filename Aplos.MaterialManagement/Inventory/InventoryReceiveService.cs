@@ -3393,14 +3393,14 @@ namespace Library.MaterialManagement.Inventory
             string strSQL;
             try
             {
-                strSQL = @"select InventoryServiceId,IR.Id PurchaseOrderId,tg.Code AS TaxCode,IRT.Percentage, IRT.TaxAmount
-from TRN.PurchaseReturn IR
-INNER JOIN trn.PurchaseReturnService ISER ON ISER.PurchaseReturnId = IR.Id
-Inner join trn.PurchaseReturnTax IRT ON IRT.PurchaseReturnId = IR.Id and IRT.InventoryServiceId = ISER.Id
-LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
-WHERE IR.Id='" + grnId + @"'
-and InventoryServiceId is not null and PurchaseReturnDetailId is null
-ORDER BY tg.[Sequence]";
+                strSQL = @"select IRT.PurchaseReturnServiceId InventoryServiceId,IR.Id PurchaseOrderId,tg.Code AS TaxCode,IRT.Percentage, IRT.TaxAmount
+                from TRN.PurchaseReturn IR
+                INNER JOIN trn.PurchaseReturnService ISER ON ISER.PurchaseReturnId = IR.Id
+                Inner join trn.PurchaseReturnTax IRT ON IRT.PurchaseReturnId = IR.Id and IRT.PurchaseReturnServiceId = ISER.Id
+                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
+                WHERE IR.Id='" + grnId + @"'
+                and IRT.PurchaseReturnServiceId is not null and PurchaseReturnDetailId is null
+                ORDER BY tg.[Sequence]";
                 return _sqlRepository.GetDataTable(strSQL);
 
             }
@@ -13588,7 +13588,7 @@ INNER JOIN HKP.ServiceMaster SM ON IOS.ServiceMasterId = SM.Id
 
             try
             {
-                strSQL = @"select InventoryServiceId,PO.Id PurchaseOrderId,IRT.PurchaseReturnDetailId
+                strSQL = @"select IRT.PurchaseReturnServiceId InventoryServiceId,PO.Id PurchaseOrderId,IRT.PurchaseReturnDetailId
 ,tg.Code AS TaxCode,IRT.Percentage, IRT.TaxAmount
 from TRN.PurchaseReturn PO
 INNER JOIN [TRN].[PurchaseReturnDetail] IRD ON PO.Id = IRD.PurchaseReturnId

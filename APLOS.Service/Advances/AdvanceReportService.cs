@@ -1624,10 +1624,10 @@ namespace Library.Service.Advances
             sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Voucher Date");
-            sheet[row, 6].ColumnWidth = 15;
-            reportUtility.SetText(ref sheet, row, 7, header["VoucherDate"].ToString());
-            sheet[row, 7].ColumnWidth = 20;
+            sheet[row, 6].ColumnWidth = 25;
             sheet.Range[row, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+            reportUtility.SetText(ref sheet, row, 7, header["VoucherDate"].ToString());
+            sheet[row, 7].ColumnWidth = 25;
             sheet.Range[row, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
             row++;
 
@@ -1740,8 +1740,8 @@ namespace Library.Service.Advances
                     sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge();
 
                     reportUtility.SetText(ref sheet, row, colPurpose, dsLocal.Rows[i]["Purpose"].ToString());
-                    sheet[row, 3].ColumnWidth = 40;
-                    sheet[row, colPurpose].WrapText = true;
+                    sheet[row, 3].ColumnWidth = 25;
+                    //sheet[row, colPurpose].WrapText = true;
 
                     sheet[reportUtility.GetColumnNameForXls(colPurpose) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
                     //xlsCol++;
@@ -1769,7 +1769,8 @@ namespace Library.Service.Advances
                 formulaEndRow = row - 1;
 
                 reportUtility.SetText(ref sheet, row, 5, "Total: ", true);
-                sheet[row, 5].ColumnWidth = 15;
+                sheet[row, 5].ColumnWidth = 20;
+                sheet[row, 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 if (companyCurrencyId != transcationCurrency)
                 {
@@ -1850,19 +1851,21 @@ namespace Library.Service.Advances
                 reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
                 sheet.Range[row, 1].ColumnWidth = 21;
 
-                reportUtility.SetSignatureText(ref sheet, row - 1, 3, header["ApprovedBy"].ToString());
                 sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 3, "Approved By", true);
-                //sheet.Range[row, 3].ColumnWidth = 25;
+                reportUtility.SetTextMiddle(ref sheet, row, 3, "Received By", true);
 
-                reportUtility.SetSignatureText(ref sheet, row - 1, 5, header["PostedBy"].ToString());
+                reportUtility.SetSignatureText(ref sheet, row - 1, 5, header["CheckedBy"].ToString());
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 5, "Checked By", true);
                 //sheet.Range[row, 5].ColumnWidth = 11;
+                
+                sheet.Range[row, 6].ColumnWidth = 21;
 
-
+                reportUtility.SetSignatureText(ref sheet, row - 1, 7, header["ApprovedBy"].ToString());
                 sheet.Range[row, 7].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 7, "Authorized By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, 7, "Approved By", true);
+                sheet.Range[row, 7].ColumnWidth = 21;
+                
 
 
                 reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
@@ -1996,14 +1999,17 @@ namespace Library.Service.Advances
         private Dictionary<string, object> EmployeeAdvanceReportHeader(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
-                            , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.AddedBy, V.PostedBy,PA.EmployeeName ApprovedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
+                            , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, U.FullName AddedBy,isnull(PC.EmployeeName,UP.FullName) CheckedBy,PA.EmployeeName ApprovedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
                             , P.EmployeeName , BJ.CurrencyId, C.Code AS CurrencyCode,EAR.Remarks Purpose
                             FROM [TRN].[Voucher] AS V
                             LEFT JOIN [TRN].[Advance] AS BJ  ON V.Id=BJ.VoucherId
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [DBO].[EmployeeInformation] AS P ON P.SystemId=BJ.EmployeeId
-							left join TRN.EmployeeAdvanceRequisition EAR ON EAR.EmpSystemId=P.SystemId
+							left join TRN.EmployeeAdvanceRequisition EAR ON EAR.SystemId=BJ.RequisitionId
 							LEFT JOIN [DBO].[EmployeeInformation] AS PA ON PA.SystemId=EAR.ApprovedBy
+							 LEFT JOIN [DBO].[EmployeeInformation] AS PC ON PC.SystemId=EAR.CheckedBy
+							 LEFT JOIN [SEC].[User] AS U ON U.UserId=V.AddedBy
+							LEFT JOIN [SEC].[User] AS UP ON UP.UserId=V.PostedBy
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
                             WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.Id='" + voucherId + "' AND V.SourceType='" + sourceType + "'";
             return _sqlRepository.GetData(cmdText);
@@ -2015,7 +2021,7 @@ namespace Library.Service.Advances
             {
                 var sql = @"SELECT V.Id, GL.Id AS AccountCodeId, VDC.VoucherDetailId, FY.FiscalYearName, FYP.PeriodName, FYP.PeriodNo, V.IsPark, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , [Park/Post]=CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END, REPLACE(CONVERT(VARCHAR(11), v.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.VoucherNo, UPPER(V.Narration) AS Narration
-                            , V.CurrencyId, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, CU1.Code AS TrnCurrency, V.AddedBy, V.PostedBy, VDC.ParallelCurrencyId, CU.Code AS CurrencyCode
+                            , V.CurrencyId, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, CU1.Code AS TrnCurrency, U.FullName AddedBy,isnull(PC.EmployeeName,UP.FullName) CheckedBy ,  VDC.ParallelCurrencyId, CU.Code AS CurrencyCode
                             , VDC.FromCurrencyId, VDC.ToCurrencyId, VDC.ToCurrencyRate, VD.DrAmount AS DrAmount, VD.CrAmount AS CrAmount, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount, [DRCR]=CASE WHEN VDC.DrAmount>0 THEN '1' ELSE '2' END
                             , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.EmployeeName , VD.Narration AS DetailNarration, BUD.UserName AS Budget
 							,EAR.Remarks Purpose,PA.EmployeeName ApprovedBy
@@ -2030,6 +2036,7 @@ namespace Library.Service.Advances
                             LEFT JOIN [DBO].[EmployeeInformation] AS P ON P.SystemId=IV.EmployeeId
 							left join TRN.EmployeeAdvanceRequisition EAR ON EAR.SystemId=IV.RequisitionId
 							 LEFT JOIN [DBO].[EmployeeInformation] AS PA ON PA.SystemId=EAR.ApprovedBy
+							  LEFT JOIN [DBO].[EmployeeInformation] AS PC ON PC.SystemId=EAR.CheckedBy
                             LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=VD.GLGeneralInfoId
                             LEFT JOIN [SCS].[Currency] AS CU ON CU.Id=VDC.ParallelCurrencyId
                             LEFT JOIN [SCS].[Currency] AS CU1 ON CU1.Id=V.CurrencyId
@@ -2039,6 +2046,8 @@ namespace Library.Service.Advances
                             LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id=BUM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
                             LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
+							LEFT JOIN [SEC].[User] AS U ON U.UserId=V.AddedBy
+							LEFT JOIN [SEC].[User] AS UP ON UP.UserId=V.PostedBy
                             WHERE V.Archive=0 AND V.Id='" + voucherId + "' ORDER BY VD.DrAmount DESC";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -2692,7 +2701,7 @@ namespace Library.Service.Advances
                 sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
 
-                reportUtility.SetSignatureText(ref sheet, row - 1, 3, header["PostedBy"].ToString());
+                reportUtility.SetSignatureText(ref sheet, row - 1, 3, header["CheckedBy"].ToString());
                 sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
 
