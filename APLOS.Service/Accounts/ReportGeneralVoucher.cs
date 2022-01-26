@@ -2308,20 +2308,20 @@ namespace Library.Service.Accounts
             DataTable dtTemp = dsLocal.Tables[0].Clone();
             dtTemp.Merge(dsLocal.Tables[0]);
             dtTemp.Merge(dtLocalFTP);
-            DataTable dtLocalFTPMaster=null;
-            if (isBudgetLevel==true)
+            DataTable dtLocalFTPMaster = null;
+            if (isBudgetLevel == true)
             {
-                 dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode", "BudgetMasterId", "Budget");
+                dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode", "BudgetMasterId", "Budget");
 
             }
-            if (isActivityLevel==true)
+            if (isActivityLevel == true)
             {
-                 dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode", "BudgetMasterId", "Budget", "ActivityId", "Activity");
+                dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode", "BudgetMasterId", "Budget", "ActivityId", "Activity");
 
             }
-            if (isBudgetLevel == false && isActivityLevel==false)
+            if (isBudgetLevel == false && isActivityLevel == false)
             {
-                 dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode");
+                dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode");
 
             }
 
@@ -2501,8 +2501,6 @@ namespace Library.Service.Accounts
                 var mainColIndex = 1;
 
                 oRU.SetHeaderText(ref sheet, _rowL, headreColIndex, "Account Name", 38); headreColIndex++;
-
-
                 if (isBudgetLevel == true)
                 {
                     oRU.SetHeaderText(ref sheet, _rowL, headreColIndex, nameof(Budget), 38); headreColIndex++;
@@ -2544,7 +2542,7 @@ namespace Library.Service.Accounts
                 for (int n = 0; n < dtCr.Rows.Count; n++)
                 {
                     mainColIndex = 1;
-                       _rowL++;
+                    _rowL++;
                     string ActivityId = "";
                     string AccountCodeId = "";
                     string BudgetMasterId = "";
@@ -2554,7 +2552,7 @@ namespace Library.Service.Accounts
                         BudgetMasterId = dtCr.Rows[n]["BudgetMasterId"].ToString();
                         ActivityId = dtCr.Rows[n]["ActivityId"].ToString();
                     }
-                    else if (isBudgetLevel==true)
+                    else if (isBudgetLevel == true)
                     {
                         AccountCodeId = dtCr.Rows[n]["GLGeneralInfoCode"].ToString();
                         BudgetMasterId = dtCr.Rows[n]["BudgetMasterId"].ToString();
@@ -2587,10 +2585,10 @@ namespace Library.Service.Accounts
 
                     for (int p = 0; p < dtParallelCurrency.Rows.Count; p++)
                     {
-                        DataView dvDrCr=null;
-                        DataView dvDrCrFTP=null;
+                        DataView dvDrCr = null;
+                        DataView dvDrCrFTP = null;
                         string ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
-                        if (isBudgetLevel==true)
+                        if (isBudgetLevel == true)
                         {
                             dvDrCr = new DataView(dsLocal.Tables[0])
                             {
@@ -2609,7 +2607,7 @@ namespace Library.Service.Accounts
                             };
                             dvDrCrFTP = new DataView(dtLocalFTP)
                             {
-                                RowFilter = " GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'"
+                                RowFilter = "GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'"
                             };
                         }
                         else if (isBudgetLevel == false && isActivityLevel == false)
@@ -2651,15 +2649,15 @@ namespace Library.Service.Accounts
                                 throw ex;
                             }
                         }
-
-                        if (dvDrCrFTP.ToTable().Rows.Count != 0)
+                        DataTable dtDrCrFTP = dvDrCrFTP.ToTable();
+                        if (dtDrCrFTP.Rows.Count != 0)
                         {
                             try
                             {
                                 oRU.SetText(ref sheet, _rowL, colHeaderForThePeriod, Convert.ToDouble(dvDrCrFTP.ToTable().Rows[0]["CRcumulative"].ToString()));
                                 if (p == 0)
                                 {
-                                    _Total_Amount_DateRange += Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
+                                    _Total_Amount_DateRange += Convert.ToDouble(dtDrCrFTP.Rows[0]["CRcumulative"].ToString());
                                 }
                             }
                             catch (Exception ex)
@@ -2708,7 +2706,7 @@ namespace Library.Service.Accounts
                 for (int n = 0; n < dtDr.Rows.Count; n++)
                 {
                     mainColIndex = 1;
-                       _rowL++;
+                    _rowL++;
                     string ActivityId = "";
                     string AccountCodeId = "";
                     string BudgetMasterId = "";
@@ -2718,7 +2716,7 @@ namespace Library.Service.Accounts
                         BudgetMasterId = dtDr.Rows[n]["BudgetMasterId"].ToString();
                         ActivityId = dtDr.Rows[n]["ActivityId"].ToString();
                     }
-                    else if (isBudgetLevel == true && isActivityLevel==false)
+                    else if (isBudgetLevel == true && isActivityLevel == false)
                     {
                         AccountCodeId = dtDr.Rows[n]["GLGeneralInfoCode"].ToString();
                         BudgetMasterId = dtDr.Rows[n]["BudgetMasterId"].ToString();
@@ -2749,27 +2747,27 @@ namespace Library.Service.Accounts
                         string ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
                         DataView dvDrCr = new DataView(dsLocal.Tables[0]);
                         DataView dvDrCrFTP = new DataView(dtLocalFTP);
-                        if (isBudgetLevel==true)
+                        if (isBudgetLevel == true)
                         {
-                             dvDrCr = new DataView(dsLocal.Tables[0])
+                            dvDrCr = new DataView(dsLocal.Tables[0])
                             {
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "'"
                             };
-                             dvDrCrFTP = new DataView(dtLocalFTP)
+                            dvDrCrFTP = new DataView(dtLocalFTP)
                             {
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "'"
                             };
                         }
-                        else if (isActivityLevel==true)
+                        else if (isActivityLevel == true)
                         {
-                             dvDrCr = new DataView(dsLocal.Tables[0])
+                            dvDrCr = new DataView(dsLocal.Tables[0])
                             {
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'"
-                             };
-                             dvDrCrFTP = new DataView(dtLocalFTP)
+                            };
+                            dvDrCrFTP = new DataView(dtLocalFTP)
                             {
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'"
-                             };
+                            };
                         }
                         else if (isBudgetLevel == false && isActivityLevel == false)
                         {
@@ -2782,7 +2780,7 @@ namespace Library.Service.Accounts
                                 RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "'"
                             };
                         }
-                        
+
 
                         if (p == 0)
                         {
@@ -2806,8 +2804,7 @@ namespace Library.Service.Accounts
                             }
                             catch (Exception ex)
                             {
-
-
+                                throw ex;
                             }
                         }
 
@@ -3410,6 +3407,37 @@ namespace Library.Service.Accounts
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id
+UNION ALL
+					SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    0 DrAmount,
+                    0 CrAmount,
+                    0 DRcumulative,
+                    0 CRcumulative,
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                    VD.BudgetMasterId, BUD.UserName AS Budget,
+					A.UserName AS Activity,
+                    A.Id AS ActivityId
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND v.PostingDate between '" + fromDate + @"' and '" + toDate + @"' 
+                     AND A.Id NOT IN (SELECT VDA.ActivityId
+                                       FROM TRN.Voucher VA INNER JOIN TRN.VoucherDetail VDA ON VA.ID=VDA.VoucherId WHERE VA.PostingDate < '" + fromDate + @"')
+                    AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName,A.UserName,A.Id";
 
                     return _sqlRepository.GetGridData(parameters).Source;
@@ -3444,12 +3472,45 @@ namespace Library.Service.Accounts
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName
+
+UNION ALL
+					
+					 SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    0 DrAmount,
+                    0 CrAmount,
+                    0 DRcumulative,
+                    0 CRcumulative,
+                   
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                    VD.BudgetMasterId, BUD.UserName AS Budget
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND  v.PostingDate between '" + fromDate + @"' and '" + toDate + @"' 
+                     AND A.Id NOT IN (SELECT VDA.ActivityId
+                                       FROM TRN.Voucher VA INNER JOIN TRN.VoucherDetail VDA ON VA.ID=VDA.VoucherId WHERE VA.PostingDate < '" + fromDate + @"')
+                    AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
+                  --  ,v.PostingDate
 					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
 
                     return _sqlRepository.GetGridData(parameters).Source;
 
                 }
-                else 
+                else
                 {
                     parameters.CmdText = @"
 
@@ -3475,6 +3536,39 @@ namespace Library.Service.Accounts
                     LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
                     LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
                     where act.IsBalanceSheet=0 AND v.PostingDate < '" + fromDate + @"' AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
+                  --  ,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id
+
+
+	UNION ALL
+					
+				    SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    0 DrAmount,
+                    0 CrAmount,
+                    0 DRcumulative,
+                    0 CRcumulative,
+                    
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND v.PostingDate between '" + fromDate + @"' and '" + toDate + @"' 
+                     AND A.Id NOT IN (SELECT VDA.ActivityId
+                                       FROM TRN.Voucher VA INNER JOIN TRN.VoucherDetail VDA ON VA.ID=VDA.VoucherId WHERE VA.PostingDate < '" + fromDate + @"')
+                     AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"'
                     and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
                     group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
                   --  ,v.PostingDate
@@ -3543,7 +3637,7 @@ namespace Library.Service.Accounts
         }
 
 
-        private DataTable GetIncomeStatementInfoDateRangeForThePeriod(string companyId, string fromDate, string toDate, string[] parallelCurrencies,bool isBudgetLevel,bool isActivityLevel)
+        private DataTable GetIncomeStatementInfoDateRangeForThePeriod(string companyId, string fromDate, string toDate, string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel)
         {
             string strSql = "";
             try
@@ -3587,9 +3681,9 @@ namespace Library.Service.Accounts
 
                     return _sqlRepository.GetDataTable(strSql);
                 }
-               else if (isActivityLevel && !isBudgetLevel)
+                else if (isActivityLevel && !isBudgetLevel)
                 {
-                    strSql = @"                   
+                    strSql = @"                
                     SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
                     VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
                     
@@ -3650,7 +3744,7 @@ namespace Library.Service.Accounts
 
                     return _sqlRepository.GetDataTable(strSql);
                 }
-              
+
             }
             catch (Exception)
             {

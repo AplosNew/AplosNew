@@ -292,6 +292,11 @@
             controller: 'TaxOBController'
         })
 
+        .when('/employee-income-tax', {
+            templateUrl: 'Payrolls/EmployeeIncomeTax/Aplos',
+            controller: 'EmployeeIncomeTaxController'
+        })
+
         .when('/late-deduction', {
             templateUrl: 'Payrolls/LateDeduction/Aplos',
             controller: 'LateDeductionController'

@@ -76,6 +76,7 @@
                 <th>Id</th>
                 <th>Business Process</th>
                 <th>User Define Name</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -83,6 +84,13 @@
                 <td>{{x.Id}}</td>
                 <td>{{x.BusinessProcessName}}</td>
                 <td>{{x.UserName}}</td>
+                <td class="text-right table-td">
+                    <ul class="list-inline action-list">
+                        <li>
+                            <button ng-click="GetBPPopUp(x)" class="btn btn-action tooltip-here" data-placement="top"><i class="glyphicon glyphicon-list"></i></button>
+                        </li>
+                    </ul>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -141,6 +149,47 @@
                         <li> <button ng-click="SaveBPS();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Save</button></li>
                     </ul>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="BPTablePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Business Process: {{brandNew.UserName}}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="tab-design" id="tab_show">
+                        <div class="site-tab">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Add Table</a></li>
+                                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Add Column</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                            {{brandNew.UserName}}
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveBPTable();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Save</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveBPTable();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Save</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
             </div>
         </div>
     </div>
