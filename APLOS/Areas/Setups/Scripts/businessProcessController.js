@@ -259,7 +259,7 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
             $http({
                 method: 'post',
                 url: 'Setups/BusinessProcess/SaveAlterBPTable',
-                data: { 'BusinessProcess': $scope.brandNew.BusinessProcessName, 'columnName': $scope.ModelNew.TableColumn, 'dataType': $scope.ModelNew.DataType, 'nullable': $scope.ModelNew.NullAble },
+                data: { 'BusinessProcessId': $scope.brandNew.Id,'BusinessProcess': $scope.brandNew.BusinessProcessName, 'columnName': $scope.ModelNew.TableColumn, 'dataType': $scope.ModelNew.DataType, 'nullable': $scope.ModelNew.NullAble },
                 dataType: 'json'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
