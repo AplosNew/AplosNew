@@ -118,35 +118,30 @@
        
         </div>
     </div>
-
+    <div><br/></div>
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" aria-controls="OB" role="tab" data-toggle="tab" ng-show="taxb == 0">Opening Balance</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" aria-controls="DED" role="tab" data-toggle="tab">Deduction</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" aria-controls="Inc" role="tab" data-toggle="tab">Income</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" aria-controls="INV" role="tab" data-toggle="tab">Investment</a></li>
-                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);" aria-controls="Tax" role="tab" data-toggle="tab">Taxable Income Para.</a></li>
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" aria-controls="Earn" role="tab" data-toggle="tab">Earning</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" aria-controls="INV" role="tab" data-toggle="tab">Investment & Deduction</a></li>
             </ul>
         </div>
 
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-show="taxb == 0">
-               
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveEmployeeInfoHeader();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li> <button ng-click="" class="btn" style="margin-right:15px"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
              
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-               
-            </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-              
-            </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
-            
-            </div>
+          
     
     </div>
 
@@ -181,7 +176,3 @@
         </div>
     </div>
 </div>
-
-<confirm-archive-generic modalid="confirmMasterPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteMaster();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmFileDelete" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteFile()"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmFileDeletes" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteInfoFile()"></confirm-archive-generic>
