@@ -887,7 +887,7 @@ namespace Library.HumanResource.Payroll.Tax
                     MValue = "0";
                 }
 
-                string strSQL = @"SELECT th.Id,th.UserName as PolicyHeaderName,th.AgeFrom,th.AgeTo,
+                string strSQL = @"SELECT th.Id as PolicyHeaderId,th.UserName as PolicyHeaderName,th.AgeFrom,th.AgeTo,
                 ty.TaxYearName,format(ty.StartDate,'yyyy-MMM-dd')as 
                 StartDate,format(ty.EndDate,'yyyy-MMM-dd') as EndDate 
                 from TaxPolicyHeader th left join 
@@ -919,9 +919,12 @@ where TaxPolicyHeaderId='TH2'";
                 string TableName = "dbo.EmployeeIncomeTaxMaster";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + dataMaster["Id"] + "'", out dsMaster, false, "1");
-                DateTime now = DateTime.Today;
+                string sql = @"select * from " + TableName + " where" +
+                    " EmpSystemIdId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='"+ dataMaster["TaxPolicyHeaderId"] + "' " +
+                    "AND TaxTypeId='"+ dataMaster["TaxTypeId"] + "' AND TaxYearId='"+dataMaster["TaxYearId"] +"'";
 
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+            
                 string _Id = "";
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
