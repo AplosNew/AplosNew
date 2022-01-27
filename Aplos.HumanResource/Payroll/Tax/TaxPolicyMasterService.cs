@@ -920,7 +920,7 @@ where TaxPolicyHeaderId='TH2'";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 string sql = @"select * from " + TableName + " where" +
-                    " EmpSystemIdId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='"+ dataMaster["TaxPolicyHeaderId"] + "' " +
+                    " EmpSystemId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='"+ dataMaster["TaxPolicyHeaderId"] + "' " +
                     "AND TaxTypeId='"+ dataMaster["TaxTypeId"] + "' AND TaxYearId='"+dataMaster["TaxYearId"] +"'";
 
                 con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");

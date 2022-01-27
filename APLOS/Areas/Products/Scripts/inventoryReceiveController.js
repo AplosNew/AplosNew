@@ -410,6 +410,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		, TaxOptionService: 'Yes'
 		, TaxOptionServiceModify: 'Yes'
 		, TaxOptionAddiTax: 'Yes'
+		, IsTradingPO: false
 
 
 	};
@@ -555,7 +556,6 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		$scope.productNew = x.data;
 		$scope.productNew.GRNDate = x.data.GRNDate1;
 		$scope.productNew.Id = x.data.Id;
-
 		$scope.index = Id;
 		//$scope.product = $scope.products[$scope.index];
 		//$scope.product = $scope.productsEmpGRN[$scope.index];
@@ -3390,5 +3390,566 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			$scope.productNew.CustomerName = response.data[0].CustomerName;
 		});
 	};
+
+	//#region BOQPart
+	$scope.inventoryMaterialList = [];
+	//#region all Tab Function of POBOQItem Index
+
+	$scope.IsOwnVendor = 'OwnVendor';
+	$scope.tab1 = 1;
+	$scope.setOwnVendorTabIndex = function (newTab) {
+
+		$scope.IsOwnVendor = 'OwnVendor';
+		$scope.GetBOQItemList();
+
+		$scope.tab1 = newTab;
+
+	};
+	$scope.isSetOwnVendorIndex = function (tabNum) {
+		return $scope.tab1 === tabNum;
+	};
+
+	$scope.setTabOtherVendorIndex = function (newTab) {
+		//alert('tabCHR');
+
+		$scope.IsOwnVendor = 'OtherVendor';
+		$scope.GetListForMasterOrderOtherVendor = [];
+		$scope.GetListForMasterOrdernew = [];
+		$scope.taxCategoryList = [];
+		$scope.groupList = [];
+		$scope.Action1 = 'Save';
+		$scope.ActionPOBOQ = 'Save';
+
+		$scope.getalldataListForOtherVendorBOQList();
+		$scope.tab1 = newTab;
+
+	};
+	$scope.isSetOtherVendorIndex = function (tabNum) {
+		return $scope.tab1 === tabNum;
+	};
+
+
+	$scope.setTabParentIndex = function (newTab) {
+
+
+		$scope.IsOwnVendor = 'Parent';
+		$scope.getalldataListForParentBOQList();
+		$scope.tab1 = newTab;
+
+	};
+	$scope.isSetParentIndex = function (tabNum) {
+		return $scope.tab1 === tabNum;
+	};
+
+
+    //#endregion
+
+	$scope.GetBOQItemList = function () {
+		try {
+			if (baseService.isUndefinedOrNull($scope.productNew.ContractId)) {
+				throw "Select  Contract";
+            }
+			$scope.GetListForMasterOrder = [];
+			$scope.GetListForMasterOrderOtherVendor = [];
+			$scope.groupList = [];
+			$scope.GetListForMasterOrdernew = [];
+			$scope.taxCategoryList = [];
+			$scope.groupList = [];
+			$scope.Action1 = 'Save';
+
+
+			$scope.getalldataListForBOQList();
+			$scope.ActionPOBOQ = 'Save';
+		} catch (e) {
+			ShowResult(e, 'Info');
+		}
+		
+	};
+
+	$scope.GetListForMasterOrder = [];
+	$scope.getalldataListForBOQList = function () {
+        
+		var gridObj = $("#GridReq").data("ejGrid");
+		gridObj.clearFiltering();
+
+		$scope.GetListForMasterOrder = [];
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
+		}).then(function successCallback(response) { //datagatefun			
+			$scope.GetListForMasterOrder = [];
+			$scope.GetListForMasterOrder = response.data;
+			gridObj.refreshContent(true);
+			gridObj.refreshTemplate();
+			$scope.processgroupList111();
+		});
+		$scope.Action1 = 'Save';
+		$scope.processgroupList1();
+	};
+	$scope.groupList = [];
+	$scope.processgroupList1 = function () {
+		if ($scope.inventoryMaterialList.length > 0) {
+			$scope.newlistitems = [];
+			$scope.newlistitems = $scope.GetListForMasterOrder;
+			$scope.GetListForMasterOrder = [];
+			for (var i = 0; i < $scope.newlistitems.length; i++) {
+				var getRow = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.newlistitems[i].MaterialMasterId, "ArticleId": $scope.newlistitems[i].ArticleId, "FirstCharacteristicsValueId": $scope.newlistitems[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.newlistitems[i].SecondCharacteristicsValueId, "ThitrdCharacteristicsValueId": $scope.newlistitems[i].ThitrdCharacteristicsValueId });
+				if (getRow.length == 0) {
+					$scope.GetListForMasterOrder.push($scope.newlistitems[i]);
+				}
+			}
+		}
+		$scope.Action1 = 'Save';
+		angular.element(document.querySelector('#ListOfPOMaterial')).modal('show');
+
+	}
+	$scope.groupList = [];
+	$scope.processgroupList111 = function () {
+
+		if ($scope.inventoryMaterialList.length > 0) {
+			$scope.newlistitems = [];
+			$scope.newlistitems = $scope.GetListForMasterOrder;
+			$scope.GetListForMasterOrder = [];
+			for (var i = 0; i < $scope.newlistitems.length; i++) {
+				var getRow = $filter("filter")($scope.inventoryMaterialList, { "InventoryMaterialId": $scope.newlistitems[i].MaterialMasterId, "ArticleId": $scope.newlistitems[i].ArticleId, "FirstCharacteristicsValueId": $scope.newlistitems[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.newlistitems[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.newlistitems[i].ThirdCharacteristicsValueId });
+				//var getRow = $filter("filter")($scope.inventoryMaterialList, { "InventoryMaterialId": $scope.newlistitems[i].MaterialMasterId });
+				if (getRow.length == 0) {
+					$scope.GetListForMasterOrder.push($scope.newlistitems[i]);
+				}
+			}
+		}
+		angular.element(document.querySelector('#ListOfPOMaterial')).modal('show');
+
+	}
+	$scope.refreshTemplateemployee = function (args) {
+		$("#headchk111").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+	};
+	function CheckBoxSelectAllEmolyeeWise(e) {
+		var ChkOrUnchk = false;
+		if (e.model.checkState === "check") {
+			ChkOrUnchk = true;
+		}
+		var filtered = $("#GridReq").data("ejGrid").getFilteredRecords();
+		if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+			for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
+				$scope.GetListForMasterOrder[i].CheckedStatus = ChkOrUnchk;
+			}
+		}
+		else {
+			for (var j = 0; j < filtered.length; j++) {
+				filtered[j].CheckBoxSelect = ChkOrUnchk;
+			}
+		}
+		var gridObj = $("#GridReq").data("ejGrid");
+		gridObj.refreshContent();
+	};
+	$scope.summaryRows = [{
+		title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:N4}" }]
+		/*,showCaptionSummary: true*/
+	}];
+	$scope.RequisitionListHide = function () {
+		$scope.taxCategoryList = [];
+		angular.element(document.querySelector('#ListOfPOMaterial')).modal('hide');
+	};
+
+	$scope.GetListForMasterOrderOtherVendor = [];
+	$scope.getalldataListForOtherVendorBOQList = function () {
+		var gridObj = $("#GridReqeee").data("ejGrid");
+		gridObj.clearFiltering();
+		$scope.GetListForMasterOrder = [];
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
+		}).then(function successCallback(response) { //datagatefun			
+			$scope.GetListForMasterOrderOtherVendor = [];
+			$scope.GetListForMasterOrderOtherVendor = response.data;
+			gridObj.refreshContent(true);
+			gridObj.refreshTemplate();
+			$scope.processgroupListOtherVendor();
+		});
+		$scope.Action1 = 'Save';
+		$scope.processgroupListOV();
+	};
+	$scope.processgroupListOtherVendor = function () {
+		if ($scope.inventoryMaterialList.length > 0) {
+			$scope.newlistitems = [];
+			$scope.newlistitems = $scope.GetListForMasterOrderOtherVendor;
+			$scope.GetListForMasterOrderOtherVendor = [];
+			for (var i = 0; i < $scope.newlistitems.length; i++) {
+				var getRow = $filter("filter")($scope.inventoryMaterialList, { "InventoryMaterialId": $scope.newlistitems[i].MaterialMasterId, "ArticleId": $scope.newlistitems[i].ArticleId, "FirstCharacteristicsValueId": $scope.newlistitems[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.newlistitems[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.newlistitems[i].ThirdCharacteristicsValueId });
+				//var getRow = $filter("filter")($scope.inventoryMaterialList, { "InventoryMaterialId": $scope.newlistitems[i].MaterialMasterId });
+				if (getRow.length == 0) {
+					$scope.GetListForMasterOrderOtherVendor.push($scope.newlistitems[i]);
+				}
+			}
+		}
+		angular.element(document.querySelector('#ListOfPOMaterial')).modal('show');
+
+	}
+	$scope.processgroupListOV = function () {
+		if ($scope.inventoryMaterialList.length > 0) {
+			$scope.newlistitems = [];
+			$scope.newlistitems = $scope.GetListForMasterOrderOtherVendor;
+			$scope.GetListForMasterOrderOtherVendor = [];
+			for (var i = 0; i < $scope.newlistitems.length; i++) {
+				var getRow = $filter("filter")($scope.inventoryMaterialList, { "MaterialMasterId": $scope.newlistitems[i].MaterialMasterId, "ArticleId": $scope.newlistitems[i].ArticleId, "FirstCharacteristicsValueId": $scope.newlistitems[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.newlistitems[i].SecondCharacteristicsValueId, "ThitrdCharacteristicsValueId": $scope.newlistitems[i].ThitrdCharacteristicsValueId });
+				if (getRow.length == 0) {
+					$scope.GetListForMasterOrderOtherVendor.push($scope.newlistitems[i]);
+				}
+			}
+		}
+		$scope.Action1 = 'Save';
+		angular.element(document.querySelector('#ListOfPOMaterial')).modal('show');
+
+	}
+	$scope.GetListForMasterOrderParent = [];
+	$scope.getalldataListForParentBOQList = function () {
+		var gridObj = $("#GridReq3").data("ejGrid");
+		gridObj.clearFiltering();
+		$scope.GetListForMasterOrderParent = [];
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
+		}).then(function successCallback(response) { //datagatefun			
+			$scope.GetListForMasterOrderParent = [];
+			$scope.GetListForMasterOrderParent = response.data;
+			gridObj.refreshContent(true);
+			gridObj.refreshTemplate();
+
+		});
+		$scope.Action1 = 'Save';
+
+	};
+	$scope.refreshQtyTemplete = function (args) {
+		var gridObj = $("#GridReq").data("ejGrid");
+		/*		gridObj.refreshContent();*/
+		gridObj.refreshTemplate(true);
+	}
+	$scope.ConvertedDataRowList = [];
+	$scope.GetListForMasterOrderTemp = [];
+	$scope.ConvertedDataRow = function (data) {
+		var gridObj = $("#GridReq").data("ejGrid");
+		var gridObjUpdate = $("#PODetailUpdate").data("ejGrid");
+		//var x = $event;
+		//var res = x.data;
+		;
+		$http({
+			method: 'POST',
+			url: $scope.path + 'ConverttedBOQUOMData',
+			data: {
+				'data': data
+			},
+			dataType: 'JSON'
+		}).then(function (response) {
+			$scope.ConvertedDataRowList = response.data;
+			for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
+				if ($scope.GetListForMasterOrder[i].BOQId === $scope.ConvertedDataRowList.data.BOQId) {
+					$scope.GetListForMasterOrder[i].RequiredQtyPO = $scope.ConvertedDataRowList.data.RequiredQtyPO;
+					$scope.GetListForMasterOrder[i].OtherPOQty = $scope.ConvertedDataRowList.data.OtherPOQty;
+					$scope.GetListForMasterOrder[i].TransactionQty = $scope.ConvertedDataRowList.data.TransactionQty;
+
+				}
+			}
+			gridObj.refreshContent(true);
+			gridObjUpdate.refreshContent(true);
+
+			gridObj.refreshTemplate();
+			gridObjUpdate.refreshTemplate();
+
+		});
+
+	};
+	$scope.tempList = [];
+	$scope.UOMValidation = function () {
+		var getRow3
+		$scope.invalid = false;
+		for (var i = 0; i < $scope.tempList.length; i++) {
+			getRow3 = $filter("filter")($scope.tempList, { "MaterialMasterId": $scope.tempList[i].MaterialMasterId, "ArticleId": $scope.tempList[i].ArticleId, "FirstCharacteristicsValueId": $scope.tempList[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.tempList[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.tempList[i].ThirdCharacteristicsValueId });
+
+		}
+		$scope.TransactionUoMId = '';
+		for (var k = 0; k < getRow3.length; k++) {
+			$scope.TransactionUoMId = getRow3[0].TransactionUoMId;
+			if (getRow3[k].TransactionUoMId != $scope.TransactionUoMId) {
+				if ($scope.ActionPOBOQ === 'Update') {
+
+					ShowResult('Have you selected Same UOM?', 'failure', 'ListOfPOMaterial1');
+					return true;
+				}
+				else {
+					ShowResult('Have you selected Same UOM?', 'failure', 'ListOfPOMaterial');
+					return true;
+				}
+
+
+			}
+
+		}
+		return false;
+	}
+	$scope.detailPOSaveForBOQ = function () {
+		try {
+			$scope.check();
+			$scope.GetListForMasterOrdernew = [];
+			if ($scope.ActionPOBOQ === 'Save') {
+				for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
+					if ((baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty) || $scope.GetListForMasterOrder[i].TransactionQty === 0) && $scope.GetListForMasterOrder[i].CheckedStatus === true) {
+						ShowResult('Enter the Selected  Material Qty', 'failure', 'ListOfPOMaterial');
+						return false;
+					}
+
+					if ($scope.GetListForMasterOrder[i].CheckedStatus === true && $scope.GetListForMasterOrder[i].RequiredQtyApproved === 'Yes' && $scope.GetListForMasterOrder[i].IncompleteMaterial === 'No') {
+
+						if ($scope.ActionPOBOQ === 'Save') {
+							if ((parseFloat($scope.GetListForMasterOrder[i].TransactionQty) + parseFloat($scope.GetListForMasterOrder[i].OtherPOQty)) > parseFloat($scope.GetListForMasterOrder[i].RequiredQtyPO)) {
+								ShowResult('Trasaction qty can not grater than booking Qty', 'failure', 'ListOfPOMaterial');
+								$scope.GetListForMasterOrder[i].TransactionQty = '';
+								return false;
+							}
+							if (baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty)) {
+								ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial');
+								return false;
+							}
+							if ($scope.GetListForMasterOrder[i].TransactionQty < 0) {
+								ShowResult('Negative Qty  not allowed', 'failure', 'ListOfPOMaterial');
+								return false;
+							}
+							if ($scope.GetListForMasterOrder[i].TransactionQty === 0 || $scope.GetListForMasterOrder[i].TransactionQty === 0.00 || $scope.GetListForMasterOrder[i].TransactionQty === 0.0) {
+								ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial');
+								return false;
+							}
+
+							if ($scope.GetListForMasterOrder[i].RequiredQtyApproved === 'No') {
+								ShowResult('Required Qty not yet Approved.So you can not take this material', 'failure', 'ListOfPOMaterial');
+								return false;
+							}
+							if ($scope.GetListForMasterOrder[i].IncompleteMaterial === 'Yes') {
+								ShowResult('This is incomplete material.So you can not take this material', 'failure', 'ListOfPOMaterial');
+								return false;
+							}
+
+							else {
+								$scope.GetListForMasterOrder[i].check = true;
+								$scope.GetListForMasterOrder[i].Id = null;
+								$scope.GetListForMasterOrder[i].NetQty = $scope.GetListForMasterOrder[i].TransactionQty;
+								$scope.GetListForMasterOrder[i].BaseQty = $scope.GetListForMasterOrder[i].TransactionQty;
+								$scope.GetListForMasterOrdernew.push($scope.GetListForMasterOrder[i]);
+
+							}
+						}
+					}
+
+				}
+			}
+			else if ($scope.ActionPOBOQ === 'Update') {
+				for (var i = 0; i < $scope.GetListForMasterOrderUpdate.length; i++) {
+					if ((baseService.isUndefinedOrNull($scope.GetListForMasterOrderUpdate[i].TransactionQty) || $scope.GetListForMasterOrderUpdate[i].TransactionQty === 0) && $scope.GetListForMasterOrderUpdate[i].CheckedStatus === true) {
+						ShowResult('Enter the Selected  Material Qty', 'failure', 'ListOfPOMaterial1');
+						return false;
+					}
+
+					if ($scope.GetListForMasterOrderUpdate[i].CheckedStatus === true && $scope.GetListForMasterOrderUpdate[i].RequiredQtyApproved === 'Yes' && $scope.GetListForMasterOrderUpdate[i].IncompleteMaterial === 'No') {
+						if ((parseFloat($scope.GetListForMasterOrderUpdate[i].TransactionQty) + parseFloat($scope.GetListForMasterOrderUpdate[i].OtherPOQty)) > parseFloat($scope.GetListForMasterOrderUpdate[i].RequiredQtyPO)) {
+							ShowResult('Trasaction qty can not grater than required Qty', 'failure', 'ListOfPOMaterial1');
+							return false;
+						}
+						if (baseService.isUndefinedOrNull($scope.GetListForMasterOrderUpdate[i].TransactionQty)) {
+							ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial1');
+							return false;
+						}
+						if ($scope.GetListForMasterOrder[i].GetListForMasterOrderUpdate < 0) {
+							ShowResult('Negative Qty  not allowed', 'failure', 'ListOfPOMaterial');
+							return false;
+						}
+						if ($scope.GetListForMasterOrderUpdate[i].TransactionQty === '0' || $scope.GetListForMasterOrderUpdate[i].TransactionQty === '0.00' || $scope.GetListForMasterOrderUpdate[i].TransactionQty === '0.0') {
+							ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial1');
+							return false;
+						}
+						if ($scope.GetListForMasterOrderUpdate[i].RequiredQtyApproved === 'No') {
+							ShowResult('Required Qty not yet Approved.So you can not take this material', 'failure', 'ListOfPOMaterial1');
+							return false;
+						}
+						if ($scope.GetListForMasterOrderUpdate[i].IncompleteMaterial === 'Yes') {
+							ShowResult('This is incomplete material.So you can not take this material', 'failure', 'ListOfPOMaterial1');
+							return false;
+						}
+						else {
+							$scope.GetListForMasterOrder[i].check = true;
+							$scope.GetListForMasterOrder[i].Id = null;
+							$scope.GetListForMasterOrder[i].NetQty = $scope.GetListForMasterOrder[i].TransactionQty;
+							$scope.GetListForMasterOrder[i].BaseQty = $scope.GetListForMasterOrder[i].TransactionQty;
+							$scope.GetListForMasterOrdernew.push($scope.GetListForMasterOrderUpdate[i]);
+						}
+
+					}
+				}
+			}
+
+
+			for (var j = 0; j < $scope.GetListForMasterOrdernew.length; j++) {
+				if ($scope.GetListForMasterOrdernew[j].CheckedStatus === true) {
+					$scope.tempList.push($scope.GetListForMasterOrdernew[j]);
+				}
+			}
+
+			if ($scope.GetListForMasterOrdernew.length === 0) {
+				if ($scope.ActionPOBOQ === 'Update') {
+
+					ShowResult('Please select at least one material', 'failure', 'ListOfPOMaterial');
+					return false;
+				}
+				else {
+					ShowResult('Please select at least one material', 'failure', 'ListOfPOMaterial');
+					return false;
+				}
+
+			}
+
+			$scope.UOMValidation();
+			$scope.groupList = [];
+			$scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
+			for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
+				$scope.GetListForMasterOrdernew[i].Tolerance = $scope.productNew.Tolerance;
+				$scope.GetListForMasterOrdernew[i].MaterialStorageId = $scope.productNew.MaterialStorageId;
+			}
+			for (var i = 0; i < $scope.groupList.length; i++) {
+				$scope.groupList[i].Tolerance = $scope.productNew.Tolerance;
+			}
+
+			if ($scope.ActionPOBOQ === 'Save') {
+				$scope.materialValidationForBOQItem();
+				if (!$scope.UOMValidation()) {//$scope.invalid && 
+
+					$http({
+						method: 'POST',
+						url: 'Products/InventoryReceive/CreateGRNBYBOQ',
+						data:
+						{
+							'entity': $scope.productNew,
+							'entityMatAndImat': JSON.stringify($scope.GetListForMasterOrdernew),
+							'receiveTaxList': $scope.taxCategoryList,
+							'chargesListPO': $scope.chargesListPOnew,
+							'POServiceTaxList': $scope.POServiceTaxList,
+							'GRNType': 'GRN',
+							'AcceptanceId': $scope.AcceptanceId,
+							'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
+							'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
+						},
+						dataType: 'JSON'
+						, contentType: "application/json charset=utf-8"
+
+
+
+					}).then(function successCallback(response) {
+						if (response.data.Error === true)
+							ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
+						else {
+							ShowResult(response.data.Message, 'success', 'ListOfPOMaterial');
+							getInventoryMaterialList($scope.productNew.Id);
+							angular.element(document.querySelector('#ListOfPOMaterial')).modal('hide');
+
+						}
+					}), function errorCallBack(response) {
+						ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
+					};
+
+				}
+			}
+
+			else if ($scope.ActionPOBOQ === "Update") {
+				$scope.materialValidationForBOQItem();
+				if (!$scope.UOMValidation()) {
+					$http({
+						method: 'POST',
+						url: 'Products/InventoryReceive/CreateGRNBYBOQ',
+						data:
+						{
+							'entity': $scope.productNew,
+							'entityMatAndImat': JSON.stringify($scope.GetListForMasterOrdernew),
+							'receiveTaxList': $scope.taxCategoryList,
+							'chargesListPO': $scope.chargesListPOnew,
+							'POServiceTaxList': $scope.POServiceTaxList,
+							'GRNType': 'GRN',
+							'AcceptanceId': $scope.AcceptanceId,
+							'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
+							'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
+						},
+						dataType: 'JSON'
+						, contentType: "application/json charset=utf-8"
+					}).then(function successCallback(response) {
+						if (response.data.Error === true)
+							ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial1');
+						else {
+							ShowResult(response.data.Message, 'success', 'ListOfPOMaterial1');
+							getInventoryMaterialList($scope.productNew.Id);
+						}
+					}), function errorCallBack(response) {
+						ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial1');
+					};
+
+				}
+			}
+
+		} catch (e) {
+			ShowResult(e, 'fail');
+		}
+	};
+	$scope.check = function () {
+		var aa = 0;
+		for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
+			if ($scope.GetListForMasterOrder[i].CheckedStatus === true) {
+				aa++;
+
+			}
+		}
+		if (aa === 0) {
+			ShowResult('Your selected Material is not Approved.Please see Approved Coulmn!', 'failure', 'ListOfPOMaterial');
+			return false;
+		}
+
+	}
+	$scope.groupList = [];
+	$scope.processgroupList = function (oldlist, newlist) {
+		for (var i = 0; i < oldlist.length; i++) {
+			var getRow = $filter("filter")(oldlist, { "MaterialMasterId": oldlist[i].MaterialMasterId, "ArticleId": oldlist[i].ArticleId, "FirstCharacteristicsValueId": oldlist[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": oldlist[i].SecondCharacteristicsValueId, "ThitrdCharacteristicsValueId": oldlist[i].ThitrdCharacteristicsValueId });
+			var ExistingRow = $filter("filter")(newlist, { "MaterialMasterId": oldlist[i].MaterialMasterId, "ArticleId": oldlist[i].ArticleId, "FirstCharacteristicsValueId": oldlist[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": oldlist[i].SecondCharacteristicsValueId, "ThitrdCharacteristicsValueId": oldlist[i].ThitrdCharacteristicsValueId });
+			// getRow.TransactionQty = $filter('sumByKey')($filter('filter')(oldlist), 'TaxAmount');
+			if (ExistingRow.length === 0) {
+				if (!baseService.isUndefinedOrNull(getRow[0].MaterialMasterId)) {
+
+					newlist.push(getRow[0]);
+				}
+			}
+
+			var getRowWithoutMaterial = $filter("filter")(oldlist, { "MaterialDetail": oldlist[i].MaterialDetail, "RequisitionDetailId": oldlist[i].RequisitionDetailId });
+
+			if (getRowWithoutMaterial.length === 1) {
+				if (baseService.isUndefinedOrNull(getRowWithoutMaterial[0].MaterialMasterId)) {
+					newlist.push(getRowWithoutMaterial[0]);
+				}
+			}
+
+		}
+		return newlist;
+	};
+	$scope.materialValidationForBOQItem = function () {
+		for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
+			var getRow3 = $filter("filter")($scope.inventoryMaterialList, { "InventoryMaterialId": $scope.GetListForMasterOrdernew[i].MaterialMasterId, "ArticleId": $scope.GetListForMasterOrdernew[i].ArticleId, "FirstCharacteristicsValueId": $scope.GetListForMasterOrdernew[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.GetListForMasterOrdernew[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.GetListForMasterOrdernew[i].ThirdCharacteristicsValueId });
+
+			if (getRow3 == 0) {
+				$scope.invalid = true;
+			}
+			else {
+				ShowResult('Material Combination Already Exist', 'failure', 'ListOfPOMaterial');
+				$scope.invalid = false;
+			}
+		}
+
+
+	};
+	//#endregion
 	
 }

@@ -7,6 +7,16 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     $scope.path = 'Payrolls/EmployeeIncomeTax/';
     $scope.employee = [];
 
+    //#region Tab
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+    // #endregion Tab
+
     //#region employee Load
     $scope.getPopUpData = function () {
         $scope.employee = [];
@@ -93,7 +103,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
     //#endregion 
 
-    //#region Tax Year
+    //#region GetList Functions of Header
 
     $scope.YearList = [];
     $scope.TaxTypeList = [];
@@ -113,18 +123,9 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         });
     }
     $scope.getData();    
-    //#endregion
 
-    //#region Tab
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-    };
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-    // #endregion Tab
 
+    // Policy Finding
     $scope.TaxPolicyList = [];
     $scope.GetTaxPolicyList = function () {
         $http({
@@ -144,6 +145,10 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         });
     }
 
+    //#endregion
+
+    // #region Modals Defined
+
     $scope.EmployeeIncomeTaxModel = {
         Id: null,
         EmpSystemId: null,
@@ -156,6 +161,8 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     
     $scope.EmployeeListTemp = [];  
     $scope.TaxPolicyName = null;
+
+    // #endregion
 
     //#region AGE CALCUALTE
 
@@ -195,5 +202,35 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     };
 
     //#endregion   
+
+    // #region Saving Header Region
+
+    $scope.SaveEmployeeInfoHeader = function () {
+        if (!baseService.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.EmpSystemId)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "Create",
+                data: { 'data': $scope.EmployeeIncomeTaxModel },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                   // $scope.getInvestDeductMaster();
+                    $scope.EmployeeIncomeTaxModel.Id = response.data.Data.Id;
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        else {
+            ShowResult("Please Choose Employee First ...", 'failure');
+        }
+    };
+
+    // #endregion
 
 }
