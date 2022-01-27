@@ -556,7 +556,6 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		$scope.productNew = x.data;
 		$scope.productNew.GRNDate = x.data.GRNDate1;
 		$scope.productNew.Id = x.data.Id;
-
 		$scope.index = Id;
 		//$scope.product = $scope.products[$scope.index];
 		//$scope.product = $scope.productsEmpGRN[$scope.index];

@@ -9,6 +9,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+
     $scope.fabricRollMaster = {
         CompanyGroupId: $window.companyGroupId,
         PlantId: $window.plantId,
