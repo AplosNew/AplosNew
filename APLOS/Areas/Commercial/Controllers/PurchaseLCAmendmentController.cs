@@ -7,6 +7,7 @@ using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Commercial;
+using Library.Model.Inventory;
 using Library.Model.OrderManagements;
 using Library.Model.Payrolls;
 using Library.Service.Enums;
@@ -18,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
@@ -210,6 +212,9 @@ namespace Aplos.Areas.Commercial.Controllers
                 };
                 var model = JsonConvert.DeserializeObject<PurchaseLC>(form["model"], settings);
                 IEnumerable<PurchaseLCCharges> Charges = JsonConvert.DeserializeObject<IEnumerable<PurchaseLCCharges>>(form["Charges"], settings);
+                IEnumerable<PurchaseOrder> POList = JsonConvert.DeserializeObject<IEnumerable<PurchaseOrder>>(form["POList"], settings);
+                IEnumerable<ServicePOMaster> SPOList = JsonConvert.DeserializeObject<IEnumerable<ServicePOMaster>>(form["SPOList"], settings);
+                IEnumerable<OSTransformationPO> JWPOList = JsonConvert.DeserializeObject<IEnumerable<OSTransformationPO>>(form["JWPOList"], settings);
 
 
                 var directory = ResourcesPathReader.GetLCDocPath();
@@ -242,7 +247,9 @@ namespace Aplos.Areas.Commercial.Controllers
                 {
                     SaveAmendmentData(model, out string version, out string masterId);
                     SaveAmendmentChargeData(Charges, masterId, version);
-
+                    UpdatePurchaseOrder(POList, masterId, model);
+                    UpdateServiceOrderPO(SPOList, masterId, model);
+                    UpdateJWPO(JWPOList, masterId, model);
 
                     if (file.IsNotNull())
                     {
@@ -263,6 +270,9 @@ namespace Aplos.Areas.Commercial.Controllers
                 {
                     SaveData(model, out string version, out string masterId);
                     SaveChargeData(Charges, masterId);
+                    UpdatePurchaseOrder(POList, masterId, model);
+                    UpdateServiceOrderPO(SPOList, masterId, model);
+                    UpdateJWPO(JWPOList, masterId, model);
 
                     if (file.IsNotNull())
                     {
@@ -280,13 +290,152 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 }
 
-                
+               
+
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, ex.Message });
             }
 
+        }
+
+        private void UpdatePurchaseOrder(IEnumerable<PurchaseOrder> POList, string masterId, PurchaseLC model)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (POList.Any())
+                {
+                    ConnectionManager.DAL.ConManager objCon;
+                    DataSet dsMaster;
+                    foreach (var item in POList)
+                    {
+                        string sql = "SELECT * FROM TRN.PurchaseOrder WHERE Id='" + item.Id + "'";
+                        objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                        if (dsMaster.Tables[0].Rows.Count > 0)
+                        {
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            dr["ContractId"] = model.ContractId;
+                            dr["PurchaseLCId"] = masterId;
+                            dr["OrderSpecific"] = model.OrderSpecific;
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            dr.EndEdit();
+                        }
+
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsMaster);
+                    }
+                }
+                else
+                {
+                    string _sql = "Update TRN.PurchaseOrder SET PurchaseLCId=NULL WHERE PurchaseLCId='" + masterId + "'";
+                    _sqlRepository.ExecuteSqlCommand(_sql);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void UpdateServiceOrderPO(IEnumerable<ServicePOMaster> SPOList, string masterId, PurchaseLC model)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (SPOList.Any())
+                {
+                    ConnectionManager.DAL.ConManager objCon;
+                    DataSet dsMaster;
+                    foreach (var item in SPOList)
+                    {
+                        string sql = "SELECT * FROM TRN.ServicePOMaster WHERE Id='" + item.Id + "'";
+                        objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                        if (dsMaster.Tables[0].Rows.Count > 0)
+                        {
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            dr["ContractId"] = model.ContractId;
+                            dr["PurchaseLCId"] = masterId;
+                            dr["OrderSpecific"] = model.OrderSpecific;
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            dr.EndEdit();
+                        }
+
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsMaster);
+                    }
+                }
+                else
+                {
+                    string _sql = "Update TRN.ServicePOMaster SET PurchaseLCId=NULL WHERE PurchaseLCId='" + masterId + "'";
+                    _sqlRepository.ExecuteSqlCommand(_sql);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void UpdateJWPO(IEnumerable<OSTransformationPO> SPOList, string masterId, PurchaseLC model)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (SPOList.Any())
+                {
+                    ConnectionManager.DAL.ConManager objCon;
+                    DataSet dsMaster;
+                    foreach (var item in SPOList)
+                    {
+                        string sql = "SELECT * FROM [dbo].[OSTransformationPO] WHERE Id='" + item.Id + "'";
+                        objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                        if (dsMaster.Tables[0].Rows.Count > 0)
+                        {
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            //dr["ContractId"] = model.ContractId;
+                            dr["PurchaseLCId"] = masterId;
+                            dr["OrderSpecific"] = model.OrderSpecific;
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            dr.EndEdit();
+                        }
+
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsMaster);
+                    }
+                }
+                else
+                {
+                    string _sql = "Update [dbo].[OSTransformationPO] SET PurchaseLCId=NULL WHERE PurchaseLCId='" + masterId + "'";
+                    _sqlRepository.ExecuteSqlCommand(_sql);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private string GetChargesPK()

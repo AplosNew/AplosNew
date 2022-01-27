@@ -97,7 +97,8 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
 
        // $scope.ChangeBankMaster();
         $scope.GetPurchaseLCChargesDataByVersion();
-       
+        GetAlldataPOWithLCMap($scope.purchaseLCNew.Id);
+
         if ($scope.purchaseLCNew.Version > 1) {
             getVersionCbo($scope.purchaseLCNew.Id);
         }
@@ -112,6 +113,15 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+    }
+
+    function GetAlldataPOWithLCMap(purchaseLCId) {
+        $http({
+            method: 'GET',
+            url: 'Commercial/PurchaseLCWithPO/GetAlldataPOWithLCMap?purchaseLCId=' + purchaseLCId
+        }).then(function successCallback(response) {
+            $scope.selectedPOList = response.data;
+        });
     }
 
     $scope.ChangeBankMaster = function () {
@@ -216,10 +226,11 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
         $http.get("Commercial/PurchaseLCAmendment/getlist")
             .then(
                 function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.purchaseLCList = response.data;
-                     
+                    for (var i = 0; i < response.data.length; i++) {
+                        response.data[i]["LCDate"] = new Date(response.data[i]["LCDate"]);
+                        response.data[i]["AmendmentDate"] = new Date(response.data[i].AmendmentDate);
                     }
+                    $scope.purchaseLCList = response.data;
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
@@ -352,9 +363,179 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
         document.getElementById("uploadFile4").value = res;
     };
 
+    // #region PO     
+
+    $scope.GriddataPOWithOutLC = [];
+    $scope.getalldataPOWithOutLC = function () {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Commercial/PurchaseLCWithPO/GetAlldataPOWithoutLCMap',
+        }).then(function successCallback(response) {
+            $scope.GriddataPOWithOutLC = response.data;
+        });
+
+        //var gridObj = $("#Grid456").data("ejGrid");
+        //gridObj.refreshContent(true);
+        //gridObj.refreshTemplate();
+    };
+    $scope.getalldataPOWithOutLC();
+
+    $scope.selectedPOList = [];
+    $scope.LcAmount = 0;
+    $scope.MakeData = function () {
+        try {
+            $scope.LcAmount = 0;
+
+            var i = $scope.GriddataPOWithOutLC.length;
+            while (i--) {
+                if ($scope.GriddataPOWithOutLC[i].check === true) {
+
+                    var ob = {};
+
+                    ob.ContractId = $scope.GriddataPOWithOutLC[i].ContractId;
+                    ob.VendorId = $scope.GriddataPOWithOutLC[i].PartyId;
+                    ob.CurrencyId = $scope.GriddataPOWithOutLC[i].CurrencyId;
+                    ob.Id = $scope.GriddataPOWithOutLC[i].Id;
+
+                    //if (checkSameVendor($scope.selectedPOList, ob.VendorId, ob.CurrencyId, ob.ContractId)) {
+                    if (checkSame($scope.selectedPOList, ob.VendorId, ob.CurrencyId)) {
+                        if (checkExistList($scope.selectedPOList, ob.Id) === false) {
+
+                            $scope.purchaseLCNew.VendorId = $scope.GriddataPOWithOutLC[i].PartyId;
+                            $scope.purchaseLCNew.PartyId = $scope.GriddataPOWithOutLC[i].PartyId;
+                            $scope.purchaseLCNew.CurrencyId = $scope.GriddataPOWithOutLC[i].CurrencyId;
+                            $scope.purchaseLCNew.PartyName = $scope.GriddataPOWithOutLC[i].StandardName;
+                            $scope.purchaseLCNew.Currency = $scope.GriddataPOWithOutLC[i].Currency;
+                            $scope.purchaseLCNew.ContractId = $scope.GriddataPOWithOutLC[i].ContractId;
+                            $scope.purchaseLCNew.ContractNo = $scope.GriddataPOWithOutLC[i].ContractNo;
+                            $scope.purchaseLCNew.CustomerName = $scope.GriddataPOWithOutLC[i].CustomerName;
+                            $scope.purchaseLCNew.OrderSpecific = $scope.GriddataPOWithOutLC[i].OrderSpecifi;
+                            $scope.isFirst = $scope.GriddataPOWithOutLC[i].IsFirst;
+                            if ($scope.GriddataPOWithOutLC[i].IsFirst) {
+                                $scope.purchaseLCNew.IsAccepptanceFirst = 'false';
+                            }
+
+                            $scope.GriddataPOWithOutLC[i].check = false;
+                            $scope.selectedPOList.push($scope.GriddataPOWithOutLC[i]);
+                            $scope.GriddataPOWithOutLC.splice(i, 1);
+                            $scope.GetCurrencyExchangeRateList();
+                        }
+                    } else {
+                        //throw "Please select same Vendor, Currency and Contract.";
+                        throw "Please select same Vendor, Currency.";
+                    }
+                }
+            }
+            for (var i = 0; i < $scope.selectedPOList.length; i++) {
+                $scope.LcAmount += $scope.selectedPOList[i].TransactionAmount;
+            }
+            $scope.purchaseLCNew.Amount = $scope.LcAmount;
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+        var gridObj = $("#Grid45").data("ejGrid");
+        gridObj.refreshContent(true);
+        gridObj.refreshTemplate();
+    };
+
+    $scope.RemovePO = function () {
+        $scope.LcAmount = 0;
+        if (baseService.arrayLength($scope.selectedPOList) > 0) {
+            var i = $scope.selectedPOList.length;
+            while (i--) {
+                if ($scope.selectedPOList[i].check === true) {
+                    $scope.selectedPOList[i].check = false;
+                    $scope.GriddataPOWithOutLC.push($scope.selectedPOList[i]);
+                    $scope.selectedPOList.splice(i, 1);
+                }
+            }
+        }
+        for (var i = 0; i < $scope.selectedPOList.length; i++) {
+            $scope.LcAmount += $scope.selectedPOList[i].TransactionAmount;
+        }
+        $scope.purchaseLCNew.Amount = $scope.LcAmount;
+    }
+
+    $window.onresize = function (event) {
+        $scope.actionCompleteSelected();
+        $scope.actionCompleteUnassign();
+    };
+    $scope.actionCompleteSelected = function (args) {
+        try {
+            if (args.requestType === "refresh") {
+                var gridObj = $("#Grid45").ejGrid("instance");
+                var scrollerwidth = $("#Assigned").width();//Obtain the width of the container
+
+                $("#Grid45").children('.e-grid.e-headercell').css('height', '100px');
+                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 220 } });
+                gridObj.windowonresize();
+            }
+        } catch (e) {
+            //$scope.ShowResultCustom(e, 'failure');
+        }
+    };
+
+    $scope.actionCompleteUnassign = function (args) {
+        try {
+            if (args.requestType === "refresh") {
+                var gridObj = $("#Grid456").ejGrid("instance");
+                var scrollerwidth = $("#Unassign").width();//Obtain the width of the container
+
+                $("#Grid456").children('.e-grid.e-headercell').css('height', '100px');
+                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 220 } });
+                gridObj.windowonresize();
+            }
+        } catch (e) {
+            //$scope.ShowResultCustom(e, 'failure');
+        }
+    };
+
+
+    $scope.summaryassignRows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionAmount", dataMember: "TransactionAmount", format: "{0:N2}" }],
+        showCaptionSummary: true
+    }];
+
+    $scope.summaryUnassignRows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionAmount", dataMember: "TransactionAmount", format: "{0:N2}" }],
+        showCaptionSummary: true
+    }];
+
+
+    function checkSameVendor(list, vendorId, currencyId, ContractId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].PartyId !== vendorId || list[i].CurrencyId !== currencyId || list[i].ContractId !== ContractId) {
+                return false;
+            }
+        }
+        return true;
+    }
+    function checkSame(list, vendorId, currencyId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].PartyId !== vendorId || list[i].CurrencyId !== currencyId) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function checkExistList(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id == Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // #endregion
 
     $scope.Save = function () {
         try {
+            $scope.materialPoList = [];
+            $scope.servcePoList = [];
+            $scope.jwOutSourcePoList = [];
             Validation();
 
             if ($scope.flag === 'Amendment') {
@@ -377,37 +558,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
                 }
             }
 
-            //if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-            //    $http({
-            //        method: 'POST',
-            //        url: $scope.saveUrl,
-            //        data: {
-            //            'model': $scope.purchaseLCNew,
-            //            'Charges': $scope.purchaseLCChargesList,
-            //            'flg': $scope.flg
-            //        },
-            //        dataType: 'JSON'
-            //        , contentType: "application/json charset=utf-8"
-            //    }).then(function successCallback(response) {
-            //        if (response.data.Error === true) {
-            //            ShowResult(response.data.Message, 'failure');
-            //        }
-            //        else {
-            //            ShowResult(response.data.Message, 'success');
-            //            $scope.purchaseLCNew.Id = response.data.Id;
-            //            $scope.purchaseLCNew.Version = parseInt(response.data.Version);
-            //            $scope.getSavedData();
-            //            //getPurchaseLCChargesData($scope.purchaseLCNew.Id);
-            //            $scope.Action = 'Update';
-            //            getVersionCbo($scope.purchaseLCNew.Id);
-            //            $scope.GetPurchaseLCChargesDataByVersion();
-            //            angular.element(document.querySelector("#confirmPostPopUp")).modal("hide");
-            //        }
-            //    }), function errorCallBack(response) {
-            //        ShowResult(response.data.Message, 'failure');
-            //    };
-            //}
-
+            
 
             if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
                 throw $scope.filedata.name + ' File size must be below 2 mb';
@@ -422,6 +573,20 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
             }
             var formData = new FormData();
 
+            if (baseService.arrayLength($scope.selectedPOList) > 0) {
+                for (var i = 0; i < $scope.selectedPOList.length; i++) {
+                    if ($scope.selectedPOList[i].Flag == 'MaterialPO') {
+                        $scope.materialPoList.push($scope.selectedPOList[i]);
+                    }
+                    else if ($scope.selectedPOList[i].Flag == 'ServicePO') {
+                        $scope.servcePoList.push($scope.selectedPOList[i]);
+                    }
+                    else {
+                        $scope.jwOutSourcePoList.push($scope.selectedPOList[i]);
+                    }
+                }
+            }
+
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
@@ -433,9 +598,12 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
                             formData.append('file', data.file);
                         }
                         formData.append("Charges", angular.toJson(data.Charges));
+                        formData.append("POList", angular.toJson(data.POList));
+                        formData.append("SPOList", angular.toJson(data.SPOList));
+                        formData.append("JWPOList", angular.toJson(data.JWPOList));
                         return formData;
                     },
-                    data: { 'model': $scope.purchaseLCNew, 'file': $scope.filedata, 'Charges': $scope.purchaseLCChargesList }
+                    data: { 'model': $scope.purchaseLCNew, 'file': $scope.filedata, 'Charges': $scope.purchaseLCChargesList, 'POList': $scope.materialPoList, 'SPOList': $scope.servcePoList, 'JWPOList': $scope.jwOutSourcePoList}
 
 
                 }).then(function successCallback(response) {
