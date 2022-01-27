@@ -20,6 +20,9 @@ using Library.HumanResource.Attendance.Manual;
 using Library.Service.Helpers;
 using System.Data;
 using Library.OrderManagement.FabricRollClass;
+using Library.Model.Enums;
+using Syncfusion.XlsIO;
+using OTSBD;
 
 #endregion using
 
@@ -40,17 +43,23 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region Pages
 
-        [Authorize]
+     
         public ActionResult Aplos()
         {
             return View();
         }
 
-        #endregion Pages
+	
+		public ActionResult Aplos1()
+		{
+			return View();
+		}
 
-        #region -- Operations
+		#endregion Pages
 
-        [HttpGet, Authorize]
+		#region -- Operations
+
+		[HttpGet, Authorize]
         public JsonResult GetList(GridParameter parameters, string paidHours)
         {
             CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -441,6 +450,224 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 			}
 		}
 
+		#region SampleFile
+		[HttpGet, Authorize]
+		public ActionResult GetSampleFile(ReportFormat reportFormat)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			IWorkbook workbook = GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+			var reportFileName = "Fabric Roll Management Template";
+			switch (reportFormat)
+			{
+				case ReportFormat.Pdf:
+					return RenderReportAsPdf(workbook, reportFileName);
 
-	}
+				case ReportFormat.Excel:
+					return RenderReportAsExcel(workbook, reportFileName);
+
+				default:
+					return RenderReportAsExcel(workbook, reportFileName);
+			}
+
+		}
+
+        public IWorkbook GetSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        {
+            #region declare
+            clsReport objRpt = null;
+            clsStaticInfo objStatic = null;
+            objStatic = new clsStaticInfo();
+            string OTConsiderOn = string.Empty;
+            DataSet dsDistrict;
+            DataSet dsState;
+            DataSet dsCountry;
+            DataSet dsBloodGroup;
+            DataSet dsSalutation;
+            DataSet dsCivilStatus;
+            DataSet dsReligion;
+            DataSet dsRoster;
+            DataSet dsShift;
+            DataSet dsJobLocation;
+            DataSet dsLegalDesignation;
+            DataSet dsCity;
+            DataSet dsBudgetCode;
+            int maxRow = 5001;
+
+            #endregion
+            try
+            {
+                //sorting
+                //lock               
+
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+
+
+                #region ------------------Column Header------------------
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode", ExcelKnownColors.Red);
+              
+                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
+                xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Salutation", ExcelKnownColors.Red);
+             
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FirstName", ExcelKnownColors.Red);
+                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
+
+              
+                xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LastName");
+                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FatherName");
+                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MotherName");
+                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MaritalStatus");
+             
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SpouseName"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PresentAddress1"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PresentAddress2"); xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PermanentAddress1"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PermanentAddress2"); xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpType", ExcelKnownColors.Red);
+            
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmploymentType", ExcelKnownColors.Red);
+               
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gender", ExcelKnownColors.Red);
+              
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Religion", ExcelKnownColors.Red);
+              
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BloodGroup");
+             
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PhoneNo");
+                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CardNumber");
+                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "NID", ExcelKnownColors.Red);
+                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
+                xlsCol += 1;
+
+                sheet1.Range[xlsRow, xlsCol, maxRow, xlsCol].NumberFormat = "dd-MMM-yyyy";
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB", ExcelKnownColors.Red); xlsCol += 1;
+
+                sheet1.Range[xlsRow, xlsCol, maxRow, xlsCol].NumberFormat = "dd-MMM-yyyy";
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CelebrationDOB"); xlsCol += 1;
+
+                sheet1.Range[xlsRow, xlsCol, maxRow, xlsCol].NumberFormat = "dd-MMM-yyyy";
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ", ExcelKnownColors.Red); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PPeriod_Date"); xlsCol += 1;
+              
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "JobLocation", ExcelKnownColors.Red);
+               
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LegalDesignation", ExcelKnownColors.Red);
+              
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode", ExcelKnownColors.Red);
+               
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PaymentMode", ExcelKnownColors.Red);
+              
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Country_permanent");
+               
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Citizen", ExcelKnownColors.Red);
+               
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "State_Division", ExcelKnownColors.Red);
+               
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "District", ExcelKnownColors.Red);
+              
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "City");
+               
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsConfirmed"); xlsCol += 1;
+
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                //sheetSource.Protect("2020", ExcelSheetProtection.Content);
+
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+    }
 }

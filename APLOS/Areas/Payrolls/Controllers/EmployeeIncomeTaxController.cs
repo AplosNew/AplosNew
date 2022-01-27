@@ -6,6 +6,8 @@ using Library.Crosscutting.Security;
 using System.Threading;
 using Library.Data.Sql;
 using Library.HumanResource.Payroll.Tax;
+using System.Collections.Generic;
+using Aplos.Properties;
 
 namespace Aplos.Areas.Payrolls.Controllers
 {
@@ -16,15 +18,12 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        private readonly IEmployeeProfileService _employeeProfileService;
-
         EmployeeIncomeTaxService eit = new EmployeeIncomeTaxService();
 
 
         public EmployeeIncomeTaxController(ISqlRepository R, IEmployeeProfileService employeeProfileService)
         {
             _sqlRepository = R;
-            _employeeProfileService = employeeProfileService;
             eit = new EmployeeIncomeTaxService();
         }
        
@@ -35,7 +34,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region 
+        #region Employee Header Saving Functions
+        
         [HttpGet, Authorize]
         public ActionResult GetEmployeeList()
         {
@@ -85,7 +85,48 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult SaveInvestDeduction(Dictionary<string, object> Masterdata, IEnumerable<InvestDeductModelClass> ChildData)
+        {
+            try
+            {
+                if (Masterdata["TaxTypeId"] == null)
+                {
+                    throw new Exception("Please Select Tax Type !!");
+                }
+                if (Masterdata["TaxYearId"] == null)
+                {
+                    throw new Exception("Please Select Tax Year !!");
+                }
+
+                eit.SaveInvestDeduction(Masterdata, ChildData);               
+                return Json(new { Error = false, Message = AplosMessage.Success });
+               
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
         #endregion
+
+        #region Investment/Deduction Tab Functions
+        [HttpPost, Authorize]
+        public ActionResult GetInvestDeductList(string PolicyHeaderId,string EmpId)
+        {
+            try
+            {
+                return Json(eit.InvestDeductGridData(PolicyHeaderId,EmpId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        #endregion
+
 
     }
 }

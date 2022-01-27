@@ -721,5 +721,17 @@ namespace Aplos.Controllers
         {
             return Json(new SelectList(EnumService.GetEnumCbo<TermsAndConditionsEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetTableColumnEnumCbo()
+        {
+            return Json(new SelectList(EnumService.GetEnumCbo<TableColumnEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetDataTypeEnumCbo()
+        {
+            return Json(new SelectList(EnumService.GetEnumCbo<DataType>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
     }
 }

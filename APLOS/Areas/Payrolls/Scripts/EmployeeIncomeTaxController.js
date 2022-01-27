@@ -7,6 +7,16 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     $scope.path = 'Payrolls/EmployeeIncomeTax/';
     $scope.employee = [];
 
+    //#region Tab
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+    // #endregion Tab
+
     //#region employee Load
     $scope.getPopUpData = function () {
         $scope.employee = [];
@@ -38,6 +48,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
       
         var data = obj.data;
         $scope.TaxPolicyName = null;
+        $scope.InvestDeductGridPop = [];
         $scope.EmployeeInfoModel.EmployeeCode = data.EmployeeCode;
         $scope.EmployeeInfoModel.EmpSystemID = data.SystemID;
         $scope.EmployeeInfoModel.EmployeeName = data.EmployeeName;
@@ -93,7 +104,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
     //#endregion 
 
-    //#region Tax Year
+    //#region GetList Functions of Header
 
     $scope.YearList = [];
     $scope.TaxTypeList = [];
@@ -113,18 +124,9 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         });
     }
     $scope.getData();    
-    //#endregion
 
-    //#region Tab
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-    };
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-    // #endregion Tab
 
+    // Policy Finding
     $scope.TaxPolicyList = [];
     $scope.GetTaxPolicyList = function () {
         $http({
@@ -140,9 +142,14 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             $scope.TaxPolicyList = [];
             $scope.TaxPolicyList = response.data;
             $scope.TaxPolicyName = response.data[0].PolicyHeaderName;
+            $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId = response.data[0].PolicyHeaderId;
+            $scope.getInvestDeductionList();
         });
     }
 
+    //#endregion
+
+    // #region Modals Defined
 
     $scope.EmployeeIncomeTaxModel = {
         Id: null,
@@ -150,13 +157,17 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         TaxYearId: null,
         TaxTypeId: null,
         CityOfResidence: null,
-        CurrentAge:null
+        CurrentAge: null,
+        TaxPolicyHeaderId: null
     }
     
     $scope.EmployeeListTemp = [];  
     $scope.TaxPolicyName = null;
 
+    // #endregion
+
     //#region AGE CALCUALTE
+
     $scope.DurationYear = 0;
     $scope.DurationMonth = 0;
     $scope.countDate = function () {
@@ -193,4 +204,88 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     };
 
     //#endregion   
+
+    // #region Saving Investment Deduction Function
+
+    $scope.ClearInvestDeduction = function () {
+        for (var i = 0; i < $scope.InvestDeductGridPop.length; i++) {
+            $scope.InvestDeductGridPop[i].ActualValue = 0;
+            $scope.InvestDeductGridPop[i].UserValue = 0;
+        }
+    }
+
+    $scope.FindMin = function (data) {
+
+        var x = Math.min(data.data.ActualValue, data.data.TaxSavingItemLimit);
+        var y = Math.min(data.data.UserValue, x);
+
+        for (var i = 0; i < $scope.InvestDeductGridPop.length; i++)
+        {
+            if (data.data.IncomeTaxItemChildId == $scope.InvestDeductGridPop[i].IncomeTaxItemChildId)
+            {
+                $scope.InvestDeductGridPop[i].UserValue = y;
+            }
+        }
+    }
+
+    $scope.SaveInvestDeduction = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.EmpSystemId)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "SaveInvestDeduction",
+                data: {
+                    'Masterdata': $scope.EmployeeIncomeTaxModel,
+                    'ChildData': $scope.InvestDeductGridPop
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+               }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        else {
+            ShowResult("Please Choose Employee First ...", 'failure');
+        }
+    };
+
+    // #endregion
+
+    // #region Grid Data Functions
+
+    $scope.InvestDeductGridPop = [];
+    $scope.getInvestDeductionList = function () {
+
+        if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Invalid Request!!');
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetInvestDeductList",
+            data: {
+                'PolicyHeaderId': $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId,
+                'EmpId': $scope.EmployeeIncomeTaxModel.EmpSystemId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+                throw ('Invalid Request!');
+            }
+            $scope.InvestDeductGridPop = [];
+            $scope.InvestDeductGridPop = response.data;
+
+        });
+    }
+
+    // #endregion
+
 }
