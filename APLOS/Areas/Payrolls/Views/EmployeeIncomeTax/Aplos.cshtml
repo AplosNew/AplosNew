@@ -157,13 +157,14 @@
                     <input type="number" ng-model="data.ActualValue" style="color:black; text-align:center" />
                 </script>
                 <script type="text/template" id="UserId">
-                    <input type="text" ng-model="data.UserValue" style="color:black; text-align:center" />
+                    <input type="number" ng-model="data.UserValue" ng-change="FindMin(data.ActualValue,data.TaxSavingItemLimit,data.UserValue)" style="color:black; text-align:center" />
                 </script>
 
-                <div class="row">
-                    <div class="common-btn">
+                <div class="row" style="margin-right:25px" >
+                    <div class="common-btn" >
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveEmployeeInfoHeader();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="SaveInvestDeduction();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="ClearInvestDeduction();" class="btn" ><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
                 </div>

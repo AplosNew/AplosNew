@@ -86,21 +86,22 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult Create(Dictionary<string, object> data)
+        public ActionResult SaveInvestDeduction(Dictionary<string, object> Masterdata, IEnumerable<InvestDeductModelClass> ChildData)
         {
             try
             {
-                if (data["TaxTypeId"] == null)
+                if (Masterdata["TaxTypeId"] == null)
                 {
                     throw new Exception("Please Select Tax Type !!");
                 }
-                if (data["TaxYearId"] == null)
+                if (Masterdata["TaxYearId"] == null)
                 {
                     throw new Exception("Please Select Tax Year !!");
                 }
-              
-                var datax = eit.Create(data);
-                return Json(new { Error = false, Data = datax, Message = AplosMessage.Success });
+
+                eit.SaveInvestDeduction(Masterdata, ChildData);               
+                return Json(new { Error = false, Message = AplosMessage.Success });
+               
             }
             catch (Exception ex)
             {
@@ -113,11 +114,11 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region Investment/Deduction Tab Functions
         [HttpPost, Authorize]
-        public ActionResult GetInvestDeductList(string PolicyHeaderId)
+        public ActionResult GetInvestDeductList(string PolicyHeaderId,string EmpId)
         {
             try
             {
-                return Json(eit.InvestDeductGridData(PolicyHeaderId), JsonRequestBehavior.AllowGet);
+                return Json(eit.InvestDeductGridData(PolicyHeaderId,EmpId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
