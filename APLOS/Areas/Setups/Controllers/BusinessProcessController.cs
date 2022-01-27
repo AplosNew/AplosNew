@@ -337,6 +337,12 @@ namespace Aplos.Areas.Setups.Controllers
         public JsonResult DropAlterBPTable(string BusinessProcess, string columnName)
         {
             string schema = "BPDT.";
+
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  * FROM " + schema + "" + BusinessProcess + " Where " + columnName + " IS NOT NULL");
+            if (dt.Rows.Count > 0)
+            {
+                throw new Exception("This " + columnName + " has value, so column can't drop.");
+            }
             string sql = @"ALTER TABLE " + schema + "" + BusinessProcess + " DROP COLUMN " + columnName + "";
             return new JsonResult
             {
