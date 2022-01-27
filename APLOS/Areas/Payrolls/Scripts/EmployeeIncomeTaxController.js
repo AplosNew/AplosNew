@@ -142,6 +142,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             $scope.TaxPolicyList = response.data;
             $scope.TaxPolicyName = response.data[0].PolicyHeaderName;
             $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId = response.data[0].PolicyHeaderId;
+            $scope.getInvestDeductionList();
         });
     }
 
@@ -203,9 +204,10 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
     //#endregion   
 
-    // #region Saving Header Region
+    // #region Saving Header Function
 
     $scope.SaveEmployeeInfoHeader = function () {
+
         if (!baseService.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.EmpSystemId)) {
             $http({
                 method: 'POST',
@@ -218,9 +220,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                   // $scope.getInvestDeductMaster();
-                    $scope.EmployeeIncomeTaxModel.Id = response.data.Data.Id;
-
+                    $scope.EmployeeIncomeTaxModel.Id = response.data.Data.Id;                   
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -232,5 +232,32 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     };
 
     // #endregion
+
+    $scope.InvestDeductGridPop = [];
+    $scope.getInvestDeductionList = function () {
+
+        if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Invalid Request!!');
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetInvestDeductList",
+            data: {
+                'PolicyHeaderId': $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+                throw ('Invalid Request!');
+            }
+            $scope.InvestDeductGridPop = [];
+            $scope.InvestDeductGridPop = response.data;
+
+        });
+    }
+
 
 }
