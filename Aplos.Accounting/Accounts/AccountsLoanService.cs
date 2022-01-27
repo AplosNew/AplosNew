@@ -539,7 +539,8 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                var sql = @"SELECT I.CompanyId, I.PlantId, VD.EntityId, EN.UserName AS EntityName, I.PartyType, I.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, I.PartyPlantId, PP.UserName AS PartyPlantName, I.Id AS FinancingId
+                var sql = @"SELECT * FROM
+                            (SELECT I.CompanyId, I.PlantId, VD.EntityId, EN.UserName AS EntityName, I.PartyType, I.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, I.PartyPlantId, PP.UserName AS PartyPlantName, I.Id AS FinancingId
                                         , ID.Id AS FinancingDetailId, I.FinancingTypeId, I.VoucherId, V.VoucherNo, I.FinancingNo, VD.Id AS VoucherDetailId, I.CurrencyId, C.Code AS CurrencyCode, OBKM.GLGeneralInfoId AS GLGeneralInfoId
                                         , GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, OBKM.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount, B.UserName AS BudgetName, OBKM.ActivityId
                                         , A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') AS PostingDate
@@ -657,7 +658,9 @@ namespace Library.Accounting.Accounts
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
                                     WHERE I.Archive=0 AND I.IsPark=0  AND I.OpeningBalanceId<>'' AND I.VoucherId<>'' AND ISNULL(I.OtherBankMasterId,'') <>''  AND  I.TransactionType='" + transactionType + @"'
-                                    AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "'";
+                                    AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + @"'
+                                    )X
+									WHERE X.Balance>0";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

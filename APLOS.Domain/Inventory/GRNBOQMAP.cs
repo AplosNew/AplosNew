@@ -14,6 +14,7 @@ namespace Library.Model.Inventory
         public string InventoryReceiveDetailId { get; set; }
         public string BOQDetailId { get; set; }
         public decimal TransactionQty { get; set; }
+        public decimal? TransactionRate { get; set; }
         public decimal? BaseQty { get; set; }
         public decimal POBOQQty { get; set; }
         public string BaseUoMId { get; set; }

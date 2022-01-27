@@ -129,25 +129,53 @@
 
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+               
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+                <div class="row" style="margin:10px;">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" ej-grid e-datasource="InvestDeductGridPop"
+                             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                             e-allowselection="true" e-filtersettings-filterType="excel"
+                             e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="TaxSavingGroup" e-headertext="Tax Saving Group" e-width="3"></div>
+                                <div e-column e-field="SavingGpLimit" e-headertext="Group Limit" e-width="2"></div>
+                                <div e-column e-field="TaxSavingItem" e-headertext="Tax Saving Item" e-width="3"></div>
+                                <div e-column e-field="TaxSavingItemLimit" e-headertext="Item Limit" e-width="2"></div>
+                                <div e-column e-headertext="Actual Value" e-template="#ActualId" e-textalign="center" e-width="3"></div>
+                                <div e-column e-headertext="User Value" e-template="#UserId" e-textalign="center" e-width="3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveEmployeeInfoHeader();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                        <li> <button ng-click="" class="btn" style="margin-right:15px"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                    </ul>
+                <script type="text/template" id="ActualId">
+                    <input type="number" ng-model="data.ActualValue" style="color:black; text-align:center" />
+                </script>
+                <script type="text/template" id="UserId">
+                    <input type="number" ng-model="data.UserValue" ng-change="FindMin(data.ActualValue,data.TaxSavingItemLimit,data.UserValue)" style="color:black; text-align:center" />
+                </script>
+
+                <div class="row" style="margin-right:25px" >
+                    <div class="common-btn" >
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveInvestDeduction();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="ClearInvestDeduction();" class="btn" ><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
                 </div>
 
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-             
-            </div>
-          
-    
-    </div>
 
-    </div>
-    
+        </div>
+
+    </div>    
 </div>
+
 <div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

@@ -3850,6 +3850,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 							ShowResult(response.data.Message, 'success', 'ListOfPOMaterial');
 							getInventoryMaterialList($scope.productNew.Id);
 							angular.element(document.querySelector('#ListOfPOMaterial')).modal('hide');
+							$scope.GetGRN();
 
 						}
 					}), function errorCallBack(response) {
@@ -3885,6 +3886,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 						else {
 							ShowResult(response.data.Message, 'success', 'ListOfPOMaterial1');
 							getInventoryMaterialList($scope.productNew.Id);
+							$scope.GetGRN();
 						}
 					}), function errorCallBack(response) {
 						ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial1');
