@@ -166,7 +166,7 @@
                 <script id="AutoLoanTemplate" type="text/template">
                     <div class="common-btn">
                         <ul class="common-btn list-inline text-center">
-                            <li>
+                            @*<li>
                                 <button ng-click="$parent.getReportPdf(data);" class="btn btn-action" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="pdf">
                                     <i class="fa fa-file-pdf-o" style="color:orangered;"></i>
                                 </button>
@@ -174,7 +174,10 @@
                                 <button ng-click="$parent.getReport(data);" class="btn btn-action" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="excel">
                                     <i class="fa fa-file-excel-o" style="color:orangered;"></i>
                                 </button>
-                            </li>
+
+                            </li>*@
+                            <li><a class="btn btn-action" href="Commercial/AutoLoan/GetAutoLoanReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Commercial/AutoLoan/GetAutoLoanReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         </ul>
                     </div>
                 </script>

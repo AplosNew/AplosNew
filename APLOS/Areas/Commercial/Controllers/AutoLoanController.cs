@@ -359,10 +359,10 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetAutoLoanReport(ReportFormat reportFormat, string LCId,string LoanAgainstAcceptanceMasterId, string SourceType)
+        public ActionResult GetAutoLoanReport(ReportFormat reportFormat, string LCId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = GetAutoLoanReportFormat(out string reportFileName, LCId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, LoanAgainstAcceptanceMasterId, SourceType);
+            var workbook = GetAutoLoanReportFormat(out string reportFileName, LCId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -372,126 +372,186 @@ namespace Aplos.Areas.Commercial.Controllers
                     return RenderReportAsExcelx(workbook, reportFileName);
 
                 default:
-                    return View();
+                    return RenderReportAsExcel(workbook, reportFileName); ;
             }
         }
 
 
-        public IWorkbook GetAutoLoanReportFormat(out string reportFileName, string lcId, string companyGroupId, string companyId, string plantId ,string LoanAgainstAcceptanceMasterId,string SourceType)
+        public IWorkbook GetAutoLoanReportFormat(out string reportFileName, string LCId)
         {
             var reportUtility = new ReportUtility();
             var excelEngine = new ExcelEngine();
             var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2016;
             var sheet = workbook.Worksheets[0];
-            sheet.Name = "Voucher";
+            sheet.Name = "AutoLoan";
 
-            var header = GetAutoLoanHeader();
+            var header = GetAutoLoanHeader(LCId);
 
             reportFileName = "Auto Loan Report";
 
-            DataTable data = GetAutoLoanQuery(LoanAgainstAcceptanceMasterId, SourceType);
-
-            int ROW = 6;
-            int COL = 1;
+            var data = GetAutoLoanQuery(LCId);
 
 
-            //sheet[ROW, COL].Text = "LoanNo";
-            //sheet[ROW, COL].ColumnWidth = 10;
-            //int colLoanNo = COL;
-            //COL++;
+            int ROW = 5;
+            int xlsCol = 1;
+            int colLast = 6;
 
-            //sheet[ROW, COL].Text = "Loan Date";
-            //sheet[ROW, COL].ColumnWidth = 10;
-            //int colNewLoanDate = COL;
-            //COL++;
-            //sheet[ROW, COL].Text = "Source Type";
-            //sheet[ROW, COL].ColumnWidth = 10;
-            //int colSourceType = COL;
-            //COL++;
-            //sheet[ROW, COL].Text = "LC No";
-            //sheet[ROW, COL].ColumnWidth = 14;
-            //int colPurchaseLCNo = COL;
-            //COL++;
+            reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Loan No.");
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            reportUtility.SetText(ref sheet, ROW, 2, header["LoanNo"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
 
-            //sheet[ROW, COL].Text = "Bank Master";
-            //sheet[ROW, COL].ColumnWidth = 10;
-            //int colAccountTitle = COL;
-            //COL++;
-            //sheet[ROW, COL].Text = "Currency";
-            //sheet[ROW, COL].ColumnWidth = 10;
-            //int colCurrencyCode = COL;
-            //COL++;
-            //sheet[ROW, COL].Text = "Amount";
-            //sheet[ROW, COL].ColumnWidth = 10;
-            //int colAmount = COL;
-            sheet[ROW, COL].Text = "Acceptance / Invoice No.";
-            sheet[ROW, COL].ColumnWidth = 15;
-            int colAcceptanceNo = COL;
-            COL++;
-            
-            sheet[ROW, COL].Text = "Amount";
-            sheet[ROW, COL].ColumnWidth = 15;
-            int colAmount = COL;
-
-            int endCol = COL;
-            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
-            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-
-            var startRow = 0;
-            int RowIndex = ROW;
-            int StartRow = ROW; //row 20
+            reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "Loan Date");
+            sheet[ROW, 5].ColumnWidth = 25;
+            sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+            reportUtility.SetText(ref sheet, ROW, 6, header["NewLoanDate"].ToString());
+            sheet[ROW, 6].ColumnWidth = 25;
+            sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
             ROW++;
 
+            reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Source Type");
+            reportUtility.SetText(ref sheet, ROW, 2, header["SourceType"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+
+            reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "LC No.");
+            reportUtility.SetText(ref sheet, ROW, 6, header["PurchaseLCNo"].ToString());
+            sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ROW++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Bank Master");
+            reportUtility.SetText(ref sheet, ROW, 2, header["AccountTitle"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+
+            reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "Currency");
+            reportUtility.SetText(ref sheet, ROW, 6, header["CurrencyCode"].ToString());
+            sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ROW++;
+            
+
+            reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Amount");
+            reportUtility.SetText(ref sheet, ROW, 2, header["Amount"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+
+            reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "Added By");
+            reportUtility.SetText(ref sheet, ROW, 6, header["AddedBy"].ToString());
+            sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ROW++;
+            ROW++;
+
+            int endcolHeader = 8;
+
+            sheet[ROW, xlsCol].Text = "Acceptance / Invoice No.";
+            sheet[ROW, xlsCol].ColumnWidth = 25;
+            int colAcceptanceNo = xlsCol;
+            xlsCol++;
+
+            sheet[ROW, xlsCol].Text = "Acceptance Date";
+            sheet[ROW, xlsCol].ColumnWidth = 25;
+            int colAcceptanceDate = xlsCol;
+            xlsCol++;
+
+            sheet[ROW, xlsCol].Text = "Voucher No.";
+            sheet[ROW, xlsCol].ColumnWidth = 25;
+            int colVoucherNo = xlsCol;
+            xlsCol++;
+
+            sheet[ROW, xlsCol].Text = "Posting Date";
+            sheet[ROW, xlsCol].ColumnWidth = 25;
+            int colPostingDate = xlsCol;
+            xlsCol++;
+
+            sheet[ROW, xlsCol].Text = "Vendor";
+            sheet[ROW, xlsCol].ColumnWidth = 25;
+            int colVendor = xlsCol;
+            xlsCol++;
+
+            sheet[ROW, xlsCol].Text = "Amount";
+            sheet[ROW, xlsCol].ColumnWidth = 25;
+            int colAmount = xlsCol;
+
+            int endCols = xlsCol;
+            sheet.Range[ROW, 1, ROW, endCols].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, 1, ROW, endCols].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            sheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
+
+           
+            var startRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW; 
+            ROW++;
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
-
-                //sheet[ROW, colLoanNo].Text = data.Rows[i]["LoanNo"].ToString();
-                //sheet[ROW, colNewLoanDate].Text = data.Rows[i]["date"].ToString();
-                //sheet[ROW, colSourceType].Text = data.Rows[i]["SourceType"].ToString();
-                //sheet[ROW, colPurchaseLCNo].Text = data.Rows[i]["PurchaseLCNo"].ToString();
-                //sheet[ROW, colAccountTitle].Text = data.Rows[i]["AccountTitle"].ToString();
-                //sheet[ROW, colCurrencyCode].Text = data.Rows[i]["CurrencyCode"].ToString();
                 sheet[ROW, colAcceptanceNo].Text = data.Rows[i]["AcceptanceNo"].ToString();
+                sheet[ROW, colAcceptanceDate].Text = data.Rows[i]["AcceptanceDate"].ToString();
+                sheet[ROW, colVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+                sheet[ROW, colPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+                sheet[ROW, colVendor].Text = data.Rows[i]["PartyName"].ToString();
                 sheet[ROW, colAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
                 sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                 
 
-                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
 
                 ROW++;
 
             }
+            reportUtility.SetText(ref sheet, ROW, 5, "Total: ", true);
+            sheet[ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-            //sheet.Range[StartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-            //sheet.Range[StartRow, colPOValue, ROW, colPOValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-            //sheet.Range[StartRow, colAcceptanceValue, ROW, colAcceptanceValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-            //sheet.Range[StartRow, colGRNValue, ROW, colGRNValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet[ROW, 6].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(colAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(colAmount) + (ROW - 1).ToString() + ")";
+            sheet[ROW, 6].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, 6].CellStyle.Font.Bold = true;
+
+            sheet.Range[ROW, 5, ROW, 6].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 5, ROW, 6].BorderInside(ExcelLineStyle.Hair);
+
+          
+
             sheet.IsGridLinesVisible = false;
-
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+            sheet.Range[startRow, 1, ROW, endcolHeader].CellStyle.Font.Size = 8f;
 
-            sheet["A" + StartRow.ToString()].FreezePanes();
+            sheet["A" + startRow.ToString()].FreezePanes();
 
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             reportUtility = new ReportUtility();
-            reportUtility.PlantHeader(ref sheet, endCol, "Auto Loan", identity.PlantId);
+            reportUtility.PlantHeader(ref sheet, endcolHeader, "Auto Loan", identity.PlantId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //sheet[ROW, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[1, 5, 4, endcolHeader].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
 
             return workbook;
         }
 
-        private Dictionary<string, object> GetAutoLoanHeader()
+        private Dictionary<string, object> GetAutoLoanHeader(string Id)
         {
             try
             {
@@ -524,7 +584,7 @@ namespace Aplos.Areas.Commercial.Controllers
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN LoanAgainstAcceptanceDetail LAAD ON XP.Id=LAAD.PurchaseDocAcceptanceId
 													where	LAAD.LoanAgainstAcceptanceMasterId=LAA.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						
+						,LAA.AddedBy
 						FROM LoanAgainstAcceptanceMaster LAA 
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
@@ -533,7 +593,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						WHERE LAA.IsPark=1  AND LAA.VoucherId IS NULL
 						UNION ALL
 						SELECT 'Invoice' SourceType, LAA.Id LoanAgainstAcceptanceId,LAA.Id, LAA.CompanyGroupId, LAA.CompanyId, LAA.PlantId, LAA.EntityId, LAA.CurrencyId, LAA.VoucherId, 'Vendor' PartyType,LAA.PartyId, LAA.PartyPlantId,'LoanTaken' TransactionType,'Bank' PaymentSource , LAA.LoanDate, LAA.LoanNo, LAA.Amount, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
-						,LAA.BankMasterId, BM.AccountTitle, XVD.LCRef,XVD.PINo
+						,LAA.BankMasterId, BM.AccountTitle, XVD.LCRef,XVD.PINo,LAA.AddedBy
 						FROM InvoiceTaggingWithLCMaster LAA 
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
@@ -543,7 +603,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						LEFT JOIN dbo.PurchaseLC XVD ON XVD.Id=LAA.PurchaseLCId
 						WHERE LAA.IsLoan=1 AND  
 						 LAA.VoucherId IS NULL)X
-						WHERE X.PlantId='" + identity.PlantId + "'";
+						WHERE X.PlantId='" + identity.PlantId + "' and x.Id='"+ Id + "'";
                 return _sqlRepository.GetData(strSQL);
             }
             catch (Exception ex)
@@ -552,19 +612,19 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-        private DataTable GetAutoLoanQuery(string LoanAgainstAcceptanceMasterId, string SourceType)
+        private DataTable GetAutoLoanQuery(string LoanAgainstAcceptanceMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = string.Empty;
-            if (SourceType == "Acceptance")
-            {
-                sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
+         
+            
+               var sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
 						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
-						,IV.CompanyCurrencyRate,BM.AccountTitle 
-						,PDA.AcceptanceNo,LAAD.BankMasterId
+						,IV.CompanyCurrencyRate,BM.AccountTitle
+						,PDA.AcceptanceNo,format(PDA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate,LAAD.BankMasterId,V.VoucherNo,Format( V.PostingDate,'dd-MMM-yyyy') as PostingDate
 						FROM LoanAgainstAcceptanceMaster LAA 
 						LEFT JOIN LoanAgainstAcceptanceDetail LAAD ON LAA.Id=LAAD.LoanAgainstAcceptanceMasterId
 						INNER JOIN TRN.PurchasedocAcceptance AS PDA ON PDA.Id=LAAD.PurchasedocAcceptanceId
+						LEFT JOIN TRN.Voucher V ON V.Id=PDA.VoucherId
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
 						LEFT JOIN MST.BankMaster BM ON BM.Id=LAAD.BankMasterId
@@ -572,12 +632,12 @@ namespace Aplos.Areas.Commercial.Controllers
 						LEFT JOIN TRN.Invoice IV ON IV.PurchaseDocAcceptanceId=LAAD.PurchaseDocAcceptanceId
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
-						WHERE LAA.IsPark=1 AND LAA.PlantId='" + identity.PlantId + "' AND LAAD.LoanAgainstAcceptanceMasterId='" + LoanAgainstAcceptanceMasterId + @"'  AND LAA.VoucherId IS NULL 
+						WHERE LAA.IsPark=1 AND LAA.PlantId='" + identity.PlantId + @"' AND LAAD.LoanAgainstAcceptanceMasterId='" + LoanAgainstAcceptanceMasterId + @"'  AND LAA.VoucherId IS NULL 
 						UNION ALL 
 						SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
 						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
-						,IV.CompanyCurrencyRate,BM.AccountTitle 
-						,IV.DocRefNo  AcceptanceNo,LAAD.BankMasterId
+						,IV.CompanyCurrencyRate,BM.AccountTitle
+						,IV.DocRefNo  AcceptanceNo,format(V.PostingDate,'dd-MMM-yyyy') AcceptanceDate,LAAD.BankMasterId,V.VoucherNo,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
 						FROM LoanAgainstAcceptanceMaster LAA 
 						LEFT JOIN LoanAgainstAcceptanceDetail LAAD ON LAA.Id=LAAD.LoanAgainstAcceptanceMasterId
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
@@ -585,27 +645,13 @@ namespace Aplos.Areas.Commercial.Controllers
 						LEFT JOIN MST.BankMaster BM ON BM.Id=LAAD.BankMasterId
 						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
 						LEFT JOIN TRN.Invoice IV ON IV.Id=LAAD.InvoiceId
+						left join TRN.Voucher V on V.Id=IV.VoucherId
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
-						WHERE LAA.IsPark=1 AND LAA.PlantId='" + identity.PlantId + "' AND LAAD.LoanAgainstAcceptanceMasterId='" + LoanAgainstAcceptanceMasterId + @"'  AND LAA.VoucherId IS NULL";
-            }
-            else
-            {
-                sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
-						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
-						,IV.CompanyCurrencyRate,BM.AccountTitle 
-						,IV.DocRefNo  AcceptanceNo,LAA.BankMasterId
-						FROM InvoiceTaggingWithLCMaster LAA 
-						LEFT JOIN InvoiceTaggingWithLCDetail LAAD ON LAA.Id=LAAD.InvoiceTaggingWithLCMasterId
-						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
-						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
-						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
-						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
-						LEFT JOIN TRN.Invoice IV ON IV.Id=LAAD.InvoiceId
-						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
-						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
-						WHERE LAA.PlantId='" + identity.PlantId + "' AND LAAD.InvoiceTaggingWithLCMasterId='" + LoanAgainstAcceptanceMasterId + "'  AND LAA.VoucherId IS NULL";
-            }
+						WHERE LAA.IsPark=1 AND LAA.PlantId='" + identity.PlantId + @"' AND LAAD.LoanAgainstAcceptanceMasterId='" + LoanAgainstAcceptanceMasterId + @"'  AND LAA.VoucherId IS NULL 
+						and IV.PurchaseLCId is not null
+
+	";
 
             return _sqlRepository.GetDataTable(sql);
         }
