@@ -1430,6 +1430,7 @@ namespace Library.MaterialManagement.Inventory
                             POBOQQty = item.POBOQQty,
                             BaseUoMId = item.BaseUOMId,
                             POUoMId = item.POUoMId,
+                            TransactionRate = item.TransactionRate,
 
                         };
                         AuditService.AddedLog(grnboqmap);
