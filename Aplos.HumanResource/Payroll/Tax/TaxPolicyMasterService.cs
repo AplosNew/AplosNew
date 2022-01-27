@@ -812,6 +812,15 @@ namespace Library.HumanResource.Payroll.Tax
         public string ExemptionApplicableChildId { get; set; }
         public string Component { get; set; }
     }
+    public class InvestDeductModelClass
+    {
+        public string Id { get; set; }
+        public decimal ActualValue { get; set; }
+        public decimal UserValue { get; set; }
+        public string EmployeeIncomeTaxId { get; set; }
+        public string IncomeTaxItemChildId { get; set; }
+    }
+
     public class EmployeeIncomeTaxService
     {
         #region Constructor 
@@ -824,7 +833,7 @@ namespace Library.HumanResource.Payroll.Tax
         }
         #endregion
 
-        #region Master Saving
+        #region Master Get Functions
         public IEnumerable<object> GetEmployeeList(string plantId, string companyId)
         {
             try
@@ -911,21 +920,123 @@ namespace Library.HumanResource.Payroll.Tax
 
         }
          
-        public Dictionary<string, object> Create(Dictionary<string, object> dataMaster)
+        #endregion
+
+        #region Investment/Deduction Tab Functions 
+        public void GetInvDetailsForSaving(string Id, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from EmployeeInvestmentDeduction WHERE EmployeeIncomeTaxId= '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }          
+        }
+        public void GetCheckParam(string EmpId,string PolicyId, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from EmployeeIncomeTaxMaster" +
+                    " where EmpSystemId='"+EmpId+"' and TaxPolicyHeaderId = '"+PolicyId+"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public IEnumerable<object> InvestDeductGridData(string PolicyHeaderId,string EmpSystemId)
         {
             try
             {
+                string sql = "";
+                GetCheckParam(EmpSystemId, PolicyHeaderId, out DataSet dsRef);
+                if (dsRef.Tables[0].Rows.Count > 0)
+                {
+                    
+                    sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+                    it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
+                    eid.ActualValue,eid.UserValue,eid.EmployeeIncomeTaxId,itc.DocumentApplicable,
+                    itc.Id as IncomeTaxItemChildId
+                    from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
+                    it.SystemId=itc.IncomeTaxItemMasterId
+                    left join EmployeeInvestmentDeduction eid on eid.IncomeTaxItemChildId=itc.Id
+                    left join EmployeeIncomeTaxMaster eim on eim.Id=eid.EmployeeIncomeTaxId
+                    left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
+                    left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId
+                    where it.TaxPolicyHeaderId='" + PolicyHeaderId + "' " +
+                    "and eim.EmpSystemId='" + EmpSystemId + "'";
+                }
+                else
+                {
+                    sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+                    it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
+                    itc.DocumentApplicable,(select '0') as ActualValue,(select '0') as UserValue,
+                    itc.Id as IncomeTaxItemChildId
+                    from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
+                    it.SystemId=itc.IncomeTaxItemMasterId
+                    left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
+                    left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId
+                    where it.TaxPolicyHeaderId='" + PolicyHeaderId + "'";
+                }
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ClearInvestmentTableRows(string Id)
+        {
+            try
+            {              
+                    var sql = @"delete from EmployeeInvestmentDeduction 
+                    where EmployeeIncomeTaxId='"+Id+"'";
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+                
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
+        #region Saving Functions
+        public void SaveInvestDeduction(Dictionary<string, object> dataMaster, IEnumerable<InvestDeductModelClass> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                 string TableName = "dbo.EmployeeIncomeTaxMaster";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 string sql = @"select * from " + TableName + " where" +
-                    " EmpSystemId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='"+ dataMaster["TaxPolicyHeaderId"] + "' " +
-                    "AND TaxTypeId='"+ dataMaster["TaxTypeId"] + "' AND TaxYearId='"+dataMaster["TaxYearId"] +"'";
+                    " EmpSystemId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='" + dataMaster["TaxPolicyHeaderId"] + "' " +
+                    "AND TaxTypeId='" + dataMaster["TaxTypeId"] + "' AND TaxYearId='" + dataMaster["TaxYearId"] + "'";
 
                 con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-            
+
                 string _Id = "";
-                #region data update
+                #region Master Saving
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     clsGenID genid = new clsGenID();
@@ -935,14 +1046,46 @@ namespace Library.HumanResource.Payroll.Tax
                 }
                 else
                 {
-                    _Id = dataMaster["Id"].ToString();
+                    _Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0]["Id"]).ToString();
+                    dataMaster["Id"] = _Id;
                     _tax.EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
                 }
-                #endregion data update
+                #endregion
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                return dataMaster;
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region Child Saving
+
+                GetInvDetailsForSaving(MasterId, out DataSet dsChild);
+                if (dsChild.Tables[0].Rows.Count > 0)
+                {
+                    ClearInvestmentTableRows(MasterId);
+                }
+                if (data != null)
+                {
+                    int count = 0;
+                    DataRow drF;
+                    foreach (var item in data)  
+                    {
+                        drF = dsChild.Tables[0].NewRow();
+                        count++;
+                        string pk = MasterId + "_" + count;
+                        drF["Id"] = pk;
+                        drF["EmployeeIncomeTaxId"] = MasterId;
+                        drF["ActualValue"] = item.ActualValue;
+                        drF["UserValue"] = item.UserValue;
+                        drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
+                        drF["DocumentId"] = "";
+                        drF["AddedBy"] = identity.UserId;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+                        dsChild.Tables[0].Rows.Add(drF);
+                    }
+                    _info.SaveDataSets(dsChild);
+                }
+                #endregion
 
             }
             catch (Exception ex)
@@ -950,31 +1093,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-
-        #endregion
-
-        #region Investment/Deduction Tab Functions    
-        public IEnumerable<object> InvestDeductGridData(string PolicyHeaderId)
-        {
-            try
-            {
-                string sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
-                it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
-                eid.ActualValue,eid.UserValue,eid.EmployeeIncomeTaxId,itc.DocumentApplicable
-                from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
-                it.SystemId=itc.IncomeTaxItemMasterId
-                left join EmployeeInvestmentDeduction eid on eid.IncomeTaxItemChildId=itc.Id
-                left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
-                left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId
-                where it.TaxPolicyHeaderId='" + PolicyHeaderId+"'";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-      
         #endregion
     }
 }
