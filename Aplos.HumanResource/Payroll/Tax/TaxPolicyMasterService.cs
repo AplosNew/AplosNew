@@ -15,11 +15,14 @@ namespace Library.HumanResource.Payroll.Tax
 { 
     public class TaxPolicyMasterService
     {
+        #region Constructor 
+        
         ISqlRepository _sqlRepository;
         public TaxPolicyMasterService()
         {
             _sqlRepository = new SqlRepository();
         }
+        #endregion
 
         #region Add/Edit Section
         public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -801,7 +804,6 @@ namespace Library.HumanResource.Payroll.Tax
         public string Description { get; set; }
         public string IsUserDefined { get; set; }
     }
-
     public class TaxExemptionFormulaDetail
     {
         public string Id { get; set; }
@@ -810,15 +812,19 @@ namespace Library.HumanResource.Payroll.Tax
         public string ExemptionApplicableChildId { get; set; }
         public string Component { get; set; }
     }
-
     public class EmployeeIncomeTaxService
     {
+        #region Constructor 
+       
         ISqlRepository _sqlRepository;
         TaxPolicyMasterService _tax = new TaxPolicyMasterService();
         public EmployeeIncomeTaxService()
         {
             _sqlRepository = new SqlRepository();
         }
+        #endregion
+
+        #region Master Saving
         public IEnumerable<object> GetEmployeeList(string plantId, string companyId)
         {
             try
@@ -887,7 +893,7 @@ namespace Library.HumanResource.Payroll.Tax
                     MValue = "0";
                 }
 
-                string strSQL = @"SELECT th.Id,th.UserName as PolicyHeaderName,th.AgeFrom,th.AgeTo,
+                string strSQL = @"SELECT th.Id as PolicyHeaderId,th.UserName as PolicyHeaderName,th.AgeFrom,th.AgeTo,
                 ty.TaxYearName,format(ty.StartDate,'yyyy-MMM-dd')as 
                 StartDate,format(ty.EndDate,'yyyy-MMM-dd') as EndDate 
                 from TaxPolicyHeader th left join 
@@ -895,14 +901,7 @@ namespace Library.HumanResource.Payroll.Tax
                 left join scs.TaxYear ty on ty.Id=tht.TaxYearId
                 where th.CityOfResidence='" + Residence+@"' and th.Male='"+MValue+@"'
                 and th.Female='"+FValue+"' and ty.Id='"+YearId+"'";
-
-                string sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
-it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit
-from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
-it.SystemId=itc.IncomeTaxItemMasterId
-left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
-left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId
-where TaxPolicyHeaderId='TH2'";
+                
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -911,7 +910,7 @@ where TaxPolicyHeaderId='TH2'";
             }
 
         }
-
+         
         public Dictionary<string, object> Create(Dictionary<string, object> dataMaster)
         {
             try
@@ -919,9 +918,12 @@ where TaxPolicyHeaderId='TH2'";
                 string TableName = "dbo.EmployeeIncomeTaxMaster";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + dataMaster["Id"] + "'", out dsMaster, false, "1");
-                DateTime now = DateTime.Today;
+                string sql = @"select * from " + TableName + " where" +
+                    " EmpSystemId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='"+ dataMaster["TaxPolicyHeaderId"] + "' " +
+                    "AND TaxTypeId='"+ dataMaster["TaxTypeId"] + "' AND TaxYearId='"+dataMaster["TaxYearId"] +"'";
 
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+            
                 string _Id = "";
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -949,6 +951,31 @@ where TaxPolicyHeaderId='TH2'";
             }
         }
 
+        #endregion
+
+        #region Investment/Deduction Tab Functions    
+        public IEnumerable<object> InvestDeductGridData(string PolicyHeaderId)
+        {
+            try
+            {
+                string sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+                it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
+                eid.ActualValue,eid.UserValue,eid.EmployeeIncomeTaxId,itc.DocumentApplicable
+                from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
+                it.SystemId=itc.IncomeTaxItemMasterId
+                left join EmployeeInvestmentDeduction eid on eid.IncomeTaxItemChildId=itc.Id
+                left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
+                left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId
+                where it.TaxPolicyHeaderId='" + PolicyHeaderId+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+      
+        #endregion
     }
 }
 

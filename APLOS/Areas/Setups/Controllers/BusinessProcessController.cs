@@ -244,7 +244,7 @@ namespace Aplos.Areas.Setups.Controllers
         }
 
 
-        public JsonResult SaveAlterBPTable(string BusinessProcess, string columnName, string dataType, string nullable)
+        public JsonResult SaveAlterBPTable(string BusinessProcessId,string BusinessProcess, string columnName, string dataType, string nullable)
         {
             string schema = "BPDT.";
             if (dataType == "varchar30")
@@ -263,6 +263,7 @@ namespace Aplos.Areas.Setups.Controllers
             {
                 dataType = "decimal(18,4)";
             }
+            SaveBusinessProcessDataTableColumnCreationData(BusinessProcessId, columnName, dataType, nullable);
             string sql = @"ALTER TABLE " + schema + "" + BusinessProcess + " ADD " + columnName + " " + dataType + " " + nullable + "";
             return new JsonResult
             {
@@ -274,52 +275,74 @@ namespace Aplos.Areas.Setups.Controllers
             };
         }
 
-        //private void SaveBusinessProcessDataTableColumnCreationData(string BusinessProcessId,string columnName, string dataType, string nullable)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    ConnectionManager.DAL.ConManager objCon;
-        //    try
-        //    {
+        private double GetSequence(string BusinessProcessId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM BusinessProcessDataTableColumnCreation Where BusinessProcessId='"+ BusinessProcessId + "'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
-        //        #region FUND 
+            return 1;
+        }
 
-        //        DataSet dsChild;
+        private void SaveBusinessProcessDataTableColumnCreationData(string BusinessProcessId, string columnName, string dataType, string nullable)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            string _Id = "";
+            double Sequence = 0;
 
-        //        objCon = new ConnectionManager.DAL.ConManager("1");
-        //        objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.BusinessProcessDataTableColumnCreation where  Id=''", out dsChild, false, "1");
-        //        #region data save&update
-        //        DataView dv = new DataView(dsChild.Tables[0]);
-        //        dv.RowFilter = "Id='""'";
+            bplib.clsGenID genid = new bplib.clsGenID();
+            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "BPDTCC", out _Id);
+            Sequence = GetSequence(BusinessProcessId);
+            try
+            {
 
-        //        if (dv.Count == 0)
-        //        {
-        //            item["Id"] = GetPK();
-        //            item["BusinessProcessId"] = BusinessProcessId;
+                string sql = "SELECT * FROM dbo.BusinessProcessDataTableColumnCreation WHERE Id='" + _Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
 
-        //            AddNewRow(dsChild.Tables[0], item);
-        //        }
-        //        else
-        //        {
-        //            DataRow drmo = dv[0].Row;
-        //            EditRow(drmo, item);
-        //        }
-        //        #endregion
+                    dr["Id"] = _Id;
+                    dr["BusinessProcessId"] = BusinessProcessId;
+                    dr["Sequence"] = Sequence;
+                    dr["ColumnName"] = columnName;
+                    dr["UseName"] = columnName;
+                    dr["DataType"] = dataType;
+                    dr["NullAble"] = nullable;
 
-        //        #endregion
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
 
-        //        clsStaticInfo obj = new clsStaticInfo();
-        //        obj.SaveDataSets(dsChild);
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now;
+                    dr["UpdatedFromIP"] = identity.IPAddress;
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw (ex);
-        //    }
-        //}
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         public JsonResult DropAlterBPTable(string BusinessProcess, string columnName)
         {
             string schema = "BPDT.";
+
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  * FROM " + schema + "" + BusinessProcess + " Where " + columnName + " IS NOT NULL");
+            if (dt.Rows.Count > 0)
+            {
+                throw new Exception("This " + columnName + " has value, so column can't drop.");
+            }
             string sql = @"ALTER TABLE " + schema + "" + BusinessProcess + " DROP COLUMN " + columnName + "";
             return new JsonResult
             {
