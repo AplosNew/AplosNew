@@ -232,5 +232,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionGeneralReport/Aplos',
             controller: 'ProductionGeneralReportController'
         })
+        .when('/ageing-stocks-report', {
+            templateUrl: 'Productions/StocksAgeingReport/Aplos',
+            controller: 'StocksAgeingReportController'
+        })
         ;
 }
