@@ -1759,71 +1759,79 @@ namespace Aplos.Areas.Products.Controllers
         }
         public JsonResult BOQDetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType,string entityMatAndImat)
         {
-            #region Validation For R A T E
-            foreach (var itemDetail in entityMat)
+            try
             {
-                var xy = entityMat.Where(q => q.MaterialMasterId == itemDetail.MaterialMasterId && q.ArticleId == itemDetail.ArticleId && q.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && q.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && q.MaterialTranRate != itemDetail.MaterialTranRate).ToList();
-                if (xy.Count > 1)
+                #region Validation For R A T E
+                foreach (var itemDetail in entityMat)
                 {
-                    throw new Exception("Material transaction rate should be same!");
-                }
-            }
-            
-
-            #endregion
-            #region Duplicate Remove
-            List<InventoryMaterialViewModel> List = new List<InventoryMaterialViewModel>();
-
-            decimal addnew = 0;
-            foreach (var item in entityMat)
-            {
-                addnew = 0;
-                if (List.Count == 0)
-                {
-                    List.Add(item);
-
-                }
-                else
-                {
-                    for (int i = 0; i < List.Count; i++)
+                    var xy = entityMat.Where(q => q.MaterialMasterId == itemDetail.MaterialMasterId && q.ArticleId == itemDetail.ArticleId && q.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && q.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && q.MaterialTranRate != itemDetail.MaterialTranRate).ToList();
+                    if (xy.Count > 1)
                     {
-                        if (List[i].MaterialMasterId == item.MaterialMasterId && List[i].ArticleId == item.ArticleId && List[i].FirstCharacteristicsValueId == item.FirstCharacteristicsValueId && List[i].SecondCharacteristicsValueId == item.SecondCharacteristicsValueId)
-                        {
-                            if (item.NetQty != List[i].NetQty)
-                            {
-                                List[i].Qty = List[i].Qty + item.Qty;
-                                List[i].BaseIssueQty = List[i].BaseIssueQty + item.BaseIssueQty;
-                                List[i].BaseQty = List[i].BaseQty + item.BaseQty;
-                                List[i].NetQty = List[i].NetQty + item.NetQty;
-                                List[i].TransactionQty = List[i].TransactionQty + item.TransactionQty;
-                                List[i].GRNTotalAmount = List[i].GRNTotalAmount + item.GRNTotalAmount;
-                                addnew = 1;
-                            }
-                            else
-                            {
-                                addnew = 1;
-                            }
-
-                        }
+                        throw new Exception("Material transaction rate should be same!");
                     }
-                    if (addnew == 0)
+                }
+
+
+                #endregion
+                #region Duplicate Remove
+                List<InventoryMaterialViewModel> List = new List<InventoryMaterialViewModel>();
+
+                decimal addnew = 0;
+                foreach (var item in entityMat)
+                {
+                    addnew = 0;
+                    if (List.Count == 0)
                     {
                         List.Add(item);
+
+                    }
+                    else
+                    {
+                        for (int i = 0; i < List.Count; i++)
+                        {
+                            if (List[i].MaterialMasterId == item.MaterialMasterId && List[i].ArticleId == item.ArticleId && List[i].FirstCharacteristicsValueId == item.FirstCharacteristicsValueId && List[i].SecondCharacteristicsValueId == item.SecondCharacteristicsValueId)
+                            {
+                                if (item.NetQty != List[i].NetQty)
+                                {
+                                    List[i].Qty = List[i].Qty + item.Qty;
+                                    List[i].BaseIssueQty = List[i].BaseIssueQty + item.BaseIssueQty;
+                                    List[i].BaseQty = List[i].BaseQty + item.BaseQty;
+                                    List[i].NetQty = List[i].NetQty + item.NetQty;
+                                    List[i].TransactionQty = List[i].TransactionQty + item.TransactionQty;
+                                    List[i].GRNTotalAmount = List[i].GRNTotalAmount + item.GRNTotalAmount;
+                                    addnew = 1;
+                                }
+                                else
+                                {
+                                    addnew = 1;
+                                }
+
+                            }
+                        }
+                        if (addnew == 0)
+                        {
+                            List.Add(item);
+                        }
                     }
                 }
+
+                var settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore
+                };
+                List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+
+                #endregion
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                _inventoryDetailService.BOQInsertOrUpdateGraphNew(entity, entityMatAndImat1, taxCategoryList, id, MaterialStorageId, GRNType, List);
+                return Json(new { Message = AplosMessage.Success });
             }
-
-            var settings = new JsonSerializerSettings
+            catch (Exception e)
             {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
-
-            #endregion
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _inventoryDetailService.BOQInsertOrUpdateGraphNew(entity, entityMatAndImat1, taxCategoryList, id, MaterialStorageId, GRNType, List);
-            return Json(new { Message = AplosMessage.Success });
+                return Json(new { Error = true, Message = e.Message });
+            }
+            
         }
         public JsonResult BOQServiceChargesCreateNew(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id, string AcceptanceId)
         {
