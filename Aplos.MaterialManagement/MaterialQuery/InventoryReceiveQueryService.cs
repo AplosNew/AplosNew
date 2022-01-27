@@ -30,7 +30,7 @@ namespace Aplos.MaterialManagement
 
 
 
-				var sql = @" select * from (
+				var sql = @" select *,Convert(bit, 'False')IsTradingPO from (
                             SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
                                         --,IR.GRNDate

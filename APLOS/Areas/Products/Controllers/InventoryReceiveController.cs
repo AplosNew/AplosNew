@@ -1659,6 +1659,100 @@ namespace Aplos.Areas.Products.Controllers
             return null;
         }
 
+        [Authorize, HttpPost]
+        public JsonResult CreateGRNBYBOQ(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            //IEnumerable<InventoryMaterialViewModel>
+            List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
+
+                }
+            }
+
+            DetailFOCCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatAndImat);
+            ServiceChargesFOCCreate(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
     }
 
 
