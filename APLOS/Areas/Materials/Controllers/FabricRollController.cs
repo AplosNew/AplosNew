@@ -40,17 +40,23 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region Pages
 
-        [Authorize]
+     
         public ActionResult Aplos()
         {
             return View();
         }
 
-        #endregion Pages
+	
+		public ActionResult Aplos1()
+		{
+			return View();
+		}
 
-        #region -- Operations
+		#endregion Pages
 
-        [HttpGet, Authorize]
+		#region -- Operations
+
+		[HttpGet, Authorize]
         public JsonResult GetList(GridParameter parameters, string paidHours)
         {
             CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
