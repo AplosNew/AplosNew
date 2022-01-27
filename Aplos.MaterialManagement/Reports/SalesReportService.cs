@@ -635,9 +635,9 @@ namespace Library.MaterialManagement.Reports
 
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                throw ex;
             }
 
             document.Close();
@@ -1501,7 +1501,7 @@ namespace Library.MaterialManagement.Reports
             DataTable dsSalesInvoiceMaterialData, dsTax;
 
             dsSalesInvoiceMaterialData = loadSalesInvoiceMaterial(salesId);
-            dsTax = loadOrderMasterTax(salesId);
+            dsTax = loadOrderMasterTaxes(salesId);
             DataTable sales, materialTax;
             //    //Sales== Master Query
             //    sales = loadLocalTaxMaterialMaster(salesId);
@@ -3112,7 +3112,7 @@ namespace Library.MaterialManagement.Reports
             {
             }
         }
-        public DataTable loadOrderMasterTax(string SalesId)
+        public DataTable loadOrderMasterTaxes(string SalesId)
 
         {
             string strSQL;
@@ -3138,6 +3138,44 @@ namespace Library.MaterialManagement.Reports
 
             }
         }
+
+        public DataTable loadOrderMasterTax(string SalesId)
+
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"select 
+                                    PO.SalesId,PO.Id SalesMaterialId,
+                                    IRT.Id AS SalesTax,tg.Code AS TaxCode,
+                                    s.tocurrencyRate,
+                                    IRT.Percentage,
+                                    (IRT.Amount * s.tocurrencyRate) as TaxAmount
+                                   	,ISNULL(IRT.BooksCurrencyTransactionAmount,0) BooksCurrencyTransactionAmount
+									,ISNULL(po.BooksCurrencyTaxAmount,0) BooksCurrencyTaxAmount
+									,ISNULL(po.BooksCurrencyBaseRate,0) BooksCurrencyBaseRate
+
+							    from TRN.[SalesMaterial] PO
+                               Inner join trn.SalesTax IRT ON IRT.SalesMaterialId = PO.Id 
+                               LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
+							   left outer join trn.sales as s on s.id=po.salesId
+                                 WHERE PO.SalesId='" + SalesId + @"' 
+								 and IRT.SalesMaterialId  IS NOT NULL AND  IRT.SalesServiceId IS NULL 
+								 ORDER BY tg.[Sequence]";
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
         public DataTable loadSalesMaster(string SalesId)
         {
             string strSQL;
