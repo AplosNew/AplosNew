@@ -1006,6 +1006,7 @@ var upanelApp = angular
     .controller("ProductionGeneralReportController", ProductionGeneralReportController)
     .controller("inventorySalesReturnPost", inventorySalesReturnPost)
     .controller("ServicePORegisterController", ServicePORegisterController)
+    .controller("StocksAgeingReportController", StocksAgeingReportController)
 
 
     .config(AccessControllerConfig)

@@ -1191,7 +1191,7 @@ namespace Library.MaterialManagement.Reports
             sales = loadLocalTaxMaterialMaster(salesId);
             materialTax = loadOrderMasterTax(salesId);
 
-            int LasColumnIndex = 7;
+            int LasColumnIndex = 9;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView(materialTax.DefaultView.ToTable(true, "TaxCode"));
 
@@ -1219,18 +1219,28 @@ namespace Library.MaterialManagement.Reports
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
-            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 100;
+            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 110;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 100;
+            wTable.Rows[ROW].Cells[colArticle].Width = 110;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("BuyerRef#");
+            range.ApplyCharacterFormat(FontBold);
+            int colBuyerRef = COL; COL++;
+            wTable.Rows[ROW].Cells[colBuyerRef].Width = 80;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PONumber");
+            range.ApplyCharacterFormat(FontBold);
+            int colPONumber = COL; COL++;
+            wTable.Rows[ROW].Cells[colPONumber].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU");
             range.ApplyCharacterFormat(FontBold);
             int colChar1 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar1].Width = 45;
+            wTable.Rows[ROW].Cells[colChar1].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
@@ -1252,7 +1262,7 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL;
-            wTable.Rows[ROW].Cells[colRate].Width = 45;
+            wTable.Rows[ROW].Cells[colRate].Width = 50;
 
             int colTotalTaxableAmount = COL;
             if (dv.Count > 0)
@@ -1260,7 +1270,7 @@ namespace Library.MaterialManagement.Reports
                 COL++;
                 colTotalTaxableAmount = COL;
                 range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount " + "(" + " " + sales.Rows[0]["BaseCurrencyName"].ToString() + " " + ")" + " ");
-                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 80;
+                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 100;
                 range.ApplyCharacterFormat(FontBold);
                 //COL++;
                 for (int i = 0; i < dv.Count; i++)
@@ -1345,6 +1355,8 @@ namespace Library.MaterialManagement.Reports
                 }
                 TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
+                TROW.Cells[colBuyerRef].AddParagraph().AppendText(dsOrderMaster.Rows[i]["YourOrderRefNo"].ToString());
+                TROW.Cells[colPONumber].AddParagraph().AppendText(dsOrderMaster.Rows[i]["PONumber"].ToString());
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString() + "-" + dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString() + "-" + dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
 
                 //TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
@@ -1388,7 +1400,7 @@ namespace Library.MaterialManagement.Reports
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colChar1 || dicTaxes.ContainsValue(C))
+                if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colUoM || C == colRate || C == colChar1 || dicTaxes.ContainsValue(C))
                     continue;
 
                 double value = 0;

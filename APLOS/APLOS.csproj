@@ -695,6 +695,7 @@
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionGeneralReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\StocksAgeingReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteTransactionReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteMasterController.cs" />
     <Compile Include="Areas\Outsourcing\Controllers\OSIssueRegisterController.cs" />
@@ -2007,6 +2008,7 @@
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
+    <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteTransactionReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteMasterController.js" />
     <Content Include="Areas\Outsourcing\Scripts\OSissueRegisterController.js" />
@@ -3961,6 +3963,7 @@
     <Content Include="Areas\Payrolls\Views\EmployeeIncomeTax\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformancePeriodMaster\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\FabricRoll\Aplos1.cshtml" />
+    <Content Include="Areas\Productions\Views\StocksAgeingReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

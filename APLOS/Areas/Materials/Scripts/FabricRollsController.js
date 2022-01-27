@@ -805,6 +805,9 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     };
       //End Import File
 
-
+    $scope.GetSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = 'Materials/FabricRoll/GetSampleFile?reportFormat=' + ReportFormat;
+    };
 
 }
