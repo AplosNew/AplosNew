@@ -35,7 +35,7 @@ namespace Library.OrderManagement.Sales
                             , SO.ShipmentModeId
 							,MOI.MaterialMasterId
 							,MM.UserName MaterialMasterName
-							,MOI.ArticleId
+							,MOI.ArticleId,MOI.BuyerReferenceNo
 							,WithSKU=CASE WHEN MM.WithSKU=1 THEN 'Yes' WHEN MM.WithSKU=0 THEN 'No' END
 							,MMA.StandardName MaterialMasterArticleName
 							,FCH.Id FirstCharacteristicsId
@@ -119,7 +119,7 @@ namespace Library.OrderManagement.Sales
 
             try
             {
-                var cmdText = @"SELECT SM.*,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
+                var cmdText = @"SELECT SM.*,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName,MOI.BuyerReferenceNo,PO.PONumber
             , BUoM.UserName AS BaseUoM, TUoM.UserName AS TransactionUoM
             , CU.Code AS Currency,NULL TaxList ,FC.ValueFreeText,FCV.UserName AS [FreeText] 
             , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue
