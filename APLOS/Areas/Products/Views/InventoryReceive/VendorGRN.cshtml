@@ -343,8 +343,8 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
             <div ng-form="tabForm1">
                 <ul class="col-md-6 common-btn list-inline text-left">
-                    <li><button ng-click="detailPopUp();" ng-show=" (productNew.OrderSpecific=='No')" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Material</button></li>
-                    <li><button ng-click="GetBOQItemList();" ng-show=" (productNew.OrderSpecific=='Yes')" class="btn"><i class="glyphicon glyphicon-plus"></i> Add BOQ Material</button></li>
+                    <li><button ng-click="detailPopUp();" ng-show="productNew.Id!=null  && (productNew.OrderSpecific=='No')" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Material</button></li>
+                    <li><button ng-click="GetBOQItemList();" ng-show="productNew.Id!=null  && (productNew.OrderSpecific=='Yes')" class="btn"><i class="glyphicon glyphicon-plus"></i> Add BOQ Material</button></li>
                 </ul>
                 @*<div class="col-md-6 text-right" style="padding-top: 17px;">
                         <label class="control-label" style="margin-right: -32px;" ng-hide="grossTotal==0">Gross Amount : {{grossTotal| number| setDecimal:currencyPrecision}}</label>
