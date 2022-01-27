@@ -34,7 +34,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region 
+        #region Employee Header Saving Functions
+        
         [HttpGet, Authorize]
         public ActionResult GetEmployeeList()
         {
@@ -109,6 +110,22 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         #endregion
+
+        #region Investment/Deduction Tab Functions
+        [HttpPost, Authorize]
+        public ActionResult GetInvestDeductList(string PolicyHeaderId)
+        {
+            try
+            {
+                return Json(eit.InvestDeductGridData(PolicyHeaderId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        #endregion
+
 
     }
 }
