@@ -886,6 +886,15 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
             ShowResult("JV Dr Cr is not equal!", "failure");
             return true;
         }
+        for (var i = 0; i < $scope.bankDetailList.length; i++) {
+            if ($scope.bankDetailList[i].SourceType === "Loan") {
+                if ($scope.bankDetailList[i].Balance < $scope.bankDetailList[i].Amount) {
+                    ShowResult("Payment Amount can't more than Loan Balance Amount", "failure");;
+                    return true;
+                }
+            }
+           
+        }
         return false;
     };
 
@@ -1276,6 +1285,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
                     $scope.bankDetail.FinancingId = bank.FinancingId;
                     $scope.bankDetail.FinancingDetailId = bank.FinancingDetailId;
                     $scope.bankDetail.FinancingTypeId = bank.FinancingTypeId;
+                    $scope.bankDetail.CompanyCurrencyRate = bank.CompanyCurrencyRate;
                     $scope.bankDetail.Balance = bank.Balance;
                     $scope.bankDetail.Amount = null;
                     $scope.bankDetail.BaseDrAmount = null;
