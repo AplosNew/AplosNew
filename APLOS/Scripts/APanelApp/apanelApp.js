@@ -459,12 +459,10 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('ReportingGroupController', ReportingGroupController)
     .controller('FinalSettlementDeductionHeadController', FinalSettlementDeductionHeadController)
     .controller('ScanItemController', ScanItemController)
-    .controller('TaxInvestmentMasterController', TaxInvestmentMasterController)
     .controller("MovementItemsController", MovementItemsController)
     .controller("MovementMaterialMasterController", MovementMaterialMasterController)
     .controller("NoticePeriodSettingController", NoticePeriodSettingController)
 
-    .controller("DeductionInvestmentMasterController", DeductionInvestmentMasterController)
     .controller("TaxSavingGroupController", TaxSavingGroupController)
     .controller("TaxSavingItemController", TaxSavingItemController)
     .controller("TermsAndConditionsController", TermsAndConditionsController)
