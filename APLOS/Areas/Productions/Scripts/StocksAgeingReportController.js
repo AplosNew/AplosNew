@@ -4,4 +4,13 @@ function StocksAgeingReportController(cboService, commonMessage, $scope, $rootSc
     $rootScope.title = 'Finished Goods Stock Ageing ';
     $scope.path = 'Productions/StocksAgeingReport/';
 
+
+    // Variables
+    $scope.FromDate = null;
+    $scope.ToDate = null;
+
+    //Operations
+    $scope.show = function () {
+        console.log($scope.FromDate, ' ', $scope.ToDate);
+    }
 }
