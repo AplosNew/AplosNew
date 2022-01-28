@@ -329,10 +329,6 @@
             templateUrl: 'Payrolls/GraruityInsuranceReport/Aplos',
             controller: 'GraruityInsuranceReportController'
         })
-        .when('/tax-investment-master', {
-            templateUrl: 'Payrolls/TaxInvestmentMaster/Aplos',
-            controller: 'TaxInvestmentMasterController'
-        })
         .when('/notice-period-setting', {
             templateUrl: 'Payrolls/NoticePeriodSetting/Aplos',
             controller: 'NoticePeriodSettingController'

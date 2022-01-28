@@ -108,7 +108,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-
         [HttpPost, Authorize]
         public ActionResult GetFileInfo(string Id /*taxyear, string taxtype,string empsysteid*/)
         {
@@ -124,6 +123,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
 
         }
+
         [HttpPost, Authorize]
         public ActionResult UploadAttachment(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
         {
@@ -148,13 +148,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                     string _Id = "IncomeTax_" + AdditionalData.Rows[0]["Id"].ToString();
 
                     var fileName = Path.GetFileName(_Id + new FileInfo(file.FileName).Extension);
-                    var destinationPath = Path.Combine(ResourcesPathReader.TaxOpeningBalancePath(), _Id + new FileInfo(file.FileName).Extension);
+                    var destinationPath = Path.Combine(ResourcesPathReader.InvestDeductDocumentInfoPath(), _Id + new FileInfo(file.FileName).Extension);
 
-                    if (Directory.Exists(ResourcesPathReader.TaxOpeningBalancePath()) == false)
+                    if (Directory.Exists(ResourcesPathReader.InvestDeductDocumentInfoPath()) == false)
                     {
                         try
                         {
-                            Directory.CreateDirectory(ResourcesPathReader.TaxOpeningBalancePath());
+                            Directory.CreateDirectory(ResourcesPathReader.InvestDeductDocumentInfoPath());
                         }
                         catch (Exception)
                         {
@@ -169,8 +169,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                     connection.BeginTransaction();
                     connection.getDataSet(sql, out dsLocal);
                     connection.CommitTransaction();
-
-
 
 
                     if (dsLocal.Tables[0].Rows.Count > 0)
@@ -206,16 +204,9 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         #endregion data update
 
-
-
-
-
                         file.SaveAs(destinationPath);
                         clsStaticInfo info = new clsStaticInfo();
                         info.SaveDataSets(dsLocal);
-
-
-
                     }
                 }
                 return Content("");
@@ -257,6 +248,47 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
                 return Json(new { Error = true, Message = ex.Message });
             }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteFile(string Id, string TableName)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + "  where Id='" + Id + "'", out dsMaster, false, "1");
+
+                var destinationPath = Path.Combine(ResourcesPathReader.InvestDeductDocumentInfoPath(), dsMaster.Tables[0].Rows[0]["FileName"].ToString());
+                if (System.IO.File.Exists(destinationPath))
+                    System.IO.File.Delete(destinationPath);
+
+                #region Task data update
+
+                DataRow dr = dsMaster.Tables[0].Rows[0];
+                dr.BeginEdit();
+
+                dr["FileName"] = DBNull.Value;
+                dr.EndEdit();
+
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = AplosMessage.Updated
+                });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
         }
 
         #endregion

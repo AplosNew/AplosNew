@@ -148,7 +148,7 @@
                                 <div e-column e-field="TaxSavingItemLimit" e-headertext="Item Limit" e-width="2"></div>
                                 <div e-column e-headertext="Actual Value" e-template="#ActualId" e-textalign="center" e-width="3"></div>
                                 <div e-column e-headertext="User Value" e-template="#UserId" e-textalign="center" e-width="3"></div>
-                                <div e-column e-template="#UploadFiles" e-headertext="Attachment" e-width="3"></div>
+                                <div e-column e-template="#UploadFiles" e-headertext="Attachment" e-width="10" ></div>
 
                             </div>
                         </div>
@@ -201,14 +201,15 @@
              e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"></div>
     </div>
     <div class="col-md-8" ng-hide="data.FileName==null ">
-        <a href="POPResources/TaxOpeningBalance/{{data.FileName}}">
+        <a href="POPResources/InvestDeductDocumentInfo/{{data.FileName}}">
             <span style="height:20px;width:20px;color:blue;">
                 {{data.FileName}}
             </span>
         </a>
     </div>
     <div class="col-md-4" ng-hide="data.FileName==null ">
-        <button name="submit" e-id="{{data.Id}}" ng-click="$parent.confirmFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+        <button name="submit" e-id="{{data.Id}}" 
+                ng-click="$parent.confirmFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
     </div>
 </script>
 

@@ -807,7 +807,6 @@
     <Compile Include="Areas\Payrolls\Controllers\SalaryProcessOtherStatusNewController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxOBController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ProfessionalTaxOBController.cs" />
-    <Compile Include="Areas\Payrolls\Controllers\TaxInvestmentMasterController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxSavingGroupController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxSavingItemController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxTypeController.cs" />
@@ -2102,7 +2101,6 @@
     <Content Include="Areas\Payrolls\Scripts\SalaryProcessOtherStatusNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxOBController.js" />
     <Content Include="Areas\Payrolls\Scripts\ProfessionalTaxOBController.js" />
-    <Content Include="Areas\Payrolls\Scripts\TaxInvestmentMasterController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxSavingGroupController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxSavingItemController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxTypeController.js" />
@@ -3710,7 +3708,6 @@
     <Content Include="Areas\Accounts\Views\FinancialStatusDashboard\CustomerReceivableInvoiceDetail.cshtml" />
     <Content Include="Areas\Productions\Views\MovementItems\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\MovementMaterialMaster\Aplos.cshtml" />
-    <Content Include="Areas\Payrolls\Views\TaxInvestmentMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryProcessedReportExtraOTCTC.cshtml" />
     <Content Include="Areas\Accounts\Views\FinancialStatusDashboard\_CustomerReceivableTableAgingPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\FinancialStatusDashboard\_CustomerReceivableSetOffDetailPopUp.cshtml" />
