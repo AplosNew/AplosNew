@@ -214,13 +214,18 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         }
     }
 
-    $scope.FindMin = function (ActualValue,ItemLimit,UserValue) {
+    $scope.FindMin = function (data) {
 
-        if (Math.min(ActualValue, ItemLimit) < UserValue) {
-            ShowResult("Invalid",'failure');
-            throw "Invalid Data";
+        var x = Math.min(data.data.ActualValue, data.data.TaxSavingItemLimit);
+        var y = Math.min(data.data.UserValue, x);
+
+        for (var i = 0; i < $scope.InvestDeductGridPop.length; i++)
+        {
+            if (data.data.IncomeTaxItemChildId == $scope.InvestDeductGridPop[i].IncomeTaxItemChildId)
+            {
+                $scope.InvestDeductGridPop[i].UserValue = y;
+            }
         }
-
     }
 
     $scope.SaveInvestDeduction = function () {

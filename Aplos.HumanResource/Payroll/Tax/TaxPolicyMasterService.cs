@@ -819,6 +819,7 @@ namespace Library.HumanResource.Payroll.Tax
         public decimal UserValue { get; set; }
         public string EmployeeIncomeTaxId { get; set; }
         public string IncomeTaxItemChildId { get; set; }
+        public decimal SavingGpLimit { get; set; }
     }
 
     public class EmployeeIncomeTaxService
@@ -1067,6 +1068,8 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     int count = 0;
                     DataRow drF;
+                    decimal GroupLimit = 0;
+                    decimal SumofItems = 0;
                     foreach (var item in data)  
                     {
                         drF = dsChild.Tables[0].NewRow();
@@ -1081,7 +1084,13 @@ namespace Library.HumanResource.Payroll.Tax
                         drF["AddedBy"] = identity.UserId;
                         drF["AddedFromIp"] = identity.IPAddress;
                         drF["AddedDate"] = DateTime.Now.ToString();
+                        SumofItems += item.UserValue;
+                        GroupLimit = item.SavingGpLimit;
                         dsChild.Tables[0].Rows.Add(drF);
+                    }
+                    if(GroupLimit<SumofItems)
+                    {
+                        throw new Exception(" Sum of Individual Items is more than Group Limit !! Please adjust Values.");
                     }
                     _info.SaveDataSets(dsChild);
                 }

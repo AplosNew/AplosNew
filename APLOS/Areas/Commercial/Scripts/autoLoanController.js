@@ -265,7 +265,7 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
         var reportFormat = "Excel";
         try {
             var url = "";
-            url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id;
+            url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id ;
             $rootScope.report(url);
         }
         catch (e) {
@@ -276,7 +276,7 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
         var reportFormat = "Pdf";
         try {
             var url = "";
-            url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id;
+            url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id ;
             $rootScope.report(url);
         }
         catch (e) {

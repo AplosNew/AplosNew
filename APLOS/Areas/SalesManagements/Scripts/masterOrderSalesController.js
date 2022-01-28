@@ -343,6 +343,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                 obj.MasterOrderItemId = $scope.selectedMasterOrderItemTempList[i].MasterOrderItemId;
                 obj.SalesOrderId = $scope.selectedMasterOrderItemTempList[i].SalesOrderId;
                 obj.SONo = $scope.selectedMasterOrderItemTempList[i].SONo;
+                obj.BuyerReferenceNo = $scope.selectedMasterOrderItemTempList[i].BuyerReferenceNo;
                 obj.PONumber = $scope.selectedMasterOrderItemTempList[i].PONumber;
                 obj.DeliveryDate = $scope.selectedMasterOrderItemTempList[i].DeliveryDate;
                 obj.DestinationName = $scope.selectedMasterOrderItemTempList[i].DestinationName;
@@ -2442,6 +2443,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                         var moi = {};
 
                         moi.PONumber = $scope.masterOrderItemList[i].PONumber;
+                        moi.BuyerReferenceNo = $scope.masterOrderItemList[i].BuyerReferenceNo;
                         moi.PODate = $scope.masterOrderItemList[i].PODate;
                         moi.DeliveryDate = $scope.masterOrderItemList[i].DeliveryDate;
                         moi.DestinationName = $scope.masterOrderItemList[i].DestinationName;

@@ -213,13 +213,14 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th>MasterOrder</th>
+                                                <th>Master Order</th>
                                                 <th>SONo</th>
-                                                <th>PONumber</th>
-                                                <th>DeliveryDate</th>
+                                                <th>Delivery Date</th>
                                                 <th>Destination</th>
-                                                <th>MaterialMasterName</th>
+                                                <th>Material Master</th>
                                                 <th>Article</th>
+                                                <th>Buyer Ref#</th>
+                                                <th>PO Number</th>
                                                 <th>SKU1</th>
                                                 <th>SKU2</th>
                                                 <th>SOType</th>
@@ -240,11 +241,12 @@
                                             <tr ng-repeat="x in selectedMasterOrderItemList">
                                                 <td>{{x.MasterOrderId}}</td>
                                                 <td>{{x.SalesOrderId}}</td>
-                                                <td>{{x.PONumber}}</td>
                                                 <td>{{x.DeliveryDate}}</td>
                                                 <td>{{x.DestinationName}}</td>
                                                 <td>{{x.MaterialMasterName}}</td>
                                                 <td>{{x.MaterialMasterArticleName}}</td>
+                                                <td>{{x.BuyerReferenceNo}}</td>
+                                                <td>{{x.PONumber}}</td>
                                                 <td>{{x.SKU1}}</td>
                                                 <td>{{x.SKU2}}</td>
                                                 <td>{{x.SOType}}</td>

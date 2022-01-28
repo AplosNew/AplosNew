@@ -154,10 +154,10 @@
                 </div>
                 
                 <script type="text/template" id="ActualId">
-                    <input type="number" ng-model="data.ActualValue" style="color:black; text-align:center" />
+                    <input type="text" onkeypress="return isNumber(event)" ng-model="data.ActualValue" style="color:black; text-align:center" />
                 </script>
                 <script type="text/template" id="UserId">
-                    <input type="number" ng-model="data.UserValue" ng-change="FindMin(data.ActualValue,data.TaxSavingItemLimit,data.UserValue)" style="color:black; text-align:center" />
+                    <input type="text" onkeypress="return isNumber(event)" ng-model="data.UserValue" ng-change="$parent.FindMin(this)" style="color:black; text-align:center" />
                 </script>
 
                 <div class="row" style="margin-right:25px" >
@@ -175,6 +175,18 @@
 
     </div>    
 </div>
+
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+            return false;
+        }
+        return true;
+    }
+
+</script>
 
 <div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
