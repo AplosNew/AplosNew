@@ -191,13 +191,13 @@
 </script>
 
 <script type="text/template" id="UploadFiles">
-    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||  
+    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||
          data.FileName == ''">
-        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" 
-             e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" 
-             e-success="$parent.getFileList" e-showroundedcorner="false" e-autoupload="true" 
-             e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox 
-             e-saveurl="$parent.uploadUrl" 
+        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0"
+             e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File"
+             e-success="$parent.getFileList" e-showroundedcorner="false" e-autoupload="true"
+             e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox
+             e-saveurl="$parent.uploadUrl"
              e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"></div>
     </div>
     <div class="col-md-8" ng-hide="data.FileName==null ">
@@ -240,3 +240,5 @@
         </div>
     </div>
 </div>
+
+<confirm-archive-generic modalid="confirmFileDelete" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteFile()"></confirm-archive-generic>

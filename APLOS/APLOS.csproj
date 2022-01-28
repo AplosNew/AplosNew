@@ -786,7 +786,6 @@
     <Compile Include="Areas\Organizations\Controllers\PositionGroupingDataController.cs" />
     <Compile Include="Areas\Organizations\Controllers\DesignationBudgetController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ArrearApprovalController.cs" />
-    <Compile Include="Areas\Payrolls\Controllers\DeductionInvestmentMasterController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ESICStatementsCompanyController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\CompanyWiseExternalDataUploadFromExcelController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\CompanyWiseBankSheetController.cs" />
@@ -2081,7 +2080,6 @@
     <Content Include="Areas\Organizations\Scripts\PositionGroupingDataController.js" />
     <Content Include="Areas\Parties\Scripts\partyPaymentStatusReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\ArrearApprovalController.js" />
-    <Content Include="Areas\Payrolls\Scripts\DeductionInvestmentMasterController.js" />
     <Content Include="Areas\Payrolls\Scripts\ESICStatementsCompanyController.js" />
     <Content Include="Areas\Payrolls\Scripts\CompanyWiseExternalDataUploadFromExcelController.js" />
     <Content Include="Areas\Payrolls\Scripts\CompanyWiseBankSheetController.js" />
@@ -3729,7 +3727,6 @@
     <Content Include="Areas\Productions\Views\MovementScanDataReport\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\OS3Dashboard\Aplos.cshtml" />
     <Content Include="Areas\Costings\Views\BOQPurchaseOrder\Popups.cshtml" />
-    <Content Include="Areas\Payrolls\Views\DeductionInvestmentMaster\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\TaxSavingGroup\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\TaxSavingItem\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\TermsAndConditions\Aplos.cshtml" />

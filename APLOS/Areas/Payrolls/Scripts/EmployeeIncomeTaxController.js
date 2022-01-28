@@ -290,7 +290,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
     //#region Attachment 
 
-    $scope.UploadTableName = 'EmployeeInvestmentDeduction';
+    $scope.UploadTableName = 'InvestDeductDocumentInfo';
     $scope.uploadUrl = $scope.path + "UploadAttachment/";
     $scope.confirmFileDelete = function () {
         angular.element(document.querySelector("#confirmFileDelete")).modal("show");

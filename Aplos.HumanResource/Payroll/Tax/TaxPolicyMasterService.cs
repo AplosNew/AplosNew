@@ -999,7 +999,8 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string sql = @"";
+                string sql = @"select FileName from InvestDeductDocumentInfo
+                where InvestmentDeductionId='"+Id+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
