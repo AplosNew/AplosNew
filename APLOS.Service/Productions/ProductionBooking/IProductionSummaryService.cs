@@ -40,6 +40,7 @@ namespace Library.Service.Productions
         IEnumerable<object> GetChar1Info(string id, string soid);
         IEnumerable<object> GetChar1InfobyPrO(string id, string soid);
         IEnumerable<object> GetCharInfo(string masterid, string workdate, string mmid, string soid, string artid, string CharCount, string CharacteristicsValueId);
+        IEnumerable<object> GetCharInfoByPrO(string masterid, string workdate, string mmid, string soid, string artid, string CharCount, string CharacteristicsValueId);
         IEnumerable<ComboModel> GetShiftGroupCbo(string plantId);
         void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
         void SaveInOutMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
