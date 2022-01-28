@@ -819,8 +819,8 @@ namespace Library.HumanResource.Payroll.Tax
         public decimal UserValue { get; set; }
         public string EmployeeIncomeTaxId { get; set; }
         public string IncomeTaxItemChildId { get; set; }
+        public decimal SavingGpLimit { get; set; }
     }
-
     public class EmployeeIncomeTaxService
     {
         #region Constructor 
@@ -995,21 +995,13 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
-        public void ClearInvestmentTableRows(string Id)
+        public IEnumerable<object> GetFileInfo(string Id)
         {
             try
-            {              
-                    var sql = @"delete from EmployeeInvestmentDeduction 
-                    where EmployeeIncomeTaxId='"+Id+"'";
-                    ConnectionManager.DAL.ConManager objCone = null;
-                    objCone = new ConnectionManager.DAL.ConManager("1");
-                    objCone.OpenConnection("1");
-                    objCone.BeginTransaction();
-
-                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                    objCone.CommitTransaction();
-                
-
+            {
+                string sql = @"select FileName from InvestDeductDocumentInfo
+                where InvestmentDeductionId='"+Id+"'";
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {
@@ -1058,35 +1050,56 @@ namespace Library.HumanResource.Payroll.Tax
 
                 #region Child Saving
 
-                GetInvDetailsForSaving(MasterId, out DataSet dsChild);
-                if (dsChild.Tables[0].Rows.Count > 0)
-                {
-                    ClearInvestmentTableRows(MasterId);
-                }
+                GetInvDetailsForSaving(MasterId, out DataSet dsChild);               
                 if (data != null)
                 {
-                    int count = 0;
-                    DataRow drF;
-                    foreach (var item in data)  
+                    decimal GroupLimit = 0, SumofItems = 0;
+
+                    foreach (var item in data)
                     {
-                        drF = dsChild.Tables[0].NewRow();
-                        count++;
-                        string pk = MasterId + "_" + count;
-                        drF["Id"] = pk;
-                        drF["EmployeeIncomeTaxId"] = MasterId;
-                        drF["ActualValue"] = item.ActualValue;
-                        drF["UserValue"] = item.UserValue;
-                        drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
-                        drF["DocumentId"] = "";
-                        drF["AddedBy"] = identity.UserId;
-                        drF["AddedFromIp"] = identity.IPAddress;
-                        drF["AddedDate"] = DateTime.Now.ToString();
-                        dsChild.Tables[0].Rows.Add(drF);
+
+                        dsChild.Tables[0].DefaultView.RowFilter = @"IncomeTaxItemChildId='" + item.IncomeTaxItemChildId + "' ";
+                        if (dsChild.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow drF = dsChild.Tables[0].NewRow();                            
+                            clsGenID genid = new clsGenID();
+                            genid.GenID("EmployeeInvestmentDeduction", out string _pk);
+                            
+                            drF["Id"] = "EID"+_pk;
+                            drF["EmployeeIncomeTaxId"] = MasterId;
+                            drF["ActualValue"] = item.ActualValue;
+                            drF["UserValue"] = item.UserValue;
+                            drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
+                            drF["AddedBy"] = identity.Name;
+                            drF["AddedFromIp"] = identity.IPAddress;
+                            drF["AddedDate"] = DateTime.Now.ToString();
+                            
+                            SumofItems += item.UserValue;
+                            GroupLimit = item.SavingGpLimit;
+                            dsChild.Tables[0].Rows.Add(drF);
+                        }
+                        else
+                        {
+                            DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["ActualValue"] = item.ActualValue;
+                            dr["UserValue"] = item.UserValue;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["UpdatedFromIp"] = identity.IPAddress;
+                            SumofItems += item.UserValue;
+                            GroupLimit = item.SavingGpLimit;
+                            dr.EndEdit();
+                        }
+                    }
+                    if (GroupLimit < SumofItems)
+                    {
+                        throw new Exception(" Sum of Individual Items is more than Group Limit !! Please adjust Values.");
                     }
                     _info.SaveDataSets(dsChild);
                 }
+                
                 #endregion
-
             }
             catch (Exception ex)
             {

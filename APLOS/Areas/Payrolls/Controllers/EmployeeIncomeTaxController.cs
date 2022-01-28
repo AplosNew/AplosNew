@@ -8,6 +8,12 @@ using Library.Data.Sql;
 using Library.HumanResource.Payroll.Tax;
 using System.Collections.Generic;
 using Aplos.Properties;
+using System.Web;
+using Library.Security.Core;
+using Library.Service.Helpers;
+using System.IO;
+using Aplos.Helpers;
+using System.Data;
 
 namespace Aplos.Areas.Payrolls.Controllers
 {
@@ -84,6 +90,141 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+              
+        #endregion
+
+        #region Investment/Deduction Tab Functions
+
+        [HttpPost, Authorize]
+        public ActionResult GetInvestDeductList(string PolicyHeaderId,string EmpId)
+        {
+            try
+            {
+                return Json(eit.InvestDeductGridData(PolicyHeaderId,EmpId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetFileInfo(string Id /*taxyear, string taxtype,string empsysteid*/)
+        {
+
+            try
+            {
+                return Json(_sqlRepository.GetDataCollection("select FileName from IncomeTaxItemTransaction  where Id='" + Id + "' "), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult UploadAttachment(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        {
+            try
+            {
+                UploadDefault_data = UploadDefault_data.Replace("\\", "");
+                DataTable AdditionalData = CustomJsonResult.ToDataTable(UploadDefault_data);
+
+
+                AdditionalData.Rows[0]["Id"] = AdditionalData.Rows[0]["Id"].ToString().Replace("\"", "");
+                if (string.IsNullOrEmpty(AdditionalData.Rows[0]["Id"].ToString()))
+                    throw new Exception("Save the item first");
+
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                foreach (var file in UploadDefault)
+                {
+
+                    string _Id = "IncomeTax_" + AdditionalData.Rows[0]["Id"].ToString();
+
+                    var fileName = Path.GetFileName(_Id + new FileInfo(file.FileName).Extension);
+                    var destinationPath = Path.Combine(ResourcesPathReader.InvestDeductDocumentInfoPath(), _Id + new FileInfo(file.FileName).Extension);
+
+                    if (Directory.Exists(ResourcesPathReader.InvestDeductDocumentInfoPath()) == false)
+                    {
+                        try
+                        {
+                            Directory.CreateDirectory(ResourcesPathReader.InvestDeductDocumentInfoPath());
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+
+
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "select* from " + AdditionalData.Rows[0]["TableName"] + " where Id='" + AdditionalData.Rows[0]["Id"].ToString() + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
+
+
+                    if (dsLocal.Tables[0].Rows.Count > 0)
+                    {
+                        #region Task data update
+                        if (dsLocal.Tables[0].Rows[0]["FileName"].ToString() != "")
+                        {
+                            //try to delete the existing file
+                            try
+                            {
+                                var _Path = Path.Combine(ResourcesPathReader.GetToDoPath(), dsLocal.Tables[0].Rows[0]["FileName"].ToString());
+                                if (System.IO.File.Exists(_Path))
+                                    System.IO.File.Delete(_Path);
+                            }
+                            catch (Exception)
+                            {
+
+                            }
+
+                        }
+
+                        DataRow dr = dsLocal.Tables[0].Rows[0];
+
+                        dr.BeginEdit();
+
+                        dr["FileName"] = fileName;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+
+                        #endregion data update
+
+                        file.SaveAs(destinationPath);
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
+                    }
+                }
+                return Content("");
+            }
+            catch (Exception ex)
+            {
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
+            }
+
+        }
 
         [HttpPost, Authorize]
         public ActionResult SaveInvestDeduction(Dictionary<string, object> Masterdata, IEnumerable<InvestDeductModelClass> ChildData)
@@ -99,9 +240,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                     throw new Exception("Please Select Tax Year !!");
                 }
 
-                eit.SaveInvestDeduction(Masterdata, ChildData);               
+                eit.SaveInvestDeduction(Masterdata, ChildData);
                 return Json(new { Error = false, Message = AplosMessage.Success });
-               
+
             }
             catch (Exception ex)
             {
@@ -109,24 +250,48 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-
-        #endregion
-
-        #region Investment/Deduction Tab Functions
         [HttpPost, Authorize]
-        public ActionResult GetInvestDeductList(string PolicyHeaderId,string EmpId)
+        public ActionResult DeleteFile(string Id, string TableName)
         {
             try
             {
-                return Json(eit.InvestDeductGridData(PolicyHeaderId,EmpId), JsonRequestBehavior.AllowGet);
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + "  where Id='" + Id + "'", out dsMaster, false, "1");
+
+                var destinationPath = Path.Combine(ResourcesPathReader.InvestDeductDocumentInfoPath(), dsMaster.Tables[0].Rows[0]["FileName"].ToString());
+                if (System.IO.File.Exists(destinationPath))
+                    System.IO.File.Delete(destinationPath);
+
+                #region Task data update
+
+                DataRow dr = dsMaster.Tables[0].Rows[0];
+                dr.BeginEdit();
+
+                dr["FileName"] = DBNull.Value;
+                dr.EndEdit();
+
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = AplosMessage.Updated
+                });
+
             }
             catch (Exception ex)
             {
+
                 return Json(new { Error = true, Message = ex.Message });
             }
-        }
-        #endregion
 
+        }
+
+        #endregion
 
     }
 }

@@ -786,7 +786,6 @@
     <Compile Include="Areas\Organizations\Controllers\PositionGroupingDataController.cs" />
     <Compile Include="Areas\Organizations\Controllers\DesignationBudgetController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ArrearApprovalController.cs" />
-    <Compile Include="Areas\Payrolls\Controllers\DeductionInvestmentMasterController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ESICStatementsCompanyController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\CompanyWiseExternalDataUploadFromExcelController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\CompanyWiseBankSheetController.cs" />
@@ -808,7 +807,6 @@
     <Compile Include="Areas\Payrolls\Controllers\SalaryProcessOtherStatusNewController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxOBController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ProfessionalTaxOBController.cs" />
-    <Compile Include="Areas\Payrolls\Controllers\TaxInvestmentMasterController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxSavingGroupController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxSavingItemController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxTypeController.cs" />
@@ -2081,7 +2079,6 @@
     <Content Include="Areas\Organizations\Scripts\PositionGroupingDataController.js" />
     <Content Include="Areas\Parties\Scripts\partyPaymentStatusReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\ArrearApprovalController.js" />
-    <Content Include="Areas\Payrolls\Scripts\DeductionInvestmentMasterController.js" />
     <Content Include="Areas\Payrolls\Scripts\ESICStatementsCompanyController.js" />
     <Content Include="Areas\Payrolls\Scripts\CompanyWiseExternalDataUploadFromExcelController.js" />
     <Content Include="Areas\Payrolls\Scripts\CompanyWiseBankSheetController.js" />
@@ -2104,7 +2101,6 @@
     <Content Include="Areas\Payrolls\Scripts\SalaryProcessOtherStatusNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxOBController.js" />
     <Content Include="Areas\Payrolls\Scripts\ProfessionalTaxOBController.js" />
-    <Content Include="Areas\Payrolls\Scripts\TaxInvestmentMasterController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxSavingGroupController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxSavingItemController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxTypeController.js" />
@@ -3712,7 +3708,6 @@
     <Content Include="Areas\Accounts\Views\FinancialStatusDashboard\CustomerReceivableInvoiceDetail.cshtml" />
     <Content Include="Areas\Productions\Views\MovementItems\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\MovementMaterialMaster\Aplos.cshtml" />
-    <Content Include="Areas\Payrolls\Views\TaxInvestmentMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryProcessedReportExtraOTCTC.cshtml" />
     <Content Include="Areas\Accounts\Views\FinancialStatusDashboard\_CustomerReceivableTableAgingPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\FinancialStatusDashboard\_CustomerReceivableSetOffDetailPopUp.cshtml" />
@@ -3729,7 +3724,6 @@
     <Content Include="Areas\Productions\Views\MovementScanDataReport\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\OS3Dashboard\Aplos.cshtml" />
     <Content Include="Areas\Costings\Views\BOQPurchaseOrder\Popups.cshtml" />
-    <Content Include="Areas\Payrolls\Views\DeductionInvestmentMaster\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\TaxSavingGroup\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\TaxSavingItem\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\TermsAndConditions\Aplos.cshtml" />
