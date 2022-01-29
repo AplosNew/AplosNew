@@ -628,7 +628,259 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-        #endregion
 
-    }
+		public ActionResult GetInvoiceTaggedWithLCReport(ReportFormat reportFormat, string LCId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			var workbook = GetInvoiceTaggedWithLCReportFormat(out string reportFileName, LCId);
+			switch (reportFormat)
+			{
+				case ReportFormat.Pdf:
+					return RenderReportAsPdf(workbook, reportFileName);
+
+				case ReportFormat.Excel:
+					return RenderReportAsExcelx(workbook, reportFileName);
+
+				default:
+					return RenderReportAsExcel(workbook, reportFileName); ;
+			}
+		}
+
+		public IWorkbook GetInvoiceTaggedWithLCReportFormat(out string reportFileName, string LCId)
+		{
+			var reportUtility = new ReportUtility();
+			var excelEngine = new ExcelEngine();
+			var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+			workbook.Version = ExcelVersion.Excel2016;
+			var sheet = workbook.Worksheets[0];
+			sheet.Name = "InvoiceTaggedWithLC";
+
+			var header = GetInvoiceTaggedWithLCHeader(LCId);
+
+			reportFileName = "Invoice Tagged With LC Report";
+
+			var data = GetInvoiceTaggedWithLCQuery(LCId);
+
+
+			int ROW = 5;
+			int xlsCol = 1;
+			int colLast = 6;
+
+			reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Loan No.");
+			sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			reportUtility.SetText(ref sheet, ROW, 2, header["LoanNo"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
+			sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+			//sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+
+			reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "Loan Date");
+			sheet[ROW, 5].ColumnWidth = 25;
+			sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+			reportUtility.SetText(ref sheet, ROW, 6, header["NewLoanDate"].ToString());
+			sheet[ROW, 6].ColumnWidth = 25;
+			sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+			ROW++;
+
+			reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Source Type");
+			reportUtility.SetText(ref sheet, ROW, 2, header["SourceType"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
+			sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+			//sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+
+			reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "LC No.");
+			reportUtility.SetText(ref sheet, ROW, 6, header["LCRef"].ToString());
+			sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+			ROW++;
+
+			reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Bank Master");
+			reportUtility.SetText(ref sheet, ROW, 2, header["AccountTitle"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
+			sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+			//sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+
+			reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "Currency");
+			reportUtility.SetText(ref sheet, ROW, 6, header["CurrencyCode"].ToString());
+			sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+			ROW++;
+
+
+			reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Amount");
+			reportUtility.SetText(ref sheet, ROW, 2,clsStaticInfo.dbl( header["Amount"].ToString()));
+			sheet.Range[ROW, 2].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+			sheet.Range[ROW, 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
+			sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+			//sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+
+			reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "Added By");
+			reportUtility.SetText(ref sheet, ROW, 6, header["AddedBy"].ToString());
+			sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+			ROW++;
+			ROW++;
+
+			int endcolHeader = 8;
+
+			sheet[ROW, xlsCol].Text = "Invoice No.";
+			sheet[ROW, xlsCol].ColumnWidth = 25;
+			int colAcceptanceNo = xlsCol;
+			xlsCol++;
+
+			sheet[ROW, xlsCol].Text = "Invoice Date";
+			sheet[ROW, xlsCol].ColumnWidth = 25;
+			int colAcceptanceDate = xlsCol;
+			xlsCol++;
+
+			sheet[ROW, xlsCol].Text = "Voucher No.";
+			sheet[ROW, xlsCol].ColumnWidth = 25;
+			int colVoucherNo = xlsCol;
+			xlsCol++;
+
+			sheet[ROW, xlsCol].Text = "Posting Date";
+			sheet[ROW, xlsCol].ColumnWidth = 25;
+			int colPostingDate = xlsCol;
+			xlsCol++;
+
+			sheet[ROW, xlsCol].Text = "Vendor";
+			sheet[ROW, xlsCol].ColumnWidth = 25;
+			int colVendor = xlsCol;
+			xlsCol++;
+
+			sheet[ROW, xlsCol].Text = "Amount";
+			sheet[ROW, xlsCol].ColumnWidth = 25;
+			sheet.Range[ROW, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			int colAmount = xlsCol;
+
+			int endCols = xlsCol;
+			sheet.Range[ROW, 1, ROW, endCols].CellStyle.Font.Bold = true;
+			sheet.Range[ROW, 1, ROW, endCols].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+			sheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
+			sheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
+
+
+			var startRow = 0;
+			int RowIndex = ROW;
+			startRow = ROW;
+			ROW++;
+
+			for (int i = 0; i < data.Rows.Count; i++)
+			{
+				sheet[ROW, colAcceptanceNo].Text = data.Rows[i]["AcceptanceNo"].ToString();
+				sheet[ROW, colAcceptanceDate].Text = data.Rows[i]["AcceptanceDate"].ToString();
+				sheet[ROW, colVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+				sheet[ROW, colPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+				sheet[ROW, colVendor].Text = data.Rows[i]["PartyName"].ToString();
+				
+				sheet[ROW, colAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
+				//sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+				sheet[ROW, colAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+				sheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
+				sheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
+
+				ROW++;
+
+			}
+			reportUtility.SetText(ref sheet, ROW, 5, "Total: ", true);
+			sheet[ROW, 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+			sheet[ROW, 6].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(colAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(colAmount) + (ROW - 1).ToString() + ")";
+			sheet[ROW, 6].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+			sheet[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet[ROW, 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			sheet[ROW, 6].CellStyle.Font.Bold = true;
+
+			sheet.Range[ROW, 5, ROW, 6].BorderAround(ExcelLineStyle.Hair);
+			sheet.Range[ROW, 5, ROW, 6].BorderInside(ExcelLineStyle.Hair);
+
+
+
+			sheet.IsGridLinesVisible = false;
+			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.Range[startRow, 1, ROW, endcolHeader].CellStyle.Font.Size = 8f;
+
+			sheet["A" + startRow.ToString()].FreezePanes();
+
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			reportUtility = new ReportUtility();
+			reportUtility.PlantHeader(ref sheet, endcolHeader, "Invoice Tagged With LC", identity.PlantId);
+			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+			//sheet[ROW, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			sheet.Range[1, 5, 4, endcolHeader].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+
+			return workbook;
+		}
+
+		private Dictionary<string, object> GetInvoiceTaggedWithLCHeader(string Id)
+		{
+			try
+			{
+
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				string strSQL = string.Empty;
+				strSQL = @"SELECT 'Invoice' SourceType, LAA.Id LoanAgainstAcceptanceId,LAA.Id, LAA.CompanyGroupId, LAA.CompanyId, 
+						LAA.PlantId, LAA.EntityId, LAA.CurrencyId, LAA.VoucherId, 'Vendor' PartyType,LAA.PartyId, 
+						LAA.PartyPlantId,'LoanTaken' TransactionType,'Bank' PaymentSource , LAA.LoanDate, LAA.LoanNo, 
+						LAA.Amount, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,
+						CU.Code CurrencyCode,U.FullName UserName
+						,LAA.BankMasterId, BM.AccountTitle, XVD.LCRef,XVD.PINo,LAA.AddedBy
+						FROM InvoiceTaggingWithLCMaster LAA 
+						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
+						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
+						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
+						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
+						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
+						LEFT JOIN dbo.PurchaseLC XVD ON XVD.Id=LAA.PurchaseLCId
+						WHERE LAA.IsLoan=1 AND  
+						LAA.VoucherId IS NULL and
+						LAA.PlantId='" + identity.PlantId + @"' 
+						and LAA.Id='" + Id + "'";
+				return _sqlRepository.GetData(strSQL);
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+			}
+		}
+
+		private DataTable GetInvoiceTaggedWithLCQuery(string LoanAgainstAcceptanceMasterId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+			var sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
+						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
+						,IV.CompanyCurrencyRate,BM.AccountTitle,IV.DocRefNo  AcceptanceNo,FORMAT(V.PostingDate,'dd-MMM-yyyy') AcceptanceDate
+						,V.VoucherNo,LAA.BankMasterId,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
+						FROM InvoiceTaggingWithLCMaster LAA 
+						LEFT JOIN InvoiceTaggingWithLCDetail LAAD ON LAA.Id=LAAD.InvoiceTaggingWithLCMasterId
+						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
+						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
+						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
+						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
+						LEFT JOIN TRN.Invoice IV ON IV.Id=LAAD.InvoiceId
+						LEFT JOIN TRN.Voucher V on V.Id=IV.VoucherId
+						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
+						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
+						WHERE LAA.PlantId='" + identity.PlantId + @"' AND LAAD.InvoiceTaggingWithLCMasterId='" + LoanAgainstAcceptanceMasterId + @"'  AND LAA.VoucherId IS NULL";
+
+			return _sqlRepository.GetDataTable(sql);
+		}
+		#endregion
+
+	}
 }

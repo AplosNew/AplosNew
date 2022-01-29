@@ -963,7 +963,7 @@ namespace Library.HumanResource.Payroll.Tax
                 if (dsRef.Tables[0].Rows.Count > 0)
                 {
                     
-                    sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+                    sql = @"select eid.Id,eid.FileName,itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
                     it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
                     eid.ActualValue,eid.UserValue,eid.EmployeeIncomeTaxId,itc.DocumentApplicable,
                     itc.Id as IncomeTaxItemChildId
@@ -1106,6 +1106,34 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
+        #endregion
+
+        #region Earning Tab Functions
+        public IEnumerable<object> EarningGridData(string PolicyId, string EmpId,string StartDate,string ToDate)
+        {
+            try
+            {
+                string sql = @"select tem.Id as EarningMasterId,spc.SalaryHeadID,sh.SalaryHead,sum(spc.DisbusmentAmount)ActualValue,
+                sum(apc.diff) as ArrearValue
+                from  salaryprocchild spc left join 
+                salaryprocmaster sp on spc.SlrProcMstSystemID=sp.SystemID
+                left join SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                join TaxEarningMasterChild tem on tem.SalaryHeadId=sh.SalaryHeadID
+                left join ArrearProcChild apc on apc.SalaryHeadID=sh.SalaryHeadID
+                left join ArrearProcMaster apm on apm.SystemID=apc.SlrProcMstSystemID
+                where spc.EmpInfoSystemID='" + EmpId+@"'
+                and sp.FromDate>='"+StartDate+@"' and sp.ToDate<='"+ToDate+ @"'
+                and apm.FromDate>='" + StartDate + @"' and apm.ToDate<='" + ToDate + @"'
+                and tem.TaxPolicyHeaderId='" + PolicyId+ @"'
+                group by spc.SalaryHeadID,sh.SalaryHead,tem.Id";            
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         #endregion
     }
 }

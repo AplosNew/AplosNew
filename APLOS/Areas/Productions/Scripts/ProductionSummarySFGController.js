@@ -660,6 +660,13 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.SetPrOData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
 
+        $scope.productionSummaryNew.BuyerOrder = $event.data.BuyerOrder;
+        $scope.productionSummaryNew.OwnOrder = $event.data.OwnOrder;
+
+        $scope.productionSummaryNew.BuyerItem = $event.data.BuyerItem;
+        $scope.productionSummaryNew.OwnItem = $event.data.OwnItem;
+
+
         $scope.productionSummaryNew.ProductLibraryId = null;
         $scope.productionSummaryNew.ProductCode = null;
         $scope.productionSummaryNew.MasterOrderItemId = null;
@@ -667,6 +674,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
         $scope.GetTotalProductionBookingQty();
+        $scope.GetSFGWIPQty();
         $scope.getLotNumberCbo();
     }
 

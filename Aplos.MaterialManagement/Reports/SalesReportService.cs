@@ -593,8 +593,6 @@ namespace Library.MaterialManagement.Reports
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
 
-
-
                 var sourceDoc = document.Clone();
                 document.Replace("{FileCopyName}", "Original Copy", false, false);
                 document.ImportContent(sourceDoc, ImportOptions.KeepSourceFormatting);
