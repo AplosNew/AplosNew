@@ -1855,7 +1855,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                
                                 join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
-                                AND X.ToDate<='" + ToDate + @"'   AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
+                                AND X.ToDate<='" + ToDate + @"'   --AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
                                 AND ISNULL(X.IsYearlyProcessed,0)=0
                                 ORDER BY x.ToDate ASC
                                 ) 

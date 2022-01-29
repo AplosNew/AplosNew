@@ -403,8 +403,8 @@ namespace Aplos.Areas.Commercial.Controllers
             reportUtility.SetText(ref sheet, ROW, 2, header["LoanNo"].ToString());
             sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
             sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+            //sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+            //sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
 
             reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "Loan Date");
             sheet[ROW, 5].ColumnWidth = 25;
@@ -419,8 +419,8 @@ namespace Aplos.Areas.Commercial.Controllers
             sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
             sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+            //sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+            //sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
 
             reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "LC No.");
             reportUtility.SetText(ref sheet, ROW, 6, header["PurchaseLCNo"].ToString());
@@ -433,8 +433,8 @@ namespace Aplos.Areas.Commercial.Controllers
             sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
             sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+            //sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+            //sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
 
             reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "Currency");
             reportUtility.SetText(ref sheet, ROW, 6, header["CurrencyCode"].ToString());
@@ -448,8 +448,8 @@ namespace Aplos.Areas.Commercial.Controllers
             sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
             sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
+            //sheet.Range[ROW, 1, ROW, colLast].BorderAround(ExcelLineStyle.Hair);
+            //sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
 
             reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "Added By");
             reportUtility.SetText(ref sheet, ROW, 6, header["AddedBy"].ToString());
@@ -649,9 +649,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
 						WHERE LAA.IsPark=1 AND LAA.PlantId='" + identity.PlantId + @"' AND LAAD.LoanAgainstAcceptanceMasterId='" + LoanAgainstAcceptanceMasterId + @"'  AND LAA.VoucherId IS NULL 
-						and IV.PurchaseLCId is not null
-
-	";
+						and IV.PurchaseLCId is not null";
 
             return _sqlRepository.GetDataTable(sql);
         }

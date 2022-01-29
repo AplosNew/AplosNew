@@ -22,6 +22,20 @@ namespace Library.OrderManagement.Production
         #endregion Constructor
 
         #region masterOperations
+
+        public IEnumerable<object> getProcess()
+        {
+            try
+            {
+                // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = "Select Id as Value , UserName as Text from hkp.process order by UserName asc";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> getFilters()
         {
             try
@@ -49,7 +63,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> getMasterGrid(Dictionary<string, object> filters)
+        public IEnumerable<object> getMasterGrid(Dictionary<string, object> filters, string ProcessId)
         {
             try
             {
@@ -100,7 +114,7 @@ namespace Library.OrderManagement.Production
                         left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
                         left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
                         left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId  = '"+ ProcessId + @"'
 						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
 						 "+pc+@"
                         group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId ,
@@ -121,7 +135,7 @@ namespace Library.OrderManagement.Production
         #endregion masterOperations
 
         #region masterDetail
-        public IEnumerable<object> masterDetail(string PRId , string Col , Dictionary<string, object> filters)
+        public IEnumerable<object> masterDetail(string PRId , string Col , Dictionary<string, object> filters , string ProcessId)
         {
             try
             {
@@ -173,7 +187,7 @@ namespace Library.OrderManagement.Production
                         left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
                         left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
                         left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '" + PRId + @"'  and ps.ProcessId = '" + ProcessId + @"'
 						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
 						 " + pc + @"
                             group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName , cs.UserName ,
@@ -223,7 +237,7 @@ namespace Library.OrderManagement.Production
                         left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
                         left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
                         left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '" + PRId + @"' and ps.ProcessId = '" + ProcessId + @"'
 						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
 						 " + pc + @"
                             group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName ,
@@ -271,7 +285,7 @@ namespace Library.OrderManagement.Production
                         left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
                         left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
                         left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+                        where  cv.Id is not null and cvs.Id is not null  and ps.ProductionOrderId = '" + PRId + @"' and ps.ProcessId = '" + ProcessId + @"'
 						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
 						 " + pc + @"
                             group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName ,
@@ -290,7 +304,7 @@ namespace Library.OrderManagement.Production
         #endregion masterDetail
 
         #region Report
-        public DataTable getReports(string PRId , Dictionary<string, object> filters)
+        public DataTable getReports(string PRId , Dictionary<string, object> filters , string ProcessId)
         {
             try
             {
@@ -336,7 +350,7 @@ namespace Library.OrderManagement.Production
                         left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
                         left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
                         left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '" + PRId + @"' and ps.ProcessId = '" + ProcessId + @"'
 						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
 						 " + pc + @"
                             group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName , cs.UserName , cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty ,  prs.UserName ,pps.Customer , pps.LineItem , pl.Code , pps.BuyerRef , pps.OwnRef , pps.MasterOrderNo
