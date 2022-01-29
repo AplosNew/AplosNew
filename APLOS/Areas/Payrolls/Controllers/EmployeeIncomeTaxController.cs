@@ -125,108 +125,6 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult UploadAttachment(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
-        {
-            try
-            {
-                UploadDefault_data = UploadDefault_data.Replace("\\", "");
-                DataTable AdditionalData = CustomJsonResult.ToDataTable(UploadDefault_data);
-
-
-                AdditionalData.Rows[0]["Id"] = AdditionalData.Rows[0]["Id"].ToString().Replace("\"", "");
-                if (string.IsNullOrEmpty(AdditionalData.Rows[0]["Id"].ToString()))
-                    throw new Exception("Save the item first");
-
-
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-                foreach (var file in UploadDefault)
-                {
-
-                    string _Id = "IncomeTax_" + AdditionalData.Rows[0]["Id"].ToString();
-
-                    var fileName = Path.GetFileName(_Id + new FileInfo(file.FileName).Extension);
-                    var destinationPath = Path.Combine(ResourcesPathReader.InvestDeductDocumentInfoPath(), _Id + new FileInfo(file.FileName).Extension);
-
-                    if (Directory.Exists(ResourcesPathReader.InvestDeductDocumentInfoPath()) == false)
-                    {
-                        try
-                        {
-                            Directory.CreateDirectory(ResourcesPathReader.InvestDeductDocumentInfoPath());
-                        }
-                        catch (Exception)
-                        {
-
-                        }
-                    }
-
-
-                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                    string sql = "select* from " + AdditionalData.Rows[0]["TableName"] + " where Id='" + AdditionalData.Rows[0]["Id"].ToString() + "'";
-                    DataSet dsLocal = null;
-                    connection.BeginTransaction();
-                    connection.getDataSet(sql, out dsLocal);
-                    connection.CommitTransaction();
-
-
-                    if (dsLocal.Tables[0].Rows.Count > 0)
-                    {
-                        #region Task data update
-                        if (dsLocal.Tables[0].Rows[0]["FileName"].ToString() != "")
-                        {
-                            //try to delete the existing file
-                            try
-                            {
-                                var _Path = Path.Combine(ResourcesPathReader.GetToDoPath(), dsLocal.Tables[0].Rows[0]["FileName"].ToString());
-                                if (System.IO.File.Exists(_Path))
-                                    System.IO.File.Delete(_Path);
-                            }
-                            catch (Exception)
-                            {
-
-                            }
-
-                        }
-
-                        DataRow dr = dsLocal.Tables[0].Rows[0];
-
-                        dr.BeginEdit();
-
-                        dr["FileName"] = fileName;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dr.EndEdit();
-
-
-                        #endregion data update
-
-                        file.SaveAs(destinationPath);
-                        clsStaticInfo info = new clsStaticInfo();
-                        info.SaveDataSets(dsLocal);
-                    }
-                }
-                return Content("");
-            }
-            catch (Exception ex)
-            {
-                HttpResponse Response = System.Web.HttpContext.Current.Response;
-                Response.Clear();
-                Response.ContentType = "application/json; charset=utf-8";
-                Response.StatusCode = 204;
-                Response.Status = "204 No Content";
-                Response.StatusDescription = ex.Message;
-                Response.End();
-
-                return Content("");
-            }
-
-        }
-
-        [HttpPost, Authorize]
         public ActionResult SaveInvestDeduction(Dictionary<string, object> Masterdata, IEnumerable<InvestDeductModelClass> ChildData)
         {
             try
@@ -259,7 +157,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + "  where Id='" + Id + "'", out dsMaster, false, "1");
 
-                var destinationPath = Path.Combine(ResourcesPathReader.InvestDeductDocumentInfoPath(), dsMaster.Tables[0].Rows[0]["FileName"].ToString());
+                var destinationPath = Path.Combine(ResourcesPathReader.EmployeeIncomeTax(), dsMaster.Tables[0].Rows[0]["FileName"].ToString());
                 if (System.IO.File.Exists(destinationPath))
                     System.IO.File.Delete(destinationPath);
 
@@ -291,10 +189,84 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult SaveDefault(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        {
+            try
+            {
+                //UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                //if (string.IsNullOrEmpty(UploadDefault_data))
+                //    throw new Exception("Save the order first");
+
+                foreach (var file in UploadDefault)
+                {
+
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    var fileN = file.FileName;
+                    var destinationPath = Path.Combine(ResourcesPathReader.EmployeeIncomeTax(), fileName);
+
+                    var directory = ResourcesPathReader.EmployeeIncomeTax();
+                    var path = Path.Combine(directory);
+
+                    if (Directory.Exists(ResourcesPathReader.EmployeeIncomeTax()) == false)
+                    {
+                        try
+                        {
+                            Directory.CreateDirectory(ResourcesPathReader.EmployeeIncomeTax());
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+
+
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "SELECT * FROM EmployeeInvestmentDeduction WHERE Id='" + UploadDefault_data + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
+                    var FN = dsLocal.Tables[0].Rows[0]["FileName"].ToString();
+                    if (fileN != FN)
+                        if (System.IO.File.Exists(path + UploadDefault_data + Path.GetExtension(FN)))
+                            System.IO.File.Delete(path + UploadDefault_data + Path.GetExtension(FN));
+
+                    if (dsLocal.Tables[0].Rows.Count > 0)
+                    {
+                        dsLocal.Tables[0].Rows[0].BeginEdit();
+
+                        dsLocal.Tables[0].Rows[0]["FileName"] = fileN;
+
+                        dsLocal.Tables[0].Rows[0].EndEdit();
+
+                        file.SaveAs(destinationPath);
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
+                    }
+                }
+                return Content("");
+            }
+            catch (Exception ex)
+            {
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
+            }
+
+        }
+
+
         #endregion
 
         #region Earning Tab Functions
-       
+
         [HttpPost, Authorize]
         public ActionResult GetEarningGridData(string PolicyId, string EmpId,string From,string To)
         {
