@@ -25,7 +25,7 @@
     <div class="col-md-6 col-lg-12 col-sm-12">
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li> <button ng-click="fillFilters();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
+                <li> <button ng-click="ViewAll();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
             </ul>
         </div>
     </div>
@@ -34,7 +34,8 @@
 
 <div class="row" style="margin-top:10px; padding-right:10px;">
     <div class="col-sm-12 col-md-12 col-lg-12">
-        <div id="MasterGrid" ej-grid e-datasource="masterData"
+        <div id="MasterGrid"></div>
+        @*<div id="MasterGrid" ej-grid e-datasource="masterData"
              e-allowfiltering="true" e-responsive="true" e-recordDoubleClick="detailClick"
              e-filtersettings-filterType="excel" e-allowtextwrap="true">
             <div e-columns>
@@ -51,7 +52,7 @@
                 <div e-column e-field="ToProduce" e-type="string" e-headertext="To Produce" e-width="80"></div>
                 <div e-column e-field="ExcessProduce" e-type="string" e-headertext="Excess Produce" e-width="80"></div>
             </div>
-        </div>
+        </div>*@
     </div>
 </div>
 
@@ -81,9 +82,9 @@
                         </ul>
                     </div>
                 </div>
-               
+                <div id="detailMaster"></div>
 
-                    <div id="detailMaster" ej-grid e-datasource="masterDetailData" 
+                    @*<div id="detailMaster" ej-grid e-datasource="masterDetailData"
                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                          e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
@@ -98,12 +99,12 @@
                             <div e-column e-field="ShortExcess" e-type="string" e-headertext="Short/Excess" e-width="80"></div>
 
                         </div>
-                    </div>
+                    </div>*@
 
 
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary" ng-click="closeModal()">Close</button>
             </div>
         </div>
 

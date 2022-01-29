@@ -24,9 +24,6 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
             $scope.filtersList = resp.data;
             var gridObj = $("#FilterList").data("ejGrid");
             gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-            $("#FilterList").children('.e-pager.e-js.e-pager').hide();
-            $("#FilterList").children('.e-gridcontent.e-droppable.e-js').hide();
             $("#FilterList").children('.e-gridcontent').hide();
             $scope.fillFilters();
         });
@@ -34,6 +31,12 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
 
    
     // Filling in the Filters as Parameters
+    $scope.AllFilters = [];
+    $scope.ViewAll = function () {
+        var gridObj = $("#MasterGrid").data("ejGrid");
+        gridObj.destroy();
+        $scope.fillFilters();
+    }
 
     $scope.fillFilters = function () {
 
@@ -51,11 +54,13 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         parameters.push({ "Key": "MOId", "Value": getString(filteredRecords, "MOId") });
         parameters.push({ "Key": "LineItem", "Value": getString(filteredRecords, "LineItem") });
         parameters.push({ "Key": "SO", "Value": getString(filteredRecords, "SO") });
-        parameters.push({ "Key": "PRStatus", "Value": getString(filteredRecords, "PRStatus") });
+        parameters.push({ "Key": "PRStatId", "Value": getString(filteredRecords, "PRStatId") });
         parameters.push({ "Key": "SOOrderId", "Value": getString(filteredRecords, "SOOrderId") });
         parameters.push({ "Key": "PSLibId", "Value": getString(filteredRecords, "PSLibId") });
         parameters.push({ "Key": "ProcessId", "Value": getString(filteredRecords, "ProcessId") });
 
+
+        $scope.AllFilters = parameters;
 
         $scope.getMaster(parameters);
     }
@@ -86,6 +91,28 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
             if (resp.data.Error == false) {
                 $scope.masterData = [];
                 $scope.masterData = resp.data.Data;
+                var ColumnList = [
+                    { field: 'PRStatus', width: 80, headerText: "PO Status", type: "string" , width: 80},
+                    { field: 'ProductionOrderId', width: 80, headerText: "PO", type: "string" , width: 80},
+                    { field: 'Customer', width: 80, headerText: "Customer", type: "string" , width: 80},
+                    { field: 'ProductCode', width: 80, headerText: "ProductCode", type: "string" , width: 80},
+                    { field: 'BuyerRef', width: 80, headerText: "Buyer Ref", type: "string" , width: 80},
+                    { field: 'OwnRef', width: 80, headerText: "Own Ref", type: "string" , width: 80},
+                    { field: 'LineItem', width: 80, headerText: "Line Item", type: "string" , width: 80},
+                    { field: 'OrderQty', width: 80, headerText: "Order Qty", type: "number" , width: 80},
+                    { field: 'PlanQty', width: 80, headerText: "Plan Qty", type: "number" , width: 80},
+                    { field: 'ProdQty', width: 80, headerText: "Producted Qty", type: "number" , width: 80},
+                    { field: 'ToProduce', width: 80, headerText: "To Produce", type: "number" , width: 80},
+                    { field: 'ExcessProduce', width: 80, headerText: "Excess Produce", type: "number" , width: 80},
+                ];
+                $("#MasterGrid").ejGrid({
+                    dataSource: $scope.masterData,
+                    minWidth: 450, minHeight: 400,
+                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true, allowResizing: true,
+                    filterSettings: { filterType: "excel" },
+                    recordDoubleClick: $scope.detailClick,
+                    columns: ColumnList
+                });
             }
             else {
                 ShowResult(resp.data.Message, 'failure');
@@ -108,12 +135,34 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + 'masterDetail',
-            data: {'PRId':PRId , 'Col':$scope.ColName},
+            data: { 'PRId': PRId, 'Col': $scope.ColName, 'Filters': $scope.AllFilters},
         }).then(function (resp) {
             $scope.masterDetailData = [];
             $scope.masterDetailData = resp.data;
+            var ColumnList = [
+                { field: 'SalesOrderId', width: 80, headerText: "SO", type: "string", width: 80 },
+                { field: 'CharV', width: 80, headerText: "SKU1", type: "string", width: 80 },
+                { field: 'Char2V', width: 80, headerText: "SKU2", type: "string", width: 80 },
+                { field: 'OrderQty', width: 80, headerText: "Order Qty", type: "number", width: 80 },
+                { field: 'PlanQty', width: 80, headerText: "Plan Qty", type: "number", width: 80 },
+                { field: 'ProdQty', width: 80, headerText: "Producted Qty", type: "number", width: 80 },
+                { field: 'ShortExcess', width: 80, headerText: "Short Excess", type: "number", width: 80 },
+            ];
+            $("#detailMaster").ejGrid({
+                dataSource: $scope.masterDetailData,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true, allowResizing: true,
+                filterSettings: { filterType: "excel" },
+                columns: ColumnList
+            });
             angular.element(document.querySelector('#masterDetail')).modal('show');
         });
+    }
+
+    $scope.closeModal = function () {
+        var gridObj = $("#detailMaster").data("ejGrid");
+        gridObj.destroy();
+        angular.element(document.querySelector('#masterDetail')).modal('hide');
     }
 
     //Downloading Of the Reports
@@ -121,7 +170,7 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + "getReports",
-            data: { 'PRId': $scope.ChosenPRID},
+            data: { 'PRId': $scope.ChosenPRID, 'Filters': $scope.AllFilters},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
