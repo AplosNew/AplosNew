@@ -109,12 +109,12 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetFileInfo(string Id /*taxyear, string taxtype,string empsysteid*/)
+        public ActionResult GetFileInfo(string Id )
         {
 
             try
             {
-                return Json(_sqlRepository.GetDataCollection("select FileName from IncomeTaxItemTransaction  where Id='" + Id + "' "), JsonRequestBehavior.AllowGet);
+                return Json(_sqlRepository.GetDataCollection("select FileName from EmployeeInvestmentDeduction  where Id='" + Id + "' "), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -190,23 +190,28 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveDefault(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        public ActionResult UploadAttachment(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
         {
             try
             {
-                //UploadDefault_data = UploadDefault_data.Replace("\"", "");
-                //if (string.IsNullOrEmpty(UploadDefault_data))
-                //    throw new Exception("Save the order first");
+                UploadDefault_data = UploadDefault_data.Replace("\\", "");
+                DataTable AdditionalData = CustomJsonResult.ToDataTable(UploadDefault_data);
+
+
+                AdditionalData.Rows[0]["Id"] = AdditionalData.Rows[0]["Id"].ToString().Replace("\"", "");
+                if (string.IsNullOrEmpty(AdditionalData.Rows[0]["Id"].ToString()))
+                    throw new Exception("Save the item first");
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 foreach (var file in UploadDefault)
                 {
 
-                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
-                    var fileN = file.FileName;
-                    var destinationPath = Path.Combine(ResourcesPathReader.EmployeeIncomeTax(), fileName);
+                    string _Id = "IncomeTax_" + AdditionalData.Rows[0]["Id"].ToString();
 
-                    var directory = ResourcesPathReader.EmployeeIncomeTax();
-                    var path = Path.Combine(directory);
+                    var fileName = Path.GetFileName(_Id + new FileInfo(file.FileName).Extension);
+                    var destinationPath = Path.Combine(ResourcesPathReader.EmployeeIncomeTax(), _Id + new FileInfo(file.FileName).Extension);
 
                     if (Directory.Exists(ResourcesPathReader.EmployeeIncomeTax()) == false)
                     {
@@ -222,27 +227,50 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
                     ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                    string sql = "SELECT * FROM EmployeeInvestmentDeduction WHERE Id='" + UploadDefault_data + "'";
+                    string sql = "select* from " + AdditionalData.Rows[0]["TableName"] + " where Id='" + AdditionalData.Rows[0]["Id"].ToString() + "'";
                     DataSet dsLocal = null;
                     connection.BeginTransaction();
                     connection.getDataSet(sql, out dsLocal);
                     connection.CommitTransaction();
-                    var FN = dsLocal.Tables[0].Rows[0]["FileName"].ToString();
-                    if (fileN != FN)
-                        if (System.IO.File.Exists(path + UploadDefault_data + Path.GetExtension(FN)))
-                            System.IO.File.Delete(path + UploadDefault_data + Path.GetExtension(FN));
 
+                    
                     if (dsLocal.Tables[0].Rows.Count > 0)
                     {
-                        dsLocal.Tables[0].Rows[0].BeginEdit();
+                        #region Task data update
+                        if (dsLocal.Tables[0].Rows[0]["FileName"].ToString() != "")
+                        {
+                            //try to delete the existing file
+                            try
+                            {
+                                var _Path = Path.Combine(ResourcesPathReader.GetToDoPath(), dsLocal.Tables[0].Rows[0]["FileName"].ToString());
+                                if (System.IO.File.Exists(_Path))
+                                    System.IO.File.Delete(_Path);
+                            }
+                            catch (Exception)
+                            {
 
-                        dsLocal.Tables[0].Rows[0]["FileName"] = fileN;
+                            }
 
-                        dsLocal.Tables[0].Rows[0].EndEdit();
+                        }
+
+                        DataRow dr = dsLocal.Tables[0].Rows[0];
+
+                        dr.BeginEdit();
+
+                        dr["FileName"] = fileName;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+
+                        #endregion data update
 
                         file.SaveAs(destinationPath);
                         clsStaticInfo info = new clsStaticInfo();
                         info.SaveDataSets(dsLocal);
+
                     }
                 }
                 return Content("");
@@ -261,7 +289,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
 
         }
-
 
         #endregion
 

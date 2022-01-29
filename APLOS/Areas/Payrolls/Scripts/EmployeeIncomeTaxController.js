@@ -345,9 +345,9 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 ShowResult('error', 'failure');
             }
             else {
-                for (var i = 0; i < $scope.DeductionTax.length; i++) {
-                    if ($scope.DeductionTax[i].Id == MasterID) {
-                        $scope.DeductionTax[i].FileName = response.data[0].FileName;
+                for (var i = 0; i < $scope.InvestDeductGridPop.length; i++) {
+                    if ($scope.InvestDeductGridPop[i].Id == MasterID) {
+                        $scope.InvestDeductGridPop[i].FileName = response.data[0].FileName;
                         break;
                     }
                 }
@@ -360,7 +360,6 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     }
     $scope.errorUpload = function (e) {
         ShowResult(e.error, 'failure');
-        //    ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
     $scope.MasterIdAfterFileSave = null;
     $scope.onBeginUpload = function (args) {
@@ -368,6 +367,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             var _data = [{ Id: args.model.Id, TableName: $scope.UploadTableName }];
             $scope.MasterIdAfterFileSave = args.model.Id;
             args.data = JSON.stringify(_data);
+            $scope.getFileList();
         } catch (e) {
             args.cancel = true;
             ShowResult(e, 'Error');
@@ -399,47 +399,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         }
     }
     //#endregion
-
-
-    //#region MOI File 
-    //$scope.ItemId = null;
-    //$scope.onBeginUpload = function (args) {
-    //    try {
-    //        if (angular.isUndefinedOrNull(args.model.Data))
-    //            throw 'Please select/save the order first'
-    //        $scope.ItemId = args.model.Data;
-    //        args.data = args.model.Data;
-    //    } catch (e) {
-
-    //        args.cancel = true;
-    //        ShowResult(e, 'Error');
-    //    }
-
-    //}
-    //$scope.uploadUrl = $scope.path+ "SaveDefault";
-    //$scope.fileselect = function (e) {
-
-    //}
-    //$scope.errorPicUpload = function (e) {
-    //    if (angular.isUndefinedOrNull($scope.ItemId))
-    //        ShowResult('Please select/save the order first', 'Error');
-    //    else
-    //        ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
-    //}
-
-
-
-    //$scope.FileDownload = function (data) {
-    //    $scope.dwonloadUrl = null;
-    //    var str = data.FileName;
-    //    var extention = str.substr(str.indexOf('.'));
-    //    $scope.dwonloadUrl = virtualPath.MOIPath + '/' + data.Id + extention;
-    //};
-
-    //#endregion
-
-
-
+      
     // #region Earning Tab Functions
 
     // #endregion
