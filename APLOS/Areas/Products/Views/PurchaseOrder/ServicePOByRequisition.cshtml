@@ -1174,7 +1174,7 @@
                                     </div>
                                 </script>
                                 <script type="text/template" id="checkboxTemplatePO">
-                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" e-change="$parent.getserviceTaxByTaxCategoryList" e-enabled="{{data.TransactionQty>0?'true':'false'}}" />
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" e-change="$parent.getserviceTaxByTaxCategoryList" @*e-enabled="{{data.TransactionQty>0?'true':'false'}}"*@ />
                                     @*&& data.TransactionRate>0?'true':'false'*@
                                 </script>
 
