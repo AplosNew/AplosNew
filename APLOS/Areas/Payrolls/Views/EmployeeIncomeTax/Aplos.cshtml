@@ -1,0 +1,245 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Income Tax
+</h3>
+
+<div class="form-elements form-horizontal" ng-form name="EmployeeInfoModelForm">
+    <div class="row">
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Tax Type <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="EmployeeIncomeTaxModel.TaxTypeId" ng-change="">
+                            <option value=""></option>
+                            <option ng-repeat="option in TaxTypeList" value="{{option.Id}}">{{option.Username}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Select <sup>*</sup></label>
+                <div class="input-group">
+                    <div class="col-sm-2">
+                        <span class="input-group-btn">
+                            <button name="submit" ng-disabled="EmployeeIncomeTaxModel.TaxYearId==null || EmployeeIncomeTaxModel.CityOfResidence==null ||
+                                    EmployeeIncomeTaxModel.TaxTypeId==null"
+                                    ng-click="getPopUpData();" class="btn single-small-btn">
+                                <i class="cr-icon glyphicon glyphicon-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">City Of Residence <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="EmployeeIncomeTaxModel.CityOfResidence" required>
+                            <option value=""></option>
+                            <option value="Metro">Metro</option>
+                            <option value="Non-Metro">Non-Metro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class=" col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Emp. Code</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.EmployeeCode}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Emp. Name</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.EmployeeName}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Gender</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.GenderID}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">DOJ</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.DOJ}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">DOB</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.DOB}}</label>
+                </div>
+
+            </div>
+
+            <div class=" col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Department</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.Department}}</label>
+                </div>
+                <div class="form-group">
+                    <br />
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Tax Policy:</label>
+                    <label class="col-sm-6 control-label">{{TaxPolicyName}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Age:</label>
+                    <label class="col-sm-6 control-label">{{DurationYear}} Year, {{DurationMonth}}  Month</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Designation</label>
+                    <label class="col-sm-6 control-label">{{EmployeeInfoModel.LegalDesignation}}</label>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Tax Year <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="EmployeeIncomeTaxModel.TaxYearId" name="TaxYear"
+                                ng-options="item.Value as item.Text for item in YearList" required>
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div></div>
+
+            <div class="form-group">
+                <div class="col-sm-8">
+                    <div>
+                        <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 263px; border: 1px solid; height: 200px; width: 200px;" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div><br /></div>
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" aria-controls="Earn" role="tab" data-toggle="tab">Earning</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" aria-controls="INV" role="tab" data-toggle="tab">Investment & Deduction</a></li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+                <div class="row" style="margin:10px;">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" ej-grid e-datasource="InvestDeductGridPop"
+                             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                             e-allowselection="true" e-filtersettings-filterType="excel"
+                             e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="TaxSavingGroup" e-headertext="Tax Saving Group" e-width="3"></div>
+                                <div e-column e-field="SavingGpLimit" e-headertext="Group Limit" e-width="2"></div>
+                                <div e-column e-field="TaxSavingItem" e-headertext="Tax Saving Item" e-width="3"></div>
+                                <div e-column e-field="TaxSavingItemLimit" e-headertext="Item Limit" e-width="2"></div>
+                                <div e-column e-headertext="Actual Value" e-template="#ActualId" e-textalign="center" e-width="3"></div>
+                                <div e-column e-headertext="User Value" e-template="#UserId" e-textalign="center" e-width="3"></div>
+                                <div e-column e-template="#UploadFiles" e-headertext="Attachment" e-width="10" ></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script type="text/template" id="ActualId">
+                    <input type="text" onkeypress="return isNumber(event)" ng-model="data.ActualValue" style="color:black; text-align:center" />
+                </script>
+                <script type="text/template" id="UserId">
+                    <input type="text" onkeypress="return isNumber(event)" ng-model="data.UserValue" ng-change="$parent.FindMin(this)" style="color:black; text-align:center" />
+                </script>
+
+                <div class="row" style="margin-right:25px">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveInvestDeduction();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="ClearInvestDeduction();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+            return false;
+        }
+        return true;
+    }
+
+</script>
+
+<script type="text/template" id="UploadFiles">
+    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||
+         data.FileName == ''">
+        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0"
+             e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File"
+             e-success="$parent.getFileList" e-showroundedcorner="false" e-autoupload="true"
+             e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox
+             e-saveurl="$parent.uploadUrl"
+             e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"></div>
+    </div>
+    <div class="col-md-8" ng-hide="data.FileName==null ">
+        <a href="POPResources/InvestDeductDocumentInfo/{{data.FileName}}">
+            <span style="height:20px;width:20px;color:blue;">
+                {{data.FileName}}
+            </span>
+        </a>
+    </div>
+    <div class="col-md-4" ng-hide="data.FileName==null ">
+        <button name="submit" e-id="{{data.Id}}" 
+                ng-click="$parent.confirmFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+    </div>
+</script>
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+                            <div e-column e-field="CutOffDate" e-headertext="CutOff Date" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="confirmFileDelete" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteFile()"></confirm-archive-generic>

@@ -125,7 +125,7 @@ namespace Library.MaterialManagement.Inventory
                             , ROUND((IRD.TransactionQty*IRD.TransactionRate),2) AS TrnAmount
                             --, IRD.BaseAmount
                             ,BaseAmount= case when IR.IsNonCreditable=1 Then CONVERT(DECIMAL(10,2),((ROUND((IRD.TransactionQty*IRD.TransactionRate),2))+ (SELECT ROUND(SUM(TaxAmount),2) FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId=IRD.Id)) )   
-										 else CONVERT(DECIMAL(10,2),IRD.BaseAmount)  END
+										 else CONVERT(DECIMAL(12,2),IRD.BaseAmount)  END
                             --, IRD.TotalTaxAmount AS BaseTaxAmount                            
 	                        , BaseTaxAmount=(SELECT SUM(TaxAmount) FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId=IRD.Id)
 	                        , IRD.ChargesAmount

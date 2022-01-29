@@ -19,8 +19,8 @@ namespace Library.Model.Inventory
         public decimal Percentage { get; set; }
         public decimal TaxAmount { get; set; }
 
-        public PurchaseReturnService InventoryService { get; set; }  
-        public string InventoryServiceId { get; set; }
+        public PurchaseReturnService PurchaseReturnService { get; set; }  
+        public string PurchaseReturnServiceId { get; set; }
  
 
 
@@ -66,31 +66,9 @@ namespace Library.Model.Inventory
 
         #region Navigation Properties
 
-       // public string PurchaseDocAcceptanceId { get; set; }
-
-        //[XmlIgnore]
-       // public PurchaseDocAcceptanceDetail PurchaseDocAcceptanceDetail { get; set; }
-
-       // public string PurchaseDocAcceptanceDetailId { get; set; }
-       // public PurchaseOrderDetail PODetail { get; set; }
+      
         public string PODetailId { get; set; }
        
-        //[XmlIgnore]
-        //public PurchaseDocAcceptanceService PurchaseDocAcceptanceService { get; set; }
-        //public string PurchaseDocAcceptanceServiceId { get; set; }
-
-       // public PurchaseDocAcceptanceCharges PurchaseDocAcceptanceCharges { get; set; }
-       // public string PurchaseDocAcceptanceChargesId { get; set; }
-
-        /// <summary>
-        /// ServiceMasterId Ignor in DB.It is only use for seggregate tax from ServiceMaster.
-        /// </summary>
-       // public string ServiceMasterId { get; set; }
-        /// <summary>
-        /// ServiceMasterId Ignor in DB.It is only use for seggregate tax from PurchaseDocAcceptanceCharges.
-        /// </summary>
-        //public string AcceptanceServiceId { get; set; }
-
         #endregion Navigation Properties
     }
 }

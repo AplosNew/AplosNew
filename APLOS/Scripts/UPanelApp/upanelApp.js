@@ -816,6 +816,7 @@ var upanelApp = angular
     .controller("OSTransformationPOController", OSTransformationPOController)
     .controller("ProfessionalTaxOBController", ProfessionalTaxOBController)
     .controller("TaxOBController", TaxOBController)
+    .controller("EmployeeIncomeTaxController", EmployeeIncomeTaxController)
     .controller("LateDeductionController", LateDeductionController)
     .controller("EmployeeDayStatusReportController", EmployeeDayStatusReportController)
     .controller("VoucherController", VoucherController)
@@ -964,6 +965,7 @@ var upanelApp = angular
     .controller('employeeLeaveDeleteApplicationNewController', employeeLeaveDeleteApplicationNewController)
     .controller('ProductionTargetReportController', ProductionTargetReportController)
     .controller('FabricRollController', FabricRollController)
+    .controller('FabricRollsController', FabricRollsController)
     .controller('FinalDeductionReportController', FinalDeductionReportController)
 
 
@@ -1003,6 +1005,8 @@ var upanelApp = angular
     .controller("EmployeeShiftUpdatesController", EmployeeShiftUpdatesController)
     .controller("ProductionGeneralReportController", ProductionGeneralReportController)
     .controller("inventorySalesReturnPost", inventorySalesReturnPost)
+    .controller("ServicePORegisterController", ServicePORegisterController)
+    .controller("StocksAgeingReportController", StocksAgeingReportController)
 
 
     .config(AccessControllerConfig)

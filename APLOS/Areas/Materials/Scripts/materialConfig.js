@@ -147,6 +147,11 @@ function MaterialConfig($routeProvider, $locationProvider) {
             controller: 'FabricRollController'
         })
 
+        .when('/fabric-rolls', {
+            templateUrl: 'materials/FabricRoll/aplos1',
+            controller: 'FabricRollsController'
+        })
+
         .when('/material-ledger', {
             templateUrl: 'materials/MaterialLedger/aplos',
             controller: 'materialledgerController'
@@ -243,6 +248,9 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/Rack/Aplos',
             controller: 'RackController'
         })
-        
+        .when('/service-po-register', {
+            templateUrl: 'materials/MaterialLedger/ServicePORegister',
+            controller: 'ServicePORegisterController'
+        })
        
 };

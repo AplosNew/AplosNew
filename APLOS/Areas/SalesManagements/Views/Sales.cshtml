@@ -764,6 +764,12 @@
                 <td>{{x.RowState}}</td>
                 <td class="text-right">
                     <ul class="list-inline action-list">
+
+                        <li>
+                            <button ng-click="SalesInvoiceReport(x);" class="btn small tooltip-here" title="Sales invoice">
+                                <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                            </button>
+                        </li>
                         @*<li ng-show="x.IsPosted || x.IsPark"><a ng-click="confirmPost(x);" href="" class="btn btn-action tooltip-here">Post</a></li>*@
                         <li ng-show="x.IsPosted || x.IsPark"><a class="btn btn-action" title="Journal" ng-click="ShowJournalPopUp(x);"><i class="glyphicon glyphicon-eye-open"></i></a></li>
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
@@ -1125,6 +1131,14 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header"> Journal</div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label" data-placement="top" title="Cost and Manufacture">Invoice No<sup>*</sup></label>
+                    <div class="col-sm-6 show-message">
+                        <input id="InvoiceNo" type="text" name="InvoiceNo" ng-disabled="true" ng-model="salesdb.InvoiceNo" class="form-control">
+                    </div>
+                </div>
+            </div>
             <div class="modal-body">
                 <div class="col-xs-12">
                     <fieldset class="scheduler-border">

@@ -292,6 +292,11 @@
             controller: 'TaxOBController'
         })
 
+        .when('/employee-income-tax', {
+            templateUrl: 'Payrolls/EmployeeIncomeTax/Aplos',
+            controller: 'EmployeeIncomeTaxController'
+        })
+
         .when('/late-deduction', {
             templateUrl: 'Payrolls/LateDeduction/Aplos',
             controller: 'LateDeductionController'
@@ -324,19 +329,10 @@
             templateUrl: 'Payrolls/GraruityInsuranceReport/Aplos',
             controller: 'GraruityInsuranceReportController'
         })
-        .when('/tax-investment-master', {
-            templateUrl: 'Payrolls/TaxInvestmentMaster/Aplos',
-            controller: 'TaxInvestmentMasterController'
-        })
         .when('/notice-period-setting', {
             templateUrl: 'Payrolls/NoticePeriodSetting/Aplos',
             controller: 'NoticePeriodSettingController'
-        })
-
-        .when('/deduction-investment-master', {
-            templateUrl: 'Payrolls/DeductionInvestmentMaster/Aplos',
-            controller: 'DeductionInvestmentMasterController'
-        })
+        })      
         .when('/tax-saving-item', {
             templateUrl: 'Payrolls/TaxSavingItem/Aplos',
             controller: 'TaxSavingItemController'

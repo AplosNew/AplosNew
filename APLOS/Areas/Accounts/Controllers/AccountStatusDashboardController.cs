@@ -1847,6 +1847,14 @@ namespace Aplos.Areas.Accounts.Controllers
             int ColTotalMaterialTranAmount = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Invoice Amount", 15, ExcelHAlign.HAlignRight);
+            int ColInvoiceAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance", 15, ExcelHAlign.HAlignRight);
+            int ColBalance = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Exchange Rate", 15, ExcelHAlign.HAlignRight);
             int ColToCurrencyRate = COL;
             COL++;
@@ -1887,7 +1895,9 @@ namespace Aplos.Areas.Accounts.Controllers
             COL++;
             report.SetHeaderText(ref sheet, ROW, COL, "UD No", 10, ExcelHAlign.HAlignLeft);
             int ColUDNo = COL;
-
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "GRN Type", 10, ExcelHAlign.HAlignLeft);
+            int ColGRNType = COL;
 
             endCol = COL;
             #endregion Headers
@@ -1919,6 +1929,16 @@ namespace Aplos.Areas.Accounts.Controllers
                 sheet[ROW, ColTotalMaterialTranAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, ColTotalMaterialTranAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                sheet[ROW, ColInvoiceAmount].Number = clsStaticInfo.dbl(data.Rows[i]["InvoiceAmount"].ToString());
+                sheet[ROW, ColInvoiceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColInvoiceAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColInvoiceAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+                sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
                 sheet[ROW, ColToCurrencyRate].Number = clsStaticInfo.dbl(data.Rows[i]["ToCurrencyRate"].ToString());
                 sheet[ROW, ColToCurrencyRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                 sheet[ROW, ColToCurrencyRate].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1945,7 +1965,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 sheet[ROW, ColCustomer].Text = data.Rows[i]["Customer"].ToString();
                 sheet[ROW, ColMasterLCRef].Text = data.Rows[i]["MasterLCRef"].ToString();
                 sheet[ROW, ColUDNo].Text = data.Rows[i]["UDNo"].ToString();
-
+                sheet[ROW, ColGRNType].Text = data.Rows[i]["GRNType"].ToString();
+                
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -1955,12 +1976,24 @@ namespace Aplos.Areas.Accounts.Controllers
             report.SetHeaderText(ref sheet, ROW, 1, "Total", 10, ExcelHAlign.HAlignLeft);
             sheet.Range[ROW, ColGRNDate, ROW , ColCurrency].Merge();
 
-            sheet[ROW, ColTotalMaterialTranAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount)  + (ROW-1).ToString()+")";
-            sheet[ROW, ColTotalMaterialTranAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-            sheet[ROW, ColTotalMaterialTranAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet[ROW, ColTotalMaterialTranAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            sheet[ROW, ColTotalMaterialTranAmount].CellStyle.Font.Bold = true;
-            sheet.Range[ROW, ColToCurrencyRate, ROW, ColToCurrencyRate].Merge();
+            //sheet[ROW, ColTotalMaterialTranAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialTranAmount)  + (ROW-1).ToString()+")";
+            //sheet[ROW, ColTotalMaterialTranAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            //sheet[ROW, ColTotalMaterialTranAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet[ROW, ColTotalMaterialTranAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //sheet[ROW, ColTotalMaterialTranAmount].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, ColToCurrencyRate, ROW, ColToCurrencyRate].Merge();
+
+            //sheet[ROW, ColInvoiceAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColInvoiceAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColInvoiceAmount) + (ROW - 1).ToString() + ")";
+            //sheet[ROW, ColInvoiceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            //sheet[ROW, ColInvoiceAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet[ROW, ColInvoiceAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //sheet[ROW, ColInvoiceAmount].CellStyle.Font.Bold = true;
+
+            //sheet[ROW, ColBalance].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBalance) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBalance) + (ROW - 1).ToString() + ")";
+            //sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            //sheet[ROW, ColBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet[ROW, ColBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //sheet[ROW, ColBalance].CellStyle.Font.Bold = true;
 
             sheet[ROW, ColTotalMaterialBooksCurrencyAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialBooksCurrencyAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColTotalMaterialBooksCurrencyAmount) + (ROW - 1).ToString() + ")";
             sheet[ROW, ColTotalMaterialBooksCurrencyAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
@@ -1969,11 +2002,11 @@ namespace Aplos.Areas.Accounts.Controllers
             sheet[ROW, ColTotalMaterialBooksCurrencyAmount].CellStyle.Font.Bold = true;
             sheet.Range[ROW, ColPONo, ROW, ColExpiryDate].Merge();
 
-            sheet[ROW, ColPLCAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + (ROW - 1).ToString() + ")";
-            sheet[ROW, ColPLCAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-            sheet[ROW, ColPLCAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet[ROW, ColPLCAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            sheet[ROW, ColPLCAmount].CellStyle.Font.Bold = true;
+            //sheet[ROW, ColPLCAmount].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColPLCAmount) + (ROW - 1).ToString() + ")";
+            //sheet[ROW, ColPLCAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            //sheet[ROW, ColPLCAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet[ROW, ColPLCAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //sheet[ROW, ColPLCAmount].CellStyle.Font.Bold = true;
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.NumberFormat = "#,##0.00";
@@ -1990,78 +2023,30 @@ namespace Aplos.Areas.Accounts.Controllers
             {
 
                 string strSQL = string.Empty;
-                strSQL = @"select IR.Id GRNNo
-                    ,V.VoucherNo
-                    ,IR.PartyId
-					,p.UserName Vendor
-					,IR.PartyType
-                    , IR.DocRefNo
-					,isnull( format( IR.DocDate, 'dd-MMM-yyyy'),'')DocDate
-                    ,IR.GateEntryNo
-					,IR.EntryDate
-                    ,IR.IsApproved
-                    --,IR.POId
-                    -- IR.PurchaseDocumentAcceptanceId
-                    --,GAM.PurchaseDocumentAcceptanceId
-                    ,IR.IsInvoice
-					,IR.GRNType
-					,isnull(format( IR.GRNDate,'dd-MMM-yyyy'),'')GRNDate
-                    ,ISNULL( IR.EmployeeId,'')EmployeeId
-
-                  --  ,IRD.InventoryMaterialId
-                    ,SUM(ISNULL( IRD.TransactionQty ,0))TransactionQty
-					--,IRD.TransactionUoMId
-					--,IRD.BaseUOMId
-                    --,SUM(IRD.TrnCurrencyBaseRate)TrnCurrencyBaseRate
-                   -- ,SUM(IRD.MaterialTranRate)MaterialTranRate
-					,SUM(IRD.MaterialTranAmount)MaterialTranAmount
-                    ,SUM(IRD.TotalTaxAmount)TotalTaxAmount
-					,SUM(IRD.ChargesTranAmount)ChargesTranAmount
-					,SUM(IRD.ChargesTaxTranAmount)ChargesTaxTranAmount
-					,SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount
-
+                strSQL = @"select IR.Id GRNNo ,V.VoucherNo,IR.PartyId,p.UserName Vendor,IR.PartyType, IR.DocRefNo,isnull( format( IR.DocDate, 'dd-MMM-yyyy'),'')DocDate
+                    ,IR.GateEntryNo,IR.EntryDate,IR.IsApproved ,IR.IsInvoice,IR.GRNType
+					,isnull(format( IR.GRNDate,'dd-MMM-yyyy'),'')GRNDate ,ISNULL( IR.EmployeeId,'')EmployeeId
+                    ,ISNULL( IRD.TransactionQty ,0)TransactionQty
+					,IRD.MaterialTranAmount
+                    ,IRD.TotalTaxAmount
+					,IRD.ChargesTranAmount
+					,IRD.ChargesTaxTranAmount
+					,IRD.TotalMaterialTranAmount
+					,ISNULL(ISNULL(IV.InvoiceAmount,ISNULL(PGIV.TransactionAmount,0)),0)InvoiceAmount
+					,(IRD.MaterialTranAmount-ISNULL(IV.InvoiceAmount,0)-ISNULL(PGIV.TransactionAmount,0)) Balance
 					,cc.Code ComCurrency
-					--,IRD.BaseQty
-				--	,SUM(IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
 					,C.Code Currency
 				    ,IR.ToCurrencyRate
-                    ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
-             
-				
-                    --,IRD.POId
-					,IRD.IsAsset
-                    ,SUM( IRD.GRNQty)GRNQty
-					, SUM(IRD.GRNTotalAmount)GRNTotalAmount
-                    ,SUM(IRD.GrossAmount)GrossAmount
-					,SUM(IRD.DiscountAmount)DiscountAmount
-
-						--,IRD.IssueQty
-                       -- ,IRD.BaseIssueQty
-
-                     --,po.Id POId 
-					-- ,po.DocRefNo PODocRefNo
-					-- ,po.DocDate PODocDate
-                   -- ,po.PODate
-					--,po.POType
-				--	,po.OrderSpecific
-
-                    --,IR.FixedAssetOrInventory
-                    --,IR.AlongwithInvoice,IR.InvoiceNo,IR.InvoiceDate,IR.BaseOnDueDate
-                    --,IR.BaseNoOfDays,IR.MatureDate,IR.Status,IR.BaseCurrencyId,IR.ToCurrencyRate
-                    --,IR.JWWIPVoucherId,IR.JWGRIRVoucherId,IR.JWChangeInInvVoucherId
-
-                  --  ,plc.Id PurchaseLCId
-				--	,plc.ContractId
-					--, plc.LCRef PLCRef
-                   -- ,plc.LCANo
-                  --  ,isnull( plc.IsAccepptanceFirst,0)IsAccepptanceFirst
-                  --  ,plc.LCDate
-				--	,plc.Type
-				, SUM(isnull( plc.Amount,0) )PLCAmount
+                    ,IRD.TotalMaterialBooksCurrencyAmount
+                    ,IRD.GRNQty
+					, IRD.GRNTotalAmount
+                    ,IRD.GrossAmount
+					,IRD.DiscountAmount
+				, isnull( plc.Amount,0) PLCAmount
 
 				    --,con.Id ContractId 	,con.ContractNo, con.UDNo, cus.UserName Customer
 					--,ML.Id MasterLCId, ML.LCRef MLCRef
-					,Sum(isnull( ml.Amount ,0))MLCAmount
+					,isnull( ml.Amount ,0)MLCAmount
 
 					  ,POId= STUFF((select distinct ','+PG.POId
 			                            FROM TRN.POGGRNMap PG 
@@ -2085,10 +2070,6 @@ namespace Aplos.Areas.Accounts.Controllers
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
 										left join TRN.POGGRNMap pg on pg.PoId= po.Id
 			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-					--,plc.LCDate LCOpeningDate
-					--,plc.ExpiryDate
-
                ,LCOpeningDate= STUFF((select distinct ','+FORMAT(PLC.LCDate,'dd-MMM-yyyy')
 			                            FROM PurchaseLC PLC 
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
@@ -2139,17 +2120,17 @@ namespace Aplos.Areas.Accounts.Controllers
 			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 								
-			--	,MLCAmount= STUFF((select distinct ','+mlc.Amount
-			--                            FROM Contract Con 
-   --                                     LEFT JOIN TRN.PurchaseOrder PO ON PO.ContractId=Con.Id	
-   --                                     LEFT JOIN MasterLC mlc ON mlc.Id=Con.MasterLCId	
-			--							left join TRN.POGGRNMap pg on pg.PoId= po.Id
-			--                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-				
-
+			
 				   from trn.InventoryReceive IR  
-                    left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId = IR.Id
+                    --left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId = IR.Id
+					LEFT JOIN (SELECT InventoryReceiveId,POId,SUM(MaterialTranAmount) MaterialTranAmount
+											,SUM(ISNULL( TransactionQty ,0))TransactionQty
+											,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
+											,SUM(ChargesTaxTranAmount) ChargesTaxTranAmount ,SUM(TotalTaxAmount)TotalTaxAmount
+											,SUM(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
+											,SUM(GRNQty)GRNQty, SUM(GRNTotalAmount)GRNTotalAmount
+											,SUM(GrossAmount)GrossAmount,SUM(DiscountAmount)DiscountAmount
+											FROM TRN.InventoryReceiveDetail GROUP BY InventoryReceiveId,POId) AS IRD ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
                     left join trn.PurchaseOrder po on po.Id =IRD.POId
                     left join PurchaseLC plc on plc.Id = po.PurchaseLCId
@@ -2161,58 +2142,27 @@ namespace Aplos.Areas.Accounts.Controllers
 					left join MasterLC ML on ML.Id=con.MasterLCId
                     LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IRD.InventoryReceiveId
 					LEFT JOIN TRN.Voucher V ON V.Id=CASE WHEN IR.EmployeeId<>'' THEN EP.VoucherId ELSE IR.VoucherId  END
-					--left join HKP.party Cus on cus.Id= con.CustomerId
+					LEFT JOIN (SELECT InventoryReceiveId,SUM(Amount) InvoiceAmount
+											FROM TRN.Invoice GROUP BY InventoryReceiveId) AS IV ON IV.InventoryReceiveId=IR.Id
+					LEFT JOIN (SELECT PGD.InventoryReceiveId,SUM(ISNULL(PGD.TransactionAmount,0)) TransactionAmount
+											FROM TRN.Invoice I
+											INNER JOIN dbo.PostGRNInvoiceDetail PGD ON PGD.PostGRNInvoiceId=I.PostGRNInvoiceId
+											GROUP BY PGD.InventoryReceiveId) AS PGIV ON PGIV.InventoryReceiveId=IR.Id
 					
                     where IR.CompanyGroupId = '" + companyGroupId + "' AND IR.CompanyId ='" + companyId + "' AND IR.PlantId='" + plantId + @"'
-                    AND  IR.IsInvoice=0 
+                   AND  IR.IsInvoice=0 
 					--and isnull(GAM.PurchaseDocumentAcceptanceId,'') is not null
-	                AND IR.Id not in (select InventoryReceiveId from trn.Invoice where InventoryReceiveId<>'')
+	                --AND IR.Id not in (select InventoryReceiveId from trn.Invoice where InventoryReceiveId<>'')
+					AND (IRD.MaterialTranAmount-ISNULL(IV.InvoiceAmount,0)-ISNULL(PGIV.TransactionAmount,0))>0
 					AND IR.Id not in (select InventoryReceiveId from trn.EmployeePayable where InventoryReceiveId<>'')
 					and ir.VoucherId<>''
                           and IR.GRNDate <='" + toDate + @"'
-			              --and plc.IsAccepptanceFirst=0
+			         --and plc.IsAccepptanceFirst=0
 					--AND IR.Id='2021638'
-					group by 
-					IR.Id 
-                    ,V.VoucherNo
-					,cc.Code
-                    ,C.Code 
-                    ,IR.PartyId
-					,IR.PartyType
-                    , IR.DocRefNo
-					, IR.DocDate
-                    ,IR.GateEntryNo
-					,IR.EntryDate
-                    ,IR.IsApproved
-                    --,GAM.PurchaseDocumentAcceptanceId
-                    ,IR.IsInvoice
-					,IR.GRNType
-					,IR.GRNDate
-                    ,IR.EmployeeId
-
-                   -- ,IRD.InventoryMaterialId
-					,IRD.IsAsset
-					,p.UserName
-					,IR.ToCurrencyRate
-					
-                   --  ,po.Id  
-					-- ,po.DocRefNo 
-					-- ,po.DocDate 
-                   -- ,po.PODate
-				--	,po.POType
-					--,po.OrderSpecific
-
-                   -- ,plc.Id 
-					--,plc.ContractId
-					--, plc.LCRef
-                  --  ,plc.LCANo
-                 --   ,plc.IsAccepptanceFirst
-                  --  ,plc.LCDate
-				--	,plc.Type
-					
-
-					-- ,con.Id ,con.ContractNo, con.UDNo, cus.UserName 
-				--	,ML.Id , ML.LCRef, ml.Amount";
+					--group by 
+					--IR.Id  ,V.VoucherNo,cc.Code   ,C.Code   ,IR.PartyId	,IR.PartyType , IR.DocRefNo	, IR.DocDate
+                    --  ,IR.GateEntryNo	,IR.EntryDate    ,IR.IsApproved ,IR.IsInvoice,IR.GRNType	,IR.GRNDate   ,IR.EmployeeId
+					--,IRD.IsAsset,p.UserName,IR.ToCurrencyRate";
                 return _sqlRepository.GetDataTable(strSQL);
             }
             catch (Exception ex)

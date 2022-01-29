@@ -31,13 +31,16 @@ namespace Library.Service.Productions
         IEnumerable<object> GetTotalProductionQty(string WorkCenterMasterId, string ProductionDate);
         void SaveSecondDetail(IEnumerable<ProductionSummaryDetail> psd, ProductionSummary productionSummary, string companyGroupId, string plantId);
         IEnumerable<ComboModel> GetCharacteristicsValueCbo(string soid);
+        IEnumerable<ComboModel> GetCharacteristicsValueByPrOCbo(string soid);
         IEnumerable<object> Query(string plantId);
         IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId);
         void Save(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd);
         void DeleteDetail(string masterid);
         IEnumerable<object> GetSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId);
-        IEnumerable<object> GetChar1Info(string id, string soid); 
+        IEnumerable<object> GetChar1Info(string id, string soid);
+        IEnumerable<object> GetChar1InfobyPrO(string id, string soid);
         IEnumerable<object> GetCharInfo(string masterid, string workdate, string mmid, string soid, string artid, string CharCount, string CharacteristicsValueId);
+        IEnumerable<object> GetCharInfoByPrO(string masterid, string workdate, string mmid, string soid, string artid, string CharCount, string CharacteristicsValueId);
         IEnumerable<ComboModel> GetShiftGroupCbo(string plantId);
         void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
         void SaveInOutMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);

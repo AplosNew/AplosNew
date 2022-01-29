@@ -6,19 +6,26 @@ using OTSBD;
 using bplib;
 using Library.Crosscutting.Security;
 using System.Threading;
+using Library.Data;
+using Library.Service.Enums;
+using Library.Service.Logs;
+using System.Reflection;
 
 namespace Library.HumanResource.Payroll.Tax
 { 
     public class TaxPolicyMasterService
     {
+        #region Constructor 
+        
         ISqlRepository _sqlRepository;
         public TaxPolicyMasterService()
         {
             _sqlRepository = new SqlRepository();
         }
+        #endregion
 
         #region Add/Edit Section
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             DataRow dr = dt.NewRow();
@@ -38,7 +45,7 @@ namespace Library.HumanResource.Payroll.Tax
             dt.Rows.Add(dr);
         }
 
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        public void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             dr.BeginEdit();
@@ -288,7 +295,7 @@ namespace Library.HumanResource.Payroll.Tax
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
+                    clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
                     Header["Id"] ="TMC"+ _Id;
@@ -456,7 +463,8 @@ namespace Library.HumanResource.Payroll.Tax
                     drLocal["Formula"] = ui_master.Formula;
                     drLocal["FormulaID"] = ui_master.FormulaID;
                     drLocal["Description"] = ui_master.Description;
-                  
+                    drLocal["IsUserDefined"] = ui_master.IsUserDefined;
+
                     drLocal["AddedBy"] = identity.Name;
                     drLocal["AddedDate"] = clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), clsWebLib.DB_DATE_FORMAT);
                     drLocal["AddedFromIP"] = identity.IPAddress;
@@ -467,6 +475,7 @@ namespace Library.HumanResource.Payroll.Tax
                     drLocal["Formula"] = ui_master.Formula;
                     drLocal["FormulaID"] = ui_master.FormulaID;
                     drLocal["Description"] = ui_master.Description;
+                    drLocal["IsUserDefined"] = ui_master.IsUserDefined;
                     drLocal["UpdatedBy"] = identity.Name;
                     drLocal["UpdatedFromIP"] = identity.IPAddress;
                     drLocal["UpdatedDate"] = clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), clsWebLib.DB_DATE_FORMAT);
@@ -570,7 +579,7 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string sql = @"Select itm.SystemId, itm.TaxTypeId ,itm.ItemApplicable,
+                string sql = @"Select itm.SystemId, itm.TaxTypeId ,
                         itm.UserCode ,ty.UserName as TaxType ,
                             tg.Id TaxSavingGroupId,tg.UserName TaxSavingGroup,tg.MaxLimit
                                 from dbo.IncomeTaxItemMaster itm
@@ -619,7 +628,7 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
-                    dataMaster["SystemId"] = now.ToString("yy") + '-' + _Id;
+                    dataMaster["SystemId"] = "ITM" + _Id;
                     AddNewRow(dsMaster.Tables[0], dataMaster);
                 }
                 else
@@ -687,7 +696,7 @@ namespace Library.HumanResource.Payroll.Tax
                     clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    dataChild["Id"] = _Id;
+                    dataChild["Id"] = "ITC"+_Id;
                     AddNewRow(dsChild.Tables[0], dataChild);
                 }
                 else
@@ -718,6 +727,73 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
+        #region TaxYear Tagging Functions
+        public IEnumerable<object> GetTaxYearMasterList(string Id)
+        {
+            try
+            {
+                var str = @"select th.HeaderId,th.Id,st.TaxYearName,st.StartDate,st.EndDate,st.TaxYearCode,th.TaxYearId
+                from TaxYearHeaderTagging th left join [SCS].[TaxYear] st on st.id=th.taxyearid
+                where th.headerId='" + Id+ "'ORDER BY st.StartDate asc";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> getTaxYearList()
+        {
+            try
+            {
+                var str = @"select Id as Value,TaxYearName as Text from [SCS].[TaxYear] where Active=1";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public Dictionary<string, object> saveTaxYearEntry(Dictionary<string, object> TaxYearData)
+        {
+            try
+            {
+                string TableName = "dbo.TaxYearHeaderTagging";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId ='" + TaxYearData["HeaderId"] + "' and TaxYearId='"+ TaxYearData["TaxYearId"] +"'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    TaxYearData["Id"] = "THT" + _Id;
+                    AddNewRow(dsMaster.Tables[0], TaxYearData);
+                }              
+                else
+                {
+                    throw new Exception("Already Same Tax Year is Present!");
+                }
+
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return TaxYearData;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion
+
     }
     public class TaxExemptionFormula
     {
@@ -726,8 +802,8 @@ namespace Library.HumanResource.Payroll.Tax
         public string Formula { get; set; }
         public string FormulaID { get; set; }
         public string Description { get; set; }
+        public string IsUserDefined { get; set; }
     }
-
     public class TaxExemptionFormulaDetail
     {
         public string Id { get; set; }
@@ -735,6 +811,302 @@ namespace Library.HumanResource.Payroll.Tax
         public string SalaryHeadID { get; set; }
         public string ExemptionApplicableChildId { get; set; }
         public string Component { get; set; }
+    }
+    public class InvestDeductModelClass
+    {
+        public string Id { get; set; }
+        public decimal ActualValue { get; set; }
+        public decimal UserValue { get; set; }
+        public string EmployeeIncomeTaxId { get; set; }
+        public string IncomeTaxItemChildId { get; set; }
+        public decimal SavingGpLimit { get; set; }
+    }
+    public class EmployeeIncomeTaxService
+    {
+        #region Constructor 
+       
+        ISqlRepository _sqlRepository;
+        TaxPolicyMasterService _tax = new TaxPolicyMasterService();
+        public EmployeeIncomeTaxService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        #endregion
+
+        #region Master Get Functions
+        public IEnumerable<object> GetEmployeeList(string plantId, string companyId)
+        {
+            try
+            {
+                string CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,FORMAT(ob.CutOffDate,'dd-MMM-yyyy')CutOffDate,
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        ,PL.UserName Plant,LGD.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ
+										,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,Emp.GenderID,
+                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,dm.UserName DesignationGroup,
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=E.LineId
+                                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EMP.LegalDesignationId
+										LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+										left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+										left join HKP.Designation DeG on DeG.Id=dm.DesignationId
+										Left Join SCS.OpeningBalanceCutOffDate ob on ob.PlantId = EMP.PlantId and ob.ModuleName = 'HR'
+                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' 
+                                        ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetIncomeTaxType()
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                strSQL = @"select Id, Category, Username from [dbo].[TaxType] where Category ='Income Tax'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        public IEnumerable<object> GetTaxPolicy(string Residence,string YearId,string Gender)
+        {
+            try
+            {
+                string MValue="", FValue="";
+                if(Gender=="Male" || Gender=="M")
+                {
+                    MValue = "1";
+                    FValue = "0";
+                }
+                else if(Gender == "Female" || Gender == "F")
+                {
+                    FValue = "1";
+                    MValue = "0";
+                }
+
+                string strSQL = @"SELECT th.Id as PolicyHeaderId,th.UserName as PolicyHeaderName,th.AgeFrom,th.AgeTo,
+                ty.TaxYearName,format(ty.StartDate,'yyyy-MMM-dd')as 
+                StartDate,format(ty.EndDate,'yyyy-MMM-dd') as EndDate 
+                from TaxPolicyHeader th left join 
+                TaxYearHeaderTagging tht on tht.HeaderId=th.Id
+                left join scs.TaxYear ty on ty.Id=tht.TaxYearId
+                where th.CityOfResidence='" + Residence+@"' and th.Male='"+MValue+@"'
+                and th.Female='"+FValue+"' and ty.Id='"+YearId+"'";
+                
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+         
+        #endregion
+
+        #region Investment/Deduction Tab Functions 
+        public void GetInvDetailsForSaving(string Id, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from EmployeeInvestmentDeduction WHERE EmployeeIncomeTaxId= '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }          
+        }
+        public void GetCheckParam(string EmpId,string PolicyId, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from EmployeeIncomeTaxMaster" +
+                    " where EmpSystemId='"+EmpId+"' and TaxPolicyHeaderId = '"+PolicyId+"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public IEnumerable<object> InvestDeductGridData(string PolicyHeaderId,string EmpSystemId)
+        {
+            try
+            {
+                string sql = "";
+                GetCheckParam(EmpSystemId, PolicyHeaderId, out DataSet dsRef);
+                if (dsRef.Tables[0].Rows.Count > 0)
+                {
+                    
+                    sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+                    it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
+                    eid.ActualValue,eid.UserValue,eid.EmployeeIncomeTaxId,itc.DocumentApplicable,
+                    itc.Id as IncomeTaxItemChildId
+                    from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
+                    it.SystemId=itc.IncomeTaxItemMasterId
+                    left join EmployeeInvestmentDeduction eid on eid.IncomeTaxItemChildId=itc.Id
+                    left join EmployeeIncomeTaxMaster eim on eim.Id=eid.EmployeeIncomeTaxId
+                    left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
+                    left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId
+                    where it.TaxPolicyHeaderId='" + PolicyHeaderId + "' " +
+                    "and eim.EmpSystemId='" + EmpSystemId + "'";
+                }
+                else
+                {
+                    sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+                    it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
+                    itc.DocumentApplicable,(select '0') as ActualValue,(select '0') as UserValue,
+                    itc.Id as IncomeTaxItemChildId
+                    from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
+                    it.SystemId=itc.IncomeTaxItemMasterId
+                    left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
+                    left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId
+                    where it.TaxPolicyHeaderId='" + PolicyHeaderId + "'";
+                }
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public IEnumerable<object> GetFileInfo(string Id)
+        {
+            try
+            {
+                string sql = @"select FileName from InvestDeductDocumentInfo
+                where InvestmentDeductionId='"+Id+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
+        #region Saving Functions
+        public void SaveInvestDeduction(Dictionary<string, object> dataMaster, IEnumerable<InvestDeductModelClass> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string TableName = "dbo.EmployeeIncomeTaxMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                string sql = @"select * from " + TableName + " where" +
+                    " EmpSystemId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='" + dataMaster["TaxPolicyHeaderId"] + "' " +
+                    "AND TaxTypeId='" + dataMaster["TaxTypeId"] + "' AND TaxYearId='" + dataMaster["TaxYearId"] + "'";
+
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                string _Id = "";
+                #region Master Saving
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    dataMaster["Id"] = "EIT" + _Id;
+                    _tax.AddNewRow(dsMaster.Tables[0], dataMaster);
+                }
+                else
+                {
+                    _Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0]["Id"]).ToString();
+                    dataMaster["Id"] = _Id;
+                    _tax.EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
+                }
+                #endregion
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region Child Saving
+
+                GetInvDetailsForSaving(MasterId, out DataSet dsChild);               
+                if (data != null)
+                {
+                    decimal GroupLimit = 0, SumofItems = 0;
+
+                    foreach (var item in data)
+                    {
+
+                        dsChild.Tables[0].DefaultView.RowFilter = @"IncomeTaxItemChildId='" + item.IncomeTaxItemChildId + "' ";
+                        if (dsChild.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow drF = dsChild.Tables[0].NewRow();                            
+                            clsGenID genid = new clsGenID();
+                            genid.GenID("EmployeeInvestmentDeduction", out string _pk);
+                            
+                            drF["Id"] = "EID"+_pk;
+                            drF["EmployeeIncomeTaxId"] = MasterId;
+                            drF["ActualValue"] = item.ActualValue;
+                            drF["UserValue"] = item.UserValue;
+                            drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
+                            drF["AddedBy"] = identity.Name;
+                            drF["AddedFromIp"] = identity.IPAddress;
+                            drF["AddedDate"] = DateTime.Now.ToString();
+                            
+                            SumofItems += item.UserValue;
+                            GroupLimit = item.SavingGpLimit;
+                            dsChild.Tables[0].Rows.Add(drF);
+                        }
+                        else
+                        {
+                            DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["ActualValue"] = item.ActualValue;
+                            dr["UserValue"] = item.UserValue;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["UpdatedFromIp"] = identity.IPAddress;
+                            SumofItems += item.UserValue;
+                            GroupLimit = item.SavingGpLimit;
+                            dr.EndEdit();
+                        }
+                    }
+                    if (GroupLimit < SumofItems)
+                    {
+                        throw new Exception(" Sum of Individual Items is more than Group Limit !! Please adjust Values.");
+                    }
+                    _info.SaveDataSets(dsChild);
+                }
+                
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }
 

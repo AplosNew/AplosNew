@@ -3481,7 +3481,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+        location.href = "Products/InventoryReceive/FOCReport?grnId=" + data.Id;
     };
     $scope.PaymentModeList = [];
     $scope.PaymentModeByPaymentTerm = function () {
@@ -4038,7 +4038,30 @@ function FOCController(accountService, addressService, $window, cboService, comm
             for (var i = 0; i < $scope.groupList.length; i++) {
                 $scope.groupList[i].Tolerance = $scope.productNew.Tolerance;
             }
-
+            //var newList = [];
+            //var added = 0;
+            //for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
+            //    added = 0;
+            //    if (newList.length == 0) {
+            //        newList.push($scope.GetListForMasterOrdernew[i]);
+            //    }
+            //    else {
+            //        for (var j = 0; j < newList.length; j++) {
+            //            if ($scope.GetListForMasterOrdernew[i].MaterialMasterId == newList[j].MaterialMasterId && $scope.GetListForMasterOrdernew[i].ArticleId == newList[j].ArticleId && $scope.GetListForMasterOrdernew[i].FirstCharacteristicsValueId == newList[j].FirstCharacteristicsValueId && $scope.GetListForMasterOrdernew[i].SecondCharacteristicsValueId == newList[j].SecondCharacteristicsValueId) {
+            //                newList[j].Qty += $scope.GetListForMasterOrdernew[i].Qty;
+            //                added = 1;
+            //            }
+            //            //else {
+            //            //    newList.push($scope.GetListForMasterOrdernew[i]);
+            //            //}
+            //        }
+            //        if (added == 0) {
+            //            newList.push($scope.GetListForMasterOrdernew[i]);
+            //        }
+            //    }
+                
+                
+            //}
 
             if ($scope.ActionPOBOQ === 'Save') {
                 $scope.materialValidationForBOQItem();

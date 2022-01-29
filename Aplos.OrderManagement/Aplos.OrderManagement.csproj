@@ -101,6 +101,7 @@
     <Compile Include="FabricRollManagement\FabricRollClass.cs" />
     <Compile Include="Production\GeneralWasteService.cs" />
     <Compile Include="Production\ProductionGeneralReportService.cs" />
+    <Compile Include="Production\StocksReportService.cs" />
     <Compile Include="ProformaInvoice\ProformaInvoice.cs" />
     <Compile Include="OrderControl\clsBOQUpload.cs" />
     <Compile Include="OrderControl\OrderControlReport.cs" />

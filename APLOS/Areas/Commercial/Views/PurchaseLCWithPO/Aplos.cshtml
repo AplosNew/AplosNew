@@ -17,6 +17,7 @@
                             <div e-column e-template="#checkboxTemplate" e-textalign="center" e-width="40"></div>
                             <div e-column e-field="Id" e-headertext="POId" e-width="50"></div>
                             <div e-column e-field="PODate" e-headertext="PODate" e-width="60"></div>
+                            <div e-column e-type="string" e-field="DocRefNo" e-headertext="DocRefNo" e-width="80"></div>
                             <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
                             <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="90" e-textalign="right"></div>
                             <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
@@ -45,6 +46,7 @@
                             <div e-column e-template="#checkboxTemplate" e-textalign="center" e-width="40"></div>
                             <div e-column e-field="Id" e-headertext="POId" e-width="50"></div>
                             <div e-column e-field="PODate" e-headertext="PODate" e-width="60"></div>
+                            <div e-column e-type="string" e-field="DocRefNo" e-headertext="DocRefNo" e-width="80"></div>
                             <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
                             <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80" e-textalign="right"></div>
                             <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
@@ -270,7 +272,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">PI No<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="PINo" ng-model="purchaseLCNew.PINo" class="form-control" maxlength="50" required tabindex="2">
+                <input type="text" name="PINo" ng-model="purchaseLCNew.PINo" class="form-control" maxlength="150" required tabindex="2">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -414,19 +416,20 @@
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
-                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="20"></div>
+                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="30"></div>
                 <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
-                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="60"></div>
-                <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
-                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}"  e-field="LCDate" e-headertext="Opening Date" e-width="60"></div>
-                <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="40" e-textalign="right"></div>
-                <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
-                <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="40" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="120"></div>
+                <div e-column e-type="string" e-field="PINo" e-headertext="PINo" e-width="150"></div>
+                <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="50"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}"  e-field="LCDate" e-headertext="Opening Date" e-width="80"></div>
+                <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="60" e-textalign="right"></div>
+                <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="80"></div>
+                <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="60" e-textalign="right"></div>
                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
-                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="60"></div>
+                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="150"></div>
                 <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="60"></div>
                 <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
-                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="60"></div>
+                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
                 <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
                 <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
                 <div e-column e-type="string" e-field="ContractRemarks" e-headertext="Contract Remarks" e-width="100"></div>

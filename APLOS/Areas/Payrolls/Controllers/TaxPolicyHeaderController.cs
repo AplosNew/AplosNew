@@ -237,7 +237,9 @@ namespace Aplos.Areas.Payrolls.Controllers
         #endregion
 
         #region Investment Deduction Functions
-       
+
+        #region Getting Data Functions
+
         [HttpGet, Authorize]
         public ActionResult getTaxSavingGroup()
         {
@@ -303,10 +305,15 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        #endregion
+
+        #region Saving Functions
+
         [HttpPost, Authorize]
         public JsonResult Create(Dictionary<string, object> data)
         {
-            try {
+            try
+            {
                 if (data["TaxTypeId"] == null)
                 {
                     throw new Exception("Select Tax Type");
@@ -317,10 +324,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }
                 var datax = ds.Create(data);
                 return Json(new { Error = false, Data = datax, Message = AplosMessage.Updated });
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message });
-            }            
+            }
         }
 
         [HttpGet, Authorize]
@@ -335,8 +343,92 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-       
+
+        [HttpPost,Authorize]
+        public JsonResult CreateInvestDeductChild(Dictionary<string, object> dataChild, string maxLimit)
+        {
+            try
+            {
+                if (Convert.ToBoolean(dataChild["IsDeduction"]) == false && Convert.ToBoolean(dataChild["IsInvestment"]) == false && Convert.ToBoolean(dataChild["IsEarning"]) == false)
+                {
+                    return Json(new { Error = true, Data = dataChild, Message = "Select at least one field from [Deduction], [Earning], [Investment]" });
+                }
+                if (dataChild["IncomeTaxItemMasterId"] == null)
+                {
+                    return Json(new { Error = true, Data = dataChild, Message = "Please First Save The Master" });
+                }
+
+                if (dataChild["TaxSavingItemId"] == null)
+                {
+                    return Json(new { Error = true, Data = dataChild, Message = "Please Select Tax Saving Item" });
+                }
+
+                string jj = ds.CreateChild(dataChild, maxLimit);
+                if (jj == "Success")
+                {
+                    return Json(new { Error = false, Data = dataChild, Message = AplosMessage.Updated });
+                }
+                else
+                {
+                   return Json(new { Error = true, Data = dataChild, Message = jj });                  
+                }
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         #endregion
+
+        #endregion
+
+        #region TaxYear Tagging Functions
+
+        [HttpGet, Authorize]
+        public ActionResult getTaxYearList()
+        {
+            try
+            {
+                return Json(ds.getTaxYearList(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult getTaxYearMasterData(string Id)
+        {
+            try
+            {
+                return Json(ds.GetTaxYearMasterList(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SaveTaxYearTagging(Dictionary<string, object> TaxYearData)
+        {
+            try
+            {
+                var id = ds.saveTaxYearEntry(TaxYearData);
+                return Json(new { Error = false, Data = id, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        #endregion
+
 
     }
 }

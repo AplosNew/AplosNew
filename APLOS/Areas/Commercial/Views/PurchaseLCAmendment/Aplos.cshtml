@@ -1,6 +1,68 @@
 ﻿<togglable name="Purchase LC Amendment"></togglable>
 <div class="form-elements form-horizontal" ng-form name="PurchaseLCForm">
     <input type="hidden" ng-model="purchaseLCNew.Id">
+    <div class="col-xs-12">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border" style="margin-bottom:-8px">Purchase Order</legend>
+            <div class="col-xs-6" id="Unassign">
+                <div class="common-btn">
+                    <ul class="list-inline text-right"><li><button ng-click="MakeData()" class="btn btn-action tooltip-here" data-placement="top" title="Add">>></button></li></ul>
+                </div>
+                <div>
+                    <div style="color:black;" id="Grid456" ej-grid e-datasource="GriddataPOWithOutLC" e-allowscrolling="true" e-summaryrows="summaryUnassignRows"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-pageSettings-pageSize="10" e-allowResizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+
+                        <div e-columns>
+                            <div e-column e-template="#checkboxTemplate" e-textalign="center" e-width="40"></div>
+                            <div e-column e-field="Id" e-headertext="POId" e-width="50"></div>
+                            <div e-column e-field="PODate" e-headertext="PODate" e-width="60"></div>
+                            <div e-column e-type="string" e-field="DocRefNo" e-headertext="DocRefNo" e-width="80"></div>
+                            <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
+                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="90" e-textalign="right"></div>
+                            <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
+                            <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
+                            <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.check" e-checked="data.check" />
+                    </script>
+                </div>
+            </div>
+            <div class="col-xs-6" id="Assigned">
+                <div class="common-btn">
+                    <ul class="list-inline text-left"><li><button ng-click="RemovePO()" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><<</button></li></ul>
+                </div>
+
+                <div>
+
+                    <div style="color:black;" id="Grid45" ej-grid e-datasource="selectedPOList" e-allowscrolling="true" e-summaryrows="summaryassignRows"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-pageSettings-pageSize="10" e-allowResizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+
+                        <div e-columns>
+                            <div e-column e-template="#checkboxTemplate" e-textalign="center" e-width="40"></div>
+                            <div e-column e-field="Id" e-headertext="POId" e-width="150"></div>
+                            <div e-column e-field="PODate" e-headertext="PODate" e-width="60"></div>
+                            <div e-column e-type="string" e-field="DocRefNo" e-headertext="DocRefNo" e-width="80"></div>
+                            <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
+                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80" e-textalign="right"></div>
+                            <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
+                            <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
+                            <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplate">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.check" e-checked="data.check" />
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group">
             <label class="col-sm-3 control-label">Order Specific</label>
@@ -350,19 +412,20 @@
          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
         <div e-columns>
-            <div e-column e-type="string" e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="35"></div>
+            <div e-column e-type="string" e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="50"></div>
             <div e-column e-type="string" e-field="Id" e-headertext="LC No" e-width="20" e-visible="false"></div>
-            <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="40"></div>
-            <div e-column e-type="number" e-field="Version" e-headertext="Last Version" e-width="20"></div>
-            <div e-column e-type="date" e-field="LCDate" e-headertext="Opening Date" e-width="30"></div>
-            <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="30"></div>
-            <div e-column e-type="date" e-field="AmendmentDate" e-headertext="Amendment Date" e-width="30"></div>
-            <div e-column e-type="number" e-field="Amount" e-headertext="Amendment Value" e-width="30"></div>
+            <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="120"></div>
+            <div e-column e-type="string" e-field="PINo" e-headertext="PINo" e-width="150"></div>
+            <div e-column e-type="number" e-field="Version" e-headertext="Last Version" e-width="50"></div>
+            <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="80"></div>
+            <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="60"></div>
+            <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="80"></div>
+            <div e-column e-type="number" e-field="Amount" e-headertext="Amendment Value" e-width="60"></div>
             <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
-            <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="50"></div>
-            <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="50"></div>
+            <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="150"></div>
+            <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="80"></div>
             <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
-            <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="50"></div>
+            <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
             <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
             <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
             <div e-column e-type="string" e-field="ContractRemarks" e-headertext="Contract Remarks" e-width="100"></div>

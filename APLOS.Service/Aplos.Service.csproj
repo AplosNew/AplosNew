@@ -92,6 +92,7 @@
     <Compile Include="Enums\NewBeneficiaryType.cs" />
     <Compile Include="Enums\ActivityOrderTypeEnum.cs" />
     <Compile Include="Enums\TaxCategoryLevelEnum.cs" />
+    <Compile Include="Enums\TableEnum.cs" />
     <Compile Include="Enums\TermsAndConditionsEnum.cs" />
     <Compile Include="Enums\TaxCategoryTypeEnum.cs" />
     <Compile Include="Enums\InvoiceTypeEnum.cs" />

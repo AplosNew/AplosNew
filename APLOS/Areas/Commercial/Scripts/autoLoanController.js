@@ -259,39 +259,32 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
     }
     $scope.getData();
 
+    
 
-    //$scope.SelectedForAutoLoanList = [];
-    //$scope.rowChecked = function (args) {
-    //    if (args.isInteraction == true) {
-    //        var gridObj = $("#GridAcceptanceList").data("ejGrid");
-    //        var data = gridObj.getSelectedRecords()[0];
-    //        if (data.isSelected == true) {
-    //            $scope.SelectedForAutoLoanList.push(data);
-    //        }
-    //        else {
-    //            var taxdr = $scope.SelectedForAutoLoanList.length;
-    //            while (taxdr--) {
-    //                if ($scope.SelectedForAutoLoanList[taxdr]["Id"] === data.Id) {
-    //                    $scope.SelectedForAutoLoanList.splice(taxdr, 1);
-    //                }
-    //            }
-    //        }
-    //        gridObj.refreshContent();
-    //    }
+    $scope.getReport = function (args) {
+        var reportFormat = "Excel";
+        try {
+            var url = "";
+            url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id ;
+            $rootScope.report(url);
+        }
+        catch (e) {
 
-    //};
+        }
+    };
+    $scope.getReportPdf = function (args) {
+        var reportFormat = "Pdf";
+        try {
+            var url = "";
+            url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id ;
+            $rootScope.report(url);
+        }
+        catch (e) {
 
+        }
+    };
 
-
-    //$scope.removeRow = function (index) {
-    //    var row = $scope.SelectedForAutoLoanList[index];
-    //    for (var i = 0; i < $scope.AutoLoanAvailableDataList.length; i++) {
-    //        if ($scope.AutoLoanAvailableDataList[i].Id == row.Id) {
-    //            $scope.AutoLoanAvailableDataList[i].isSelected = false;
-    //        }
-    //    }
-    //    $scope.SelectedForAutoLoanList.splice(index, 1);
-    //};
+    
 }
 
 
