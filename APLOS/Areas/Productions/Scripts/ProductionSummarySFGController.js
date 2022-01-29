@@ -431,8 +431,12 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
             }
         }
 
-       
-         if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
+        if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
+            $scope.ProductionLevel = 'Production Order';
+            $scope.PQEnable = false;
+            $scope.disGo = false;
+        }
+        else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
             $scope.ProductionLevel = 'Sales Order';
             $scope.PQEnable = false;
             $scope.disGo = false;
@@ -450,7 +454,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         else {
             $scope.disGo = true;
             $scope.PQEnable = true;
-            throw 'Production Booking Level is not defined for selected process.';
+            ShowResult('Production Booking Level is not defined for selected process.','failure');
         }
 
         if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true) {
