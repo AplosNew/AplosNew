@@ -888,7 +888,11 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
         }
         for (var i = 0; i < $scope.bankDetailList.length; i++) {
             if ($scope.bankDetailList[i].SourceType === "Loan") {
-                if ($scope.bankDetailList[i].Balance < $scope.bankDetailList[i].Amount) {
+                if ($scope.bankDetailList[i].Balance < $scope.bankDetailList[i].Amount && $scope.bankDetailList[i].BankCurrencyId != $scope.companyCurrencyId) {
+                    ShowResult("Payment Amount can't more than Loan Balance Amount", "failure");;
+                    return true;
+                }
+                if ($scope.bankDetailList[i].Balance < $scope.bankDetailList[i].BaseDrAmount && $scope.bankDetailList[i].BankCurrencyId === $scope.companyCurrencyId) {
                     ShowResult("Payment Amount can't more than Loan Balance Amount", "failure");;
                     return true;
                 }
@@ -1258,10 +1262,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
                 ShowResult("Bank Transaction Currency not found!", "failure", "loanPopUp");
                 return;
             }
-            else if ($scope.voucher.CurrencyId != bank.CurrencyId) {
-                ShowResult("Please Select same Currency Loan!", "failure", "loanPopUp");
-                return;
-            }
+            
             else {
                 var getRow = null;
                 getRow = $filter("filter")($scope.bankDetailList, { "BankMasterId": bank.BankMasterId });
