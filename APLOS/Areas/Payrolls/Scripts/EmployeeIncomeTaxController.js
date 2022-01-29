@@ -49,6 +49,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         var data = obj.data;
         $scope.TaxPolicyName = null;
         $scope.InvestDeductGridPop = [];
+        $scope.EarningGridValue = [];
         $scope.EmployeeInfoModel.EmployeeCode = data.EmployeeCode;
         $scope.EmployeeInfoModel.EmpSystemID = data.SystemID;
         $scope.EmployeeInfoModel.EmployeeName = data.EmployeeName;
@@ -143,7 +144,10 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             $scope.TaxPolicyList = response.data;
             $scope.TaxPolicyName = response.data[0].PolicyHeaderName;
             $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId = response.data[0].PolicyHeaderId;
+            $scope.EmployeeIncomeTaxModel.StartDate = response.data[0].StartDate;
+            $scope.EmployeeIncomeTaxModel.EndDate = response.data[0].EndDate;
             $scope.getInvestDeductionList();
+            $scope.getEarningGridList();
         });
     }
 
@@ -158,7 +162,9 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         TaxTypeId: null,
         CityOfResidence: null,
         CurrentAge: null,
-        TaxPolicyHeaderId: null
+        TaxPolicyHeaderId: null,
+        StartDate: null,
+        EndDate: null
     }
     
     $scope.EmployeeListTemp = [];  
@@ -245,6 +251,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.getInvestDeductionList();
                }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -286,11 +293,40 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         });
     }
 
+    $scope.EarningGridValue = [];
+    $scope.getEarningGridList = function () {
+
+        if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Invalid Request!!');
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetEarningGridData",
+            data: {
+                'PolicyId': $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId,
+                'EmpId': $scope.EmployeeIncomeTaxModel.EmpSystemId,
+                'From': $scope.EmployeeIncomeTaxModel.StartDate,
+                'To': $scope.EmployeeIncomeTaxModel.EndDate,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+                throw ('Invalid Request!');
+            }
+            $scope.EarningGridValue = [];
+            $scope.EarningGridValue = response.data;
+
+        });
+    }
+
     // #endregion
 
     //#region Attachment 
 
-    $scope.UploadTableName = 'InvestDeductDocumentInfo';
+    $scope.UploadTableName = 'EmployeeInvestmentDeduction';
     $scope.uploadUrl = $scope.path + "UploadAttachment/";
     $scope.confirmFileDelete = function () {
         angular.element(document.querySelector("#confirmFileDelete")).modal("show");
@@ -365,5 +401,47 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     //#endregion
 
 
+    //#region MOI File 
+    //$scope.ItemId = null;
+    //$scope.onBeginUpload = function (args) {
+    //    try {
+    //        if (angular.isUndefinedOrNull(args.model.Data))
+    //            throw 'Please select/save the order first'
+    //        $scope.ItemId = args.model.Data;
+    //        args.data = args.model.Data;
+    //    } catch (e) {
+
+    //        args.cancel = true;
+    //        ShowResult(e, 'Error');
+    //    }
+
+    //}
+    //$scope.uploadUrl = $scope.path+ "SaveDefault";
+    //$scope.fileselect = function (e) {
+
+    //}
+    //$scope.errorPicUpload = function (e) {
+    //    if (angular.isUndefinedOrNull($scope.ItemId))
+    //        ShowResult('Please select/save the order first', 'Error');
+    //    else
+    //        ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    //}
+
+
+
+    //$scope.FileDownload = function (data) {
+    //    $scope.dwonloadUrl = null;
+    //    var str = data.FileName;
+    //    var extention = str.substr(str.indexOf('.'));
+    //    $scope.dwonloadUrl = virtualPath.MOIPath + '/' + data.Id + extention;
+    //};
+
+    //#endregion
+
+
+
+    // #region Earning Tab Functions
+
+    // #endregion
 
 }
