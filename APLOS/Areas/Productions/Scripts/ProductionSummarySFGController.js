@@ -674,6 +674,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
         $scope.GetTotalProductionBookingQty();
+        $scope.GetSFGWIPQty();
         $scope.getLotNumberCbo();
     }
 
