@@ -626,7 +626,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                 FROM [TRN].[EmployeeLeaveSummary] ELS
                                
                                 JOIN [TRN].[EmployeeLeaveSummary] ELX ON els.Id=elx.Id and elx.Id=(SELECT TOP 1 Id FROM [TRN].[EmployeeLeaveSummary] X 
-                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId AND ISNULL(ELS.IsYearlyProcessed,0)=0
+                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId AND ISNULL(X.IsYearlyProcessed,0)=0
 																							AND x.LeaveTypeId=els.LeaveTypeId AND X.ToDate<='" + ToDate + @"' ORDER BY x.ToDate ASC )
                                 LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
                                 LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId         
@@ -843,7 +843,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                 FROM [TRN].[EmployeeLeaveSummary] ELS
                                
                                 JOIN [TRN].[EmployeeLeaveSummary] ELX ON els.Id=elx.Id and elx.Id=(SELECT TOP 1 Id FROM [TRN].[EmployeeLeaveSummary] X 
-                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId AND ISNULL(ELS.IsYearlyProcessed,0)=0
+                                                                                                   WHERE x.EmployeeId=els.EmployeeId AND X.PlantId=ELS.PlantId AND ISNULL(X.IsYearlyProcessed,0)=0
 																							AND x.LeaveTypeId=els.LeaveTypeId AND X.ToDate<='" + ToDate + @"' ORDER BY x.ToDate ASC )
                                 LEFT JOIN EmployeeInformation EI ON EI.SystemId=ELS.EmployeeId
                                 LEFT JOIN LeaveType LT ON LT.Id=ELS.LeaveTypeId         

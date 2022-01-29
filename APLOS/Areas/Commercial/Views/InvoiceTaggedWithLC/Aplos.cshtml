@@ -194,7 +194,26 @@
                 <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
                 <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
                 <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
+                <div e-column e-headertext=" Action " e-template="#InvoiceTWLCTemplate" e-width="80"></div>
             </div>
+            <script id="InvoiceTWLCTemplate" type="text/template">
+                <div class="common-btn">
+                    <ul class="common-btn list-inline text-center">
+                        @*<li>
+                        <button ng-click="$parent.getReportPdf(data);" class="btn btn-action" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="pdf">
+                            <i class="fa fa-file-pdf-o" style="color:orangered;"></i>
+                        </button>
+
+                        <button ng-click="$parent.getReport(data);" class="btn btn-action" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="excel">
+                            <i class="fa fa-file-excel-o" style="color:orangered;"></i>
+                        </button>
+
+                    </li>*@
+                        <li><a class="btn btn-action" href="Commercial/InvoiceTaggedWithLC/GetInvoiceTaggedWithLCReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Commercial/InvoiceTaggedWithLC/GetInvoiceTaggedWithLCReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                    </ul>
+                </div>
+            </script>
         </div>
     </div>
 </div>
