@@ -4108,7 +4108,7 @@ function ServicePOByRequisitionController(accountService, addressService, $windo
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
         $scope.contractList = [];
-        $http.get("Products/PurchaseOrder/GetLCContractList")
+        $http.get("Products/PurchaseOrder/GetLCContractList?isProcurementOnBom=" + false)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
