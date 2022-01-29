@@ -1,7 +1,20 @@
 ﻿<h3 class="site-heading">{{title}}</h3>
 
 <div class="row">
-    <div class="col-sm-12 col-md-12 col-lg-12">
+    <div class="col-sm-6 col-md-4 col-lg-4">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Process</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ProcessId" name="Process"
+                            ng-options="item.Value as item.Text for item in ProcessList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-8 col-lg-8">
         <div id="FilterList" ej-grid e-datasource="filtersList"
              e-allowfiltering="true" e-responsive="true"
              e-filtersettings-filterType="excel" e-allowtextwrap="true">
@@ -15,7 +28,6 @@
                 <div e-column e-field="PRStatus" e-type="string" e-headertext="PO Status" e-width="80"></div>
                 <div e-column e-field="SOStatus" e-type="string" e-headertext="SO Status" e-width="80"></div>
                 <div e-column e-field="ProductCode" e-type="string" e-headertext="Product Code" e-width="80"></div>
-                <div e-column e-field="Process" e-type="string" e-headertext="Process" e-width="80"></div>
             </div>
         </div>
     </div>
