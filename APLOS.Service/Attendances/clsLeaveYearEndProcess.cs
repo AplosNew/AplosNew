@@ -964,7 +964,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                 join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
                                 AND X.ToDate<='" + ToDate + @"' AND X.PlantId=SE.PlantId
-                                AND ISNULL(S.IsYearlyProcessed,0)=0
+                                AND ISNULL(X.IsYearlyProcessed,0)=0
                                 ORDER BY x.FromDate ASC
                                 ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId 
                          WHERE SE.PlantId='" + sPlantID + @"'  ";
@@ -1033,7 +1033,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                 --join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where  X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
                                 AND X.ToDate<='" + ToDate + @"' AND X.PlantId=S.PlantId
-                                AND ISNULL(S.IsYearlyProcessed,0)=0
+                                AND ISNULL(X.IsYearlyProcessed,0)=0
                                 ORDER BY x.FromDate ASC
                                 ) AND se.LeaveTypeId=s.LeaveTypeId AND se.EmployeeId=s.EmployeeId
                                 JOIN LeaveType AS lt ON lt.Id=se.LeaveTypeId
@@ -1756,9 +1756,9 @@ WHERE els.ToDate<(SELECT yc.ToDate
                             LEFT JOIN dbo.LeavePolicyDetail as lpd  on lpd.LPMSystemID=lpm.SystemID
                             
                             LEFT JOIN trn.EmployeeLeaveSummary SM ON sm.EmployeeId=emp.SystemId AND sm.LeaveTypeId=lpd.LTSystemID
-                            AND sm.Id=(SELECT TOP 1 Id FROM trn.EmployeeLeaveSummary SMX WHERE SMX.EmployeeId=emp.SystemId AND SMX.PlantId=emp.PlantId AND SMX.LeaveTypeId=lpd.LTSystemID AND ISNULL(SM.IsYearlyProcessed,0)=0 AND smx.ToDate<='" + ToDate + @"' ORDER BY SMX.ToDate ASC)
+                            AND sm.Id=(SELECT TOP 1 Id FROM trn.EmployeeLeaveSummary SMX WHERE SMX.EmployeeId=emp.SystemId AND SMX.PlantId=emp.PlantId AND SMX.LeaveTypeId=lpd.LTSystemID AND ISNULL(SMX.IsYearlyProcessed,0)=0 AND smx.ToDate<='" + ToDate + @"' ORDER BY SMX.ToDate ASC)
                            
-                            where lpd.IsCarryForward=1 AND emp.PlantId='" + sPlantID + @"'
+                            where lpd.IsCarryForward=1 AND ISNULL(SM.IsYearlyProcessed,0)=0 AND emp.PlantId='" + sPlantID + @"'
                             
                     ORDER BY emp.SystemId";
 
@@ -1856,7 +1856,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                 join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
                                 AND X.ToDate<='" + ToDate + @"'   AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
-                                AND ISNULL(S.IsYearlyProcessed,0)=0
+                                AND ISNULL(X.IsYearlyProcessed,0)=0
                                 ORDER BY x.ToDate ASC
                                 ) 
                          		AND ISNULL(S.IsYearlyProcessed,0)=0
