@@ -72,9 +72,9 @@ namespace Aplos.Areas.Productions.Controllers
         #region Modals
 
         [HttpPost , Authorize]
-        public ActionResult masterDetail(string PRId , string Col)
+        public ActionResult masterDetail(string PRId , string Col , Dictionary<string, object> Filters)
         {
-            return Json(ps.masterDetail(PRId , Col), JsonRequestBehavior.AllowGet);
+            return Json(ps.masterDetail(PRId , Col , Filters), JsonRequestBehavior.AllowGet);
         }
 
         #endregion Modals
@@ -82,12 +82,12 @@ namespace Aplos.Areas.Productions.Controllers
         #region Report Operations
 
         [HttpPost, Authorize]
-        public ActionResult getReports(string PRId)
+        public ActionResult getReports(string PRId , Dictionary<string, object> Filters)
         {
 
             try
             {
-                var workbook = getReportsDown(PRId);
+                var workbook = getReportsDown(PRId , Filters);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "ProductionReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -103,14 +103,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook getReportsDown(string PRId)
+        private IWorkbook getReportsDown(string PRId , Dictionary<string, object> Filters)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = ps.getReports(PRId);
+            var data = ps.getReports(PRId , Filters);
 
 
             var sheet = workbook.Worksheets[0];

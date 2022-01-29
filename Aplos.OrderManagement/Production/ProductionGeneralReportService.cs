@@ -28,7 +28,7 @@ namespace Library.OrderManagement.Production
             {
                 var str = @"
                             Select p.Id as CustomerId,p.UserName as Customer, mo.BuyerReferenceNo as BuyerRef, mo.OwnReferenceNo as OwnRef , mo.Id as MOId,mo.MasterOrderNo as MO ,
-                            moi.Id as LineItem , So.Id as SO,prs.UserName as PRStatus, po.planningStatus as PRStatusNA , so.OrderStatusId as SOOrderId,os.UserName as SOStatus ,
+                            moi.Id as LineItem , So.Id as SO,prs.Id as PRStatId,prs.UserName as PRStatus, po.planningStatus as PRStatusNA , so.OrderStatusId as SOOrderId,os.UserName as SOStatus ,
                             pl.Code as ProductCode ,moi.ProductLibraryId as MOILibId , ps.ProductLibraryId as PSLibId , ps.ProcessId , pc.UserName as Process
                             from trn.ProductionSummary ps
                             left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
@@ -68,7 +68,7 @@ namespace Library.OrderManagement.Production
                 var str = @"Select dd.Customer ,dd.PRStatus,dd.ProductionOrderId , dd.BuyerRef , dd.OwnRef, dd.LineItem,isnull(dd.ProductCode,'') as ProductCode, Sum(dd.OrderQty) as OrderQty , Sum(dd.PlanQty) as PlanQty , Sum(dd.ProducedQty) as ProdQty , abs(Sum(Case when dd.ShortExcess<0 then dd.ShortExcess else 0 end)) as ToProduce ,Sum(Case when dd.ShortExcess>0 then dd.ShortExcess else 0 end) as ExcessProduce 
                         from 
                         (
-                        Select pps.Customer , pps.LineItem,pl.Code as ProductCode,ps.SalesOrderId , pps.BuyerRef , pps.OwnRef , ps.ProductionOrderId, prs.UserName as PRStatus  , ps.ProcessId , ps.PlantId , c.UserName as Charac, cv.Id as CharVId ,cv.UserName as CharV , cs.UserName as Char2c , cvs.Id as Char2VId ,cvs.UserName as Char2V , pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty , Sum(psd.Qty) as ProducedQty , (Sum(psd.Qty) -  pps.PlanQty  ) as ShortExcess
+                        Select pps.Customer , pps.LineItem,pl.Code as ProductCode,ps.SalesOrderId , pps.BuyerRef , pps.OwnRef , ps.ProductionOrderId, prs.UserName as PRStatus  , ps.ProcessId , ps.PlantId , c.UserName as Charac, cv.Id as CharVId ,cv.UserName as CharV , cs.UserName as Char2c , cvs.Id as Char2VId ,cvs.UserName as Char2V , pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty , Sum(psd.Qty) as ProducedQty , (Sum(psd.Qty) -  pps.PlanQty  ) as ShortExcess 
                         --, c.Id as cc , fc.CharacteristicsId , cs.Id , sc.CharacteristicsId
                         from trn.ProductionSummary ps
                         right join trn.ProductionSummaryDetail psd on psd.ProductionSummaryId = ps.Id
@@ -82,8 +82,8 @@ namespace Library.OrderManagement.Production
                         --left join trn.SecondCharacteristics sc on sc.FirstCharacteristicsId = fc.Id and psd.Characteristics2Id = sc.CharacteristicsId
                         left join 
                         (
-                        Select p.UserName as Customer,moi.Id as LineItem,So.Id , mo.BuyerReferenceNo as BuyerRef, mo.OwnReferenceNo as OwnRef,cv.Id as FirstId ,cv.UserName as CharValF , cvs.Id as SecId ,cvs.UserName as CharValS , sc.Qty as OrderQty 
-                        ,Ceiling( sc.Qty/(1-(mo.ExtraOrderPercentage+mo.OrderWastagePercentage)/100)) as PlanQty
+                        Select p.Id as CusId,p.UserName as Customer,moi.Id as LineItem,So.Id , mo.BuyerReferenceNo as BuyerRef, mo.OwnReferenceNo as OwnRef,cv.Id as FirstId ,cv.UserName as CharValF , cvs.Id as SecId ,cvs.UserName as CharValS , sc.Qty as OrderQty 
+                        ,Ceiling( sc.Qty/(1-(mo.ExtraOrderPercentage+mo.OrderWastagePercentage)/100)) as PlanQty 
                         from trn.SalesOrder so
                         left join trn.FirstCharacteristics fc on fc.SalesOrderId = so.Id
                         left join trn.SecondCharacteristics sc on sc.FirstCharacteristicsId = fc.Id
@@ -94,19 +94,22 @@ namespace Library.OrderManagement.Production
                         left join trn.MasterOrderItem moi on moi.Id = So.MasterOrderItemId
                         left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                         left join hkp.Party p on p.Id = mo.PartyId
+						where  p.Id in ("+filters["CustomerId"]+ @")  and  mo.BuyerReferenceNo in (" + filters["BuyerRef"] + @") and mo.OwnReferenceNo in (" + filters["OwnRef"] + @") and mo.MasterOrderNo in (" + filters["MOId"] + @") and moi.Id in (" + filters["LineItem"] + @") and so.Id in (" + filters["SO"] + @") and so.OrderStatusId in (" + filters["SOOrderId"] + @")
                         )
                         as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
                         left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
                         left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
                         left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                        where  cv.Id is not null and cvs.Id is not null 
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
+						 "+pc+@"
                         group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId ,
                         c.UserName , cv.UserName , cs.UserName , cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , 
-                        pps.OrderQty , pps.PlanQty ,  prs.UserName ,pps.Customer , pps.LineItem , pl.Code, pps.BuyerRef , pps.OwnRef
+                        pps.OrderQty , pps.PlanQty ,  prs.UserName ,pps.Customer , pps.LineItem , pl.Code, pps.BuyerRef , pps.OwnRef 
 
                         ) as dd
                         group by dd.ProductionOrderId , dd.LineItem , dd.Customer , dd.PRStatus,dd.ProductCode, dd.BuyerRef , dd.OwnRef
-                            ";
+                             ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -118,13 +121,21 @@ namespace Library.OrderManagement.Production
         #endregion masterOperations
 
         #region masterDetail
-        public IEnumerable<object> masterDetail(string PRId , string Col)
+        public IEnumerable<object> masterDetail(string PRId , string Col , Dictionary<string, object> filters)
         {
             try
             {
                 var str = "";
-
-                if(Col == "Excess Produce")
+                string pc = "";
+                if (filters["PSLibId"].ToString() == "'','null'")
+                {
+                    pc = "";
+                }
+                else
+                {
+                    pc = "and ps.ProductLibraryId in (" + filters["PSLibId"] + ")";
+                }
+                if (Col == "Excess Produce")
                 {
                     str = @"Select dd.* from
                             (Select pps.Customer , pps.LineItem,pl.Code as ProductCode,ps.SalesOrderId ,pps.BuyerRef,pps.OwnRef , ps.ProductionOrderId, prs.UserName as PRStatus  , ps.ProcessId ,
@@ -156,12 +167,15 @@ namespace Library.OrderManagement.Production
                             left join trn.MasterOrderItem moi on moi.Id = So.MasterOrderItemId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                             left join hkp.Party p on p.Id = mo.PartyId
-                            )
-                            as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
-                            left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
-                            left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
-                            left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                            where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '" + PRId + @"'
+                            where  p.Id in (" + filters["CustomerId"] + @")  and  mo.BuyerReferenceNo in (" + filters["BuyerRef"] + @") and mo.OwnReferenceNo in (" + filters["OwnRef"] + @") and mo.MasterOrderNo in (" + filters["MOId"] + @") and moi.Id in (" + filters["LineItem"] + @") and so.Id in (" + filters["SO"] + @") and so.OrderStatusId in (" + filters["SOOrderId"] + @")
+                        )
+                        as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
+                        left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
+                        left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
+                        left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
+						 " + pc + @"
                             group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName , cs.UserName ,
                             cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty ,  prs.UserName ,pps.Customer , 
                             pps.LineItem , pl.Code, pps.BuyerRef, pps.OwnRef
@@ -203,12 +217,15 @@ namespace Library.OrderManagement.Production
                             left join trn.MasterOrderItem moi on moi.Id = So.MasterOrderItemId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                             left join hkp.Party p on p.Id = mo.PartyId
-                            )
-                            as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
-                            left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
-                            left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
-                            left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                            where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '" + PRId + @"'
+                            where  p.Id in (" + filters["CustomerId"] + @")  and  mo.BuyerReferenceNo in (" + filters["BuyerRef"] + @") and mo.OwnReferenceNo in (" + filters["OwnRef"] + @") and mo.MasterOrderNo in (" + filters["MOId"] + @") and moi.Id in (" + filters["LineItem"] + @") and so.Id in (" + filters["SO"] + @") and so.OrderStatusId in (" + filters["SOOrderId"] + @")
+                        )
+                        as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
+                        left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
+                        left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
+                        left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
+						 " + pc + @"
                             group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName ,
                             cs.UserName , cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty ,  prs.UserName ,
                             pps.Customer , pps.LineItem , pl.Code, pps.BuyerRef, pps.OwnRef
@@ -248,12 +265,15 @@ namespace Library.OrderManagement.Production
                             left join trn.MasterOrderItem moi on moi.Id = So.MasterOrderItemId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                             left join hkp.Party p on p.Id = mo.PartyId
-                            )
-                            as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
-                            left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
-                            left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
-                            left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                            where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '" + PRId + @"'
+                            where  p.Id in (" + filters["CustomerId"] + @")  and  mo.BuyerReferenceNo in (" + filters["BuyerRef"] + @") and mo.OwnReferenceNo in (" + filters["OwnRef"] + @") and mo.MasterOrderNo in (" + filters["MOId"] + @") and moi.Id in (" + filters["LineItem"] + @") and so.Id in (" + filters["SO"] + @") and so.OrderStatusId in (" + filters["SOOrderId"] + @")
+                        )
+                        as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
+                        left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
+                        left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
+                        left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
+						 " + pc + @"
                             group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName ,
                             cs.UserName , cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty ,  prs.UserName ,
                             pps.Customer , pps.LineItem , pl.Code, pps.BuyerRef, pps.OwnRef
@@ -270,10 +290,19 @@ namespace Library.OrderManagement.Production
         #endregion masterDetail
 
         #region Report
-        public DataTable getReports(string PRId)
+        public DataTable getReports(string PRId , Dictionary<string, object> filters)
         {
             try
             {
+                string pc = "";
+                if (filters["PSLibId"].ToString() == "'','null'")
+                {
+                    pc = "";
+                }
+                else
+                {
+                    pc = "and ps.ProductLibraryId in (" + filters["PSLibId"] + ")";
+                }
                 var str = @"Select dd.* , abs((Case when dd.ShortExcess<0 then dd.ShortExcess else 0 end)) as ToProduce ,
                             (Case when dd.ShortExcess>0 then dd.ShortExcess else 0 end) as ExcessProduce  ,
                            FLOOR((dd.ProducedQty/dd.OrderQty)*100) as Percents
@@ -301,12 +330,15 @@ namespace Library.OrderManagement.Production
                             left join trn.MasterOrderItem moi on moi.Id = So.MasterOrderItemId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                             left join hkp.Party p on p.Id = mo.PartyId
-                            )
-                            as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
-                            left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
-                            left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
-                            left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
-                            where  cv.Id is not null and cvs.Id is not null and ps.ProductionOrderId = '"+PRId+@"'
+                            where  p.Id in (" + filters["CustomerId"] + @")  and  mo.BuyerReferenceNo in (" + filters["BuyerRef"] + @") and mo.OwnReferenceNo in (" + filters["OwnRef"] + @") and mo.MasterOrderNo in (" + filters["MOId"] + @") and moi.Id in (" + filters["LineItem"] + @") and so.Id in (" + filters["SO"] + @") and so.OrderStatusId in (" + filters["SOOrderId"] + @")
+                        )
+                        as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
+                        left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
+                        left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
+                        left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId in (" + filters["ProcessId"] + @")
+						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
+						 " + pc + @"
                             group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId , c.UserName , cv.UserName , cs.UserName , cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty ,  prs.UserName ,pps.Customer , pps.LineItem , pl.Code , pps.BuyerRef , pps.OwnRef , pps.MasterOrderNo
                            ) as dd";
                 return _sqlRepository.GetDataTable(str);

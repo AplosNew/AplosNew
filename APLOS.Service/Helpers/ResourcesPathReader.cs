@@ -978,7 +978,18 @@ namespace Library.Service.Helpers
 			}
 		}
 
-		
+		public static string InvestDeductDocumentInfoPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/InvestDeductDocumentInfo/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
 
 	}
 }

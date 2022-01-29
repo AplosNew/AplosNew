@@ -878,10 +878,9 @@ select max(	EffectiveDate) 	EffectiveDate FROM (
 JOIN SalaryInfoDefineMaster M ON M.SystemID=s.SalaryID
 JOIN trn.EmployeeLeaveSummary AS els ON els.EmployeeId=M.EmpInfoSystemID
 JOIN trn.EmployeeLeaveSummary AS SX ON els.Id=SX.Id AND sX.Id=(SELECT TOP 1 x.Id FROM trn.EmployeeLeaveSummary X 
-WHERE x.EmployeeId=els.EmployeeId AND x.LeaveTypeId=els.LeaveTypeId AND x.PlantId=els.PlantId  AND ISNULL(ELS.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
+WHERE x.EmployeeId=els.EmployeeId AND x.LeaveTypeId=els.LeaveTypeId AND x.PlantId=els.PlantId  AND ISNULL(X.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
 JOIN LeaveType AS lt ON lt.Id=els.LeaveTypeId
-LEFT JOIN SalaryHead AS sh on s.SalaryHeadID=sh.SalaryHeadID 
-AND M.PlantID=''
+LEFT JOIN SalaryHead AS sh on s.SalaryHeadID=sh.SalaryHeadID --AND M.PlantID='" + PlantId + @"'
 WHERE m.EffectiveDate<=els.ToDate AND lt.LeaveType='Earn' AND M.IsApproved=1 AND m.PlantID='" + PlantId + @"'
 
 UNION
@@ -891,7 +890,7 @@ SELECT M.EmpInfoSystemID,M.EffectiveDate,els.ToDate, s.SystemID,s.SalaryID,s.Sal
 JOIN SalaryInfoBackMaster M ON M.SystemID=s.SalaryID
 JOIN trn.EmployeeLeaveSummary AS els ON els.EmployeeId=M.EmpInfoSystemID
 JOIN trn.EmployeeLeaveSummary AS SX ON ELS.Id=SX.Id AND sX.Id=(SELECT TOP 1 x.Id FROM trn.EmployeeLeaveSummary X 
-WHERE x.EmployeeId=els.EmployeeId AND x.LeaveTypeId=els.LeaveTypeId AND x.PlantId=els.PlantId  AND ISNULL(ELS.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
+WHERE x.EmployeeId=els.EmployeeId AND x.LeaveTypeId=els.LeaveTypeId AND x.PlantId=els.PlantId  AND ISNULL(X.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
 JOIN LeaveType AS lt ON lt.Id=els.LeaveTypeId
 LEFT JOIN SalaryHead AS sh on s.SalaryHeadID=sh.SalaryHeadID 
 WHERE m.EffectiveDate<=els.ToDate AND lt.LeaveType='Earn' AND m.PlantID='" + PlantId + @"'
@@ -1340,7 +1339,7 @@ WHERE m.EffectiveDate<=els.ToDate AND lt.LeaveType='Earn' AND m.PlantID='" + Pla
                             INNER JOIN LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
                             INNER JOIN EmployeeInformation e on e.SystemId=s.EmployeeId AND s.PlantId=e.PlantId
                             JOIN trn.EmployeeLeaveSummary AS Sx ON s.Id=sx.Id AND sx.Id=(SELECT TOP 1 x.Id FROM trn.EmployeeLeaveSummary X 
-                                WHERE x.EmployeeId=S.EmployeeId AND x.LeaveTypeId=S.LeaveTypeId AND x.PlantId=S.PlantId  AND ISNULL(S.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
+                                WHERE x.EmployeeId=S.EmployeeId AND x.LeaveTypeId=S.LeaveTypeId AND x.PlantId=S.PlantId  AND ISNULL(X.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
 
 							LEFT JOIN EmployeeBankInfo  AS BI ON BI.EmpSystemID=e.SystemId
 						   --------------------------------------------------------------------------
@@ -1400,7 +1399,7 @@ WHERE m.EffectiveDate<=els.ToDate AND lt.LeaveType='Earn' AND m.PlantID='" + Pla
                             INNER JOIN LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
                             INNER JOIN EmployeeInformation e on e.SystemId=s.EmployeeId AND s.PlantId=e.PlantId
                             JOIN trn.EmployeeLeaveSummary AS Sx ON s.Id=sx.Id AND sx.Id=(SELECT TOP 1 x.Id FROM trn.EmployeeLeaveSummary X 
-                                WHERE x.EmployeeId=S.EmployeeId AND x.LeaveTypeId=S.LeaveTypeId AND x.PlantId=S.PlantId  AND ISNULL(S.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
+                                WHERE x.EmployeeId=S.EmployeeId AND x.LeaveTypeId=S.LeaveTypeId AND x.PlantId=S.PlantId  AND ISNULL(X.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
 
 							LEFT JOIN EmployeeBankInfo  AS BI ON BI.EmpSystemID=e.SystemId
 						   --------------------------------------------------------------------------
@@ -3493,7 +3492,7 @@ WHERE m.EffectiveDate<=els.ToDate AND lt.LeaveType='Earn' AND m.PlantID='" + Pla
                                                         INNER JOIN LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
                                                         INNER JOIN EmployeeInformation e on e.SystemId=s.EmployeeId AND s.PlantId=e.PlantId
                                                         JOIN trn.EmployeeLeaveSummary AS Sx ON S.Id=sx.Id AND sx.Id=(SELECT TOP 1 x.Id FROM trn.EmployeeLeaveSummary X 
-                                                            WHERE x.EmployeeId=S.EmployeeId AND x.LeaveTypeId=S.LeaveTypeId AND x.PlantId=S.PlantId  AND ISNULL(S.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
+                                                            WHERE x.EmployeeId=S.EmployeeId AND x.LeaveTypeId=S.LeaveTypeId AND x.PlantId=S.PlantId  AND ISNULL(X.IsYearlyProcessed,0)=0 ORDER BY x.fromDate  ASC)
                             JOIN LeaveEncashmentTransaction AS let ON let.EmpSystemId=s.EmployeeId AND let.LeaveTypeSystemId=s.LeaveTypeId
                             AND let.EncashmentDate=s.ToDate
                             AND e.PlantId='" + sPlantID + @"'

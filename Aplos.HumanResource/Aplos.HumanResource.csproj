@@ -277,7 +277,6 @@
     <Compile Include="Payroll\Tax\cIncomeTaxCalculation.cs" />
     <Compile Include="Payroll\Tax\clsSalaryStructure.cs" />
     <Compile Include="Payroll\Tax\cTaxableIncome.cs" />
-    <Compile Include="Payroll\Tax\DeductionInvestmentMasterService.cs" />
     <Compile Include="Payroll\Tax\IncomeTaxPolicy.cs" />
     <Compile Include="Payroll\Tax\TaxPolicyMasterService.cs" />
     <Compile Include="Payroll\Tax\TaxSavingGroupService.cs" />
