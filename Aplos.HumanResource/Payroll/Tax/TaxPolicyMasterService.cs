@@ -963,7 +963,7 @@ namespace Library.HumanResource.Payroll.Tax
                 if (dsRef.Tables[0].Rows.Count > 0)
                 {
                     
-                    sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+                    sql = @"select eid.Id,eid.FileName,itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
                     it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
                     eid.ActualValue,eid.UserValue,eid.EmployeeIncomeTaxId,itc.DocumentApplicable,
                     itc.Id as IncomeTaxItemChildId
