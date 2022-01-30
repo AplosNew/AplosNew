@@ -541,8 +541,8 @@ namespace Library.Accounting.Accounts
             {
                 var sql = @"SELECT * FROM
                             (SELECT I.CompanyId, I.PlantId, VD.EntityId, EN.UserName AS EntityName, I.PartyType, I.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, I.PartyPlantId, PP.UserName AS PartyPlantName, I.Id AS FinancingId
-                                        , ID.Id AS FinancingDetailId, I.FinancingTypeId, I.VoucherId, V.VoucherNo, I.FinancingNo, VD.Id AS VoucherDetailId, I.CurrencyId, C.Code AS CurrencyCode, OBKM.GLGeneralInfoId AS GLGeneralInfoId
-                                        , GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, OBKM.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount, B.UserName AS BudgetName, OBKM.ActivityId
+                                        , ID.Id AS FinancingDetailId, I.FinancingTypeId, I.VoucherId, V.VoucherNo, I.FinancingNo, VD.Id AS VoucherDetailId, I.CurrencyId, C.Code AS CurrencyCode, ID.GLGeneralInfoId AS GLGeneralInfoId
+                                        , GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, ID.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount, B.UserName AS BudgetName, ID.ActivityId
                                         , A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') AS PostingDate
                                         , I.DocRefNo, I.Narration
                                         , ISNULL(ID.Amount+ID.AdditionalLoanAmount,0) AS LoanAmount
@@ -601,8 +601,8 @@ namespace Library.Accounting.Accounts
                                     AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + @"'
                                     union 
 									SELECT I.CompanyId, I.PlantId, VD.EntityId, EN.UserName AS EntityName, I.PartyType, I.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, I.PartyPlantId, PP.UserName AS PartyPlantName, I.Id AS FinancingId
-                                        , ID.Id AS FinancingDetailId, I.FinancingTypeId, I.VoucherId, V.VoucherNo, I.FinancingNo, VD.Id AS VoucherDetailId, I.CurrencyId, C.Code AS CurrencyCode, OBKM.GLGeneralInfoId AS GLGeneralInfoId
-                                        , GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, OBKM.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount, B.UserName AS BudgetName, OBKM.ActivityId
+                                        , ID.Id AS FinancingDetailId, I.FinancingTypeId, I.VoucherId, V.VoucherNo, I.FinancingNo, VD.Id AS VoucherDetailId, I.CurrencyId, C.Code AS CurrencyCode, ID.GLGeneralInfoId AS GLGeneralInfoId
+                                        , GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, ID.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount, B.UserName AS BudgetName, ID.ActivityId
                                         , A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') AS PostingDate
                                         , I.DocRefNo, I.Narration
                                         , ISNULL(ID.Amount+ID.AdditionalLoanAmount,0) AS LoanAmount

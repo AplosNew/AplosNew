@@ -17,7 +17,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="EmployeeGetId">
                 <label class="col-sm-4 control-label">Employee Select <sup>*</sup></label>
                 <div class="input-group">
                     <div class="col-sm-2">
@@ -128,8 +128,25 @@
         </div>
 
         <div class="tab-content">
+          
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
+                <div class="row" style="margin:10px;">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" ej-grid e-datasource="EarningGridValue"
+                             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                             e-allowselection="true" e-filtersettings-filterType="excel"
+                             e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="EarningMasterId" e-headertext="EarningMasterId" e-visible="false" e-width="50"></div>
+                                <div e-column e-field="SalaryHeadID" e-headertext="SalaryHeadId" e-width="50"></div>
+                                <div e-column e-field="SalaryHead" e-headertext="SalaryHead" e-width="70"></div>
+                                <div e-column e-field="ActualValue" e-headertext="Actual Value" e-width="50"></div>
+                                <div e-column e-field="ArrearValue" e-headertext="Arrear Value" e-width="50"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
@@ -148,7 +165,7 @@
                                 <div e-column e-field="TaxSavingItemLimit" e-headertext="Item Limit" e-width="2"></div>
                                 <div e-column e-headertext="Actual Value" e-template="#ActualId" e-textalign="center" e-width="3"></div>
                                 <div e-column e-headertext="User Value" e-template="#UserId" e-textalign="center" e-width="3"></div>
-                                <div e-column e-template="#UploadFiles" e-headertext="Attachment" e-width="10" ></div>
+                                <div e-column e-template="#Files" e-headertext="Attachment" e-width="4"></div>
 
                             </div>
                         </div>
@@ -158,6 +175,7 @@
                 <script type="text/template" id="ActualId">
                     <input type="text" onkeypress="return isNumber(event)" ng-model="data.ActualValue" style="color:black; text-align:center" />
                 </script>
+            
                 <script type="text/template" id="UserId">
                     <input type="text" onkeypress="return isNumber(event)" ng-model="data.UserValue" ng-change="$parent.FindMin(this)" style="color:black; text-align:center" />
                 </script>
@@ -190,28 +208,6 @@
 
 </script>
 
-<script type="text/template" id="UploadFiles">
-    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||
-         data.FileName == ''">
-        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0"
-             e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File"
-             e-success="$parent.getFileList" e-showroundedcorner="false" e-autoupload="true"
-             e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox
-             e-saveurl="$parent.uploadUrl"
-             e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"></div>
-    </div>
-    <div class="col-md-8" ng-hide="data.FileName==null ">
-        <a href="POPResources/InvestDeductDocumentInfo/{{data.FileName}}">
-            <span style="height:20px;width:20px;color:blue;">
-                {{data.FileName}}
-            </span>
-        </a>
-    </div>
-    <div class="col-md-4" ng-hide="data.FileName==null ">
-        <button name="submit" e-id="{{data.Id}}" 
-                ng-click="$parent.confirmFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
-    </div>
-</script>
 
 <div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -243,3 +239,24 @@
 </div>
 
 <confirm-archive-generic modalid="confirmFileDelete" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteFile()"></confirm-archive-generic>
+
+<script type="text/template" id="Files">
+    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||  data.FileName == ''">
+        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false"
+         e-height="30" e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" e-error="errorUpload"/>
+ 
+    </div>
+
+    <div class="col-md-8" ng-hide="data.FileName==null ">
+        <a href="POPResources/EmployeeIncomeTax/{{data.FileName}}">
+            <span style="height:20px;width:20px;color:blue;">
+                {{data.FileName}}
+            </span>
+        </a>
+    </div>
+
+    <div class="col-md-4" ng-hide="data.FileName==null ">
+        <button name="submit" e-id="{{data.Id}}" ng-click="$parent.confirmFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+    </div>
+
+</script>
