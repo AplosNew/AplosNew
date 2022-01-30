@@ -1113,18 +1113,31 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string sql = @"select tem.Id as EarningMasterId,spc.SalaryHeadID,sh.SalaryHead,sum(spc.DisbusmentAmount)ActualValue,
-                sum(apc.diff) as ArrearValue
-                from  salaryprocchild spc left join 
+                string sql = @"select tem.Id as EarningMasterId,spc.SalaryHeadID,sh.SalaryHead,
+				 (select sum(procx.DisbusmentAmount) from 
+				 salaryprocchild procx
+				 join SalaryProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
+				 where EmpInfoSystemID='208468' and salaryheadid=spc.SalaryHeadID
+				 and slr.FromDate>='2021-04-01' and slr.ToDate<='2022-03-31'
+				 group by procx.SalaryHeadID 
+				 ) as ActualValue,
+				 ArrearValue=isnull((select sum(procx.Diff) from 
+				 ArrearProcChild procx
+				 join ArrearProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
+				 where EmpInfoSystemID='208468' and salaryheadid=spc.SalaryHeadID
+				 and slr.FromDate>='2021-04-01' and slr.ToDate<='2022-03-31'
+				 group by procx.SalaryHeadID 
+				 ),'0') 
+ 	            from  salaryprocchild spc join 
                 salaryprocmaster sp on spc.SlrProcMstSystemID=sp.SystemID
-                left join SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                join SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                 join TaxEarningMasterChild tem on tem.SalaryHeadId=sh.SalaryHeadID
                 left join ArrearProcChild apc on apc.SalaryHeadID=sh.SalaryHeadID
-                left join ArrearProcMaster apm on apm.SystemID=apc.SlrProcMstSystemID
-                where spc.EmpInfoSystemID='" + EmpId+@"'
-                and sp.FromDate>='"+StartDate+@"' and sp.ToDate<='"+ToDate+ @"'
-                and apm.FromDate>='" + StartDate + @"' and apm.ToDate<='" + ToDate + @"'
-                and tem.TaxPolicyHeaderId='" + PolicyId+ @"'
+                join ArrearProcMaster apm on apm.SystemID=apc.SlrProcMstSystemID
+                where spc.EmpInfoSystemID='208468'
+				and sp.FromDate>='2021-04-01' and sp.ToDate<='2022-03-31'
+                and apm.FromDate>='2021-04-01' and apm.ToDate<='2022-03-31'
+                and tem.TaxPolicyHeaderId='TH2'
                 group by spc.SalaryHeadID,sh.SalaryHead,tem.Id";            
                 return _sqlRepository.GetDataCollection(sql);
             }

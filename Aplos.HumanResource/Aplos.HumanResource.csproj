@@ -188,7 +188,6 @@
     <Compile Include="NewAttendanceProcess\NewHRDashboardService.cs" />
     <Compile Include="NewAttendanceProcess\PerformanceManagementMasterService.cs" />
     <Compile Include="NewAttendanceProcess\ResignationNewService.cs" />
-    <Compile Include="NewAttendanceProcess\RosterUpdatesService.cs" />
     <Compile Include="NewAttendanceProcess\AttdnRawDataUploadService.cs" />
     <Compile Include="NewAttendanceProcess\NewAttdnProcessPlantLockService.cs" />
     <Compile Include="NewAttendanceProcess\ShiftChangeService.cs" />
@@ -231,8 +230,6 @@
     <Compile Include="NewAttendanceProcess\OutPunchConfigurationService.cs" />
     <Compile Include="NewAttendanceProcess\RosterPatternService.cs" />
     <Compile Include="NewAttendanceProcess\TablesUploadService.cs" />
-    <Compile Include="NewAttendanceProcess\WeeklyOffService.cs" />
-    <Compile Include="NewAttendanceProcess\WeekDefinitionService.cs" />
     <Compile Include="NewAttendanceProcess\WeekOffUpdatesService.cs" />
     <Compile Include="NewAttendanceProcess\SandwichProcessService.cs" />
     <Compile Include="NewOTProcess\HourlyOTReportService.cs" />
@@ -280,7 +277,6 @@
     <Compile Include="Payroll\Tax\IncomeTaxPolicy.cs" />
     <Compile Include="Payroll\Tax\TaxPolicyMasterService.cs" />
     <Compile Include="Payroll\Tax\TaxSavingGroupService.cs" />
-    <Compile Include="Payroll\Tax\TaxSavingItemService.cs" />
     <Compile Include="Report\Attendance\clsMonthlyAttendanceInformation.cs" />
     <Compile Include="Report\OT\SalarySheetCompanyService.cs" />
     <Compile Include="Report\OT\WeekOFFandHolidayOTOriginal.cs" />

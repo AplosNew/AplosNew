@@ -128,6 +128,7 @@
         </div>
 
         <div class="tab-content">
+          
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
                 <div class="row" style="margin:10px;">
@@ -164,7 +165,7 @@
                                 <div e-column e-field="TaxSavingItemLimit" e-headertext="Item Limit" e-width="2"></div>
                                 <div e-column e-headertext="Actual Value" e-template="#ActualId" e-textalign="center" e-width="3"></div>
                                 <div e-column e-headertext="User Value" e-template="#UserId" e-textalign="center" e-width="3"></div>
-                                <div e-column e-template="#Files" e-headertext="Attachment" e-width="3"></div>
+                                <div e-column e-template="#Files" e-headertext="Attachment" e-width="4"></div>
 
                             </div>
                         </div>
@@ -174,6 +175,7 @@
                 <script type="text/template" id="ActualId">
                     <input type="text" onkeypress="return isNumber(event)" ng-model="data.ActualValue" style="color:black; text-align:center" />
                 </script>
+            
                 <script type="text/template" id="UserId">
                     <input type="text" onkeypress="return isNumber(event)" ng-model="data.UserValue" ng-change="$parent.FindMin(this)" style="color:black; text-align:center" />
                 </script>

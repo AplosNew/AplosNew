@@ -338,6 +338,7 @@ namespace OTSBD.clsLeave
                             drSaveSummary["FromDate"] = dtCalendar.Rows[0]["FromDate"].ToString();
                             drSaveSummary["ToDate"] = dtCalendar.Rows[0]["ToDate"].ToString();
                             drSaveSummary["PlantId"] = sPlantID;
+                            drSaveSummary["CompanyGroupId"] = sGroupID;
                             drSaveSummary["LeaveTypeId"] = LeaveTypeId;
                             drSaveSummary["CurrentYearAllocation"] = 0;
                             drSaveSummary["DaysCanBeSanctioned"] = 0;
@@ -650,6 +651,7 @@ namespace OTSBD.clsLeave
                             drSaveSummary["FromDate"] = NewFromData.ToString("dd-MMM-yyyy");
                             drSaveSummary["ToDate"] = NewToData.ToString("dd-MMM-yyyy");
                             drSaveSummary["PlantId"] = sPlantID;
+                            drSaveSummary["CompanyGroupId"] = dsOldSummary.Tables[0].Rows[i]["CompanyGroupId"].ToString();
                             drSaveSummary["LeaveTypeId"] = LeaveTypeId;
                             drSaveSummary["CurrentYearAllocation"] = 0;
                             drSaveSummary["DaysCanBeSanctioned"] = 0;

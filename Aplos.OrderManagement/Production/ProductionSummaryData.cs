@@ -413,8 +413,8 @@ namespace Library.OrderManagement.Production
             //                    WHERE PS.UserName = 'Running' AND POSP.ProcessId = '" + processId + "'";
             string CmdText = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
-								   ,ISNULL(PQ.Qty,CEILING(SUM(ISNULL(PO.PlannedQty,0)))) PlannedQty
-                            ,(ISNULL(PQ.Qty,CEILING(SUM(ISNULL(PO.PlannedQty,0))))-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
+								  ,PlannedQty=CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END
+                            ,((CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END)-PRS.TotalProductionQty) RemainingQty
                             , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
 									,SONo=STUFF((select distinct ','+XSO.Id from 
                                                                  trn.SalesOrder XSO 
@@ -427,7 +427,7 @@ namespace Library.OrderManagement.Production
 								  LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
 								  LEFT JOIN 
 								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
-                                       FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '"+ processId + @"' GROUP BY PS.ProductionOrderId
+                                       FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId
                                   ) AS PRS ON PRS.ProductionOrderId = PO.Id
 								   LEFT JOIN 
 								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory--,SO.Qty
@@ -502,10 +502,7 @@ namespace Library.OrderManagement.Production
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
-									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PD.ProductionOrderId
-								   WHERE PS.UserName = 'Running' --AND POSP.ProcessId = '"+processId+@"'
-								   GROUP BY PO.Id,PS.UserName,PO.RequiredTimeUnit,PD.Product,PD.ProductCategory,PD.Buyer,PD.Customer,PD.BuyerOrder,PD.BuyerItem,PD.OwnOrder,PD.OwnItem
-								   ,PD.Description,PD.PONumber,PO.EntityId,E.UserName,PQ.Qty,PRS.TotalProductionQty";
+								   WHERE PS.UserName = 'Running' ";
 
             return _sqlRepository.GetDataCollection(CmdText);
         }
