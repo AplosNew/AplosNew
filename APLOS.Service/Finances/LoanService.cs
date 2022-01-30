@@ -980,7 +980,8 @@ namespace Library.Service.Finances
                         SourceType = voucherVM.SourceType.ToString(),
                         IsPark = voucherVM.IsPark,
                         Id = "SL" + GetLoanInterestPayablePK()
-                    };
+                        
+                };
                     AuditService.AddedLog(financingSubsequentTransaction);
                     _loanInterestPayableRepository.Insert(financingSubsequentTransaction);
 

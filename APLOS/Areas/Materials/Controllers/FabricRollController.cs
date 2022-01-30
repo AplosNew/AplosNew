@@ -478,19 +478,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             clsStaticInfo objStatic = null;
             objStatic = new clsStaticInfo();
             string OTConsiderOn = string.Empty;
-            DataSet dsDistrict;
-            DataSet dsState;
-            DataSet dsCountry;
-            DataSet dsBloodGroup;
-            DataSet dsSalutation;
-            DataSet dsCivilStatus;
-            DataSet dsReligion;
-            DataSet dsRoster;
-            DataSet dsShift;
-            DataSet dsJobLocation;
-            DataSet dsLegalDesignation;
-            DataSet dsCity;
-            DataSet dsBudgetCode;
+          
             int maxRow = 5001;
 
             #endregion
@@ -525,94 +513,39 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
 
                 #region ------------------Column Header------------------
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode", ExcelKnownColors.Red);
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");
               
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Salutation", ExcelKnownColors.Red);
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "RefNo");
              
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FirstName", ExcelKnownColors.Red);
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LotNo");
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
 
               
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LastName");
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MaterialId");
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FatherName");
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ArticleId");
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MotherName");
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence");
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MaritalStatus");
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserName");
              
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SpouseName"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PresentAddress1"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PresentAddress2"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UoM"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Length"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Weight"); xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PermanentAddress1"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PermanentAddress2"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shrinkage"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Grouping"); xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmpType", ExcelKnownColors.Red);
-            
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmploymentType", ExcelKnownColors.Red);
-               
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gender", ExcelKnownColors.Red);
-              
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Religion", ExcelKnownColors.Red);
-              
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BloodGroup");
-             
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PhoneNo");
-                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CardNumber");
-                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "NID", ExcelKnownColors.Red);
-                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
-                xlsCol += 1;
-
-                sheet1.Range[xlsRow, xlsCol, maxRow, xlsCol].NumberFormat = "dd-MMM-yyyy";
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB", ExcelKnownColors.Red); xlsCol += 1;
-
-                sheet1.Range[xlsRow, xlsCol, maxRow, xlsCol].NumberFormat = "dd-MMM-yyyy";
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CelebrationDOB"); xlsCol += 1;
-
-                sheet1.Range[xlsRow, xlsCol, maxRow, xlsCol].NumberFormat = "dd-MMM-yyyy";
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ", ExcelKnownColors.Red); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PPeriod_Date"); xlsCol += 1;
-              
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "JobLocation", ExcelKnownColors.Red);
-               
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LegalDesignation", ExcelKnownColors.Red);
-              
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode", ExcelKnownColors.Red);
-               
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PaymentMode", ExcelKnownColors.Red);
-              
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Country_permanent");
-               
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Citizen", ExcelKnownColors.Red);
-               
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "State_Division", ExcelKnownColors.Red);
-               
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "District", ExcelKnownColors.Red);
-              
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "City");
-               
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IsConfirmed"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks");
+                 xlsCol += 1;
 
                 endXlsCol = xlsCol;
 

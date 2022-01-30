@@ -653,11 +653,11 @@ namespace Aplos.Areas.Commercial.Controllers
 			var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
 			workbook.Version = ExcelVersion.Excel2016;
 			var sheet = workbook.Worksheets[0];
-			sheet.Name = "AutoLoan";
+			sheet.Name = "InvoiceTaggedWithLC";
 
 			var header = GetInvoiceTaggedWithLCHeader(LCId);
 
-			reportFileName = "Auto Loan Report";
+			reportFileName = "Invoice Tagged With LC Report";
 
 			var data = GetInvoiceTaggedWithLCQuery(LCId);
 
@@ -692,7 +692,7 @@ namespace Aplos.Areas.Commercial.Controllers
 			//sheet.Range[ROW, 1, ROW, colLast].BorderInside(ExcelLineStyle.Hair);
 
 			reportUtility.SetMasterHeaderText(ref sheet, ROW, 5, "LC No.");
-			reportUtility.SetText(ref sheet, ROW, 6, header["PurchaseLCNo"].ToString());
+			reportUtility.SetText(ref sheet, ROW, 6, header["LCRef"].ToString());
 			sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
 			sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
 			ROW++;
@@ -713,7 +713,9 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
 			reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Amount");
-			reportUtility.SetText(ref sheet, ROW, 2, header["Amount"].ToString());
+			reportUtility.SetText(ref sheet, ROW, 2,clsStaticInfo.dbl( header["Amount"].ToString()));
+			sheet.Range[ROW, 2].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+			sheet.Range[ROW, 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 			sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
 			sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
 			sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -729,12 +731,12 @@ namespace Aplos.Areas.Commercial.Controllers
 
 			int endcolHeader = 8;
 
-			sheet[ROW, xlsCol].Text = "Acceptance / Invoice No.";
+			sheet[ROW, xlsCol].Text = "Invoice No.";
 			sheet[ROW, xlsCol].ColumnWidth = 25;
 			int colAcceptanceNo = xlsCol;
 			xlsCol++;
 
-			sheet[ROW, xlsCol].Text = "Acceptance Date";
+			sheet[ROW, xlsCol].Text = "Invoice Date";
 			sheet[ROW, xlsCol].ColumnWidth = 25;
 			int colAcceptanceDate = xlsCol;
 			xlsCol++;
@@ -756,6 +758,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 			sheet[ROW, xlsCol].Text = "Amount";
 			sheet[ROW, xlsCol].ColumnWidth = 25;
+			sheet.Range[ROW, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 			int colAmount = xlsCol;
 
 			int endCols = xlsCol;
@@ -777,9 +780,10 @@ namespace Aplos.Areas.Commercial.Controllers
 				sheet[ROW, colVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
 				sheet[ROW, colPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
 				sheet[ROW, colVendor].Text = data.Rows[i]["PartyName"].ToString();
+				
 				sheet[ROW, colAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
-				sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
+				//sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+				sheet[ROW, colAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
 
 				sheet.Range[ROW, 1, ROW, endCols].BorderAround(ExcelLineStyle.Hair);
 				sheet.Range[ROW, 1, ROW, endCols].BorderInside(ExcelLineStyle.Hair);
@@ -811,7 +815,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			reportUtility = new ReportUtility();
-			reportUtility.PlantHeader(ref sheet, endcolHeader, "Auto Loan", identity.PlantId);
+			reportUtility.PlantHeader(ref sheet, endcolHeader, "Invoice Tagged With LC", identity.PlantId);
 			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
 			//sheet[ROW, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 			sheet.Range[1, 5, 4, endcolHeader].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -860,8 +864,8 @@ namespace Aplos.Areas.Commercial.Controllers
 
 			var sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
 						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
-						,IV.CompanyCurrencyRate,BM.AccountTitle 
-						,IV.DocRefNo  AcceptanceNo,LAA.BankMasterId
+						,IV.CompanyCurrencyRate,BM.AccountTitle,IV.DocRefNo  AcceptanceNo,FORMAT(V.PostingDate,'dd-MMM-yyyy') AcceptanceDate
+						,V.VoucherNo,LAA.BankMasterId,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
 						FROM InvoiceTaggingWithLCMaster LAA 
 						LEFT JOIN InvoiceTaggingWithLCDetail LAAD ON LAA.Id=LAAD.InvoiceTaggingWithLCMasterId
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
@@ -869,6 +873,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
 						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
 						LEFT JOIN TRN.Invoice IV ON IV.Id=LAAD.InvoiceId
+						LEFT JOIN TRN.Voucher V on V.Id=IV.VoucherId
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
 						WHERE LAA.PlantId='" + identity.PlantId + @"' AND LAAD.InvoiceTaggingWithLCMasterId='" + LoanAgainstAcceptanceMasterId + @"'  AND LAA.VoucherId IS NULL";
