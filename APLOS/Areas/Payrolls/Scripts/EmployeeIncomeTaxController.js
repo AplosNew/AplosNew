@@ -251,6 +251,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.getInvestDeductionList();
                }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -325,7 +326,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
     //#region Attachment 
 
-    $scope.UploadTableName = 'InvestDeductDocumentInfo';
+    $scope.UploadTableName = 'EmployeeInvestmentDeduction';
     $scope.uploadUrl = $scope.path + "UploadAttachment/";
     $scope.confirmFileDelete = function () {
         angular.element(document.querySelector("#confirmFileDelete")).modal("show");
@@ -344,9 +345,9 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 ShowResult('error', 'failure');
             }
             else {
-                for (var i = 0; i < $scope.DeductionTax.length; i++) {
-                    if ($scope.DeductionTax[i].Id == MasterID) {
-                        $scope.DeductionTax[i].FileName = response.data[0].FileName;
+                for (var i = 0; i < $scope.InvestDeductGridPop.length; i++) {
+                    if ($scope.InvestDeductGridPop[i].Id == MasterID) {
+                        $scope.InvestDeductGridPop[i].FileName = response.data[0].FileName;
                         break;
                     }
                 }
@@ -359,7 +360,6 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     }
     $scope.errorUpload = function (e) {
         ShowResult(e.error, 'failure');
-        //    ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
     $scope.MasterIdAfterFileSave = null;
     $scope.onBeginUpload = function (args) {
@@ -367,6 +367,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             var _data = [{ Id: args.model.Id, TableName: $scope.UploadTableName }];
             $scope.MasterIdAfterFileSave = args.model.Id;
             args.data = JSON.stringify(_data);
+            $scope.getFileList();
         } catch (e) {
             args.cancel = true;
             ShowResult(e, 'Error');
@@ -398,7 +399,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         }
     }
     //#endregion
-
+      
     // #region Earning Tab Functions
 
     // #endregion

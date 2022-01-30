@@ -314,6 +314,7 @@
     <Folder Include="POPResources\BoMDocument\" />
     <Folder Include="POPResources\BOQ\" />
     <Folder Include="POPResources\Costing\" />
+    <Folder Include="POPResources\EmployeeIncomeTax\" />
     <Folder Include="POPResources\EmployeeProfiles\AuthorizedSignature\" />
     <Folder Include="POPResources\EmployeeProfiles\CardHolderSignature\" />
     <Folder Include="POPResources\EmployeeProfiles\Documents\" />

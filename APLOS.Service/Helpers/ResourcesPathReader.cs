@@ -978,11 +978,11 @@ namespace Library.Service.Helpers
 			}
 		}
 
-		public static string InvestDeductDocumentInfoPath()
+		public static string EmployeeIncomeTax()
 		{
 			try
 			{
-				return ResolveFilePath(GetVirtualDirectory() + "/InvestDeductDocumentInfo/");
+				return ResolveFilePath(GetVirtualDirectory() + "/EmployeeIncomeTax/");
 			}
 			catch
 			{
