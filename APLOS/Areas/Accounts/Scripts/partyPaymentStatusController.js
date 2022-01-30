@@ -4834,7 +4834,16 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
+    $scope.CashReportExcel = function () {
+        var reportFormat = "Excel";
+        try {
+            var url = $scope.path + 'CashReportExcelFormat?reportFormat=' + reportFormat + '&toDate=' + $scope.reportParameters.ToDate;
+            $rootScope.report(url);
+        }
+        catch (e) {
 
+        }
+    }
      //**********************#endregion Invoice GRN With out **************************
 
 
