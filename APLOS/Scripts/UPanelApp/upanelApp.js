@@ -535,7 +535,6 @@ var upanelApp = angular
     .controller('FgPoFormasterOrderController', FgPoFormasterOrderController)
     .controller('finalSettlementController', finalSettlementController)
     .controller('finalSettlementNewController', finalSettlementNewController)
-
     .controller('finalSettlementReportController', finalSettlementReportController)
     .controller('finalSettlementVoucherController', finalSettlementVoucherController)
     .controller('fiscalYearBudgetController', fiscalYearBudgetController)
@@ -549,7 +548,6 @@ var upanelApp = angular
     .controller('gratuityPolicyController', gratuityPolicyController)
     .controller('GRNByPOController', GRNByPOController)
     .controller('holidayAbsentismAssignmentController', holidayAbsentismAssignmentController)
-
     .controller('hourlyOffDutyTagController', hourlyOffDutyTagController)
     .controller('hourlyOTController', hourlyOTController)
     .controller('hourlyOTNewController', hourlyOTNewController)
@@ -565,7 +563,6 @@ var upanelApp = angular
     .controller('inventoryReceivableController', inventoryReceivableController)
     .controller('inventorySalesRegisterController', inventorySalesRegisterController)
     .controller('inventorySalesController', inventorySalesController)
-
     .controller('inventoryScrapController', inventoryScrapController)
     .controller('InventoryStatusDashboardController', InventoryStatusDashboardController)
     .controller('InventoryDashboardStatusController', InventoryDashboardStatusController)
@@ -579,15 +576,11 @@ var upanelApp = angular
     .controller('issueStandardController', issueStandardController)
     .controller('IssueStatusReportsController', IssueStatusReportsController)
     .controller('jobCardcomplianceReportController', jobCardcomplianceReportController)
-
     .controller('lateAttendancePostingController', lateAttendancePostingController)
     .controller('leaveOpeningBalanceController', LeaveOpeningBalanceController)
-
     .controller('leavesChecklistReportController', leavesChecklistReportController)
-
     .controller('leaveWithWagesRegistersController', leaveWithWagesRegistersController)
     .controller('leaveWithWagesRegistersForm18Controller', leaveWithWagesRegistersForm18Controller)
-
     .controller('LeaveYearEndProcessController', LeaveYearEndProcessController)
     .controller('LeaveYearEndProcessNewController', LeaveYearEndProcessNewController)
     .controller('loanInterestPayableController', loanInterestPayableController)
@@ -968,9 +961,7 @@ var upanelApp = angular
     .controller('FabricRollsController', FabricRollsController)
     .controller('FinalDeductionReportController', FinalDeductionReportController)
 
-
     .controller("PostInvoiceController", PostInvoiceController)
-
     .controller('GRNRequisitionSOAllocationController', GRNRequisitionSOAllocationController)
     .controller('salaryProcessedReportControllerNew', salaryProcessedReportControllerNew)
     .controller('salaryStructureAndProcessedReportNewController', salaryStructureAndProcessedReportNewController)
