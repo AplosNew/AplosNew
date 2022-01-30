@@ -546,6 +546,7 @@ namespace Aplos.Areas.Attendances.Controllers
                              Where ELS.CalanderYearId='" + sYearId + @"'
                                 --AND ELS.EmployeeId=1800028 
                                 and isnull(ELS.IsEncashed,0)=0
+                                AND ISNULL(els.IsYearlyProcessed,0)=0
                                 and EI.PlantId='" + identity.PlantId + @"'
                                 AND LvPolicyDetail.EncashmentBasis='CalanderYear'
                                 ) x
@@ -765,6 +766,7 @@ namespace Aplos.Areas.Attendances.Controllers
                              Where ELS.CalanderYearId='" + sYearId + @"'
                                 --AND ELS.EmployeeId=1800028 
                                 and isnull(ELS.IsEncashed,0)=0
+                                AND ISNULL(els.IsYearlyProcessed,0)=0
                                 and EI.PlantId='" + identity.PlantId + @"'
                                 AND LvPolicyDetail.EncashmentBasis='CalanderYear'
                                 ) x
