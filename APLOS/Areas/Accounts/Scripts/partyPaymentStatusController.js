@@ -4368,7 +4368,21 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         showCaptionSummary: true
     }];
 
+    $scope.TotalBankAmount = [{
+        title: "Total", summaryColumns: [
+            {
+                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBankBalance", dataMember: "BooksBankBalance", format: "{0:N2}"
+            }],
+        showCaptionSummary: true
+    }];
 
+    $scope.TotalCashAmount = [{
+        title: "Total", summaryColumns: [
+            {
+                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksCashBalance", dataMember: "BooksCashBalance", format: "{0:N2}"
+            }],
+        showCaptionSummary: true
+    }];
     //$scope.refreshTemplateOthersLiab = function (args) {
     //    $("#headchkOLia").ejCheckBox({ "change": CheckBoxSelectAllOthersLiab });
     //};
@@ -4508,17 +4522,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
+  
+    
 
-    //$scope.GetAcceptanceLiabilityMaturityReport = function () {
-    //    try {
-    //        //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
-    //        var file_src = $scope.path + 'GetAcceptanceLiabilityMaturityReport?toDate=' + $scope.report.ToDate;
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-
-    //    }
-    //}
     //********************#endregion GRN With Out Invoice***************************************
 
     //**********************#Invoice With out GRN  **************************
@@ -4816,6 +4822,18 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
+
+    $scope.BankReportExcel = function () {
+        var reportFormat = "Excel";
+        try {
+            var url = $scope.path + 'BankReportExcelFormat?reportFormat=' + reportFormat + '&toDate=' + $scope.reportParameters.ToDate;
+            $rootScope.report(url);
+        }
+        catch (e) {
+
+        }
+    }
+
 
      //**********************#endregion Invoice GRN With out **************************
 

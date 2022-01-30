@@ -2597,5 +2597,203 @@ namespace Aplos.Areas.Accounts.Controllers
             }
 
         }
+
+
+        public ActionResult BankReportExcelFormat(ReportFormat reportFormat, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "Bank Report";
+            var workbook = GetBankReportWorkSheet(identity.CompanyGroupId, identity.PlantId, identity.CompanyId, toDate);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+                case ReportFormat.Excel:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+                default:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetBankReportWorkSheet(string companyGroupId, string plantId, string companyId, string toDate)
+        {
+
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            sheet.Name = "BankReport";
+
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+
+            DataTable data = BankReportList(companyGroupId, plantId, companyId, toDate);
+
+
+            #region Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "Bank Master", 25, ExcelHAlign.HAlignLeft);
+            int ColBankMaster = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Bank Name", 20, ExcelHAlign.HAlignLeft);
+            int ColBankName = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Branch", 15, ExcelHAlign.HAlignLeft);
+            int ColBranch = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Account Number", 20, ExcelHAlign.HAlignLeft);
+            int ColAccountNumber = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Bank Currency", 8, ExcelHAlign.HAlignLeft);
+            int ColBankCurrency = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Bank Amount", 18, ExcelHAlign.HAlignRight);
+            int ColBankAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books Bank Balance", 18, ExcelHAlign.HAlignRight);
+            int ColBooksBankBalance = COL;
+         
+
+            endCol = COL;
+            #endregion Headers
+
+            var startRow = 0;
+
+            int RowIndex = ROW;
+            startRow = ROW;
+            ROW++;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, ColBankMaster].Text = data.Rows[i]["BankAccountDetails"].ToString();
+                sheet[ROW, ColBankName].Text = data.Rows[i]["Bank"].ToString();
+                sheet[ROW, ColBranch].Text = data.Rows[i]["Branch"].ToString();
+                sheet[ROW, ColAccountNumber].Text = data.Rows[i]["AccountNumber"].ToString();
+                sheet[ROW, ColBankCurrency].Text = data.Rows[i]["BankCurrency"].ToString();
+                
+                sheet[ROW, ColBankAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BankAmount"].ToString());
+                sheet[ROW, ColBankAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBankAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBankAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColBooksBankBalance].Number = clsStaticInfo.dbl(data.Rows[i]["BooksBankBalance"].ToString());
+                sheet[ROW, ColBooksBankBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet[ROW, ColBooksBankBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColBooksBankBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+               
+
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+            report.SetHeaderText(ref sheet, ROW, 1, "Total", 25, ExcelHAlign.HAlignLeft);
+            //sheet.Range[ROW, ColDocRefNo, ROW, ColCurrencyCode].Merge();
+
+            sheet[ROW, ColBooksBankBalance].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksBankBalance) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksBankBalance) + (ROW - 1).ToString() + ")";
+            sheet[ROW, ColBooksBankBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+            sheet[ROW, ColBooksBankBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColBooksBankBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, ColBooksBankBalance].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, ColToCurrencyRate, ROW, ColToCurrencyRate].Merge();
+
+        
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.NumberFormat = "#,##0.00";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8f;
+            report.CompanyHeader(ref sheet, endCol, "Bank Report", identity.CompanyId);
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+        public DataTable BankReportList(string companyGroupId, string plantId, string companyId, string toDate)
+        {
+            try
+            {
+
+                string strSQL = string.Empty;
+                strSQL = @"DECLARE @companyGroupId VARCHAR(10)='CG20171'
+                        DECLARE @companyId VARCHAR(10)='C20171';
+                        DECLARE @plantId VARCHAR(10)='20171';
+                        --DECLARE @cashMasterId VARCHAR(10)='1';
+                        SELECT B.UserName Bank,BB.UserName Branch,BM.AccountNumber,[BankAccountDetails]= BM.AccountTitle  ,BM.Id,C.Code BankCurrency
+                          ,SUM(ISNULL(GLTD.DrAmount,0)) DrAmount 
+                        , SUM(ISNULL(GLTD.CrAmount,0)) CrAmount 
+						 , SUM(ISNULL(GLTD.DrAmount,0))  -  SUM(ISNULL(GLTD.CrAmount,0)) BankAmount 
+                        , SUM(ISNULL(CC.CompanyCurrencyDrAmount,0)) CompanyCurrencyDrAmount, SUM(ISNULL(CC.CompanyCurrencyCrAmount,0)) CompanyCurrencyCrAmount
+			
+						,SUM(ISNULL(CC.CompanyCurrencyDrAmount,0))-SUM(ISNULL(CC.CompanyCurrencyCrAmount,0)) BooksBankBalance
+                        FROM  trn.GLTransactionDetail GLTD
+						JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLTD.VoucherDetailId
+                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                        LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId 
+						LEFT JOIN HKP.Bank B ON B.Id=BM.BankId
+						left join hkp.BankBranch BB ON BB.Id=BM.BankBranchId
+                      --  LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId and vd.CashMasterId<>''
+						LEFT JOIN SCS.Currency C ON C.Id=BM.CurrencyId
+                        LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId --AND VD.CashMasterId=@cashMasterId 
+						AND V.SourceType!='OpeningBalance'
+						 AND V.PostingDate <= '19-Aug-2021' and vd.BankMasterId<>''
+                         and BM.AccountType='HouseBank'
+						 GROUP BY BM.AccountTitle ,BM.Id,c.Code,B.UserName,BB.UserName,BM.AccountNumber
+                        UNION ALL
+                        SELECT B.UserName Bank,BB.UserName Branch,BM.AccountNumber,[BankAccountDetails]= BM.AccountTitle,BM.Id,C.Code CashCurrency,
+                          SUM(ISNULL(GLTD.DrAmount,0)) DrAmount ,
+                         SUM(ISNULL(GLTD.CrAmount,0)) CrAmount 
+						 , SUM(ISNULL(GLTD.DrAmount,0)) - SUM(ISNULL(GLTD.CrAmount,0)) BankAmount 
+                        , SUM(ISNULL(CC.CompanyCurrencyDrAmount,0)) CompanyCurrencyDrAmount, SUM(ISNULL(CC.CompanyCurrencyCrAmount,0)) CompanyCurrencyCrAmount
+						--, ISNULL ((CC.CompanyCurrencyDrAmount,0)-(CC.CompanyCurrencyCrAmount),0) as CashBalance
+						,SUM(ISNULL(CC.CompanyCurrencyDrAmount,0))-SUM(ISNULL(CC.CompanyCurrencyCrAmount,0)) BooksBankBalance
+                        FROM  trn.GLTransactionDetail GLTD
+						JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLTD.VoucherDetailId
+                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                        LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId 
+						LEFT JOIN HKP.Bank B ON B.Id=BM.BankId
+						left join hkp.BankBranch BB ON BB.Id=BM.BankBranchId
+                       -- LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId 
+						LEFT JOIN SCS.Currency C ON C.Id=BM.CurrencyId
+                        LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId --AND VD.CashMasterId=@cashMasterId 
+						AND V.SourceType='OpeningBalance'
+						 AND V.PostingDate > '" + toDate + @"' and vd.BankMasterId<>''
+						 and BM.AccountType='HouseBank'
+						 GROUP BY BM.AccountTitle ,BM.Id,c.Code,B.UserName,BB.UserName,BM.AccountNumber
+                       -- ORDER BY V.PostingDate ASC";
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
     }
 }
