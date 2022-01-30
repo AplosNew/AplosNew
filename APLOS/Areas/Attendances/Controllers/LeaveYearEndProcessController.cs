@@ -127,13 +127,16 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
+
                     foreach (DataRow item in dsOldSummary.Tables[0].Rows)
                         item["IsYearlyProcessed"] = true;
 
                     OTSBD.clsLeaveEncashment leaveEncashment = new clsLeaveEncashment();
                     DataSet dsEncashmentData = leaveEncashment.SaveYearEndDateLeaveEncashmentData(identity.PlantId, dsOldSummary);
 
-                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay, dsEncashmentData);
+                    objLeaveYearEndProcessData.GetSeparatedEmployeeForYearClosed(identity.PlantId, out DataSet dsSeparatedEmployeeClosed);
+
+                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay, dsEncashmentData, dsSeparatedEmployeeClosed);
 
 
                 }
@@ -191,7 +194,9 @@ namespace Aplos.Areas.Attendances.Controllers
                 OTSBD.clsLeaveEncashment leaveEncashment = new clsLeaveEncashment();
                 DataSet dsEncashmentData = leaveEncashment.SaveYearEndDateLeaveEncashmentData(identity.PlantId, dsOldSummary);
 
-                objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsEncashmentData);
+                objLeaveYearEndProcessData.GetSeparatedEmployeeForYearClosed(identity.PlantId, out DataSet dsSeparatedEmployeeClosed);
+
+                objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsEncashmentData, dsSeparatedEmployeeClosed);
 
             }
             catch (Exception ex)
@@ -274,7 +279,9 @@ namespace Aplos.Areas.Attendances.Controllers
                     OTSBD.clsLeaveEncashment leaveEncashment = new clsLeaveEncashment();
                     DataSet dsEncashmentData = leaveEncashment.SaveYearEndDateLeaveEncashmentDataForNewAttendance(identity.PlantId, dsOldSummary);
 
-                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay, dsEncashmentData);
+                    objLeaveYearEndProcessData.GetSeparatedEmployeeForYearClosed(identity.PlantId, out DataSet dsSeparatedEmployeeClosed);
+
+                    objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsCalandarYearLocalSummay, dsEncashmentData, dsSeparatedEmployeeClosed);
 
 
                 }
@@ -333,7 +340,10 @@ namespace Aplos.Areas.Attendances.Controllers
                 OTSBD.clsLeaveEncashment leaveEncashment = new clsLeaveEncashment();
                 DataSet dsEncashmentData = leaveEncashment.SaveYearEndDateLeaveEncashmentDataForNewAttendance(identity.PlantId, dsOldSummary);
 
-                objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsEncashmentData);
+                objLeaveYearEndProcessData.GetSeparatedEmployeeForYearClosed(identity.PlantId, out DataSet dsSeparatedEmployeeClosed);
+
+
+                objStatic.SaveDataSets(dsNewSummary, dsOldSummary, dsEncashmentData, dsSeparatedEmployeeClosed);
 
             }
             catch (Exception ex)

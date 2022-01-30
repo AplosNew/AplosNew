@@ -1053,6 +1053,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
 
     $scope.removeChargesRow = function (index) {
         $scope.bankChargesList.splice(index, 1);
+        $scope.calBaseAmount();
     };
 
     $scope.advanceTax = {
