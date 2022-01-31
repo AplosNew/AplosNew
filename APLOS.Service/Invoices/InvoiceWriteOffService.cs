@@ -67,6 +67,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<BankCharge> _bankChargeRepository;
         private readonly IFinancingService _financingService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
+        private readonly IRepositoryAsync<FinancingWriteOff> _financingWriteOffRepository;
 
         public InvoiceWriteOffService(
               IRepositoryAsync<InvoiceWriteOff> invoiceWriteOffRepository
@@ -100,7 +101,8 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<BankCharge> bankChargeRepository
             , IFinancingService financingService
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
-            
+            , IRepositoryAsync<FinancingWriteOff> financingWriteOffRepository
+
             ) : base(invoiceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
             _sqlRepository = sqlRepository;
@@ -134,6 +136,7 @@ namespace Library.Service.Invoices
             _bankChargeRepository = bankChargeRepository;
             _financingService = financingService;
             _loanInterestPayableRepository = loanInterestPayableRepository;
+            _financingWriteOffRepository = financingWriteOffRepository;
         }
 
         public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff)
@@ -6913,115 +6916,96 @@ namespace Library.Service.Invoices
                         if (voucher.IsPark == false)
                             throw new CustomException("Delete is not allow after post ! ");
 
-                        var voucherdetail = _voucherService.QueryVoucherDetail(invwriteOff.VoucherId).Select().ToList();
-                        var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(invwriteOff.VoucherId).Select().ToList();
                         var bankCharges = _bankChargeRepository.Query(r => r.InvoiceWriteOffId == invwriteOff.Id).Select().ToList();
-
                         var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invwriteOff.Id).Select().ToList();
                         var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == invwriteOff.VoucherId).Select().ToList();
                         var invoicetds = _additionalTaxRepository.Query(r => r.VoucherId == invwriteOff.VoucherId).Select().ToList();
                         var adjustmentNote = _adjustmentNoteRepository.Query(r => r.VoucherId == invwriteOff.VoucherId).Select().FirstOrDefault();
-                        foreach (var item in voucherdetailcurrnecy)
+                        var financingWriteOff = _financingWriteOffRepository.Query(r => r.VoucherId == invwriteOff.VoucherId).Select().FirstOrDefault();
+                        var laonIntPayable = _loanInterestPayableRepository.Query(r => r.VoucherId == invwriteOff.VoucherId).Select().FirstOrDefault();
+                        var vendorAdWr = new System.Text.StringBuilder();
+                        var vendorAdWrsql = "";
+                        if (financingWriteOff != null)
                         {
-                            _voucherService.DeleteVoucherDetailCurrency(item.Id);
-                        }
+                            vendorAdWrsql = @"declare @writeOffAmount decimal(18,2)=(select Amount from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where  VoucherId = '" + invwriteOff.VoucherId + "'))";
+                            vendorAdWr.Append(vendorAdWrsql);
 
-                        foreach (var item in voucherdetail)
+                            vendorAdWrsql = @"update TRN.Financing set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount),IsWrittenOff=case when (WrittenOffAmount-@writeOffAmount) =0 then 1 else 0 end
+                                where Id in (select FinancingId from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where  VoucherId = '" + invwriteOff.VoucherId + "'))";
+                            vendorAdWr.Append(vendorAdWrsql);
+                            vendorAdWrsql = @"update TRN.FinancingDetail set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount)
+                                where Id in (select FinancingDetailId from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where  VoucherId = '" + invwriteOff.VoucherId + "'))";
+                            vendorAdWr.Append(vendorAdWrsql);
+                        }
+                        if (laonIntPayable != null)
                         {
-                            var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
-                            if (glTransactionDetail != null)
-                            {
-                                _voucherService.DeleteGLTransactionDetail(item.Id);
-                            }
-                            //var rdBuilder = new System.Text.StringBuilder();
-                            //var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE Id='" + item.Id + "'";
-                            //rdBuilder.Append(builderSql);
-                            //_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
-
-                            _voucherService.DeleteVoucherDetail(item.Id);
+                            vendorAdWrsql = @"delete from TRN.FinancingSubsequentTransaction where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
                         }
+                        vendorAdWrsql = @"delete from trn.GLTransactionDetail where VoucherDetailId in (select Id from TRN.VoucherDetail  where VoucherId  = '" + invwriteOff.VoucherId + "')";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"update trn.VoucherDetail SET BankChargeId=NULL where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                        vendorAdWr.Append(vendorAdWrsql);
                         if (bankCharges.Count > 0)
                         {
-                            foreach (var bcharge in bankCharges)
-                            {
-                                _bankChargeRepository.Delete(bcharge.Id);
-                            }
+                            vendorAdWrsql = @"delete TRN.BankCharge where InvoiceWriteOffId  = '" + invwriteOff.Id + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
+                        }
+                        if (financingWriteOff != null)
+                        {
+                            vendorAdWrsql = @"delete from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where VoucherId  = '" + invwriteOff.VoucherId + "')";
+                            vendorAdWr.Append(vendorAdWrsql);
+                            vendorAdWrsql = @"delete from TRN.FinancingWriteOff where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
                         }
                         if (invoiceTax.Count > 0)
                         {
-                            foreach (var item in invoiceTax)
-                            {
-                                var rdBuilder = new System.Text.StringBuilder();
-                                var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
-                                rdBuilder.Append(builderSql);
-                                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
-
-                                var invoicetaxDdetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == item.Id).Select().ToList();
-                                foreach (var item1 in invoicetaxDdetail)
-                                {
-                                    _invoiceTaxDetailRepository.Delete(item1.Id);
-                                }
-                                _invoiceTaxRepository.Delete(item.Id);
-                            }
+                            vendorAdWrsql = @"update [TRN].InvoiceTax SET VoucherDetailId=NULL where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
+                            vendorAdWrsql = @"delete from [TRN].InvoiceTaxDetail where InvoiceTaxId in (select Id from TRN.InvoiceTax where VoucherId  = '" + invwriteOff.VoucherId + "')";
+                            vendorAdWr.Append(vendorAdWrsql);
+                            vendorAdWrsql = @"delete from [TRN].InvoiceTax  where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
                         }
                         if (invoicetds.Count > 0)
                         {
-
-                            foreach (var tds in invoicetds)
-                            {
-                                if (tds.InvoiceWriteOffId == null && tds.InvoiceId != null)
-                                {
-                                    var rdBuildertds = new System.Text.StringBuilder();
-                                    var builderSql = @"UPDATE [TRN].AdditionalTax SET VoucherId=NULL WHERE Id='" + tds.Id + "'";
-                                    rdBuildertds.Append(builderSql);
-                                    _sqlRepository.ExecuteSqlCommand(rdBuildertds.ToString());
-                                }
-                                if (tds.InvoiceWriteOffId != null && tds.InvoiceId == null)
-                                {
-                                    var tdsdetail = _additionalTaxDetailRepository.Query(r => r.AdditionalTaxId == tds.Id).Select().ToList();
-                                    foreach (var item in tdsdetail)
-                                    {
-                                        _additionalTaxDetailRepository.Delete(item);
-                                    }
-                                    _additionalTaxRepository.Delete(tds);
-                                }
-
-                            }
-
-
+                            vendorAdWrsql = @"update [TRN].AdditionalTax SET VoucherId=NULL where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
+                            vendorAdWrsql = @"delete from [TRN].AdditionalTaxDetail where AdditionalTaxId in (select Id from [TRN].AdditionalTax where VoucherId  = '" + invwriteOff.VoucherId + "')";
+                            vendorAdWr.Append(vendorAdWrsql);
+                            vendorAdWrsql = @"delete from [TRN].AdditionalTax  where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
                         }
                         foreach (var item in invoiceWriteOffDetail)
                         {
-
-                            var invoice = _invoiceService.Find(item.InvoiceId);
-                            var invoiceDetail = _invoiceService.FindInvoiceDetail(item.InvoiceDetailId);
-                            invoiceDetail.WrittenOffAmount -= item.Amount;
-                            invoice.WrittenOffAmount -= item.Amount;
-                            invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
-                            invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
-
-                            _invoiceService.UpdateInvoiceDetail(invoiceDetail);
-                            _invoiceService.Update(invoice);
-                            _invoiceWriteOffDetailRepository.Delete(item.Id);
+                            vendorAdWrsql = @"update [TRN].InvoiceDetail SET WrittenOffAmount=(WrittenOffAmount - " + item.Amount + ") ,IsWrittenOff=0 where Id  = '" + item.InvoiceDetailId + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
+                            vendorAdWrsql = @"update [TRN].Invoice SET WrittenOffAmount=(WrittenOffAmount - " + item.Amount + ") ,IsWrittenOff=0 where Id  = '" + item.InvoiceId + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
+                            vendorAdWrsql = @"delete from [TRN].InvoiceWriteOffDetail  where Id  = '" + item.Id + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
                         }
+                        vendorAdWrsql = @"delete from [TRN].InvoiceWriteOff  where Id  = '" + invwriteOff.Id + "'";
+                        vendorAdWr.Append(vendorAdWrsql);
 
-                        _invoiceWriteOffRepository.Delete(invwriteOff.Id);
                         if (adjustmentNote != null)
                         {
-                            var adjustmentNoteDetail = _adjustmentNoteDetailRepository.Query(r => r.AdjustmentNoteId == adjustmentNote.Id).Select().ToList();
-                            foreach (var item in adjustmentNoteDetail)
-                            {
-                                _adjustmentNoteDetailRepository.Delete(item.Id);
-                            }
-                            _adjustmentNoteRepository.Delete(adjustmentNote.Id);
+                            vendorAdWrsql = @"delete from [TRN].AdjustmentNoteDetail where AdjustmentNoteId in (select Id from [TRN].AdjustmentNote where VoucherId  = '" + invwriteOff.VoucherId + "')";
+                            vendorAdWr.Append(vendorAdWrsql);
+                            vendorAdWrsql = @"delete from [TRN].AdjustmentNote  where VoucherId  = '" + invwriteOff.VoucherId + "'";
+                            vendorAdWr.Append(vendorAdWrsql);
                         }
-                        _voucherService.DeleteVoucher(voucher.Id);
-                    }
-                }
 
-                _unitOfWork.SaveChanges();
-                flag = false;
-                _unitOfWork.Commit();
+                        vendorAdWrsql = @"delete trn.voucher  where Id = '" + invwriteOff.VoucherId + "'";
+                        vendorAdWr.Append(vendorAdWrsql);
+                        _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                        flag = false;
+                    }
+                } 
             }
             catch (CustomException)
             {
