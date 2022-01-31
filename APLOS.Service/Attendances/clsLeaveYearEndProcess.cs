@@ -338,6 +338,7 @@ namespace OTSBD.clsLeave
                             drSaveSummary["FromDate"] = dtCalendar.Rows[0]["FromDate"].ToString();
                             drSaveSummary["ToDate"] = dtCalendar.Rows[0]["ToDate"].ToString();
                             drSaveSummary["PlantId"] = sPlantID;
+                            drSaveSummary["CompanyGroupId"] = sGroupID;
                             drSaveSummary["LeaveTypeId"] = LeaveTypeId;
                             drSaveSummary["CurrentYearAllocation"] = 0;
                             drSaveSummary["DaysCanBeSanctioned"] = 0;
@@ -650,6 +651,7 @@ namespace OTSBD.clsLeave
                             drSaveSummary["FromDate"] = NewFromData.ToString("dd-MMM-yyyy");
                             drSaveSummary["ToDate"] = NewToData.ToString("dd-MMM-yyyy");
                             drSaveSummary["PlantId"] = sPlantID;
+                            drSaveSummary["CompanyGroupId"] = dsOldSummary.Tables[0].Rows[i]["CompanyGroupId"].ToString();
                             drSaveSummary["LeaveTypeId"] = LeaveTypeId;
                             drSaveSummary["CurrentYearAllocation"] = 0;
                             drSaveSummary["DaysCanBeSanctioned"] = 0;
@@ -802,6 +804,36 @@ WHERE els.ToDate<(SELECT yc.ToDate
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
                 if (dsRef.Tables[0].Rows.Count > 0)
                     throw new Exception("Individual year end process is incomplete for the selected calendar year");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
+        }
+        public void GetSeparatedEmployeeForYearClosed(string sPlantID, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+
+                strSql = @"SELECT * FROM trn.EmployeeLeaveSummary WHERE Id IN (
+                            SELECT els.Id FROM trn.EmployeeLeaveSummary AS els
+                            JOIN EmployeeInformation AS ei ON ei.SystemId=els.EmployeeId AND ei.dos<=els.ToDate
+                            AND ISNULL(els.IsYearlyProcessed,0)=0 AND els.PlantId='" + sPlantID + "')";
+
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+
+                foreach (DataRow item in dsRef.Tables[0].Rows)
+                    item["IsYearlyProcessed"] = true;
             }
             catch (Exception ex)
             {
@@ -1846,7 +1878,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-              
+
                 strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
                                 select S.Id from [TRN].[EmployeeLeaveSummary] S
                                 
@@ -1855,7 +1887,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
                                
                                 join EmployeeInformation EI ON EI.SystemId=X.EmployeeId
                                 where EI.PlantId='" + plantId + @"' AND X.EmployeeId=S.EmployeeId AND X.LeaveTypeId=S.LeaveTypeId
-                                AND X.ToDate<='" + ToDate + @"'   --AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
+                                AND X.ToDate<='" + ToDate + @"'   AND ISNULL(ei.dos,DATEADD(DAY,1,x.ToDate))>=DATEADD(DAY,1,x.ToDate)
                                 AND ISNULL(X.IsYearlyProcessed,0)=0
                                 ORDER BY x.ToDate ASC
                                 ) 
@@ -1883,7 +1915,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-               
+
                 strSQL = @"SELECT * FROM [TRN].[EmployeeLeaveSummary] S WHERE id IN (
                                 select SN.Id from [TRN].[EmployeeLeaveSummary] S
                                 JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
