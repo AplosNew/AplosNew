@@ -315,7 +315,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public JsonResult AutoLoanPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        public JsonResult PostAutoLoan(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -399,7 +399,6 @@ namespace Aplos.Areas.Commercial.Controllers
 
             reportUtility.SetMasterHeaderText(ref sheet, ROW, 1, "Loan No.");
             sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
             reportUtility.SetText(ref sheet, ROW, 2, header["LoanNo"].ToString());
             sheet[reportUtility.GetColumnNameForXls(2) + ROW + ":" + reportUtility.GetColumnNameForXls(4) + ROW].Merge();
             sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -545,7 +544,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             reportUtility = new ReportUtility();
-            reportUtility.PlantHeader(ref sheet, endcolHeader, "Auto Loan", identity.PlantId);
+            reportUtility.CompanyPlantHeader(ref sheet, endcolHeader, "Auto Loan", identity.CompanyId, identity.PlantId, identity.PlantName, null);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             //sheet[ROW, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             sheet.Range[1, 5, 4, endcolHeader].HorizontalAlignment = ExcelHAlign.HAlignLeft;

@@ -233,14 +233,14 @@ namespace Aplos.Areas.Setups.Controllers
         {
             string schema = "BPDT.";
             string sql = @"CREATE TABLE " + schema + "" + BusinessProcess + " (Id Varchar(30) primary key, Sequence decimal(18,2) NULL, UserName varchar(50) NULL);";
-            return new JsonResult
+            return Json(new
             {
                 ContentEncoding = Encoding.UTF8,
                 ContentType = "application/json;",
                 Data = _sqlRepository.GetDataCollection(sql),
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-
-            };
+                Message = AplosMessage.Insert
+            });
         }
 
 
@@ -265,14 +265,16 @@ namespace Aplos.Areas.Setups.Controllers
             }
             SaveBusinessProcessDataTableColumnCreationData(BusinessProcessId, columnName, dataType, nullable);
             string sql = @"ALTER TABLE " + schema + "" + BusinessProcess + " ADD " + columnName + " " + dataType + " " + nullable + "";
-            return new JsonResult
+
+            return Json(new
             {
                 ContentEncoding = Encoding.UTF8,
                 ContentType = "application/json;",
                 Data = _sqlRepository.GetDataCollection(sql),
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                Message = AplosMessage.Insert
+            });
 
-            };
         }
 
         private double GetSequence(string BusinessProcessId)
@@ -334,8 +336,18 @@ namespace Aplos.Areas.Setups.Controllers
             }
         }
 
-        public JsonResult DropAlterBPTable(string BusinessProcess, string columnName)
+        public JsonResult DropAlterBPTable(string businessProcessId,string BusinessProcess, string columnName)
         {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+
+            strSQL = "DELETE FROM dbo.BusinessProcessDataTableColumnCreation where BusinessProcessId='"+ businessProcessId + "' AND ColumnName='"+ columnName + "'";
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenConnection("1");
+            objCon.BeginTransaction();
+            objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+
+
             string schema = "BPDT.";
 
             DataTable dt = _sqlRepository.GetDataTable("SELECT  * FROM " + schema + "" + BusinessProcess + " Where " + columnName + " IS NOT NULL");
@@ -344,23 +356,23 @@ namespace Aplos.Areas.Setups.Controllers
                 throw new Exception("This " + columnName + " has value, so column can't drop.");
             }
             string sql = @"ALTER TABLE " + schema + "" + BusinessProcess + " DROP COLUMN " + columnName + "";
-            return new JsonResult
+           
+            return Json(new
             {
                 ContentEncoding = Encoding.UTF8,
                 ContentType = "application/json;",
                 Data = _sqlRepository.GetDataCollection(sql),
-                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-
-            };
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet, Message = AplosMessage.Deleted 
+            });
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetBusinessProcessDataTable(string businessProcess)
+        public JsonResult GetBusinessProcessDataTable(string businessProcessId)
         {
+           
             try
             {
-                string schema = "BPDT.";
-                var _sql = @"SELECT * FROM " + schema + "" + businessProcess + "";
+                string _sql = @"SELECT * FROM dbo.BusinessProcessDataTableColumnCreation Where BusinessProcessId='"+ businessProcessId + "'";
                 return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
