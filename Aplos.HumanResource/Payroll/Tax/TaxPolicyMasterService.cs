@@ -1117,7 +1117,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-
         public void SaveEarningData(Dictionary<string, object> dataMaster, IEnumerable<EarningModelClass> data)
         {
             try
@@ -1156,54 +1155,54 @@ namespace Library.HumanResource.Payroll.Tax
 
                 #region Child Saving
 
-                //GetInvDetailsForSaving(MasterId, out DataSet dsChild);
-                //if (data != null)
-                //{
-                //    decimal GroupLimit = 0, SumofItems = 0;
+                GetEarningDetailsForSaving(MasterId, out DataSet dsChild);
+                if (data != null)
+                {
+                 
+                    foreach (var item in data)
+                    {
 
-                //    foreach (var item in data)
-                //    {
+                        dsChild.Tables[0].DefaultView.RowFilter = @"EarningMasterId='" + item.EarningMasterId + "' ";
+                        if (dsChild.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow drF = dsChild.Tables[0].NewRow();
+                            clsGenID genid = new clsGenID();
+                            genid.GenID("EmployeeEarningData", out string _pk);
 
-                //        dsChild.Tables[0].DefaultView.RowFilter = @"IncomeTaxItemChildId='" + item.IncomeTaxItemChildId + "' ";
-                //        if (dsChild.Tables[0].DefaultView.Count == 0)
-                //        {
-                //            DataRow drF = dsChild.Tables[0].NewRow();
-                //            clsGenID genid = new clsGenID();
-                //            genid.GenID("EmployeeInvestmentDeduction", out string _pk);
+                            decimal Applicable = item.StructureValue + item.ArrearValue + item.OpeningValue + item.ActualValue;
+                            drF["Id"] = "EE" + _pk;
+                            drF["EmployeeIncomeTaxId"] = MasterId;
+                            drF["EarningMasterId"] = item.EarningMasterId;
+                            drF["ActualValue"] = item.ActualValue;
+                            drF["OpeningValue"] = item.OpeningValue;
+                            drF["ArrearValue"] = item.ArrearValue;
+                            drF["StructureValue"] = item.StructureValue;
+                            drF["ApplicableValue"] = Applicable;
+                            drF["AddedBy"] = identity.Name;
+                            drF["AddedFromIp"] = identity.IPAddress;
+                            drF["AddedDate"] = DateTime.Now.ToString();
+                            dsChild.Tables[0].Rows.Add(drF);
+                        }
+                        else
+                        {
+                            decimal Applicable = item.StructureValue + item.ArrearValue + item.OpeningValue + item.ActualValue;
 
-                //            drF["Id"] = "EID" + _pk;
-                //            drF["EmployeeIncomeTaxId"] = MasterId;
-                //            drF["ActualValue"] = item.ActualValue;
-                //            drF["UserValue"] = item.UserValue;
-                //            drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
-                //            drF["AddedBy"] = identity.Name;
-                //            drF["AddedFromIp"] = identity.IPAddress;
-                //            drF["AddedDate"] = DateTime.Now.ToString();
+                            DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
 
-                //            SumofItems += item.UserValue;
-                //            GroupLimit = item.SavingGpLimit;
-                //            dsChild.Tables[0].Rows.Add(drF);
-                //        }
-                //        else
-                //        {
-                //            DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
-                //            dr.BeginEdit();
-                //            dr["ActualValue"] = item.ActualValue;
-                //            dr["UserValue"] = item.UserValue;
-                //            dr["UpdatedBy"] = identity.Name;
-                //            dr["UpdatedDate"] = DateTime.Now.ToString();
-                //            dr["UpdatedFromIp"] = identity.IPAddress;
-                //            SumofItems += item.UserValue;
-                //            GroupLimit = item.SavingGpLimit;
-                //            dr.EndEdit();
-                //        }
-                //    }
-                //    if (GroupLimit < SumofItems)
-                //    {
-                //        throw new Exception(" Sum of Individual Items is more than Group Limit !! Please adjust Values.");
-                //    }
-                //    _info.SaveDataSets(dsChild);
-                //}
+                            dr["ActualValue"] = item.ActualValue;
+                            dr["OpeningValue"] = item.OpeningValue;
+                            dr["ArrearValue"] = item.ArrearValue;
+                            dr["StructureValue"] = item.StructureValue;
+                            dr["ApplicableValue"] = Applicable;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["UpdatedFromIp"] = identity.IPAddress;
+                            dr.EndEdit();
+                        }
+                    }
+                    _info.SaveDataSets(dsChild);
+                }
 
                 #endregion
             }
@@ -1303,6 +1302,21 @@ namespace Library.HumanResource.Payroll.Tax
 				sp.ToDate,Structure.DefineAmount,
 				apc.SalaryHeadID  ) as dd";            
                 return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void GetEarningDetailsForSaving(string Id, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from EmployeeEarningData WHERE EmployeeIncomeTaxId= '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
             catch (Exception ex)
             {
