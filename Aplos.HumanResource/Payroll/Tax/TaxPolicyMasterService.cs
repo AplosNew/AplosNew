@@ -1113,32 +1113,88 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string sql = @"select tem.Id as EarningMasterId,spc.SalaryHeadID,sh.SalaryHead,
-				 (select sum(procx.DisbusmentAmount) from 
+                string sql = @"declare @StartDate as DATE ='"+StartDate+@"',
+                            @EndDate as DATE='"+ToDate+@"';	
+
+                select dd.EarningMasterId,dd.SalaryHeadId,dd.SalaryHead,dd.OpeningValue,
+                dd.LastCalculatedDate,
+                 dd.ActualValue,dd.ArrearValue,dd.Rem_Months,
+                isnull((dd.DefineAmount*dd.Rem_Months),'0') as StructureValue,
+                dd.DeductionDone
+                from (
+                select distinct tem.Id as EarningMasterId,tem.SalaryHeadID,
+                sh.SalaryHead, (select '0')as OpeningValue,
+                
+				(select top 1 todate from SalaryProcMaster sl join SalaryProcChild sc
+			     on sc.SlrProcMstSystemID=sl.SystemID
+			     where EmpInfoSystemID='"+EmpId+@"'  
+			     and sl.FromDate>=@StartDate and sl.ToDate<=@EndDate
+			     order by todate desc)as LastCalculatedDate,
+				
+				--- Actual Value
+				(select sum(procx.DisbusmentAmount) from 
 				 salaryprocchild procx
 				 join SalaryProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
-				 where EmpInfoSystemID='208468' and salaryheadid=spc.SalaryHeadID
-				 and slr.FromDate>='2021-04-01' and slr.ToDate<='2022-03-31'
+				 where EmpInfoSystemID='"+EmpId+@"' and salaryheadid=spc.SalaryHeadID
+				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate
 				 group by procx.SalaryHeadID 
 				 ) as ActualValue,
-				 ArrearValue=isnull((select sum(procx.Diff) from 
+				
+				--- Arrear Value
+			     ArrearValue=isnull((select sum(procx.Diff) from 
 				 ArrearProcChild procx
 				 join ArrearProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
-				 where EmpInfoSystemID='208468' and salaryheadid=spc.SalaryHeadID
-				 and slr.FromDate>='2021-04-01' and slr.ToDate<='2022-03-31'
+				 where EmpInfoSystemID='"+EmpId+@"' and salaryheadid=apc.SalaryHeadID
+				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate
 				 group by procx.SalaryHeadID 
-				 ),'0') 
- 	            from  salaryprocchild spc join 
-                salaryprocmaster sp on spc.SlrProcMstSystemID=sp.SystemID
-                join SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                join TaxEarningMasterChild tem on tem.SalaryHeadId=sh.SalaryHeadID
-                left join ArrearProcChild apc on apc.SalaryHeadID=sh.SalaryHeadID
+				 ),'0'),
+				
+				-- Deductions Till Date
+				 (select SUM(procx.DisbusmentAmount)
+				 from 
+				 salaryprocchild procx
+				 join SalaryProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
+				 JOIN  SalaryHead SHX ON SHX.SalaryHeadID=PROCX.SalaryHeadID
+				 where EmpInfoSystemID='"+EmpId+@"' and SHX.HeadType='D'
+				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate)
+				 As DeductionDone,
+				
+				-- Months Remaining For Structure Value
+				(datediff(DAY,
+				(select top 1 todate from SalaryProcMaster sl join SalaryProcChild sc
+			     on sc.SlrProcMstSystemID=sl.SystemID
+			     where EmpInfoSystemID='"+EmpId+@"'  
+			     and sl.FromDate>=@StartDate and sl.ToDate<=@EndDate
+			     order by todate desc),@EndDate)/30) As Rem_Months,
+				 Structure.DefineAmount
+			
+			    from TaxEarningMasterChild tem 
+				left join
+				salaryprocchild spc  on spc.SalaryHeadId=tem.SalaryHeadId
+				join salaryprocmaster sp on spc.SlrProcMstSystemID=sp.SystemID
+                join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadID
+                left join ArrearProcChild apc on apc.SalaryHeadID=tem.SalaryHeadId
                 join ArrearProcMaster apm on apm.SystemID=apc.SlrProcMstSystemID
-                where spc.EmpInfoSystemID='208468'
-				and sp.FromDate>='2021-04-01' and sp.ToDate<='2022-03-31'
-                and apm.FromDate>='2021-04-01' and apm.ToDate<='2022-03-31'
-                and tem.TaxPolicyHeaderId='TH2'
-                group by spc.SalaryHeadID,sh.SalaryHead,tem.Id";            
+
+				left join
+				(					
+				select sd.DefineAmount,sd.SalaryHeadID,tem.Id,sh.SalaryHead
+				from SalaryInfoDefineMaster sdm join SalaryInfoDefine sd on 
+				sd.SalaryID=sdm.SystemID
+				join SalaryHead sh on sh.SalaryHeadID=sd.SalaryHeadID
+				join TaxEarningMasterChild tem on tem.SalaryHeadId=sh.SalaryHeadID
+                 where EmpInfoSystemID='"+EmpId+@"'  and sh.HeadType='E'
+				and  tem.TaxPolicyHeaderId='"+PolicyId+@"'			
+				) as Structure on Structure.SalaryHeadID=tem.SalaryHeadId
+				and tem.Id=Structure.Id
+
+                where spc.EmpInfoSystemID='"+EmpId+@"'
+				and sp.FromDate>=@StartDate and sp.ToDate<=@EndDate
+                and apm.FromDate>=@StartDate and apm.ToDate<=@EndDate
+                and tem.TaxPolicyHeaderId='"+PolicyId+@"' and sh.HeadType='E'
+                group by tem.SalaryHeadId,spc.SalaryHeadID,sh.SalaryHead,tem.Id,
+				sp.ToDate,Structure.DefineAmount,
+				apc.SalaryHeadID  ) as dd";            
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

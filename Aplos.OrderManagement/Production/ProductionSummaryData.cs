@@ -502,7 +502,7 @@ namespace Library.OrderManagement.Production
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								   WHERE PS.UserName = 'Running' ";
+								   WHERE PS.UserName = 'Running' Order by PD.BuyerOrder";
 
             return _sqlRepository.GetDataCollection(CmdText);
         }
@@ -996,7 +996,7 @@ namespace Library.OrderManagement.Production
                                 ,FORMAT (P.InTime, 'dd-MMM-yyyy hh:mm:tt') InTime, FORMAT (P.OutTime, 'dd-MMM-yyyy hh:mm:tt') OutTime,P.ConsumeHour,P.ManPower, P.CheckedBy,C.EmployeeName CheckedByName
                                 ,P.ToWorkCenterMasterId,P.FromSFGInventoryId,P.ToSFGInventoryId,P.ToProcessId,P.Remarks,P.WorkCenterMasterId,P.LotNumber
                                 ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description,P.ProductionOrderId
-                                ,WCM.UserName FromWorkCenterMaster,TWCM.UserName ToWorkCenterMaster,ISNULL(FP.UserName,FSFG.UserName) [From], ISNULL(TP.UserName,TSFG.UserName) [To],P.ToEntityId
+                                ,WCM.UserName FromWorkCenterMaster,TWCM.UserName ToWorkCenterMaster,ISNULL(FP.UserName,FSFG.UserName) [From], ISNULL(TP.UserName,TSFG.UserName) [To],P.ToEntityId,so.Description
                                  FROM [TRN].[ProductionSummary] p
 								 LEFT JOIN trn.SalesOrder so on so.Id=p.SalesOrderId
                                  LEFT JOIN trn.[MasterOrderItem] moi on moi.id=so.MasterOrderItemId
@@ -1022,7 +1022,7 @@ namespace Library.OrderManagement.Production
 								 LEFT JOIN HKP.SFGInventory TSFG ON TSFG.Id=ToSFGInventoryId
                                  WHERE p.EntityId='" + EntityId + @"' 								 
 								 and p.ProductionShiftId='" + ProductionShiftId + @"'  
-								 and p.ProductionDate='" + ProductionDate + @"' " + wc + " ";
+								 and p.ProductionDate='" + ProductionDate + @"' " + wc + " Order BY ISNULL(WCM.UserName,TWCM.UserName)";
 
                     return _sqlRepository.GetDataCollection(_sql, null);
 
@@ -1033,7 +1033,7 @@ namespace Library.OrderManagement.Production
                                  ,P.ResponsiblePersonId,R.EmployeeName ResponsiblePersonName,P.MentorId, M.EmployeeName MentorName, P.CheckedBy,C.EmployeeName CheckedByName
                                  ,FORMAT (P.InTime, 'dd-MMM-yyyy hh:mm:tt') InTime, FORMAT (P.OutTime, 'dd-MMM-yyyy hh:mm:tt') OutTime,P.ConsumeHour,P.ManPower
                                  ,P.ToWorkCenterMasterId,P.FromSFGInventoryId,P.ToSFGInventoryId,P.ToProcessId,P.Remarks,P.WorkCenterMasterId,P.LotNumber
-                                 ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,WCM.UserName FromWorkCenterMaster,TWCM.UserName ToWorkCenterMaster,ISNULL(FP.UserName,FSFG.UserName) [From], ISNULL(TP.UserName,TSFG.UserName) [To],p.SalesOrderId,P.ToEntityId
+                                 ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,WCM.UserName FromWorkCenterMaster,TWCM.UserName ToWorkCenterMaster,ISNULL(FP.UserName,FSFG.UserName) [From], ISNULL(TP.UserName,TSFG.UserName) [To],p.SalesOrderId,P.ToEntityId,PD.Description
                                  FROM TRN.ProductionSummary P
                                  LEFT JOIN HKP.ProductionBookingPeriod PBP ON PBP.Id=P.ProductionBookingPeriodId
                                  LEFT JOIN EmployeeInformation R ON P.ResponsiblePersonId=R.SystemId
@@ -1116,7 +1116,7 @@ namespace Library.OrderManagement.Production
 								     ) PD ON PD.ProductionOrderId=PO.Id
                                  WHERE P.EntityId='" + EntityId + @"' 
 								 and P.ProductionShiftId='" + ProductionShiftId + @"'  
-								 and P.ProductionDate='" + ProductionDate + @"'  " + wc + " ";
+								 and P.ProductionDate='" + ProductionDate + @"'  " + wc + " Order BY ISNULL(WCM.UserName,TWCM.UserName)";
                     return _sqlRepository.GetDataCollection(_sql, null);
                 }
             }
