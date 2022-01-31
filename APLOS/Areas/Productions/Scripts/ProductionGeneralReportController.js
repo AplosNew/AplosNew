@@ -11,12 +11,34 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
     $scope.masterDetailData = [];
     $scope.ColName = 'Master';
     $scope.ChosenPRID = null;
+    $scope.ProcessList = [];
+    $scope.ProcessId = null;
+
+    // The Tab Switching Code
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
 
     // Getting the Filters 
     //- $http({}).then(function () { });
 
     $scope.getFilters = function () {
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "getProcess",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ProcessList = response.data;
+        });
+
         $http({
             method: 'GET',
             url: $scope.path + 'getFilters'
@@ -25,20 +47,27 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
             var gridObj = $("#FilterList").data("ejGrid");
             gridObj.refreshContent(true);
             $("#FilterList").children('.e-gridcontent').hide();
-            $scope.fillFilters();
         });
     }
 
    
     // Filling in the Filters as Parameters
     $scope.AllFilters = [];
+
     $scope.ViewAll = function () {
         var gridObj = $("#MasterGrid").data("ejGrid");
-        gridObj.destroy();
+        if (!angular.isUndefinedOrNull(gridObj)) {
+            gridObj.destroy();
+        }
         $scope.fillFilters();
     }
 
     $scope.fillFilters = function () {
+
+        if (angular.isUndefinedOrNull($scope.ProcessId)) {
+            ShowResult('Please Select a Process!!', 'failure');
+            throw ("Invalid Request");
+        }
 
         var gridObj = $("#FilterList").data("ejGrid");
         var filteredRecords = gridObj.getFilteredRecords();
@@ -57,7 +86,6 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         parameters.push({ "Key": "PRStatId", "Value": getString(filteredRecords, "PRStatId") });
         parameters.push({ "Key": "SOOrderId", "Value": getString(filteredRecords, "SOOrderId") });
         parameters.push({ "Key": "PSLibId", "Value": getString(filteredRecords, "PSLibId") });
-        parameters.push({ "Key": "ProcessId", "Value": getString(filteredRecords, "ProcessId") });
 
 
         $scope.AllFilters = parameters;
@@ -86,7 +114,7 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + 'getMasterGrid',
-            data: {'filters': param}
+            data: {'filters': param , 'ProcessId':$scope.ProcessId}
         }).then(function (resp) {
             if (resp.data.Error == false) {
                 $scope.masterData = [];
@@ -135,7 +163,7 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + 'masterDetail',
-            data: { 'PRId': PRId, 'Col': $scope.ColName, 'Filters': $scope.AllFilters},
+            data: { 'PRId': PRId, 'Col': $scope.ColName, 'Filters': $scope.AllFilters, 'ProcessId': $scope.ProcessId},
         }).then(function (resp) {
             $scope.masterDetailData = [];
             $scope.masterDetailData = resp.data;
@@ -145,7 +173,7 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
                 { field: 'Char2V', width: 80, headerText: "SKU2", type: "string", width: 80 },
                 { field: 'OrderQty', width: 80, headerText: "Order Qty", type: "number", width: 80 },
                 { field: 'PlanQty', width: 80, headerText: "Plan Qty", type: "number", width: 80 },
-                { field: 'ProdQty', width: 80, headerText: "Producted Qty", type: "number", width: 80 },
+                { field: 'ProducedQty', width: 80, headerText: "Producted Qty", type: "number", width: 80 },
                 { field: 'ShortExcess', width: 80, headerText: "Short Excess", type: "number", width: 80 },
             ];
             $("#detailMaster").ejGrid({
@@ -170,7 +198,7 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + "getReports",
-            data: { 'PRId': $scope.ChosenPRID, 'Filters': $scope.AllFilters},
+            data: { 'PRId': $scope.ChosenPRID, 'Filters': $scope.AllFilters, 'ProcessId': $scope.ProcessId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

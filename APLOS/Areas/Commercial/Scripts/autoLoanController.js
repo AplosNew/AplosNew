@@ -261,28 +261,28 @@ function autoLoanController(accountService, commonMessage, $scope, $rootScope, b
 
     
 
-    $scope.getReport = function (args) {
-        var reportFormat = "Excel";
-        try {
-            var url = "";
-            url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id ;
-            $rootScope.report(url);
-        }
-        catch (e) {
+    //$scope.getReport = function (args) {
+    //    var reportFormat = "Excel";
+    //    try {
+    //        var url = "";
+    //        url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id ;
+    //        $rootScope.report(url);
+    //    }
+    //    catch (e) {
 
-        }
-    };
-    $scope.getReportPdf = function (args) {
-        var reportFormat = "Pdf";
-        try {
-            var url = "";
-            url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id ;
-            $rootScope.report(url);
-        }
-        catch (e) {
+    //    }
+    //};
+    //$scope.getReportPdf = function (args) {
+    //    var reportFormat = "Pdf";
+    //    try {
+    //        var url = "";
+    //        url = 'Commercial/AutoLoan/GetAutoLoanReport?reportFormat=' + reportFormat + "&LCId=" + args.Id ;
+    //        $rootScope.report(url);
+    //    }
+    //    catch (e) {
 
-        }
-    };
+    //    }
+    //};
 
     
 }

@@ -2,12 +2,21 @@
 {
     public enum TableColumnEnum
     {
-        Remarks,
-        Grouping,
-        UoM,
         Length,
         Weight,
+        Shade,
         Shrinkage,
+        MarkarCode,
+        FabricGroup,
+        BuyerRollNo,
+        OwnRollNo,
+        SupplierRollNo,
+        Qty,
+        QtyUoM,
+        ActualQty,
+        InvoiceQty,
+        Remarks,
+        Grouping
     }
 
     public enum DataType

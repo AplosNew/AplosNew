@@ -479,222 +479,223 @@
             </div>*@
 
         @*</fieldset>*@
-        <fieldset class="scheduler-border">
+    <fieldset class="scheduler-border">
 
-            <div class="clearfix"></div>
-            <legend class="scheduler-border">PO Basic Info</legend>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-6 control-label">Order Specific</label>
-                    <div class="col-sm-6">
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="No" ng-click="hide()">
-                                <span class="cr"><i class="cr-icon"></i></span>No
-                            </label>
-                            <label>
-                                <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="Yes" ng-click="show()">
-                                <span class="cr"><i class="cr-icon"></i></span>Yes
-                            </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        </div>
+        <div class="clearfix"></div>
+        <legend class="scheduler-border">PO Basic Info</legend>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Order Specific</label>
+                <div class="col-sm-6">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="No" ng-click="hide()">
+                            <span class="cr"><i class="cr-icon"></i></span>No
+                        </label>
+                        <label>
+                            <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="Yes" ng-click="show()">
+                            <span class="cr"><i class="cr-icon"></i></span>Yes
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" title="Customer Name" ng-hide="productNew.OrderSpecific==='No'">Customer Name</label>
-                    <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                        <input type="text" name="Customer Name" ng-model="productNew.CustomerName" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
+        </div>
+
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Contract" ng-hide="productNew.OrderSpecific==='No'">Contract</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" name="Contract" ng-model="productNew.ContractId" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
+                    <span class="input-group-btn">
+                        <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
+                        <button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Customer Name" ng-hide="productNew.OrderSpecific==='No'">Customer Name</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" name="Customer Name" ng-model="productNew.CustomerName" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Contract No</label>
+                <div class="col-sm-6">
+                    <div class="radio">
+                        <label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.ContractNo}}</label>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" title="Contract" ng-hide="productNew.OrderSpecific==='No'">Contract</label>
-                    <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                        <input type="text" name="Contract" ng-model="productNew.ContractId" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Master LC Ref No</label>
+                <div class="col-sm-6">
+                    <div class="radio">
+                        <label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.LCRef}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" hidden id="masterId" /> @*<label id="PartyCode"></label>*@
+                        <span class="input-group-addon"> {{productNew.PartyCode}}</span>
+                        <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" readonly>
                         <span class="input-group-btn">
-                            <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
-                            <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
-                            <button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
+                            <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                         </span>
                     </div>
                 </div>
             </div>
-            <div class="clearfix"></div>
-            <div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Contract No</label>
-                    <div class="col-sm-6">
-                        <div class="radio">
-                            <label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.ContractNo}}</label>
-                        </div>
+        </div>
+        <div class="col-md-6 pdl3 pdr3">
+            <div class="col-md-8">
+                <div class="form-group" id="div_docNo">
+                    <label class="col-sm-4 control-label">Vendor Doc. RefNo<sup>*</sup></label>
+                    <div class="col-sm-8 show-message pdr3">
+                        <input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="20" tabindex="2" autocomplete="off">
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-4 col-md-4" ng-show="productNew.OrderSpecific==='Yes'">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Master LC Ref No</label>
-                    <div class="col-sm-6">
-                        <div class="radio">
-                            <label class="col-sm-6 control-label" style="padding-top:1px;">{{productNew.LCRef}}</label>
-                        </div>
+            <div class="col-md-4">
+                <div class="form-group" id="div_docDate">
+                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message pdl3">
+                        <input type="text" name="Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
                     </div>
                 </div>
             </div>
-            <div class="clearfix"></div>
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <input type="text" hidden id="masterId" /> @*<label id="PartyCode"></label>*@
-                            <span class="input-group-addon"> {{productNew.PartyCode}}</span>
-                            <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" readonly>
-                            <span class="input-group-btn">
-                                <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                                <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
-                            </span>
-                        </div>
+        </div>
+        <div class="clearfix"></div>
+        @*<div class="col-md-6 pdl3 pdr3">
+            <div class="col-md-8">
+                <div class="form-group" id="div_entryNo">
+                    <label class="col-sm-6 control-label">Gate Entry No<sup>*</sup></label>
+                    <div class="col-sm-6 show-message pdr3">
+                        <input type="text" name="Gate EntryNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.GateEntryNo" class="form-control" ng-keyup="modelValidation('div_entryNo', 'productNew', 'GateEntryNo');" maxlength="10" tabindex="4" autocomplete="off">
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 pdl3 pdr3">
-                <div class="col-md-8">
-                    <div class="form-group" id="div_docNo">
-                        <label class="col-sm-4 control-label">Vendor Doc. RefNo<sup>*</sup></label>
-                        <div class="col-sm-8 show-message pdr3">
-                            <input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="20" tabindex="2" autocomplete="off">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group" id="div_docDate">
-                        <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
-                        <div class="col-sm-9 show-message pdl3">
-                            <input type="text" name="Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
-                        </div>
+            <div class="col-md-4">
+                <div class="form-group" id="div_entryDate">
+                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message pdl3">
+                        <input type="text" name="Entry Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.EntryDate" datepicker="modelValidation('div_entryDate', 'productNew', 'EntryDate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="5">
                     </div>
                 </div>
             </div>
-            <div class="clearfix"></div>
-            @*<div class="col-md-6 pdl3 pdr3">
-                    <div class="col-md-8">
-                        <div class="form-group" id="div_entryNo">
-                            <label class="col-sm-6 control-label">Gate Entry No<sup>*</sup></label>
-                            <div class="col-sm-6 show-message pdr3">
-                                <input type="text" name="Gate EntryNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.GateEntryNo" class="form-control" ng-keyup="modelValidation('div_entryNo', 'productNew', 'GateEntryNo');" maxlength="10" tabindex="4" autocomplete="off">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group" id="div_entryDate">
-                            <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
-                            <div class="col-sm-9 show-message pdl3">
-                                <input type="text" name="Entry Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.EntryDate" datepicker="modelValidation('div_entryDate', 'productNew', 'EntryDate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="5">
-                            </div>
-                        </div>
-                    </div>
-                </div>*@
-            <div class="col-md-6 pdl3 pdr3">
-                <div class="col-md-8">
-                    <div class="form-group" id="div_grnNo">
-                        <label class="col-sm-6 control-label">PO No<sup>*</sup></label>
-                        <div class="col-sm-6 show-message pdr3">
-                            <input type="text" name="PO No" ng-model="productNew.Id" class="form-control" maxlength="10" disabled>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group" id="div_PODate">
-                        <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
-                        <div class="col-sm-9 show-message pdl3">
-                            <input type="text" name="PO Date" ng-disabled="false" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
-                        </div>
+        </div>*@
+        <div class="col-md-6 pdl3 pdr3">
+            <div class="col-md-8">
+                <div class="form-group" id="div_grnNo">
+                    <label class="col-sm-6 control-label">PO No<sup>*</sup></label>
+                    <div class="col-sm-6 show-message pdr3">
+                        <input type="text" name="PO No" ng-model="productNew.Id" class="form-control" maxlength="10" disabled>
                     </div>
                 </div>
             </div>
+            <div class="col-md-4">
+                <div class="form-group" id="div_PODate">
+                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message pdl3">
+                        <input type="text" name="PO Date" ng-disabled="false" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            @*<div class="col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select name="Storage Location" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.MaterialStorageId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="7" required>
-                                    <option value=""></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>*@
-            <div class="col-md-6 ">
-                <div class="col-md-8">
-                    <div class="form-group" id="div_currency">
-                        <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                        <div class="col-sm-8 show-message ">
-                            <div class="select-style">
-                                <select class="form-control" id="currency" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-                                        ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
-                                    <option value=""></option>
-                                </select>
-                            </div>
-                        </div>
+        @*<div class="col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Storage Location" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.MaterialStorageId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="7" required>
+                            <option value=""></option>
+                        </select>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group" id="div_rate">
-                        <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
-                        <div class="col-sm-9 show-message pdl3">
-                            <input type="text" n-decimals="{{currencyPrecision}}" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||inventoryMaterialList.length>0" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
+            </div>
+        </div>*@
+        <div class="col-md-6 ">
+            <div class="col-md-8">
+                <div class="form-group" id="div_currency">
+                    <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                    <div class="col-sm-8 show-message ">
+                        <div class="select-style">
+                            <select class="form-control" id="currency" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
+                                    ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
+                                <option value=""></option>
+                            </select>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="clearfix"></div>
-            <div class="col-sm-6 col-md-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Non Creditable</label>
-                    <div class="col-sm-1">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.IsNonCreditable">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                    @*<label class="col-sm-3 control-label">Along with Invoice</label>
-                        <div class="col-sm-1">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.AlongwithInvoice" ng-click="changeAllInvoice();">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
-                        </div>*@
-                    <label class="col-sm-2 control-label" ng-show="productNew.TaxApplicable=='Mandatory'">Revers Charge</label>
-                    <div class="col-sm-1" ng-show="productNew.TaxApplicable=='Mandatory'">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-disabled="!productNew.IsTaxApplicableChangeable" ng-model="productNew.IsTaxApplicable">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
+            <div class="col-md-4">
+                <div class="form-group" id="div_rate">
+                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
+                    <div class="col-sm-9 show-message pdl3">
+                        <input type="text" n-decimals="{{currencyPrecision}}" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||inventoryMaterialList.length>0" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
                     </div>
                 </div>
             </div>
-            @*<div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors ng-show="productNew.AlongwithInvoice">
-                        <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
-                        <div class="col-sm-4 show-message pdr3 ">
-                            <input type="text" name="Invoice No" ng-model="productNew.InvoiceNo" class="form-control" maxlength="20" ng-required="productNew.AlongwithInvoice" tabindex="10" autocomplete="off">
-                        </div>
-                        <label class="col-sm-1 control-label pdl3 pdr3">Date<sup>*</sup></label>
-                        <div class="col-sm-3 show-message pdl3">
-                            <input type="text" name="Invoice Date" ng-model="productNew.InvoiceDate" datepicker class="form-control" placeholder="dd-Mmm-yyyy" ng-required="productNew.AlongwithInvoice" tabindex="11">
-                        </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Non Creditable</label>
+                <div class="col-sm-1">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.IsNonCreditable">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+                @*<label class="col-sm-3 control-label">Along with Invoice</label>
+                <div class="col-sm-1">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.AlongwithInvoice" ng-click="changeAllInvoice();">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
                     </div>
                 </div>*@
-        </fieldset>
+                <label class="col-sm-2 control-label" ng-show="productNew.TaxApplicable=='Mandatory'">Revers Charge</label>
+                <div class="col-sm-1" ng-show="productNew.TaxApplicable=='Mandatory'">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-disabled="!productNew.IsTaxApplicableChangeable" ng-model="productNew.IsTaxApplicable">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors ng-show="productNew.AlongwithInvoice">
+                <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
+                <div class="col-sm-4 show-message pdr3 ">
+                    <input type="text" name="Invoice No" ng-model="productNew.InvoiceNo" class="form-control" maxlength="20" ng-required="productNew.AlongwithInvoice" tabindex="10" autocomplete="off">
+                </div>
+                <label class="col-sm-1 control-label pdl3 pdr3">Date<sup>*</sup></label>
+                <div class="col-sm-3 show-message pdl3">
+                    <input type="text" name="Invoice Date" ng-model="productNew.InvoiceDate" datepicker class="form-control" placeholder="dd-Mmm-yyyy" ng-required="productNew.AlongwithInvoice" tabindex="11">
+                </div>
+            </div>
+        </div>*@
+    </fieldset>
         <div class="col-md-12">
             <fieldset class="scheduler-border">
                 <legend class="scheduler-border">Payment Term Info</legend>
@@ -1174,7 +1175,7 @@
                                     </div>
                                 </script>
                                 <script type="text/template" id="checkboxTemplatePO">
-                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" e-change="$parent.getserviceTaxByTaxCategoryList" e-enabled="{{data.TransactionQty>0?'true':'false'}}" />
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" e-change="$parent.getserviceTaxByTaxCategoryList" @*e-enabled="{{data.TransactionQty>0?'true':'false'}}"*@ />
                                     @*&& data.TransactionRate>0?'true':'false'*@
                                 </script>
 

@@ -202,8 +202,12 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var invoiceWriteOffSql = @"UPDATE [TRN].InvoiceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].FinancingWriteOff SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
+                    var subTrn = @"UPDATE [TRN].FinancingSubsequentTransaction SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(invoiceWriteOffSql);
+                    rdBuilder.Append(bankJournalSql);
+                    rdBuilder.Append(subTrn);
                 }
 
                 _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());

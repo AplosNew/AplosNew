@@ -48,6 +48,12 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Get Operations
 
+        [Authorize, HttpPost]
+        public ActionResult getProcess()
+        {
+            return Json(ps.getProcess(), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet , Authorize]
         public ActionResult getFilters()
         {
@@ -55,11 +61,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost , Authorize]
-        public ActionResult getMasterGrid(Dictionary<string , object> filters)
+        public ActionResult getMasterGrid(Dictionary<string , object> filters , string ProcessId)
         {
             try
             {
-                return Json(new { Error = false, Data = ps.getMasterGrid(filters) }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Data = ps.getMasterGrid(filters, ProcessId) }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -72,9 +78,9 @@ namespace Aplos.Areas.Productions.Controllers
         #region Modals
 
         [HttpPost , Authorize]
-        public ActionResult masterDetail(string PRId , string Col , Dictionary<string, object> Filters)
+        public ActionResult masterDetail(string PRId , string Col , Dictionary<string, object> Filters, string ProcessId)
         {
-            return Json(ps.masterDetail(PRId , Col , Filters), JsonRequestBehavior.AllowGet);
+            return Json(ps.masterDetail(PRId , Col , Filters , ProcessId), JsonRequestBehavior.AllowGet);
         }
 
         #endregion Modals
@@ -82,12 +88,12 @@ namespace Aplos.Areas.Productions.Controllers
         #region Report Operations
 
         [HttpPost, Authorize]
-        public ActionResult getReports(string PRId , Dictionary<string, object> Filters)
+        public ActionResult getReports(string PRId , Dictionary<string, object> Filters, string ProcessId)
         {
 
             try
             {
-                var workbook = getReportsDown(PRId , Filters);
+                var workbook = getReportsDown(PRId , Filters, ProcessId);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "ProductionReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -103,14 +109,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook getReportsDown(string PRId , Dictionary<string, object> Filters)
+        private IWorkbook getReportsDown(string PRId , Dictionary<string, object> Filters, string ProcessId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = ps.getReports(PRId , Filters);
+            var data = ps.getReports(PRId , Filters , ProcessId);
 
 
             var sheet = workbook.Worksheets[0];
