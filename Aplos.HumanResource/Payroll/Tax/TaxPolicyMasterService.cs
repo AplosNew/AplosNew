@@ -821,6 +821,17 @@ namespace Library.HumanResource.Payroll.Tax
         public string IncomeTaxItemChildId { get; set; }
         public decimal SavingGpLimit { get; set; }
     }
+    public class EarningModelClass
+    {
+        public string Id { get; set; }
+        public decimal ActualValue { get; set; }
+        public decimal OpeningValue { get; set; }
+        public decimal ArrearValue { get; set; }
+        public decimal StructureValue { get; set; }
+        public decimal ApplicableValue { get; set; }
+        public string EmployeeIncomeTaxId { get; set; }
+        public string EarningMasterId { get; set; }
+    }
     public class EmployeeIncomeTaxService
     {
         #region Constructor 
@@ -1106,6 +1117,102 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
+
+        public void SaveEarningData(Dictionary<string, object> dataMaster, IEnumerable<EarningModelClass> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string TableName = "dbo.EmployeeIncomeTaxMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                string sql = @"select * from " + TableName + " where" +
+                    " EmpSystemId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='" + dataMaster["TaxPolicyHeaderId"] + "' " +
+                    "AND TaxTypeId='" + dataMaster["TaxTypeId"] + "' AND TaxYearId='" + dataMaster["TaxYearId"] + "'";
+
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                string _Id = "";
+                #region Master Saving
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    dataMaster["Id"] = "EIT" + _Id;
+                    _tax.AddNewRow(dsMaster.Tables[0], dataMaster);
+                }
+                else
+                {
+                    _Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0]["Id"]).ToString();
+                    dataMaster["Id"] = _Id;
+                    _tax.EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
+                }
+                #endregion
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region Child Saving
+
+                //GetInvDetailsForSaving(MasterId, out DataSet dsChild);
+                //if (data != null)
+                //{
+                //    decimal GroupLimit = 0, SumofItems = 0;
+
+                //    foreach (var item in data)
+                //    {
+
+                //        dsChild.Tables[0].DefaultView.RowFilter = @"IncomeTaxItemChildId='" + item.IncomeTaxItemChildId + "' ";
+                //        if (dsChild.Tables[0].DefaultView.Count == 0)
+                //        {
+                //            DataRow drF = dsChild.Tables[0].NewRow();
+                //            clsGenID genid = new clsGenID();
+                //            genid.GenID("EmployeeInvestmentDeduction", out string _pk);
+
+                //            drF["Id"] = "EID" + _pk;
+                //            drF["EmployeeIncomeTaxId"] = MasterId;
+                //            drF["ActualValue"] = item.ActualValue;
+                //            drF["UserValue"] = item.UserValue;
+                //            drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
+                //            drF["AddedBy"] = identity.Name;
+                //            drF["AddedFromIp"] = identity.IPAddress;
+                //            drF["AddedDate"] = DateTime.Now.ToString();
+
+                //            SumofItems += item.UserValue;
+                //            GroupLimit = item.SavingGpLimit;
+                //            dsChild.Tables[0].Rows.Add(drF);
+                //        }
+                //        else
+                //        {
+                //            DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
+                //            dr.BeginEdit();
+                //            dr["ActualValue"] = item.ActualValue;
+                //            dr["UserValue"] = item.UserValue;
+                //            dr["UpdatedBy"] = identity.Name;
+                //            dr["UpdatedDate"] = DateTime.Now.ToString();
+                //            dr["UpdatedFromIp"] = identity.IPAddress;
+                //            SumofItems += item.UserValue;
+                //            GroupLimit = item.SavingGpLimit;
+                //            dr.EndEdit();
+                //        }
+                //    }
+                //    if (GroupLimit < SumofItems)
+                //    {
+                //        throw new Exception(" Sum of Individual Items is more than Group Limit !! Please adjust Values.");
+                //    }
+                //    _info.SaveDataSets(dsChild);
+                //}
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
         #region Earning Tab Functions
