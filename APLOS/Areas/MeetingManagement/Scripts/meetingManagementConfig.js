@@ -6,9 +6,15 @@ function MeetingManagementConfig($routeProvider, $locationProvider) {
             controller: 'MeetingCategoryController'
         })
 
+        .when('/meeting-sub-category', {
+            templateUrl: 'MeetingManagement/MeetingSubCategory',
+            controller: 'MeetingSubCategoryController'
+        })
 
-
-
+        .when('/meeting-type', {
+            templateUrl: 'MeetingManagement/MeetingType',
+            controller: 'MeetingTypeController'
+        })
 
 
 

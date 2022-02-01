@@ -19,9 +19,9 @@ using System.Web.Mvc;
 
 namespace Aplos.Areas.MeetingManagement.Controllers
 {
-    public class MeetingCategoryController : BaseController
+    public class MeetingSubCategoryController : BaseController
     {
-        string TableName = "dbo.MeetingCategory";
+        string TableName = "dbo.MeetingSubCategory";
         //authentication for
         //GetList Create Delete
 
@@ -29,7 +29,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public MeetingCategoryController(ISqlRepository R)
+        public MeetingSubCategoryController(ISqlRepository R)
         {
             _sqlRepository = R;
         }

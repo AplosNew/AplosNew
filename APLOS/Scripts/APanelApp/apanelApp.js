@@ -490,6 +490,8 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('CommercialAdditionalInfoController', CommercialAdditionalInfoController)
     .controller('PerformanceManagementMasterController', PerformanceManagementMasterController)
     .controller('MeetingCategoryController', MeetingCategoryController)
+    .controller('MeetingSubCategoryController', MeetingSubCategoryController)
+    .controller('MeetingTypeController', MeetingTypeController)
 
 
 
