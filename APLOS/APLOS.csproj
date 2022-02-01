@@ -302,6 +302,8 @@
     <Folder Include="Areas\HumanResource\Views\Shared\" />
     <Folder Include="Areas\IssueTracker\Views\IssueAudit\" />
     <Folder Include="Areas\Materials\Views\P\" />
+    <Folder Include="Areas\MeetingManagement\Controllers\" />
+    <Folder Include="Areas\MeetingManagement\Views\Shared\" />
     <Folder Include="Areas\Payrolls\Views\EmployeeServiceFixed\" />
     <Folder Include="Areas\PerformanceManagement\Views\Shared\" />
     <Folder Include="Areas\Products\Views\GateEntry\" />
@@ -690,6 +692,7 @@
     <Compile Include="Areas\JobWork\Controllers\JWReceiptController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
+    <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
@@ -2000,6 +2003,7 @@
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
+    <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
@@ -3959,6 +3963,7 @@
     <Content Include="Areas\HumanResource\Views\PerformancePeriodMaster\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\FabricRoll\Aplos1.cshtml" />
     <Content Include="Areas\Productions\Views\StocksAgeingReport\Aplos.cshtml" />
+    <Content Include="Areas\MeetingManagement\Views\web.config" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
