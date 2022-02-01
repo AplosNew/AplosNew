@@ -166,13 +166,6 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	//};
 
 	$scope.Save = function () {
-		//debugger;
-		// $scope.SavePOPUpConfirm();
-		//var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
-		//if (sumOfmaterialStockList < $scope.selectedRowQty) {
-		//	ShowResult("Please select specific GRN", 'failure');
-		//	return false;
-		//}
 		var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
 		$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
 		if (sumOfmaterialStockList < $scope.selectedRowQty1) {
@@ -197,6 +190,9 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		$scope.ispostDisable = true;
+
+		
+
 		if ($scope.Action === "Save") {
 			$http({
 				method: 'POST'
@@ -251,11 +247,12 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		}
 		$scope.detailListNew = [];
 		$scope.detailListNewAll = [];
-		
+		var check = false;
 		//debugger;
 		for (var i = 0; i < $scope.detailList.length; i++) {
 			if ($scope.detailList[i].check === true) {
 
+				check = true;
 
 				if ($scope.detailList[i].TransactionQty > Math.round(($scope.detailList[i].PostingQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100) {
 					ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
@@ -315,7 +312,12 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			}
 
 		}
-	
+
+		if (check == false) {
+			ShowResult('Check at lest one checkbox from Issue slip details');
+			return false;
+		}
+
 		$scope.productNew.IsPostingRequired = true;
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 

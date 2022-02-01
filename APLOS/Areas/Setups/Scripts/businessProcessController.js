@@ -213,7 +213,7 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
 
     $scope.GetBPPopUp = function (data) {
         angular.element(document.querySelector('#BPTablePopUp')).modal('show');
-        $scope.GetBusinessProcessDataTable(data.UserName);
+        $scope.GetBusinessProcessDataTable(data.Id);
     }
 
     $scope.SaveBPTable = function () {
@@ -267,6 +267,7 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.GetBusinessProcessDataTable($scope.brandNew.Id);
                 }
             }, function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -276,12 +277,12 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
         }
     };
 
-    $scope.DeleteBPTableColumn = function () {
+    $scope.DeleteBPTableColumn = function (columnName) {
         try {
             $http({
                 method: 'post',
                 url: 'Setups/BusinessProcess/DropAlterBPTable',
-                data: { 'BusinessProcess': $scope.brandNew.BusinessProcessName, 'columnName': $scope.ModelNew.TableColumn },
+                data: { 'businessProcessId': $scope.brandNew.Id,'BusinessProcess': $scope.brandNew.BusinessProcessName, 'columnName': columnName },
                 dataType: 'json'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -289,6 +290,7 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.GetBusinessProcessDataTable($scope.brandNew.Id);
                 }
             }, function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -299,12 +301,12 @@ function BusinessProcessController(commonMessage, $scope, $rootScope, baseServic
     };
 
     $scope.tablecolList = [];
-    $scope.GetBusinessProcessDataTable = function (bp) {
+    $scope.GetBusinessProcessDataTable = function (id) {
      
         $scope.tablecolList = [];
         $http({
             method: 'GET',
-            url: 'Setups/BusinessProcess/GetBusinessProcessDataTable?businessProcess=' + bp,
+            url: 'Setups/BusinessProcess/GetBusinessProcessDataTable?businessProcessId=' + id,
         }).then(function successCallback(response) {
             $scope.tablecolList = response.data;
         })

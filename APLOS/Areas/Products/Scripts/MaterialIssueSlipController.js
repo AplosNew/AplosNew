@@ -998,6 +998,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 								ShowResult(response.data.Message, 'failure');
 							else {
 								ShowResult(response.data.Message, 'success');
+								$scope.Status = 'InventorySlip';
 								$scope.Griddata();
 								$scope.GriddataAssetIssueSlip();
 								getInventoryMaterialList($scope.productNew.Id);
@@ -1137,6 +1138,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 								ShowResult(response.data.Message, 'success');
 								$scope.Id = response.data.Issentity.Id;
 								$scope.Clear();
+								$scope.Status = 'InventorySlip';
 								$scope.Griddata();
 								$scope.IssueSlipDetail();
 
@@ -1174,6 +1176,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 							else {
 								ShowResult(response.data.Message, 'success');
 								$scope.Clear();
+								$scope.Status = 'InventorySlip';
 								$scope.Griddata();
 								$scope.IssueSlipDetail();
 								$scope.GriddataAssetIssueSlip();
@@ -1361,7 +1364,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		var Id = x.data.Id;
 		$scope.productNew = x.data;
 		$scope.Action1 = 'Update';
-		$scope.CheckedBy = x.data.CheckedBy;
+		$scope.productNew.CheckedBy = x.data.CheckedBy;
+		
 		$scope.IssueSlipType = 'InventorySlip';
 		$scope.Id = $scope.productNew.Id;
 		if (!baseService.isUndefinedOrNull(x.data.SalesOrderId)) {
