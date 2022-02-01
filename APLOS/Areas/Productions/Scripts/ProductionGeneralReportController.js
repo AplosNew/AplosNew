@@ -14,6 +14,17 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
     $scope.ProcessList = [];
     $scope.ProcessId = null;
 
+    // The Tab Switching Code
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
 
     // Getting the Filters 
     //- $http({}).then(function () { });
