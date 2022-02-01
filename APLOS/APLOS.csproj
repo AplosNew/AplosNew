@@ -3965,6 +3965,7 @@
     <Content Include="Areas\Materials\Views\FabricRoll\Aplos1.cshtml" />
     <Content Include="Areas\Productions\Views\StocksAgeingReport\Aplos.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\web.config" />
+    <Content Include="Areas\MeetingManagement\Views\MeetingCategory\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
