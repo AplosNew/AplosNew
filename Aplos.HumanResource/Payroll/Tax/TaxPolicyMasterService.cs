@@ -821,6 +821,17 @@ namespace Library.HumanResource.Payroll.Tax
         public string IncomeTaxItemChildId { get; set; }
         public decimal SavingGpLimit { get; set; }
     }
+    public class EarningModelClass
+    {
+        public string Id { get; set; }
+        public decimal ActualValue { get; set; }
+        public decimal OpeningValue { get; set; }
+        public decimal ArrearValue { get; set; }
+        public decimal StructureValue { get; set; }
+        public decimal ApplicableValue { get; set; }
+        public string EmployeeIncomeTaxId { get; set; }
+        public string EarningMasterId { get; set; }
+    }
     public class EmployeeIncomeTaxService
     {
         #region Constructor 
@@ -1106,6 +1117,101 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
+        public void SaveEarningData(Dictionary<string, object> dataMaster, IEnumerable<EarningModelClass> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string TableName = "dbo.EmployeeIncomeTaxMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                string sql = @"select * from " + TableName + " where" +
+                    " EmpSystemId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='" + dataMaster["TaxPolicyHeaderId"] + "' " +
+                    "AND TaxTypeId='" + dataMaster["TaxTypeId"] + "' AND TaxYearId='" + dataMaster["TaxYearId"] + "'";
+
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                string _Id = "";
+                #region Master Saving
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    dataMaster["Id"] = "EIT" + _Id;
+                    _tax.AddNewRow(dsMaster.Tables[0], dataMaster);
+                }
+                else
+                {
+                    _Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0]["Id"]).ToString();
+                    dataMaster["Id"] = _Id;
+                    _tax.EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
+                }
+                #endregion
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region Child Saving
+
+                GetEarningDetailsForSaving(MasterId, out DataSet dsChild);
+                if (data != null)
+                {
+                 
+                    foreach (var item in data)
+                    {
+
+                        dsChild.Tables[0].DefaultView.RowFilter = @"EarningMasterId='" + item.EarningMasterId + "' ";
+                        if (dsChild.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow drF = dsChild.Tables[0].NewRow();
+                            clsGenID genid = new clsGenID();
+                            genid.GenID("EmployeeEarningData", out string _pk);
+
+                            decimal Applicable = item.StructureValue + item.ArrearValue + item.OpeningValue + item.ActualValue;
+                            drF["Id"] = "EE" + _pk;
+                            drF["EmployeeIncomeTaxId"] = MasterId;
+                            drF["EarningMasterId"] = item.EarningMasterId;
+                            drF["ActualValue"] = item.ActualValue;
+                            drF["OpeningValue"] = item.OpeningValue;
+                            drF["ArrearValue"] = item.ArrearValue;
+                            drF["StructureValue"] = item.StructureValue;
+                            drF["ApplicableValue"] = Applicable;
+                            drF["AddedBy"] = identity.Name;
+                            drF["AddedFromIp"] = identity.IPAddress;
+                            drF["AddedDate"] = DateTime.Now.ToString();
+                            dsChild.Tables[0].Rows.Add(drF);
+                        }
+                        else
+                        {
+                            decimal Applicable = item.StructureValue + item.ArrearValue + item.OpeningValue + item.ActualValue;
+
+                            DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            dr["ActualValue"] = item.ActualValue;
+                            dr["OpeningValue"] = item.OpeningValue;
+                            dr["ArrearValue"] = item.ArrearValue;
+                            dr["StructureValue"] = item.StructureValue;
+                            dr["ApplicableValue"] = Applicable;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["UpdatedFromIp"] = identity.IPAddress;
+                            dr.EndEdit();
+                        }
+                    }
+                    _info.SaveDataSets(dsChild);
+                }
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
         #region Earning Tab Functions
@@ -1196,6 +1302,21 @@ namespace Library.HumanResource.Payroll.Tax
 				sp.ToDate,Structure.DefineAmount,
 				apc.SalaryHeadID  ) as dd";            
                 return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void GetEarningDetailsForSaving(string Id, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from EmployeeEarningData WHERE EmployeeIncomeTaxId= '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
             catch (Exception ex)
             {

@@ -40,7 +40,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region Employee Header Saving Functions
+        #region EmployeeInfo Functions
         
         [HttpGet, Authorize]
         public ActionResult GetEmployeeList()
@@ -300,6 +300,30 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 return Json(eit.EarningGridData(PolicyId,EmpId,From,To), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveEarningData(Dictionary<string, object> Masterdata, IEnumerable<EarningModelClass> ChildData)
+        {
+            try
+            {
+                if (Masterdata["TaxTypeId"] == null)
+                {
+                    throw new Exception("Please Select Tax Type !!");
+                }
+                if (Masterdata["TaxYearId"] == null)
+                {
+                    throw new Exception("Please Select Tax Year !!");
+                }
+
+                eit.SaveEarningData(Masterdata, ChildData);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+
             }
             catch (Exception ex)
             {

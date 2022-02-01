@@ -346,7 +346,7 @@ namespace Aplos.Areas.Setups.Controllers
             objCon.OpenConnection("1");
             objCon.BeginTransaction();
             objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-
+            objCon.CommitTransaction();
 
             string schema = "BPDT.";
 
@@ -362,7 +362,8 @@ namespace Aplos.Areas.Setups.Controllers
                 ContentEncoding = Encoding.UTF8,
                 ContentType = "application/json;",
                 Data = _sqlRepository.GetDataCollection(sql),
-                JsonRequestBehavior = JsonRequestBehavior.AllowGet, Message = AplosMessage.Deleted 
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                Message = AplosMessage.Deleted 
             });
         }
 
