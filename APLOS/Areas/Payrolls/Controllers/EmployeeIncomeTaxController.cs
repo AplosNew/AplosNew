@@ -295,11 +295,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region Earning Tab Functions
 
         [HttpPost, Authorize]
-        public ActionResult GetEarningGridData(string PolicyId, string EmpId,string From,string To)
+        public ActionResult GetEarningGridData(string PolicyId, string EmpId,string From,string To,string YearId)
         {
             try
             {
-                return Json(eit.EarningGridData(PolicyId,EmpId,From,To), JsonRequestBehavior.AllowGet);
+                return Json(eit.EarningGridData(PolicyId,EmpId,From,To,YearId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
