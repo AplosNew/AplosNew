@@ -12520,8 +12520,6 @@ ORDER BY IR.ID DESC";
                                     ServicePoId = itemDetail.ServicePOMasterId,
                                     ServicePoDetailId = itemDetail.ServicePODetailId,
                                     Qty = itemDetail.CurrentQty
-
-
                                 };
 
                                 AuditService.AddedLog(receiveDetail1);
@@ -12547,19 +12545,10 @@ ORDER BY IR.ID DESC";
                                         _servicePOAckTaxRepository.Insert(potax);
                                     }
                                 }
-
-                                //AuditService.AddedLog(receiveDetail1);
-                                //_ServivePOAcknowledgementMapRepository.Insert(receiveDetail1);
-
+                                receiveDetail.TotalTaxAmount = ServicePOAndAckTax.Where(r => r.ServicePoDetailId == receiveDetail.ServicePODetailId).Sum(r => r.TaxAmount);
                             }
-
-
-
-
                         }
-
                     }
-
                 }
                 else//Update
                 {
@@ -12618,10 +12607,9 @@ ORDER BY IR.ID DESC";
                                 if (ServicePOAndAckTax.IsNotNull())
                                 {
                                     var currentIdTax = _servicePOAckTaxRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[ServicePOAckTax] WHERE ServiceAcknowledgementDetailId='{receiveDetail.Id}'").First();
-                                    foreach (var item in ServicePOAndAckTax/*.Where(r => r.ServicePoDetailId == receiveDetail1.ServicePoDetailId)*/)
+                                    foreach (var item in ServicePOAndAckTax.Where(r => r.ServiceAcknowledgementDetailId == receiveDetail.Id))
                                     {
                                         var potax = new ServicePOAckTax();
-                                        currentIdTax++;
                                         potax.Id = item.Id; //MakePK(receiveDetail.Id, currentIdTax, 2);
                                         //potax.Id = GetPK3();
                                         potax.ServiceAcknowledgementMasterId = item.ServiceAcknowledgementMasterId;
@@ -12635,22 +12623,11 @@ ORDER BY IR.ID DESC";
                                         _servicePOAckTaxRepository.Update(potax);
                                     }
                                 }
-
-                                //AuditService.AddedLog(receiveDetail1);
-                                //_ServivePOAcknowledgementMapRepository.Insert(receiveDetail1);
-
+                                receiveDetail.TotalTaxAmount = ServicePOAndAckTax.Where(r => r.ServiceAcknowledgementDetailId == receiveDetail.Id).Sum(r => r.TaxAmount);
                             }
-
-
-
-
                         }
-
                     }
-
                 }
-
-
 
                 _unitOfWork.SaveChanges();
                 flag = false;
