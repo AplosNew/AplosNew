@@ -237,7 +237,6 @@
 									<div e-column e-template="#checkboxListPO" e-textalign="center" e-width="30"></div>
 									<div e-column e-field="PartyName" e-headertext="Vendor" e-width="200"></div>
 									<div e-column e-field="InvoicingBy" e-headertext="Invoicing Party Name" e-width="200"></div>
-									<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="100"></div>
 									<div e-column e-field="id" e-headertext="PO No" e-width="100"></div>
 									<div e-column e-field="PODate" e-headertext="PO Date" e-width="100"></div>
 									<div e-column e-field="DocRefNo" e-headertext="Vendor Doc No" e-width="100"></div>
@@ -246,10 +245,8 @@
 									<div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="250"></div>
 									<div e-column e-field="LCNo" e-headertext="LC Ref No" e-width="80"></div>
 									<div e-column e-field="UDNo" e-headertext="UDNo" e-width="80"></div>
-									<div e-column e-field="AcceptanceId" e-headertext="Acceptance No" e-width="80"></div>
-									<div e-column e-field="TransactionQty" e-headertext="Qty" e-width="100"></div>
-									<div e-column e-field="CurrencyName" e-headertext="Currency" e-width="100"></div>
 									<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+									<div e-column e-field="CurrencyName" e-headertext="Currency" e-width="100"></div>
 									@*<div e-column e-field="BaseAmount" e-headertext="T.Amount" e-width="100"></div>
 		<div e-column e-field="CtnId" e-headertext="App.No" e-width="100"></div>*@
 
@@ -844,8 +841,9 @@
                         <legend class="scheduler-border">Additional Tax</legend>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
-                                <label class="col-sm-6 control-label">If Percentage Applicable</label>
                                 <div class="col-sm-6">
+                                    <label class="col-sm-6 control-label">If Percentage Applicable</label>
+
                                     <div class="radio">
                                         <label>
                                             <input type="radio" name="TaxOptionAddiTax" ng-model="productNew.TaxOptionAddiTax" value="Yes" ng-click="TaxOptionAdditax('Yes');"> @*ng-hide="HSNCode !=null"*@

@@ -350,7 +350,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 	//$scope.tab = 1;
 	$scope.tabGL = 1;
 	//debugger;
-	$scope.tabType = "ForChecked";
+	$scope.tabType = "ForChecking";
 	$scope.setTabGRNList = function (newTab) {
 
 		$scope.tabType = "ForChecking";
@@ -548,7 +548,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 							$scope.productNew.Id = response.data.entity.Id;
 							$scope.productId = response.data.entity.Id;
 							$scope.productNew.PartyName = $scope.product.PartyName;
-							$scope.tabType == "ForChecking";
+							$scope.tabType = "ForChecking";
 							$scope.getalldataMaster();
 							$scope.ServiceListDetails();
 							getServiceChargeList($scope.productId);
@@ -562,7 +562,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 					for (var i = 0; i < $scope.chargesListPO.length; i++) {
 						if ($scope.chargesListPO[i].check == true) {
 							$scope.chargesListPOnew.push($scope.chargesListPO[i]);
-							$scope.tabType == "ForChecking";
+							$scope.tabType = "ForChecking";
 							$scope.getalldataMaster();
 							//$scope.chargesListPOnew.push($scope.chargesList[i]);
 						}
