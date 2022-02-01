@@ -98,6 +98,7 @@ namespace Aplos
             bundles.Add(new ScriptBundle("~/bundles/Outsourcing").Include("~/Areas/Outsourcing/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/Leave").Include("~/Areas/Leave/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/PerformanceManagement").Include("~/Areas/PerformanceManagement/Scripts/*.js"));
+            bundles.Add(new ScriptBundle("~/bundles/MeetingManagement").Include("~/Areas/MeetingManagement/Scripts/*.js"));
 
 
             bundles.Add(new ScriptBundle("~/bundles/organizations").Include(

@@ -309,6 +309,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 'EmpId': $scope.EmployeeIncomeTaxModel.EmpSystemId,
                 'From': $scope.EmployeeIncomeTaxModel.StartDate,
                 'To': $scope.EmployeeIncomeTaxModel.EndDate,
+                'YearId': $scope.EmployeeIncomeTaxModel.TaxYearId
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

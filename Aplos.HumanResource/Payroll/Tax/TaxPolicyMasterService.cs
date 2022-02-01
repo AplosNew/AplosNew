@@ -1215,28 +1215,33 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region Earning Tab Functions
-        public IEnumerable<object> EarningGridData(string PolicyId, string EmpId,string StartDate,string ToDate)
+        public IEnumerable<object> EarningGridData(string PolicyId, string EmpId,string StartDate,string ToDate,string YearId)
         {
             try
             {
                 string sql = @"declare @StartDate as DATE ='"+StartDate+@"',
                             @EndDate as DATE='"+ToDate+@"';	
 
-                select dd.EarningMasterId,dd.SalaryHeadId,dd.SalaryHead,dd.OpeningValue,
-                dd.LastCalculatedDate,
-                 dd.ActualValue,dd.ArrearValue,dd.Rem_Months,
+                select dd.EarningMasterId,dd.SalaryHeadId,dd.SalaryHead,
+                dd.LastCalculatedDate,isnull(dd.OpeningValue,'0')OpeningValue,
+                dd.ActualValue,dd.ArrearValue,dd.Rem_Months,
                 isnull((dd.DefineAmount*dd.Rem_Months),'0') as StructureValue,
                 dd.DeductionDone
                 from (
                 select distinct tem.Id as EarningMasterId,tem.SalaryHeadID,
-                sh.SalaryHead, (select '0')as OpeningValue,
-                
+                sh.SalaryHead, 
 				(select top 1 todate from SalaryProcMaster sl join SalaryProcChild sc
 			     on sc.SlrProcMstSystemID=sl.SystemID
 			     where EmpInfoSystemID='"+EmpId+@"'  
-			     and sl.FromDate>=@StartDate and sl.ToDate<=@EndDate
+			      and sl.FromDate>=@StartDate and sl.ToDate<=@EndDate
 			     order by todate desc)as LastCalculatedDate,
 				
+				(select ed.OpeningValue from  EmployeeEarningData ed  left join  
+				EmployeeIncomeTaxMaster eim on eim.Id=ed.EmployeeIncomeTaxId
+				where eim.EmpSystemId='"+EmpId+@"' and ed.EarningMasterId=tem.Id
+				and eim.TaxPolicyHeaderId='"+PolicyId+@"' AND EIM.TaxYearId='"+YearId+@"'
+                )as OpeningValue,
+
 				--- Actual Value
 				(select sum(procx.DisbusmentAmount) from 
 				 salaryprocchild procx
@@ -1260,7 +1265,7 @@ namespace Library.HumanResource.Payroll.Tax
 				 from 
 				 salaryprocchild procx
 				 join SalaryProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
-				 JOIN  SalaryHead SHX ON SHX.SalaryHeadID=PROCX.SalaryHeadID
+				 JOIN SalaryHead SHX ON SHX.SalaryHeadID=PROCX.SalaryHeadID
 				 where EmpInfoSystemID='"+EmpId+@"' and SHX.HeadType='D'
 				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate)
 				 As DeductionDone,
@@ -1281,16 +1286,16 @@ namespace Library.HumanResource.Payroll.Tax
                 join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadID
                 left join ArrearProcChild apc on apc.SalaryHeadID=tem.SalaryHeadId
                 join ArrearProcMaster apm on apm.SystemID=apc.SlrProcMstSystemID
-
+			
 				left join
 				(					
 				select sd.DefineAmount,sd.SalaryHeadID,tem.Id,sh.SalaryHead
 				from SalaryInfoDefineMaster sdm join SalaryInfoDefine sd on 
 				sd.SalaryID=sdm.SystemID
 				join SalaryHead sh on sh.SalaryHeadID=sd.SalaryHeadID
-				join TaxEarningMasterChild tem on tem.SalaryHeadId=sh.SalaryHeadID
-                 where EmpInfoSystemID='"+EmpId+@"'  and sh.HeadType='E'
-				and  tem.TaxPolicyHeaderId='"+PolicyId+@"'			
+				join TaxEarningMasterChild tem on tem.SalaryHeadId=sh.SalaryHeadID				
+				 where EmpInfoSystemID='"+EmpId+@"'  and sh.HeadType='E'
+				and tem.TaxPolicyHeaderId='"+PolicyId+@"'			
 				) as Structure on Structure.SalaryHeadID=tem.SalaryHeadId
 				and tem.Id=Structure.Id
 
@@ -1299,8 +1304,8 @@ namespace Library.HumanResource.Payroll.Tax
                 and apm.FromDate>=@StartDate and apm.ToDate<=@EndDate
                 and tem.TaxPolicyHeaderId='"+PolicyId+@"' and sh.HeadType='E'
                 group by tem.SalaryHeadId,spc.SalaryHeadID,sh.SalaryHead,tem.Id,
-				sp.ToDate,Structure.DefineAmount,
-				apc.SalaryHeadID  ) as dd";            
+				sp.ToDate,Structure.DefineAmount,apc.SalaryHeadID
+				) as dd";            
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
