@@ -249,7 +249,6 @@ where PMSMasterId= '" + Id + "' ";
         }
     }
 
-
     public class PerformanceModel
     {
         public string Sequence { get; set; }
@@ -273,8 +272,6 @@ where PMSMasterId= '" + Id + "' ";
 
     }
 
-}
-    
     public class PerformancePeriodMasterService
     {
 
@@ -285,141 +282,142 @@ where PMSMasterId= '" + Id + "' ";
             _sqlRepository = new SqlRepository();
         }
 
-        //public IEnumerable<object> GetList(string strkey)
-        //{
-        //    try
-        //    {
-        //        string sql = @"select SystemId, PerformanceYearName, StartDate ,EndDate,Active, Remarks from dbo.PerformancePeriod ";
+        public IEnumerable<object> GetList(string strkey)
+        {
+            try
+            {
+                string sql = @"select Id, PerformanceYearName, StartDate ,EndDate,Active, Remarks from dbo.PerformancePeriod ";
 
-        //        return _sqlRepository.GetDataCollection(sql);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw e;
-        //    }
-        //}
-        //public List<Dictionary<string, object>> Create(List<Dictionary<string, object>> Data)
-        //{
-        //    try
-        //    {
-        //        //Master Table - PerformancePEriod
-        //        string TableName = "dbo.PerformancePeriod";
-        //        DataSet dsMaster;
-        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-        //        con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2  ", out dsMaster, false, "1");
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public List<Dictionary<string, object>> Create(List<Dictionary<string, object>> Data)
+        {
+            try
+            {
+                //Master Table - PerformancePEriod
+                string TableName = "dbo.PerformancePeriod";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2  ", out dsMaster, false, "1");
 
-        //        string _Id = "";
+                string _Id = "";
 
-        //        #region data Upload
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-        //        for (int i = 0; i < Data.Count; i++)
-        //        {
-
-        //                DataRow dr = dsMaster.Tables[0].NewRow();
-        //                bplib.clsGenID genid = new bplib.clsGenID();
-        //                genid.GenID("dbo.PerformancePeriod", out _Id);
-        //                dr["SystemId"] = "PP" + DateTime.Now.Year.ToString() + '-' + _Id;
-        //                dr["PerformanceYearName"] = Data[i]["PerformanceYearName"].ToString();
-        //                dr["Date"] = DateTime.Now;
-        //                dr["Active"] = Data[i]["Active"].ToString();
-        //                dr["Remarks"] = Data[i]["Remarks"].ToString();
-        //                dr["AddedBy"] = identity.Name;
-        //                dr["AddedDate"] = System.DateTime.Now.ToString();
-        //                dr["AddedFromIP"] = identity.IPAddress;
-        //                dr["UpdatedBy"] = identity.Name;
-        //                dr["UpdatedDate"] = System.DateTime.Now.ToString();
-        //                dr["UpdatedFromIP"] = identity.IPAddress;
-        //                dsMaster.Tables[0].Rows.Add(dr);
+                #region data Upload
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 
-        //        }
-        //        #endregion data Upload
+                for (int i = 0; i < Data.Count; i++)
+                {
 
-        //        clsStaticInfo _info = new clsStaticInfo();
-        //        _info.SaveDataSets(dsMaster);
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    dr["Id"] = "PP" + DateTime.Now.Year.ToString() + '-' + _Id;
+                    dr["PerformanceYearName"] = Data[i]["PerformanceYearName"].ToString();
+                    dr["Date"] = DateTime.Now;
+                    dr["Active"] = Data[i]["Active"].ToString();
+                    dr["Remarks"] = Data[i]["Remarks"].ToString();
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(dr);
 
-        //        return Data;
 
-        //    }
-        //    catch (Exception ex)
-        //    {
+                }
+                #endregion data Upload
 
-        //        throw ex;
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
 
-        //    }
-        //}
-        //public void Delete(string SystemId)
-        //{
-        //    try
-        //    {
-        //        string TableName = "dbo.PerformancePeriod";
+                return Data;
 
-        //        if (string.IsNullOrEmpty(SystemId))
-        //            throw new Exception("Select entry first");
-        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-        //        con.BeginTransaction();
-        //        con.executeQuery("delete from " + TableName + " where SystemId='" + SystemId + "'");
-        //        con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
 
-        //    }
-        //    catch (Exception ex)
-        //    {
+                throw ex;
 
-        //        throw ex;
+            }
+        }
+        public void Delete(string Id)
+        {
+            try
+            {
+                string TableName = "dbo.PerformancePeriod";
 
-        //    }
-        //}
-        //private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    DataRow dr = dt.NewRow();
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where Id='" + Id + "'");
+                con.CommitTransaction();
 
-        //    foreach (var item in sourceData.Keys)
-        //    {
-        //        try
-        //        {
-        //            dr[item] = sourceData[item];
-        //        }
-        //        catch (Exception)
-        //        {
-        //        }
-        //    }
-        //    dr["AddedBy"] = identity.Name;
-        //    dr["AddedDate"] = DateTime.Now.ToString();
-        //    dr["AddedFromIP"] = identity.IPAddress;
-        //    dr["UpdatedBy"] = identity.Name;
-        //    dr["UpdatedDate"] = DateTime.Now.ToString();
-        //    dr["UpdatedFromIP"] = identity.IPAddress;
+            }
+            catch (Exception ex)
+            {
 
-        //    dt.Rows.Add(dr);
-        //}
-        //private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    dr.BeginEdit();
+                throw ex;
 
-        //    foreach (var item in sourceData.Keys)
-        //    {
-        //        try
-        //        {
-        //            dr[item] = sourceData[item];
-        //        }
-        //        catch (Exception)
-        //        {
-        //        }
-        //    }
-        //    dr["UpdatedBy"] = identity.Name;
-        //    dr["UpdatedDate"] = DateTime.Now.ToString();
-        //    dr["UpdatedFromIP"] = identity.IPAddress;
-        //    dr.EndEdit();
-        //}
+            }
+        }
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
     }
 
+}
 
 
-   
+
 
 
 

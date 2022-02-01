@@ -153,28 +153,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     ];
     $scope.GRNsearchBy = "GRNNo";
     $scope.GRNsearch = "";
-    $scope.GRNGridList = [];
-    $scope.LoadGRNSearchList = function () {
-        $scope.GRNGridList = [];
-        try {
-            //if ($scope.GRNsearch == '')
-            //    throw "Please insert search value.";
-            $http({
-                method: 'POST',
-                url: $scope.path + "GRNList",
-                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
-                dataType: 'JSON'
-
-            }).then(function successCallback(response) {
-                $scope.GRNGridList = [];
-                $scope.GRNGridList = response.data;
-            });
-        }
-        catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-    $scope.LoadGRNSearchList();
+    
 
     $scope.Get = function (args) {
 
@@ -184,6 +163,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             $rootScope.toggle();
         }
         $scope.LoadMaterialSearchList();
+        angular.element(document.querySelector('#grnListPopUp')).modal('hide');
     };
 
     //#region Display Material by GRN ID
@@ -663,6 +643,32 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     ];
 
+    $scope.GRNGridList = [];
+    $scope.LoadGRNSearchList = function () {
+        $scope.GRNGridList = [];
+        try {
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GRNList",
+                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.GRNGridList = [];
+                $scope.GRNGridList = response.data;
+            });
+            angular.element(document.querySelector('#grnListPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    
+
+   
+
+
     //File Upload
     $scope.FabricRollFile = {
         Id: null,
@@ -678,8 +684,6 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $("#uploadRollData").change(function () {
         $scope.RollData = this.files[0];
     });
-
-
 
 
     $scope.saveRollFile = function () {
@@ -804,9 +808,11 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     };
     //End Import File
 
+    $scope.ModelNew = { FileName: null };
+
     $scope.GetSampleFile = function () {
         var ReportFormat = 'Excel';
-        location.href = 'Materials/FabricRoll/GetSampleFile?reportFormat=' + ReportFormat;
+        location.href = 'Materials/FabricRoll/GetSampleFile?reportFormat=' + ReportFormat + '&rollNo=' + $scope.fabricRollMasterNew.GRNSplitQty;
     };
 
     $scope.picdata = null;
@@ -862,41 +868,62 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     };
 
-    $scope.save = function () {
+
+    //$scope.grnDetailList = [];
+    //$scope.save = function () {
+    //    try {
+    //        $scope.msg = '';
+    //        $scope.ShowSaveBtn = false;
+    //        $.ajax({
+    //            type: "POST",
+    //            url: 'Attendances/EmployeeProfileUpload/SaveProfileData',
+    //            data: { 'epList': $scope.AttdnRawData },
+    //            dataType: "json",
+    //            success: function (response) {
+    //                if (response.Error === true) {
+    //                    ShowResult(response.Message, 'failure');
+    //                }
+    //                else {
+    //                    ShowResult(response.Message, 'success');
+    //                    $scope.msg = "Data Saved Successfully ...";
+    //                    $scope.grnDetailList = [];
+    //                    $("#uploadImage").val(null);
+    //                }
+    //            }
+    //        });
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+
+
+    $scope.Action = "Save";
+    $scope.Save = function () {
         try {
-            $scope.msg = '';
-            $scope.ShowSaveBtn = false;
-            $.ajax({
-                type: "POST",
+            $http({
+                method: "POST",
                 url: 'Attendances/EmployeeProfileUpload/SaveProfileData',
-                data: { 'epList': $scope.AttdnRawData },
-                dataType: "json",
-                success: function (response) {
-
-
-                    if (response.Error === true) {
-
-                        ShowResult(response.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.Message, 'success');
-                        $scope.msg = "Data Saved Successfully ...";
-                        $scope.AttdnRawData = [];
-                        $("#uploadImage").val(null);
-
-                    }
-
+                data: {
+                    "data": $scope.salesVM
+                    , "selectedSalesOrderList": $scope.selectedSalesOrderDataList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
                 }
-
+                else {
+                    ShowResult(response.data.Message, "success");
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
             });
-
+            return true;
         } catch (e) {
-            ShowResult(e, 'failure');
+            ShowResult(e, "failure");
         }
     };
-
-
-
 
 
 
