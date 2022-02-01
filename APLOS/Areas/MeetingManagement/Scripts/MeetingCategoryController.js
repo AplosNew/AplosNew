@@ -106,7 +106,7 @@ function MeetingCategoryController(cboService, commonMessage, $scope, $rootScope
                     ShowResult(response.data.Message, 'failure'); 
                 }
             });
-        }
+        } 
     };
 
     $scope.Clear = function () {
