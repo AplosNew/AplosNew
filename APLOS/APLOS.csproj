@@ -691,7 +691,7 @@
     <Compile Include="Areas\JobWork\Controllers\JWReceiptController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
-    <Compile Include="Areas\MeetingManagement\Controllers\OverHeadTypeController.cs" />
+    <Compile Include="Areas\MeetingManagement\Controllers\MeetingCategoryController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
@@ -2004,6 +2004,7 @@
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
+    <Content Include="Areas\MeetingManagement\Scripts\MeetingCategoryController.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />

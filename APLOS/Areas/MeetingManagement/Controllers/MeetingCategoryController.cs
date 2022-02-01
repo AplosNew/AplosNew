@@ -17,11 +17,11 @@ using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.Commercial.Controllers
+namespace Aplos.Areas.MeetingCategory.Controllers
 {
-    public class OverHeadTypeController : BaseController
+    public class MeetingCategoryController : BaseController
     {
-        string TableName = "hkp.OverHeadType";
+        string TableName = "dbo.MeetingCategory";
         //authentication for
         //GetList Create Delete
 
@@ -29,7 +29,7 @@ namespace Aplos.Areas.Commercial.Controllers
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public OverHeadTypeController(ISqlRepository R)
+        public MeetingCategoryController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -128,7 +128,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from [HKP].[LCOpenChargesTypeGL] where LCOpenChargesTypeId = '"+ id + "'";
+            
                 try
                 {
                     if (string.IsNullOrEmpty(id))
@@ -210,12 +210,7 @@ namespace Aplos.Areas.Commercial.Controllers
             return 1;
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetServiceCharges()
-       {
-            var sql = @"SELECT LT.*, NULL HSNCodeId  from [HKP].OverHeadType LT WHERE LT.Type = '" + ChargesType.Service.ToString() + "'";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
+       
 
     }
 }
