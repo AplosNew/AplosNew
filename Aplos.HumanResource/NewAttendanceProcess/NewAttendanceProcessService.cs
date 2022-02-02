@@ -4082,7 +4082,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime, 
                 Format(ap.ShiftOutTime,'yyyy-MMM-dd HH:mm:ss')ShiftOutTime, 
                 sd.ShiftEarlyInMargin,sd.ShiftEarlyOutMargin,sd.ShiftLateInMargin,
-                sd.ShiftLateOutMargin
+                sd.ShiftLateOutMargin,ap.RowId
                 from Attdnprocessdata  ap
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where ap.ManualFlag=1 and ap.PlantID='" + Plant + @"' and isnull(ap.ProcessInTime,'')!='' 
@@ -4129,7 +4129,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select p.EmpSystemID,Format(p.WorkDate,'yyyy-MMM-dd')WorkDate,p.Duration
-                ,p.ShiftHalfDayDuration,p.ShiftFullDayDuration,p.ProcessInTime,p.ProcessOutTime,
+                ,p.ShiftHalfDayDuration,p.ShiftFullDayDuration,p.ProcessInTime,p.ProcessOutTime,p.RowId,
                 p.ShiftShortDuration from AttdnProcessData p 
                 where ManualFlag=1 
                 and p.PlantID='" + Plant + "' order by WorkDate asc";
@@ -4186,7 +4186,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,
+                var sql = @"select distinct p.EmpSystemID,p.DayStatusCode,dt.DayType,p.RowId,
                         format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
    					                    left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
@@ -4578,9 +4578,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     for (int i = 0; i < ManualDurn.Tables[0].Rows.Count; i++)
                     {
-                        string EmpId = ManualDurn.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                        string WorkDate = ManualDurn.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+                        string RowId = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"RowId"]).ToString();
                         string ProcessInTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ProcessInTime"]).ToString();
                         string ProcessOutTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ProcessOutTime"]).ToString();
                         string ShiftOutTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
@@ -4591,7 +4589,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         double ShiftEarlyOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftEarlyOutMargin"]).ToString());
                         double ShiftLateOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftLateOutMargin"]).ToString());
 
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
 
@@ -4658,7 +4656,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                             dr.EndEdit();
-                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                            CheckerFunction(ref ManualFlagRowId, RowId );
                         }
                     }
                     SaveDataSets(dsRef);
@@ -4691,9 +4689,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     for (int i = 0; i < ManualDurationStat.Tables[0].Rows.Count; i++)
                     {
-                        string WorkDate = ManualDurationStat.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-                        string EmpId = ManualDurationStat.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                        string RowId = ManualDurationStat.Tables[0].Rows[i][@"RowId"].ToString();
                         string ShortDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftShortDuration"]).ToString();
                         string FullDayDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftFullDayDuration"]).ToString();
                         string HalfDayDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftHalfDayDuration"]).ToString();
@@ -4701,7 +4697,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string In = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ProcessInTime"]).ToString();
                         string Out = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ProcessOutTime"]).ToString();
 
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId +"' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
@@ -4755,7 +4751,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                             dr.EndEdit();
-                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                            CheckerFunction(ref ManualFlagRowId, RowId);
                         }
                     }
                     SaveDataSets(dsRef);
@@ -4796,13 +4792,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     for (int i = 0; i < ManualUserDayStat.Tables[0].Rows.Count; i++)
                     {
-                        var WkDate = ManualUserDayStat.Tables[0].Rows[i][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
-                        string EmpId = clsWebLib.RetValidLen(ManualUserDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                        string RowId = clsWebLib.RetValidLen(ManualUserDayStat.Tables[0].Rows[i][@"RowId"]).ToString();
                         string DayStatus = clsWebLib.RetValidLen(ManualUserDayStat.Tables[0].Rows[i][@"DayType"]).ToString();
 
-                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
                             // Updation in AttdnProcessData
@@ -4811,7 +4804,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dr["ProcessDayStatus"] = DayStatus;
                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                             dr.EndEdit();
-                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                            CheckerFunction(ref ManualFlagRowId, RowId);
                         }
                     }
                     SaveDataSets(dsRef);
