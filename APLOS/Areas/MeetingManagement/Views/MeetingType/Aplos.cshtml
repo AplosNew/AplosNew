@@ -25,7 +25,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Sequence" tabindex="1" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100%" required/>
+                <input type="text" name="Sequence" tabindex="1" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100%" required />
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -40,12 +40,20 @@
                 <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
             </div>
         </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Sub Category" ng-model="ModelNew.SubCategory" class="form-control" required autocomplete="off" tabindex="7" maxlength="50">
+            </div>
+        </div>
+
         <div class="form-group">
             <label class="col-sm-4 control-label">Description</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Description"  tabindex="7" maxlength="250"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="9" maxlength="250"></textarea>
             </div>
         </div>
+
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
@@ -60,10 +68,19 @@
                 <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
             </div>
         </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Category" ng-model="ModelNew.Category" class="form-control" required autocomplete="off" tabindex="6" maxlength="50">
+            </div>
+        </div>
+        
+
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="10"></textarea>
             </div>
         </div>
 
@@ -120,6 +137,8 @@
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="Category" e-headertext="Category" e-width="5"></div>
+            <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="5"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
     </div>
