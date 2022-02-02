@@ -5,24 +5,24 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     $scope.Action = 'Save';
     $scope.path = 'Payrolls/TaxPolicyHeader/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
-  
+
     // The Tab Switching Code    
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
-       
+
     };
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
-    };  
-     
-     
+    };
+
+
     $scope.masterList = [];
     $scope.getMaster = function () {
         $http({
             method: 'GET',
             url: $scope.path + 'getMaster',
-        }).then(function succ( resp ){
+        }).then(function succ(resp) {
             $scope.masterList = [];
             $scope.masterList = resp.data;
         });
@@ -34,8 +34,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $http({
             method: 'POST',
             url: $scope.path + 'getChildData',
-            data: {'MasterId': $scope.Master.Id}
-        }).then(function success(resp){
+            data: { 'MasterId': $scope.Master.Id }
+        }).then(function success(resp) {
 
             $scope.Action = "Update";
             if (!$rootScope.isCollapsed) {
@@ -54,24 +54,26 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         else {
             j.style.display = "none";
         }
-    }   
+    }
 
     // #region  Double Click the Main Header Grid
     $scope.getHeaderDetails = function (e) {
         $scope.Header = e.data;
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-        }       
+        }
         $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
         $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
         $scope.TaxYearModel.HeaderId = e.data.Id;
+        $scope.TaxSlabDefine.PolicyId = e.data.Id;
         $scope.GetEarningMasterList();
         $scope.getInvestDeductMaster();
+        $scope.GetSlabInfo();
         updateChild();
         updateTaxDataChild();
         showTabs();
-        
+
     }
 
     // #endregion
@@ -80,10 +82,10 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     $scope.Header = {
         Id: null,
-        ShortName:null,
-        StandardName:null,
+        ShortName: null,
+        StandardName: null,
         UserName: null,
-        Sequence: 0,       
+        Sequence: 0,
         Active: false,
         Male: false,
         Female: false,
@@ -136,7 +138,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                     $scope.getInvestDeductMaster();
                     updateChild();
                     updateTaxDataChild();
-                    showTabs();                   
+                    showTabs();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -146,7 +148,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //Getting the Header Sequence
     $scope.GetSequenceHeader = function () {
-        cboService.getSequence($scope.path +'GetAutoSequenceHeader', function (data) {
+        cboService.getSequence($scope.path + 'GetAutoSequenceHeader', function (data) {
             $scope.Header.Sequence = data;
         });
     };
@@ -160,7 +162,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             ShortName: null,
             StandardName: null,
             UserName: null,
-            Sequence: 0,            
+            Sequence: 0,
             Active: false,
             Male: false,
             Female: false,
@@ -235,7 +237,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
                 $scope.FormulaChildModel.FormulaDescription = $scope.FormulaChildModel.FormulaDes;
                 $scope.FormulaChildModel.FormulaIDDescription = $scope.FormulaChildModel.FormulaDesID;
-                 
+
 
             }
             else if (formula === 'Operator') {
@@ -457,12 +459,10 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
             $scope.getGeneralTaxFormula($scope.TaxExemptionFormula.TaxEarningMasterChildId);
 
-            if (data.ExemptionApplicable == true)
-            {
+            if (data.ExemptionApplicable == true) {
                 angular.element(document.querySelector('#ExemptionPopup')).modal('show');
             }
-            else
-            {
+            else {
                 ShowResult("Exemption Applicable is not checked for this Taxable Income");
             }
         } catch (e) {
@@ -578,7 +578,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     //#endregion
 
     // #region EarningMaster Functions
-        
+
     $scope.EarningMasterModel = {
         Id: null,
         TaxPolicyHeaderId: null,
@@ -610,8 +610,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         else if (baseService.isUndefinedOrNull($scope.EarningMasterModel.ShortName)) {
             ShowResult("ShortName cann't be blank...");
         }
-        else
-        {
+        else {
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveEarningMaster',
@@ -625,13 +624,12 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                     $scope.GetEarningMasterList();
                 }
             })
-            ,function errorCallBack(response)
-             {
-               ShowResult(response.data.Message, 'failure');
-             }
+                , function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
         }
     }
-      
+
     $scope.ClearEarningMaster = function () {
         $scope.EarningMasterModel = {
             Id: null,
@@ -657,14 +655,14 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $http({
             method: 'POST',
             url: $scope.path + "GetEarningMasterList",
-            data: { 'Id': $scope.Header.Id},
+            data: { 'Id': $scope.Header.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EarningList = [];
             $scope.EarningList = response.data;
         });
     }
-      
+
     $scope.getEarnMasterChildDetails = function (e) {
         $scope.EarningMasterModel = e.data; // Model which is used as ng-model will come here
     }
@@ -689,7 +687,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         Id: null,
         HeaderId: null,
         PlantId: null
-    };  
+    };
 
     $scope.PlantList = [];
     $scope.getPlants = function () {
@@ -789,7 +787,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     $scope.InvestDeductModel = {
         TaxTypeId: null,
         SystemId: null,
-        UserCode: null,       
+        UserCode: null,
         TaxPolicyHeaderId: null,
         TaxSavingGroupId: null
     };
@@ -818,7 +816,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.Action = 'Save';
         $scope.InvestDeductModel = {
             TaxTypeId: null,
-            SystemId: null,            
+            SystemId: null,
             TaxPolicyHeaderId: $scope.Header.Id,
             UserCode: null,
             TaxSavingGroupId: null
@@ -840,7 +838,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             IsDeduction: false,
             IsEarning: false,
             DocumentApplicable: false,
-            IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId            
+            IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId
         };
         $scope.GetSequenceItemChild();
     }
@@ -859,7 +857,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         }
         document.getElementById("taxGroupLimit").style.display = 'block';
     }
-       
+
     //Getting the Tax Type
     $scope.TaxTypeList = [];
     $scope.getTaxType = function () {
@@ -877,7 +875,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     $scope.taxSavingGroup = function () {
         $http({
             method: 'GET',
-            url: $scope.path+ 'getTaxSavingGroup',
+            url: $scope.path + 'getTaxSavingGroup',
             dataType: 'JSON'
         }).then(function success(response) {
             $scope.TaxSavingGroupList = response.data;
@@ -890,7 +888,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     $scope.taxSavingItem = function () {
         $http({
             method: 'GET',
-            url: $scope.path +'getTaxSavingItem',
+            url: $scope.path + 'getTaxSavingItem',
             dataType: 'JSON'
         }).then(function success(response) {
             $scope.TaxSavingItemList = response.data;
@@ -922,8 +920,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     }
 
     $scope.SaveDeductionMaster = function () {
-        if (!baseService.isUndefinedOrNull($scope.InvestDeductModel.UserCode))
-        {
+        if (!baseService.isUndefinedOrNull($scope.InvestDeductModel.UserCode)) {
             $http({
                 method: 'POST',
                 url: $scope.path + "Create",
@@ -1061,7 +1058,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             $scope.InvestDeductModelChild.IsDeduction = false;
         }
     };
-   
+
     //#endregion
 
     //#endregion
@@ -1120,7 +1117,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             }
         }
     }
-    
+
     // #region  Double Click the TaxYear Grid
     $scope.getTaxYearDetails = function (e) {
         $scope.TaxYearModel.Id = e.data.Id;
@@ -1132,5 +1129,80 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     // #endregion
 
+    // #region Tax Slab Define Functions
+
+    $scope.TaxSlabDefine = {
+        Id: null,
+        PolicyId: null,
+        Minimum: null,
+        Maximum: null,
+        TaxRate: null,
+    }
+
+    $scope.DataList = [];
+    $scope.GetSlabInfo = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetSlabInfo?PolicyId=" + $scope.Header.Id,
+        }).then(function successCallback(response) {
+            if (response.data.length == 0) {
+                $scope.DataList = [];
+                $scope.DataList.push(Object.assign({}, $scope.TaxSlabDefine));
+            }
+            else {
+                $scope.DataList = response.data;
+            }
+        });
+    }
+
+    //$scope.TaxSlabDefines = Object.assign({}, $scope.TaxSlabDefine);
+    //$scope.DataList.push(Object.assign({}, $scope.TaxSlabDefines));
+
+    //$scope.Remove = function (index) {
+    //    var removed = $scope.DataList.splice(index, 1);
+    //    $scope.Detail = removed;
+    //    if ($scope.DataList.length == 0) {
+    //        $scope.DataList.push(Object.assign({}, $scope.TaxSlabDefine));
+    //    }
+    //}
+
+    //$scope.SubmitH = function (data) {
+
+    //    try {
+    //        if (data.Minimum < 0)
+    //            throw 'Minimum value cannot be negative';
+    //        if (data.Minimum == null) {
+    //            throw 'Enter Minimum Value';
+    //        }
+
+    //        if (data.Maximum < 0)
+    //            throw 'Maximum value cannot be negative';
+
+
+    //        if (data.Minimum >= data.Maximum)
+    //            throw 'Maximum value should be greater than minimum value';
+
+
+
+    //        var newObj = Object.assign({}, $scope.TaxSlabDefine);
+    //        if (data != null) {
+    //            newObj = {
+    //                SystemID: null,
+    //                TaxRate: null,
+    //                Minimum: data.Maximum,
+    //                Maximum: 0,
+    //                TaxPolicyMstID: $scope.TaxPolicyMaster.SystemID,
+    //            }
+    //        }
+
+    //        $scope.DataList.push(newObj);
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+
+    //};
+
+
+    // #endregion
 
 }
