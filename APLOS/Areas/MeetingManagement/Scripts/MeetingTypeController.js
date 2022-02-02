@@ -1,10 +1,10 @@
 ﻿'use strict';
-MeetingCategoryController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function MeetingCategoryController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Meeting Category';
+MeetingTypeController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function MeetingTypeController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Meeting Type';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'MeetingManagement/MeetingCategory/';
+    $scope.path = 'MeetingManagement/MeetingType/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -40,6 +40,8 @@ function MeetingCategoryController(cboService, commonMessage, $scope, $rootScope
         UserName: null,
         Description: null,
         Remarks: null,
+        Category:null,
+        SubCategory: null,
         Active: true,
         Type: null
     };

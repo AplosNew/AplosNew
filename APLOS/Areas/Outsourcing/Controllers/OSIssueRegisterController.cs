@@ -29,48 +29,17 @@ namespace Aplos.Areas.Outsourcing.Controllers
     {
         #region -- Constructor
         //private readonly IPurchaseOrderService _inventoryReveiveService;
-        private readonly IMaterialMasterService _materialMasterService;
-        private readonly IInventoryReceiveService _inventoryReceiveService;
         private readonly IInventoryIssueService _inventoryIssueService;
-
-        private readonly IMaterialMasterAlternativeUOMService _materialMasterAlternativeUOMService;
-        private readonly IMaterialMasterProcessRoutingService _materialMasterProcessRoutingService;
-        private readonly IMaterialMasterUsageService _materialMasterUsageService;
-        private readonly IMaterialMasterAttributeValueService _materialMasterAttributeValueService;
-        private readonly IMaterialAttributeValueService _materialValueService;
-        private readonly IMaterialMasterCharacteristicsValueService _materialMasterCharacteristicsValueService;
-        private readonly IMaterialMasterProcessSetService _materialMasterProcessService;
-        private readonly IMaterialMasterMachineProcessService _assetItemProcessService;
-        //private readonly IInventoryReceiveService _inventoryReceiveService;
+       //private readonly IInventoryReceiveService _inventoryReceiveService;
 
         public OSissueRegisterController(
-              IInventoryReceiveService inventoryReceiveService
-            , IInventoryIssueService inventoryIssueService
-            , IMaterialMasterService materialMasterService
-            , IMaterialMasterAlternativeUOMService materialMasterAlternativeUOMService
-            , IMaterialMasterProcessRoutingService materialMasterProcessRoutingService
-            , IMaterialMasterUsageService materialMasterUsageService
-            , IMaterialMasterAttributeValueService materialMasterAttributeValueService
-            , IMaterialMasterCharacteristicsValueService materialMasterCharacteristicsValueService
-            , IMaterialMasterProcessSetService materialMasterProcessService
-            , IMaterialMasterMachineProcessService assetItemProcessService
-            , IMaterialAttributeValueService materialValueService
-        
+             IInventoryIssueService inventoryIssueService
+            
             )
         {
 
            
-            _inventoryReceiveService = inventoryReceiveService;
-            _materialMasterService = materialMasterService;
-            _materialMasterAlternativeUOMService = materialMasterAlternativeUOMService;
-            _materialMasterProcessRoutingService = materialMasterProcessRoutingService;
-            _materialMasterUsageService = materialMasterUsageService;
-            _materialMasterAttributeValueService = materialMasterAttributeValueService;
-            _materialMasterCharacteristicsValueService = materialMasterCharacteristicsValueService;
-            _materialMasterProcessService = materialMasterProcessService;
-            _assetItemProcessService = assetItemProcessService;
-            _materialValueService = materialValueService;
-            _inventoryIssueService = inventoryIssueService;
+               _inventoryIssueService = inventoryIssueService;
 
 
         }

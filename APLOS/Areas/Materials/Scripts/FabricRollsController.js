@@ -207,7 +207,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
             $http({
                 method: 'POST',
-                url: $scope.path + "MaterialList",
+                url: $scope.path + "GetMaterialListData",
                 data: { 'inventoryReceiveId': $scope.fabricRollMaster.GRNNo },
                 dataType: 'JSON'
 

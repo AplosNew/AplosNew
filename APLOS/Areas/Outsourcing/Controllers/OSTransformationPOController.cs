@@ -42,14 +42,10 @@ namespace Aplos.Areas.Outsourcing.Controllers
         Library.MaterialManagement.JobWork.OSCommon JobWorkCommon = null;
         Library.General.Conversions.UOMConversion conversion = new Library.General.Conversions.UOMConversion();
         #region Constructor
-        private readonly IPurchaseOrderService _inventoryReveiveService;
         private readonly ISqlRepository _sqlRepository;
-        private readonly IRepositoryAsync<POService> _inventoryServiceRepository;
-        public OSTransformationPOController(ISqlRepository R, IPurchaseOrderService inventoryReveiveService, IRepositoryAsync<POService> inventoryServiceRepository)
+        public OSTransformationPOController(ISqlRepository R)
         {
-            _inventoryServiceRepository = inventoryServiceRepository;
             _sqlRepository = R;
-            _inventoryReveiveService = inventoryReveiveService;
         }
 
         #endregion Constructor
@@ -168,7 +164,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId,string JWActivityId,string OrderSpecific,string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate, string JWPOType)
+        public JsonResult detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate, string JWPOType)
         {
 
             try
@@ -176,7 +172,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
-                data = JobWorkCommon.detailcreate(data,  JWPurchaseOrderId, JWActivityId,identity.Name,identity.IPAddress,OrderSpecific,type, taxCategoryList, JWPOToCurrencyRate, JWPOIsNonCreditable, JWPODate, JWPOType);
+                data = JobWorkCommon.detailcreate(data, JWPurchaseOrderId, JWActivityId, identity.Name, identity.IPAddress, OrderSpecific, type, taxCategoryList, JWPOToCurrencyRate, JWPOIsNonCreditable, JWPODate, JWPOType);
                 return Json(new { Data = data, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -208,8 +204,12 @@ namespace Aplos.Areas.Outsourcing.Controllers
         {
             try
             {
-                if (Convert.ToBoolean(_inventoryServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM OSTransformationPOService WHERE OSTransformationPOId='" + data["OSTransformationPOId"] + "' AND ServiceMasterId='" + data["ServiceMasterId"] + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
-                    throw new CustomException("This service already taken."); ;
+                //if (Convert.ToBoolean(_inventoryServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM OSTransformationPOService WHERE OSTransformationPOId='" + data["OSTransformationPOId"] + "' AND ServiceMasterId='" + data["ServiceMasterId"] + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
+                //    throw new CustomException("This service already taken."); ;
+
+                DataTable dt = _sqlRepository.GetDataTable(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM OSTransformationPOService WHERE OSTransformationPOId='" + data["OSTransformationPOId"] + "' AND ServiceMasterId='" + data["ServiceMasterId"] + "') AS A) SELECT 1 AS RET ELSE SELECT 0 AS RET RETURN");
+                if (bplib.clsWebLib.GetBoolData(dt.Rows[0]["RET"].ToString()))
+                    throw new CustomException("This service already taken.");
 
                 JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 data = JobWorkCommon.ServiceChargeCreate(data, TaxList);
@@ -224,7 +224,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
         public ActionResult GetJWTransformationPurchaseOrderServiceList(string jwpoId)
         {
             JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
-           
+
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWTransformationPurchaseOrderServiceList(jwpoId), null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
@@ -260,7 +260,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
 
         }
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult DeleteDetail(string id, string OrderSpecific)
         {
 
@@ -269,7 +269,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
-                
+
                 JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 JobWorkCommon.DeleteDetail(id, OrderSpecific);
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -279,18 +279,18 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-       
 
 
 
-       
+
+
         [Authorize, HttpPost]
         public ActionResult GetJWItemList(string column, string value)
         {
             JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWItemList(column, value), null), JsonRequestBehavior.AllowGet);
         }
-        
+
         [Authorize, HttpGet]
         public JsonResult GetServiceChargeList(string jwpoId)
         {
@@ -367,8 +367,8 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 throw ex;
             }
         }
-        
-       [Authorize, HttpPost]
+
+        [Authorize, HttpPost]
         public JsonResult ConverttedBOQUOMData(Dictionary<string, object> data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

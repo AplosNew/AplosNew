@@ -17,11 +17,11 @@ using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.MeetingCategory.Controllers
+namespace Aplos.Areas.MeetingManagement.Controllers
 {
-    public class MeetingCategoryController : BaseController
+    public class MeetingTypeController : BaseController
     {
-        string TableName = "dbo.MeetingCategory";
+        string TableName = "dbo.MeetingType";
         //authentication for
         //GetList Create Delete
 
@@ -29,7 +29,7 @@ namespace Aplos.Areas.MeetingCategory.Controllers
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public MeetingCategoryController(ISqlRepository R)
+        public MeetingTypeController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -100,7 +100,7 @@ namespace Aplos.Areas.MeetingCategory.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
 
-                    data["Id"] = "LC" + _Id;
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
