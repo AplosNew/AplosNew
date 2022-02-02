@@ -537,8 +537,6 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     }
 
     $scope.Delete = function () {
-
-
         $http({
             method: 'POST',
             url: $scope.deleteUrl + $scope.Id,
