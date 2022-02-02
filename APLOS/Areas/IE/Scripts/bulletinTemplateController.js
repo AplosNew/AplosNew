@@ -782,7 +782,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
                     ob.Symbol = $scope.searchdata[i].AdditionalSAMSymbol;
                     ob.AdditionalSPT = 0;
                     ob.AvgAllotedTime = 0,
-                        ob.VASSAMSOURCE = $scope.searchdata[i].VASSAMSOURCE;
+                    ob.VASSAMSOURCE = $scope.searchdata[i].VASSAMSOURCE;
                     ob.TotalSPT = $scope.searchdata[i].TotalSAM;
                     ob.OperationSPT = $scope.searchdata[i].TotalSAM;
                     ob.AllotedWorkstation = 0;
