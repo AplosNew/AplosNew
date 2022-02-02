@@ -1098,7 +1098,8 @@ namespace Library.Accounting.Accounts
                 //var colParticulars = 6;
                 var colG = 6; //accout group value6
                 var colI = 8; // marge8
-
+                int colDocRef = 0;
+                int colDocDate = 0;
                 int colBaseCurrencyDebit = 0;
                 int colBaseCurrencyCredit = 0;
                 int colTranCurrencyDebit = 0;
@@ -1170,6 +1171,12 @@ namespace Library.Accounting.Accounts
 
                 reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 15); int colVoucherNo = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Posting Date", 14); int colPostingDate = col; col++;
+                if (active==true)
+                {
+                reportUtility.SetHeaderText(ref sheet, row, col, "Doc Ref.", 14);  colDocRef = col; col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Doc Date.", 14); colDocDate = col; col++;
+                }
+
                 reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 30); int colNarration = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Party", 15); int colParty = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
@@ -1245,6 +1252,8 @@ namespace Library.Accounting.Accounts
                             sheet[row , colActivityBalance].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colActivityBalance) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(colLast - 4) + row + "-" + reportUtility.GetColumnNameForXls(colLast - 3) + row + ")";
                             sheet.Range[row , colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
                             row++;
+                            sheet.Range[row, 1, row, colLast].Merge();
+                            row++;
                             reportUtility.SetText(ref sheet, row , colParty, "Opening Balance", true);
                             sheet.Range[row, colVoucherNo, row, colCurrency].Merge();
                             sheet.Range[row, colBalance].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBalance) + (row - 2) + "+" + reportUtility.GetColumnNameForXls(colLast - 4) + row + "-" + reportUtility.GetColumnNameForXls(colLast - 3) + row + ")";
@@ -1253,17 +1262,7 @@ namespace Library.Accounting.Accounts
                             sheet.Range[row , colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
                             row++;
                         }
-                        //if (TempActivityId != ledgerData.Rows[i]["ActivityID"].ToString())
-                        //{
-
-                        //    reportUtility.SetText(ref sheet, row + 2, colParty, "Opening Balance", true);
-                        //    sheet.Range[row + 2, colVoucherNo, row + 2, colCurrency].Merge();
-                        //    sheet.Range[row + 1, colBalance].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBalance) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(colLast - 4) + row + "-" + reportUtility.GetColumnNameForXls(colLast - 3) + row + ")";
-                        //    sheet.Range[row + 1, colBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                        //    sheet[row + 2, colActivityBalance].Number = clsStaticInfo.dbl(ledgerData.Rows[i]["ActivityOpeningBalance"].ToString());
-                        //    sheet.Range[row + 2, colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                        //}
-
+                        
                         int colBudgetName = col;
                         if (string.IsNullOrEmpty(budgetMasterId))
                         {
@@ -1274,8 +1273,12 @@ namespace Library.Accounting.Accounts
                         {
                             reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["ActivityName"].ToString()); col++;
                         }
-
                         reportUtility.SetText(ref sheet, row, colPostingDate, ledgerData.Rows[i]["PostingDate"].ToString()); col++;
+                        if (active == true)
+                        {
+                            reportUtility.SetText(ref sheet, row, colDocRef, ledgerData.Rows[i]["DocRefNo"].ToString()); col++;
+                            reportUtility.SetText(ref sheet, row, colDocDate, ledgerData.Rows[i]["DocDate"].ToString()); col++;
+                        }
                         reportUtility.SetText(ref sheet, row, colVoucherNo, ledgerData.Rows[i]["VoucherNo"].ToString()); col++;
                         reportUtility.SetText(ref sheet, row, colNarration, ledgerData.Rows[i]["Narration"].ToString()); col++;
                         reportUtility.SetText(ref sheet, row, colParty, ledgerData.Rows[i]["Party"].ToString()); col++;
@@ -1293,17 +1296,20 @@ namespace Library.Accounting.Accounts
                         }
 
                         sheet.Range[row, colActivityBalance].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colActivityBalance) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(colLast - 4) + row + "-" + reportUtility.GetColumnNameForXls(colLast - 3) + row + ")";
+
                         sheet.Range[row, colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
                         sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
                         sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                       
                         row++;
                         col = 1;
                         TempActivityId = ledgerData.Rows[i]["ActivityID"].ToString();
                     }
                 }
-
-                formulaEndRow = row - 1;
+                reportUtility.SetText(ref sheet, row, colParty, "Closing Balance", true);
+                sheet.Range[row, colParty, row, colCurrency].Merge();
+                sheet.Range[row, colParty, row, colCurrency].CellStyle.Font.Bold = true;
+                row++;
+                formulaEndRow = row - 2;
                 reportUtility.SetText(ref sheet, row, colParty, "Closing Balance", true);
                 sheet.Range[row, colParty, row, colCurrency].Merge();
                 sheet.Range[row, colParty, row, colCurrency].CellStyle.Font.Bold = true;
@@ -1313,15 +1319,18 @@ namespace Library.Accounting.Accounts
 
                 if (!string.IsNullOrEmpty(companyCurrencyId))
                 {
-                    sheet.Range[row, colLast - 1].Formula = "=" + reportUtility.GetColumnNameForXls(colLast - 1) + (row - 1);
+                    sheet.Range[row, colLast - 1].Formula = "=" + reportUtility.GetColumnNameForXls(colLast - 1) + (row - 2);
                     sheet.Range[row, colLast - 1].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
                     sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
                 }
                 sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
 
-                sheet[row, colActivityBalance].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colActivityBalance) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(colLast - 4) + row + "-" + reportUtility.GetColumnNameForXls(colLast - 3) + row + ")";
+                row--;
+                sheet.Range[row, colActivityBalance].Formula = "=" + reportUtility.GetColumnNameForXls(colActivityBalance) + (row - 1);
+                //sheet[row, colActivityBalance].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colActivityBalance) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(colLast - 4) + row + "-" + reportUtility.GetColumnNameForXls(colLast - 3) + row + ")";
                 sheet.Range[row, colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-
+                sheet.Range[row, colActivityBalance].CellStyle.Font.Bold = true;
+                row++;
                 //General Ledger sum function
                 sheet.Range[row, colTranCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
@@ -1366,9 +1375,9 @@ namespace Library.Accounting.Accounts
                 reportUtility.PageSetup4(ref sheet, 5, ExcelPageOrientation.Portrait);
                 return workbook;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -1761,8 +1770,8 @@ namespace Library.Accounting.Accounts
                 }
                 reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 15); int colVoucherNo = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Posting Date", 14); int colPostingDate = col; col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "DocRef.", 14); int colDocRef = col; col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "DocDate", 14); int colDocDate = col; col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Doc Ref.", 14); int colDocRef = col; col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Doc Date", 14); int colDocDate = col; col++;
 
                 reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 30); int colNarration = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Party", 15); int colParty = col; col++;

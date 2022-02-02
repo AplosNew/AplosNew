@@ -586,7 +586,21 @@ namespace Aplos.Areas.Accounts.Controllers
 
             if (active)
             {
-                var workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate,active);
+
+                IWorkbook workbook = null;
+                if (IsGroupBy == true && activityId == null)
+                {
+                    workbook = _accountVoucherReportService.GetGeneralLedgerGroupByReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active, IsGroupBy);
+                }
+                else if (IsGroupBy == true && activityId != null)
+                {
+                    workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
+                }
+                else
+                {
+                    workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
+                }
+               // var workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate,active);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + " General Ledger";
                 switch (reportFormat)
                 {
@@ -603,15 +617,19 @@ namespace Aplos.Areas.Accounts.Controllers
             else
             {
                 IWorkbook workbook = null;
-                if (IsGroupBy==true)
+                if (IsGroupBy==true && activityId == null)
                 {
                     workbook = _accountVoucherReportService.GetGeneralLedgerGroupByReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active, IsGroupBy);
+                }
+                else if(IsGroupBy == true && activityId != null)
+                {
+                    workbook = _accountVoucherReportService.GetGeneralLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
                 }
                 else
                 {
                     workbook = _accountVoucherReportService.GetGeneralLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
                 }
-          
+
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + " General Ledger";
                 switch (reportFormat)
                 {

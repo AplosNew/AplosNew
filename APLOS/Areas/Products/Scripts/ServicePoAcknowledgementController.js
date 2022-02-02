@@ -559,6 +559,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 					};
 				}
 				else if ($scope.Action === "Update") {
+					$scope.chargesListPOnew = [];
 					for (var i = 0; i < $scope.chargesListPO.length; i++) {
 						if ($scope.chargesListPO[i].check == true) {
 							$scope.chargesListPOnew.push($scope.chargesListPO[i]);
@@ -1537,13 +1538,12 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 				}
 
 				if ($scope.chargesListPO[i].ServiceMasterId === data.ServiceMasterId && $scope.chargesListPO[i].ServicePODetailId === data.ServicePODetailId) {
-					$scope.chargesListPO[i].Amount = $scope.chargesListPO[i].CurrentQty * $scope.chargesListPO[i].Rate;
+					$scope.chargesListPO[i].Amount = Math.round(($scope.chargesListPO[i].CurrentQty * $scope.chargesListPO[i].Rate) * 100 + Number.EPSILON) / 100;
 					if ($scope.ServicePOAndAckTax.length > 0) {
 						for (var i1 = 0; i1 < $scope.ServicePOAndAckTax.length; i1++) {
 							if ($scope.ServicePOAndAckTax[i1].ServicePoDetailId === data.ServicePODetailId) {
 								//$scope.HSNCode = $scope.ServicePOAndAckTax[0].HSNCode;
-								$scope.ServicePOAndAckTax[i1].TaxAmount = ($scope.chargesListPO[i].Amount * $scope.ServicePOAndAckTax[i1].Percentage) / 100;
-
+								$scope.ServicePOAndAckTax[i1].TaxAmount = Math.round(($scope.chargesListPO[i].Amount * ($scope.ServicePOAndAckTax[i1].Percentage/100)) * 100 + Number.EPSILON) / 100;
 							}
 						}
 
@@ -1562,7 +1562,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 				}
 				if ($scope.productNew.IsNonCreditable == 1) {
 					if ($scope.chargesListPO[i].ServicePODetailId === data.ServicePODetailId) {
-						$scope.chargesListPO[i].TotalAmount = $scope.chargesListPO[i].Amount + $scope.chargesListPO[i].TotalTaxAmount;
+						$scope.chargesListPO[i].TotalAmount = Math.round($scope.chargesListPO[i].Amount + $scope.chargesListPO[i].TotalTaxAmount * 100 + Number.EPSILON) / 100;
 					}
 
 				}
@@ -1583,13 +1583,12 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 				}
 
 				if ($scope.chargesListPO[i].ServiceMasterId === data.ServiceMasterId) {
-					$scope.chargesListPO[i].Amount = $scope.chargesListPO[i].CurrentQty * $scope.chargesListPO[i].Rate;
+					$scope.chargesListPO[i].Amount = Math.round(($scope.chargesListPO[i].CurrentQty * $scope.chargesListPO[i].Rate) * 100 + Number.EPSILON) / 100;
 					if ($scope.ServicePOAndAckTax.length > 0) {
 						for (var i1 = 0; i1 < $scope.ServicePOAndAckTax.length; i1++) {
 							if ($scope.ServicePOAndAckTax[i1].ServiceAcknowledgementDetailId === data.ServicePODetailId) {
 								//$scope.HSNCode = $scope.ServicePOAndAckTax[0].HSNCode;
-								$scope.ServicePOAndAckTax[i1].TaxAmount = ($scope.chargesListPO[i].Amount * $scope.ServicePOAndAckTax[i1].Percentage) / 100;
-
+								$scope.ServicePOAndAckTax[i1].TaxAmount = Math.round(($scope.chargesListPO[i].Amount * ($scope.ServicePOAndAckTax[i1].Percentage / 100)) * 100 + Number.EPSILON) / 100;
 							}
 						}
 
@@ -1602,7 +1601,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 				}
 				if ($scope.productNew.IsNonCreditable == 1) {
 					if ($scope.chargesListPO[i].ServicePODetailId === data.ServicePODetailId) {
-						$scope.chargesListPO[i].TotalAmount = $scope.chargesListPO[i].Amount + $scope.chargesListPO[i].TotalTaxAmount;
+						$scope.chargesListPO[i].TotalAmount = Math.round(($scope.chargesListPO[i].Amount + $scope.chargesListPO[i].TotalTaxAmount) * 100 + Number.EPSILON) / 100;
 					}
 
 				}
@@ -1610,14 +1609,9 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 					if ($scope.chargesListPO[i].ServicePODetailId === data.ServicePODetailId) {
 						$scope.chargesListPO[i].TotalAmount = $scope.chargesListPO[i].Amount;
 					}
-
 				}
 			}
-
-
 		}
-
-
 	}
 	$scope.serviceChargePopUp = function () {
 		$scope.taxCategoryList = null;
