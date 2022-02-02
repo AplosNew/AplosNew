@@ -40,6 +40,8 @@ function MeetingTypeController(cboService, commonMessage, $scope, $rootScope, ba
         UserName: null,
         Description: null,
         Remarks: null,
+        Category:null,
+        SubCategory: null,
         Active: true,
         Type: null
     };
