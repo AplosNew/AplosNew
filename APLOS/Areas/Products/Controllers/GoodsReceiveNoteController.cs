@@ -1327,7 +1327,7 @@ namespace Aplos.Areas.Products.Controllers
         }
         [HttpPost, Authorize]
         //public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
-        public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, string entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew)
+        public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, string entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew, string OrderSpecific)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             Issentity.CheckedBy = CheckedBy;

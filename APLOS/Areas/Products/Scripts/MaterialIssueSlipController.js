@@ -1174,6 +1174,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                                 , 'SOListSelectedNew': JSON.stringify($scope.SOListSelectedNew)
                                 , 'MaterialColorListNew': JSON.stringify($scope.MaterialColorListNew)
                                 , 'ProcessId': $scope.productNew.ProcessId
+                                , 'OrderSpecific': $scope.productNew.OrderSpecific
                             },
                             dataType: 'JSON'
                         }).then(function successCallback(response) {
@@ -1184,7 +1185,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                                 $scope.Status = 'InventorySlip';
                                 $scope.Griddata();
                                 $scope.IssueSlipDetail();
-                                $scope.GriddataAssetIssueSlip();
+                                //$scope.GriddataAssetIssueSlip();
                                 getInventoryMaterialList($scope.productNew.Id);
                                 //$scope.Clear();
 
