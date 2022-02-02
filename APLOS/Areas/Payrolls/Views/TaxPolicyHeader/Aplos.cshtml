@@ -114,8 +114,9 @@
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="EarningMasterChild" role="tab" data-toggle="tab">Earning Master</a></li>
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="InvestmentDeductionMaster" role="tab" data-toggle="tab">Investment <strong>/</strong> Deduction Master</a></li>
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="TaxYearTagging" role="tab" data-toggle="tab">Tax Year Tagging</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Tagging</a></li>
-                 </ul>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="TaxSlab" role="tab" data-toggle="tab">Tax Slab</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Tagging</a></li>
+                </ul>
             </div>
             <div class="tab-content">
 
@@ -247,7 +248,7 @@
                                                 <input type="text" onkeypress="return isNumber(event)" ng-model="EarningMasterModel.TaxableAmountFix" class="form-control" maxlength="100">
                                             </div>
                                         </div>
-                                       
+
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Is User Defined</label>
                                             <div class="col-sm-8">
@@ -428,7 +429,7 @@
                                     <div class="col-sm-8">
                                         <input type="text" ng-model="TaxYearModel.HeaderId" class="form-control" maxlength="100" readonly>
                                     </div>
-                                </div>                             
+                                </div>
 
                             </div>
 
@@ -452,7 +453,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-xs-12 col-sm-12 col-sm-12">
                                 <div style="color:black;" id="TaxYearGrid" ej-grid e-datasource="TaxDataList"
@@ -467,84 +468,88 @@
                                         <div e-column e-field="StartDate" e-headertext="Start Date" e-width="120"></div>
                                         <div e-column e-field="EndDate" e-headertext="End Date" e-width="120"></div>
                                     </div>
-                                </div>                                
+                                </div>
                             </div>
                         </div>
 
                     </div>
                 </div>
-
+               
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                    <div class="row" ng-form name="ChildForm" id="Allowed">
-                        <div class="row" style="padding:10px;">
-                            <div class="col-xs-6 col-lg-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Header Id</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" ng-model="Child.HeaderId" class="form-control" maxlength="100" readonly>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Company<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Entity"
-                                                    ng-options="item.Value as item.Text for item in CompanyList" required>
-                                                <option value="">--Select--</option>
-                                            </select>
+                
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                        <div class="row" ng-form name="ChildForm" id="Allowed">
+                            <div class="row" style="padding:10px;">
+                                <div class="col-xs-6 col-lg-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Header Id</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" ng-model="Child.HeaderId" class="form-control" maxlength="100" readonly>
                                         </div>
                                     </div>
-                                </div>
-
-                            </div>
-
-                            <div class="col-lg-6 col-xs-6">
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="Child.PlantId" name="Plant"
-                                                    ng-options="item.Value as item.Text for item in PlantList" required>
-                                                <option value="">--Select--</option>
-                                            </select>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <div class="select-style">
+                                                <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Entity"
+                                                        ng-options="item.Value as item.Text for item in CompanyList" required>
+                                                    <option value="">--Select--</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
+
                                 </div>
 
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li> <button ng-click="saveChild();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add </button></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-sm-12">
-                                <div style="color:black;" id="ChildGrid" ej-grid e-datasource="childDataList"
-                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
-                                     e-allowselection="true" e-filtersettings-filterType="excel"
-                                     e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
-                                    <div e-columns>
-
-                                        <div e-column e-field="HeaderId" e-headertext="Header Id" e-width="70"></div>
-                                        <div e-column e-field="PlantId" e-headertext="Plant Id" e-width="120"></div>
-                                        <div e-column e-template="#DeleteFile" e-headertext="" e-width="30"></div>
-
+                                <div class="col-lg-6 col-xs-6">
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <div class="select-style">
+                                                <select class="form-control" ng-model="Child.PlantId" name="Plant"
+                                                        ng-options="item.Value as item.Text for item in PlantList" required>
+                                                    <option value="">--Select--</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <script type="text/template" id="DeleteFile">
+
                                     <div class="common-btn">
-                                        <ul class="list-inline text-left">
-                                            <li><button ng-click="$parent.confirmModal(data)" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="saveChild();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add </button></li>
                                         </ul>
                                     </div>
-                                </script>
+                                </div>
                             </div>
-                        </div>
 
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-sm-12">
+                                    <div style="color:black;" id="ChildGrid" ej-grid e-datasource="childDataList"
+                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
+                                         e-allowselection="true" e-filtersettings-filterType="excel"
+                                         e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                                        <div e-columns>
+
+                                            <div e-column e-field="HeaderId" e-headertext="Header Id" e-width="70"></div>
+                                            <div e-column e-field="PlantId" e-headertext="Plant Id" e-width="120"></div>
+                                            <div e-column e-template="#DeleteFile" e-headertext="" e-width="30"></div>
+
+                                        </div>
+                                    </div>
+                                    <script type="text/template" id="DeleteFile">
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-left">
+                                                <li><button ng-click="$parent.confirmModal(data)" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                            </ul>
+                                        </div>
+                                    </script>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
-                </div>
 
             </div>
         </div>

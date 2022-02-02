@@ -794,6 +794,24 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
+        #region Tax Slab Functions
+        public IEnumerable<object> GetSlabInfo(string PolicyId)
+        {
+            try
+            {                
+                string strSQL = @"select si.* from TaxPolicySlabInfo si 
+                left join TaxPolicyHeader th on th.Id=si.PolicyId
+                where th.Id='"+PolicyId+"'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+   
+        #endregion
+
     }
     public class TaxExemptionFormula
     {
@@ -1161,6 +1179,7 @@ namespace Library.HumanResource.Payroll.Tax
                  
                     foreach (var item in data)
                     {
+                        decimal GrossEarnedValue = item.StructureValue + item.ArrearValue + item.OpeningValue + item.ActualValue;
 
                         dsChild.Tables[0].DefaultView.RowFilter = @"EarningMasterId='" + item.EarningMasterId + "' ";
                         if (dsChild.Tables[0].DefaultView.Count == 0)
@@ -1169,7 +1188,6 @@ namespace Library.HumanResource.Payroll.Tax
                             clsGenID genid = new clsGenID();
                             genid.GenID("EmployeeEarningData", out string _pk);
 
-                            decimal Applicable = item.StructureValue + item.ArrearValue + item.OpeningValue + item.ActualValue;
                             drF["Id"] = "EE" + _pk;
                             drF["EmployeeIncomeTaxId"] = MasterId;
                             drF["EarningMasterId"] = item.EarningMasterId;
@@ -1177,7 +1195,7 @@ namespace Library.HumanResource.Payroll.Tax
                             drF["OpeningValue"] = item.OpeningValue;
                             drF["ArrearValue"] = item.ArrearValue;
                             drF["StructureValue"] = item.StructureValue;
-                            drF["ApplicableValue"] = Applicable;
+                            drF["GrossEarning"] = GrossEarnedValue;
                             drF["AddedBy"] = identity.Name;
                             drF["AddedFromIp"] = identity.IPAddress;
                             drF["AddedDate"] = DateTime.Now.ToString();
@@ -1185,8 +1203,7 @@ namespace Library.HumanResource.Payroll.Tax
                         }
                         else
                         {
-                            decimal Applicable = item.StructureValue + item.ArrearValue + item.OpeningValue + item.ActualValue;
-
+                           
                             DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
 
@@ -1194,7 +1211,7 @@ namespace Library.HumanResource.Payroll.Tax
                             dr["OpeningValue"] = item.OpeningValue;
                             dr["ArrearValue"] = item.ArrearValue;
                             dr["StructureValue"] = item.StructureValue;
-                            dr["ApplicableValue"] = Applicable;
+                            dr["GrossEarning"] = GrossEarnedValue;
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = DateTime.Now.ToString();
                             dr["UpdatedFromIp"] = identity.IPAddress;

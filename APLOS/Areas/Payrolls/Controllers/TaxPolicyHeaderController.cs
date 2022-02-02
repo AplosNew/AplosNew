@@ -1,9 +1,13 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using bplib;
+using Library.Crosscutting.Security;
 using Library.HumanResource.Payroll.Tax;
+using Library.Security.Core;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Web.Mvc;
 
 namespace Aplos.Areas.Payrolls.Controllers
@@ -429,6 +433,66 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
+        #region Tax Slab Define
+       
+        [HttpPost,Authorize]
+        public JsonResult SaveSlabInfo(List<Dictionary<string, object>> IncomeSlab, string PolicyId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                string sql = "SELECT * FROM [dbo].[TaxPolicySlabInfo] WHERE PolicyId='" + PolicyId + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
+
+                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                {
+                    dsMaster.Tables[0].DefaultView[0].Delete();
+                }
+
+                    for (int i = 0; i < IncomeSlab.Count; i++)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("TaxPolicySlabInfo", out string _Id);
+
+                        dr["Id"] = "TSI" + _Id;
+                        dr["PolicyId"] = PolicyId;
+                        dr["Minimum"] = clsStaticInfo.dbl(IncomeSlab[i]["Minimum"].ToString());
+                        dr["Maximum"] = clsStaticInfo.dbl(IncomeSlab[i]["Maximum"].ToString());
+                        dr["TaxRate"] = clsStaticInfo.dbl(IncomeSlab[i]["TaxRate"].ToString());
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                    return Json(new { Error = false, Data = IncomeSlab, Message = AplosMessage.Updated });
+                
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSlabInfo(string PolicyId)
+        {
+            try
+            {
+                return Json(ds.GetSlabInfo(PolicyId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        
+        #endregion
 
     }
 }
