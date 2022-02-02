@@ -850,7 +850,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
-
         private void SaveFabricRollManageData(Dictionary<string, object> data, List<Dictionary<string, object>> grnDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
