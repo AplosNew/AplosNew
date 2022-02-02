@@ -885,7 +885,7 @@ namespace Library.MaterialManagement.Inventory
                                     //Mapping Data=========================================================
                                     if (entitiesAll.IsNotNull())
                                     {
-                                        foreach (var itemall in entitiesAll)
+                                        foreach (var itemall in entitiesAll.Where(q => q.MaterialMasterId == item.MaterialMasterId && q.ArticleId == item.ArticleId && q.FirstCharacteristicsValueId == item.FirstCharacteristicsValueId && q.SecondCharacteristicsId == item.SecondCharacteristicsValueId))
                                         {
                                             var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
 															from [TRN].[IssueRequestBOQMap] IRBM
@@ -903,7 +903,7 @@ namespace Library.MaterialManagement.Inventory
                                                         Id = GetIssueDetailAndIssueRequestMapPK(),
                                                         InventoryIssueDetailId = issueDetail.Id,
                                                         IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                                        Qty = receiveDetailListNew.IssueRequestBOQMapQty,
+                                                        Qty = itemall.TransactionQty,
                                                         //AutoAllocate = true
 
                                                     };

@@ -309,6 +309,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 'EmpId': $scope.EmployeeIncomeTaxModel.EmpSystemId,
                 'From': $scope.EmployeeIncomeTaxModel.StartDate,
                 'To': $scope.EmployeeIncomeTaxModel.EndDate,
+                'YearId': $scope.EmployeeIncomeTaxModel.TaxYearId
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -401,6 +402,40 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     //#endregion
       
     // #region Earning Tab Functions
+
+    $scope.SaveEarningData = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.EmpSystemId)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "SaveEarningData",
+                data: {
+                    'Masterdata': $scope.EmployeeIncomeTaxModel,
+                    'ChildData': $scope.EarningGridValue
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getEarningGridList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        else {
+            ShowResult("Please Choose Employee First ...", 'failure');
+        }
+    };
+
+    $scope.ClearEarningData = function () {
+        for (var i = 0; i < $scope.EarningGridValue.length; i++) {
+            $scope.EarningGridValue[i].OpeningValue = 0;
+        }
+    }
 
     // #endregion
 

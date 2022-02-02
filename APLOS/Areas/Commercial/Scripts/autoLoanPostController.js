@@ -333,7 +333,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "Commercial/AutoLoan/AutoLoanPost",
+                    url: "Commercial/AutoLoan/PostAutoLoan",
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.AutoLoanPostableDetailDataList,

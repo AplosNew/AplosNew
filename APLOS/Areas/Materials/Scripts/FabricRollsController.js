@@ -57,8 +57,8 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
         angular.element(document.querySelector('#fabricRollPopUp')).modal('show');
     };
-  
-    
+
+
 
     $scope.splitGrnRow = function () {
         debugger;
@@ -153,28 +153,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     ];
     $scope.GRNsearchBy = "GRNNo";
     $scope.GRNsearch = "";
-    $scope.GRNGridList = [];
-    $scope.LoadGRNSearchList = function () {
-        $scope.GRNGridList = [];
-        try {
-            //if ($scope.GRNsearch == '')
-            //    throw "Please insert search value.";
-            $http({
-                method: 'POST',
-                url: $scope.path + "GRNList",
-                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
-                dataType: 'JSON'
-
-            }).then(function successCallback(response) {
-                $scope.GRNGridList = [];
-                $scope.GRNGridList = response.data;
-            });
-        }
-        catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-    $scope.LoadGRNSearchList();
+    
 
     $scope.Get = function (args) {
 
@@ -184,6 +163,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             $rootScope.toggle();
         }
         $scope.LoadMaterialSearchList();
+        angular.element(document.querySelector('#grnListPopUp')).modal('hide');
     };
 
     //#region Display Material by GRN ID
@@ -227,7 +207,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
             $http({
                 method: 'POST',
-                url: $scope.path + "MaterialList",
+                url: $scope.path + "GetMaterialListData",
                 data: { 'inventoryReceiveId': $scope.fabricRollMaster.GRNNo },
                 dataType: 'JSON'
 
@@ -267,7 +247,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     }
 
     $scope.DownloadRollReport = function (data) {
-       /* $scope.GetRollDataList = [];*/
+        /* $scope.GetRollDataList = [];*/
         try {
             $scope.selectedGRNRow = data;
             $scope.Index = 0;
@@ -279,7 +259,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
             }).then(function successCallback(response) {
 
-              
+
             });
         }
         catch (e) {
@@ -288,7 +268,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     }
     //$scope.IRDId = $scope.selectedGRNRow.Id;
     $scope.RR = function (data) {
-      
+
         try {
 
             var file_src = $scope.path + 'DownloadRollReport?inventoryReceiveDetailId=' + data.Id
@@ -325,7 +305,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
-               
+
                 $scope.GetFabricRollList = [];
                 $scope.GetFabricRollList = response.data;
                 angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
@@ -360,7 +340,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             ShowResult(response.data.Message, 'failure');
         };
     }
-    $scope.Close = function () {       
+    $scope.Close = function () {
         angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('hide');
 
     }
@@ -388,13 +368,12 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             ShowResult(response.data.Message, 'failure');
         };
     }
-    $scope.SaveAndClose = function () {        
+    $scope.SaveAndClose = function () {
         updateSingleDataAndClose();
 
     }
-    $scope.Next = function ()
-    {
-        if ($scope.Index == $scope.GetFabricRollList.length-1) {
+    $scope.Next = function () {
+        if ($scope.Index == $scope.GetFabricRollList.length - 1) {
             ShowResult("This is the last position", 'failure');
             return;
         }
@@ -493,7 +472,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             $http({
                 method: 'POST',
                 url: 'Materials/FabricRoll/Update',
-                data: { 'FabricRollData': $scope.GetFabricRollList, 'PackingForm': $scope.PackingformSearchBy},
+                data: { 'FabricRollData': $scope.GetFabricRollList, 'PackingForm': $scope.PackingformSearchBy },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -524,26 +503,26 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     }
 
     $scope.Delete = function () {
-       
 
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    //Clear(response.data.Sequence);
-                    $scope.LoadFabricRollList();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-       
+
+        $http({
+            method: 'POST',
+            url: $scope.deleteUrl + $scope.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //Clear(response.data.Sequence);
+                $scope.LoadFabricRollList();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+
     };
     //$scope.removeFromDb = function (id, index) {
     //    try {
@@ -664,6 +643,32 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     ];
 
+    $scope.GRNGridList = [];
+    $scope.LoadGRNSearchList = function () {
+        $scope.GRNGridList = [];
+        try {
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GRNList",
+                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.GRNGridList = [];
+                $scope.GRNGridList = response.data;
+            });
+            angular.element(document.querySelector('#grnListPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    
+
+   
+
+
     //File Upload
     $scope.FabricRollFile = {
         Id: null,
@@ -675,12 +680,10 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
 
     $rootScope.title = 'Fabric Roll File Upload';
- 
+
     $("#uploadRollData").change(function () {
         $scope.RollData = this.files[0];
     });
-
-
 
 
     $scope.saveRollFile = function () {
@@ -739,7 +742,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.getMaster();
     //EndFile Upload
 
-      //Import File
+    //Import File
 
 
     function GetShortList(list) {
@@ -762,7 +765,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             $scope.msg = "";
             //$scope.btnProcess = true;
             $scope.$broadcast('show-errors-check-validity');
-            
+
             if ($scope.buyerNewForm.$valid) {
                 var RollData = new FormData();
                 if (!baseService.isUndefinedOrNull($scope.RollData)) {
@@ -803,11 +806,127 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             ShowResult(e, "failure");
         }
     };
-      //End Import File
+    //End Import File
+
+    $scope.ModelNew = { FileName: null };
 
     $scope.GetSampleFile = function () {
         var ReportFormat = 'Excel';
-        location.href = 'Materials/FabricRoll/GetSampleFile?reportFormat=' + ReportFormat;
+        location.href = 'Materials/FabricRoll/GetSampleFile?reportFormat=' + ReportFormat + '&rollNo=' + $scope.fabricRollMasterNew.GRNSplitQty;
     };
+
+    $scope.picdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage").change(function () {
+        $scope.picdata = this.files[0];
+    });
+
+    $scope.ImportData = function () {
+        try {
+            $scope.msg = "";
+
+            var picData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.picdata)) {
+                $scope.ModelNew.FileName = $scope.picdata.name;
+            }
+
+
+            $http({
+                method: 'POST',
+                url: 'Materials/FabricRoll/ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    picData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                        picData.append('file', data.file);
+                    }
+                    return picData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.picdata }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+
+                }
+                else {
+                    $scope.AttdnRawData = [];
+                    //console.log('33', response.data);
+                    var x = GetShortList(response.data);
+                    //console.log('x', x);
+                    $scope.AttdnRawData = x;
+                    $scope.ShowSaveBtn = true;
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    //$scope.grnDetailList = [];
+    //$scope.save = function () {
+    //    try {
+    //        $scope.msg = '';
+    //        $scope.ShowSaveBtn = false;
+    //        $.ajax({
+    //            type: "POST",
+    //            url: 'Attendances/EmployeeProfileUpload/SaveProfileData',
+    //            data: { 'epList': $scope.AttdnRawData },
+    //            dataType: "json",
+    //            success: function (response) {
+    //                if (response.Error === true) {
+    //                    ShowResult(response.Message, 'failure');
+    //                }
+    //                else {
+    //                    ShowResult(response.Message, 'success');
+    //                    $scope.msg = "Data Saved Successfully ...";
+    //                    $scope.grnDetailList = [];
+    //                    $("#uploadImage").val(null);
+    //                }
+    //            }
+    //        });
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+
+
+    $scope.Action = "Save";
+    $scope.Save = function () {
+        try {
+            $http({
+                method: "POST",
+                url: 'Attendances/EmployeeProfileUpload/SaveProfileData',
+                data: {
+                    "data": $scope.salesVM
+                    , "selectedSalesOrderList": $scope.selectedSalesOrderDataList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+
+
 
 }

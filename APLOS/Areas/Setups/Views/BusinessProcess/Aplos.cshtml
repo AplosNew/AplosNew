@@ -226,27 +226,34 @@
                                         <div class="common-btn">
                                             <ul class="list-inline text-right">
                                                 <li> <button ng-click="SaveBPTableColumn();" class="btn"><i class="glyphicon glyphicon-plus"></i></button></li>
-                                                <li> <button ng-click="DeleteBPTableColumn();" class="btn"><i class="glyphicon glyphicon-minus"></i></button></li>
+                                                @*<li> <button ng-click="DeleteBPTableColumn();" class="btn"><i class="glyphicon glyphicon-minus"></i></button></li>*@
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
-                                @*<div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="common-btn">
-                                        <ul class="list-inline text-right">
-                                            <li> <button ng-click="SaveBPTableColumn();" class="btn"><i class="glyphicon glyphicon-plus"></i></button></li>
-                                            <li> <button ng-click="DeleteBPTableColumn();" class="btn"><i class="glyphicon glyphicon-minus"></i></button></li>
-                                        </ul>
-                                    </div>
-                                </div>*@
                                 <div class="col-xs-12">
                                     <div class="table-responsive modal-table">
                                         <table class="table table-striped">
                                             <thead>
-                                                <tr ng-repeat="x in tablecolList">
-                                                    <th>{{x}}</th>
+                                                <tr>
+                                                    <th>Column Name</th>
+                                                    <th>Data Type</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
+                                            <tbody>
+                                                <tr ng-repeat="x in tablecolList">
+                                                    <td>{{x.ColumnName}}</td>
+                                                    <td>{{x.DataType}}</td>
+                                                    <td class="text-right table-td">
+                                                        <ul class="list-inline action-list">
+                                                            <li>
+                                                                <button ng-click="DeleteBPTableColumn(x.ColumnName)" class="btn btn-action tooltip-here" data-placement="top"><i class="glyphicon glyphicon-trash"></i></button>
+                                                            </li>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
 
                                         </table>
                                     </div>

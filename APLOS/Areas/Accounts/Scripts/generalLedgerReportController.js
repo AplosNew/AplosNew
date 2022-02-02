@@ -10,7 +10,8 @@ function generalLedgerReportController($scope, $rootScope, $filter, accountServi
         ReportFormat: "Pdf",
         FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now()),
-        Active:true
+        Active: true,
+        IsGroupBy:false
     };
     $(".searchableDDL").select2();
 
@@ -54,7 +55,7 @@ function generalLedgerReportController($scope, $rootScope, $filter, accountServi
         }
         else {
             var url = "";
-                url = "Accounts/Voucher/GetGeneralLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&glId=" + $scope.report.GLGeneralInfoId + '&active=' + $scope.report.Active;
+            url = "Accounts/Voucher/GetGeneralLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&glId=" + $scope.report.GLGeneralInfoId + '&active=' + $scope.report.Active + '&IsGroupBy=' + $scope.report.IsGroupBy;
             //if ($scope.report.Active) {
 
             //}

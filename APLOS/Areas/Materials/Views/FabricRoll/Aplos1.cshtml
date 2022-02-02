@@ -5,10 +5,17 @@
             <div class="form-elements form-horizontal">
 
                 <div class="col-xs-12 col-sm-4 col-md-4">
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">GRN No :</span></label>
-                        <label class="col-sm-8 control-label">{{fabricRollMaster.GRNNo}}</label>
+                        <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                            <input type="text" ng-model="fabricRollMaster.GRNNo" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="LoadGRNSearchList()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
                     </div>
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PO No  :</span></label>
                         <label class="col-sm-8 control-label">{{fabricRollMaster.POId}}</label>
@@ -22,6 +29,18 @@
                         <label class="col-sm-10 control-label">{{fabricRollMaster.PartyName}}</label>
 
                         @*<label class="col-sm-2 control-label">&nbsp;</label>*@
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">No Of Rolls<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" only-numbers ng-model="fabricRollMasterNew.GRNSplitQty" class="form-control">
+                                @*<span class="input-group-btn">
+                                        <button name="submit" ng-click="saveRoll()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i></button>
+                                        <button name="submit" ng-click="clearSplitRow()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                    </span>*@
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
@@ -58,9 +77,6 @@
                     </div>
                 </div>
 
-
-
-
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
@@ -68,7 +84,7 @@
                 </div>
 
             </div>
-            <div class="col-xs-12">
+            <div class="col-xs-12" ng-show="MaterialGridList.length>0">
                 <div style="color:black;" id="drgtg" ej-grid e-datasource="MaterialGridList"
                      e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                      e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
@@ -82,51 +98,82 @@
                         <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="120"></div>
                         <div e-column e-type="number" e-field="SplitCount" e-textalign="right" e-format="{0:N2}" e-headertext="Split Count" e-width="80"></div>
                         <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="Total Distribute Qty" e-width="100"></div>
-                        <div e-column e-headertext=" Distribute " e-template="#distributeBTN" e-width="190"></div>
-
+                        <div e-column e-headertext=" RollNo " e-template="#rollsNo" e-width="80"></div>
                     </div>
-                    <script id="distributeBTN" type="text/template">
-                        <div class="common-btn">
-                            <ul class="common-btn list-inline text-center">
+                </div>
+                <script type="text/template" id="rollsNo">
+                    <input type="text" ng-model="data.RollNo" style="color:black;" class="form-control" />
+                </script>
 
-                                <li>
-                                    <button ng-click="$parent.showFabricPop(data);" class="btn small tooltip-here " ng-disabled="data.SplitCount>0" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
-                                        <i class="glyphicon glyphicon-list" style="color:white;"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button ng-click="$parent.showFabricPop(data);" class="btn small tooltip-here" ng-disabled="data.SplitCount<1" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
-                                        <i class="glyphicon glyphicon-edit" style="color: white;"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button ng-click="$parent.getpdff(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
-                                        <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button ng-click="$parent.EditSingleFabricRoll(data);" class="btn small tooltip-here" ng-disabled="data.SplitCount<1" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Single Roll Edit">
-                                        <i class="glyphicon glyphicon-pencil" style="color:greenyellow;"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button ng-click="$parent.RR(data);" class="btn small tooltip-here" @*ng-disabled="data.SplitCount<1"*@ style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Single Roll Edit">
-                                        <i class="glyphicon glyphicon-download-alt"></i>
-                                    </button>
-                                </li>
+                <div class="col-md-10">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+
+
+                <div class="row">
+                    <div class="col-sm-12" ng-show="grnDetailList.length>0">
+                        <div id="GridWorkCenterProduct"
+                             ng-init="chkinit()"
+                             ej-grid e-datasource="grnDetailList"
+                             e-allowfiltering="true"
+                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-pagesettings-pagesize="25"
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="30" e-primarykey="true"></div>
+                                <div e-column e-field="GRNRowId" e-headertext="GRNRowId" e-width="80"></div>
+                                <div e-column e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
+                                <div e-column e-field="Shade" e-headertext="Shade" e-width="80"></div>
+
+                                <div e-column e-field="MarkarCode" e-headertext="Markar Code" e-width="80"></div>
+                                <div e-column e-field="FabricGroup" e-headertext="Fabric Group" e-width="80"></div>
+                                <div e-column e-field="MaritalStatus" e-headertext="MaritalStatus" e-width="80"></div>
+
+                                <div e-column e-field="Length" e-headertext="Length" e-width="80"></div>
+                                <div e-column e-field="Weight" e-headertext="Weight" e-width="80"></div>
+                                <div e-column e-field="Shrinkage" e-headertext="Shrinkage" e-width="80"></div>
+
+                                <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                                <div e-column e-field="QtyUoM" e-headertext="Qty UoM" e-width="80"></div>
+                                <div e-column e-field="ActualQty" e-headertext="Actual Qty" e-width="80"></div>
+
+                                <div e-column e-field="InvoiceQty" e-headertext="Invoice Qty" e-width="80"></div>
+                                <div e-column e-field="SupplierRollNo" e-headertext="SupplierRollNo" e-width="80"></div>
+                                <div e-column e-field="OwnRollNo" e-headertext="OwnRollNo" e-width="80"></div>
+
+                                <div e-column e-field="BuyerRollNo" e-headertext="BuyerRollNo" e-width="80"></div>
+                                <div e-column e-field="Grouping" e-headertext="Grouping" e-width="80"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="save();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+
+                            </ul>
+                            <ul class="list-inline text-left bold" style="color:green;font-size:larger;font-weight:bolder;">
+                                <li>    <i>{{msg}}</i> </li>
                             </ul>
                         </div>
-                    </script>
+                    </div>
                 </div>
-                <div class="inputRollBtnSection common-btn">
-                    <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0">
-                        <input id="uploadRollData" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
-                    </label>
-                    <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="saveRollFile();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
-                    </ul>
-                </div>
+
+
             </div>
         </div>
     </div>
@@ -160,36 +207,53 @@
     </div>
     @*<label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated.</span></label>*@
     @*<label class="control-label" style="color: blue; padding-left: 17px; font-size: 12px; margin-top: -6px;">Only<span style="text-transform: lowercase;">pending distribution is listed below. </span></label>*@
-    <b>**Fabric roll management should be activated.</b>
-    <i>**Only pending distribution is listed below.</i>
-    <div class="table-responsive aplos-grid-toggle">
-        <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList" e-recorddoubleclick="Get"
-             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
-             e-allowselection="false">
-            <div e-columns>
-                <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="100"></div>
-                <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="120"></div>
-                <div e-column e-type="string" e-field="GRNType" e-headertext="GRN Type" e-width="100"></div>
-                <div e-column e-type="string" e-field="GRNStatus" e-headertext="GRN Status" e-width="100"></div>
 
-                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="120"></div>
-                <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Qty" e-width="80"></div>
-                <div e-column e-type="number" e-field="TransactionAmount" e-textalign="right" e-format="{0:N2}" e-headertext="Amount" e-width="100"></div>
-                <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
-                <div e-column e-type="string" e-field="POId" e-headertext="PO No." e-width="100"></div>
-                <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="120"></div>
-                <div e-column e-type="string" e-field="VendorRefNo" e-headertext="PO Vendor Ref No." e-width="100"></div>
-                <div e-column e-type="string" e-field="PurchaseLCNo" e-headertext="Purchase LC No." e-width="100"></div>
-                <div e-column e-type="string" e-field="LCANo" e-headertext="LC Ref No." e-width="100"></div>
-                <div e-column e-type="date" e-field="LCDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LC Date" e-width="120"></div>
-                <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="100"></div>
-                <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
-                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="100"></div>
-                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
-                <div e-column e-type="string" e-field="UDNo" e-headertext="UD" e-width="80"></div>
-                <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
-                <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
+    <div class="table-responsive aplos-grid-toggle">
+
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="grnListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body ">
+                <b>**Fabric roll management should be activated.</b><i>**Only pending distribution is listed below.</i>
+                <div class="row">
+                    <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList" e-recorddoubleclick="Get"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="100"></div>
+                            <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="120"></div>
+                            <div e-column e-type="string" e-field="GRNType" e-headertext="GRN Type" e-width="100"></div>
+                            <div e-column e-type="string" e-field="GRNStatus" e-headertext="GRN Status" e-width="100"></div>
+                            <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="120"></div>
+                            <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-type="number" e-field="TransactionAmount" e-textalign="right" e-format="{0:N2}" e-headertext="Amount" e-width="100"></div>
+                            <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                            <div e-column e-type="string" e-field="POId" e-headertext="PO No." e-width="100"></div>
+                            <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="120"></div>
+                            <div e-column e-type="string" e-field="VendorRefNo" e-headertext="PO Vendor Ref No." e-width="100"></div>
+                            <div e-column e-type="string" e-field="PurchaseLCNo" e-headertext="Purchase LC No." e-width="100"></div>
+                            <div e-column e-type="string" e-field="LCANo" e-headertext="LC Ref No." e-width="100"></div>
+                            <div e-column e-type="date" e-field="LCDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LC Date" e-width="120"></div>
+                            <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="100"></div>
+                            <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="100"></div>
+                            <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
+                            <div e-column e-type="string" e-field="UDNo" e-headertext="UD" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
+                            <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer common-btn">
+                @*<button ng-click="closeGRNPopUp();" class="btn"><i class=""></i> Select</button>*@
             </div>
         </div>
     </div>
@@ -415,7 +479,7 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Roll No.<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="RollNo" ng-disabled="true" ng-model="GetFabricRollList[Index].RollNo" class="form-control" >
+                                <input type="text" name="RollNo" ng-disabled="true" ng-model="GetFabricRollList[Index].RollNo" class="form-control">
                             </div>
                         </div>
                         <div class="form-group">
@@ -434,16 +498,16 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Vendor Roll No.<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="VendorRollNo" ng-model="GetFabricRollList[Index].VendorRollNo" class="form-control"  maxlength="10">
+                                <input type="text" name="VendorRollNo" ng-model="GetFabricRollList[Index].VendorRollNo" class="form-control" maxlength="10">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Vendor Lot No.<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="VendorLotNo" ng-model="GetFabricRollList[Index].VendorLotNo" class="form-control"  maxlength="50">
+                                <input type="text" name="VendorLotNo" ng-model="GetFabricRollList[Index].VendorLotNo" class="form-control" maxlength="50">
                             </div>
                         </div>
-                      
+
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -455,8 +519,8 @@
                     </div>
                 </div>
                 @*<div class="modal-footer common-btn">
-                    <button ng-click="Update();" class="btn"><i class=""></i> Update</button>
-                </div>*@
+                        <button ng-click="Update();" class="btn"><i class=""></i> Update</button>
+                    </div>*@
             </div>
         </div>
     </div>
@@ -575,10 +639,10 @@
                                                 </button>
                                             </li>
                                             @*<li>
-                                        <button ng-click="" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                                            <i class="glyphicon glyphicon-edit" style="color:olive"></i>
-                                        </button>
-                                    </li>*@
+                                                    <button ng-click="" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                        <i class="glyphicon glyphicon-edit" style="color:olive"></i>
+                                                    </button>
+                                                </li>*@
                                         </ul>
 
                                     </div>

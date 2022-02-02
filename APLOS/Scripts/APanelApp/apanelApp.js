@@ -489,7 +489,10 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('WasteMasterController', WasteMasterController)
     .controller('CommercialAdditionalInfoController', CommercialAdditionalInfoController)
     .controller('PerformanceManagementMasterController', PerformanceManagementMasterController)
-   
+    .controller('MeetingCategoryController', MeetingCategoryController)
+    .controller('MeetingSubCategoryController', MeetingSubCategoryController)
+    .controller('MeetingTypeController', MeetingTypeController)
+
 
 
     .config(accountConfig)
@@ -525,6 +528,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .config(leaveConfig)
     .config(EmployeeServicesConfig)
     .config(PayrollsConfig)
+    .config(MeetingManagementConfig)
 
     .config(["$routeProvider", "$locationProvider", "$httpProvider", "$compileProvider", function apanelConfig($routeProvider, $locationProvider, $httpProvider, $compileProvider) {
         $httpProvider.interceptors.push("errorInterceptor");
