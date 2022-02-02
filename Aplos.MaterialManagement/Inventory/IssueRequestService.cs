@@ -529,7 +529,8 @@ namespace Library.MaterialManagement.Products
                                 ThirdCharacteristicsId = itemDetail.ThirdCharacteristicsId,
                                 ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId,
                                 InventoryMaterialId = itemDetail.InventoryMaterialId,
-                                UpdatedBy = identity.UserId
+                                UpdatedBy = identity.UserId,
+                                TransactionUoMId=itemDetail.TransactionUoMId
                             };
                             try
                             {
