@@ -1289,7 +1289,7 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
             {
                 try
                 {
-                  
+
                     string EntityIds = "'" + entityid + "'";
                     string _sql = @"SELECT distinct WCM.EntityId
                                   from (SELECT distinct W.ProductionOrderId,W.WorkCenterMasterId FROM trn.ProductionOrderWorkCenter AS W
@@ -1369,7 +1369,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
                 if (WithoutEffectiveDate == "")
                     throw new Exception("No workcenter was found with effective date. Please set effective date for workcenters");
 
-
+                Dictionary<string, DataTable> dicWorkCenterRunningHours = WorkCenterRunningHours();
 
                 //first close all production order having all sales order closed
                 _sqlRepository.ExecuteSqlCommand(@"UPDATE  trn.ProductionOrder SET ProductionStatusId = (SELECT TOP 1 Id FROM hkp.ProductionStatus AS ps WHERE ps.StandardName='Closed')
@@ -1434,7 +1434,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
                     dtCalendar = dicCalendar[productionOrders.Rows[i]["EntityId"].ToString()];
 
                     sbLog = new StringBuilder();
-                    SendNotification("Simulating production order#" + productionOrders.Rows[i]["ProductionOrderID"].ToString(),i, productionOrders.Rows.Count);
+                    SendNotification("Simulating production order#" + productionOrders.Rows[i]["ProductionOrderID"].ToString(), i, productionOrders.Rows.Count);
                     sbLog.AppendLine("Starting simulation for production order#" + productionOrders.Rows[i]["ProductionOrderID"].ToString());
                     DateTime startDate = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
                     DateTime LSD = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
@@ -1626,7 +1626,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
                                     tempDayCount++;
                                     try
                                     {
-                                        tempQty = tempQty - getTarget(ref isBuildUpRequired, productionOrders.Rows[i], BestLine, tempDayCount, dtCalendar.DefaultView[tempCalendarIndex].Row, out double _STP, out double _AHP);// TargetPerDay;
+                                        tempQty = tempQty - getTarget(ref isBuildUpRequired, productionOrders.Rows[i], BestLine, tempDayCount, dtCalendar.DefaultView[tempCalendarIndex].Row, dicWorkCenterRunningHours, out double _STP, out double _AHP);// TargetPerDay;
 
                                     }
                                     catch (Exception ex)
@@ -1723,7 +1723,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
                             entry.ProductionHours = clsStaticInfo.dbl(BestLine["StandardTimePerDay"].ToString());
 
                         entry.BlockNo = blockCount;
-                        TargetPerDay = getTarget(ref isBuildUpRequired, productionOrders.Rows[i], BestLine, Index + 1, dtCalendar.DefaultView[Index].Row, out double StandardTargetPerDay, out double ActualHoursPerDay);//index+1=n'th day of production
+                        TargetPerDay = getTarget(ref isBuildUpRequired, productionOrders.Rows[i], BestLine, Index + 1, dtCalendar.DefaultView[Index].Row, dicWorkCenterRunningHours, out double StandardTargetPerDay, out double ActualHoursPerDay);//index+1=n'th day of production
 
                         entry.isBuildUp = isBuildUpRequired;
                         if (TotalOrderQuantity < TargetPerDay)
@@ -2001,7 +2001,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
 
 
         }
-        private double getTarget(ref bool isBuildUpRequired, DataRow drOrderConfig, DataRow drPreferredWC, int currentDay, DataRow drCalendar, out double StandardTargetPerDay, out double ActualPlanHourPerDay)
+        private double getTarget(ref bool isBuildUpRequired, DataRow drOrderConfig, DataRow drPreferredWC, int currentDay, DataRow drCalendar, Dictionary<string, DataTable> dicWorkCenterRunningHours, out double StandardTargetPerDay, out double ActualPlanHourPerDay)
         {
             isBuildUpRequired = false;
             double TargetPerDay = clsStaticInfo.dbl(drOrderConfig["TargetPerHour"].ToString());
@@ -2021,7 +2021,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
 
             double WorkingHours = clsStaticInfo.dbl(drCalendar["WorkingHours"].ToString()) + clsStaticInfo.dbl(drCalendar["OTHours"].ToString()); //clsStaticInfo.dbl(drOrderConfig["PlanWorkingHoursPerDay"].ToString());
             if (bplib.clsWebLib.GetBoolData(drOrderConfig["ConsiderHourFromWorkCenter"].ToString()) == true)
-                WorkingHours = clsStaticInfo.dbl(drPreferredWC["StandardTimePerDay"].ToString());
+                WorkingHours = GetWorkcenterHour(drPreferredWC["WorkCenterMasterId"].ToString(), drCalendar["WorkingDate"].ToString(), dicWorkCenterRunningHours); //clsStaticInfo.dbl(drPreferredWC["StandardTimePerDay"].ToString());
 
 
             ActualPlanHourPerDay = WorkingHours;
@@ -2344,6 +2344,44 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
         }
 
 
+        private Dictionary<string, DataTable> WorkCenterRunningHours()
+        {
+            string _sql = @"SELECT  W.Id,ISNULL(D.StartDate,CONVERT(DATE,GETDATE())) AS StartDate,ISNULL(D.Hour,w.MaxTimePerDay) AS RunningHour FROM scs.WorkCenterMaster AS w
+                        LEFT JOIN scs.WorkCenterMasterEffectiveDate AS D ON d.WorkCenterMasterId=w.Id
+                        --WHERE w.EntityId=''
+                        ORDER BY id,ISNULL(D.StartDate,CONVERT(DATE,GETDATE())) DESC";
+
+            DataTable dt = _sqlRepository.GetDataTable(_sql);
+            Dictionary<string, DataTable> data = new Dictionary<string, DataTable>();
+            string Id = "";
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (Id != dt.Rows[i]["Id"].ToString())
+                {
+
+                    dt.DefaultView.RowFilter = "Id='" + dt.Rows[i]["Id"].ToString() + @"'";
+                    data.Add(dt.Rows[i]["Id"].ToString(), dt.DefaultView.ToTable());
+                }
+                Id = dt.Rows[i]["Id"].ToString();
+            }
+            return data;
+        }
+        private double GetWorkcenterHour(string WCId, string Date, Dictionary<string, DataTable> WCList)
+        {
+            try
+            {
+                DataTable dt = WCList[WCId];
+                dt.DefaultView.RowFilter = "StartDate<=#" + Convert.ToDateTime(Date).ToString("dd-MMM-yyyy") + "#";
+                return clsStaticInfo.dbl(dt.DefaultView[0]["RunningHour"].ToString());
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+
+        }
 
         private DataTable dtAvailableWrokcenters(string productionOrderID, string ProductionStatusName, string processid)
         {
@@ -4297,7 +4335,7 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
 
 
         #region PriorityUpdate
-        
+
 
         [HttpPost, Authorize]
         public ActionResult SaveFileList(List<Dictionary<string, object>> data)
@@ -4450,9 +4488,9 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
                     for (int i = 0; i < data.Count; i++)
                     {
                         var isNumeric = double.TryParse(data[i].ProductionPriority, out double n);
-                        if(isNumeric == false)
+                        if (isNumeric == false)
                         {
-                            throw new Exception("The Priority is not a number!! Please check - " + (i+2));
+                            throw new Exception("The Priority is not a number!! Please check - " + (i + 2));
                         }
                     }
 

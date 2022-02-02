@@ -122,13 +122,15 @@
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" aria-controls="Earn" role="tab" data-toggle="tab">Earning</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" aria-controls="INV" role="tab" data-toggle="tab">Investment & Deduction</a></li>
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" aria-controls="Earn" role="tab" data-toggle="tab">Gross Earning</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" aria-controls="NetEarn" role="tab" data-toggle="tab">Net Earning</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" aria-controls="INV" role="tab" data-toggle="tab">Investment & Deduction</a></li>
+
             </ul>
         </div>
 
         <div class="tab-content">
-          
+
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
                 <div class="row" style="margin:10px;">
@@ -167,6 +169,31 @@
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
 
+                @*<div class="row" style="margin:10px;">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" ej-grid e-datasource="InvestDeductGridPop"
+                             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                             e-allowselection="true" e-filtersettings-filterType="excel"
+                             e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="TaxSavingGroup" e-headertext="Tax Saving Group" e-width="3"></div>
+                                <div e-column e-field="SavingGpLimit" e-headertext="Group Limit" e-width="2"></div>
+                                <div e-column e-field="TaxSavingItem" e-headertext="Tax Saving Item" e-width="3"></div>
+                                <div e-column e-field="TaxSavingItemLimit" e-headertext="Item Limit" e-width="2"></div>
+                                <div e-column e-headertext="Actual Value" e-template="#ActualId" e-textalign="center" e-width="3"></div>
+                                <div e-column e-headertext="User Value" e-template="#UserId" e-textalign="center" e-width="3"></div>
+                                <div e-column e-template="#Files" e-headertext="Attachment" e-width="4"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+
+               
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+
                 <div class="row" style="margin:10px;">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
                         <div style="color:black;" ej-grid e-datasource="InvestDeductGridPop"
@@ -190,7 +217,7 @@
                 <script type="text/template" id="ActualId">
                     <input type="text" onkeypress="return isNumber(event)" ng-model="data.ActualValue" style="color:black; text-align:center" />
                 </script>
-            
+
                 <script type="text/template" id="UserId">
                     <input type="text" onkeypress="return isNumber(event)" ng-model="data.UserValue" ng-change="$parent.FindMin(this)" style="color:black; text-align:center" />
                 </script>

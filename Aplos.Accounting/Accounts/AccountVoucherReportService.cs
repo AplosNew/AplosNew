@@ -1098,7 +1098,8 @@ namespace Library.Accounting.Accounts
                 //var colParticulars = 6;
                 var colG = 6; //accout group value6
                 var colI = 8; // marge8
-
+                int colDocRef = 0;
+                int colDocDate = 0;
                 int colBaseCurrencyDebit = 0;
                 int colBaseCurrencyCredit = 0;
                 int colTranCurrencyDebit = 0;
@@ -1170,6 +1171,12 @@ namespace Library.Accounting.Accounts
 
                 reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 15); int colVoucherNo = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Posting Date", 14); int colPostingDate = col; col++;
+                if (active==true)
+                {
+                reportUtility.SetHeaderText(ref sheet, row, col, "Doc Ref.", 14);  colDocRef = col; col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Doc Date.", 14); colDocDate = col; col++;
+                }
+
                 reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 30); int colNarration = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Party", 15); int colParty = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
@@ -1255,17 +1262,7 @@ namespace Library.Accounting.Accounts
                             sheet.Range[row , colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
                             row++;
                         }
-                        //if (TempActivityId != ledgerData.Rows[i]["ActivityID"].ToString())
-                        //{
-
-                        //    reportUtility.SetText(ref sheet, row + 2, colParty, "Opening Balance", true);
-                        //    sheet.Range[row + 2, colVoucherNo, row + 2, colCurrency].Merge();
-                        //    sheet.Range[row + 1, colBalance].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBalance) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(colLast - 4) + row + "-" + reportUtility.GetColumnNameForXls(colLast - 3) + row + ")";
-                        //    sheet.Range[row + 1, colBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                        //    sheet[row + 2, colActivityBalance].Number = clsStaticInfo.dbl(ledgerData.Rows[i]["ActivityOpeningBalance"].ToString());
-                        //    sheet.Range[row + 2, colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                        //}
-
+                        
                         int colBudgetName = col;
                         if (string.IsNullOrEmpty(budgetMasterId))
                         {
@@ -1277,6 +1274,11 @@ namespace Library.Accounting.Accounts
                             reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["ActivityName"].ToString()); col++;
                         }
                         reportUtility.SetText(ref sheet, row, colPostingDate, ledgerData.Rows[i]["PostingDate"].ToString()); col++;
+                        if (active == true)
+                        {
+                            reportUtility.SetText(ref sheet, row, colDocRef, ledgerData.Rows[i]["DocRefNo"].ToString()); col++;
+                            reportUtility.SetText(ref sheet, row, colDocDate, ledgerData.Rows[i]["DocDate"].ToString()); col++;
+                        }
                         reportUtility.SetText(ref sheet, row, colVoucherNo, ledgerData.Rows[i]["VoucherNo"].ToString()); col++;
                         reportUtility.SetText(ref sheet, row, colNarration, ledgerData.Rows[i]["Narration"].ToString()); col++;
                         reportUtility.SetText(ref sheet, row, colParty, ledgerData.Rows[i]["Party"].ToString()); col++;
@@ -1303,7 +1305,7 @@ namespace Library.Accounting.Accounts
                         TempActivityId = ledgerData.Rows[i]["ActivityID"].ToString();
                     }
                 }
-                reportUtility.SetText(ref sheet, row, colParty, "Activity Closing Balance", true);
+                reportUtility.SetText(ref sheet, row, colParty, "Closing Balance", true);
                 sheet.Range[row, colParty, row, colCurrency].Merge();
                 sheet.Range[row, colParty, row, colCurrency].CellStyle.Font.Bold = true;
                 row++;
@@ -1768,8 +1770,8 @@ namespace Library.Accounting.Accounts
                 }
                 reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 15); int colVoucherNo = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Posting Date", 14); int colPostingDate = col; col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "DocRef.", 14); int colDocRef = col; col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "DocDate", 14); int colDocDate = col; col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Doc Ref.", 14); int colDocRef = col; col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Doc Date", 14); int colDocDate = col; col++;
 
                 reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 30); int colNarration = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Party", 15); int colParty = col; col++;
