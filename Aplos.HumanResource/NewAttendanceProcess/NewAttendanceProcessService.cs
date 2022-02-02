@@ -3000,7 +3000,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string newformat = Convert.ToDateTime(PreDay).ToString("yyyyMMdd");
 
                 var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
-                dt.SandwichStatusFlag, convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), p.empsystemid)RowId                 
+                dt.SandwichStatusFlag,p.RowId                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                      	left join DayStatusHeader dh on dh.Id=p.DayStatusHeaderId
