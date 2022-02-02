@@ -918,14 +918,14 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                     throw (ex);
                 }
 
-                string sql1 = "select * From ComplianceAttendanceSetting where PlantId ='" + identity.PlantId + @"' ";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql1, out dsValidation, false, "1");
-                if (dsValidation.Tables[0].Rows.Count < 1)
-                {
-                    Exception ex = new Exception("OT Settings are incomplete .");
-                    throw (ex);
-                }
+                //string sql1 = "select * From ComplianceAttendanceSetting where PlantId ='" + identity.PlantId + @"' ";
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql1, out dsValidation, false, "1");
+                //if (dsValidation.Tables[0].Rows.Count < 1)
+                //{
+                //    Exception ex = new Exception("OT Settings are incomplete .");
+                //    throw (ex);
+                //}
                 #endregion Validation
 
                 objRpt = new clsReport();
