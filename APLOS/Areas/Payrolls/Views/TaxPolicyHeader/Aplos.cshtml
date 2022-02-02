@@ -474,84 +474,142 @@
 
                     </div>
                 </div>
-               
+
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                
+
+                    <div class="row" ng-form name="TaxSlabForm">
+                        <div class="form-elements form-horizontal">
+
+                            <fieldset class="scheduler-border">
+
+                                <div class="row" style="margin-top:15px;">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Header Id</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="TaxSlabDefine.PolicyId" class="form-control" maxlength="100" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin:15px;">
+                                    <div class="col-sm-12 table-responsive modal-table">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Criterion</th>
+                                                    <th>From (Minimum)</th>
+                                                    <th>To (Maximum)</th>
+                                                    <th>Tax Rate(%)</th>
+                                                    <th>Add/Remove</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="item in DataList">
+                                                    <th>{{$index>0?'Above':''}}</th>
+                                                    <td><input type="number" min="0" ng-model="item.Minimum" class="form-control" ng-disabled="DataList.length>1" /></td>
+                                                    <td><input type="number" min="0" ng-model="item.Maximum" class="form-control" ng-disabled="$index<DataList.length-1" /></td>
+                                                    <td><input type="number" min="0" ng-model="item.TaxRate" class="form-control" /></td>
+                                                    <td class="text-right" ng-hide="$index<DataList.length-1">
+                                                        <ul class="list-inline">
+                                                            <li><button ng-click="SubmitH(item);" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
+                                                            <li><button ng-hide="DataList.length<2" ng-click="Remove($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="common-btn" style="margin-right:30px;">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SaveIncomeSlab();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                                        <li> <button ng-click="DeleteIncomeSlabe();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>
+                                    </ul>
+                                </div>
+                            </fieldset>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
-                        <div class="row" ng-form name="ChildForm" id="Allowed">
-                            <div class="row" style="padding:10px;">
-                                <div class="col-xs-6 col-lg-6">
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Header Id</label>
-                                        <div class="col-sm-8">
-                                            <input type="text" ng-model="Child.HeaderId" class="form-control" maxlength="100" readonly>
+                    <div class="row" ng-form name="ChildForm" id="Allowed">
+                        <div class="row" style="padding:10px;">
+                            <div class="col-xs-6 col-lg-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Header Id</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="Child.HeaderId" class="form-control" maxlength="100" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Entity"
+                                                    ng-options="item.Value as item.Text for item in CompanyList" required>
+                                                <option value="">--Select--</option>
+                                            </select>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Company<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <div class="select-style">
-                                                <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Entity"
-                                                        ng-options="item.Value as item.Text for item in CompanyList" required>
-                                                    <option value="">--Select--</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
 
-                                <div class="col-lg-6 col-xs-6">
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <div class="select-style">
-                                                <select class="form-control" ng-model="Child.PlantId" name="Plant"
-                                                        ng-options="item.Value as item.Text for item in PlantList" required>
-                                                    <option value="">--Select--</option>
-                                                </select>
-                                            </div>
+                            </div>
+
+                            <div class="col-lg-6 col-xs-6">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="Child.PlantId" name="Plant"
+                                                    ng-options="item.Value as item.Text for item in PlantList" required>
+                                                <option value="">--Select--</option>
+                                            </select>
                                         </div>
                                     </div>
+                                </div>
 
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="saveChild();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add </button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div style="color:black;" id="ChildGrid" ej-grid e-datasource="childDataList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
+                                     e-allowselection="true" e-filtersettings-filterType="excel"
+                                     e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                                    <div e-columns>
+
+                                        <div e-column e-field="HeaderId" e-headertext="Header Id" e-width="70"></div>
+                                        <div e-column e-field="PlantId" e-headertext="Plant Id" e-width="120"></div>
+                                        <div e-column e-template="#DeleteFile" e-headertext="" e-width="30"></div>
+
+                                    </div>
+                                </div>
+                                <script type="text/template" id="DeleteFile">
                                     <div class="common-btn">
-                                        <ul class="list-inline text-right">
-                                            <li> <button ng-click="saveChild();" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add </button></li>
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.confirmModal(data)" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
                                         </ul>
                                     </div>
-                                </div>
+                                </script>
                             </div>
-
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-sm-12">
-                                    <div style="color:black;" id="ChildGrid" ej-grid e-datasource="childDataList"
-                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
-                                         e-allowselection="true" e-filtersettings-filterType="excel"
-                                         e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
-                                        <div e-columns>
-
-                                            <div e-column e-field="HeaderId" e-headertext="Header Id" e-width="70"></div>
-                                            <div e-column e-field="PlantId" e-headertext="Plant Id" e-width="120"></div>
-                                            <div e-column e-template="#DeleteFile" e-headertext="" e-width="30"></div>
-
-                                        </div>
-                                    </div>
-                                    <script type="text/template" id="DeleteFile">
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-left">
-                                                <li><button ng-click="$parent.confirmModal(data)" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
-                                            </ul>
-                                        </div>
-                                    </script>
-                                </div>
-                            </div>
-
                         </div>
+
                     </div>
+                </div>
 
             </div>
+
         </div>
 
     </div>
@@ -565,7 +623,7 @@
              e-allowselection="true" e-recorddoubleclick="getHeaderDetails" e-filtersettings-filterType="excel"
              e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
             <div e-columns>
-                
+
                 <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
                 <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
                 <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
@@ -730,7 +788,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Is User Defined</label>
                                 <div class="col-sm-8">
@@ -796,110 +854,109 @@
         <div class="modal-content">
             <div class="modal-header"><b> Item Entry :- </b> <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
-  
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                            <div class="form-elements " ng-form name="InvestDeductChildForm">
-                                <div class=" col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label">Investment</label>
-                                        <div class="col-sm-2 show-message" style=" margin-top: 7px;">
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="InvestDeductModelChild.IsInvestment">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <label class="col-sm-2 control-label">Deduction</label>
-                                        <div class="col-sm-2 show-message" style=" margin-top: 7px;">
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="InvestDeductModelChild.IsDeduction" ng-change="Deduction();">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <label class="col-sm-2 control-label">Earning</label>
-                                        <div class="col-sm-2 show-message" style=" margin-top: 7px;">
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-model="InvestDeductModelChild.IsEarning" ng-change="Earning();">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <div class="col-sm-6 " style="margin-left: 100px;">
-                                            <input type="radio" id="fix" name="isfill" value="No" ng-model="InvestDeductModelChild.isPercentage">
-                                            <label for="fix">Fixed</label><br>
-                                        </div>
-                                        <div class="col-sm-6 " style="margin-left: -100px;">
-                                            <input type="radio" id="percentage" name="isfill" value="Yes" ng-model="InvestDeductModelChild.isPercentage">
-                                            <label for="Percentage">Percentage</label><br>
-                                        </div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-elements " ng-form name="InvestDeductChildForm">
+                        <div class=" col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Investment</label>
+                                <div class="col-sm-2 show-message" style=" margin-top: 7px;">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="InvestDeductModelChild.IsInvestment">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Tax Saving Item<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <div class="select-style">
-                                                <select ng-model="InvestDeductModelChild.TaxSavingItemId" class="form-control" ng-options="item.Id as item.Username for item in TaxSavingItemList" required>
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Remarks</label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" class="form-control" ng-model="InvestDeductModelChild.Remarks">
-                                        </div>
-                                    </div>
-
                                 </div>
-
-                                <div class=" col-sm-6 col-md-6">
-
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" onkeypress="return isNumber(event)" ng-model="InvestDeductModelChild.Sequence" class="form-control" maxlength="100" readonly>
-                                        </div>
+                                <label class="col-sm-2 control-label">Deduction</label>
+                                <div class="col-sm-2 show-message" style=" margin-top: 7px;">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="InvestDeductModelChild.IsDeduction" ng-change="Deduction();">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
                                     </div>
-
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">Limit<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" class="form-control" onkeypress="return isNumber(event)" ng-model="InvestDeductModelChild.Limit" name="Limit" required>
-                                        </div>
+                                </div>
+                                <label class="col-sm-2 control-label">Earning</label>
+                                <div class="col-sm-2 show-message" style=" margin-top: 7px;">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="InvestDeductModelChild.IsEarning" ng-change="Earning();">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Document Applicable</label>
-                                        <div class="col-sm-8">
-                                            <div class="checkbox-site" style="margin-top:7px;">
-                                                <label>
-                                                    <input type="checkbox" ng-model="InvestDeductModelChild.DocumentApplicable">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>                                    
-                                </div>                               
+                                </div>
                             </div>
-                    </div>   
-                
-                    <div class="common-btn" style="margin-right:30px">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveDeductionChild();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                            <li> <button ng-click="ClearChildFields();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                        </ul>
-                    </div>                   
+
+                            <div class="form-group">
+                                <div class="col-sm-6 " style="margin-left: 100px;">
+                                    <input type="radio" id="fix" name="isfill" value="No" ng-model="InvestDeductModelChild.isPercentage">
+                                    <label for="fix">Fixed</label><br>
+                                </div>
+                                <div class="col-sm-6 " style="margin-left: -100px;">
+                                    <input type="radio" id="percentage" name="isfill" value="Yes" ng-model="InvestDeductModelChild.isPercentage">
+                                    <label for="Percentage">Percentage</label><br>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Tax Saving Item<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select ng-model="InvestDeductModelChild.TaxSavingItemId" class="form-control" ng-options="item.Id as item.Username for item in TaxSavingItemList" required>
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" class="form-control" ng-model="InvestDeductModelChild.Remarks">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class=" col-sm-6 col-md-6">
+
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" onkeypress="return isNumber(event)" ng-model="InvestDeductModelChild.Sequence" class="form-control" maxlength="100" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Limit<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" class="form-control" onkeypress="return isNumber(event)" ng-model="InvestDeductModelChild.Limit" name="Limit" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Document Applicable</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site" style="margin-top:7px;">
+                                        <label>
+                                            <input type="checkbox" ng-model="InvestDeductModelChild.DocumentApplicable">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="common-btn" style="margin-right:30px">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveDeductionChild();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                        <li> <button ng-click="ClearChildFields();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
+</div>    
