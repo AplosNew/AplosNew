@@ -423,5 +423,17 @@ function employeeLeaveApplicationController(commonMessage, $scope, $rootScope, b
             $scope.LeaveBalanceList = [];
             $scope.LeaveTransactionList = [];
             $scope.imageSrc = virtualPath.EmployeePic + '';
+    }
+
+    $scope.LeaveAppReportExcel = function () {
+        var reportFormat = "Excel";
+        try {
+            var url = $scope.path + 'LeaveAppReportExcel?reportFormat=' + reportFormat + '&FromDate=' + $scope.report.FromDate+ '&ToDate=' + $scope.report.ToDate;
+            $rootScope.report(url);
         }
+        catch (e) {
+
+        }
+    }
+
 }

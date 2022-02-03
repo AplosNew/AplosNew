@@ -43,9 +43,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion
 
         [Authorize, HttpPost]
-        public ActionResult getEmployee()
+        public ActionResult getEmployeetype()
         {
-            return Json(ps.getEmployeeId(), JsonRequestBehavior.AllowGet);
+            return Json(ps.getEmployeeTypeId(), JsonRequestBehavior.AllowGet);
         }
 
 
