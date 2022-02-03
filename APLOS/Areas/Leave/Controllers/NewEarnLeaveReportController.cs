@@ -28,6 +28,7 @@ namespace Aplos.Areas.Leave.Controllers
     {
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
+        clsNewEarnLeaveReport L = new clsNewEarnLeaveReport();
         public NewEarnLeaveReportController(
             ISqlRepository sqlRepository
             )
@@ -47,7 +48,25 @@ namespace Aplos.Areas.Leave.Controllers
 
         #region -- Operations
 
-        
+        [HttpPost, Authorize]
+        public JsonResult NewEarnReport(string FromDate, string ToDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                #region Validation
+
+                #endregion
+                string file = "";
+                string FileName = identity.Name + " Earn Leave Payment Amount Status.xlsx";
+                file = L.GetReport(FromDate,ToDate);
+                return Json(new { File = file,ReportName= FileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #endregion
     }

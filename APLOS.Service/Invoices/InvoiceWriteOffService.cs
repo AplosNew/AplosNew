@@ -3492,6 +3492,7 @@ namespace Library.Service.Invoices
                 var currencyAmountDr = 0.0M;
                 var loanWriteoffAmount = 0.0M;
                 var totalAmountDr = 0.0M;
+                var currencyAmountCr = 0.0M;
                 var totalCurrencyAmountDr = 0.0M;
                 var totalAmountCr = 0.0M;
                 var totalCurrencyAmountCr = 0.0M;
@@ -3503,9 +3504,12 @@ namespace Library.Service.Invoices
                 int len = banksDetailVMList.Count();
                 int exgainlen = exlosslen;
                 decimal chargesAmount = 0;
+                decimal chargesBooksAmount = 0;
                 decimal totalchargesAmount = 0;
+                decimal totalbookchargesAmount = 0;
                 int count = 0;
                 decimal chargesCountAmount = 0;
+                decimal chargesBooksCountAmount = 0;
                 decimal totalexLossAmount = voucherDetailVMList.Where(r => r.ExchangeType == "ExchangeLoss").Sum(r => r.ExchangeAmount);
                 decimal totalexGainAmount = voucherDetailVMList.Where(r => r.ExchangeType == "ExchangeGain").Sum(r => r.ExchangeAmount);
                 var invoiceList = new List<Invoice>();
@@ -3518,16 +3522,20 @@ namespace Library.Service.Invoices
                     count++;
                     if (bankChargeDetailVMList != null)
                     {
-                        totalchargesAmount = Math.Round(bankChargeDetailVMList.Sum(r => r.Amount), 3);
+                        totalchargesAmount = Math.Round(bankChargeDetailVMList.Sum(r => r.Amount), 2);
+                        totalbookchargesAmount = Math.Round(bankChargeDetailVMList.Sum(r => r.CompanyCurrencyAmount), 2);
                         if (len > count)
                         {
-                            chargesAmount = Math.Round((bankChargeDetailVMList.Sum(r => r.Amount) * item.Amount / banksDetailVMList.Sum(r => r.Amount)), 3);
+                            chargesAmount = Math.Round((bankChargeDetailVMList.Sum(r => r.Amount) * item.Amount / banksDetailVMList.Sum(r => r.Amount)), 2);
                             chargesCountAmount += chargesAmount;
-
+                            chargesBooksAmount = Math.Round((bankChargeDetailVMList.Sum(r => r.CompanyCurrencyAmount) * item.BaseDrAmount / banksDetailVMList.Sum(r => r.BaseDrAmount)), 2);
+                            chargesBooksCountAmount += chargesBooksAmount;
                         }
                         else if (len == count)
-                            chargesAmount = Math.Round(totalchargesAmount - chargesCountAmount, 3);
-
+                        {
+                            chargesAmount = Math.Round(totalchargesAmount - chargesCountAmount, 2);
+                            chargesBooksAmount = Math.Round(totalbookchargesAmount - chargesBooksCountAmount, 2);
+                        } 
                     }
 
                     voucherVM.Amount = item.Amount;
@@ -3544,18 +3552,21 @@ namespace Library.Service.Invoices
                     {
 
                         //var invoiceRow = voucherDetailVMList.SingleOrDefault();
+                        currencyAmountCr = 0.0M;
                         var invoiceDetail = inviceDetailDbList.FirstOrDefault(r => r.Id == voucherDetailVM.InvoiceDetailId);
 
                         if (null == invoiceDetail)
                             throw new CustomException("Invoice not found!");
                         if (len > count)
                         {
-                            voucherDetailVM.CrAmount = Math.Round((voucherDetailVM.Amount * (item.Amount + chargesAmount) / (banksDetailVMList.Sum(r => r.Amount) + totalchargesAmount)), 3);
+                            voucherDetailVM.CrAmount = Math.Round((voucherDetailVM.Amount * (item.Amount + chargesAmount) / (banksDetailVMList.Sum(r => r.Amount) + totalchargesAmount)), 2);
                             invoiceDetail.WrittenOffAmount += (voucherDetailVM.CrAmount);
+                            currencyAmountCr = Math.Round((voucherDetailVM.BaseCrAmount * (item.BaseDrAmount + chargesBooksAmount) / (banksDetailVMList.Sum(r => r.BaseDrAmount) + totalbookchargesAmount)), 2);
                             var inv = new Invoice
                             {
                                 Id = invoiceDetail.InvoiceId,
-                                Amount = voucherDetailVM.CrAmount
+                                Amount = voucherDetailVM.CrAmount,
+                                BaseCrAmount= currencyAmountCr
                             };
                             invoiceList.Add(inv);
                         }
@@ -3564,6 +3575,7 @@ namespace Library.Service.Invoices
                         {
                             voucherDetailVM.CrAmount = voucherDetailVMList.Where(r => r.InvoiceId == voucherDetailVM.InvoiceId).Sum(r => r.Amount) - invoiceList.Where(r => r.Id == voucherDetailVM.InvoiceId).Sum(r => r.Amount);
                             invoiceDetail.WrittenOffAmount += voucherDetailVM.CrAmount;
+                            currencyAmountCr = voucherDetailVMList.Where(r => r.InvoiceId == voucherDetailVM.InvoiceId).Sum(r => r.BaseCrAmount) - invoiceList.Where(r => r.Id == voucherDetailVM.InvoiceId).Sum(r => r.BaseCrAmount);
                         }
 
                         if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
@@ -3636,11 +3648,12 @@ namespace Library.Service.Invoices
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherDetailVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherDetailVM.CompanyCurrencyRate),
-                            CrAmount = Math.Round(voucherDetailVM.CompanyCurrencyRate * voucherDetailCr.CrAmount, 3)
+                            CrAmount = currencyAmountCr
                         });
 
                         totalAmountCr += voucherDetailCr.CrAmount;
-                        totalCurrencyAmountCr += Math.Round(voucherDetailVM.CompanyCurrencyRate * voucherDetailCr.CrAmount, 3);
+                        totalCurrencyAmountCr += currencyAmountCr;
+                        //totalCurrencyAmountCr += Math.Round(voucherDetailVM.CompanyCurrencyRate * voucherDetailCr.CrAmount, 3);
                     }
 
                     foreach (var voucherDetailVM in voucherDetailVMList.Where(r => r.ExchangeType == "ExchangeLoss"))
@@ -3664,7 +3677,7 @@ namespace Library.Service.Invoices
                             decimal exchangeDrAmount = 0;
                             if (len > count)
                             {
-                                exchangeDrAmount = Math.Round(voucherDetailVM.ExchangeAmount * (item.Amount + chargesAmount) / (banksDetailVMList.Sum(r => r.Amount) + totalchargesAmount), 3);
+                                exchangeDrAmount = Math.Round(voucherDetailVM.ExchangeAmount * (item.Amount + chargesAmount) / (banksDetailVMList.Sum(r => r.Amount) + totalchargesAmount), 2);
                                 var exloss = new VoucherViewModel
                                 {
                                     ExchangeType = voucherDetailVM.ExchangeType,
@@ -3685,9 +3698,9 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                 ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDtEx.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                DrAmount = Math.Round(exchangeDrAmount, 3)
+                                DrAmount = Math.Round(exchangeDrAmount, 2)
                             });
-                            totalCurrencyAmountDr += Math.Round(exchangeDrAmount, 3);
+                            totalCurrencyAmountDr += Math.Round(exchangeDrAmount, 2);
                         }
 
                     }
@@ -3714,7 +3727,7 @@ namespace Library.Service.Invoices
 
                             if (len > count)
                             {
-                                exchangeCrAmount = Math.Round(voucherDetailVM.ExchangeAmount * (item.Amount + chargesAmount) / (banksDetailVMList.Sum(r => r.Amount) + totalchargesAmount), 3);
+                                exchangeCrAmount = Math.Round(voucherDetailVM.ExchangeAmount * (item.Amount + chargesAmount) / (banksDetailVMList.Sum(r => r.Amount) + totalchargesAmount), 2);
                                 var exgain = new VoucherViewModel
                                 {
                                     ExchangeType = voucherDetailVM.ExchangeType,
@@ -3735,7 +3748,7 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                 ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDtExGain.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                CrAmount = Math.Round(exchangeCrAmount, 3)
+                                CrAmount = Math.Round(exchangeCrAmount, 2)
                             });
                             totalCurrencyAmountCr += exchangeCrAmount;
                         }
@@ -3765,8 +3778,8 @@ namespace Library.Service.Invoices
                             decimal chargecurrencyAmount = 0;
                             if (len > count)
                             {
-                                bankCharge.Amount = Math.Round(bankChargeDetailVM.Amount * item.Amount / banksDetailVMList.Sum(r => r.Amount), 3);
-                                chargecurrencyAmount = Math.Round(bankChargeDetailVM.CompanyCurrencyAmount * item.BaseDrAmount / banksDetailVMList.Sum(r => r.BaseDrAmount), 3);
+                                bankCharge.Amount = Math.Round(bankChargeDetailVM.Amount * item.Amount / banksDetailVMList.Sum(r => r.Amount), 2);
+                                chargecurrencyAmount = Math.Round(bankChargeDetailVM.CompanyCurrencyAmount * item.BaseDrAmount / banksDetailVMList.Sum(r => r.BaseDrAmount), 2);
                                 var bkCharge = new BankChargeViewModel
                                 {
                                     FinancingTypeId = bankChargeDetailVM.FinancingTypeId,
@@ -3778,8 +3791,8 @@ namespace Library.Service.Invoices
 
                             else if (len == count)
                             {
-                                bankCharge.Amount = Math.Round(bankChargeDetailVMList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.Amount) - bankchargeNewList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.Amount), 3);
-                                chargecurrencyAmount = Math.Round(bankChargeDetailVMList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.CompanyCurrencyAmount) - bankchargeNewList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.CompanyCurrencyAmount), 3);
+                                bankCharge.Amount = Math.Round(bankChargeDetailVMList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.Amount) - bankchargeNewList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.Amount), 2);
+                                chargecurrencyAmount = Math.Round(bankChargeDetailVMList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.CompanyCurrencyAmount) - bankchargeNewList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.CompanyCurrencyAmount), 2);
                             }
 
                             // Get Expense GL
