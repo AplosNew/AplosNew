@@ -21,15 +21,15 @@ namespace Aplos.Areas.HumanResource.Controllers
     public class PerformancePeriodController : BaseController
     {
         PerformancePeriodMasterService pp = new PerformancePeriodMasterService();
-        
+
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public PerformancePeriodController(ISqlRepository R)
+        public PerformancePeriodController(ISqlRepository sqlRepository)
         {
-            _sqlRepository = R;
-            pp = new PerformancePeriodMasterService();
-        }       
+            _sqlRepository = sqlRepository;
+        }
+        
 
         public ActionResult Aplos()
         {

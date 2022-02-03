@@ -27,8 +27,8 @@ function PerformancePeriodController(cboService, commonMessage, $scope, $rootSco
     $scope.ModelTemp = {
         SId: null,
         PerformanceYearName: null,
-        StartDate=null,
-        EndDate=null,
+        StartDate:null,
+        EndDate:null,
         Remarks: null,
         Active: true
     };
@@ -92,8 +92,8 @@ function PerformancePeriodController(cboService, commonMessage, $scope, $rootSco
         $scope.ModelNew = {
             Id: null,
             PerformanceYearName: null,
-            StartDate=null,
-            EndDate=null,
+            StartDate:null,
+            EndDate:null,
             Remarks: null,
             Active: true
         };
