@@ -293,7 +293,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
 
-                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, identity.IsSysAdmin, identity.IsControlAdmin, false, "");
+                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, identity.IsSysAdmin, identity.IsControlAdmin, false,"");
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 
@@ -313,12 +313,15 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var fileName = month + "-" + year + "SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
+                var fileName = month + "-" + year + "SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
-                
-                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReportSlryLogWise(out int xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false);
 
-                return Json(new { FullPath = workbook, FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReportSalaryLogWise(out int xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false);
+                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -482,7 +485,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetBsrSalarySummaryReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string PlantId, string typeList)
+        public ActionResult GetBsrSalarySummaryReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity,string PlantId,string typeList)
         {
             try
             {
@@ -491,7 +494,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (!string.IsNullOrEmpty(typeList))
                 {
-                    typeLists = "'" + typeList.Replace(",", "','") + "'";//replaced with ""
+                typeLists = "'" + typeList.Replace(",", "','") + "'";//replaced with ""
                 }
                 else
                 {
@@ -516,7 +519,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpPost, Authorize]
-        public ActionResult GetSalarySheetExtraOTCTCReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string PlantId, string TypeId)
+        public ActionResult GetSalarySheetExtraOTCTCReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string PlantId , string TypeId)
         {
             try
             {
@@ -537,7 +540,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
 
-                var workbook = clsWeekOFFOTReport.GetSalarySheetExtraOTCTCReportWithType(identity.CompanyGroupId, identity.CompanyId, PlantId, identity.UserId, month, year, typeId, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, false);
+                var workbook = clsWeekOFFOTReport.GetSalarySheetExtraOTCTCReportWithType(identity.CompanyGroupId, identity.CompanyId, PlantId, identity.UserId, month, year, typeId ,salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, false);
                 workbook.Version = ExcelVersion.Excel2013;
                 workbook.SaveAs(fullPath);
 
@@ -597,7 +600,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpPost, Authorize]
-        public ActionResult GetEmpInfoSalaryPorcessedWithType(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId, string TypeId)
+        public ActionResult GetEmpInfoSalaryPorcessedWithType(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId , string TypeId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string Plant = string.Empty;
@@ -619,7 +622,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             {
                 throw new Exception("Please Select the Employee Code Type");
             }
-            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessedWithType(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity, typeId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessedWithType(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity , typeId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -732,7 +735,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             Library.HumanResource.Report.Payroll.PayrollReports prr = new Library.HumanResource.Report.Payroll.PayrollReports();
-            var jsondata = Json(prr.GetEmpInfoYearlySalaryPorcessedFromYear(identity.CompanyGroupId, identity.PlantId, ToYear, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity, ToMonth, FromYear, FromMonth), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(prr.GetEmpInfoYearlySalaryPorcessedFromYear(identity.CompanyGroupId, identity.PlantId, ToYear, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity,ToMonth,FromYear,FromMonth), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -762,11 +765,11 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var fileName = FromYear + FromMonth + " - " + ToYear + ToMonth + "- SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
+                var fileName = FromYear+ FromMonth + " - "+ ToYear + ToMonth + "- SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
                 Library.HumanResource.Report.Payroll.PayrollReports prr = new Library.HumanResource.Report.Payroll.PayrollReports();
 
-                var workbook = prr.GetEmployeeSalaryProcessedReportSalaryYearlyWise(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, parameters, isActive, isSeperated, isMaternity, withGoodWork, FromYear, FromMonth, ToYear, ToMonth);
+                var workbook = prr.GetEmployeeSalaryProcessedReportSalaryYearlyWise(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,  parameters, isActive, isSeperated, isMaternity, withGoodWork, FromYear, FromMonth, ToYear, ToMonth);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 
@@ -792,7 +795,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpGet, Authorize]
-        public ActionResult SalaryIntegrationWithThirdpartyXls(string plantId, string month, string year, string TypeId)
+        public ActionResult SalaryIntegrationWithThirdpartyXls(string plantId, string month, string year,string TypeId)
         {
             try
             {

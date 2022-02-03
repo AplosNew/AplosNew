@@ -32,19 +32,20 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             _sqlRepository = R;
         }
+
         #endregion Constructor
-      
-        #region Page
+
         public ActionResult Aplos()
         {
             return View();
         }
-        #endregion
+
+      
 
         [Authorize, HttpPost]
-        public ActionResult getEmployeetype()
+        public ActionResult getEmployee()
         {
-            return Json(ps.getEmployeeTypeId(), JsonRequestBehavior.AllowGet);
+            return Json(ps.getEmployeeId(), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -58,60 +59,51 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             catch (Exception ex)
             {
+
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 
         }      
-        [HttpPost, Authorize]
-        public ActionResult GetList()
+        [HttpPost]
+        public ActionResult GetList(string column, string value)
         {
-            try
-            {
-                return Json(ps.GetList(), JsonRequestBehavior.AllowGet);
-            }
-            catch(Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
-            }
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            return Json(ps.GetList(strkey), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
-            try
-            {
-                return Json(ps.GetSequence(), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
+            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost,Authorize]
+        [HttpPost]
         public JsonResult Create(Dictionary<string, object> datas, List<string> Employee)
+
         {
             try
             {
                 var data = ps.Create(datas, Employee);
-                return Json(new { Error = false, Data = data, Sequence = ps.GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
             {
+
                 return Json(new { Error = true, Message = ex.Message });
+
             }
         }
 
-        [HttpPost, Authorize]
         public ActionResult Delete(string id)
         {
             try
             {
                 ps.Delete(id);
 
-                return Json(new { Error = false, Sequence = ps.GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
@@ -121,6 +113,14 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             }
 
-        }      
+        }
+        private double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
     }
 }

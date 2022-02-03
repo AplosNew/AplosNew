@@ -10,6 +10,9 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+    $scope.searchBy = null; $scope.search = null;
+    $scope.searchBy = "UserName"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
     $scope.EmployeeList = [];
     $scope.EmployeeId = null;
 
@@ -17,6 +20,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -29,7 +33,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     $scope.getEmployee = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getEmployeetype",
+            url: $scope.path + "getEmployee",
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
@@ -49,7 +53,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
         Category: null,
         SubCategory: null,
         StandardName: null,
-        Username: null,
+        UserName: null,
         ShortName: null,
         Code: null,
         Active: true,
@@ -85,7 +89,6 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
             }
             //EmployeeList
 
-            $scope.SelEmpList = [];
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
                 if ($scope.EmployeeList[i].Id in ob) {
                     $scope.EmployeeList[i].isSelected = true;
@@ -111,7 +114,12 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     };
 
     $scope.Save = function () {
-       $scope.$broadcast('show-errors-check-validity');     
+       $scope.$broadcast('show-errors-check-validity');
+
+        //if (angular.isUndefinedOrNull($scope.ModelNew.EmployeeId)) {
+        //    ShowResult('No EmployeeType Selected!!' , 'failure');
+        //    throw ("Invalid");
+        //}
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
@@ -170,7 +178,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
             Category: null,
             SubCategory: null,
             StandardName: null,
-            Username: null,
+            UserName: null,
             ShortName: null,
             Code: null,
             Active: true,
@@ -181,12 +189,8 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
 
             $scope.EmployeeIds = [];
             $scope.SelEmpList = [];
-
-            for (var i = 0; i < $scope.EmployeeList.length; i++) {
-
-                $scope.EmployeeList[i].isSelected = false;
-            }
-    };
+     
+    }
 
     // Addition of the Modal Operations for PMS Child
     $scope.closeEmpPopUp = function () {
