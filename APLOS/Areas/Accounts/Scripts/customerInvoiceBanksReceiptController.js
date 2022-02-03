@@ -536,19 +536,20 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
             CloseShowResult();
         }
         if (data.CompanyCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(3);
+            data.ExchangeAmount = Math.abs(data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
             data.ExchangeType = "ExchangeGain";
-            data.BaseCrAmount = Math.abs(data.Amount * data.CompanyCurrencyRate).toFixed(3);
+            data.BaseCrAmount = Math.abs(data.Amount * data.CompanyCurrencyRate).toFixed(2);
         }
         else if (data.CompanyCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.Amount * (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(3);
+            data.ExchangeAmount = Math.abs(data.Amount * (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
             data.ExchangeType = "ExchangeLoss";
-            data.BaseCrAmount = Math.abs(data.Amount * data.CompanyCurrencyRate).toFixed(3);
+            data.BaseCrAmount = Math.abs(data.Amount * data.CompanyCurrencyRate).toFixed(2);
 
         }
         else {
             data.ExchangeAmount = 0;
             data.ExchangeType = null;
+            data.BaseCrAmount = Math.abs(data.Amount * data.CompanyCurrencyRate).toFixed(2);
         }
         $scope.calBaseAmount();
     };
@@ -556,15 +557,15 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
     $scope.exchangeGainLossCal = function (rate) {
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
             if ($scope.voucherDetailList[i].CompanyCurrencyRate < rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = Math.abs($scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate)).toFixed(3);
+                $scope.voucherDetailList[i].ExchangeAmount = Math.abs($scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate)).toFixed(2);
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeGain";
-                $scope.voucherDetailList[i].BaseCrAmount = Math.abs($scope.voucherDetailList[i].Amount * $scope.voucherDetailList[i].CompanyCurrencyRate).toFixed(3);
+                $scope.voucherDetailList[i].BaseCrAmount = Math.abs($scope.voucherDetailList[i].Amount * $scope.voucherDetailList[i].CompanyCurrencyRate).toFixed(2);
 
             }
             else if ($scope.voucherDetailList[i].CompanyCurrencyRate > rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = Math.abs($scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate)).toFixed(3);
+                $scope.voucherDetailList[i].ExchangeAmount = Math.abs($scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate)).toFixed(2);
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeLoss";
-                $scope.voucherDetailList[i].BaseCrAmount = Math.abs($scope.voucherDetailList[i].Amount * $scope.voucherDetailList[i].CompanyCurrencyRate).toFixed(3);
+                $scope.voucherDetailList[i].BaseCrAmount = Math.abs($scope.voucherDetailList[i].Amount * $scope.voucherDetailList[i].CompanyCurrencyRate).toFixed(2);
             }
             else {
                 $scope.voucherDetailList[i].ExchangeAmount = 0;
@@ -602,11 +603,11 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
         }
         else if ($scope.voucher.CurrencyId == data.BankCurrencyId) {
             data.BankAmount = data.Amount;
-            data.BaseDrAmount = Math.abs(data.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
+            data.BaseDrAmount = Math.abs(data.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
         }
         else if ($scope.voucher.CurrencyId != data.BankCurrencyId && data.BankCurrencyId == $scope.BaseCurrencyId) {
-            data.BankAmount = Math.abs(data.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
-            data.BaseDrAmount = Math.abs(data.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
+            data.BankAmount = Math.abs(data.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
+            data.BaseDrAmount = Math.abs(data.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
         }
         else
             data.BankAmount = '';
@@ -618,7 +619,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
         }
         else if ($scope.voucher.CurrencyId == data.BankCurrencyId) {
             data.BankAmount = data.Amount;
-            data.BaseDrAmount = Math.abs(data.BankAmount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
+            data.BaseDrAmount = Math.abs(data.BankAmount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
         }
         else if ($scope.voucher.CurrencyId != data.BankCurrencyId && data.BankCurrencyId == $scope.BaseCurrencyId) {
             data.BaseDrAmount = data.BankAmount;
@@ -631,16 +632,16 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
         for (var i = 0; i < $scope.bankDetailList.length; i++) {
             if ($scope.voucher.CurrencyId == $scope.bankDetailList[i].BankCurrencyId == $scope.BaseCurrencyId) {
                 $scope.bankDetailList[i].BankAmount = $scope.bankDetailList[i].Amount;
-                $scope.bankDetailList[i].BaseDrAmount = Math.abs($scope.bankDetailList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
+                $scope.bankDetailList[i].BaseDrAmount = Math.abs($scope.bankDetailList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
             }
             else if ($scope.voucher.CurrencyId == $scope.bankDetailList[i].BankCurrencyId) {
                 $scope.bankDetailList[i].BankAmount = $scope.bankDetailList[i].Amount;
-                $scope.bankDetailList[i].BaseDrAmount = Math.abs($scope.bankDetailList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
+                $scope.bankDetailList[i].BaseDrAmount = Math.abs($scope.bankDetailList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
 
             }
             else if ($scope.voucher.CurrencyId != $scope.bankDetailList[i].BankCurrencyId && $scope.bankDetailList[i].BankCurrencyId == $scope.BaseCurrencyId) {
-                $scope.bankDetailList[i].BankAmount = Math.abs($scope.bankDetailList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
-                $scope.bankDetailList[i].BaseDrAmount = Math.abs($scope.bankDetailList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
+                $scope.bankDetailList[i].BankAmount = Math.abs($scope.bankDetailList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
+                $scope.bankDetailList[i].BaseDrAmount = Math.abs($scope.bankDetailList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
             }
             else
                 $scope.bankDetailList[i].BankAmount = '';
@@ -652,7 +653,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
                 $scope.bankChargesList[i].CompanyCurrencyAmount = $scope.bankChargesList[i].Amount;
             }
             else
-                $scope.bankChargesList[i].CompanyCurrencyAmount = Math.abs($scope.bankChargesList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
+                $scope.bankChargesList[i].CompanyCurrencyAmount = Math.abs($scope.bankChargesList[i].Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
         }
     }
     $scope.closeBankPopUp = function () {
@@ -1043,7 +1044,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
             $scope.bankCharge.CompanyCurrencyAmount = $scope.bankCharge.Amount;
         }
         else {
-            $scope.bankCharge.CompanyCurrencyAmount = ($scope.bankCharge.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(3);
+            $scope.bankCharge.CompanyCurrencyAmount = ($scope.bankCharge.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
         }
     };
 
@@ -1088,7 +1089,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
             $scope.advanceTax.CompanyCurrencyAmount = $scope.advanceTax.TaxAmount;
         }
         else {
-            $scope.advanceTax.CompanyCurrencyAmount = ($scope.advanceTax.TaxAmount * $scope.advance.CompanyCurrencyRate).toFixed(3);
+            $scope.advanceTax.CompanyCurrencyAmount = ($scope.advanceTax.TaxAmount * $scope.advance.CompanyCurrencyRate).toFixed(2);
         }
     };
 

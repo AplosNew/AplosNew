@@ -623,6 +623,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
                     $scope.cartonDetail = response.data.Data;
 
                     $scope.inactiveCartons = response.data.Inactive;
+                    console.log($scope.cartonCollection);
                     fillCartons();
                     angular.element(document.querySelector('#cartonDetailModal')).modal('show');
                 });
@@ -650,7 +651,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     function fillCartons() {
         var j = -1;
         for (var i = 0; i < $scope.cartonCollection.length; i++) {
-            if ($scope.cartonCollection[i]["LotNo"].toUpperCase == $scope.cartonDetail[0]["LotNo"].toUpperCase && $scope.cartonCollection[i]["ProductCode"] == $scope.cartonDetail[0]["ProductCode"] && $scope.cartonCollection[i]["PO"] == $scope.cartonDetail[0]["POId"]) {
+            if ($scope.cartonCollection[i]["LotNo"] == $scope.cartonDetail[0]["LotNo"] && $scope.cartonCollection[i]["ProductCode"] == $scope.cartonDetail[0]["ProductCode"] && $scope.cartonCollection[i]["PO"] == $scope.cartonDetail[0]["POId"]) {
                 j = i;
                 break;
             }
@@ -659,9 +660,6 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         if (j != -1) {
             var k = j;
             for (var i = 0; i < $scope.cartonDetail.length; i++) {
-                if (k == $scope.cartonCollection.length) {
-                    break;
-                }
                 if ($scope.cartonCollection[k]["RefNo"] == $scope.cartonDetail[i]["RefNo"]) {
                     $scope.cartonDetail[i]["checked"] = true;
                     k++;
@@ -679,7 +677,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         var j = $scope.cartonDetail.length - 1;
         if ($scope.cartonCollection.length > 0) {
             for (var i = $scope.cartonCollection.length - 1; i >= 0; i--) {
-                if ($scope.cartonCollection[i]["LotNo"].toUpperCase == $scope.cartonDetail[j]["LotNo"].toUpperCase && $scope.cartonCollection[i]["ProductCode"] == $scope.cartonDetail[j]["ProductCode"] && $scope.cartonCollection[i]["PO"] == $scope.cartonDetail[j]["POId"]) {
+                if ($scope.cartonCollection[i]["LotNo"] == $scope.cartonDetail[j]["LotNo"] && $scope.cartonCollection[i]["ProductCode"] == $scope.cartonDetail[j]["ProductCode"] && $scope.cartonCollection[i]["PO"] == $scope.cartonDetail[j]["POId"]) {
                     $scope.cartonCollection.splice(i, 1);
                     j--;
                 }
@@ -698,7 +696,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
 
         for (var i = 0; i < $scope.PoLotRefGrid.length; i++) {
-            if ($scope.PoLotRefGrid[i]["LotNo"].toUpperCase == $scope.cartonDetail[0]["LotNo"].toUpperCase && $scope.PoLotRefGrid[i]["ProductCode"] == $scope.cartonDetail[0]["ProductCode"] && $scope.PoLotRefGrid[i]["PO"] == $scope.cartonDetail[0]["POId"]) {
+            if ($scope.PoLotRefGrid[i]["LotNo"] == $scope.cartonDetail[0]["LotNo"] && $scope.PoLotRefGrid[i]["ProductCode"] == $scope.cartonDetail[0]["ProductCode"] && $scope.PoLotRefGrid[i]["PO"] == $scope.cartonDetail[0]["POId"]) {
                 
                 $scope.PoLotRefGrid[i]["bookQty"] = parseFloat(jj.toFixed(2));
             }

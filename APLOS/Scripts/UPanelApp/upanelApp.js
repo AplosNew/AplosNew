@@ -998,6 +998,9 @@ upanelApp.controller("ProductionGeneralReportController", ProductionGeneralRepor
 upanelApp.controller("inventorySalesReturnPost", inventorySalesReturnPost);
 upanelApp.controller("ServicePORegisterController", ServicePORegisterController);
 upanelApp.controller("StocksAgeingReportController", StocksAgeingReportController);
+upanelApp.controller("NewEarnLeaveReportController", NewEarnLeaveReportController);
+
+
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(accountConfig);
