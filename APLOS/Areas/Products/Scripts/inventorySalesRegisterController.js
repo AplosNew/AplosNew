@@ -35,15 +35,15 @@ function inventorySalesRegisterController(accountService, $window, cboService, c
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	$controller("employeeBaseController", { $scope: $scope, $http: $http });
 
-	$scope.InventorySalesReportExcels = function (id, reportFormat) {
-
+	$scope.InventorySalesReportExcels = function (reportFormat) {
+		var Type = null;
 		if ($scope.productNew.AsOnDate === 'AsOnDate') {
 
 			if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
 				ShowResult('Select To Date', 'failure');
 				return false;
 			}
-	
+			Type = 'AsOnDate';
 		}
 		else {
 
@@ -55,42 +55,41 @@ function inventorySalesRegisterController(accountService, $window, cboService, c
 				ShowResult('Select To Date', 'failure');
 				return false;
 			}
+			Type = 'ForThePeriod';
+		}
+
+		//var reportFormat = "Excel";
 		
-
-		}
-
-		var reportFormat = "Excel";
-		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery + '&WithTax=' + $scope.tax.IncludingTax);
+		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery + '&WithTax=' + $scope.tax.IncludingTax + '&Type=' + Type);
 	};
 
-	$scope.InventorySalesRepoReportPdf = function (id, reportFormat) {
+	//$scope.InventorySalesRepoReportPdf = function (id, reportFormat) {
 
-		if ($scope.productNew.AsOnDate === 'AsOnDate') {
+	//	if ($scope.productNew.AsOnDate === 'AsOnDate') {
 
-			if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-				ShowResult('Select To Date', 'failure');
-				return false;
-			}
+	//		if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+	//			ShowResult('Select To Date', 'failure');
+	//			return false;
+	//		}
 
-		}
-		else {
+	//	}
+	//	else {
 
-			if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-				ShowResult('Select From Date', 'failure');
-				return false;
-			}
-			if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-				ShowResult('Select To Date', 'failure');
-				return false;
-			}
-		}
+	//		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+	//			ShowResult('Select From Date', 'failure');
+	//			return false;
+	//		}
+	//		if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+	//			ShowResult('Select To Date', 'failure');
+	//			return false;
+	//		}
+	//	}
 
 
-		var reportFormat = "Pdf";
-		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery + '&WithTax=' + $scope.tax.IncludingTax);
+	//	var reportFormat = "Pdf";
+	//	//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
+	//	$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery + '&WithTax=' + $scope.tax.IncludingTax);
 
-	};
+	//};
 
 }

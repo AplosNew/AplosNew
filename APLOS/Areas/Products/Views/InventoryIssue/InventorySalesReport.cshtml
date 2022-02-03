@@ -4,7 +4,6 @@
     <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Sales Register/Report</h3>
     <div class="form-elements form-horizontal" ng-form="from0">
         <div class="col-xs-12 col-sm-9 col-md-9">
-
             <fieldset class="scheduler-border">
                 <legend class="scheduler-border">Select Options</legend>
                 <div class="col-xs-12 ">
@@ -21,8 +20,6 @@
                             </label>
                         </div>
                     </div>
-
-
                 </div>
 
                 <div class="col-xs-12 ">
@@ -69,8 +66,8 @@
         <div class="common-btn">
             <ul class="list-inline text-left">
 
-                <li> <button id="" class="btn" ng-click="InventorySalesRepoReportPdf();"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
-                <li> <button id="" class="btn" ng-click="InventorySalesReportExcels();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                <li> <button id="" class="btn" ng-click="InventorySalesReportExcels('Excel');"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                <li> <button id="" class="btn" ng-click="InventorySalesReportExcels('Pdf');"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
             </ul>
         </div>
         <div class="clearfix"></div>
