@@ -20,7 +20,7 @@
             <div class="col-sm-8">
                 <div class="checkbox-site">
                     <label>
-                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                        <input type="checkbox" ng-model="ModelNew.Active">
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
@@ -31,7 +31,7 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="50" tabindex="6"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="50"></textarea>
             </div>
         </div>
 
@@ -62,9 +62,9 @@
 
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}} </button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}} </button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
     <div class="row">
@@ -89,7 +89,6 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>*@
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false"></div>
             <div e-column e-field="PerformanceYearName" e-headertext="Performance Year" e-width="3"></div>
             <div e-column e-field="StartDate" e-headertext="Start Date" e-width="3"></div>
@@ -104,7 +103,5 @@
 <confirm-modal></confirm-modal>
 
 <confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
-
-
 
 

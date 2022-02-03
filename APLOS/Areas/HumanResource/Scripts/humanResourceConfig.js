@@ -704,7 +704,5 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             controller: 'PerformanceManagementMasterController'
         })
 
-
-    
         ;
 }

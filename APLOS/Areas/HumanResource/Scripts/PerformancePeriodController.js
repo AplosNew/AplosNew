@@ -1,10 +1,10 @@
 ﻿'use strict';
-PerformancePeriodMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function PerformancePeriodMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+PerformancePeriodController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function PerformancePeriodController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Performance Period';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'HumanResource/PerformancePeriodMaster/';
+    $scope.path = 'HumanResource/PerformancePeriod/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -19,7 +19,7 @@ function PerformancePeriodMasterController(cboService, commonMessage, $scope, $r
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-         
+
         });
     }
     $scope.getData();
@@ -48,7 +48,7 @@ function PerformancePeriodMasterController(cboService, commonMessage, $scope, $r
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
+                data: { 'Data': $scope.ModelNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -56,7 +56,6 @@ function PerformancePeriodMasterController(cboService, commonMessage, $scope, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                
                     $scope.getData();
 
                 }
@@ -79,7 +78,6 @@ function PerformancePeriodMasterController(cboService, commonMessage, $scope, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                  
                     $scope.getData();
                 }
                 function errorCallBack(response) {
@@ -90,11 +88,6 @@ function PerformancePeriodMasterController(cboService, commonMessage, $scope, $r
     };
 
     $scope.Clear = function () {
-      
-        return true;
-    };
-
-    function ClearFields(seq) {
         $scope.Action = 'Save';
         $scope.ModelNew = {
             Id: null,
@@ -104,5 +97,5 @@ function PerformancePeriodMasterController(cboService, commonMessage, $scope, $r
             Remarks: null,
             Active: true
         };
-    }
+    };
 }

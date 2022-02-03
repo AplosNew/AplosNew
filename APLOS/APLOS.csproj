@@ -572,7 +572,6 @@
     <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformanceManagementMasterController.cs" />
-    <Compile Include="Areas\HumanResource\Controllers\PerformancePeriodMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\JobCardReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeLeaveApprovalNewController.cs" />
@@ -691,6 +690,7 @@
     <Compile Include="Areas\JobWork\Controllers\JWReceiptController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
+    <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
@@ -1907,7 +1907,6 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceManagementMasterController.js" />
-    <Content Include="Areas\HumanResource\Scripts\PerformancePeriodMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PhysicalVerificationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApplicationNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApprovalNewController.js" />
@@ -2001,6 +2000,7 @@
     <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JWReceiptController.js" />
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
+    <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
@@ -3961,11 +3961,11 @@
     <Content Include="Areas\Accounts\Views\InventorySale\_ApprovedSalesReturnDetailPopUp.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialLedger\ServicePORegister.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeIncomeTax\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\PerformancePeriodMaster\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\FabricRoll\Aplos1.cshtml" />
     <Content Include="Areas\Productions\Views\StocksAgeingReport\Aplos.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\web.config" />
     <Content Include="Areas\MeetingManagement\Views\MeetingType\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\NewEarnLeaveReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
