@@ -13780,6 +13780,7 @@ namespace Library.MaterialManagement.Inventory
                             dr["CostCenterId"] = item.CostCenterId;
                             dr["OSTransformationPOId"] = item.OSTransformationPODetailId;
                             dr["JWOrderWiseId"] = item.JWOrderWiseId;
+                            dr["Comments"] = item.Comments;
 
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -13836,6 +13837,7 @@ namespace Library.MaterialManagement.Inventory
                                 dr["CostCenterId"] = item.CostCenterId;
                                 dr["OSTransformationPOId"] = item.OSTransformationPODetailId;
                                 dr["JWOrderWiseId"] = item.JWOrderWiseId;
+                                dr["Comments"] = item.Comments;
 
                                 dr["UpdatedBy"] = identity.Name;
                                 dr["UpdatedDate"] = System.DateTime.Now.ToString();
