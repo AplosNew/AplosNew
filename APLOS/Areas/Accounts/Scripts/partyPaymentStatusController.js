@@ -4832,7 +4832,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         catch (e) {
               
         }
-    }
+    } 
      
     $scope.CashReportExcel = function () {
         var reportFormat = "Excel";
