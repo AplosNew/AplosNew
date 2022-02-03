@@ -809,7 +809,24 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
-   
+        public void DeleteIncomeSlab(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TaxPolicySlabInfo where PolicyId='" + ID + "'");
+
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
     }
