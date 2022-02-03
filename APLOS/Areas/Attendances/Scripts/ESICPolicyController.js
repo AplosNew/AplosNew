@@ -526,7 +526,7 @@ function ESICPolicyController($window, cboService, commonMessage, $scope, $rootS
                 available = true;
                 break;
             }
-        }
+        }s
         return available;
     }
     //$scope.Clear = function () {

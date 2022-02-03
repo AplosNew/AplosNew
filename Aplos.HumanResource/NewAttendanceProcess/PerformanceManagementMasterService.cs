@@ -20,15 +20,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         #endregion Constructor
 
-        public double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM PMSMaster");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
-        public IEnumerable<object> getEmployeeTypeId()
+        public IEnumerable<object> getEmployeeId()
         {
             try
             {
@@ -41,6 +33,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             }
         }
+
+
         public IEnumerable<object> GetMaster(string Id)
         {
             try
@@ -54,6 +48,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
         public IEnumerable<object> GetChild(string Id)
         {
             try
@@ -61,7 +56,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = @" select pc.Id,pc.PMSMasterId,pc.EmployeeCategoryId,et.UserName from PMSChild pc
 			 left join hkp.EmployeeCategory et on et.id=pc.EmployeeCategoryId
-                where PMSMasterId= '" + Id + "' ";
+where PMSMasterId= '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -69,11 +64,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
-        public IEnumerable<object> GetList()
+
+        public IEnumerable<object> GetList(string strkey)
         {
             try
             {
-                string sql = @"select * from dbo.PMSMaster";
+                string sql = @"select Id, Sequence, Category ,SubCategory, StandardName, UserName, ShortName ,Code ,Active from dbo.PMSMaster 
+                              ";
+
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -81,6 +79,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
+
         public Dictionary<string, object> Create(Dictionary<string, object> data, List<string> Employee)
         {
             try
@@ -99,7 +99,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same StandardName already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Username = '" + data["Username"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName = '" + data["UserName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same UserName already exists!!!");
 
@@ -128,7 +128,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 DataSet dsChild;
                 ConnectionManager.DAL.ConManager conC = new ConnectionManager.DAL.ConManager("1");
-                conC.OpenDataSetThroughAdapter("select * from dbo.PMSChild where PMSMasterId = '" + data["Id"].ToString() + "'", out dsChild, false, "1");
+                conC.OpenDataSetThroughAdapter("select * from dbo.PMSChild where Id = '" + data["Id"].ToString() + "'", out dsChild, false, "1");
 
                 while (dsChild.Tables[0].DefaultView.Count > 0)
                 {
@@ -159,6 +159,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #endregion data update
 
+
+
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsChild);
 
@@ -166,8 +169,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             }
             catch (Exception ex)
-            { 
+            {
+
                 throw ex;
+
             }
         }
         public void Delete(string id)

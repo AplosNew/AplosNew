@@ -467,7 +467,7 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 							,AllocatedQty=	case when ISNULL(S.Qty,0)>0 then S.Qty else PO.Qty end
 							,PS.Quantity PreviousDayQCpass,S.PlanWorkingHoursPerDay,S.TargetPerHour,
 						     case when isnull(PRO.IsFirst,0)=0 THEN prsum.InQuantity- prsum.OutQuantity- prsum.KillQuantity ELSE NULL END AS WIP,
-                             SO.CM,BUL.TotalMachine TotalMachineOperator,BUL.TotalHand TotalOperator,
+                             SO.CM,
                                              BuyerOrderRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -506,7 +506,7 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 														join trn.MasterOrderItem MOIX ON MOIX.Id=soX.MasterOrderItemId
 														join trn.MasterOrder XMO on Xmo.Id=MOIX.MasterOrderId
 														join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-														where tx.TargetDate>'"+Date+ @"'
+														where tx.TargetDate>'" + Date + @"'
 														and tx.WorkCenterMasterID=wcm.Id  
 														and XB.Id<>MO.BuyerId
 												      )
@@ -516,17 +516,6 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
                                 left outer join TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='" + Date + @"'
                                 left outer join TRN.ProductionOrder PO on PO.Id=DPT.ProductionOrderId  
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
-                               LEFT JOIN trn.ProductionOrderProcessSet AS PSS ON pss.ProductionOrderId=po.Id AND pss.IsBaseProcess=1
-                               LEFT JOIN ( SELECT T.ProductionOrderId,M.ProcessId, 
-						  SUM( CASE WHEN ISNULL(o.IsMachineRequired,'')='M'  THEN 1 ELSE 0 END) AS TotalMachine,
-						  SUM( CASE WHEN ISNULL(o.IsMachineRequired,'')<>'M' THEN 1 ELSE 0 END) AS TotalHand
-						    FROM trn.ProductionBulletinTemplate AS T
-						  JOIN trn.ProductionBulletinTemplateMaster  M ON m.ProductionBulletinTemplateId=t.Id
-						  JOIN trn.ProductionBulletinTemplateDetail AS D ON d.ProductionBulletinTemplateMasterId=M.Id
-						  JOIN mst.OperationVariation AS ov ON ov.Id=D.OperationVariationId
-						  JOIN mst.Operation AS o ON o.Id=ov.OperationId
-						  GROUP BY T.ProductionOrderId,M.ProcessId) AS BUL ON bul.ProductionOrderId=po.Id AND bul.ProcessId=PSS.ProcessId
-                               
                                 left join(select id,MasterOrderItemId, sum(Qty*Rate)/sum(Qty) as CM  from  trn.SalesOrder  
 								group by id,MasterOrderItemId								
 								) SO on SO.Id=POD.SalesOrderId
@@ -550,26 +539,26 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
                                 select ProductionOrderId,WorkCenterMasterId,SUM(InQuantity) AS InQuantity,SUM(OutQuantity) AS OutQuantity,SUM(KillQuantity) AS KillQuantity   from 
 			                        (SELECT ps.ProductionOrderId,PS.ToWorkCenterMasterId AS WorkCenterMasterId,case when ps.ProductionGrade='A' THEN Quantity else 0 END AS InQuantity,0 AS OutQuantity,0 AS KillQuantity 
 				                        FROM trn.ProductionSummary AS ps
-			                         WHERE convert(date,ps.ProductionDate)<=convert(date,'"+Date+@"') 
+			                         WHERE convert(date,ps.ProductionDate)<=convert(date,'" + Date + @"') 
 
 			                         union all 
 			 
 			                         SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,0 AS InQuantity,case when ps.ProductionGrade='A' THEN Quantity else 0 END AS OutQuantity,0 AS KillQuantity 
 				                        FROM trn.ProductionSummary AS ps
-			                         WHERE convert(date,ps.ProductionDate)<=convert(date,'"+Date+@"') 
+			                         WHERE convert(date,ps.ProductionDate)<=convert(date,'" + Date + @"') 
 
 			                          union all 
 			 
 			                         SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,0 AS InQuantity,0 AS OutQuantity,case when ps.ProductionGrade<>'A' THEN Quantity else 0 END  AS KillQuantity 
 				                        FROM trn.ProductionSummary AS ps
-			                         WHERE convert(date,ps.ProductionDate)<=convert(date,'"+Date+@"') 
+			                         WHERE convert(date,ps.ProductionDate)<=convert(date,'" + Date + @"') 
                                     
                                     union all 
 			 
 			                         SELECT q.ProductionOrderId,q.WorkCenterMasterID,0 AS InQuantity,0 AS OutQuantity,isnull(q.DefectiveQty,0) AS  KillQuantity
                                       FROM trn.Quality AS q
                                       JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=q.WorkCenterMasterID
-			                         WHERE  convert(date,Q.ProductionDate)<=convert(date,'"+Date+ @"') 
+			                         WHERE  convert(date,Q.ProductionDate)<=convert(date,'" + Date + @"') 
 			                ) AS K group by ProductionOrderId,WorkCenterMasterId) prSum ON WCM.Id = prSum.WorkCenterMasterId And PO.Id=prSum.ProductionOrderId
 
 						  where WCM.PlantId='" + PlantId + @"' 
@@ -1297,15 +1286,12 @@ Item=STUFF((select distinct ','+XMM.UserName from
                                 sheet[ROW, colStyleDescription].Text = dtDailyProduction.Rows[j]["StyleDescription"].ToString();
                                 sheet[ROW, colSPT2].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["SMV"].ToString());
                                 sheet[ROW, colCM2].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["CM"].ToString());
-
-                                sheet[ROW, colOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["TotalMachineOperator"].ToString());
-                                sheet[ROW, colAsstOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["TotalOperator"].ToString());
-                                sheet[ROW, colTotal].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOP) + ROW + ":" + clsStaticInfo.GetxlsCol(colAsstOP) + (ROW) + ")";
-
-
+                                //sheet[ROW, colOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i]["WithoutMachine"].ToString());
+                                //sheet[ROW, colAsstOP].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
+                                sheet[ROW, colTotal].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManpowerBulletin"].ToString());
                                 sheet[ROW, colAOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManPowerWithHand"].ToString());
                                 sheet[ROW, colAAsstOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManPowerWithMachine"].ToString());
-                                sheet[ROW, colATotal].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colAOP) + ROW + ":" + clsStaticInfo.GetxlsCol(colAAsstOP) + (ROW) + ")";
+                                sheet[ROW, colATotal].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["Manpower"].ToString());
 
                                 sheet[ROW, colPrvsdauQCPass].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PreviousDayQCpass"].ToString());
                                 sheet[ROW, colTodayTGT].Formula = "IF(" + clsStaticInfo.GetxlsCol(colSPT2) + ROW.ToString() + ">0," + (clsStaticInfo.GetxlsCol(colATotal) + ROW.ToString() + "*" + 60 + "*" + clsStaticInfo.GetxlsCol(colExpcEffi) + ROW.ToString() + "*" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString()) + "/" + clsStaticInfo.GetxlsCol(colSPT2) + ROW.ToString() + ",0)";

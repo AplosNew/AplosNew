@@ -537,6 +537,8 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     }
 
     $scope.Delete = function () {
+
+
         $http({
             method: 'POST',
             url: $scope.deleteUrl + $scope.Id,
@@ -585,14 +587,12 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.Clear = function () {
         ClearFields();
     }
-    function ClearFields() {
+    function ClearFields(seq) {
         $scope.fabricRollMaster = {};
         $scope.fabricRollMasterNew = {};
         $scope.fabricRollMasterHeadList = [];
         $scope.popUpList = [];
         $scope.valueData = [];
-        $scope.grnDetailList = [];
-        $scope.MaterialGridList = [];
     }
     $scope.getpdff = function (inventoryReceiveDetailId) {
         getPdf(inventoryReceiveDetailId);
@@ -846,50 +846,34 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.MaterialGridTempList = [];
     $scope.GetSampleFile = function () {
-        try {
-            $scope.MaterialGridTempList = [];
-            for (var i = 0; i < $scope.MaterialGridList.length; i++) {
-                if ($scope.MaterialGridList[i].Flag == true) {
-                    var ob = {};
-                    ob.Id = $scope.MaterialGridList[i].Id;
-                    ob.RollNo = $scope.MaterialGridList[i].RollNo;
-                    $scope.MaterialGridTempList.push(ob);
-                    ob = {};
-                }
-
+        $scope.MaterialGridTempList = [];
+        for (var i = 0; i < $scope.MaterialGridList.length; i++) {
+            if ($scope.MaterialGridList[i].Flag == true) {
+                var ob = {};
+                ob.Id = $scope.MaterialGridList[i].Id;
+                ob.RollNo=$scope.MaterialGridList[i].RollNo;
+                $scope.MaterialGridTempList.push(ob);
+                ob = {};
             }
 
-            if (baseService.arrayLength($scope.MaterialGridTempList) == 0) {
-                throw "Select Details list is required.";
-            }
-
-            for (var i = 0; i < $scope.MaterialGridTempList.length; i++) {
-                if (baseService.isUndefinedOrNull($scope.MaterialGridTempList[i].RollNo) || $scope.MaterialGridTempList[i].RollNo == '') {
-                    throw "No of Roll is required.";
-                }
-            }
-
-
-            var ReportFormat = 'Excel';
-            $http({
-                method: 'POST',
-                url: 'Materials/FabricRoll/GetSampleFile',
-                data: {
-                    'reportFormat': ReportFormat, 'GridTempList': $scope.MaterialGridTempList
-                },
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                }
-            });
-
-
-        } catch (e) {
-            ShowResult(e, 'failure');
         }
+        var ReportFormat = 'Excel';
+        $http({
+            method: 'POST',
+            url: 'Materials/FabricRoll/GetSampleFile',
+            data: {
+                'reportFormat': ReportFormat, 'GridTempList':$scope.MaterialGridTempList },
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+            }
+        });
+
+        //var ReportFormat = 'Excel';
+        //location.href = 'Materials/FabricRoll/GetSampleFile?reportFormat=' + ReportFormat + '&GridTempList=' + $scope.MaterialGridTempList;
     };
 
     $scope.picdata = null;
@@ -950,10 +934,6 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.Action = "Save";
     $scope.SaveRollData = function () {
         try {
-            if (baseService.arrayLength($scope.grnDetailList) == 0) {
-                throw "Detail list is requird.";
-            }
-
             $scope.modeldata.GRNId = $scope.fabricRollMaster.GRNNo; $scope.modeldata.GRNDate = $scope.fabricRollMaster.GRNDate;
 
             for (var i = 0; i < $scope.grnDetailList.length; i++) {
