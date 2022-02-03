@@ -263,9 +263,9 @@ var upanelApp = angular
     .controller("misAccountDashboardController", misAccountDashboardController)
     .controller("LeaveYearEndProcessEncashmentApprovalController", LeaveYearEndProcessEncashmentApprovalController)
 
-    //.controller("mpanelDashboardController", mpanelDashboardController)
-    //.controller("mpanelLoginController", mpanelLoginController)
-    //.controller("mpanelLogoutController", mpanelLogoutController)
+    //.controller("mpanelDashboardController", mpanelDashboardController)                                                              
+    //.controller("mpanelLoginController", mpanelLoginController)                                                                      
+    //.controller("mpanelLogoutController", mpanelLogoutController)                                                                    
     .controller("multipleResignationApprovalController", multipleResignationApprovalController)
     .controller("multipleVendorPaymentApprovedController", multipleVendorPaymentApprovedController)
     .controller("multipleVendorPaymentController", multipleVendorPaymentController)
@@ -746,7 +746,7 @@ var upanelApp = angular
     .controller('DailyCropRateController', DailyCropRateController)
     .controller('FarmingCategoryController', FarmingCategoryController)
     .controller('TransactionTypeController', TransactionTypeController)
-    //.controller('EmployeeServiceTypeController', EmployeeServiceTypeController)
+    //.controller('EmployeeServiceTypeController', EmployeeServiceTypeController)                                                      
     .controller('EmployeeBankAccountInfoController', EmployeeBankAccountInfoController)
     .controller('JobWorkItemController', JobWorkItemController)
     .controller('rePrintNonCashCheckController', rePrintNonCashCheckController)
@@ -762,7 +762,7 @@ var upanelApp = angular
     .controller('EmployeePlantTransferNewController', EmployeePlantTransferNewController)
     .controller('CompanyWiseEmployeePlantTransferController', CompanyWiseEmployeePlantTransferController)
     .controller("inventoryTransferJournalController", inventoryTransferJournalController)
-    //.controller("jobWorkItemController", JobWorkItemController)
+    //.controller("jobWorkItemController", JobWorkItemController)                                                                      
     .controller("checkVoidController", checkVoidController)
     .controller("checkManagementReportController", checkManagementReportController)
     .controller("wipReportController", wipReportController)
@@ -999,7 +999,6 @@ var upanelApp = angular
     .controller("ServicePORegisterController", ServicePORegisterController)
     .controller("StocksAgeingReportController", StocksAgeingReportController)
 
-
     .config(AccessControllerConfig)
     .config(accountConfig)
     .config(bankConfig)
@@ -1034,8 +1033,6 @@ var upanelApp = angular
     .config(JobWorkConfig)
     .config(OutsourcingConfig)
     .config(PerformanceManagementConfig)
-
-
     .config(["$routeProvider", "$locationProvider", "$httpProvider", function apanelConfig($routeProvider, $locationProvider, $httpProvider) {
         $httpProvider.interceptors.push("errorInterceptor");
         $httpProvider.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
