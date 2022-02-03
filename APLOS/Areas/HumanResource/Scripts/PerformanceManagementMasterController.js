@@ -29,7 +29,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     $scope.getEmployee = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getEmployee",
+            url: $scope.path + "getEmployeetype",
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
@@ -85,6 +85,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
             }
             //EmployeeList
 
+            $scope.SelEmpList = [];
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
                 if ($scope.EmployeeList[i].Id in ob) {
                     $scope.EmployeeList[i].isSelected = true;

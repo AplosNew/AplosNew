@@ -28,7 +28,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             return 1;
         }
-        public IEnumerable<object> getEmployeeId()
+        public IEnumerable<object> getEmployeeTypeId()
         {
             try
             {
@@ -159,9 +159,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 #endregion data update
 
-
-
-
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsChild);
 
@@ -169,10 +166,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             }
             catch (Exception ex)
-            {
-
+            { 
                 throw ex;
-
             }
         }
         public void Delete(string id)
