@@ -135,9 +135,6 @@ namespace Aplos.Areas.Materials.Controllers
         }
         #endregion -- Operations
 
-
-
-
         [HttpPost, Authorize]
         public ActionResult GRNList(string column, string value)
         {
@@ -370,7 +367,7 @@ FROM [TRN].[InventoryReceiveDetail] IRD
 										LEFT JOIN (SELECT COUNT(Id) SplitCount,Sum(VendorQty) TotalDistributeQty
 										,InventoryReceiveDetailId FROM TRN.FabricRollMaster 
 										GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
-WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
+WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"' AND IRD.Id NOT IN(Select GRNRowId from BPDT.FabricRollManagementChild)";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 
@@ -459,6 +456,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             }
         }
         #endregion
+
         public void SaveFile(out string path)
         {
             path = "";
