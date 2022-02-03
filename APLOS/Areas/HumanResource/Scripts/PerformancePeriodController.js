@@ -25,7 +25,7 @@ function PerformancePeriodController(cboService, commonMessage, $scope, $rootSco
     $scope.getData();
 
     $scope.ModelTemp = {
-        SId: null,
+        Id: null,
         PerformanceYearName: null,
         StartDate:null,
         EndDate:null,

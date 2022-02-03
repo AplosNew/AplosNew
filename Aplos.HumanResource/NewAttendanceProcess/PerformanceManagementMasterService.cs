@@ -305,32 +305,37 @@ where PMSMasterId= '" + Id + "' ";
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where PerformanceYearName = '" + Data["PerformanceYearName"] + "' AND  Id <> '" + Data["Id"] + "'", out DataSet dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Performance Year Name already exists!!!");
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Data["Id"] + "'", out dsMaster, false, "1");
-
-                #region data update
-                string _Id = "";
-                if (dsMaster.Tables[0].Rows.Count == 0)
+                
+                TimeSpan ts = Convert.ToDateTime(Data["EndDate"]).Subtract(Convert.ToDateTime(Data["StartDate"]));
+                if (ts.Days >= 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Data["Id"] + "'", out dsMaster, false, "1");
 
-                    Data["Id"] = "PP" + _Id;
-                    AddNewRow(dsMaster.Tables[0], Data);
+                    #region data update
+                    string _Id = "";
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        Data["Id"] = "PP" + _Id;
+                        AddNewRow(dsMaster.Tables[0], Data);
+                    }
+                    else
+                    {
+                        _Id = Data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], Data);
+                    }
+                    #endregion data update
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);                    
                 }
                 else
                 {
-                    _Id = Data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], Data);
+                    throw new Exception("Please Choose a Valid Date Range !!");
                 }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
                 return Data;
-
             }
             catch (Exception ex)
             {

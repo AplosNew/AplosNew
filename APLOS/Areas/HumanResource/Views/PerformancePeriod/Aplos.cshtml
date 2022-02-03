@@ -3,18 +3,14 @@
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
 
+       
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">SystemId<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name=" SystemId" ng-model="ModelNew.Id" class="form-control" required maxlength="10">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">PerformanceYear<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Performance Year<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="PerformanceYear" ng-model="ModelNew.PerformanceYearName" class="form-control" required maxlength="10">
             </div>
         </div>
+
         <div class="form-group">
             <label class="col-sm-4 control-label">Active</label>
             <div class="col-sm-8">
@@ -40,17 +36,17 @@
 
         <div class="col-lg-8 col-md-8 col-sm-12">
             <div class="form-group">
-                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Start Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                    <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker ng-model="ModelNew.StartDate" e-width="100%" />
                 </div>
             </div>
         </div>
         <div class="col-lg-8 col-md-8 col-sm-12">
             <div class="form-group">
-                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <label class="col-sm-4 control-label">End Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker ng-model="ModelNew.EndDate" e-width="100%" />
                 </div>
             </div>
         </div>
@@ -66,22 +62,7 @@
             <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
-    </div>
-    <div class="row">
-        <div id="GridEdit" ej-grid e-datasource="ModelList"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="margin-top:10px;">
-            <div e-columns>
-                <div e-column e-field="SystemId" e-headertext="System Id" e-width="2"></div>
-                <div e-column e-field="PerformanceYearName" e-headertext="Performance Year" e-width="3"></div>
-                <div e-column e-field="StartDate" e-headertext="Start Date" e-width="3"></div>
-                <div e-column e-field="EndDate" e-headertext="End Date" e-width="3"></div>
-                <div e-column e-field="Active" e-headertext="Active" e-width="3"></div>
-                <div e-column e-field="Remark" e-headertext="Remarks" e-width="3"></div>
-
-            </div>
-        </div>
-    </div>
+    </div>    
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
