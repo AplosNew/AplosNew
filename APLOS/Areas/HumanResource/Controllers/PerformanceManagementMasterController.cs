@@ -24,7 +24,6 @@ namespace Aplos.Areas.HumanResource.Controllers
     public class PerformanceManagementMasterController : BaseController
     {
         PerformanceManagementMasterService ps = new PerformanceManagementMasterService();
-        string TableName = "dbo.PMSMaster";
         
         #region Constructor
 
@@ -117,7 +116,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
         private double GetSequence()
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM PMSMaster");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 

@@ -44,23 +44,23 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region Pages
 
-     
+
         public ActionResult Aplos()
         {
             return View();
         }
 
-	
-		public ActionResult Aplos1()
-		{
-			return View();
-		}
 
-		#endregion Pages
+        public ActionResult Aplos1()
+        {
+            return View();
+        }
 
-		#region -- Operations
+        #endregion Pages
 
-		[HttpGet, Authorize]
+        #region -- Operations
+
+        [HttpGet, Authorize]
         public JsonResult GetList(GridParameter parameters, string paidHours)
         {
             CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -80,40 +80,40 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
 
-		[HttpPost]
-		public JsonResult Update(List<Dictionary<string, object>> FabricRollData, string PackingForm)
-		{
-			_fabricRollMasterService.UpdateFabricRoll(FabricRollData,PackingForm);
-			return Json(new { Message = AplosMessage.Updated });
-		}
+        [HttpPost]
+        public JsonResult Update(List<Dictionary<string, object>> FabricRollData, string PackingForm)
+        {
+            _fabricRollMasterService.UpdateFabricRoll(FabricRollData, PackingForm);
+            return Json(new { Message = AplosMessage.Updated });
+        }
 
-	
 
-		[HttpPost, Authorize]
-		public JsonResult GetRoll( int NoofRolls,Dictionary<string, object> SelectedRow,double Width,string PackingForm)
-		{
-			_fabricRollMasterService.CreateRoll( NoofRolls, SelectedRow, Width, PackingForm);
-			return Json(new { Message = AplosMessage.Insert });
-		}
 
-		public ActionResult Delete(string id)
-		{
-			try
-			{
-				if (string.IsNullOrEmpty(id))
-					throw new Exception("Select entry first");
-				ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-				con.BeginTransaction();
-				con.executeQuery("delete from TRN.FabricRollMaster where id='" + id + "'");
-				con.CommitTransaction();
-				return Json(new { Error = false,/* Sequence = GetSequence(),*/ Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-			}
-		}
-		[HttpGet, Authorize]
+        [HttpPost, Authorize]
+        public JsonResult GetRoll(int NoofRolls, Dictionary<string, object> SelectedRow, double Width, string PackingForm)
+        {
+            _fabricRollMasterService.CreateRoll(NoofRolls, SelectedRow, Width, PackingForm);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        public ActionResult Delete(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TRN.FabricRollMaster where id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false,/* Sequence = GetSequence(),*/ Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpGet, Authorize]
         public JsonResult GetGRNList(GridParameter parameters)
         {
             return Json(_fabricRollMasterService.GetGRNList(parameters, BusinessProcessEnum.FabricRollManagement.ToString()), JsonRequestBehavior.AllowGet);
@@ -290,11 +290,11 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-		[HttpPost, Authorize]
-		public ActionResult MaterialList(string inventoryReceiveId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"SELECT 
+        [HttpPost, Authorize]
+        public ActionResult MaterialList(string inventoryReceiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT 
 DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount
 ,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
 ,P.UserName PartyName,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId
@@ -329,21 +329,21 @@ FROM [TRN].[InventoryReceiveDetail] IRD
 										GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
 WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
 
-			            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 
-		}
+        }
 
-		[HttpPost, Authorize]
-		public ActionResult GetMaterialListData(string inventoryReceiveId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"SELECT 
+        [HttpPost, Authorize]
+        public ActionResult GetMaterialListData(string inventoryReceiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT 
 DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount
 ,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
 ,P.UserName PartyName,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId
 ,IM.FirstCharacteristicsId SKUId,MM.UserName MaterialMasterName,MMA.StandardName ArticleName
 ,C.UserName SKU1,C2.UserName SKU2,C3.UserName SKU3,CV.UserName SKUValue,CV2.UserName SKUValue2,CV3.UserName SKUValue3, C.UserName +':'+CV.UserName SKUInfo,CU.Code
-,MGM.UserName MaterialGroup
+,MGM.UserName MaterialGroup,CAST(0 AS bit) Flag
 FROM [TRN].[InventoryReceiveDetail] IRD
                                         LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
                                         LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
@@ -372,157 +372,159 @@ FROM [TRN].[InventoryReceiveDetail] IRD
 										GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
 WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
 
-			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 
-		}
+        }
 
-		[HttpPost, Authorize]
-		public ActionResult FabricRollList(string inventoryReceiveDetailId)
-		{
+        [HttpPost, Authorize]
+        public ActionResult FabricRollList(string inventoryReceiveDetailId)
+        {
 
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + inventoryReceiveDetailId + @"'";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + inventoryReceiveDetailId + @"'";
 
-			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 
-		}
-		[HttpGet, Authorize]
-		public ActionResult DownloadRollReport(string inventoryReceiveDetailId)
-		{
-			try
-			{
-				Library.OrderManagement.FabricRollClass.FabricRollClass RollReport = new Library.OrderManagement.FabricRollClass.FabricRollClass();
-				RollReport.DownloadReport(inventoryReceiveDetailId);
+        }
+        [HttpGet, Authorize]
+        public ActionResult DownloadRollReport(string inventoryReceiveDetailId)
+        {
+            try
+            {
+                Library.OrderManagement.FabricRollClass.FabricRollClass RollReport = new Library.OrderManagement.FabricRollClass.FabricRollClass();
+                RollReport.DownloadReport(inventoryReceiveDetailId);
 
-				return null;
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-		}
-
-
-		#region Upload Roll Data
-
-		[HttpPost]
-		public JsonResult CreateRollFile(FormCollection form)
-		{
-			var pre = form["FabricRollFile"];
-			var settings = new JsonSerializerSettings
-			{
-				NullValueHandling = NullValueHandling.Ignore,
-				MissingMemberHandling = MissingMemberHandling.Ignore
-			};
-			var FabricRollFile = JsonConvert.DeserializeObject<FabricRollFile>(pre, settings);
-			var file = Request.Files["file"];
-			if (file != null)
-			{
-				var extension = Path.GetExtension(file.FileName);
-				if (extension.ToLower() != ".xls" && extension.ToLower() != ".xlsx")
-				{
-					throw new CustomException(Resources.ImageUploadError);
-				}
+        }
 
 
-				FabricRollClass Clsss = new FabricRollClass();
-				//clsManualAttendanceFileUpload p = new clsManualAttendanceFileUpload();
-				Clsss.Save(file.FileName, extension, FabricRollFile, out DataSet dsMaster);
-				var path = Path.Combine(ResourcesPathReader.GetFabricRollFilePath(), dsMaster.Tables[0].Rows[0]["FileId"].ToString());
+        #region Upload Roll Data
 
-				if (System.IO.File.Exists(path))
-				{
-					System.IO.File.Delete(path);
-					file.SaveAs(path);
-				}
-				else
-				{
-					file.SaveAs(path);
-				}
-			}
-			return Json(new { Message = AplosMessage.Success });
-		}
+        [HttpPost]
+        public JsonResult CreateRollFile(FormCollection form)
+        {
+            var pre = form["FabricRollFile"];
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var FabricRollFile = JsonConvert.DeserializeObject<FabricRollFile>(pre, settings);
+            var file = Request.Files["file"];
+            if (file != null)
+            {
+                var extension = Path.GetExtension(file.FileName);
+                if (extension.ToLower() != ".xls" && extension.ToLower() != ".xlsx")
+                {
+                    throw new CustomException(Resources.ImageUploadError);
+                }
 
-		[HttpGet, Authorize]
-		public ActionResult GetMaster()
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				clsManualAttendanceFileUpload ep = new clsManualAttendanceFileUpload();
-				return Json(ep.GetMaster(identity.PlantId), JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				return Json(new { Error = true, Message = ex.Message });
-			}
-		}
-		#endregion
-		public void SaveFile(out string path)
-		{
-			path = "";
-			try
-			{
-				var file = Request.Files["file"];
-				if (file != null)
-				{
-					var extension = Path.GetExtension(file.FileName);
-					if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
-					{
-					}
-					else
-						throw new CustomException(Resources.ExcelUploadError);
-				}
-				if (file != null)
-				{
-					path = Path.Combine(ResourcesPathReader.GetFabricRollData(), file.FileName);
-					if (System.IO.File.Exists(path))
-					{
-						System.IO.File.Delete(path);
-						file.SaveAs(path);
-					}
-					else
-					{
-						file.SaveAs(path);
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
 
-		#region SampleFile
-		[HttpGet, Authorize]
-		public ActionResult GetSampleFile(ReportFormat reportFormat,int rollNo)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			IWorkbook workbook = GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, rollNo);
-			var reportFileName = "Fabric Roll Management Template";
-			switch (reportFormat)
-			{
-				case ReportFormat.Pdf:
-					return RenderReportAsPdf(workbook, reportFileName);
+                FabricRollClass Clsss = new FabricRollClass();
+                //clsManualAttendanceFileUpload p = new clsManualAttendanceFileUpload();
+                Clsss.Save(file.FileName, extension, FabricRollFile, out DataSet dsMaster);
+                var path = Path.Combine(ResourcesPathReader.GetFabricRollFilePath(), dsMaster.Tables[0].Rows[0]["FileId"].ToString());
 
-				case ReportFormat.Excel:
-					return RenderReportAsExcel(workbook, reportFileName);
+                if (System.IO.File.Exists(path))
+                {
+                    System.IO.File.Delete(path);
+                    file.SaveAs(path);
+                }
+                else
+                {
+                    file.SaveAs(path);
+                }
+            }
+            return Json(new { Message = AplosMessage.Success });
+        }
 
-				default:
-					return RenderReportAsExcel(workbook, reportFileName);
-			}
+        [HttpGet, Authorize]
+        public ActionResult GetMaster()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                clsManualAttendanceFileUpload ep = new clsManualAttendanceFileUpload();
+                return Json(ep.GetMaster(identity.PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        #endregion
+        public void SaveFile(out string path)
+        {
+            path = "";
+            try
+            {
+                var file = Request.Files["file"];
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetFabricRollData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		}
+        #region SampleFile
+        [HttpPost, Authorize]
+        public ActionResult GetSampleFile(ReportFormat reportFormat, List<Dictionary<string, object>> GridTempList)
+        {
+            string fileName = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            fileName = GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, GridTempList);
+            var reportFileName = "Fabric Roll Management Template";
+            return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            //switch (reportFormat)
+            //{
+            //    case ReportFormat.Pdf:
+            //        return RenderReportAsPdf(workbook, reportFileName);
 
-        public IWorkbook GetSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName, int rollNo)
+            //    case ReportFormat.Excel:
+            //        return RenderReportAsExcel(workbook, reportFileName);
+
+            //    default:
+            //        return RenderReportAsExcel(workbook, reportFileName);
+            //}
+
+        }
+
+        public string GetSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName, List<Dictionary<string, object>> GridTempList)
         {
             #region declare
             clsReport objRpt = null;
             clsStaticInfo objStatic = null;
             objStatic = new clsStaticInfo();
             string OTConsiderOn = string.Empty;
-          
+
             int maxRow = 5001;
 
             #endregion
@@ -530,7 +532,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             {
                 //sorting
                 //lock               
-
+                var filePath = "";
                 ReportUtility ru = new ReportUtility();
 
                 ExcelEngine excelEngine = null;
@@ -553,23 +555,23 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 sheet1 = workbook.Worksheets[0];
                 IWorksheet sheetSource = null;
                 sheetSource = workbook.Worksheets[1];
-               
 
 
-				#region ------------------Column Header------------------
 
-				ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence");
-				sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
+                #region ------------------Column Header------------------
 
-				ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");
-              
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence");
+                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");
+
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LotNo");
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
                 xlsCol += 1;
-             
+
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MarkarCode"); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricGroup"); xlsCol += 1;
@@ -585,7 +587,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BuyerRollNo"); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Grouping"); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks");
-                 xlsCol += 1;
+               
 
                 endXlsCol = xlsCol;
 
@@ -599,24 +601,51 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
                 xlsRow++;
 
-				#endregion ------------------Column Header------------------
-				int count =0;
+                #endregion ------------------Column Header------------------
+                int count = 0;
                 #region DataPlot
-                for (int i = 0; i < rollNo; i++)
+                string grnId = string.Empty;
+
+                foreach (var item in GridTempList)
                 {
-					count++;
-					xlsCol = 1;
-					sheet1[xlsRow, xlsCol].Number = count;
-					xlsRow++;
-				}
+                    if (grnId == item["Id"].ToString())
+                    {
+                        for (int i = 0; i < Convert.ToInt32(item["RollNo"].ToString()); i++)
+                        {
+                            count++;
+                            sheet1[xlsRow, 1].Number = count;
+                            sheet1[xlsRow, 2].Text = item["Id"].ToString();
 
-				xlsRow++;
+                            grnId = item["Id"].ToString();
+                            xlsRow++;
+                        }
+                    }
+                    else
+                    {
 
-				#endregion
+                        for (int i = 0; i < Convert.ToInt32(item["RollNo"].ToString()); i++)
+                        {
+                            count++;
+                            sheet1[xlsRow, 1].Number = count;
+                            sheet1[xlsRow, 2].Text = item["Id"].ToString();
 
-				#region UsedRange Alignment
+                            grnId = item["Id"].ToString();
+                            xlsRow++;
+                        }
 
-				sheet1.UsedRange.WrapText = true;
+                    }
+
+
+                }
+
+
+                xlsRow++;
+
+                #endregion
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
                 sheet1.UsedRange.CellStyle.Font.Size = 10;
                 sheet1.Range["A1"].CellStyle.Font.Size = 10;
                 sheet1.Range["A2"].CellStyle.Font.Size = 10;
@@ -645,7 +674,14 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
                 #endregion  Lunch Out
 
-                return workbook;
+                //return workbook;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FabricRollManage" + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
             }
             catch (Exception ex)
             {
@@ -653,69 +689,69 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             }
         }
 
-		#endregion
+        #endregion
 
-		#region MyRegion
+        #region MyRegion
 
-		[HttpPost, Authorize]
-		public JsonResult ImportData()
-		{
-			string path;
-			clsTemplateReadProfile objR = null;
-			try
-			{
-				objR = new clsTemplateReadProfile();
-				var file = Request.Files["file"];
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				SaveFiles(out path);
-				var data = ReadData(identity.PlantId, path);
-				JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
-				json.MaxJsonLength = int.MaxValue;
-				return json;
-			}
-			catch (Exception ex)
-			{
-				return Json(new { Error = true, Message = ex.Message });
-			}
-		}
-		public void SaveFiles(out string path)
-		{
-			path = "";
-			try
-			{
-				//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				//GetPlantwiseData(identity.PlantId);
-				var file = Request.Files["file"];
-				if (file != null)
-				{
-					var extension = Path.GetExtension(file.FileName);
-					if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
-					{
-					}
-					else
-						throw new CustomException(Resources.ExcelUploadError);
-				}
-				if (file != null)
-				{
-					path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
-					if (System.IO.File.Exists(path))
-					{
-						System.IO.File.Delete(path);
-						file.SaveAs(path);
-					}
-					else
-					{
-						file.SaveAs(path);
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+        [HttpPost, Authorize]
+        public JsonResult ImportData()
+        {
+            string path;
+            clsTemplateReadProfile objR = null;
+            try
+            {
+                objR = new clsTemplateReadProfile();
+                var file = Request.Files["file"];
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveFiles(out path);
+                var data = ReadData(identity.PlantId, path);
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        public void SaveFiles(out string path)
+        {
+            path = "";
+            try
+            {
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //GetPlantwiseData(identity.PlantId);
+                var file = Request.Files["file"];
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		 public List<FabricRollTemplate> ReadData(string plantid, string path)
+        public List<FabricRollTemplate> ReadData(string plantid, string path)
         {
             List<FabricRollTemplate> data = null;
             //string path = "";
@@ -735,227 +771,227 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             }
         }
 
-		public void ReadFile(string path, out DataSet dsExcel)
-		{
-			FileInfo docFile;
-			dsExcel = null;
-			try
-			{
-				ExcelEngine excelEngine = null;
-				IApplication application = null;
-				IWorkbook workbook = null;
-				excelEngine = new ExcelEngine();
-				application = excelEngine.Excel;
-				workbook = excelEngine.Excel.Workbooks.Open(path);
-				//DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-				DataTable dt = workbook.Worksheets[0].ExportDataTable(6,1,5000,18, ExcelExportDataTableOptions.ColumnNames);
+        public void ReadFile(string path, out DataSet dsExcel)
+        {
+            FileInfo docFile;
+            dsExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+                //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 18, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 dsExcel = new DataSet();
-				dsExcel.Tables.Add(dt);
-				docFile = new FileInfo(path);
-				if (docFile.Exists)
-				{
-					//exception += "\r\nTrying to delete";
-					docFile.Delete();
-				}
-			}
-			catch (Exception ex)
-			{
-				docFile = new FileInfo(path);
-				if (docFile.Exists)
-				{
-					docFile.Delete();
-				}
-				throw (ex);
-			}
-		}
+                dsExcel.Tables.Add(dt);
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    //exception += "\r\nTrying to delete";
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
+            }
+        }
 
-		public void Validation(DataSet dsExcel, string plantid)
-		{
-			
-			try
-			{
-			
-				if (dsExcel.Tables[0].Rows.Count > 0)
-				{
-					if (false)
-					{
-						for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
-						{
-							string strTempPDate = "";
-							string strTempPTimee = "";
-							string strTempPType = "";
+        public void Validation(DataSet dsExcel, string plantid)
+        {
 
-							strTempPDate = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-							strTempPTimee = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
-							strTempPType = dsExcel.Tables[0].Rows[i][3].ToString().Trim().ToUpper();
+            try
+            {
 
-						}//for
+                if (dsExcel.Tables[0].Rows.Count > 0)
+                {
+                    if (false)
+                    {
+                        for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                        {
+                            string strTempPDate = "";
+                            string strTempPTimee = "";
+                            string strTempPType = "";
 
-					}
+                            strTempPDate = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                            strTempPTimee = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                            strTempPType = dsExcel.Tables[0].Rows[i][3].ToString().Trim().ToUpper();
 
-				}
-				else
-				{
-					throw new Exception("Please Select File");
-				}
-			}
-			catch (Exception ex)
-			{
-				throw;
-			}
-		}
+                        }//for
 
-		[HttpPost]
-		public JsonResult CreateFabricRollManage(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList)
-		{
-            SaveFabricRollManageData(data, WorkDayList);
-			return Json(new { Data = data, Message = AplosMessage.Insert });
-		}
+                    }
 
+                }
+                else
+                {
+                    throw new Exception("Please Select File");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
 
-		private void SaveFabricRollManageData(Dictionary<string, object> data, List<Dictionary<string, object>> grnDetailList)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			try
-			{
-				DataSet dsMaster, dsDetail;
-				ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-				con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[FabricRollManagementMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-				string _Id, _detailId = "";
-				string masterId = "";
-
-				if (dsMaster.Tables[0].Rows.Count == 0)
-				{
-					bplib.clsGenID genid = new bplib.clsGenID();
-					genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "DispatchMaster", out _Id);
-
-					data["Id"] =_Id;
-					data["PlantId"] = identity.PlantId;
-					AddNewRow(dsMaster.Tables[0], data);
-				}
-				else
-				{
-					_Id = data["Id"].ToString();
-					data["PlantId"] = identity.PlantId;
-					EditRow(dsMaster.Tables[0].Rows[0], data);
-				}
-
-				masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-				
-				con.OpenDataSetThroughAdapter("SELECT * FROM BPDT.FabricRollManagementChild WHERE FabricRollManagementMasterId ='" + masterId + "'", out dsDetail, false, "1");
-
-				int count = 0;
-				foreach (var item in grnDetailList)
-				{
-					count++;
-					DataView dv = new DataView(dsDetail.Tables[0]);
-					dv.RowFilter = "Id='" + item["Id"] + "'";
-
-					if (dv.Count == 0)
-					{
-						item["Id"] = masterId+"-"+count;
-						item["FabricRollManagementMasterId"] = masterId;
-
-						AddNewRow(dsDetail.Tables[0], item);
-					}
-					else
-					{
-						DataRow drmo = dv[0].Row;
-						EditRow(drmo, item);
-					}
-				}
+        [HttpPost]
+        public JsonResult CreateFabricRollManage(Dictionary<string, object> data, List<Dictionary<string, object>> grnDetailList)
+        {
+            SaveFabricRollManageData(data, grnDetailList);
+            return Json(new { Data = data, Message = AplosMessage.Insert });
+        }
 
 
-				clsStaticInfo obj = new clsStaticInfo();
-				obj.SaveDataSets(dsMaster, dsDetail);
+        private void SaveFabricRollManageData(Dictionary<string, object> data, List<Dictionary<string, object>> grnDetailList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-			}
-			catch (Exception ex)
-			{
-				throw (ex);
-			}
-		}
+            try
+            {
+                DataSet dsMaster, dsDetail;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [BPDT].[FabricRollManagementMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
-		private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			DataRow dr = dt.NewRow();
+                string _Id, _detailId = "";
+                string masterId = "";
 
-			foreach (var item in sourceData.Keys)
-			{
-				try
-				{
-					dr[item] = sourceData[item];
-				}
-				catch (Exception)
-				{
-				}
-			}
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FabricRollManagementMaster", out _Id);
 
-			dr["AddedBy"] = identity.Name;
-			dr["AddedDate"] = System.DateTime.Now.ToString();
-			dr["AddedFromIP"] = identity.IPAddress;
-			dr["UpdatedBy"] = identity.Name;
-			dr["UpdatedDate"] = System.DateTime.Now.ToString();
-			dr["UpdatedFromIP"] = identity.IPAddress;
+                    data["Id"] = _Id;
+                    data["PlantId"] = identity.PlantId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    data["PlantId"] = identity.PlantId;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
 
-			dt.Rows.Add(dr);
-		}
-		private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			dr.BeginEdit();
-
-			foreach (var item in sourceData.Keys)
-			{
-				try
-				{
-					dr[item] = sourceData[item];
-				}
-				catch (Exception)
-				{
-				}
-			}
-
-			dr["UpdatedBy"] = identity.Name;
-			dr["UpdatedDate"] = System.DateTime.Now.ToString();
-			dr["UpdatedFromIP"] = identity.IPAddress;
-			dr.EndEdit();
-		}
-
-		#endregion
-
-	}
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
 
-	public class FabricRollTemplate
-	{
-		
-		public string Sequence { get; set; }
-		public string GRNRowId { get; set; }
-		public string LotNo { get; set; }
-		public string Shade { get; set; }
-		public string MarkarCode { get; set; }
-		public string FabricGroup { get; set; }
-		public string Length { get; set; }
+                con.OpenDataSetThroughAdapter("SELECT * FROM BPDT.FabricRollManagementChild WHERE FabricRollManagementMasterId ='" + masterId + "'", out dsDetail, false, "1");
 
-		public string Weight { get; set; }
-		public string Shrinkage { get; set; }
-		public string Qty { get; set; }
-		public string QtyUoM { get; set; }
-		public string ActualQty { get; set; }
-		public string InvoiceQty { get; set; }
+                int count = 0;
+                foreach (var item in grnDetailList)
+                {
+                    count++;
+                    DataView dv = new DataView(dsDetail.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
 
-		public string SupplierRollNo { get; set; }
-		public string OwnRollNo { get; set; }
-		public string BuyerRollNo { get; set; }
-		public string Grouping { get; set; }
-		public string Remarks { get; set; }
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = masterId + "-" + count;
+                        item["FabricRollManagementMasterId"] = masterId;
 
-	}
+                        AddNewRow(dsDetail.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, item);
+                    }
+                }
+
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsDetail);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+        #endregion
+
+    }
+
+
+    public class FabricRollTemplate
+    {
+
+        public string Sequence { get; set; }
+        public string GRNRowId { get; set; }
+        public string LotNo { get; set; }
+        public string Shade { get; set; }
+        public string MarkarCode { get; set; }
+        public string FabricGroup { get; set; }
+        public string Length { get; set; }
+
+        public string Weight { get; set; }
+        public string Shrinkage { get; set; }
+        public string Qty { get; set; }
+        public string QtyUoM { get; set; }
+        public string ActualQty { get; set; }
+        public string InvoiceQty { get; set; }
+
+        public string SupplierRollNo { get; set; }
+        public string OwnRollNo { get; set; }
+        public string BuyerRollNo { get; set; }
+        public string Grouping { get; set; }
+        public string Remarks { get; set; }
+
+    }
 }

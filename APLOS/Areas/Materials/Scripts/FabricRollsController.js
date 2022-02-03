@@ -220,6 +220,40 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             ShowResult(e, 'failure');
         }
     }
+
+
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#MaterialGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.MaterialGridList.length; i++) {
+                $scope.MaterialGridList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#MaterialGrid").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+
+
     //$scope.LoadGRNSearchList();
     $scope.showSingleFabricRollPop = function (data) {
         angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
@@ -748,7 +782,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     function GetShortList(list) {
         var list2 = [];
         for (var i = 0; i < list.length; i++) {
-            if (list[i].EmployeeCode === null || list[i].EmployeeCode === '' || list[i].EmployeeCode === 'undefined') {
+            if (list[i].Id === null || list[i].Id === '' || list[i].Id === 'undefined') {
 
             }
             else {
@@ -807,12 +841,39 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     };
     //End Import File
-
-    $scope.ModelNew = { FileName: null };
-
+    $scope.fileName = "Fabric Roll Management Template.xlsx";
+    $scope.ModelNew = { FileName: null};
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
+    $scope.MaterialGridTempList = [];
     $scope.GetSampleFile = function () {
+        $scope.MaterialGridTempList = [];
+        for (var i = 0; i < $scope.MaterialGridList.length; i++) {
+            if ($scope.MaterialGridList[i].Flag == true) {
+                var ob = {};
+                ob.Id = $scope.MaterialGridList[i].Id;
+                ob.RollNo=$scope.MaterialGridList[i].RollNo;
+                $scope.MaterialGridTempList.push(ob);
+                ob = {};
+            }
+
+        }
         var ReportFormat = 'Excel';
-        location.href = 'Materials/FabricRoll/GetSampleFile?reportFormat=' + ReportFormat + '&rollNo=' + $scope.fabricRollMasterNew.GRNSplitQty;
+        $http({
+            method: 'POST',
+            url: 'Materials/FabricRoll/GetSampleFile',
+            data: {
+                'reportFormat': ReportFormat, 'GridTempList':$scope.MaterialGridTempList },
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+            }
+        });
+
+        //var ReportFormat = 'Excel';
+        //location.href = 'Materials/FabricRoll/GetSampleFile?reportFormat=' + ReportFormat + '&GridTempList=' + $scope.MaterialGridTempList;
     };
 
     $scope.picdata = null;
@@ -820,7 +881,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $("#uploadImage").change(function () {
         $scope.picdata = this.files[0];
     });
-
+    $scope.grnDetailList = [];
     $scope.ImportData = function () {
         try {
             $scope.msg = "";
@@ -849,11 +910,9 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
                 }
                 else {
-                    $scope.AttdnRawData = [];
-                    //console.log('33', response.data);
+                    $scope.grnDetailList = [];
                     var x = GetShortList(response.data);
-                    //console.log('x', x);
-                    $scope.AttdnRawData = x;
+                    $scope.grnDetailList = x;
                     $scope.ShowSaveBtn = true;
                 }
             }, function errorCallback(response) {
@@ -868,45 +927,25 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     };
 
-
-    //$scope.grnDetailList = [];
-    //$scope.save = function () {
-    //    try {
-    //        $scope.msg = '';
-    //        $scope.ShowSaveBtn = false;
-    //        $.ajax({
-    //            type: "POST",
-    //            url: 'Attendances/EmployeeProfileUpload/SaveProfileData',
-    //            data: { 'epList': $scope.AttdnRawData },
-    //            dataType: "json",
-    //            success: function (response) {
-    //                if (response.Error === true) {
-    //                    ShowResult(response.Message, 'failure');
-    //                }
-    //                else {
-    //                    ShowResult(response.Message, 'success');
-    //                    $scope.msg = "Data Saved Successfully ...";
-    //                    $scope.grnDetailList = [];
-    //                    $("#uploadImage").val(null);
-    //                }
-    //            }
-    //        });
-
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //};
-
+    $scope.modeldata = {
+        Id: null, PlantId: null, GRNId: $scope.fabricRollMaster.GRNNo, GRNDate: $scope.fabricRollMaster.GRNDate, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+    }
 
     $scope.Action = "Save";
-    $scope.Save = function () {
+    $scope.SaveRollData = function () {
         try {
+            $scope.modeldata.GRNId = $scope.fabricRollMaster.GRNNo; $scope.modeldata.GRNDate = $scope.fabricRollMaster.GRNDate;
+
+            for (var i = 0; i < $scope.grnDetailList.length; i++) {
+                $scope.grnDetailList[i].Id = null;
+            }
+
             $http({
                 method: "POST",
-                url: 'Attendances/EmployeeProfileUpload/SaveProfileData',
+                url: 'Materials/FabricRoll/CreateFabricRollManage',
                 data: {
-                    "data": $scope.salesVM
-                    , "selectedSalesOrderList": $scope.selectedSalesOrderDataList
+                    "data": $scope.modeldata
+                    , "grnDetailList": $scope.grnDetailList
                 },
                 dataType: "JSON"
             }).then(function successCallback(response) {
