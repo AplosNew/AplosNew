@@ -41,7 +41,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="UserName" ng-model="ModelNew.UserName" class="form-control" required tabindex="30" maxlength="30">
+                <input type="text" name="UserName" ng-model="ModelNew.Username" class="form-control" required tabindex="30" maxlength="30">
             </div>
         </div>
     </div>
@@ -109,12 +109,11 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>*@
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
             <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
             <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="3"></div>
-            <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
+            <div e-column e-field="Username" e-headertext="User Name" e-width="3"></div>
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="3"></div>
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="3"></div>
