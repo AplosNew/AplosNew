@@ -960,15 +960,6 @@ upanelApp.controller('ProductionTargetReportController', ProductionTargetReportC
 upanelApp.controller('FabricRollController', FabricRollController);
 upanelApp.controller('FabricRollsController', FabricRollsController);
 upanelApp.controller('FinalDeductionReportController', FinalDeductionReportController);
-    .controller('POMappingWithPIController', POMappingWithPIController)
-    .controller('GeneralWasteController', GeneralWasteController)
-    .controller("issueTransactionController", issueTransactionController)
-    .controller("EmployeeShiftUpdatesController", EmployeeShiftUpdatesController)
-    .controller("ProductionGeneralReportController", ProductionGeneralReportController)
-    .controller("inventorySalesReturnPost", inventorySalesReturnPost)
-    .controller("ServicePORegisterController", ServicePORegisterController)
-    .controller("StocksAgeingReportController", StocksAgeingReportController)
-    .controller("NewEarnLeaveReportController", NewEarnLeaveReportController)
 
 upanelApp.controller("PostInvoiceController", PostInvoiceController);
 upanelApp.controller('GRNRequisitionSOAllocationController', GRNRequisitionSOAllocationController);
@@ -1007,6 +998,9 @@ upanelApp.controller("ProductionGeneralReportController", ProductionGeneralRepor
 upanelApp.controller("inventorySalesReturnPost", inventorySalesReturnPost);
 upanelApp.controller("ServicePORegisterController", ServicePORegisterController);
 upanelApp.controller("StocksAgeingReportController", StocksAgeingReportController);
+upanelApp.controller("NewEarnLeaveReportController", NewEarnLeaveReportController);
+
+
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(accountConfig);
