@@ -16,7 +16,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         IsWithAdvance: false
     };
-
+     
     $scope.report = {
         IsUpToLevel: 'Detail',
         IsBudgetLevel: false,
