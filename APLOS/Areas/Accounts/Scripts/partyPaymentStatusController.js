@@ -4830,7 +4830,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $rootScope.report(url);
         }
         catch (e) {
-             
+              
         }
     }
      
