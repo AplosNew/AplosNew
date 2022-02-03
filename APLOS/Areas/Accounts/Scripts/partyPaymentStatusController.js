@@ -1,4 +1,4 @@
-﻿'use strict';
+﻿a'use strict';
 partyPaymentStatusController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function partyPaymentStatusController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Financial Status Dashboard';
