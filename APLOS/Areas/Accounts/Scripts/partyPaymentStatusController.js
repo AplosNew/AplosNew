@@ -16,7 +16,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         IsWithAdvance: false
     };
-     
+
     $scope.report = {
         IsUpToLevel: 'Detail',
         IsBudgetLevel: false,
@@ -183,7 +183,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $scope.ToDatevalidation();
         if (!$scope.invalidFromDate && !$scope.invalidDocDate) {
             try {
-                
+
                 $http({
                     method: 'POST',
                     url: $scope.path + "GetPartyPaymentStatusInvoiceList",
@@ -1514,7 +1514,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //            //var file_src = $scope.path + 'MaterialMasterReport2';
     //            $rootScope.report(file_src);
 
-               
+
     //        }
     //    }
     //    catch (e) {
@@ -1582,7 +1582,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     };
 
-   // $scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/MaterialMasterReport2';
+    // $scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/MaterialMasterReport2';
     //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
     //$scope.downloadgriddataUrlPath = 'AccountStatusDashboard/DownloadUsingFullPath';//DownloadUsingPath
     //$scope.getMasterReport2 = function () {
@@ -4522,8 +4522,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
-  
-    
+
+
 
     //********************#endregion GRN With Out Invoice***************************************
 
@@ -4596,7 +4596,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
     $scope.onInvoiceVoucherPrintSourceTypeWise = function (data) {
         var reportFormat = "Pdf";
-        if (data.SourceType =="VendorInvoice") {
+        if (data.SourceType == "VendorInvoice") {
             $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
         }
         if (data.SourceType == "EmployeePayable") {
@@ -4608,7 +4608,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         if (data.SourceType == "VendorPayment") {
             $window.open('Accounts/invoice/VendorInvoicePaymentReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
         }
-        
+
     };
 
     $scope.invoiceSetOffDetailList = [];
@@ -4622,7 +4622,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $rootScope.openPopupAngular('invoicSetOffByInvoiceOtherLiabilityPopUp');
         });
     };
-   
+
 
     $scope.issueQtyList = [];
     $scope.onIssueQtyPopUp = function (Data) {
@@ -4707,7 +4707,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //**********************#endregion Asset WIP Status **************************
 
     $scope.InvoiceWithOutGRNList = [];
-    
+
 
 
     $scope.NonRegisterAssetList = [];
@@ -4742,7 +4742,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.onIssueNoDownloadExcel = function (data) {
         //location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.IssueNo;
         location.href = "Products/InventoryIssue/AssetIssueReport?grnId=" + data.IssueNo;
-        
+
     };
 
     //$scope.onVoucherNoDownloadExcel = function (data) {
@@ -4772,7 +4772,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
             $http({
                 method: 'POST',
-                url: $scope.path +'NonRegisterAssetReportExcel',
+                url: $scope.path + 'NonRegisterAssetReportExcel',
                 data: {
 
                     'MaterialMasterId': materialMasterId,
@@ -4799,7 +4799,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
 
-    $scope.GRNWithoutInvoiceReportExcel = function(){
+    $scope.GRNWithoutInvoiceReportExcel = function () {
         var reportFormat = "Excel";
         try {
             //var url = $scope.path + 'EmployeeAdvanceDeductionReportExcelFormat?reportFormat=' + reportFormat + '&Year=' + $scope.year + '&Month=' + $scope.month + '&MonthName=' + $scope.monthname;
@@ -4844,7 +4844,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-     //**********************#endregion Invoice GRN With out **************************
+    //**********************#endregion Invoice GRN With out **************************
 
 
 
