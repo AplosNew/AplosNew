@@ -3492,6 +3492,7 @@ namespace Library.Service.Invoices
                 var currencyAmountDr = 0.0M;
                 var loanWriteoffAmount = 0.0M;
                 var totalAmountDr = 0.0M;
+                var currencyAmountCr = 0.0M;
                 var totalCurrencyAmountDr = 0.0M;
                 var totalAmountCr = 0.0M;
                 var totalCurrencyAmountCr = 0.0M;
@@ -3503,9 +3504,12 @@ namespace Library.Service.Invoices
                 int len = banksDetailVMList.Count();
                 int exgainlen = exlosslen;
                 decimal chargesAmount = 0;
+                decimal chargesBooksAmount = 0;
                 decimal totalchargesAmount = 0;
+                decimal totalbookchargesAmount = 0;
                 int count = 0;
                 decimal chargesCountAmount = 0;
+                decimal chargesBooksCountAmount = 0;
                 decimal totalexLossAmount = voucherDetailVMList.Where(r => r.ExchangeType == "ExchangeLoss").Sum(r => r.ExchangeAmount);
                 decimal totalexGainAmount = voucherDetailVMList.Where(r => r.ExchangeType == "ExchangeGain").Sum(r => r.ExchangeAmount);
                 var invoiceList = new List<Invoice>();
@@ -3528,8 +3532,10 @@ namespace Library.Service.Invoices
                             chargesBooksCountAmount += chargesBooksAmount;
                         }
                         else if (len == count)
+                        {
                             chargesAmount = Math.Round(totalchargesAmount - chargesCountAmount, 2);
                             chargesBooksAmount = Math.Round(totalbookchargesAmount - chargesBooksCountAmount, 2);
+                        } 
                     }
 
                     voucherVM.Amount = item.Amount;
@@ -3559,7 +3565,8 @@ namespace Library.Service.Invoices
                             var inv = new Invoice
                             {
                                 Id = invoiceDetail.InvoiceId,
-                                Amount = voucherDetailVM.CrAmount
+                                Amount = voucherDetailVM.CrAmount,
+                                BaseCrAmount= currencyAmountCr
                             };
                             invoiceList.Add(inv);
                         }
@@ -3568,6 +3575,7 @@ namespace Library.Service.Invoices
                         {
                             voucherDetailVM.CrAmount = voucherDetailVMList.Where(r => r.InvoiceId == voucherDetailVM.InvoiceId).Sum(r => r.Amount) - invoiceList.Where(r => r.Id == voucherDetailVM.InvoiceId).Sum(r => r.Amount);
                             invoiceDetail.WrittenOffAmount += voucherDetailVM.CrAmount;
+                            currencyAmountCr = voucherDetailVMList.Where(r => r.InvoiceId == voucherDetailVM.InvoiceId).Sum(r => r.BaseCrAmount) - invoiceList.Where(r => r.Id == voucherDetailVM.InvoiceId).Sum(r => r.BaseCrAmount);
                         }
 
                         if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)
