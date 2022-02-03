@@ -277,11 +277,11 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> GetList(string strkey)
+        public IEnumerable<object> GetList()
         {
             try
             {
-                string sql = @"select Id, PerformanceYearName, StartDate ,EndDate,Active, Remarks from dbo.PerformancePeriod ";
+                string sql = @"select * from dbo.PerformancePeriod ";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -290,44 +290,36 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
-        public List<Dictionary<string, object>> Create(List<Dictionary<string, object>> Data)
+        public Dictionary<string, object> Create(Dictionary<string, object> Data)
         {
             try
             {
-                //Master Table - PerformancePEriod
                 string TableName = "dbo.PerformancePeriod";
-                DataSet dsMaster;
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2  ", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PerformanceYearName = '" + Data["PerformanceYearName"] + "' AND  Id <> '" + Data["Id"] + "'", out DataSet dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Performance Year Name already exists!!!");
 
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data update
                 string _Id = "";
-
-                #region data Upload
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-                for (int i = 0; i < Data.Count; i++)
+                if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-
-                    DataRow dr = dsMaster.Tables[0].NewRow();
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
-                    dr["Id"] = "PP" + DateTime.Now.Year.ToString() + '-' + _Id;
-                    dr["PerformanceYearName"] = Data[i]["PerformanceYearName"].ToString();
-                    dr["Date"] = DateTime.Now;
-                    dr["Active"] = Data[i]["Active"].ToString();
-                    dr["Remarks"] = Data[i]["Remarks"].ToString();
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = DateTime.Now.ToString();
-                    dr["UpdatedFromIP"] = identity.IPAddress;
-                    dsMaster.Tables[0].Rows.Add(dr);
 
-
+                    Data["Id"] = "PP" + _Id;
+                    AddNewRow(dsMaster.Tables[0], Data);
                 }
-                #endregion data Upload
+                else
+                {
+                    _Id = Data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], Data);
+                }
+                #endregion data update
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
@@ -337,9 +329,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
-
                 throw ex;
-
             }
         }
         public void Delete(string Id)
@@ -358,9 +348,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
-
                 throw ex;
-
             }
         }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)

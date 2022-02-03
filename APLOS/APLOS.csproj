@@ -572,7 +572,6 @@
     <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformanceManagementMasterController.cs" />
-    <Compile Include="Areas\HumanResource\Controllers\PerformancePeriodMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\JobCardReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeLeaveApprovalNewController.cs" />
@@ -1907,7 +1906,6 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceManagementMasterController.js" />
-    <Content Include="Areas\HumanResource\Scripts\PerformancePeriodMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PhysicalVerificationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApplicationNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApprovalNewController.js" />
@@ -3961,7 +3959,6 @@
     <Content Include="Areas\Accounts\Views\InventorySale\_ApprovedSalesReturnDetailPopUp.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialLedger\ServicePORegister.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeIncomeTax\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\PerformancePeriodMaster\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\FabricRoll\Aplos1.cshtml" />
     <Content Include="Areas\Productions\Views\StocksAgeingReport\Aplos.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\web.config" />
