@@ -3490,7 +3490,6 @@ namespace Library.Service.Invoices
                 var currentVoucherDetailId = 0;
                 var currentInvoiceWriteOffDetailId = 0;
                 var currencyAmountDr = 0.0M;
-                var currencyAmountCr = 0.0M;
                 var loanWriteoffAmount = 0.0M;
                 var totalAmountDr = 0.0M;
                 var totalCurrencyAmountDr = 0.0M;
@@ -3505,11 +3504,8 @@ namespace Library.Service.Invoices
                 int exgainlen = exlosslen;
                 decimal chargesAmount = 0;
                 decimal totalchargesAmount = 0;
-                decimal chargesBooksAmount = 0.0M;
-                decimal totalbookchargesAmount = 0.0M;
                 int count = 0;
                 decimal chargesCountAmount = 0;
-                decimal chargesBooksCountAmount = 0.0M;
                 decimal totalexLossAmount = voucherDetailVMList.Where(r => r.ExchangeType == "ExchangeLoss").Sum(r => r.ExchangeAmount);
                 decimal totalexGainAmount = voucherDetailVMList.Where(r => r.ExchangeType == "ExchangeGain").Sum(r => r.ExchangeAmount);
                 var invoiceList = new List<Invoice>();
@@ -3563,8 +3559,7 @@ namespace Library.Service.Invoices
                             var inv = new Invoice
                             {
                                 Id = invoiceDetail.InvoiceId,
-                                Amount = voucherDetailVM.CrAmount,
-                                BaseCrAmount= currencyAmountCr
+                                Amount = voucherDetailVM.CrAmount
                             };
                             invoiceList.Add(inv);
                         }
@@ -3573,7 +3568,6 @@ namespace Library.Service.Invoices
                         {
                             voucherDetailVM.CrAmount = voucherDetailVMList.Where(r => r.InvoiceId == voucherDetailVM.InvoiceId).Sum(r => r.Amount) - invoiceList.Where(r => r.Id == voucherDetailVM.InvoiceId).Sum(r => r.Amount);
                             invoiceDetail.WrittenOffAmount += voucherDetailVM.CrAmount;
-                            currencyAmountCr = voucherDetailVMList.Where(r => r.InvoiceId == voucherDetailVM.InvoiceId).Sum(r => r.BaseCrAmount) - invoiceList.Where(r => r.Id == voucherDetailVM.InvoiceId).Sum(r => r.BaseCrAmount);
                         }
 
                         if (invoiceDetail.NetAmount < invoiceDetail.WrittenOffAmount)

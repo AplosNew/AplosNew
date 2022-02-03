@@ -51,18 +51,18 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost , Authorize]
-        public ActionResult getData()
+        public ActionResult getData(string ToDate, string FromDate)
         {
-            return Json(sa.getData(), JsonRequestBehavior.AllowGet);
+            return Json(sa.getData( ToDate,  FromDate), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
-        public ActionResult getReport( )
+        public ActionResult getReport( string ToDate, string FromDate)
         {
 
             try
             {
-                var workbook = getReportForm( );
+                var workbook = getReportForm( ToDate, FromDate);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "FinishedStockReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -78,14 +78,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook getReportForm()
+        private IWorkbook getReportForm(string ToDate, string FromDate)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = sa.getReport();
+            var data = sa.getReport(ToDate, FromDate);
 
             var sheet = workbook.Worksheets[0];
 

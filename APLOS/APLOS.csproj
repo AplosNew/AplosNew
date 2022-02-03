@@ -690,6 +690,7 @@
     <Compile Include="Areas\JobWork\Controllers\JWReceiptController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
+    <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
@@ -1999,6 +2000,7 @@
     <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JWReceiptController.js" />
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
+    <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
@@ -3963,6 +3965,7 @@
     <Content Include="Areas\Productions\Views\StocksAgeingReport\Aplos.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\web.config" />
     <Content Include="Areas\MeetingManagement\Views\MeetingType\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\NewEarnLeaveReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
