@@ -57,6 +57,7 @@ function PerformancePeriodController(cboService, commonMessage, $scope, $rootSco
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getData();
+                    $scope.Clear();
 
                 }
             }), function errorCallBack(response) {
@@ -70,7 +71,8 @@ function PerformancePeriodController(cboService, commonMessage, $scope, $rootSco
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                url: $scope.deleteUrl,
+                data: { 'SystemId': $scope.ModelNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -79,6 +81,7 @@ function PerformancePeriodController(cboService, commonMessage, $scope, $rootSco
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getData();
+                    $scope.Clear();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
