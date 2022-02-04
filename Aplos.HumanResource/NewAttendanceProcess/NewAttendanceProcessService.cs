@@ -3136,7 +3136,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select distinct p.EmpSystemID,Result=dt.DayType, dt.AutoLock,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
-                dt.SandwichStatusFlag,dt.OTApplicable,dt.GoodWorkApplicable,				
+                dt.SandwichStatusFlag,dt.OTApplicable,dt.GoodWorkApplicable,p.RowId,				
 				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
 				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
                 isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
@@ -3286,8 +3286,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region Previous Day Status Reprocessing               
                     DayStatusReprocessing(PreviousDay, PlantValue); //Making Localized Columns Null
                     #endregion
-                    
-                    SaveLog("Nullified Columns Logic Ran Successfully for "+PreviousDay+" ...", PlantValue, false);
+
+                    SaveLog("Nullified Columns Logic Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Previous Day Out Restoring               
                     OutRestoring(PreviousDay, PlantValue); //Restoring OutTime
@@ -3484,7 +3484,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     #endregion
-                   
+
                     SaveLog("Duration Status Logic Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Previous Day Status Code              
@@ -3508,7 +3508,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     if (PrevFinalDayStat.Tables[0].Rows.Count > 0)
                     {
                         var WkDate = PrevFinalDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
-                      
+
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
@@ -3523,7 +3523,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string Result = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"Result"]).ToString();
                             string SandwichFlag = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"SandwichStatusFlag"]).ToString();
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId+ "' ";
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 // Updations in APD Table 
@@ -3534,7 +3534,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 if (SandwichFlag != "0")
                                 {
                                     dr["SandwichReprocess"] = true;
-                                }                               
+                                }
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -3570,14 +3570,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 string ToDaySandwich = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"SandwichFlag"]).ToString();
-                           
+
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
                                 if (PrevDaySandwich == "0" && ToDaySandwich == "2")
                                 {
                                     dr["SandwichFlag"] = "0"; //Today Change                                    
                                     dr["SandwichReprocess"] = false;
-                                    
+
                                 }
 
                                 else if (PrevDaySandwich == "1" && ToDaySandwich == "2")
@@ -3611,7 +3611,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     }
                     #endregion
-                
+
                     SaveLog("Sandwich Data Entry Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
                     #region Previous Payroll DayStatus 
@@ -3624,8 +3624,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     if (PrevPayrollDayStat.Tables[0].Rows.Count > 0)
                     {
                         var WkDate = PrevPayrollDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
+                     
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
@@ -3636,7 +3635,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             // Localizing Diff Flags on the Basis of Processed FinalDayStatus 
 
-                            string EmpId = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string RowId = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"RowId"]).ToString();
                             string OtApplicable = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"OTApplicable"]).ToString();
                             string Goodwork = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"GoodWorkApplicable"]).ToString();
                             string AutoLock = clsWebLib.GetBoolData(PrevPayrollDayStat.Tables[0].Rows[i][@"AutoLock"]).ToString();
@@ -3662,7 +3661,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             #endregion
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 // Updations in APD Table 
