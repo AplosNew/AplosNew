@@ -20,7 +20,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         #endregion Constructor
 
-        public IEnumerable<object> getEmployeeId()
+        public IEnumerable<object> getEmployeetype()
         {
             try
             {
@@ -34,12 +34,10 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-
         public IEnumerable<object> GetMaster(string Id)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = @"select * from dbo.PMSMaster where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -53,10 +51,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @" select pc.Id,pc.PMSMasterId,pc.EmployeeCategoryId,et.UserName from PMSChild pc
-			 left join hkp.EmployeeCategory et on et.id=pc.EmployeeCategoryId
-where PMSMasterId= '" + Id + "' ";
+                var str = @" select pc.Id,pc.PMSMasterId,pc.EmployeeCategoryId,et.Username from PMSChild pc
+			    left join hkp.EmployeeCategory et on et.id=pc.EmployeeCategoryId
+                where PMSMasterId= '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -65,12 +62,11 @@ where PMSMasterId= '" + Id + "' ";
             }
         }
 
-        public IEnumerable<object> GetList(string strkey)
+        public IEnumerable<object> GetList()
         {
             try
             {
-                string sql = @"select Id, Sequence, Category ,SubCategory, StandardName, UserName, ShortName ,Code ,Active from dbo.PMSMaster 
-                              ";
+                string sql = @"select * from dbo.PMSMaster";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -79,7 +75,6 @@ where PMSMasterId= '" + Id + "' ";
                 throw e;
             }
         }
-
 
         public Dictionary<string, object> Create(Dictionary<string, object> data, List<string> Employee)
         {
@@ -99,7 +94,7 @@ where PMSMasterId= '" + Id + "' ";
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same StandardName already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName = '" + data["UserName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Username = '" + data["Username"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same UserName already exists!!!");
 
@@ -128,7 +123,7 @@ where PMSMasterId= '" + Id + "' ";
 
                 DataSet dsChild;
                 ConnectionManager.DAL.ConManager conC = new ConnectionManager.DAL.ConManager("1");
-                conC.OpenDataSetThroughAdapter("select * from dbo.PMSChild where Id = '" + data["Id"].ToString() + "'", out dsChild, false, "1");
+                conC.OpenDataSetThroughAdapter("select * from dbo.PMSChild where PMSMasterId = '" + data["Id"].ToString() + "'", out dsChild, false, "1");
 
                 while (dsChild.Tables[0].DefaultView.Count > 0)
                 {
@@ -159,20 +154,14 @@ where PMSMasterId= '" + Id + "' ";
 
                 #endregion data update
 
-
-
-
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsChild);
 
                 return data;
-
             }
             catch (Exception ex)
             {
-
                 throw ex;
-
             }
         }
         public void Delete(string id)
@@ -188,7 +177,6 @@ where PMSMasterId= '" + Id + "' ";
                 conC.BeginTransaction();
                 conC.executeQuery("delete from dbo.PMSChild where PMSMasterId ='" + id + "'");
                 conC.CommitTransaction();
-
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
@@ -247,6 +235,14 @@ where PMSMasterId= '" + Id + "' ";
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM PMSMaster");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
     }
 
     public class PerformanceModel
@@ -286,8 +282,10 @@ where PMSMasterId= '" + Id + "' ";
         {
             try
             {
-                string sql = @"select * from dbo.PerformancePeriod ";
-
+                string sql = @"select Id,Active,PerformanceYearName,
+                FORMAT(StartDate,'dd-MMM-yyyy')StartDate,
+                FORMAT(EndDate,'dd-MMM-yyyy')EndDate
+                from dbo.PerformancePeriod ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -305,32 +303,37 @@ where PMSMasterId= '" + Id + "' ";
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where PerformanceYearName = '" + Data["PerformanceYearName"] + "' AND  Id <> '" + Data["Id"] + "'", out DataSet dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Performance Year Name already exists!!!");
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Data["Id"] + "'", out dsMaster, false, "1");
-
-                #region data update
-                string _Id = "";
-                if (dsMaster.Tables[0].Rows.Count == 0)
+                
+                TimeSpan ts = Convert.ToDateTime(Data["EndDate"]).Subtract(Convert.ToDateTime(Data["StartDate"]));
+                if (ts.Days >= 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Data["Id"] + "'", out dsMaster, false, "1");
 
-                    Data["Id"] = "PP" + _Id;
-                    AddNewRow(dsMaster.Tables[0], Data);
+                    #region data update
+                    string _Id = "";
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        Data["Id"] = "PP" + _Id;
+                        AddNewRow(dsMaster.Tables[0], Data);
+                    }
+                    else
+                    {
+                        _Id = Data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], Data);
+                    }
+                    #endregion data update
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);                    
                 }
                 else
                 {
-                    _Id = Data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], Data);
+                    throw new Exception("Please Choose a Valid Date Range !!");
                 }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
                 return Data;
-
             }
             catch (Exception ex)
             {

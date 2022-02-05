@@ -572,6 +572,7 @@
     <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformanceManagementMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\PerformancePeriodController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\JobCardReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeLeaveApprovalNewController.cs" />
@@ -1601,6 +1602,7 @@
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\employeeTotalAdvanceWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\entityWiseExpenseAndEarningController.js" />
     <Content Include="Areas\Accounts\Scripts\AssetWIPStatusController.js" />
     <Content Include="Areas\Accounts\Scripts\inventorySalesReturnPost.js" />
@@ -1907,6 +1909,7 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceManagementMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\PerformancePeriodController.js" />
     <Content Include="Areas\HumanResource\Scripts\PhysicalVerificationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApplicationNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApprovalNewController.js" />
@@ -3966,6 +3969,8 @@
     <Content Include="Areas\MeetingManagement\Views\web.config" />
     <Content Include="Areas\MeetingManagement\Views\MeetingType\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\NewEarnLeaveReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PerformancePeriod\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\EmployeeTotalAdvanceWriteOff.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

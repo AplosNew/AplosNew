@@ -1628,14 +1628,14 @@ namespace Aplos.Areas.Products.Controllers
 
 
 		[Authorize, HttpGet]
-		public ActionResult InventorySalesReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory,string Summery,bool WithTax)
+		public ActionResult InventorySalesReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory,string Summary, bool WithTax,string Type)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			plantId = identity.PlantId;
 			var reportFileName = "Sales Register.xls" + fromDate + "To" + toDate + "";
 			ExcelEngine excelEngine = new ExcelEngine();
 
-			IWorkbook workbook = InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summery,WithTax);
+			IWorkbook workbook = InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, WithTax, Type);
 			switch (reportFormat)
 			{
 				case ReportFormat.Pdf:
@@ -3442,15 +3442,15 @@ namespace Aplos.Areas.Products.Controllers
 //				throw ex;
 //			}
 //		}
-		public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summery)
+		public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type)
 		{
 			var sql = "";
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				if (Summery == "Details")
+				if (Summary == "Details")
 				{
-					if (fromDate != "" && toDate != "")
+					if (Type== "ForThePeriod")
 					{
 						sql = @"SELECT 
 								ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
@@ -4798,7 +4798,7 @@ namespace Aplos.Areas.Products.Controllers
 				}
 				else
 				{
-					if (fromDate != "" && toDate != "")
+					if (Type == "ForThePeriod")
 					{
 						sql = @"SELECT 
 									ROW_NUMBER() Over(Order by SA.Id) As[S.N]
@@ -5503,7 +5503,7 @@ namespace Aplos.Areas.Products.Controllers
 		public string NumberFormatTwoDecimal = "#,##0.00;(#,##0.00)";
 		public string NumberFormatFourDecimal = "#,####0.0000;(#,####0.0000)";
 		[Authorize, HttpGet]
-		private IWorkbook InventorySalesReportList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount,string Summery,bool WithTax)
+		private IWorkbook InventorySalesReportList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount,string Summary, bool WithTax,string Type)
 		{
 
 			//Start EmployeeAdvanceDueList
@@ -5523,7 +5523,7 @@ namespace Aplos.Areas.Products.Controllers
 
 				//Get the first worksheet in the workbook into IWorksheet
 				IWorksheet worksheet = workbook.Worksheets[0];
-				DataTable dtInventorySalesReportList = GetInventorySalesReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount,Summery);
+				DataTable dtInventorySalesReportList = GetInventorySalesReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, Type);
 
 				if (dtInventorySalesReportList.Rows.Count == 0)
 					throw new Exception("No data found");
@@ -5531,7 +5531,7 @@ namespace Aplos.Areas.Products.Controllers
 
 
 
-				worksheet.Name = Summery;
+				worksheet.Name = Summary;
 
 				var _rowd = 4;
 				if (fromDate != "" && toDate != "")
@@ -5567,7 +5567,7 @@ namespace Aplos.Areas.Products.Controllers
 				int COL = 1; int ROW = 7;
 				int startCol = COL;
 
-				if(Summery=="Details")
+				if(Summary == "Details")
 				{
 					worksheet[ROW, COL].Text = "SL";
 					int colSL = COL;
@@ -6247,7 +6247,7 @@ namespace Aplos.Areas.Products.Controllers
 					ROW++;
 					try
 					{
-						if (Summery == "Details")
+						if (Summary == "Details")
 						{
 							for (int i = 0; i < dtInventorySalesReportList.Rows.Count; i++)
 							{
@@ -6864,7 +6864,7 @@ namespace Aplos.Areas.Products.Controllers
 					ROW++;
 					try
 					{
-						if (Summery == "Summery")
+						if (Summary == "Summary")
 						{ 
 							for (int i = 0; i < dtInventorySalesReportList.Rows.Count; i++)
 							{
@@ -6953,32 +6953,32 @@ namespace Aplos.Areas.Products.Controllers
 								worksheet[ROW, colApprovedByName].Text = dtInventorySalesReportList.Rows[i]["ApprovedByName"].ToString();
 								worksheet[ROW, colPosted].Text = dtInventorySalesReportList.Rows[i]["Posted"].ToString();
 								worksheet[ROW, colNoteForAccounts].Text = dtInventorySalesReportList.Rows[i]["NoteForAccounts"].ToString();
-								worksheet[ROW, colRealizeAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["RealizeAmount"].ToString());
-								worksheet.Range[ROW, colRealizeAmount].NumberFormat = NumberFormatTwoDecimal;
+								//worksheet[ROW, colRealizeAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["RealizeAmount"].ToString());
+								//worksheet.Range[ROW, colRealizeAmount].NumberFormat = NumberFormatTwoDecimal;
 
-								worksheet[ROW, colRealizeDate].Text = dtInventorySalesReportList.Rows[i]["RealizeDate"].ToString();
-								worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BalanceAmount"].ToString());
-								worksheet.Range[ROW, colBalance].NumberFormat = NumberFormatTwoDecimal;
+								//worksheet[ROW, colRealizeDate].Text = dtInventorySalesReportList.Rows[i]["RealizeDate"].ToString();
+								//worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BalanceAmount"].ToString());
+								//worksheet.Range[ROW, colBalance].NumberFormat = NumberFormatTwoDecimal;
 
-								worksheet[ROW, colOwnOrderRef].Text = dtInventorySalesReportList.Rows[i]["OwnReferenceNo"].ToString();
-								worksheet[ROW, colContract].Text = dtInventorySalesReportList.Rows[i]["ContractNo"].ToString();
-								worksheet[ROW, colMastrerLCRefNo].Text = dtInventorySalesReportList.Rows[i]["MasterLcNo"].ToString();
-								worksheet[ROW, colComercialInvoiceNo].Text = dtInventorySalesReportList.Rows[i]["ComercialInvoiceNo"].ToString();
-								worksheet[ROW, colExpiryDatet].Text = dtInventorySalesReportList.Rows[i]["ExpDate"].ToString();
-								worksheet[ROW, colBLAWBNo].Text = dtInventorySalesReportList.Rows[i]["BLAWBNo"].ToString();
-								worksheet[ROW, colBLAWBDate].Text = dtInventorySalesReportList.Rows[i]["BLAWBDate"].ToString();
-								worksheet[ROW, colPaymentTerm].Text = dtInventorySalesReportList.Rows[i]["PaymentTerm"].ToString();
-								worksheet[ROW, colBaseOnDueDate].Text = dtInventorySalesReportList.Rows[i]["BaseOnDueDate"].ToString();
-								worksheet[ROW, colNoOfDays].Number = clsStaticInfo.dbl( dtInventorySalesReportList.Rows[i]["NoOfDays"].ToString());
-								worksheet[ROW, colNoOfDays].NumberFormat = NumberFormatZeroDecimal;
-								worksheet[ROW, colMatureDate].Text = dtInventorySalesReportList.Rows[i]["MatureDate"].ToString();
-								worksheet[ROW, colLCAmount].Number =clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["LCAmount"].ToString());
-								worksheet[ROW, colExFactoryDate].Text = dtInventorySalesReportList.Rows[i]["ExFactoryDate"].ToString();
-								worksheet[ROW, colTransportAgent].Text = dtInventorySalesReportList.Rows[i]["TransportAgent"].ToString();
-								worksheet[ROW, colTransportDocDate].Text = dtInventorySalesReportList.Rows[i]["TransportDocDate"].ToString();
-								worksheet[ROW, colCNFAgent].Text = dtInventorySalesReportList.Rows[i]["CNFAgent"].ToString();
-								worksheet[ROW, colContainerNo].Text = dtInventorySalesReportList.Rows[i]["CNFContainerNo"].ToString();
-								worksheet[ROW, colVesselTrackingNo].Text = dtInventorySalesReportList.Rows[i]["CNFVesselTrackingNo"].ToString();
+								//worksheet[ROW, colOwnOrderRef].Text = dtInventorySalesReportList.Rows[i]["OwnReferenceNo"].ToString();
+								//worksheet[ROW, colContract].Text = dtInventorySalesReportList.Rows[i]["ContractNo"].ToString();
+								//worksheet[ROW, colMastrerLCRefNo].Text = dtInventorySalesReportList.Rows[i]["MasterLcNo"].ToString();
+								//worksheet[ROW, colComercialInvoiceNo].Text = dtInventorySalesReportList.Rows[i]["ComercialInvoiceNo"].ToString();
+								//worksheet[ROW, colExpiryDatet].Text = dtInventorySalesReportList.Rows[i]["ExpDate"].ToString();
+								//worksheet[ROW, colBLAWBNo].Text = dtInventorySalesReportList.Rows[i]["BLAWBNo"].ToString();
+								//worksheet[ROW, colBLAWBDate].Text = dtInventorySalesReportList.Rows[i]["BLAWBDate"].ToString();
+								//worksheet[ROW, colPaymentTerm].Text = dtInventorySalesReportList.Rows[i]["PaymentTerm"].ToString();
+								//worksheet[ROW, colBaseOnDueDate].Text = dtInventorySalesReportList.Rows[i]["BaseOnDueDate"].ToString();
+								//worksheet[ROW, colNoOfDays].Number = clsStaticInfo.dbl( dtInventorySalesReportList.Rows[i]["NoOfDays"].ToString());
+								//worksheet[ROW, colNoOfDays].NumberFormat = NumberFormatZeroDecimal;
+								//worksheet[ROW, colMatureDate].Text = dtInventorySalesReportList.Rows[i]["MatureDate"].ToString();
+								//worksheet[ROW, colLCAmount].Number =clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["LCAmount"].ToString());
+								//worksheet[ROW, colExFactoryDate].Text = dtInventorySalesReportList.Rows[i]["ExFactoryDate"].ToString();
+								//worksheet[ROW, colTransportAgent].Text = dtInventorySalesReportList.Rows[i]["TransportAgent"].ToString();
+								//worksheet[ROW, colTransportDocDate].Text = dtInventorySalesReportList.Rows[i]["TransportDocDate"].ToString();
+								//worksheet[ROW, colCNFAgent].Text = dtInventorySalesReportList.Rows[i]["CNFAgent"].ToString();
+								//worksheet[ROW, colContainerNo].Text = dtInventorySalesReportList.Rows[i]["CNFContainerNo"].ToString();
+								//worksheet[ROW, colVesselTrackingNo].Text = dtInventorySalesReportList.Rows[i]["CNFVesselTrackingNo"].ToString();
 								worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;

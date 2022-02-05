@@ -1275,19 +1275,9 @@ namespace Library.HumanResource.Payroll.Tax
 				 where EmpInfoSystemID='"+EmpId+@"' and salaryheadid=apc.SalaryHeadID
 				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate
 				 group by procx.SalaryHeadID 
-				 ),'0'),
-				
-				-- Deductions Till Date
-				 (select SUM(procx.DisbusmentAmount)
-				 from 
-				 salaryprocchild procx
-				 join SalaryProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
-				 JOIN SalaryHead SHX ON SHX.SalaryHeadID=PROCX.SalaryHeadID
-				 where EmpInfoSystemID='"+EmpId+@"' and SHX.HeadType='D'
-				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate)
-				 As DeductionDone,
-				
-				-- Months Remaining For Structure Value
+				 ),'0'),	
+			
+                -- Months Remaining For Structure Value
 				(datediff(DAY,
 				(select top 1 todate from SalaryProcMaster sl join SalaryProcChild sc
 			     on sc.SlrProcMstSystemID=sl.SystemID
