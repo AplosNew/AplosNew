@@ -1904,29 +1904,47 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
     $scope.IssueSlipListPopup = [];
     // #region Material Wise Issue Slip
+    //$scope.GetIssueSlipFilterData = function () {
+    //    //debugger;
+    //    //tarek
+    //    $.ajax({
+    //        type: "GET",
+    //        contentType: "application/json; charset=utf-8",
+    //        url: 'Products/GoodsReceiveNote/GetIssueSlipFilterData',
+    //        data: {},
+    //        async: false,
+    //        dataType: "json",
+    //        success: function (data) {
+    //            $scope.IssueSlipListPopup = data;
+
+    //        }
+
+    //    });
+    //}
+
+
+    $scope.searchBySlipMaterial = "MaterialMasterName"; $scope.searchSlip = "";
+    $scope.searchBySlipList = [{ value: 'MaterialMasterGroupName', name: "MaterialMasterGroupName" }, { value: 'MaterialType', name: "MaterialType" },{ value: 'MaterialMasterName', name: "Material Master" }, { value: 'StandardName', name: "Article" }
+        ];
+
+    
     $scope.GetIssueSlipFilterData = function () {
-        //debugger;
-        //tarek
-        $.ajax({
-            type: "GET",
-            contentType: "application/json; charset=utf-8",
+        $http({
+            method: 'POST',
             url: 'Products/GoodsReceiveNote/GetIssueSlipFilterData',
-            data: {},
-            async: false,
-            dataType: "json",
-            success: function (data) {
-                $scope.IssueSlipListPopup = data;
-
-            }
-
+            data: { column: $scope.searchBySlipMaterial, value: $scope.searchSlip },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.IssueSlipListPopup = response.data;
         });
-    }
+    };
 
-    $scope.GetIssueSlipFilterData();
+    
     $scope.FilterList123 = [];
     $scope.getDataMaterialWise = function () {
 
         $scope.IssueSlipType = 'InventorySlip';
+        $scope.GetIssueSlipFilterData();
         angular.element(document.querySelector('#ListIssueSlipPopup')).modal('show');
     }
     $scope.IssueSlipTypeHide = function () {
