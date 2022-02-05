@@ -329,7 +329,7 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             sheet[ROW, 1].ColumnWidth = 20;
             sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
             report.SetText(ref sheet, ROW, 2, header["EmployeeName"].ToString());
-            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(4) + ROW].Merge();
+            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
             sheet[ROW, 2].ColumnWidth = 20;
             sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
@@ -337,18 +337,20 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             sheet[ROW, 6].ColumnWidth = 25;
             sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
             report.SetText(ref sheet, ROW, 7, header["Department"].ToString());
+            sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
             sheet[ROW, 7].ColumnWidth = 25;
             sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
             ROW++;
 
             report.SetMasterHeaderText(ref sheet, ROW, 1, "Section");
             report.SetText(ref sheet, ROW, 2, header["Section"].ToString());
-            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(4) + ROW].Merge();
+            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
             sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             report.SetMasterHeaderText(ref sheet, ROW, 6, "Designation");
             report.SetText(ref sheet, ROW, 7, header["Designation"].ToString());
+            sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
             sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
             ROW++;
@@ -363,7 +365,7 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Carry Forward", 15, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Carry Forward", 12, ExcelHAlign.HAlignLeft);
             int ColCarryForward = COL;
             COL++;
 
@@ -376,11 +378,11 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "BroughtForward", 30, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "BroughtForward", 15, ExcelHAlign.HAlignLeft);
             int ColBroughtForward = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Year End Encash", 30, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Year End Encash", 15, ExcelHAlign.HAlignLeft);
             int ColYearEndEncash = COL;
             COL++;
 
@@ -388,7 +390,7 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             int ColYearEndLapse = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Calculated Earning Days", 10, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Calculated Earning Days", 15, ExcelHAlign.HAlignLeft);
             int ColCalculatedEarningDays = COL;
             COL++;
 
@@ -396,7 +398,7 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             int ColFromDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "ToDate", 8, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "ToDate", 10, ExcelHAlign.HAlignLeft);
             int ColToDate = COL;
 
             endCol = COL;
