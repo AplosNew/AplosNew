@@ -2590,6 +2590,38 @@ namespace Library.Service.Advances
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                         DrAmount = voucherDetailCr.DrAmount,
                     });
+
+                    var EmployeeSubsequentAdvance = new EmployeeSubsequentTransaction
+                    {
+                        CompanyGroupId = voucherVM.CompanyGroupId,
+                        CompanyId = voucherVM.CompanyId,
+                        PlantId = voucherVM.PlantId,
+                        EntityId = voucherVM.EntityId,
+                        VoucherTypeId = voucherVM.VoucherTypeId,
+                        AdvanceId = null,
+                        EmployeeId = voucherVM.EmployeeId,
+                        AdvanceWriteOffId = advanceWriteOff.Id,
+                        EmployeePayableWriteOffId = null,
+                        EmployeePayableId = null,
+                        PartyType = voucherVM.PartyType,
+                        CurrencyId = voucherVM.CurrencyId,
+                        Amount = voucherVM.Amount,
+                        VoucherDate = voucherVM.VoucherDate,
+                        PostingDate = voucherVM.PostingDate,
+                        DocDate = voucherVM.DocDate,
+                        DocRefNo = voucherVM.DocRefNo,
+                        JournalType = voucherVM.JournalType,
+                        TransactionType = EmployeeSubsequentTranEnum.Payment.ToString(),
+                        Narration = voucherVM.Narration,
+                        SourceType = voucherVM.SourceType,
+                        IsPark = voucherVM.IsPark,
+                        Id = "ES" + GetEmployeeSubsequentTransactionPK(),
+                        VoucherId = voucher.Id,
+                        VoucherDetailId = voucherDetailCr.Id,
+                        PaymentSource = voucherVM.PaymentSource,
+                    };
+                    AuditService.AddedLog(EmployeeSubsequentAdvance);
+                    _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvance);
                 }
 
                 _unitOfWork.SaveChanges();
