@@ -1602,6 +1602,7 @@
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\employeeTotalAdvanceWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\entityWiseExpenseAndEarningController.js" />
     <Content Include="Areas\Accounts\Scripts\AssetWIPStatusController.js" />
     <Content Include="Areas\Accounts\Scripts\inventorySalesReturnPost.js" />
@@ -3969,6 +3970,7 @@
     <Content Include="Areas\MeetingManagement\Views\MeetingType\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\NewEarnLeaveReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformancePeriod\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\EmployeeTotalAdvanceWriteOff.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

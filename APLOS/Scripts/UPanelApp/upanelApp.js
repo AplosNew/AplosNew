@@ -116,6 +116,7 @@ upanelApp.controller("employeeAdvanceOpeningBalanceController", employeeAdvanceO
 upanelApp.controller("employeeAdvanceRequisitionController", employeeAdvanceRequisitionController);
 upanelApp.controller("employeeAdvanceRequisitionPostController", employeeAdvanceRequisitionPostController);
 upanelApp.controller("employeeAdvanceWriteOffController", employeeAdvanceWriteOffController);
+upanelApp.controller("employeeTotalAdvanceWriteOffController", employeeTotalAdvanceWriteOffController);
 upanelApp.controller("EmployeeAndPlantWiseAttendanceUnLockController", EmployeeAndPlantWiseAttendanceUnLockController);
 upanelApp.controller("employeeAttendanceGroupController", employeeAttendanceGroupController);
 upanelApp.controller("employeeBankInformationController", employeeBankInformationController);
