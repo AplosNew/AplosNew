@@ -135,9 +135,6 @@ namespace Aplos.Areas.Materials.Controllers
         }
         #endregion -- Operations
 
-
-
-
         [HttpPost, Authorize]
         public ActionResult GRNList(string column, string value)
         {
@@ -277,14 +274,16 @@ namespace Aplos.Areas.Materials.Controllers
 							LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
 
-							LEFT JOIN TRN.InventoryReceiveDetail IRD1 ON IR.Id=IRD1.InventoryReceiveId
+							JOIN 
+							(
+							SELECT DISTINCT IRD1.InventoryReceiveId FROM TRN.InventoryReceiveDetail IRD1
 							LEFT JOIN TRN.PurchaseOrder po1 on po1.id=IRD1.POId
-							LEFT JOIN SCS.Currency C ON IR.CurrencyId=C.Id
 							LEFT JOIN TRN.InventoryMaterial IM ON IRD1.InventoryMaterialId=IM.Id
 							LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
 							LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
 							LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
                         WHERE BP.BusinessProcessName='FabricRollManagement'
+						) D ON D.InventoryReceiveId=IR.Id and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')
 					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')) AS TEMP WHERE " + strkey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -547,7 +546,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(2);
 
-                int xlsRow = 6, xlsCol = 1;
+                int xlsRow = 1, xlsCol = 1;
                 int endXlsCol = 1;
 
                 #region Lunch Out
@@ -692,6 +691,15 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
         #endregion
 
         #region MyRegion
+        [HttpGet, Authorize]
+        public JsonResult GetSavedList()
+        {
+            CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"Select F.*,P.UserName Plant,FORMAT(F.GRNDate,'dd-MMM-yyyy')GD from [BPDT].[FabricRollManagementMaster] F
+                            LEFT JOIN ORG.Plant P ON P.Id=F.PlantId
+                            Where PlantId='" + identity.PlantId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost, Authorize]
         public JsonResult ImportData()
