@@ -24,7 +24,6 @@ namespace Aplos.Areas.HumanResource.Controllers
     public class PerformanceManagementMasterController : BaseController
     {
         PerformanceManagementMasterService ps = new PerformanceManagementMasterService();
-        string TableName = "dbo.PMSMaster";
         
         #region Constructor
 
@@ -33,19 +32,27 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             _sqlRepository = R;
         }
+
         #endregion Constructor
-      
-        #region Page
+
         public ActionResult Aplos()
         {
             return View();
         }
-        #endregion
+
+      
 
         [Authorize, HttpPost]
         public ActionResult getEmployeetype()
         {
-            return Json(ps.getEmployeeTypeId(), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(ps.getEmployeetype(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 
@@ -63,7 +70,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }      
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult GetList()
         {
             try
@@ -73,25 +80,24 @@ namespace Aplos.Areas.HumanResource.Controllers
             catch(Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
             }
         }
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
-            try
-            {
+            try {
                 return Json(ps.GetSequence(), JsonRequestBehavior.AllowGet);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost]
         public JsonResult Create(Dictionary<string, object> datas, List<string> Employee)
+
         {
             try
             {
@@ -101,11 +107,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             catch (Exception ex)
             {
+
                 return Json(new { Error = true, Message = ex.Message });
+
             }
         }
 
-        [HttpPost, Authorize]
         public ActionResult Delete(string id)
         {
             try
@@ -122,6 +129,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             }
 
-        }      
+        }
+       
     }
 }

@@ -49,7 +49,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
         Category: null,
         SubCategory: null,
         StandardName: null,
-        Username: null,
+        UserName: null,
         ShortName: null,
         Code: null,
         Active: true,
@@ -111,7 +111,8 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     };
 
     $scope.Save = function () {
-       $scope.$broadcast('show-errors-check-validity');     
+        $scope.$broadcast('show-errors-check-validity');
+        
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
@@ -170,7 +171,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
             Category: null,
             SubCategory: null,
             StandardName: null,
-            Username: null,
+            UserName: null,
             ShortName: null,
             Code: null,
             Active: true,
@@ -182,11 +183,11 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
             $scope.EmployeeIds = [];
             $scope.SelEmpList = [];
 
-            for (var i = 0; i < $scope.EmployeeList.length; i++) {
-
-                $scope.EmployeeList[i].isSelected = false;
-            }
-    };
+        for (var i = 0; i < $scope.EmployeeList.length; i++) {
+            $scope.EmployeeList[i].isSelected = false;
+        }
+     
+    }
 
     // Addition of the Modal Operations for PMS Child
     $scope.closeEmpPopUp = function () {

@@ -247,9 +247,6 @@ function salaryProcessedReportController(commonMessage, $scope, $rootScope, base
             ShowResult(e, 'failure');
         }
     };
-
-    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
-
     $scope.GetEmployeeSalaryProcessedReportSalaryLogWise = function () {
         try {
             var parameters = [];
@@ -290,8 +287,7 @@ function salaryProcessedReportController(commonMessage, $scope, $rootScope, base
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
                 }
             });
         } catch (e) {

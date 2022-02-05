@@ -20,15 +20,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         #endregion Constructor
 
-        public double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM PMSMaster");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
-        public IEnumerable<object> getEmployeeTypeId()
+        public IEnumerable<object> getEmployeetype()
         {
             try
             {
@@ -41,11 +33,11 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             }
         }
+
         public IEnumerable<object> GetMaster(string Id)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = @"select * from dbo.PMSMaster where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -54,13 +46,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
         public IEnumerable<object> GetChild(string Id)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @" select pc.Id,pc.PMSMasterId,pc.EmployeeCategoryId,et.UserName from PMSChild pc
-			 left join hkp.EmployeeCategory et on et.id=pc.EmployeeCategoryId
+                var str = @" select pc.Id,pc.PMSMasterId,pc.EmployeeCategoryId,et.Username from PMSChild pc
+			    left join hkp.EmployeeCategory et on et.id=pc.EmployeeCategoryId
                 where PMSMasterId= '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -69,11 +61,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
         public IEnumerable<object> GetList()
         {
             try
             {
                 string sql = @"select * from dbo.PMSMaster";
+
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -81,6 +75,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
         public Dictionary<string, object> Create(Dictionary<string, object> data, List<string> Employee)
         {
             try
@@ -163,10 +158,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 _info.SaveDataSets(dsMaster, dsChild);
 
                 return data;
-
             }
             catch (Exception ex)
-            { 
+            {
                 throw ex;
             }
         }
@@ -183,7 +177,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 conC.BeginTransaction();
                 conC.executeQuery("delete from dbo.PMSChild where PMSMasterId ='" + id + "'");
                 conC.CommitTransaction();
-
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
@@ -242,6 +235,14 @@ namespace Library.HumanResource.NewAttendanceProcess
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM PMSMaster");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
     }
 
     public class PerformanceModel
@@ -277,12 +278,14 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> GetList(string strkey)
+        public IEnumerable<object> GetList()
         {
             try
             {
-                string sql = @"select Id, PerformanceYearName, StartDate ,EndDate,Active, Remarks from dbo.PerformancePeriod ";
-
+                string sql = @"select Id,Active,PerformanceYearName,
+                FORMAT(StartDate,'dd-MMM-yyyy')StartDate,
+                FORMAT(EndDate,'dd-MMM-yyyy')EndDate
+                from dbo.PerformancePeriod ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -290,56 +293,51 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
-        public List<Dictionary<string, object>> Create(List<Dictionary<string, object>> Data)
+        public Dictionary<string, object> Create(Dictionary<string, object> Data)
         {
             try
             {
-                //Master Table - PerformancePEriod
                 string TableName = "dbo.PerformancePeriod";
-                DataSet dsMaster;
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2  ", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data Upload
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-                for (int i = 0; i < Data.Count; i++)
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PerformanceYearName = '" + Data["PerformanceYearName"] + "' AND  Id <> '" + Data["Id"] + "'", out DataSet dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Performance Year Name already exists!!!");
+                
+                TimeSpan ts = Convert.ToDateTime(Data["EndDate"]).Subtract(Convert.ToDateTime(Data["StartDate"]));
+                if (ts.Days >= 0)
                 {
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Data["Id"] + "'", out dsMaster, false, "1");
 
-                    DataRow dr = dsMaster.Tables[0].NewRow();
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-                    dr["Id"] = "PP" + DateTime.Now.Year.ToString() + '-' + _Id;
-                    dr["PerformanceYearName"] = Data[i]["PerformanceYearName"].ToString();
-                    dr["Date"] = DateTime.Now;
-                    dr["Active"] = Data[i]["Active"].ToString();
-                    dr["Remarks"] = Data[i]["Remarks"].ToString();
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = DateTime.Now.ToString();
-                    dr["UpdatedFromIP"] = identity.IPAddress;
-                    dsMaster.Tables[0].Rows.Add(dr);
+                    #region data update
+                    string _Id = "";
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
 
+                        Data["Id"] = "PP" + _Id;
+                        AddNewRow(dsMaster.Tables[0], Data);
+                    }
+                    else
+                    {
+                        _Id = Data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], Data);
+                    }
+                    #endregion data update
 
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);                    
                 }
-                #endregion data Upload
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
+                else
+                {
+                    throw new Exception("Please Choose a Valid Date Range !!");
+                }
                 return Data;
-
             }
             catch (Exception ex)
             {
-
                 throw ex;
-
             }
         }
         public void Delete(string Id)
@@ -358,9 +356,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
-
                 throw ex;
-
             }
         }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)

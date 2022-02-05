@@ -5,15 +5,11 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Biometrics;
-using Library.Model.Enums;
 using Library.Model.HumanResources;
-using Library.Security.Core;
 using Library.Service.Biometrics;
 using Library.Service.Employees;
 using Library.Service.Enums;
-using Library.Service.Helpers;
 using Library.Service.HumanResources;
-using Syncfusion.XlsIO;
 using System;
 using System.Data;
 using System.Threading;
@@ -266,132 +262,6 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        //public ActionResult LeaveAppReportExcel(ReportFormat reportFormat, string toDate)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    var reportFileName = "Bank Report";
-        //    var workbook = GetLeaveAppReport(identity.CompanyGroupId, identity.PlantId, identity.CompanyId, toDate);
-
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcelx(workbook, reportFileName);
-        //        default:
-        //            return RenderReportAsExcelx(workbook, reportFileName);
-        //    }
-        //}
-        //private IWorkbook GetLeaveAppReport(string companyGroupId, string plantId, string companyId, string toDate)
-        //{
-
-        //    var excelEngine = new ExcelEngine();
-        //    var report = new ReportUtility();
-        //    var workbook = report.GetWorkbook(ref excelEngine, 1);
-        //    workbook.Version = ExcelVersion.Excel2016;
-
-        //    var sheet = workbook.Worksheets[0];
-
-        //    sheet.Name = "LeaveApp";
-
-
-        //    int ROW = 6;
-        //    int endCol = 1;
-        //    int COL = 1;
-
-
-
-        //    DataTable data = LeaveAppList(companyGroupId, plantId, companyId, toDate);
-
-
-        //    #region Headers
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Bank Master", 25, ExcelHAlign.HAlignLeft);
-        //    int ColBankMaster = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Bank Name", 20, ExcelHAlign.HAlignLeft);
-        //    int ColBankName = COL;
-        //    COL++;
-
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Branch", 15, ExcelHAlign.HAlignLeft);
-        //    int ColBranch = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Account Number", 20, ExcelHAlign.HAlignLeft);
-        //    int ColAccountNumber = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Bank Currency", 8, ExcelHAlign.HAlignLeft);
-        //    int ColBankCurrency = COL;
-        //    COL++;
-
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Bank Amount", 18, ExcelHAlign.HAlignRight);
-        //    int ColBankAmount = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Books Bank Balance", 18, ExcelHAlign.HAlignRight);
-        //    int ColBooksBankBalance = COL;
-
-
-        //    endCol = COL;
-        //    #endregion Headers
-
-        //    var startRow = 0;
-
-        //    int RowIndex = ROW;
-        //    startRow = ROW;
-        //    ROW++;
-        //    for (int i = 0; i < data.Rows.Count; i++)
-        //    {
-
-        //        sheet[ROW, ColBankMaster].Text = data.Rows[i]["BankAccountDetails"].ToString();
-        //        sheet[ROW, ColBankName].Text = data.Rows[i]["Bank"].ToString();
-        //        sheet[ROW, ColBranch].Text = data.Rows[i]["Branch"].ToString();
-        //        sheet[ROW, ColAccountNumber].Text = data.Rows[i]["AccountNumber"].ToString();
-        //        sheet[ROW, ColBankCurrency].Text = data.Rows[i]["BankCurrency"].ToString();
-
-        //        sheet[ROW, ColBankAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BankAmount"].ToString());
-        //        sheet[ROW, ColBankAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-        //        sheet[ROW, ColBankAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet[ROW, ColBankAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet[ROW, ColBooksBankBalance].Number = clsStaticInfo.dbl(data.Rows[i]["BooksBankBalance"].ToString());
-        //        sheet[ROW, ColBooksBankBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-        //        sheet[ROW, ColBooksBankBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet[ROW, ColBooksBankBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-
-
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-
-        //        ROW++;
-        //    }
-        //    report.SetHeaderText(ref sheet, ROW, 1, "Total", 25, ExcelHAlign.HAlignLeft);
-        //    sheet.Range[ROW, ColBankName, ROW, ColBankAmount].Merge();
-
-        //    sheet[ROW, ColBooksBankBalance].Formula = "SUM(" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksBankBalance) + startRow.ToString() + ":" + OTSBD.clsStaticInfo.GetxlsCol(ColBooksBankBalance) + (ROW - 1).ToString() + ")";
-        //    sheet[ROW, ColBooksBankBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-        //    sheet[ROW, ColBooksBankBalance].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //    sheet[ROW, ColBooksBankBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //    sheet[ROW, ColBooksBankBalance].CellStyle.Font.Bold = true;
-        //    //sheet.Range[ROW, ColToCurrencyRate, ROW, ColToCurrencyRate].Merge();
-
-
-
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    sheet.UsedRange.NumberFormat = "#,##0.00";
-        //    sheet.UsedRange.WrapText = true;
-        //    sheet.UsedRange.CellStyle.Font.Size = 8f;
-        //    report.CompanyHeader(ref sheet, endCol, "Bank Report", identity.CompanyId);
-        //    report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
-        //    return workbook;
-        //}
-
-        
         #endregion -- Operations
     }
 }

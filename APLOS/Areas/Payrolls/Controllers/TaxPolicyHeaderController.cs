@@ -491,21 +491,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
-        [HttpPost, Authorize]
-        public JsonResult DeleteIncomeSlab(string ID)
-        {
-            try
-            {
-                ds.DeleteIncomeSlab(ID);
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
+        
         #endregion
 
     }

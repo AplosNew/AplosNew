@@ -3,24 +3,20 @@
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
 
+       
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">SystemId<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name=" SystemId" ng-model="ModelNew.Id" class="form-control" required maxlength="10">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">PerformanceYear<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Performance Year<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="PerformanceYear" ng-model="ModelNew.PerformanceYearName" class="form-control" required maxlength="10">
             </div>
         </div>
+
         <div class="form-group">
             <label class="col-sm-4 control-label">Active</label>
             <div class="col-sm-8">
                 <div class="checkbox-site">
                     <label>
-                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                        <input type="checkbox" ng-model="ModelNew.Active">
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
@@ -31,7 +27,7 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="50" tabindex="6"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="50"></textarea>
             </div>
         </div>
 
@@ -40,17 +36,17 @@
 
         <div class="col-lg-8 col-md-8 col-sm-12">
             <div class="form-group">
-                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Start Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                    <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker ng-model="ModelNew.StartDate" required e-width="100%" />
                 </div>
             </div>
         </div>
         <div class="col-lg-8 col-md-8 col-sm-12">
             <div class="form-group">
-                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <label class="col-sm-4 control-label">End Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker ng-model="ModelNew.EndDate" required e-width="100%" />
                 </div>
             </div>
         </div>
@@ -62,26 +58,11 @@
 
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}} </button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}} </button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
-    </div>
-    <div class="row">
-        <div id="GridEdit" ej-grid e-datasource="ModelList"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="margin-top:10px;">
-            <div e-columns>
-                <div e-column e-field="SystemId" e-headertext="System Id" e-width="2"></div>
-                <div e-column e-field="PerformanceYearName" e-headertext="Performance Year" e-width="3"></div>
-                <div e-column e-field="StartDate" e-headertext="Start Date" e-width="3"></div>
-                <div e-column e-field="EndDate" e-headertext="End Date" e-width="3"></div>
-                <div e-column e-field="Active" e-headertext="Active" e-width="3"></div>
-                <div e-column e-field="Remark" e-headertext="Remarks" e-width="3"></div>
-
-            </div>
-        </div>
-    </div>
+    </div>    
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
@@ -89,7 +70,6 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>*@
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false"></div>
             <div e-column e-field="PerformanceYearName" e-headertext="Performance Year" e-width="3"></div>
             <div e-column e-field="StartDate" e-headertext="Start Date" e-width="3"></div>
@@ -104,7 +84,5 @@
 <confirm-modal></confirm-modal>
 
 <confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
-
-
 
 
