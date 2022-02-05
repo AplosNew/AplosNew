@@ -703,8 +703,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/PerformanceManagementMaster/Aplos',
             controller: 'PerformanceManagementMasterController'
         })
-
-
-    
+        .when('/performance-period', {
+            templateUrl: 'humanresource/PerformancePeriod/Aplos',
+            controller: 'PerformancePeriodController'
+        })
         ;
 }

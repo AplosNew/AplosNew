@@ -1628,14 +1628,14 @@ namespace Aplos.Areas.Products.Controllers
 
 
 		[Authorize, HttpGet]
-		public ActionResult InventorySalesReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory,string Summery,bool WithTax)
+		public ActionResult InventorySalesReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory,string Summery,bool WithTax,string Type)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			plantId = identity.PlantId;
 			var reportFileName = "Sales Register.xls" + fromDate + "To" + toDate + "";
 			ExcelEngine excelEngine = new ExcelEngine();
 
-			IWorkbook workbook = InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summery,WithTax);
+			IWorkbook workbook = InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summery,WithTax, Type);
 			switch (reportFormat)
 			{
 				case ReportFormat.Pdf:
@@ -3442,7 +3442,7 @@ namespace Aplos.Areas.Products.Controllers
 //				throw ex;
 //			}
 //		}
-		public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summery)
+		public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summery,string Type)
 		{
 			var sql = "";
 			try
@@ -3450,7 +3450,7 @@ namespace Aplos.Areas.Products.Controllers
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				if (Summery == "Details")
 				{
-					if (fromDate != "" && toDate != "")
+					if (Type== "ForThePeriod")
 					{
 						sql = @"SELECT 
 								ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
@@ -4798,7 +4798,7 @@ namespace Aplos.Areas.Products.Controllers
 				}
 				else
 				{
-					if (fromDate != "" && toDate != "")
+					if (Type == "ForThePeriod")
 					{
 						sql = @"SELECT 
 									ROW_NUMBER() Over(Order by SA.Id) As[S.N]
@@ -5503,7 +5503,7 @@ namespace Aplos.Areas.Products.Controllers
 		public string NumberFormatTwoDecimal = "#,##0.00;(#,##0.00)";
 		public string NumberFormatFourDecimal = "#,####0.0000;(#,####0.0000)";
 		[Authorize, HttpGet]
-		private IWorkbook InventorySalesReportList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount,string Summery,bool WithTax)
+		private IWorkbook InventorySalesReportList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount,string Summery,bool WithTax,string Type)
 		{
 
 			//Start EmployeeAdvanceDueList
@@ -5523,7 +5523,7 @@ namespace Aplos.Areas.Products.Controllers
 
 				//Get the first worksheet in the workbook into IWorksheet
 				IWorksheet worksheet = workbook.Worksheets[0];
-				DataTable dtInventorySalesReportList = GetInventorySalesReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount,Summery);
+				DataTable dtInventorySalesReportList = GetInventorySalesReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount,Summery, Type);
 
 				if (dtInventorySalesReportList.Rows.Count == 0)
 					throw new Exception("No data found");

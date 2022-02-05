@@ -1664,7 +1664,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select IID.Id as InventoryIssueDetailId, II.Id as IssueId,IID.TransactionQty,IID.CostCenterId, vcc.Id as OSTransformationPODetailId,vcc.OSTransformationPOId,vcc.MaterialMasterId,vcc.ArticleId,vcc.Quantity as VCCQuantity, jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity
+                string sql = @"select IID.Id as InventoryIssueDetailId, II.Id as IssueId,IID.TransactionQty,IID.CostCenterId,IID.Comments, vcc.Id as OSTransformationPODetailId,vcc.OSTransformationPOId,vcc.MaterialMasterId,vcc.ArticleId,vcc.Quantity as VCCQuantity, jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity
                                 , uom.UserName as OutputUnit,OMM.UserName as MaterialMaster, mma.StandardName as ArticleName
 							   , c.Code as Currency, emp.EmployeeName as ResponsiblePerson
 							   , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
@@ -1914,7 +1914,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                 ,FChar.UserName,FCharValue.UserName,SChar.UserName,SCharValue.UserName ,TChar.UserName,TCharValue.UserName
 						 ,vcc.FirstCharacteristicsId,vcc.FirstCharacteristicsValueId,vcc.SecondCharacteristicsId,vcc.SecondCharacteristicsValueId
 						 ,vcc.ThirdCharacteristicsId,vcc.ThirdCharacteristicsValueId
-                         ,II.Id,IID.TransactionQty,IID.CostCenterId,IID.Id";
+                         ,II.Id,IID.TransactionQty,IID.CostCenterId,IID.Id,IID.Comments";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

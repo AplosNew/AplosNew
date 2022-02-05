@@ -24,7 +24,6 @@ namespace Aplos.Areas.HumanResource.Controllers
     public class PerformanceManagementMasterController : BaseController
     {
         PerformanceManagementMasterService ps = new PerformanceManagementMasterService();
-        string TableName = "dbo.PMSMaster";
         
         #region Constructor
 
@@ -44,9 +43,16 @@ namespace Aplos.Areas.HumanResource.Controllers
       
 
         [Authorize, HttpPost]
-        public ActionResult getEmployee()
+        public ActionResult getEmployeetype()
         {
-            return Json(ps.getEmployeeId(), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(ps.getEmployeetype(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 
@@ -60,24 +66,33 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 
         }      
         [HttpPost]
-        public ActionResult GetList(string column, string value)
+        public ActionResult GetList()
         {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-            return Json(ps.GetList(strkey), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(ps.GetList(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+            try {
+                return Json(ps.GetSequence(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpPost]
@@ -87,7 +102,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 var data = ps.Create(datas, Employee);
-                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = ps.GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -104,7 +119,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 ps.Delete(id);
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Sequence = ps.GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
@@ -115,13 +130,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
+       
     }
 }

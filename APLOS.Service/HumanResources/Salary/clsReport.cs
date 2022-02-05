@@ -5448,7 +5448,7 @@ namespace OTSBD
 
             try
             {
-                strSql = @"SELECT [CheckBoxSelect] = Convert(bit, 'False'),yc.YearNo,FORMAT(s.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(s.ToDate,'dd-MMM-yyyy')Todate,
+                strSql = @"SELECT [CheckBoxSelect] = Convert(bit, 'False'),yc.YearNo,
                             E.SystemId, e.EmployeeCode,e.EmployeeName,e.FatherName,t.UserName LeaveType ,FORMAT(e.DOB,'dd-MMM-yyyy') DOB,FORMAT(e.DOJ,'dd-MMM-yyyy') DOJ,format(e.DOS,'dd-MMM-yyyy')DOS
                             , EC.UserName EmpCategoryName
                             ,ld.UserName Designation
@@ -5491,8 +5491,6 @@ namespace OTSBD
                            ,isnull(ltd.LvEncashmentFormulaDesID,0)as LvEncashmentFormulaDesID
                            
                             from TRN.EmployeeLeaveSummary S
-                            JOIN trn.EmployeeLeaveSummary AS SX ON sx.Id=s.Id AND sx.Id=(SELECT TOP 1 Id FROM trn.EmployeeLeaveSummary AS X 
-                            WHERE x.EmployeeId=s.EmployeeId AND s.LeaveTypeId=x.LeaveTypeId AND x.PlantId=s.PlantId AND x.fromdate<='" + YearNo + @"' ORDER BY X.ToDate DESC)
                             INNER JOIN LeaveType t on s.LeaveTypeId=t.Id AND t.LeaveType='Earn'
                             INNER JOIN EmployeeInformation e on e.SystemId=s.EmployeeId
                             
@@ -5510,7 +5508,9 @@ namespace OTSBD
                             (--detail
                             select SUM(LeaveDuration) LeaveDuration, LvTrnsSystemID from LeaveTransactionDetails
                             where IsAvailed=1
-                            and WorkDate <='"+YearNo+@"'
+                            and WorkDate between
+                            (select FromDate from YearlyCalendar where Id='" + YearNo + @"' and PlantId='" + identity.PlantId + @"')
+                            and (select ToDate from YearlyCalendar where Id= '" + YearNo + @"' and PlantId='" + identity.PlantId + @"')
                             group by LvTrnsSystemID
                             )--detail
                             d on t.SystemID=d.LvTrnsSystemID
@@ -5584,11 +5584,12 @@ FROM ( SELECT x.EffectiveDate EffectiveDate,m.SystemID,x.EmpInfoSystemID
 
 									  )YY on YY.EmpInfoSystemID=e.SystemId	
 
-                            where --s.CalanderYearId='" + YearNo + @"' AND 
-                            s.EmployeeId IN (SELECT SystemId FROM EmployeeInformation WHERE PlantId='" + identity.PlantId + @"'";
+                            where s.CalanderYearId='" + YearNo + @"'
+                            AND s.EmployeeId IN (SELECT SystemId FROM EmployeeInformation WHERE PlantId='" + identity.PlantId + @"'";
                 if ((isSeperated && isActive) || (!isSeperated && !isActive))
                 {
-                    strSql += @"AND ( EmployeeStatus = 'Active' OR  (EmployeeStatus = 'Separated' AND DOS <='" + YearNo + @"'))";
+                    strSql += @"AND ( EmployeeStatus = 'Active' OR  (EmployeeStatus = 'Separated' AND DOS BEtween (select FromDate from YearlyCalendar where Id='" + YearNo + @"' and PlantId='" + identity.PlantId + @"')
+                            and (select ToDate from YearlyCalendar where Id= '" + YearNo + @"' and PlantId='" + identity.PlantId + @"')))";
                 }
                 else
                 {
@@ -5598,7 +5599,8 @@ FROM ( SELECT x.EffectiveDate EffectiveDate,m.SystemID,x.EmpInfoSystemID
                     }
                     if (isSeperated)
                     {
-                        strSql += @"AND (EmployeeStatus = 'Separated' AND DOS <='" + YearNo + @"')";
+                        strSql += @"AND (EmployeeStatus = 'Separated' AND DOS BEtween (select FromDate from YearlyCalendar where Id='" + YearNo + @"' and PlantId='" + identity.PlantId + @"')
+                            and (select ToDate from YearlyCalendar where Id= '" + YearNo + @"' and PlantId='" + identity.PlantId + @"'))";
                     }
                 }
 

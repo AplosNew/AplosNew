@@ -144,7 +144,7 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
     };
 
     function complete(args) {
-        debugger;
+       
         if (args.requestType == "beginedit") {
 
             if (this.getCurrentViewData()[args.rowIndex]["Flag"] == 1)//checking condition for some column 
