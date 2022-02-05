@@ -1469,11 +1469,11 @@ namespace Aplos.Areas.Products.Controllers
 
 
         #region MaterialWiseIssueSlip 2 Step 
-        [Authorize, HttpGet]
-        public JsonResult GetIssueSlipFilterData()
+        [Authorize, HttpPost]
+        public JsonResult GetIssueSlipFilterData(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetIssueSlipFilterData(), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryReveiveService.GetIssueSlipFilterData(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
 
         }
         #endregion

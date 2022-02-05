@@ -11275,12 +11275,15 @@ namespace Library.MaterialManagement.Inventory
         #endregion
 
         #region Material Wise Issue Slip
-        public IEnumerable<object> GetIssueSlipFilterData()
+        public IEnumerable<object> GetIssueSlipFilterData(string column, string value, string plantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var sql = @"SELECT MGM.UserName MaterialMasterGroupName
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"select top 500 * from ( SELECT MGM.UserName MaterialMasterGroupName
                                 	,GRN.InventoryMaterialId
                                 	,MT.UserName MaterialType
                                 	,NULL AS uoMList
@@ -11391,7 +11394,10 @@ namespace Library.MaterialManagement.Inventory
                                 	GROUP BY IRD.InventoryMaterialId
                                 	) InventoryTransferData ON InventoryTransferData.InventoryMaterialId = MRD.Id
                                 LEFT JOIN SCS.Country C ON C.Id = MRD.CountryId
-                                WHERE MM.IsAsset = 0";
+                                WHERE MM.IsAsset = 0 
+                                ) AS TEMP WHERE " + strkey + @" order by  TotalQty desc,MaterialMasterName asc
+                                ";
+
 
                 List<Dictionary<string, object>> Data = _sqlRepository.GetDataCollection(sql);
 
