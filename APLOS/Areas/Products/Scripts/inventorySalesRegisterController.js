@@ -18,6 +18,7 @@ function inventorySalesRegisterController(accountService, $window, cboService, c
 	};
 	$scope.productNew = {
 		AsOnDate: null,
+		Summary:'Summary'
     }
 	
 	$scope.partyType = "Customer";
@@ -60,7 +61,7 @@ function inventorySalesRegisterController(accountService, $window, cboService, c
 
 		//var reportFormat = "Excel";
 		
-		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery + '&WithTax=' + $scope.tax.IncludingTax + '&Type=' + Type);
+		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summary=' + $scope.productNew.Summary + '&WithTax=' + $scope.tax.IncludingTax + '&Type=' + Type);
 	};
 
 	//$scope.InventorySalesRepoReportPdf = function (id, reportFormat) {
