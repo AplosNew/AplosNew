@@ -621,9 +621,6 @@ namespace Library.Service.HumanResources
             #endregion
             try
             {
-
-
-
                 objRpt = new clsReport();
                 string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
 
@@ -660,6 +657,7 @@ namespace Library.Service.HumanResources
                 int iDOS = 0;
                 int iDepartment = 0;
                 int iYear = 0;
+                int iToDate = 0;
                 int iDesignation = 0;
                 int iBF = 0;
                 int iEarnLeave = 0;
@@ -756,8 +754,13 @@ namespace Library.Service.HumanResources
 
                     xlsCol += 1;
                     iYear = xlsCol;
-                    sheet1.Range[xlsRow, iYear].Text = "Year";
+                    sheet1.Range[xlsRow, iYear].Text = "From Date";
                     sheet1.Range[xlsRow, iYear].ColumnWidth = 15;
+
+                    xlsCol += 1;
+                    iToDate = xlsCol;
+                    sheet1.Range[xlsRow, iToDate].Text = "To Date";
+                    sheet1.Range[xlsRow, iToDate].ColumnWidth = 15;
 
                     xlsCol += 1;
                     iWages = xlsCol;
@@ -934,7 +937,8 @@ namespace Library.Service.HumanResources
 
                         sheet1.Range[xlsRow, iBlance].Number = clsStaticInfo.dbl(dtEarnLeave.Rows[i]["Balance"].ToString());
 
-                        sheet1.Range[xlsRow, iYear].Number = clsStaticInfo.dbl(dtEarnLeave.Rows[i]["YearNo"].ToString());
+                        sheet1.Range[xlsRow, iYear].Text = (dtEarnLeave.Rows[i]["FromDate"].ToString());
+                        sheet1.Range[xlsRow, iToDate].Text = (dtEarnLeave.Rows[i]["Todate"].ToString());
                         sheet1.Range[xlsRow, ipolicyname].Text = dtEarnLeave.Rows[i]["PolicyName"].ToString();
                         sheet1.Range[xlsRow, iEncashed].Number = clsStaticInfo.dbl(dtEarnLeave.Rows[i]["EncashedInbetween"].ToString());
 
@@ -1157,7 +1161,7 @@ namespace Library.Service.HumanResources
 
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, 3].Text = "Earn Leave Report For " + dtEarnLeave.Rows[0]["YearNo"].ToString();
+                sheet1.Range[xlsRow, 3].Text = "Earn Leave Report till " + YearNo;
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
