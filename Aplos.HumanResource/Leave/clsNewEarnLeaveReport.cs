@@ -60,6 +60,8 @@ namespace Library.HumanResource.Leave
             var iSubSection = 0;
             var iLine = 0;
             var iDesignation = 0;
+            var iEarningDays = 0;
+            var iRate = 0;
 
             #endregion Variable
 
@@ -71,7 +73,7 @@ namespace Library.HumanResource.Leave
 
 
                 #region DataSet
-                getEmployee(FromDate,ToDate, out dsAttn);
+                getEmployee(FromDate, ToDate, out dsAttn);
 
                 dvAttn = new DataView();
                 dvAttn.Table = dsAttn.Tables[0];
@@ -99,133 +101,75 @@ namespace Library.HumanResource.Leave
 
                     iSl = xlsCol;
                     sheet1.Range[xlsRow, iSl].Text = "Sl No.";
-                    sheet1.Range[xlsRow, iSl].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iSl].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iSl].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iSl].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
                     iEmpCode = xlsCol;
                     sheet1.Range[xlsRow, iEmpCode].Text = "Employee Code";
-                    sheet1.Range[xlsRow, iEmpCode].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iEmpCode].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iEmpCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
                     iEmpName = xlsCol;
                     sheet1.Range[xlsRow, iEmpName].Text = "Employee Name";
-                    sheet1.Range[xlsRow, iEmpName].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iEmpName].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
                     iGender = xlsCol;
                     sheet1.Range[xlsRow, iGender].Text = "Gender";
-                    sheet1.Range[xlsRow, iGender].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iGender].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iGender].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
                     iDOJ = xlsCol;
                     sheet1.Range[xlsRow, iDOJ].Text = "DOJ";
-                    sheet1.Range[xlsRow, iDOJ].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iDOJ].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iDOJ].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iDOJ].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
+                    xlsCol++;
 
                     iFromDate = xlsCol;
                     sheet1.Range[xlsRow, iFromDate].Text = "From Date";
-                    sheet1.Range[xlsRow, iFromDate].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iFromDate].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iFromDate].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iFromDate].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
                     iToDate = xlsCol;
                     sheet1.Range[xlsRow, iToDate].Text = "To Date";
-                    sheet1.Range[xlsRow, iToDate].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iToDate].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iToDate].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iToDate].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
+                    xlsCol++;
 
                     iEmpCategory = xlsCol;
                     sheet1.Range[xlsRow, iEmpCategory].Text = "Emp. Category";
-                    sheet1.Range[xlsRow, iEmpCategory].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iEmpCategory].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iEmpCategory].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iEmpCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    iEmpCategory = xlsCol;
-                    sheet1.Range[xlsRow, iEmpCategory].Text = "Emp. Category";
-                    sheet1.Range[xlsRow, iEmpCategory].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iEmpCategory].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iEmpCategory].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iEmpCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
+                    xlsCol++;
+                                        
                     iDepartment = xlsCol;
                     sheet1.Range[xlsRow, iDepartment].Text = "Department";
-                    sheet1.Range[xlsRow, iDepartment].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iDepartment].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iDepartment].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iDepartment].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
                     iSection = xlsCol;
                     sheet1.Range[xlsRow, iSection].Text = "Section";
-                    sheet1.Range[xlsRow, iSection].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iSection].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iSection].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iSection].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
                     iSubSection = xlsCol;
                     sheet1.Range[xlsRow, iSubSection].Text = "Sub Section";
-                    sheet1.Range[xlsRow, iSubSection].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iSubSection].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iSubSection].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iSubSection].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
                     iLine = xlsCol;
                     sheet1.Range[xlsRow, iLine].Text = "Line";
-                    sheet1.Range[xlsRow, iLine].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iLine].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iLine].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iLine].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
                     iDesignation = xlsCol;
                     sheet1.Range[xlsRow, iDesignation].Text = "Designation";
-                    sheet1.Range[xlsRow, iDesignation].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, iDesignation].RowHeight = 4.70;
-                    sheet1.Range[xlsRow, iDesignation].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iDesignation].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
+                    xlsCol++;
 
-                    //iLine = xlsCol;
-                    //sheet1.Range[xlsRow, iLine].Text = "Line";
-                    //sheet1.Range[xlsRow, iLine].ColumnWidth = 4.70;
-                    //sheet1.Range[xlsRow, iLine].RowHeight = 4.70;
-                    //sheet1.Range[xlsRow, iLine].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet1.Range[xlsRow, iLine].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //xlsCol += 1;
+                    iEarningDays = xlsCol;
+                    sheet1.Range[xlsRow, iEarningDays].Text = "Calculated Earning Days";
+                    xlsCol++;
                     
+                    iRate = xlsCol;
+                    sheet1.Range[xlsRow, iRate].Text = "Rate";
+                    xlsCol++;
+
                     endXlsCol = xlsCol;
 
                     sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                     sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                     sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
                     sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Rotation = 90;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 81;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].ColumnWidth = 81;
                     sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 
                     xlsCol = 1;
@@ -238,21 +182,31 @@ namespace Library.HumanResource.Leave
                         xlsRow += intRow;
                         intRow = 1;
                         #region ----------------------Data-----------------------
-                        strCount ++;
+                        strCount++;
                         sheet1.Range[xlsRow, iSl].Text = strCount.ToString();
                         sheet1.Range[xlsRow, iEmpCode].Text = dvAttn[i]["EmployeeCode"].ToString();
+                        sheet1.Range[xlsRow, iEmpName].Text = dvAttn[i]["EmployeeName"].ToString();
+                        sheet1.Range[xlsRow, iGender].Text = dvAttn[i]["GenderID"].ToString();
+                        sheet1.Range[xlsRow, iDOJ].Text = dvAttn[i]["DOJ"].ToString();
+                        sheet1.Range[xlsRow, iFromDate].Text = dvAttn[i]["FromDate"].ToString();
+                        sheet1.Range[xlsRow, iToDate].Text = dvAttn[i]["ToDate"].ToString();
+                        sheet1.Range[xlsRow, iEmpCategory].Text = dvAttn[i]["EmployeeCategory"].ToString();
+                        sheet1.Range[xlsRow, iDepartment].Text = dvAttn[i]["Department"].ToString();
+                        sheet1.Range[xlsRow, iSection].Text = dvAttn[i]["Section"].ToString();
+                        sheet1.Range[xlsRow, iSubSection].Text = dvAttn[i]["SubSection"].ToString();
+                        sheet1.Range[xlsRow, iLine].Text = dvAttn[i]["Line"].ToString();
+                        sheet1.Range[xlsRow, iDesignation].Text = dvAttn[i]["Designation"].ToString();
+                        sheet1.Range[xlsRow, iEarningDays].Number =clsStaticInfo.dbl(dvAttn[i]["CalculatedEarningDays"].ToString());
+                        sheet1.Range[xlsRow, iRate].Number =clsStaticInfo.dbl(dvAttn[i]["Rate"].ToString());
 
-                        #endregion ----------------------Data-----------------------
+                        #endregion 
 
-
-
-                        xlsRow++;
-                        
                     }
 
                     sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                     sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                     sheet1.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
+
                     #region UsedRange Alignment
                     sheet1.UsedRange.WrapText = true;
                     sheet1.UsedRange.CellStyle.Font.Size = 8;
@@ -356,7 +310,7 @@ namespace Library.HumanResource.Leave
                     sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                                        
+
                     #endregion ******************Report Header******************
 
                     #region Freeze Panes
@@ -420,8 +374,8 @@ namespace Library.HumanResource.Leave
             {
                 strSql = @"SELECT ei.EmployeeCode,ei.EmployeeName,ei.GenderID,FORMAT(ei.DOJ,'dd-MMM-yyyy')DOJ
                                     ,En.UserName EmployeeCategory,dp.UserName Department,SE.UserName Section
-                                    ,ISNULL(Li.UserName,'') Line
-                                    ,Deg.UserName Designation
+                                    ,ISNULL(Li.UserName,'') Line,SuS.Username SubSection
+                                    ,Deg.UserName Designation,els.CalculatedEarningDays,FORMAT(els.FromDate,'dd-MMM-yyyy')FromDate, FORMAT(els.ToDate,'dd-MMM-yyyy')ToDate,L.Rate
                                     FROM LeaveEncashmentTransaction L
                                     JOIN TRN.EmployeeLeaveSummary AS els ON els.EmployeeId=L.EmpSystemId AND L.EncashmentDate = els.ToDate
                                     JOIN EmployeeInformation AS ei ON ei.SystemId = L.EmpSystemId AND ei.SystemId=els.EmployeeId
@@ -436,7 +390,8 @@ namespace Library.HumanResource.Leave
                                     left join HKP.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
                                     left join ORG.Section SE on SE.Id=PR.SectionId
                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
-                                    LEFT JOIN ORG.Line AS Li ON Li.Id= PMB.LineId";
+                                    LEFT JOIN ORG.Line AS Li ON Li.Id= PMB.LineId
+                                    WHERE L.EncashmentDate BETWEEN ('" + FromDate + @"') AND ('" + ToDate + @"')";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSql, out dsRef);

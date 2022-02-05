@@ -1,26 +1,17 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Earn Leave Report</h3>
 <div class="form-horizontal form-elements">
     <div class="row">
-
+        <label class="col-sm-12 " style="color:blue; font-weight:normal;">Latest leave information before the selected date will appear<sup></sup></label>
         <div class="col-sm-12">
-
             <div class="col-xs-12 col-sm-3 col-md-3 ">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Year<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearlist" e-databound="SelectDefaultValue" e-value="year" e-enablefiltersearch="true" e-fields-value="Id" e-fields-text="YearNo" e-width="100%" />
-
-                        @*<div class="select-style">
-                                <select id="LeaveTypeID" class="form-control" ng-model="EarnLeaveModel.Id" required tabindex="1">
-                                    <option value="">--Select--</option>
-                                    <option ng-repeat="option in yearlist" value="{{option.Id}}">{{option.YearNo}}</option>
-                                </select>
-                            </div>*@
+                        <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="year" datepicker class="form-control">
                     </div>
                 </div>
             </div>
             <div class="col-xs-3 col-sm-2 col-md-2">
-
                 <div class="form-group">
                     <label class="col-sm-6 " style="font-weight:normal; text-align:right">Regular<sup></sup></label>
                     <div class="col-sm-6">
@@ -46,27 +37,7 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
-        <div class="col-sm-12">
-            <div class="col-sm-4"></div>
-            <div class="col-sm-4"></div>
-
-            <div class="col-sm-4">
-               
-            </div>
-
-
-        </div>
-
     </div>
-
-</div>
-<div class="loader" data-loader>
-    Please wait
-    <div class="bounce1"></div>
-    <div class="bounce2"></div>
-    <div class="bounce3"></div>
 </div>
 

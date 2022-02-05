@@ -802,7 +802,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/EmployeeAdvanceWriteOff.cshtml");
         }
-
+        public ActionResult EmployeeTotalAdvanceWriteOff()
+        {
+            return View("~/Areas/Accounts/Views/EmployeeTotalAdvanceWriteOff.cshtml");
+        }
         [Authorize, HttpGet]
         public JsonResult GetEmployeeAdvanceWriteOffList(GridParameter parameters)
         {
