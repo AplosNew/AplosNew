@@ -10,6 +10,7 @@ using Library.Data;
 using Library.Service.Enums;
 using Library.Service.Logs;
 using System.Reflection;
+using System.Linq;
 
 namespace Library.HumanResource.Payroll.Tax
 { 
@@ -1242,8 +1243,7 @@ namespace Library.HumanResource.Payroll.Tax
                 select dd.EarningMasterId,dd.SalaryHeadId,dd.SalaryHead,
                 dd.LastCalculatedDate,isnull(dd.OpeningValue,'0')OpeningValue,
                 dd.ActualValue,dd.ArrearValue,dd.Rem_Months,
-                isnull((dd.DefineAmount*dd.Rem_Months),'0') as StructureValue,
-                dd.DeductionDone
+                isnull((dd.DefineAmount*dd.Rem_Months),'0') as StructureValue                
                 from (
                 select distinct tem.Id as EarningMasterId,tem.SalaryHeadID,
                 sh.SalaryHead, 
@@ -1336,6 +1336,105 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
 
+        #endregion
+
+        #region Net Earning Tab Functions
+        public static List<Dictionary<string, string>> GetDataTableDictionaryList(DataTable dt)
+        {
+            return dt.AsEnumerable().Select(
+                row => dt.Columns.Cast<DataColumn>().ToDictionary(
+                    column => column.ColumnName,
+                    column => row[column].ToString()
+                )).ToList();
+        }
+        public DataTable EarningQuery(string EmpId, string PolicyId,string YearId)
+        {
+            try
+            {
+                var sql = @"select eit.EmpSystemId,ed.GrossEarning,
+                tem.SalaryHeadId,sh.SalaryHead,tem.ExemptionApplicable
+                from EmployeeEarningData ed 
+                left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
+                join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
+                left join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadId
+                where eit.EmpSystemId='" + EmpId + @"' and 
+                eit.TaxPolicyHeaderId='" + PolicyId + "' and eit.TaxYearId='" + YearId + "'";
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public DataTable FormulasQuery(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                var sqlx = @"select eit.EmpSystemId,tem.SalaryHeadId as MasterId,
+                sh.SalaryHead , tac.Formula , tac.FormulaID,tem.IsLessOrMore
+                from EmployeeEarningData ed
+                left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
+                join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
+                left join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadId
+                right join TaxExemptionApplicableChild tac on tac.TaxEarningMasterChildId = tem.Id
+                where eit.EmpSystemId='" + EmpId + @"' and eit.TaxPolicyHeaderId='" + PolicyId + @"' 
+                and eit.TaxYearId='" + YearId + "'";
+
+                return _sqlRepository.GetDataTable(sqlx);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ProcessingFunction(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                #region DataTable Creation Region
+
+                DataTable FormulaDt = FormulasQuery(EmpId, PolicyId, YearId);
+                List<Dictionary<string, string>> FormulaDict = GetDataTableDictionaryList(FormulaDt);
+                DataTable EarningDt = EarningQuery(EmpId, PolicyId, YearId);
+                List<Dictionary<string, string>> EarningDict = GetDataTableDictionaryList(EarningDt);
+
+                #endregion
+
+                for (int i = 0; i < EarningDt.Rows.Count; i++)                   
+                {
+                        char[] separator = { '+', '*','-','/','(',')' };
+                        string SalaryHeadId = clsWebLib.RetValidLen(EarningDt.Rows[i][@"SalaryHeadId"]).ToString();
+                        string Exemption = clsWebLib.GetBoolData(EarningDt.Rows[i][@"ExemptionApplicable"]).ToString();
+                        if (Exemption == "True")
+                        {
+                            foreach (Dictionary<string, string> Item in FormulaDict)
+                            {
+                                if (Item.ContainsKey("MasterId") && Item["MasterId"] == SalaryHeadId)
+                                {
+                                    string Formula = Item["FormulaID"].ToString();
+
+                                    String[] strlist= Formula.Split(separator);
+                                    foreach (String s in strlist)
+                                    {
+                                        foreach (Dictionary<string, string> Itemx in EarningDict)
+                                        {
+                                            if (Itemx.ContainsKey("SalaryHeadId") && Itemx["SalaryHeadId"] == s)
+                                            {
+                                               // strlist[s] = "";
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }                    
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }
