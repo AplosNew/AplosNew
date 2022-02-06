@@ -495,11 +495,11 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
         #region SampleFile
         [HttpPost, Authorize]
-        public ActionResult GetSampleFile(ReportFormat reportFormat, List<Dictionary<string, object>> GridTempList)
+        public ActionResult GetSampleFile(ReportFormat reportFormat, List<Dictionary<string, object>> GridTempList, Dictionary<string, object> fabricRollMaster)
         {
             string fileName = "";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            fileName = GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, GridTempList);
+            fileName = GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, GridTempList, fabricRollMaster);
             var reportFileName = "Fabric Roll Management Template";
             return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             //switch (reportFormat)
@@ -516,7 +516,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
         }
 
-        public string GetSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName, List<Dictionary<string, object>> GridTempList)
+        public string GetSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName, List<Dictionary<string, object>> GridTempList, Dictionary<string, object> fabricRollMaster)
         {
             #region declare
             clsReport objRpt = null;
@@ -527,6 +527,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             int maxRow = 5001;
 
             #endregion
+
             try
             {
                 //sorting
@@ -545,9 +546,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(2);
-
-                int xlsRow = 1, xlsCol = 1;
-                int endXlsCol = 1;
+              
 
                 #region Lunch Out
                 IWorksheet sheet1 = null;
@@ -555,7 +554,15 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 IWorksheet sheetSource = null;
                 sheetSource = workbook.Worksheets[1];
 
+                int xlsRow = 1, xlsCol = 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNNo");
+                sheet1[xlsRow, 2].Text = fabricRollMaster["GRNNo"].ToString();
+                xlsRow++;
+                xlsCol += 1;
 
+
+                xlsRow = 6; xlsCol = 1;
+                int endXlsCol = 1;
 
                 #region ------------------Column Header------------------
 
@@ -563,7 +570,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");
-
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
                 xlsCol += 1;
 
@@ -722,6 +728,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
         public void SaveFiles(out string path)
         {
             path = "";
@@ -857,7 +864,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             SaveFabricRollManageData(data, grnDetailList);
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
-
 
         private void SaveFabricRollManageData(Dictionary<string, object> data, List<Dictionary<string, object>> grnDetailList)
         {
