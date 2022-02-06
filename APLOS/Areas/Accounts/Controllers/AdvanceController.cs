@@ -664,6 +664,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsAdvanceService.EmployeeAdvanceQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
+        public JsonResult GetEmployeeAvilabeTotalAdvanceList(GridParameter parameters)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.EmployeeTotalAdvanceQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
         public JsonResult GetEmployeeAvilabeAdvanceByIdList(GridParameter parameters,string employeeId)
         {
             AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
@@ -850,6 +857,28 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Please Input Amount.");
             }
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertEmployeeAdvanceWriteOff(voucherVM, voucherDetailList)) });
+        }
+        [HttpPost]
+        public JsonResult InsertEmployeeTotalAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.SourceType = SourceType.EmployeeAdvanceWriteOff.ToString();
+            voucherVM.PartyType = PartyType.Employee.ToString();
+            if (voucherVM.SettlementType == SettlementType.Return.ToString())
+            {
+                if (voucherVM.PaymentSource == PaymentSource.Bank.ToString() && voucherVM.BankMasterId == null)
+                    throw new CustomException(Resources.SelectBank);
+                else if (voucherVM.PaymentSource == PaymentSource.Cash.ToString() && voucherVM.CashMasterId == null)
+                    throw new CustomException(Resources.SelectCash);
+                if ((voucherVM.PaymentSource == PaymentSource.Cash.ToString() && voucherVM.Amount == 0 || voucherVM.Amount.ToString() == null)
+                    || voucherVM.PaymentSource == PaymentSource.Bank.ToString() && voucherVM.Amount == 0 || voucherVM.Amount.ToString() == null)
+                    throw new CustomException("Please Input Amount.");
+            }
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertEmployeeTotalAdvanceWriteOff(voucherVM, voucherDetailList)) });
         }
 
         [HttpPost]
