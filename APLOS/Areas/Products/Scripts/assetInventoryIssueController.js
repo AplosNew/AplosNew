@@ -1,7 +1,7 @@
 ﻿'use strict';
 assetInventoryIssueController.$inject = ['$window','cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
 function assetInventoryIssueController($window,cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.title = "Inventory Issue";
+    $rootScope.title = "Asset Issue";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.products = [];
