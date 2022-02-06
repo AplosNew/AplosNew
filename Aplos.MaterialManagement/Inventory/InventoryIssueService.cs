@@ -7449,7 +7449,7 @@ namespace Library.MaterialManagement.Inventory
                                 	WHERE IM.CompanyGroupId = '" + identity.CompanyGroupId + @"'
                                 		AND IM.CompanyId = '" + identity.CompanyId + @"'
                                 		AND IM.PlantId = '" + identity.PlantId + @"'
-                                		AND II.MaterialStorageId = '" + StorageLocationId + @"'
+                                		AND IRD.MaterialStorageId = '" + StorageLocationId + @"'
                                 		AND IR.[Status] = 'Posting'
                                 	GROUP BY IRD.InventoryMaterialId
                                 		,IM.MaterialMasterId
