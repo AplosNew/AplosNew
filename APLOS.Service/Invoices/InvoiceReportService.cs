@@ -330,7 +330,7 @@ namespace Library.Service.Invoices
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo
 							,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
-							,PostedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.PostedBy END
+							,PostedBy=CASE WHEN UP.FullName<>'' THEN UP.FullName ELSE V.PostedBy END
 							, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
                             , P.UserName AS Customer, PP.UserName AS CustomerPlant, BJ.CurrencyId, C.Code AS CurrencyCode
                             FROM [TRN].[Invoice] AS BJ
@@ -340,6 +340,7 @@ namespace Library.Service.Invoices
 							LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=BJ.PartyPlantId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
 							LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy
+							LEFT JOIN SEC.[User] UP ON UP.UserId=V.PostedBy
                             WHERE BJ.Archive=0 AND BJ.CompanyGroupId='" + companyGroupId + "' AND BJ.CompanyId='" + companyId + "' AND BJ.PlantId='" + plantId + "' AND BJ.VoucherId='" + voucherId + "' AND BJ.SourceType='" + sourceType + "'";
             return _sqlRepository.GetData(cmdText);
         }

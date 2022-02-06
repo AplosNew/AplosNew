@@ -395,7 +395,6 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		, OrderSpecific: 'No'
 		, IsFOC: false
 		, ContractId: null
-		, OrderSpecific: 'No'
 		, PurchaseLCId: null
 		, CustomerName: null
 		, PaymentMode: null
@@ -910,6 +909,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			, IsTaxApplicableChangeable: false
 			, PartyType: $scope.partyType
 			, PlantId: $window.plantId
+			, OrderSpecific : 'No'
 		};
 		$scope.inventoryMaterialList = [];
 		$scope.chargesList = [];

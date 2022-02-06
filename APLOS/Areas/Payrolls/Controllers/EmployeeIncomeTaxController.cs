@@ -333,5 +333,23 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
+        #region Net Earning Tab Functions
+        
+        [HttpPost, Authorize]
+        public ActionResult GetNetEarning(string EmpId, string PolicyId,string YearId)
+        {
+            try
+            {
+                eit.ProcessingFunction(EmpId, PolicyId, YearId);
+                return Json("c");
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        #endregion
+
     }
 }

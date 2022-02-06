@@ -1000,6 +1000,7 @@ upanelApp.controller("inventorySalesReturnPost", inventorySalesReturnPost);
 upanelApp.controller("ServicePORegisterController", ServicePORegisterController);
 upanelApp.controller("StocksAgeingReportController", StocksAgeingReportController);
 upanelApp.controller("NewEarnLeaveReportController", NewEarnLeaveReportController);
+upanelApp.controller("MeetingPointsController", MeetingPointsController);
 
 
 
@@ -1037,6 +1038,7 @@ upanelApp.config(WorkCenterConfig);
 upanelApp.config(JobWorkConfig);
 upanelApp.config(OutsourcingConfig);
 upanelApp.config(PerformanceManagementConfig);
+upanelApp.config(MeetingManagementConfig);
 upanelApp.config(["$routeProvider", "$locationProvider", "$httpProvider", function apanelConfig($routeProvider, $locationProvider, $httpProvider) {
     $httpProvider.interceptors.push("errorInterceptor");
     $httpProvider.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";

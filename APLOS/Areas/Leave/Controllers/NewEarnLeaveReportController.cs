@@ -55,10 +55,23 @@ namespace Aplos.Areas.Leave.Controllers
             try
             {
                 #region Validation
-
+                if (Convert.ToDateTime(FromDate) > Convert.ToDateTime(ToDate))
+                {
+                    throw new Exception("FromDate cannot be greater than ToDate");
+                }
+                else
+                {                    
+                    DateTime start = Convert.ToDateTime(FromDate);
+                    DateTime end = Convert.ToDateTime(ToDate);
+                    var diffMonths = (end.Month + end.Year * 12) - (start.Month + start.Year * 12);
+                    if (diffMonths > 5)
+                    {
+                        throw new Exception("Cannot exceed more than 6 months");
+                    }
+                }
                 #endregion
                 string file = "";
-                string FileName = identity.Name + " Earn Leave Payment Amount Status.xlsx";
+                string FileName = identity.Name  + DateTime.Now.ToString(@"\'dd''MMM''yyyy\'") + "EarnLeaveReport.xlsx";
                 file = L.GetReport(FromDate,ToDate);
                 return Json(new { File = file,ReportName= FileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
