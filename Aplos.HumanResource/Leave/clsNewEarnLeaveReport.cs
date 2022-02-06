@@ -318,14 +318,14 @@ namespace Library.HumanResource.Leave
                     {
                         CmpName = "";
                     }
-                    sheet1.Range[xlsRow, 3].Text = CmpName;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 30;
-                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet1.Range[xlsRow, 4].Text = CmpName;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 4].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 12;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].RowHeight = 30;
+                    sheet1.Range[xlsRow, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
                     if (dsFactory.Tables[0].Rows.Count > 0)
@@ -337,13 +337,13 @@ namespace Library.HumanResource.Leave
                     {
                         FactoryName = "";
                     }
-                    sheet1.Range[xlsRow, 3].Text = FactoryName;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet1.Range[xlsRow, 4].Text = FactoryName;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
                     if (dsFactory.Tables[0].Rows.Count > 0)
@@ -354,23 +354,23 @@ namespace Library.HumanResource.Leave
                     {
                         FactoryAddress = "";
                     }
-                    sheet1.Range[xlsRow, 3].Text = FactoryAddress;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 26;
-                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet1.Range[xlsRow, 4].Text = FactoryAddress;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].RowHeight = 26;
+                    sheet1.Range[xlsRow, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
-                    sheet1.Range[xlsRow, 3].Text = "Earn Leave Report";
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 11;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet1.Range[xlsRow, 4].Text = "Earn Leave Report";
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 4].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 11;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     #endregion ******************Report Header******************
 
@@ -495,7 +495,7 @@ namespace Library.HumanResource.Leave
                                 	LEFT JOIN ORG.Line AS Li ON Li.Id = PMB.LineId
                                 	WHERE L.EncashmentDate BETWEEN ('" + FromDate + @"')
                                 			AND ('"+ ToDate + @"')
-                                	) AS T";
+                                	) AS T ORDER BY T.EmployeeCode";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSql, out dsRef);
