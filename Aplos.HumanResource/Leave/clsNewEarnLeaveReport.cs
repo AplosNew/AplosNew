@@ -62,6 +62,15 @@ namespace Library.HumanResource.Leave
             var iDesignation = 0;
             var iEarningDays = 0;
             var iRate = 0;
+            var iPresentDays = 0;
+            var iTotalEL = 0;
+            var iEncashed = 0;
+            var iTotalLeave = 0;
+            var iBalance = 0;
+            var iAmount = 0;
+            var iStamp = 0;
+            var iNetAmount = 0;
+            var iSignature = 0;
 
             #endregion Variable
 
@@ -130,7 +139,7 @@ namespace Library.HumanResource.Leave
                     iEmpCategory = xlsCol;
                     sheet1.Range[xlsRow, iEmpCategory].Text = "Emp. Category";
                     xlsCol++;
-                                        
+
                     iDepartment = xlsCol;
                     sheet1.Range[xlsRow, iDepartment].Text = "Department";
                     xlsCol++;
@@ -151,13 +160,49 @@ namespace Library.HumanResource.Leave
                     sheet1.Range[xlsRow, iDesignation].Text = "Designation";
                     xlsCol++;
 
+                    iPresentDays = xlsCol;
+                    sheet1.Range[xlsRow, iPresentDays].Text = "Present Days";
+                    xlsCol++;
+
                     iEarningDays = xlsCol;
                     sheet1.Range[xlsRow, iEarningDays].Text = "Calculated Earning Days";
                     xlsCol++;
                     
+                    iTotalEL = xlsCol;
+                    sheet1.Range[xlsRow, iTotalEL].Text = "Total EL";
+                    xlsCol++;
+
+                    iEncashed = xlsCol;
+                    sheet1.Range[xlsRow, iEncashed].Text = "Encashed";
+                    xlsCol++;
+                    
+                    iTotalLeave = xlsCol;
+                    sheet1.Range[xlsRow, iTotalLeave].Text = "Total Avail Leave";
+                    xlsCol++;
+
+                    iBalance = xlsCol;
+                    sheet1.Range[xlsRow, iBalance].Text = "Balance";
+                    xlsCol++;
+
                     iRate = xlsCol;
                     sheet1.Range[xlsRow, iRate].Text = "Rate";
                     xlsCol++;
+
+                    iAmount = xlsCol;
+                    sheet1.Range[xlsRow, iAmount].Text = "Amount";
+                    xlsCol++;
+
+                    iStamp = xlsCol;
+                    sheet1.Range[xlsRow, iStamp].Text = "Stamp";
+                    xlsCol++;
+                    
+                    iNetAmount= xlsCol;
+                    sheet1.Range[xlsRow, iNetAmount].Text = "Net Amount";
+                    xlsCol++;
+
+                    iSignature = xlsCol;
+                    sheet1.Range[xlsRow, iSignature].Text = "Signature";
+                    sheet1.Range[xlsRow, iSignature].ColumnWidth = 17;
 
                     endXlsCol = xlsCol;
 
@@ -174,6 +219,7 @@ namespace Library.HumanResource.Leave
 
                     xlsCol = 1;
                     xlsRow += 1;
+                    int startRow = xlsRow;
                     #endregion ------------------Column Header------------------
                     strCount = 0;
                     for (int i = 0; i < dvAttn.Count; i++)
@@ -196,16 +242,31 @@ namespace Library.HumanResource.Leave
                         sheet1.Range[xlsRow, iSubSection].Text = dvAttn[i]["SubSection"].ToString();
                         sheet1.Range[xlsRow, iLine].Text = dvAttn[i]["Line"].ToString();
                         sheet1.Range[xlsRow, iDesignation].Text = dvAttn[i]["Designation"].ToString();
-                        sheet1.Range[xlsRow, iEarningDays].Number =clsStaticInfo.dbl(dvAttn[i]["CalculatedEarningDays"].ToString());
-                        sheet1.Range[xlsRow, iRate].Number =clsStaticInfo.dbl(dvAttn[i]["Rate"].ToString());
+                        sheet1.Range[xlsRow, iEarningDays].Number = clsStaticInfo.dbl(dvAttn[i]["CalculatedEarningDays"].ToString());
+                        sheet1.Range[xlsRow, iRate].Number = clsStaticInfo.dbl(dvAttn[i]["Rate"].ToString());
+                        sheet1.Range[xlsRow, iPresentDays].Number = clsStaticInfo.dbl(dvAttn[i]["TotalPresent"].ToString());
+                        sheet1.Range[xlsRow, iTotalEL].Number = clsStaticInfo.dbl(dvAttn[i]["TotalEarnLeave"].ToString());
+                        sheet1.Range[xlsRow, iEncashed].Number = clsStaticInfo.dbl(dvAttn[i]["Encashed"].ToString());
+                        sheet1.Range[xlsRow, iTotalLeave].Number = clsStaticInfo.dbl(dvAttn[i]["AvailedLeave"].ToString());
+                        sheet1.Range[xlsRow, iBalance].Number = clsStaticInfo.dbl(dvAttn[i]["Balance"].ToString());
+
+                        sheet1.Range[xlsRow, iAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(iRate) + xlsRow + "*" + clsStaticInfo.GetxlsCol(iEncashed) + (xlsRow) + ")";
+                        sheet1[xlsRow, iAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        sheet1.Range[xlsRow, iNetAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(iAmount) + xlsRow + "-" + clsStaticInfo.GetxlsCol(iStamp) + (xlsRow) + ")";
+                        sheet1[xlsRow, iNetAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
 
                         #endregion 
 
                     }
-
+                    int EndRow=xlsRow;
                     sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                     sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                     sheet1.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
+
+                    sheet1.Range[startRow, 1, EndRow, endXlsCol].RowHeight = 56;
 
                     #region UsedRange Alignment
                     sheet1.UsedRange.WrapText = true;
@@ -302,7 +363,7 @@ namespace Library.HumanResource.Leave
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
-                    sheet1.Range[xlsRow, 3].Text = "Earn Leave Payment Amount Status";
+                    sheet1.Range[xlsRow, 3].Text = "Earn Leave Report";
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 11;
@@ -372,26 +433,69 @@ namespace Library.HumanResource.Leave
 
             try
             {
-                strSql = @"SELECT ei.EmployeeCode,ei.EmployeeName,ei.GenderID,FORMAT(ei.DOJ,'dd-MMM-yyyy')DOJ
-                                    ,En.UserName EmployeeCategory,dp.UserName Department,SE.UserName Section
-                                    ,ISNULL(Li.UserName,'') Line,SuS.Username SubSection
-                                    ,Deg.UserName Designation,els.CalculatedEarningDays,FORMAT(els.FromDate,'dd-MMM-yyyy')FromDate, FORMAT(els.ToDate,'dd-MMM-yyyy')ToDate,L.Rate
-                                    FROM LeaveEncashmentTransaction L
-                                    JOIN TRN.EmployeeLeaveSummary AS els ON els.EmployeeId=L.EmpSystemId AND L.EncashmentDate = els.ToDate
-                                    JOIN EmployeeInformation AS ei ON ei.SystemId = L.EmpSystemId AND ei.SystemId=els.EmployeeId
-                                    LEFT JOIN MST.ManpowerBudget PMB ON ei.BudgetCode = PMB.Id
-                                    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-                                    LEFT JOIN ORG.Entity En ON PMB.EntityId = En.Id
-                                    LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
-                                    LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = L.LegalDesignationId
-                                    LEFT join [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
-                                    left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
-                                    left join HKP.Designation DeG on DeG.Id=dm.DesignationId
-                                    left join HKP.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
-                                    left join ORG.Section SE on SE.Id=PR.SectionId
-                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
-                                    LEFT JOIN ORG.Line AS Li ON Li.Id= PMB.LineId
-                                    WHERE L.EncashmentDate BETWEEN ('" + FromDate + @"') AND ('" + ToDate + @"')";
+                strSql = @"SELECT *
+                                	,(ISNULL(t.TotalEarnLeave, 0) - ISNULL(t.Encashed, 0) - ISNULL(t.AvailedLeave, 0)) Balance --TotalEarnleaveValue=(TotalEarnLeave*Rate)
+                                FROM (
+                                	SELECT ei.EmployeeCode
+                                		,ei.EmployeeName
+                                		,ei.GenderID
+                                		,FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ
+                                		,En.UserName EmployeeCategory
+                                		,dp.UserName Department
+                                		,SE.UserName Section
+                                		,ISNULL(Li.UserName, '') Line
+                                		,SuS.Username SubSection
+                                		,Deg.UserName Designation
+                                		,FORMAT(els.FromDate, 'dd-MMM-yyyy') FromDate
+                                		,FORMAT(els.ToDate, 'dd-MMM-yyyy') ToDate
+                                		,L.Rate
+                                		,els.CalculatedEarningDays
+                                		,els.CurrentYearAllocation CurrentPeriodAllocation
+                                		,(els.CurrentYearAllocation + els.BroughtForward + els.CarryForwardOpeningBalance) TotalEarnLeave
+                                		,L.Days Encashed
+                                		,(
+                                			SELECT SUM(ltdx.LeaveDuration)
+                                			FROM LeaveTransaction AS ltx
+                                			JOIN LeaveTransactionDetails AS ltdx ON ltdx.LvTrnsSystemID = ltx.SystemID
+                                			WHERE ltx.IsApproved = 1
+                                				AND ltdx.WorkDate BETWEEN els.FromDate
+                                					AND els.ToDate
+                                				AND ltx.EmpSystemID = L.EmpSystemId
+                                				AND ltx.LTSystemID = els.LeaveTypeId
+                                			) AvailedLeave
+                                		--,Encashed-
+                                		,(
+                                			SELECT COUNT(*)
+                                			FROM AttdnProcessData AS apdx
+                                			JOIN DayType AS dtx ON dtx.DayType = apdx.DayStatus
+                                			WHERE dtx.Category IN (
+                                					'Present'
+                                					,'Late'
+                                					)
+                                				AND apdx.WorkDate BETWEEN els.FromDate
+                                					AND els.ToDate
+                                				AND apdx.EmpSystemID = L.EmpSystemId
+                                			) AS TotalPresent
+                                	FROM LeaveEncashmentTransaction L
+                                	JOIN TRN.EmployeeLeaveSummary AS els ON els.EmployeeId = L.EmpSystemId
+                                		AND L.EncashmentDate = els.ToDate
+                                	JOIN EmployeeInformation AS ei ON ei.SystemId = L.EmpSystemId
+                                		AND ei.SystemId = els.EmployeeId
+                                	LEFT JOIN MST.ManpowerBudget PMB ON ei.BudgetCode = PMB.Id
+                                	LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                                	LEFT JOIN ORG.Entity En ON PMB.EntityId = En.Id
+                                	LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                                	LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = L.LegalDesignationId
+                                	LEFT JOIN [MST].[DesignationMasterLegalDesignation] dmld ON dmld.LegalDesignationId = LGD.Id
+                                	LEFT JOIN [MST].[DesignationMaster] dm ON dm.Id = dmld.DesignationMasterId
+                                	LEFT JOIN HKP.Designation DeG ON DeG.Id = dm.DesignationId
+                                	LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = dm.EmployeeCategoryId
+                                	LEFT JOIN ORG.Section SE ON SE.Id = PR.SectionId
+                                	LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                                	LEFT JOIN ORG.Line AS Li ON Li.Id = PMB.LineId
+                                	WHERE L.EncashmentDate BETWEEN ('" + FromDate + @"')
+                                			AND ('"+ ToDate + @"')
+                                	) AS T";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSql, out dsRef);
