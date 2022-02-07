@@ -2675,48 +2675,48 @@ namespace Library.Service.Advances
                 var currentVoucherDetailId = 0;
 
                 // Advance
-                var advance = _advanceService.Find(voucherVM.AdvanceId);
-                advance.WrittenOffAmount += advanceWriteOff.Amount;
-                advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
-                advance.UpdatedBy = advanceWriteOff.AddedBy;
-                advance.UpdatedDate = advanceWriteOff.AddedDate;
-                advance.UpdatedFromIP = advanceWriteOff.AddedFromIP;
-                _advanceService.Update(advance);
+                //var advance = _advanceService.Find(voucherVM.AdvanceId);
+                //advance.WrittenOffAmount += advanceWriteOff.Amount;
+                //advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
+                //advance.UpdatedBy = advanceWriteOff.AddedBy;
+                //advance.UpdatedDate = advanceWriteOff.AddedDate;
+                //advance.UpdatedFromIP = advanceWriteOff.AddedFromIP;
+                //_advanceService.Update(advance);
 
-                var advanceDetail = _advanceService.FindAdvanceDetail(voucherVM.AdvanceDetailId);
-                if (null == advanceDetail)
-                    throw new CustomException("Advance detail not found!");
+                //var advanceDetail = _advanceService.FindAdvanceDetail(voucherVM.AdvanceDetailId);
+                //if (null == advanceDetail)
+                //    throw new CustomException("Advance detail not found!");
 
                 currentAdvanceWriteOffDetailId++;
                 var advanceWriteOffDetail = new AdvanceWriteOffDetail
                 {
-                    CompanyId = advanceDetail.CompanyId,
-                    PlantId = advanceDetail.PlantId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
                     AdvanceId = voucherVM.AdvanceId,
                     AdvanceDetailId = voucherVM.AdvanceDetailId,
-                    GLGeneralInfoId = advanceDetail.GLGeneralInfoId,
-                    BudgetMasterId = advanceDetail.BudgetMasterId,
-                    ActivityId = advanceDetail.ActivityId,
+                    GLGeneralInfoId = voucherVM.GLGeneralInfoId,
+                    BudgetMasterId = voucherVM.BudgetMasterId,
+                    ActivityId = voucherVM.ActivityId,
                     CurrencyId = advanceWriteOff.CurrencyId,
-                    PartyType = advanceDetail.PartyType,
-                    PartyId = advanceDetail.PartyId,
-                    PartyPlantId = advanceDetail.PartyPlantId,
+                    PartyType = voucherVM.PartyType,
+                    PartyId = voucherVM.PartyId,
+                    PartyPlantId = voucherVM.PartyPlantId,
                     Amount = voucherVM.Amount,
                     EmployeeId = voucherVM.EmployeeId
                 };
                 InsertAdvanceWriteOffDetail(advanceWriteOff, advanceWriteOffDetail, currentAdvanceWriteOffDetailId);
 
                 advanceWriteOff.Amount += voucherVM.Amount;
-                advanceDetail.WrittenOffAmount += voucherVM.Amount;
+                //advanceDetail.WrittenOffAmount += voucherVM.Amount;
 
-                if (advanceDetail.Amount < advanceDetail.WrittenOffAmount)
-                    throw new CustomException($"{advanceWriteOff.SettlementType} amount cannot exceed the balance advance amount.");
+                //if (advanceDetail.Amount < advanceDetail.WrittenOffAmount)
+                //    throw new CustomException($"{advanceWriteOff.SettlementType} amount cannot exceed the balance advance amount.");
 
-                advanceDetail.IsWrittenOff = advanceDetail.Amount == advanceDetail.WrittenOffAmount;
-                advanceDetail.UpdatedBy = advance.AddedBy;
-                advanceDetail.UpdatedDate = advance.AddedDate;
-                advanceDetail.UpdatedFromIP = advance.AddedFromIP;
-                _advanceService.UpdateAdvanceDetail(advanceDetail);
+                //advanceDetail.IsWrittenOff = advanceDetail.Amount == advanceDetail.WrittenOffAmount;
+                //advanceDetail.UpdatedBy = advance.AddedBy;
+                //advanceDetail.UpdatedDate = advance.AddedDate;
+                //advanceDetail.UpdatedFromIP = advance.AddedFromIP;
+                //_advanceService.UpdateAdvanceDetail(advanceDetail);
 
                 // INSERT INTO VoucherDetail Debit or Credit
                 var voucherDetail = new VoucherDetail
@@ -2874,7 +2874,7 @@ namespace Library.Service.Advances
                             VoucherTypeId = voucherVM.VoucherTypeId,
                             AdvanceId = null,
                             EmployeeId = employeePayableWriteOff.EmployeeId,
-                            AdvanceWriteOffId = null,
+                            AdvanceWriteOffId = advanceWriteOff.Id,
                             EmployeePayableWriteOffId = employeePayableWriteOff.Id,
                             EmployeePayableId = null,
                             PartyType = employeePayableWriteOff.PartyType,
@@ -2907,7 +2907,7 @@ namespace Library.Service.Advances
                         throw new CustomException("Cash Id not found!");
 
                     // INSERT INTO VoucherDetail
-                    var voucherDetailCr = new VoucherDetail
+                    var voucherDetailDr = new VoucherDetail
                     {
                         CurrencyId = voucher.CurrencyId,
                         DrAmount = voucherVM.Amount,
@@ -2920,40 +2920,40 @@ namespace Library.Service.Advances
                     // INSRT INTO GLTransactionDetail
                     if (voucherVM.PaymentSource == PaymentSource.Bank.ToString())
                     {
-                        var bankMaster = _accountsCommonService.GetBankMaster(voucherDetailCr.BankMasterId);
-                        voucherDetailCr.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
-                        voucherDetailCr.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
-                        voucherDetailCr.ActivityId = bankMaster["ActivityId"].ToString();
-                        voucherDetailCr.PartyType = PartyType.Bank.ToString();
+                        var bankMaster = _accountsCommonService.GetBankMaster(voucherDetailDr.BankMasterId);
+                        voucherDetailDr.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailDr.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailDr.ActivityId = bankMaster["ActivityId"].ToString();
+                        voucherDetailDr.PartyType = PartyType.Bank.ToString();
                     }
                     else if (voucherVM.PaymentSource == PaymentSource.Cash.ToString())
                     {
-                        var cashMaster = _accountsCommonService.GetCashMaster(voucherDetailCr.CashMasterId);
-                        voucherDetailCr.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
-                        voucherDetailCr.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
-                        voucherDetailCr.ActivityId = cashMaster["ActivityId"].ToString();
-                        voucherDetailCr.PartyType = PartyType.Cash.ToString();
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherDetailDr.CashMasterId);
+                        voucherDetailDr.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailDr.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailDr.ActivityId = cashMaster["ActivityId"].ToString();
+                        voucherDetailDr.PartyType = PartyType.Cash.ToString();
                     }
 
                     currentVoucherDetailId++;
-                    _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+                    _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
 
-                    _voucherService.InsertGLTransactionDetail(voucherDetailCr, new GLTransactionDetail
+                    _voucherService.InsertGLTransactionDetail(voucherDetailDr, new GLTransactionDetail
                     {
-                        SourceType = voucherDetailCr.PaymentSource,
-                        BankMasterId = voucherDetailCr.BankMasterId,
-                        CashMasterId = voucherDetailCr.CashMasterId,
-                        DrAmount = voucherDetailCr.DrAmount
+                        SourceType = voucherDetailDr.PaymentSource,
+                        BankMasterId = voucherDetailDr.BankMasterId,
+                        CashMasterId = voucherDetailDr.CashMasterId,
+                        DrAmount = voucherDetailDr.DrAmount
                     });
 
-                    _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                    _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
                     {
                         ParallelCurrencyId = companyCurrencyId,
                         FromCurrencyId = companyCurrencyId,
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                        ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        DrAmount = voucherDetailCr.DrAmount,
+                        ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                        DrAmount = voucherDetailDr.DrAmount,
                     });
 
                     var EmployeeSubsequentAdvance = new EmployeeSubsequentTransaction
@@ -2982,7 +2982,7 @@ namespace Library.Service.Advances
                         IsPark = voucherVM.IsPark,
                         Id = "ES" + GetEmployeeSubsequentTransactionPK(),
                         VoucherId = voucher.Id,
-                        VoucherDetailId = voucherDetailCr.Id,
+                        VoucherDetailId = voucherDetailDr.Id,
                         PaymentSource = voucherVM.PaymentSource,
                     };
                     AuditService.AddedLog(EmployeeSubsequentAdvance);

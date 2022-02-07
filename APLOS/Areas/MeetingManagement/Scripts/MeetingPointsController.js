@@ -13,7 +13,8 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
-
+    $scope.path = 'MeetingManagement/MeetingPoints/';
+    $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
 
     $scope.getData = function () {
         $http({
@@ -33,27 +34,31 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     
     $scope.ModelTemp = {
         Id: null,
-        Sequence: 0,
-        Code: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Description: null,
-        Remarks: null,
-        Category:null,
-        SubCategory: null,
-        Active: true,
-        Type: null
+        Department: null,
+        MeetingType: null,
+        BackgroundIssueDetail: null,
+        ActionApplicable: null,
+        CostEstimation: null,
+        IssueStatus: 'Active',
+        ByWhomId: null,
+        ByWhomName: null,
+        IssueMeetingItemTitle:null,
+        IssueCritically: null,
+        DecisionApplicable: true,
+        CostApplicable: null,
+        MeetingLegDays: 7,
+        Remarks: null, 
+        Attachment: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
+    //$scope.GetSequence = function () {
+    //    cboService.getSequence($scope.getSeqUrl, function (data) {
+    //        $scope.ModelTemp.Sequence = data;
+    //        $scope.ModelNew.Sequence = data;
+    //    });
+    //};
+    //$scope.GetSequence();
 
     $scope.Get = function (args) {
 
@@ -78,7 +83,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                 /*   ClearFields(response.data.Sequence);*/
                     $scope.getData();
 
                 }
@@ -101,7 +106,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    /*ClearFields(response.data.Sequence);*/
                     $scope.getData();
                 }
                 function errorCallBack(response) {
@@ -112,13 +117,130 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
+        ClearFields();
         return true;
     };
 
-    function ClearFields(seq) {
+    function ClearFields() {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
     }
+
+    
+    $scope.departmentList = [];
+    cboService.getCboDepartmentByCompanyGroup(null, function (result) {
+        $scope.departmentList = result;
+    });
+
+    
+    $scope.meetingTypeList = [];
+    cboService.getCbomeetingType(function (result) {
+        $scope.meetingTypeList = result;
+    });
+
+    $scope.employeeParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'EmployeeCode, FirstName, MiddleName, LastName ',
+        searchBy: 'EmployeeCode',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.showEmployeeListPopUp = function () {
+        try {
+            
+          
+            $scope.employeeParameters.searchBy = 'EmployeeCode';
+            baseService.setCurrentPage('employeeList');
+            $scope.searchEmployeeByList = [];
+            $scope.getEmployeeData = function (pageno) {
+                //$scope.employeeParameters.plantId = $scope.fileNew.PlantId;
+                //$scope.employeeParameters.partyAccountGroupId = $scope.fileNew.PartyAccountGroupId;
+                //$scope.employeeParameters.partyId = $scope.fileNew.PartyId;
+                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+                        $scope.employeeParameters.total_count = result.Total;
+
+                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
+                        $scope.employeeParameters.searchBy = 'EmployeeCode';
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#employeePopUps')).modal('show');
+            $scope.getEmployeeData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectEmployeePopUp = function (index, data) {
+        $scope.employeeIndex = index;
+        
+        $scope.ModelNew.ByWhomId = data.SystemId;
+        $scope.ModelNew.ByWhomName = data.EmployeeName;
+        angular.element(document.querySelector('#employeePopUps')).modal('hide');
+    };
+
+
+   
+    $scope.hideEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeePopUps')).modal('hide');
+    };
+
+    //#region Meeting Points Picture upload
+
+    $scope.onBeginPBUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+                throw 'Please select/save the Meeting Points first'
+
+            args.data = $scope.ModelNew.Id;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadPBUrl = "MeetingManagement/MeetingPoints/SaveMeetingPointsDefault";
+
+    $scope.getFileList = function () {
+        $http({
+            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+            data: { Id: $scope.ModelNew.Id }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                var str = response.data[0].PicFileName;
+                var extention = str.substr(str.indexOf('.'));
+                $scope.PicFileName = virtualPath.MeetingPointsTemplateImage + '/' + $scope.ModelNew.Id + extention;
+                $scope.getData();
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+
+
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPBPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+            ShowResult('Please select/save the Meeting Points first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+
+    //#endregion Meeting Points Picture upload
 }
