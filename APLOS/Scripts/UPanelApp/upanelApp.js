@@ -1001,6 +1001,7 @@ upanelApp.controller("ServicePORegisterController", ServicePORegisterController)
 upanelApp.controller("StocksAgeingReportController", StocksAgeingReportController);
 upanelApp.controller("NewEarnLeaveReportController", NewEarnLeaveReportController);
 upanelApp.controller("MeetingPointsController", MeetingPointsController);
+upanelApp.controller("NewSystemEarnLeaveReportController", NewSystemEarnLeaveReportController);
 
 
 

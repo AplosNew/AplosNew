@@ -384,7 +384,6 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('ShiftRosterCreationController', ShiftRosterCreationController)
     .controller('discountTypeGLController', discountTypeGLController)
     .controller('guestUserController', guestUserController)
-    .controller('contractFundUtilizationController', contractFundUtilizationController)
     .controller('documentTypeController', documentTypeController)
     .controller('qmsActivityCategoryController', qmsActivityCategoryController)
     .controller("qualityActivityCheckTypeController", qualityActivityCheckTypeController)
