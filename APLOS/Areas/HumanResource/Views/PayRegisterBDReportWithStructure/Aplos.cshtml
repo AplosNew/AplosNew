@@ -64,11 +64,12 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Payroll Group<sup>*</sup></label>
                         <div class="col-sm-8">
-                            <div class="select-style">
-                                <select id="YearId" class="form-control" ng-model="payGroupId" name="salaryProcessId" required tabindex="3">
-                                    <option ng-repeat="option in payGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
+                            @*<div class="select-style">
+                                    <select id="YearId" class="form-control" ng-model="payGroupId" name="salaryProcessId" required tabindex="3">
+                                        <option ng-repeat="option in payGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>*@
+                            <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="payGroupList" e-value="payGroupId" e-fields-value="Value" e-fields-text="Text" e-width="100px" />
                         </div>
                     </div>
                 </div>
