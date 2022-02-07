@@ -142,8 +142,8 @@ namespace Library.OrderManagement.Costing
                                     LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=boq.UoMId
                                     LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
 
-                                    LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FirstCharacteristicsValueId
-                                    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.SecondCharacteristicsValueId
+                                    LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
+                                    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
                                     WHERE BOQ.CostingBOQMasterId='" + CostingBOQMasterId + @"' 
                                     
                                     ORDER BY ci.Sequence";
@@ -297,6 +297,8 @@ namespace Library.OrderManagement.Costing
                 if (ItemData == null || ItemData.Count == 0)
                     throw new Exception("Please select at least one item");
 
+                if (MasterData["UserName"] == null)
+                    throw new Exception("Please add user name.");
 
                 string SOIds = "''";
                 for (int i = 0; i < SalesOrderData.Count; i++)
@@ -578,7 +580,7 @@ namespace Library.OrderManagement.Costing
         {
             string _sql = @"SELECT so.Id AS SalesOrderId,ocs.CostingItemId,ocs.MaterialMasterId,ocs.ArticleId,ocs.VendorId,so.DestinationId,ci.Sequence,
                                 OCS.Id AS OrderProcurementCostingDirectMaterialId,OCS.BOQCriteria,
-                                fc.CharacteristicsValueId AS FirstCharacteristicsValueId,sc.CharacteristicsValueId SecondCharacteristicsValueId,tc.CharacteristicsValueId ThirdCharacteristicsValueId,
+                                fc.CharacteristicsValueId AS FGFirstCharacteristicsValueId,sc.CharacteristicsValueId FGSecondCharacteristicsValueId,tc.CharacteristicsValueId FGThirdCharacteristicsValueId,
                                 ocs.GrossConsumption,ci.UnitOfMeasurementId AS UoMId, ocs.GrossAmount,cmt.CurrencyId,
                                 CASE WHEN isnull(tc.Id,'')<>'' THEN tc.Qty ELSE 
                                 CASE WHEN ISNULL(sc.Id,'')<>'' THEN sc.Qty ELSE
@@ -639,9 +641,9 @@ namespace Library.OrderManagement.Costing
                     "ArticleId",
                     "CostingItemId",
                     //"DestinationId",
-                    "FirstCharacteristicsValueId",
-                    "SecondCharacteristicsValueId",
-                    "ThirdCharacteristicsValueId" };
+                    "FGFirstCharacteristicsValueId",
+                    "FGSecondCharacteristicsValueId",
+                    "FGThirdCharacteristicsValueId" };
 
             string key = "";
             for (int i = 0; i < columns.Length; i++)
@@ -823,9 +825,9 @@ namespace Library.OrderManagement.Costing
                 {
                     SalesOrderId = DBNull.Value,
                     DestinationId = DBNull.Value,
-                    FirstCharacteristicsValueId = x["FirstCharacteristicsValueId"],
-                    SecondCharacteristicsValueId = x["SecondCharacteristicsValueId"],
-                    ThirdCharacteristicsValueId = DBNull.Value,
+                    FGFirstCharacteristicsValueId = x["FGFirstCharacteristicsValueId"],
+                    FGSecondCharacteristicsValueId = x["FGSecondCharacteristicsValueId"],
+                    FGThirdCharacteristicsValueId = DBNull.Value,
                     CostingItemId = x["CostingItemId"],
                     MaterialMasterId = x["MaterialMasterId"],
                     ArticleId = x["ArticleId"],
@@ -838,7 +840,7 @@ namespace Library.OrderManagement.Costing
                                       .Select(x =>
                                       {
                                           DataRow row = dtTemp.NewRow();
-                                          row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FirstCharacteristicsValueId"] = x.Key.FirstCharacteristicsValueId; row["SecondCharacteristicsValueId"] = x.Key.SecondCharacteristicsValueId; row["ThirdCharacteristicsValueId"] = DBNull.Value;
+                                          row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = x.Key.FGFirstCharacteristicsValueId; row["FGSecondCharacteristicsValueId"] = x.Key.FGSecondCharacteristicsValueId; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
                                           row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria; row["BOQCriteria"] = x.Key.BOQCriteria;
                                           row["OrderQty"] = x.Average(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Average(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                           return row;
@@ -848,10 +850,10 @@ namespace Library.OrderManagement.Costing
 
                 for (int i = 0; i < dtBOQ.Rows.Count; i++)
                 {
-                    dsExistingBOQ.Tables[0].DefaultView.RowFilter = "CostingItemId='" + dtBOQ.Rows[i]["CostingItemId"].ToString() + "' AND isnull(FirstCharacteristicsValueId,'')='" + dtBOQ.Rows[i]["FirstCharacteristicsValueId"].ToString() + "' AND isnull(SecondCharacteristicsValueId,'')='" + dtBOQ.Rows[i]["SecondCharacteristicsValueId"].ToString() + "'";
+                    dsExistingBOQ.Tables[0].DefaultView.RowFilter = "CostingItemId='" + dtBOQ.Rows[i]["CostingItemId"].ToString() + "' AND isnull(FGFirstCharacteristicsValueId,'')='" + dtBOQ.Rows[i]["FGFirstCharacteristicsValueId"].ToString() + "' AND isnull(FGSecondCharacteristicsValueId,'')='" + dtBOQ.Rows[i]["FGSecondCharacteristicsValueId"].ToString() + "'";
 
                     bool IncompleteMaterial = false;
-                    if (dtBOQ.Rows[i]["FirstCharacteristicsValueId"].ToString() == "" || dtBOQ.Rows[i]["SecondCharacteristicsValueId"].ToString() == "")
+                    if (dtBOQ.Rows[i]["FGFirstCharacteristicsValueId"].ToString() == "" || dtBOQ.Rows[i]["FGSecondCharacteristicsValueId"].ToString() == "")
                         IncompleteMaterial = true;
                     if (dsExistingBOQ.Tables[0].DefaultView.Count == 0)
                     {
@@ -884,9 +886,9 @@ namespace Library.OrderManagement.Costing
                 {
                     SalesOrderId = DBNull.Value,
                     DestinationId = x["DestinationId"],
-                    FirstCharacteristicsValueId = DBNull.Value,
-                    SecondCharacteristicsValueId = DBNull.Value,
-                    ThirdCharacteristicsValueId = DBNull.Value,
+                    FGFirstCharacteristicsValueId = DBNull.Value,
+                    FGSecondCharacteristicsValueId = DBNull.Value,
+                    FGThirdCharacteristicsValueId = DBNull.Value,
                     CostingItemId = x["CostingItemId"],
                     MaterialMasterId = x["MaterialMasterId"],
                     ArticleId = x["ArticleId"],
@@ -899,7 +901,7 @@ namespace Library.OrderManagement.Costing
                                   .Select(x =>
                                   {
                                       DataRow row = dtTemp.NewRow();
-                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = x.Key.DestinationId; row["FirstCharacteristicsValueId"] = DBNull.Value; row["SecondCharacteristicsValueId"] = DBNull.Value; row["ThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = x.Key.DestinationId; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria;
                                       row["OrderQty"] = x.Average(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Average(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -939,9 +941,9 @@ namespace Library.OrderManagement.Costing
                 {
                     SalesOrderId = DBNull.Value,
                     DestinationId = DBNull.Value,
-                    FirstCharacteristicsValueId = DBNull.Value,
-                    SecondCharacteristicsValueId = DBNull.Value,
-                    ThirdCharacteristicsValueId = DBNull.Value,
+                    FGFirstCharacteristicsValueId = DBNull.Value,
+                    FGSecondCharacteristicsValueId = DBNull.Value,
+                    FGThirdCharacteristicsValueId = DBNull.Value,
                     CostingItemId = x["CostingItemId"],
                     MaterialMasterId = x["MaterialMasterId"],
                     ArticleId = x["ArticleId"],
@@ -954,7 +956,7 @@ namespace Library.OrderManagement.Costing
                                   .Select(x =>
                                   {
                                       DataRow row = dtTemp.NewRow();
-                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FirstCharacteristicsValueId"] = DBNull.Value; row["SecondCharacteristicsValueId"] = DBNull.Value; row["ThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria;
                                       row["OrderQty"] = x.Average(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Average(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -994,9 +996,9 @@ namespace Library.OrderManagement.Costing
                 {
                     SalesOrderId = x["SalesOrderId"],
                     DestinationId = DBNull.Value,
-                    FirstCharacteristicsValueId = DBNull.Value,
-                    SecondCharacteristicsValueId = DBNull.Value,
-                    ThirdCharacteristicsValueId = DBNull.Value,
+                    FGFirstCharacteristicsValueId = DBNull.Value,
+                    FGSecondCharacteristicsValueId = DBNull.Value,
+                    FGThirdCharacteristicsValueId = DBNull.Value,
                     CostingItemId = x["CostingItemId"],
                     MaterialMasterId = x["MaterialMasterId"],
                     ArticleId = x["ArticleId"],
@@ -1009,7 +1011,7 @@ namespace Library.OrderManagement.Costing
                                   .Select(x =>
                                   {
                                       DataRow row = dtTemp.NewRow();
-                                      row["SalesOrderId"] = x.Key.SalesOrderId; row["DestinationId"] = DBNull.Value; row["FirstCharacteristicsValueId"] = DBNull.Value; row["SecondCharacteristicsValueId"] = DBNull.Value; row["ThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["SalesOrderId"] = x.Key.SalesOrderId; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria;
                                       row["OrderQty"] = x.Average(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Average(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -1051,9 +1053,9 @@ namespace Library.OrderManagement.Costing
                 {
                     SalesOrderId = DBNull.Value,
                     DestinationId = DBNull.Value,
-                    FirstCharacteristicsValueId = x["FirstCharacteristicsValueId"],
-                    SecondCharacteristicsValueId = DBNull.Value,
-                    ThirdCharacteristicsValueId = DBNull.Value,
+                    FGFirstCharacteristicsValueId = x["FGFirstCharacteristicsValueId"],
+                    FGSecondCharacteristicsValueId = DBNull.Value,
+                    FGThirdCharacteristicsValueId = DBNull.Value,
                     CostingItemId = x["CostingItemId"],
                     MaterialMasterId = x["MaterialMasterId"],
                     ArticleId = x["ArticleId"],
@@ -1066,7 +1068,7 @@ namespace Library.OrderManagement.Costing
                                   .Select(x =>
                                   {
                                       DataRow row = dtTemp.NewRow();
-                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FirstCharacteristicsValueId"] = x.Key.FirstCharacteristicsValueId; row["SecondCharacteristicsValueId"] = DBNull.Value; row["ThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = x.Key.FGFirstCharacteristicsValueId; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria;
                                       row["OrderQty"] = x.Average(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Average(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -1076,9 +1078,9 @@ namespace Library.OrderManagement.Costing
 
                 for (int i = 0; i < dtBOQ.Rows.Count; i++)
                 {
-                    dsExistingBOQ.Tables[0].DefaultView.RowFilter = "CostingItemId='" + dtBOQ.Rows[i]["CostingItemId"].ToString() + "' AND isnull(FirstCharacteristicsValueId,'')='" + dtBOQ.Rows[i]["FirstCharacteristicsValueId"].ToString() + "'";
+                    dsExistingBOQ.Tables[0].DefaultView.RowFilter = "CostingItemId='" + dtBOQ.Rows[i]["CostingItemId"].ToString() + "' AND isnull(FGFirstCharacteristicsValueId,'')='" + dtBOQ.Rows[i]["FGFirstCharacteristicsValueId"].ToString() + "'";
                     bool IncompleteMaterial = false;
-                    if (dtBOQ.Rows[i]["FirstCharacteristicsValueId"].ToString() == "")
+                    if (dtBOQ.Rows[i]["FGFirstCharacteristicsValueId"].ToString() == "")
                         IncompleteMaterial = true;
                     if (dsExistingBOQ.Tables[0].DefaultView.Count == 0)
                     {
@@ -1110,9 +1112,9 @@ namespace Library.OrderManagement.Costing
                 {
                     SalesOrderId = DBNull.Value,
                     DestinationId = DBNull.Value,
-                    FirstCharacteristicsValueId = DBNull.Value,
-                    SecondCharacteristicsValueId = x["SecondCharacteristicsValueId"],
-                    ThirdCharacteristicsValueId = DBNull.Value,
+                    FGFirstCharacteristicsValueId = DBNull.Value,
+                    FGSecondCharacteristicsValueId = x["FGSecondCharacteristicsValueId"],
+                    FGThirdCharacteristicsValueId = DBNull.Value,
                     CostingItemId = x["CostingItemId"],
                     MaterialMasterId = x["MaterialMasterId"],
                     ArticleId = x["ArticleId"],
@@ -1125,7 +1127,7 @@ namespace Library.OrderManagement.Costing
                                   .Select(x =>
                                   {
                                       DataRow row = dtTemp.NewRow();
-                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FirstCharacteristicsValueId"] = DBNull.Value; row["SecondCharacteristicsValueId"] = x.Key.SecondCharacteristicsValueId; row["ThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = x.Key.FGSecondCharacteristicsValueId; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria;
                                       row["OrderQty"] = x.Average(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Average(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -1134,9 +1136,9 @@ namespace Library.OrderManagement.Costing
 
                 for (int i = 0; i < dtBOQ.Rows.Count; i++)
                 {
-                    dsExistingBOQ.Tables[0].DefaultView.RowFilter = "CostingItemId='" + dtBOQ.Rows[i]["CostingItemId"].ToString() + "' AND isnull(SecondCharacteristicsValueId,'')='" + dtBOQ.Rows[i]["SecondCharacteristicsValueId"].ToString() + "'";
+                    dsExistingBOQ.Tables[0].DefaultView.RowFilter = "CostingItemId='" + dtBOQ.Rows[i]["CostingItemId"].ToString() + "' AND isnull(FGSecondCharacteristicsValueId,'')='" + dtBOQ.Rows[i]["FGSecondCharacteristicsValueId"].ToString() + "'";
                     bool IncompleteMaterial = false;
-                    if (dtBOQ.Rows[i]["SecondCharacteristicsValueId"].ToString() == "")
+                    if (dtBOQ.Rows[i]["FGSecondCharacteristicsValueId"].ToString() == "")
                         IncompleteMaterial = true;
                     if (dsExistingBOQ.Tables[0].DefaultView.Count == 0)
                     {
@@ -1169,9 +1171,9 @@ namespace Library.OrderManagement.Costing
                 {
                     SalesOrderId = x["SalesOrderId"],
                     DestinationId = x["DestinationId"],
-                    FirstCharacteristicsValueId = DBNull.Value,
-                    SecondCharacteristicsValueId = DBNull.Value,
-                    ThirdCharacteristicsValueId = DBNull.Value,
+                    FGFirstCharacteristicsValueId = DBNull.Value,
+                    FGSecondCharacteristicsValueId = DBNull.Value,
+                    FGThirdCharacteristicsValueId = DBNull.Value,
                     CostingItemId = x["CostingItemId"],
                     MaterialMasterId = x["MaterialMasterId"],
                     ArticleId = x["ArticleId"],
@@ -1184,7 +1186,7 @@ namespace Library.OrderManagement.Costing
                                   .Select(x =>
                                   {
                                       DataRow row = dtTemp.NewRow();
-                                      row["SalesOrderId"] = x.Key.SalesOrderId; row["DestinationId"] = x.Key.DestinationId; row["FirstCharacteristicsValueId"] = DBNull.Value; row["SecondCharacteristicsValueId"] = DBNull.Value; row["ThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["SalesOrderId"] = x.Key.SalesOrderId; row["DestinationId"] = x.Key.DestinationId; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria;
                                       row["OrderQty"] = x.Average(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Average(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -1251,8 +1253,8 @@ namespace Library.OrderManagement.Costing
                                     LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=boq.UoMId
                                     LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
 
-                                    LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FirstCharacteristicsValueId
-                                    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.SecondCharacteristicsValueId
+                                    LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
+                                    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
                                     WHERE BOQ.CostingBOQMasterId='" + CostingBOQMasterId + @"' --AND ISNULL(BOQ.BOMQty,0)>0
                                     
                                     ORDER BY ci.Sequence";
