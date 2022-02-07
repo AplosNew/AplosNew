@@ -406,11 +406,14 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboRestType: getCboRestType
         , GetAdditionalPayDayCbo: GetAdditionalPayDayCbo
         , getCboVoucherTypeAutoLoanList: getCboVoucherTypeAutoLoanList
+        , getContractFundCbo: getContractFundCbo
 
     };
 
 
-
+    function getContractFundCbo(callback) {
+        base('Commercial/ContractFundUtilization/GetCbo', callback);
+    }
     function GetAdditionalPayDayCbo(plantId, callback) {
         base('Attendances/AdditionalPayDay/GetCbo?plantId=' + plantId, callback);
     }

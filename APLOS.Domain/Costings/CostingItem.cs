@@ -39,6 +39,7 @@ namespace Library.Model.Costings
         public decimal ExternalRate { get; set; }
         public decimal ValueLossPercentage { get; set; }
         public string SubProcessId { get; set; }
+        public string ContractFundId { get; set; }
 
         #endregion Scalar Properties
 
