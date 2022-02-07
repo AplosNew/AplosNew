@@ -13,6 +13,8 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
     $scope.ChosenPRID = null;
     $scope.ProcessList = [];
     $scope.ProcessId = null;
+    $scope.POList = [];
+    $scope.selPo = null;
 
     // The Tab Switching Code
 
@@ -37,6 +39,15 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ProcessList = response.data;
+        });
+
+
+        $http({
+            method: 'GET',
+            url: $scope.path + "getPos",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.POList = response.data;
         });
 
         $http({
@@ -211,6 +222,38 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
             ShowResult(response.data.Message, 'failure');
         });
     }
+
+    //2nd tab Operations
+    $scope.generate = function()
+    {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'generate',
+            data: {'PO':$scope.selPo},
+        }).then(function (resp) {
+            console.log(resp);
+        });
+    }
+
+    //Downloading Of the PO Wise Report
+    $scope.generateReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "generateReport",
+            data: { 'PO': $scope.selPo},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
 
     //Initial Loading Functions
     $scope.getFilters();

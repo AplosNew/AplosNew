@@ -137,6 +137,32 @@ namespace Aplos.Areas.Productions.Controllers
 
             }
         }
+        [HttpGet, Authorize]
+        public ActionResult GetWipReportUptoSKU1(string Date)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var fileName = identity.PlantId + "WIP" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
+                //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+                Library.OrderManagement.Production.WIPReport _wipReport = new Library.OrderManagement.Production.WIPReport();
+                var workbook = _wipReport.GetWIPReportLineWiseNewUptoSKU1(identity.CompanyId, identity.PlantId, Date);
+                workbook.Version = ExcelVersion.Excel2013;
+                //workbook.SaveAs(fullPath);
+
+                workbook.SaveAs(fileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
         #endregion
 
     }

@@ -147,6 +147,14 @@ namespace Aplos.Areas.Costings.Controllers
             string sql = @"select top 100 * from (SELECT im.Id,FORMAT( im.AddedDate,'dd-MMM-yyyy') AS MasterOrderDate, 
 im.OrderYear,im.TotalQty,uom.UserName AS UOM,p.UserName AS Party,b.UserName AS Buyer,
 bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
+ContractNo=STUFF((select distinct ','+cx.ContractNo from  trn.MasterOrderItem XMOI
+								                                INNER JOIN [Contract] AS cx ON cx.Id=XMOI.ContractId                                               
+							                                where XMOI.masterOrderId=IM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
+								                                INNER JOIN [Contract] AS cx ON cx.Id=XMOI.ContractId 
+								                                INNER JOIN MasterLC AS mlx ON mlx.Id=cx.MasterLCId                                              
+							                                where XMOI.masterOrderId=IM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
     bd2.UserName AS BuyerDepartment,s.UserName AS Season,ei.EmployeeName AS ResponsiblePerson,im.ResponsiblePersonId
         FROM trn.MasterOrder AS im
     LEFT OUTER JOIN hkp.Party AS p ON p.Id=im.PartyId
@@ -176,7 +184,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT convert(bit,0) AS isChecked, convert(bit,CASE WHEN isnull(ii.OrderCostingMasterTemplateId,'')='' THEN 0 ELSE 1 END) AS TakenForCosting,
                             ii.Id, ii.Id AS MasterOrderItemId,ii.BuyerReferenceNo,mm.UserName AS Material,mma.StandardName AS Article, ii.OwnReferenceNo, ii.TotalQty, 
-                            pd.ProductMasterId,p.UserName AS Product,pm.Id as ProductMasterId
+                            pd.ProductMasterId,p.UserName AS Product,pm.Id as ProductMasterId,ISNULL(c.ContractNo,'')ContractNo,ml.LCRef
                                        ,ii.[Type]
                                   FROM trn.MasterOrderItem AS ii
                                 LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=ii.MaterialMasterId
@@ -184,7 +192,8 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                                 LEFT JOIN [TRN].[ProductDefinition] PD ON pd.MaterialMasterId=mm.Id
                                 LEFT JOIN mst.ProductMaster AS pm ON pm.Id=pd.ProductMasterId
                                 LEFT JOIN hkp.Product AS p ON p.Id=pm.ProductId
-
+                                LEFT JOIN [Contract] AS c ON c.Id=ii.ContractId
+                                LEFT JOIN MasterLC AS ml ON ml.Id=c.MasterLCId
 
                                 WHERE ii.MasterOrderId='" + Id + "'";
 

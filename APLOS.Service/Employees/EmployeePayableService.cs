@@ -867,7 +867,9 @@ namespace Library.Service.Employees
 
                 var grnBuilder = new System.Text.StringBuilder();
                 var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
+                var builderemployeeSubSequentTransactionSql = @"Delete TRN.EmployeeSubsequentTransaction WHERE EmployeePayableId='" + invoiceId + "'";
                 grnBuilder.Append(buildergrnSql);
+                grnBuilder.Append(builderemployeeSubSequentTransactionSql);
                 _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
 
                 foreach (var item in voucherdetailcurrnecy)
