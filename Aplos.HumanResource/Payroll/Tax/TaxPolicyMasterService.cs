@@ -1349,7 +1349,7 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 var sql = @"select dd.* 
                 from (
-                select eit.EmpSystemId,sh.SalaryHead ,Masterx.SalaryHeadId,
+                select eit.EmpSystemId,sh.SalaryHead ,sh.SalaryHeadId,ed.Id as EarningDataId,
                 tac.Formula , tac.FormulaID,tem.IsLessOrMore,
                 (
                 select replace(tx.FormulaID,Masterx.SalaryHeadID,Masterx.GrossEarning)
@@ -1402,6 +1402,8 @@ namespace Library.HumanResource.Payroll.Tax
                         string IsLessOrMore = EarningDt.Rows[i][@"IsLessOrMore"].ToString();
                         string SalaryHeadId = EarningDt.Rows[i][@"SalaryHeadId"].ToString();
                         string ExemptedValue = EarningDt.Rows[i][@"ExemptedValue"].ToString();
+                        string EarningDataId= EarningDt.Rows[i][@"EarningDataId"].ToString();
+
 
                         StringToFormula stf = new StringToFormula();
                         double result = stf.Eval(ExemptedValue);
@@ -1414,8 +1416,8 @@ namespace Library.HumanResource.Payroll.Tax
                                 CalculatedDict[SalaryHeadId].Add(new ExemptionCalcualtionModel
                                 {
                                     ExemptAmt = value,
-                                    LessOrMore = IsLessOrMore
-
+                                    LessOrMore = IsLessOrMore,
+                                    EarningDataId=EarningDataId
                                 });
                             }
                             else
@@ -1424,8 +1426,8 @@ namespace Library.HumanResource.Payroll.Tax
                                 data.Add(new ExemptionCalcualtionModel
                                 {
                                     ExemptAmt = value,
-                                    LessOrMore = IsLessOrMore
-
+                                    LessOrMore = IsLessOrMore,
+                                    EarningDataId = EarningDataId
                                 });
                                 CalculatedDict.Add(SalaryHeadId, data);
                             }
@@ -1433,22 +1435,90 @@ namespace Library.HumanResource.Payroll.Tax
                         }
                     }
 
+                    string strSql = string.Empty;                  
+
                     foreach (var item in CalculatedDict)
                     {
                         List<ExemptionCalcualtionModel> data = item.Value;
                         if (data == null)
-                            continue;
+                        {
+                            continue; 
+                        }
+                        double Amt = 0;
+                        string Parameter=data[0].LessOrMore;
+                        string TableId = data[0].EarningDataId;
 
+                        if (Parameter== "Which Ever Is Less")
+                        {
+                           Amt = data.Min(x => x.ExemptAmt);
+                            if (strSql.Length == 0)
+                            {
+                                strSql = @"UPDATE EmployeeEarningData SET ExemptionAmt='"+Amt+@"'
+                                where id='"+ TableId+"'";
+                            }
+                            else
+                            {
+                                strSql += Environment.NewLine +
+                                    @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='"+ TableId+"'";
+                            }
+                        }
+                        else if(Parameter == "Which Ever Is More")
+                        {
+                            Amt = data.Max(x => x.ExemptAmt);
+                            if (strSql.Length == 0)
+                            {
+                                strSql = @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='"+ TableId+"'";
+                            }
+                            else
+                            {
+                                strSql += Environment.NewLine +
+                                       @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='"+ TableId+"'";
+                            }
+                        }
+                    }
+                    if (strSql.Length > 0)
+                    {
+                        UpdateStatus(strSql); 
                     }
                 }
-
-
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+        public void UpdateStatus(string sql)
+        {
+            bool IsTransactionStarted = false;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                IsTransactionStarted = true;
+                objCon.ExecuteNonQueryWrapper(sql, true, "1");
+                objCon.CommitTransaction();
+                IsTransactionStarted = false;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (IsTransactionStarted)
+                {
+                    objCon.RollBack();
+                }
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }
+
         #endregion
     }
 
@@ -1580,6 +1650,7 @@ namespace Library.HumanResource.Payroll.Tax
     {
         public double ExemptAmt { get; set; }
         public string LessOrMore { get; set; }
+        public string EarningDataId { get; set; }
     }
    
 }

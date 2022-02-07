@@ -365,41 +365,50 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Carry Forward", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Carry Forward", 12, ExcelHAlign.HAlignRight);
             int ColCarryForward = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Current Year Allocation", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Current Year Allocation", 12, ExcelHAlign.HAlignRight);
             int ColCurrentYearAllocation = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Carry Forward Opening Balance", 10, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Carry Forward Opening Balance", 10, ExcelHAlign.HAlignRight);
             int ColCarryForwardOpeningBalance = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "BroughtForward", 15, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "BroughtForward", 15, ExcelHAlign.HAlignRight);
             int ColBroughtForward = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Year End Encash", 15, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Year End Encash", 15, ExcelHAlign.HAlignRight);
             int ColYearEndEncash = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Year End Lapse", 15, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Year End Lapse", 15, ExcelHAlign.HAlignRight);
             int ColYearEndLapse = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Calculated Earning Days", 15, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Availed Leave", 10, ExcelHAlign.HAlignRight);
+            int ColAvailedLeave = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance", 10, ExcelHAlign.HAlignRight);
+            int ColBalance = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Calculated Earning Days", 15, ExcelHAlign.HAlignRight);
             int ColCalculatedEarningDays = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "FromDate", 10, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "From Date", 10, ExcelHAlign.HAlignLeft);
             int ColFromDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "ToDate", 10, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "To Date", 10, ExcelHAlign.HAlignLeft);
             int ColToDate = COL;
+
 
             endCol = COL;
             #endregion Headers
@@ -414,17 +423,40 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
 
                 //sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColLeaveType].Text = data.Rows[i]["LeaveType"].ToString();
-                sheet[ROW, ColCarryForward].Text = data.Rows[i]["CarryForward"].ToString();
-                sheet[ROW, ColCurrentYearAllocation].Text = data.Rows[i]["CurrentYearAllocation"].ToString();
-                sheet[ROW, ColCarryForwardOpeningBalance].Text = data.Rows[i]["CarryForwardOpeningBalance"].ToString();
-                sheet[ROW, ColBroughtForward].Text = data.Rows[i]["BroughtForward"].ToString();
+                sheet[ROW, ColCarryForward].Number = clsStaticInfo.dbl(data.Rows[i]["CarryForward"].ToString());
+                sheet[ROW, ColCarryForward].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+               
+                sheet[ROW, ColCurrentYearAllocation].Number = clsStaticInfo.dbl(data.Rows[i]["CurrentYearAllocation"].ToString());
+                sheet[ROW, ColCurrentYearAllocation].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
 
-                sheet[ROW, ColYearEndEncash].Text = data.Rows[i]["YearEndEncash"].ToString(); 
-                 sheet[ROW, ColYearEndLapse].Text = data.Rows[i]["YearEndLapse"].ToString();
-                 sheet[ROW, ColCalculatedEarningDays].Text = data.Rows[i]["CalculatedEarningDays"].ToString();
+                sheet[ROW, ColCarryForwardOpeningBalance].Number = clsStaticInfo.dbl(data.Rows[i]["CarryForwardOpeningBalance"].ToString());
+                sheet[ROW, ColCarryForwardOpeningBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColBroughtForward].Number = clsStaticInfo.dbl(data.Rows[i]["BroughtForward"].ToString());
+                sheet[ROW, ColBroughtForward].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColYearEndEncash].Number = clsStaticInfo.dbl(data.Rows[i]["YearEndEncash"].ToString());
+                sheet[ROW, ColYearEndEncash].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColYearEndLapse].Number = clsStaticInfo.dbl(data.Rows[i]["YearEndLapse"].ToString());
+                sheet[ROW, ColYearEndLapse].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColAvailedLeave].Number = clsStaticInfo.dbl(data.Rows[i]["AvailedLeave"].ToString());
+                sheet[ROW, ColAvailedLeave].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColCalculatedEarningDays].Number = clsStaticInfo.dbl(data.Rows[i]["CalculatedEarningDays"].ToString());
+                sheet[ROW, ColCalculatedEarningDays].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
                 sheet[ROW, ColFromDate].Text = GetDate(data.Rows[i]["FromDate"].ToString());
                 sheet[ROW, ColToDate].Text = GetDate(data.Rows[i]["ToDate"].ToString());
-                
+
+                sheet[ROW, ColBalance].Formula = OTSBD.clsStaticInfo.GetxlsCol(ColCurrentYearAllocation) + ROW + "+" + 
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColCarryForwardOpeningBalance) + ROW + "+"+ 
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColBroughtForward) + ROW + "-"+
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColYearEndEncash) + ROW + "-" +
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColYearEndLapse) + ROW + "-" +
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColAvailedLeave) + ROW;
+
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
@@ -445,14 +477,12 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
         {
             var cmdText = @"SELECT ei.systemId,ei.EmployeeCode,ei.EmployeeName,ei.GenderID,FORMAT(ei.DOJ,'dd-MMM-yyyy')DOJ,En.UserName EmployeeCategory,dp.UserName Department,SE.UserName Section,ISNULL(Li.UserName,'') Line
                                     ,Deg.UserName Designation
-                                    FROM LeaveEncashmentTransaction L
-                                    JOIN TRN.EmployeeLeaveSummary AS els ON els.EmployeeId=L.EmpSystemId AND L.EncashmentDate = els.ToDate
-                                    JOIN EmployeeInformation AS ei ON ei.SystemId = L.EmpSystemId AND ei.SystemId=els.EmployeeId
+                                    FROM EmployeeInformation AS ei 
                                     LEFT JOIN MST.ManpowerBudget PMB ON ei.BudgetCode = PMB.Id
                                     LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
                                     LEFT JOIN ORG.Entity En ON PMB.EntityId = En.Id
                                     LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
-                                    LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = L.LegalDesignationId
+                                    LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = ei.LegalDesignationId
                                     LEFT join [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
                                     left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
                                     left join HKP.Designation DeG on DeG.Id=dm.DesignationId
@@ -470,7 +500,18 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             try
             {
                 var sql = @"select ELS.EmployeeId,EMP.EmployeeName,LT.UserName LeaveType,ELS.CarryForward,ELS.CurrentYearAllocation,ELS.CarryForwardOpeningBalance
-				,ELS.BroughtForward,ELS.YearEndEncash,ELS.YearEndLapse,ELS.CalculatedEarningDays,FORMAT(ELS.FromDate,'dd-MMM-yyyy') FromDate
+				,ELS.BroughtForward,ELS.YearEndEncash,ELS.YearEndLapse,ELS.CalculatedEarningDays,
+				(
+                                			SELECT SUM(ltdx.LeaveDuration)
+                                			FROM LeaveTransaction AS ltx
+                                			JOIN LeaveTransactionDetails AS ltdx ON ltdx.LvTrnsSystemID = ltx.SystemID
+                                			WHERE ltx.IsApproved = 1
+                                				AND ltdx.WorkDate BETWEEN els.FromDate
+                                					AND els.ToDate
+                                				AND ltx.EmpSystemID = ELS.EmployeeId
+                                				AND ltx.LTSystemID = els.LeaveTypeId
+                                			) AvailedLeave
+											,FORMAT(ELS.FromDate,'dd-MMM-yyyy') FromDate
 				,format(ELS.ToDate,'dd-MMM-yyyy') ToDate
 				from TRN.EmployeeLeaveSummary ELS
 				left join EmployeeInformation EMP on EMP.SystemId=ELS.EmployeeId

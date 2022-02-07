@@ -557,10 +557,10 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
 
     //*********************** Employee Advance PopUp Start *************************************
     $scope.employeeAdvanceSearchList = [
-        {
-            "Text": "VoucherNo",
-            "Value": "VoucherNo"
-        },
+        //{
+        //    "Text": "VoucherNo",
+        //    "Value": "VoucherNo"
+        //},
         {
             "Text": "Employee Code",
             "Value": "EmployeeCode"
@@ -569,14 +569,14 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
             "Text": "Employee Name",
             "Value": "EmployeeName"
         },
-        {
-            "Text": "PostingDate",
-            "Value": "PostingDate"
-        },
-        {
-            "Text": "DocDate",
-            "Value": "DocDate"
-        },
+        //{
+        //    "Text": "PostingDate",
+        //    "Value": "PostingDate"
+        //},
+        //{
+        //    "Text": "DocDate",
+        //    "Value": "DocDate"
+        //},
         {
             "Text": "Currency",
             "Value": "CurrencyCode"
@@ -611,7 +611,7 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
                 }).finally(function () {
                 });
         };
-        angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
+        angular.element(document.querySelector('#employeeTotalAdvancePopUp')).modal('show');
         $scope.getEmployeeAdvanceData();
     };
 
@@ -637,8 +637,11 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         $scope.advancePostingDate = data.PostingDate;
         $scope.advanceDocRefNo = data.DocRefNo;
         $scope.advance.CrAmount = null;
+        $scope.advance.GLGeneralInfoId = data.GLGeneralInfoId;
+        $scope.advance.BudgetMasterId = data.BudgetMasterId;
+        $scope.advance.ActivityId = data.ActivityId;
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
-        angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
+        angular.element(document.querySelector("#employeeTotalAdvancePopUp")).modal("hide");
     };
 
     $scope.delete = function (advanceWriteOffId, voucherId) {

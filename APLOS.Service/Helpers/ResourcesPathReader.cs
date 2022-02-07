@@ -127,6 +127,19 @@ namespace Library.Service.Helpers
 			}
 		}
 
+		public static string GetMeetingPointsImagePath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/MeetingDocuments/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
+
 		public static string GetMOIDocumentPath()
 		{
 			try

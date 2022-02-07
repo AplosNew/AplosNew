@@ -4,15 +4,21 @@ using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Helpers;
+using Library.Service.Logs;
 using Library.Service.Setups;
 using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Reflection;
 using System.Threading;
+using System.Web;
 using System.Web.Mvc;
 
 #endregion Using
@@ -21,7 +27,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 {
     public class MeetingPointsController : BaseController
     {
-        string TableName = "dbo.MeetingType";
+        string TableName = "dbo.MeetingPoints";
         //authentication for
         //GetList Create Delete
 
@@ -57,18 +63,23 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (select MP.*,D.UserName Department,MT.UserName MeetingType,EI.EmployeeName ByWhomName
+			
+			from MeetingPoints MP
+			left join ORG.Department D on D.Id=MP.DepartmentId
+			left join MeetingType MT on MT.Id=MP.MeetingTypeId
+			left join EmployeeInformation EI on EI.SystemId=MP.ByWhomId) AS TEMP WHERE " + strkey;
 
 
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
-        {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
-        }
+        //[HttpGet, Authorize]
+        //public JsonResult GetAutoSequence()
+        //{
+        //    return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+        //}
 
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
@@ -77,17 +88,17 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("UserName already exists!!!");
+                con.OpenDataSetThroughAdapter("select * from MeetingPoints where   Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("By Whom already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where   Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Code already exists!!!");
+                //con.OpenDataSetThroughAdapter("select * from MeetingPoints where   Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Code already exists!!!");
 
 
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from MeetingPoints where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -115,7 +126,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false/*, Sequence = GetSequence()*/, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -136,10 +147,10 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
                     ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                     con.BeginTransaction();
-                    con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                    con.executeQuery("delete from MeetingPoints where id='" + id + "'");
                     con.CommitTransaction();
 
-                    return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                    return Json(new { Error = false,/* Sequence = GetSequence(),*/ Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
                 }
                 catch (Exception ex)
                 {
@@ -201,16 +212,135 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
             dr.EndEdit();
         }
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+       
 
-            return 1;
+        [Authorize, HttpGet]
+        public JsonResult GetEmployeeListByWhom(GridParameter parameters, string plantId, string partyAccountGroupId, string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(plantId))
+            {
+                plantId = identity.PlantId;
+            }
+            return Json(GetEmployeeListByWhom(parameters, identity.CompanyId, plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
         }
 
-       
+        public GridModel GetEmployeeListByWhom(GridParameter parameters, string companyId, string plantId, string partyAccountGroupId, string partyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [Designation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            WHERE EI.CompanyId='" + companyId + "' AND EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
+               
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        #region upload Production Bulletin picture
+        [HttpPost, Authorize]
+        public ActionResult SaveMeetingPointsDefault(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        {
+            try
+            {
+                UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                if (string.IsNullOrEmpty(UploadDefault_data))
+                    throw new Exception("Save the Meeting Points first");
+
+                foreach (var file in UploadDefault)
+                {
+
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    var fileN = file.FileName;
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetMeetingPointsImagePath(), fileName);
+
+                    var directory = ResourcesPathReader.GetMeetingPointsImagePath();
+                    var path = Path.Combine(directory);
+
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetMeetingPointsImagePath()) == false)
+                    {
+                        try
+                        {
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetMeetingPointsImagePath());
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+
+
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "select * from MeetingPoints where id='" + UploadDefault_data + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
+                    var FN = dsLocal.Tables[0].Rows[0]["Attachment"].ToString();
+                    if (fileN != FN)
+                        if (System.IO.File.Exists(path + UploadDefault_data + Path.GetExtension(FN)))
+                            System.IO.File.Delete(path + UploadDefault_data + Path.GetExtension(FN));
+                    if (dsLocal.Tables[0].Rows.Count > 0)
+                    {
+                        dsLocal.Tables[0].Rows[0].BeginEdit();
+
+                        dsLocal.Tables[0].Rows[0]["Attachment"] = fileN;
+
+                        dsLocal.Tables[0].Rows[0].EndEdit();
+
+                        file.SaveAs(destinationPath);
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
+
+
+
+                    }
+                }
+                return Content("");
+            }
+            catch (Exception ex)
+            {
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
+            }
+
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetFileInfo(string Id)
+        {
+
+            try
+            {
+                return Json(_sqlRepository.GetDataCollection("SELECT Attachment FROM MeetingPoints WHERE Id ='" + Id + "' "), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        #endregion upload product picture
+
 
     }
 }
