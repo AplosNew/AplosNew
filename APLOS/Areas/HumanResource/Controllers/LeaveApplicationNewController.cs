@@ -16,6 +16,11 @@ using System.Threading;
 using System.Web.Mvc;
 using Library.HumanResource.NewAttendanceProcess;
 using Library.HumanResource.Leave;
+using Library.Model.Enums;
+using Syncfusion.XlsIO;
+using Library.Service.Helpers;
+using System.Collections.Generic;
+using Library.Security.Core;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
@@ -253,6 +258,258 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
                                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric ";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        private string GetDate(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                return "";
+
+            try
+            {
+                return Convert.ToDateTime(s).ToString("dd-MMM-yyyy");
+            }
+            catch (Exception)
+            {
+                return "";
+            }
+        }
+
+        public ActionResult LeaveAppNewReportExcelFormat(ReportFormat reportFormat, string employeeId)
+        {
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //var reportFileName = "Leave App Report";
+            var workbook = GetLeaveAppNewReportWorkSheet(out string reportFileName, employeeId);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+                case ReportFormat.Excel:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+                default:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetLeaveAppNewReportWorkSheet(out string reportFileName, string employeeId)
+        {
+
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            sheet.Name = "LeaveAppReport";
+
+
+            int ROW = 5;
+            int endCol = 1;
+            int COL = 1;
+
+            var header = LeaveAppNewReportHeader(employeeId);
+
+            reportFileName = "Leave App Report";
+
+            DataTable data = GetLeaveAppNewData(employeeId);
+
+
+            #region Headers
+
+
+            report.SetMasterHeaderText(ref sheet, ROW, 1, "Employee Name");
+            sheet[ROW, 1].ColumnWidth = 20;
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            report.SetText(ref sheet, ROW, 2, header["EmployeeName"].ToString());
+            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
+            sheet[ROW, 2].ColumnWidth = 20;
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            report.SetMasterHeaderText(ref sheet, ROW, 6, "Department");
+            sheet[ROW, 6].ColumnWidth = 25;
+            sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+            report.SetText(ref sheet, ROW, 7, header["Department"].ToString());
+            sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
+            sheet[ROW, 7].ColumnWidth = 25;
+            sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ROW++;
+
+            report.SetMasterHeaderText(ref sheet, ROW, 1, "Section");
+            report.SetText(ref sheet, ROW, 2, header["Section"].ToString());
+            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            report.SetMasterHeaderText(ref sheet, ROW, 6, "Designation");
+            report.SetText(ref sheet, ROW, 7, header["Designation"].ToString());
+            sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
+            sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ROW++;
+            ROW++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 20, ExcelHAlign.HAlignLeft);
+            //int ColEmployeeName = COL;
+            //COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Leave Type", 15, ExcelHAlign.HAlignLeft);
+            int ColLeaveType = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Carry Forward", 12, ExcelHAlign.HAlignRight);
+            int ColCarryForward = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Current Year Allocation", 12, ExcelHAlign.HAlignRight);
+            int ColCurrentYearAllocation = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Carry Forward Opening Balance", 10, ExcelHAlign.HAlignRight);
+            int ColCarryForwardOpeningBalance = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "BroughtForward", 15, ExcelHAlign.HAlignRight);
+            int ColBroughtForward = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Year End Encash", 15, ExcelHAlign.HAlignRight);
+            int ColYearEndEncash = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Year End Lapse", 15, ExcelHAlign.HAlignRight);
+            int ColYearEndLapse = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Availed Leave", 10, ExcelHAlign.HAlignRight);
+            int ColAvailedLeave = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance", 10, ExcelHAlign.HAlignRight);
+            int ColBalance = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Calculated Earning Days", 15, ExcelHAlign.HAlignRight);
+            int ColCalculatedEarningDays = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "From Date", 10, ExcelHAlign.HAlignLeft);
+            int ColFromDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "To Date", 10, ExcelHAlign.HAlignLeft);
+            int ColToDate = COL;
+
+
+            endCol = COL;
+            #endregion Headers
+
+            var startRow = 0;
+
+            int RowIndex = ROW;
+            startRow = ROW;
+            ROW++;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, ColLeaveType].Text = data.Rows[i]["LeaveType"].ToString();
+                sheet[ROW, ColCarryForward].Number = clsStaticInfo.dbl(data.Rows[i]["CarryForward"].ToString());
+                sheet[ROW, ColCarryForward].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColCurrentYearAllocation].Number = clsStaticInfo.dbl(data.Rows[i]["CurrentYearAllocation"].ToString());
+                sheet[ROW, ColCurrentYearAllocation].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColCarryForwardOpeningBalance].Number = clsStaticInfo.dbl(data.Rows[i]["CarryForwardOpeningBalance"].ToString());
+                sheet[ROW, ColCarryForwardOpeningBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColBroughtForward].Number = clsStaticInfo.dbl(data.Rows[i]["BroughtForward"].ToString());
+                sheet[ROW, ColBroughtForward].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColYearEndEncash].Number = clsStaticInfo.dbl(data.Rows[i]["YearEndEncash"].ToString());
+                sheet[ROW, ColYearEndEncash].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColYearEndLapse].Number = clsStaticInfo.dbl(data.Rows[i]["YearEndLapse"].ToString());
+                sheet[ROW, ColYearEndLapse].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColAvailedLeave].Number = clsStaticInfo.dbl(data.Rows[i]["AvailedLeave"].ToString());
+                sheet[ROW, ColAvailedLeave].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColCalculatedEarningDays].Number = clsStaticInfo.dbl(data.Rows[i]["CalculatedEarningDays"].ToString());
+                sheet[ROW, ColCalculatedEarningDays].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                sheet[ROW, ColFromDate].Text = GetDate(data.Rows[i]["FromDate"].ToString());
+                sheet[ROW, ColToDate].Text = GetDate(data.Rows[i]["ToDate"].ToString());
+
+                sheet[ROW, ColBalance].Formula = OTSBD.clsStaticInfo.GetxlsCol(ColCurrentYearAllocation) + ROW + "+" +
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColCarryForwardOpeningBalance) + ROW + "+" +
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColBroughtForward) + ROW + "-" +
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColYearEndEncash) + ROW + "-" +
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColYearEndLapse) + ROW + "-" +
+                                                 OTSBD.clsStaticInfo.GetxlsCol(ColAvailedLeave) + ROW;
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.NumberFormat = "#,##0.00";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8f;
+            report.CompanyHeader(ref sheet, endCol, "Leave App Report", identity.CompanyId);
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+        private Dictionary<string, object> LeaveAppNewReportHeader(string employeeId)
+        {
+            var cmdText = @"SELECT ei.systemId,ei.EmployeeCode,ei.EmployeeName,ei.GenderID,FORMAT(ei.DOJ,'dd-MMM-yyyy')DOJ,En.UserName EmployeeCategory,dp.UserName Department,SE.UserName Section,ISNULL(Li.UserName,'') Line
+                                    ,Deg.UserName Designation
+                                    FROM EmployeeInformation AS ei 
+                                    LEFT JOIN MST.ManpowerBudget PMB ON ei.BudgetCode = PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                                    LEFT JOIN ORG.Entity En ON PMB.EntityId = En.Id
+                                    LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                                    LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = ei.LegalDesignationId
+                                    LEFT join [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+                                    left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+                                    left join HKP.Designation DeG on DeG.Id=dm.DesignationId
+                                    left join HKP.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+                                    left join ORG.Section SE on SE.Id=PR.SectionId
+                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                                    LEFT JOIN ORG.Line AS Li ON Li.Id= PMB.LineId
+
+                                    where ei.SystemId='" + employeeId + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
+
+        private DataTable GetLeaveAppNewData(string employeeId)
+        {
+            try
+            {
+                var sql = @"select ELS.EmployeeId,EMP.EmployeeName,LT.UserName LeaveType,ELS.CarryForward,ELS.CurrentYearAllocation,ELS.CarryForwardOpeningBalance
+				,ELS.BroughtForward,ELS.YearEndEncash,ELS.YearEndLapse,ELS.CalculatedEarningDays,
+				(SELECT SUM(apdx.LvValue)
+                                FROM AttdnProcessData AS apdx
+                                WHERE apdx.WorkDate BETWEEN els.FromDate AND els.ToDate AND apdx.EmpSystemID = ELS.EmployeeId AND apdx.LTSystemID = els.LeaveTypeId) AvailedLeave
+
+				,FORMAT(ELS.FromDate,'dd-MMM-yyyy') FromDate
+				,format(ELS.ToDate,'dd-MMM-yyyy') ToDate
+				from TRN.EmployeeLeaveSummary ELS
+				left join EmployeeInformation EMP on EMP.SystemId=ELS.EmployeeId
+				left join LeaveType LT on LT.Id=ELS.LeaveTypeId
+
+				where ELS.EmployeeId='" + employeeId + "' order by lt.Id,  ELS.FromDate";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         #endregion -- Operations

@@ -406,6 +406,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboRestType: getCboRestType
         , GetAdditionalPayDayCbo: GetAdditionalPayDayCbo
         , getCboVoucherTypeAutoLoanList: getCboVoucherTypeAutoLoanList
+        , getCbomeetingType: getCbomeetingType
 
     };
 
@@ -416,6 +417,9 @@ function cboService($http, $window, $rootScope, baseService) {
     }
     function getCboRestType(callback) {
         base('HumanResource/RestType/GetCbo', callback);
+    }
+    function getCbomeetingType(callback) {
+        base('MeetingManagement/MeetingType/GetCbo', callback);
     }
     function getMaterialMasterTypeCbo(callback) {
         base('Materials/MaterialMasterType/GetCbo', callback);
