@@ -99,7 +99,7 @@
                         <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="120"></div>
                         <div e-column e-type="number" e-field="SplitCount" e-textalign="right" e-format="{0:N2}" e-headertext="Split Count" e-width="80"></div>
                         <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="Total Distribute Qty" e-width="100"></div>
-                        <div e-column e-headertext=" RollNo " e-template="#rollsNo" e-width="80"></div>
+                        <div e-column e-headertext="RollNo" e-template="#rollsNo" e-width="80"></div>
                     </div>
                 </div>
                 <script type="text/template" id="checkboxTemplate">
@@ -170,6 +170,7 @@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="SaveRollData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
                             </ul>
                             <ul class="list-inline text-left bold" style="color:green;font-size:larger;font-weight:bolder;">
@@ -186,36 +187,14 @@
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="row text-right">
-                <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                    <div class="search-form">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-3 col-md-3">
-                                <div class="select-style">
-                                    <select ng-model="GRNsearchBy">
-                                        <option ng-repeat="option in searchGRNByList" value="{{option.value}}">{{option.name}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-7 col-md-7">
-                                <input type="text" class="form-control" placeholder="Search" ng-model="GRNsearch" ng-enter="LoadGRNSearchList()">
-                            </div>
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <button type="button" ng-click="LoadGRNSearchList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div style="color:black;" id="GridfabricRolls" ej-grid e-datasource="MasterList"
+         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true" e-allowselection="false">
+        <div e-columns>
+            <div e-column e-type="string" e-field="Plant" e-headertext="Plant" e-width="100"></div>
+            <div e-column e-type="string" e-field="GRNId" e-headertext="GRN No." e-width="100"></div>
+            <div e-column e-type="date" e-field="GD" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="100"></div>
         </div>
-    </div>
-    @*<label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated.</span></label>*@
-    @*<label class="control-label" style="color: blue; padding-left: 17px; font-size: 12px; margin-top: -6px;">Only<span style="text-transform: lowercase;">pending distribution is listed below. </span></label>*@
-
-    <div class="table-responsive aplos-grid-toggle">
-
     </div>
 </div>
 
@@ -223,7 +202,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                GRN List <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body ">
                 <b>**Fabric roll management should be activated.</b><i>**Only pending distribution is listed below.</i>
@@ -265,7 +244,7 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="grnPopUp" role="dialog" data-backdrop="static">
+<div class="modal site-modal" id="grnPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">

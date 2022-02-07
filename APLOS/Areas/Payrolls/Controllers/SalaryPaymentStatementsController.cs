@@ -740,7 +740,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var colACNo = 0;
                 var colNetSalary = 0;
                 var colEmployeeName = 0;
-
+                int colDesignation = 0;
+                int colJobLocation = 0;
                 object chequeAmount;
                 var letterSubject = "";
                 var letterSalutaion = "";
@@ -803,6 +804,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Plant", 30); colPlant = xlsCol; xlsCol++;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EMPCODE", 15); colEmpCode = xlsCol; xlsCol++;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); colEmployeeName = xlsCol; xlsCol++;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 15); colDesignation = xlsCol; xlsCol++;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Job Location", 10); colJobLocation = xlsCol; xlsCol++;
 
                 if (paymentMode.ToUpper() == "BANK")
                 {
@@ -830,6 +833,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                         ru.SetText(ref sheet1, xlsRow, colEmployeeName, dtEmp.Rows[i]["EmployeeName"].ToString());//dtEmpInfo.Tables[0].Rows[i][""].ToString()
                                                                                                                   //if (chkAdditionInfo.Checked == true)
                                                                                                                   //{
+                        ru.SetText(ref sheet1, xlsRow, colDesignation, dtEmp.Rows[i]["Designation"].ToString());
+                        ru.SetText(ref sheet1, xlsRow, colJobLocation, dtEmp.Rows[i]["JobLocation"].ToString());
 
 
                         //}
@@ -868,12 +873,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                         }
                         ru.SetText(ref sheet1, xlsRow, colEmpType, dtEmp.Rows[i]["EmployeeType"].ToString());
 
-                        sheet1.Range[xlsRow, colSrNo].BorderAround(ExcelLineStyle.Thin);
-                        sheet1.Range[xlsRow, colEmpCode].BorderAround(ExcelLineStyle.Thin);
-                        sheet1.Range[xlsRow, colEmpType].BorderAround(ExcelLineStyle.Thin);
-                        sheet1.Range[xlsRow, colPlant].BorderAround(ExcelLineStyle.Thin);
-                        sheet1.Range[xlsRow, colNetSalary].BorderAround(ExcelLineStyle.Thin);
-                        sheet1.Range[xlsRow, colEmployeeName].BorderAround(ExcelLineStyle.Thin);
+                        sheet1.Range[xlsRow, colSrNo, xlsRow, endXlsCol-1].BorderAround(ExcelLineStyle.Thin);
+                        sheet1.Range[xlsRow, colSrNo, xlsRow, endXlsCol-1].BorderInside(ExcelLineStyle.Thin);
+
 
                         xlsRow++;
                     }

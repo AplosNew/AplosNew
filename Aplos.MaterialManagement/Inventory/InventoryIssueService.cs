@@ -6711,7 +6711,7 @@ namespace Library.MaterialManagement.Inventory
 								LEFT JOIN [MST].[BankMaster] BMTbl ON BMTbl.Id=PLC.OpeningBankMasterId
 								Left Join TRN.GRNAcceptanceMap APOMap ON APOMap.GRNId=IR.Id
 								left JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=APOMap.PurchaseDocumentAcceptanceId
-                                     WHERE IRD.IsAsset=1 AND IRD.CapitalizeVoucherDetailId IS NULL AND IR.PlantId='" + plantId + @"' 
+                                     WHERE IRD.IsAsset=1 AND IRD.CapitalizeVoucherDetailId IS NULL  AND IR.VoucherId<>'' AND IR.PlantId='" + plantId + @"' 
                                     --AND (ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0))>0 
 									AND ((isnull(IRD.TransactionQty,0)-isnull(IRD.IssueQty,0)-isnull(IRD.PurchaseReturnQty,0)-isnull(IRD.ReductionByAdjustmentQty,0)-isnull(IRD.InventorySalesQty,0)-isnull(IRD.InventoryScrapQty,0))+isnull(IRD.IssueReturnQty,0))>0
 								    AND IRD.MaterialStorageId='" + materialStorageId + "'";
@@ -7449,7 +7449,7 @@ namespace Library.MaterialManagement.Inventory
                                 	WHERE IM.CompanyGroupId = '" + identity.CompanyGroupId + @"'
                                 		AND IM.CompanyId = '" + identity.CompanyId + @"'
                                 		AND IM.PlantId = '" + identity.PlantId + @"'
-                                		AND II.MaterialStorageId = '" + StorageLocationId + @"'
+                                		AND IRD.MaterialStorageId = '" + StorageLocationId + @"'
                                 		AND IR.[Status] = 'Posting'
                                 	GROUP BY IRD.InventoryMaterialId
                                 		,IM.MaterialMasterId

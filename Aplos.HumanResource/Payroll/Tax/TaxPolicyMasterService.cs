@@ -10,6 +10,7 @@ using Library.Data;
 using Library.Service.Enums;
 using Library.Service.Logs;
 using System.Reflection;
+using System.Linq;
 
 namespace Library.HumanResource.Payroll.Tax
 { 
@@ -1242,8 +1243,7 @@ namespace Library.HumanResource.Payroll.Tax
                 select dd.EarningMasterId,dd.SalaryHeadId,dd.SalaryHead,
                 dd.LastCalculatedDate,isnull(dd.OpeningValue,'0')OpeningValue,
                 dd.ActualValue,dd.ArrearValue,dd.Rem_Months,
-                isnull((dd.DefineAmount*dd.Rem_Months),'0') as StructureValue,
-                dd.DeductionDone
+                isnull((dd.DefineAmount*dd.Rem_Months),'0') as StructureValue                
                 from (
                 select distinct tem.Id as EarningMasterId,tem.SalaryHeadID,
                 sh.SalaryHead, 
@@ -1275,19 +1275,9 @@ namespace Library.HumanResource.Payroll.Tax
 				 where EmpInfoSystemID='"+EmpId+@"' and salaryheadid=apc.SalaryHeadID
 				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate
 				 group by procx.SalaryHeadID 
-				 ),'0'),
-				
-				-- Deductions Till Date
-				 (select SUM(procx.DisbusmentAmount)
-				 from 
-				 salaryprocchild procx
-				 join SalaryProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
-				 JOIN SalaryHead SHX ON SHX.SalaryHeadID=PROCX.SalaryHeadID
-				 where EmpInfoSystemID='"+EmpId+@"' and SHX.HeadType='D'
-				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate)
-				 As DeductionDone,
-				
-				-- Months Remaining For Structure Value
+				 ),'0'),	
+			
+                -- Months Remaining For Structure Value
 				(datediff(DAY,
 				(select top 1 todate from SalaryProcMaster sl join SalaryProcChild sc
 			     on sc.SlrProcMstSystemID=sl.SystemID
@@ -1346,6 +1336,68 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
 
+        #endregion
+
+        #region Net Earning Tab Functions
+        public DataTable EarningQuery(string EmpId, string PolicyId,string YearId)
+        {
+            try
+            {
+                var sql = @"select dd.* 
+                from (
+                select eit.EmpSystemId,sh.SalaryHead ,Masterx.SalaryHeadId,
+                tac.Formula , tac.FormulaID,tem.IsLessOrMore,
+                (
+                select replace(tx.FormulaID,Masterx.SalaryHeadID,Masterx.GrossEarning)
+                from TaxExemptionApplicableChild tx
+                left join TaxEarningMasterChild tmc on tmc.Id=tx.TaxEarningMasterChildId
+                where tmc.Id=tem.Id and tx.Id=tac.Id
+                )as ExemptedValue
+
+                from EmployeeEarningData ed
+                left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
+                join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
+                left join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadId
+                right join TaxExemptionApplicableChild tac on tac.TaxEarningMasterChildId = tem.Id
+
+                left join
+                (
+                select tem.SalaryHeadId ,ED.GrossEarning ,eit.EmpSystemId,tem.Id
+                from EmployeeEarningData ed
+                left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
+                join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
+                where eit.EmpSystemId='"+EmpId+@"' and
+                eit.TaxPolicyHeaderId='"+PolicyId+@"' and eit.TaxYearId='"+YearId+@"'
+                )
+                as Masterx on Masterx.EmpSystemId=eit.EmpSystemId
+                where eit.EmpSystemId='"+EmpId+@"' and
+                eit.TaxPolicyHeaderId='"+PolicyId+@"' and eit.TaxYearId='"+YearId+@"' and
+                tem.ExemptionApplicable='1'
+                ) as dd where dd.ExemptedValue NOT Like ('%SH%')
+                order by dd.SalaryHead";
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ProcessingFunction(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                DataTable EarningDt = EarningQuery(EmpId, PolicyId, YearId);
+                for (int i = 0; i < EarningDt.Rows.Count; i++)                   
+                {
+                                        
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }

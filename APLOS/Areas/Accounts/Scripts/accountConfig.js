@@ -502,6 +502,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/advance/EmployeeAdvanceWriteOff",
             controller: "employeeAdvanceWriteOffController"
         })
+        .when("/employee-total-advance-write-off", {
+            templateUrl: "Accounts/advance/EmployeeTotalAdvanceWriteOff",
+            controller: "employeeTotalAdvanceWriteOffController"
+        })
         .when("/employee-transactiontype", {
             templateUrl: "Accounts/EmployeeTransaction/EmployeeTransactionType",
             controller: "employeeTransactionTypeController"

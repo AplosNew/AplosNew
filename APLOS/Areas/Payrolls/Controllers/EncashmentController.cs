@@ -84,7 +84,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = _EncashmentService.GetEarnLeaveReport(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, YearNo, isDetail,isActive,isSeperated);
+                IWorkbook workbook = _EncashmentService.GetEarnLeaveReport(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, YearNo.Trim(), isDetail,isActive,isSeperated);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Earn Leave Report";
                 switch (reportFormat)
                 {

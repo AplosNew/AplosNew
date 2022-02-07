@@ -135,9 +135,6 @@ namespace Aplos.Areas.Materials.Controllers
         }
         #endregion -- Operations
 
-
-
-
         [HttpPost, Authorize]
         public ActionResult GRNList(string column, string value)
         {
@@ -277,14 +274,16 @@ namespace Aplos.Areas.Materials.Controllers
 							LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
 
-							LEFT JOIN TRN.InventoryReceiveDetail IRD1 ON IR.Id=IRD1.InventoryReceiveId
+							JOIN 
+							(
+							SELECT DISTINCT IRD1.InventoryReceiveId FROM TRN.InventoryReceiveDetail IRD1
 							LEFT JOIN TRN.PurchaseOrder po1 on po1.id=IRD1.POId
-							LEFT JOIN SCS.Currency C ON IR.CurrencyId=C.Id
 							LEFT JOIN TRN.InventoryMaterial IM ON IRD1.InventoryMaterialId=IM.Id
 							LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
 							LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
 							LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
                         WHERE BP.BusinessProcessName='FabricRollManagement'
+						) D ON D.InventoryReceiveId=IR.Id and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')
 					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')) AS TEMP WHERE " + strkey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -496,11 +495,11 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
         #region SampleFile
         [HttpPost, Authorize]
-        public ActionResult GetSampleFile(ReportFormat reportFormat, List<Dictionary<string, object>> GridTempList)
+        public ActionResult GetSampleFile(ReportFormat reportFormat, List<Dictionary<string, object>> GridTempList, Dictionary<string, object> fabricRollMaster)
         {
             string fileName = "";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            fileName = GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, GridTempList);
+            fileName = GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName, GridTempList, fabricRollMaster);
             var reportFileName = "Fabric Roll Management Template";
             return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             //switch (reportFormat)
@@ -517,7 +516,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
         }
 
-        public string GetSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName, List<Dictionary<string, object>> GridTempList)
+        public string GetSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName, List<Dictionary<string, object>> GridTempList, Dictionary<string, object> fabricRollMaster)
         {
             #region declare
             clsReport objRpt = null;
@@ -528,6 +527,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             int maxRow = 5001;
 
             #endregion
+
             try
             {
                 //sorting
@@ -546,9 +546,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(2);
-
-                int xlsRow = 6, xlsCol = 1;
-                int endXlsCol = 1;
+              
 
                 #region Lunch Out
                 IWorksheet sheet1 = null;
@@ -556,7 +554,15 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 IWorksheet sheetSource = null;
                 sheetSource = workbook.Worksheets[1];
 
+                int xlsRow = 1, xlsCol = 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNNo");
+                sheet1[xlsRow, 2].Text = fabricRollMaster["GRNNo"].ToString();
+                xlsRow++;
+                xlsCol += 1;
 
+
+                xlsRow = 6; xlsCol = 1;
+                int endXlsCol = 1;
 
                 #region ------------------Column Header------------------
 
@@ -564,7 +570,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");
-
                 sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
                 xlsCol += 1;
 
@@ -692,6 +697,15 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
         #endregion
 
         #region MyRegion
+        [HttpGet, Authorize]
+        public JsonResult GetSavedList()
+        {
+            CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"Select F.*,P.UserName Plant,FORMAT(F.GRNDate,'dd-MMM-yyyy')GD from [BPDT].[FabricRollManagementMaster] F
+                            LEFT JOIN ORG.Plant P ON P.Id=F.PlantId
+                            Where PlantId='" + identity.PlantId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost, Authorize]
         public JsonResult ImportData()
@@ -714,6 +728,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
         public void SaveFiles(out string path)
         {
             path = "";
@@ -849,7 +864,6 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             SaveFabricRollManageData(data, grnDetailList);
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
-
 
         private void SaveFabricRollManageData(Dictionary<string, object> data, List<Dictionary<string, object>> grnDetailList)
         {

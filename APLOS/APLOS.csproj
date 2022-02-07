@@ -476,7 +476,7 @@
     <Compile Include="Areas\Commercial\Controllers\POMappingWithPIController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PurchaseLCWithPOController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PurchaseLCAmendmentController.cs" />
-    <Compile Include="Areas\Commercial\Controllers\LCFundUtilizationController.cs" />
+    <Compile Include="Areas\Commercial\Controllers\ContractFundUtilizationController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PrePurchaseInvoiceController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PurchaseLCController.cs" />
     <Compile Include="Areas\Commercial\Controllers\ContractController.cs" />
@@ -692,6 +692,7 @@
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
+    <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
@@ -1602,6 +1603,7 @@
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\employeeTotalAdvanceWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\entityWiseExpenseAndEarningController.js" />
     <Content Include="Areas\Accounts\Scripts\AssetWIPStatusController.js" />
     <Content Include="Areas\Accounts\Scripts\inventorySalesReturnPost.js" />
@@ -2002,9 +2004,11 @@
     <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JWReceiptController.js" />
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
+    <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
+    <Content Include="Areas\MeetingManagement\Scripts\MeetingPointsController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
@@ -3242,7 +3246,7 @@
     <Content Include="Areas\Costings\Views\OrderCostingApproval\Aplos.cshtml" />
     <Content Include="Areas\Costings\Views\OrderCostingUnApproval\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\ServiceRequisition\ServiceReqCreation.cshtml" />
-    <Content Include="Areas\Commercial\Views\LCFundUtilization\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\ContractFundUtilization\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\Contract\MasterLC.cshtml" />
     <Content Include="Areas\Attendances\Views\ExtraOT\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\RawDataDownload\Aplos.cshtml" />
@@ -3969,6 +3973,9 @@
     <Content Include="Areas\MeetingManagement\Views\MeetingType\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\NewEarnLeaveReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformancePeriod\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\EmployeeTotalAdvanceWriteOff.cshtml" />
+    <Content Include="Areas\MeetingManagement\Views\MeetingPoints\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\NewEarnLeaveReport\NewSystemEL.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

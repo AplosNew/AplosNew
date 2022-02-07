@@ -7,7 +7,10 @@ function MeetingManagementConfig($routeProvider, $locationProvider) {
             controller: 'MeetingTypeController'
         })
 
-
+        .when('/meeting-points', {
+            templateUrl: 'MeetingManagement/MeetingPoints',
+            controller: 'MeetingPointsController'
+        })
 
 
 };

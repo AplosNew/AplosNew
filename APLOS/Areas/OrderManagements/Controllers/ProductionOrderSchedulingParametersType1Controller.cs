@@ -2021,7 +2021,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
 
             double WorkingHours = clsStaticInfo.dbl(drCalendar["WorkingHours"].ToString()) + clsStaticInfo.dbl(drCalendar["OTHours"].ToString()); //clsStaticInfo.dbl(drOrderConfig["PlanWorkingHoursPerDay"].ToString());
             if (bplib.clsWebLib.GetBoolData(drOrderConfig["ConsiderHourFromWorkCenter"].ToString()) == true)
-                WorkingHours = GetWorkcenterHour(drPreferredWC["WorkCenterMasterId"].ToString(), drCalendar["WorkingDate"].ToString(), dicWorkCenterRunningHours); //clsStaticInfo.dbl(drPreferredWC["StandardTimePerDay"].ToString());
+                WorkingHours = GetWorkcenterHour(drPreferredWC["WorkCenterMasterId"].ToString(), drCalendar["WorkingDate"].ToString(), clsStaticInfo.dbl(drPreferredWC["StandardTimePerDay"].ToString()), dicWorkCenterRunningHours); //clsStaticInfo.dbl(drPreferredWC["StandardTimePerDay"].ToString());
 
 
             ActualPlanHourPerDay = WorkingHours;
@@ -2366,13 +2366,16 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
             }
             return data;
         }
-        private double GetWorkcenterHour(string WCId, string Date, Dictionary<string, DataTable> WCList)
+        private double GetWorkcenterHour(string WCId, string Date, double StandardTimePerDay, Dictionary<string, DataTable> WCList)
         {
             try
             {
                 DataTable dt = WCList[WCId];
                 dt.DefaultView.RowFilter = "StartDate<=#" + Convert.ToDateTime(Date).ToString("dd-MMM-yyyy") + "#";
-                return clsStaticInfo.dbl(dt.DefaultView[0]["RunningHour"].ToString());
+                if (dt.DefaultView.Count > 0)
+                    return clsStaticInfo.dbl(dt.DefaultView[0]["RunningHour"].ToString());
+
+                return StandardTimePerDay;
             }
             catch (Exception ex)
             {
