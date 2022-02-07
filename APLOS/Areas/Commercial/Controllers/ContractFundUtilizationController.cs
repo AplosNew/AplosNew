@@ -47,16 +47,16 @@ namespace Aplos.Areas.Commercial.Controllers
         public ActionResult GetFundUtilizationList(string column, string value)
         {
 
-            string sql = @"SELECT * FROM " + TableName + "";
+            string sql = @"SELECT * FROM " + TableName + " order by Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
 
-        [HttpPost, Authorize]
-        public ActionResult GetBuyerDeductionList(string column, string value)
+        [HttpGet, Authorize]
+        public ActionResult GetCbo()
         {
 
-            string sql = @"SELECT * FROM " + TableName + " WHERE UtilizationSourceType='" + UtilizationSourceType.BuyerDeduction + "'";
+            string sql = @"SELECT * FROM dbo.ContractFundUtilization  Where Active=1 order by Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

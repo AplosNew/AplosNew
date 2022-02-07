@@ -46,6 +46,8 @@ namespace Aplos.Areas.Productions.Controllers
         }
         #endregion Page
 
+
+
         #region Get Operations
 
         [Authorize, HttpPost]
@@ -71,6 +73,12 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 return Json(new { Error = true, Message =  ex.Message}, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getPos()
+        {
+            return Json(ps.getPo() , JsonRequestBehavior.AllowGet);
         }
 
         #endregion Get Operations
@@ -392,5 +400,176 @@ namespace Aplos.Areas.Productions.Controllers
             return workbook;
         }
         #endregion Report Operations
+
+        #region secondTabOperations
+
+        [HttpPost, Authorize]
+        public ActionResult generate(string PO)
+        {
+            return Json(ps.generate(PO), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult generateReport(string PO)
+        {
+
+            try
+            {
+                var workbook = generateReportForm(PO);
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "POWiseReport.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        private IWorkbook generateReportForm(string PO)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var data = ps.generateReport( PO, out List<string> DynCols);
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "PO Wise Report";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+            //sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
+            //sheet.Range[ROW, COL].ColumnWidth = 13;
+            //sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+            //sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //ROW += 2;
+
+            #region Grid Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PO", 15, ExcelHAlign.HAlignCenter);
+            int ColPo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SO", 15, ExcelHAlign.HAlignCenter);
+            int ColSo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer", 40, ExcelHAlign.HAlignCenter);
+            int ColBuy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer Ref", 40, ExcelHAlign.HAlignCenter);
+            int ColBuyRef = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Own Ref", 15, ExcelHAlign.HAlignCenter);
+            int ColOwnRef = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SKU1", 15, ExcelHAlign.HAlignCenter);
+            int ColSku = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Order Qty", 15, ExcelHAlign.HAlignCenter);
+            int ColOrQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Plan Qty", 20, ExcelHAlign.HAlignCenter);
+            int ColPlQty = COL;
+            COL++;
+
+            int ColSt = COL;
+
+            for (int i = 0; i < DynCols.Count; i++)
+            {
+                report.SetHeaderText(ref sheet, ROW, COL, DynCols[i], 10, ExcelHAlign.HAlignCenter);
+
+                COL++;
+            }
+
+           
+
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            string Article = "";
+            string LotNum = "";
+            int ArtRow = 0;
+            int LotRow = 0;
+
+            double[] arr = new double[3];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                //clsStaticInfo.dbl()
+                sheet[ROW, ColPo].Text = data.Rows[i]["PO"].ToString();
+                sheet[ROW, ColSo].Text = data.Rows[i]["SO"].ToString();
+                sheet[ROW, ColBuy].Text = data.Rows[i]["Buyer"].ToString();
+                sheet[ROW, ColBuyRef].Text = data.Rows[i]["BuyerRef"].ToString();
+                sheet[ROW, ColOwnRef].Text = data.Rows[i]["OwnRef"].ToString();
+                sheet[ROW, ColSku].Text = data.Rows[i]["SKU1"].ToString();
+               
+                sheet[ROW, ColOrQty].Number = clsStaticInfo.dbl(data.Rows[i]["OrderQty"].ToString());
+                sheet[ROW, ColPlQty].Number = clsStaticInfo.dbl(data.Rows[i]["PlanQty"].ToString());
+                int k = ColSt;
+                for (int j = 0; j < DynCols.Count; j++)
+                {
+                    sheet[ROW, k].Number = clsStaticInfo.dbl(data.Rows[i][DynCols[j]].ToString());
+                    k++;
+                }
+
+
+                sheet.Range[ROW, ColPo, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, ColPo, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            ROW++;
+
+
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "PO Wise Report", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+        #endregion secondTabOperations
+
     }
 }

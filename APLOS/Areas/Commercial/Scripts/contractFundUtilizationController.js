@@ -48,23 +48,9 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0) {
+                $scope.fundUtilizationList = [];
                 $scope.ModelList = response.data;
-                for (var i = 0; i < $scope.ModelList.length; i++) {
-                    for (var j = 0; j < $scope.fundUtilizationList.length; j++) {
-                        if ($scope.ModelList[i].FundUtilization == $scope.fundUtilizationList[j].Text) {
-
-                            $scope.fundUtilizationList[j].Id = $scope.ModelList[i].Text;
-                            $scope.fundUtilizationList[j].Sequence = i;
-                            $scope.fundUtilizationList[j].StandardName = $scope.ModelList[i].StandardName;
-                            $scope.fundUtilizationList[j].UserName = $scope.ModelList[i].UserName;
-                            $scope.fundUtilizationList[j].CommisssionCharge = $scope.ModelList[i].CommisssionCharge;
-                            $scope.fundUtilizationList[j].AllowedExcessVariation = $scope.ModelList[i].AllowedExcessVariation;
-                            $scope.fundUtilizationList[j].AllowedLessVariation = $scope.ModelList[i].AllowedLessVariation;
-                            $scope.fundUtilizationList[j].Remarks = $scope.ModelList[i].Remarks;
-                            $scope.fundUtilizationList[j].Active = $scope.ModelList[i].Active;
-                        }
-                    }
-                }
+                $scope.fundUtilizationList = response.data;
             }
             else {
                 for (var j = 0; j < $scope.fundUtilizationList.length; j++) {

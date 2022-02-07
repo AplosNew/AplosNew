@@ -77,7 +77,35 @@
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-            <p>2nd Page</p>
+            <div class="row">
+                <div class="col-sm-6 col-md-4 col-lg-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Select PO</label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="selPo" name="Process"
+                                        ng-options=" item.Text as item.Text for item in POList">
+                                    <option value="">--Select--</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-8 col-lg-8">
+                   
+                </div>
+            </div>
+
+            <div class="row" style="margin-top:10px; padding-right:10px;">
+                <div class="col-md-6 col-lg-12 col-sm-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="generateReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> Download Report </button></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
     </div>
