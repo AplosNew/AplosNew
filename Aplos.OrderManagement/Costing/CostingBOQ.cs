@@ -297,7 +297,7 @@ namespace Library.OrderManagement.Costing
                 if (ItemData == null || ItemData.Count == 0)
                     throw new Exception("Please select at least one item");
 
-                if (MasterData["UserName"] == null)
+                if (string.IsNullOrEmpty(MasterData["UserName"].ToString()))
                     throw new Exception("Please add user name.");
 
                 string SOIds = "''";
@@ -312,8 +312,12 @@ namespace Library.OrderManagement.Costing
 
                 ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager();
                 ConManager.getDataSet("select * from CostingBOQMaster where Id='" + MasterData["Id"] + "'", out DataSet dsMaster);
+                ConManager.getDataSet("select TOP(1)* from CostingBOQMaster where Id<>'" + MasterData["Id"] + "' and UserName='"+MasterData["UserName"]+"' ", out DataSet dsValid);
                 string _masterId = "";
-
+                if (dsValid.Tables[0].Rows.Count>0)
+                {
+                    throw new Exception("User Name Already Exist.");
+                }
                 #region BOQ MASTER
 
 
