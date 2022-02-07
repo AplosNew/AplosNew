@@ -346,7 +346,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult CreateSFG(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string level, string productionOrderId, string salesOrderId, string processId, string status, bool IsFirst, bool IsCrossAllowed)
         {
 
@@ -480,7 +480,7 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult DeleteSFG(string id)
         {
             _ProductionSummaryService.DeleteDetail(id);
