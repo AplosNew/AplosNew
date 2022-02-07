@@ -297,6 +297,8 @@ namespace Library.OrderManagement.Costing
                 if (ItemData == null || ItemData.Count == 0)
                     throw new Exception("Please select at least one item");
 
+                if (MasterData["UserName"] == null)
+                    throw new Exception("Please add user name.");
 
                 string SOIds = "''";
                 for (int i = 0; i < SalesOrderData.Count; i++)
