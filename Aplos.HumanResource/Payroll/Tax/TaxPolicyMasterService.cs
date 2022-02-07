@@ -1339,49 +1339,44 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region Net Earning Tab Functions
-        public static List<Dictionary<string, string>> GetDataTableDictionaryList(DataTable dt)
-        {
-            return dt.AsEnumerable().Select(
-                row => dt.Columns.Cast<DataColumn>().ToDictionary(
-                    column => column.ColumnName,
-                    column => row[column].ToString()
-                )).ToList();
-        }
         public DataTable EarningQuery(string EmpId, string PolicyId,string YearId)
         {
             try
             {
-                var sql = @"select eit.EmpSystemId,ed.GrossEarning,
-                tem.SalaryHeadId,sh.SalaryHead,tem.ExemptionApplicable
-                from EmployeeEarningData ed 
-                left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
-                join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
-                left join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadId
-                where eit.EmpSystemId='" + EmpId + @"' and 
-                eit.TaxPolicyHeaderId='" + PolicyId + "' and eit.TaxYearId='" + YearId + "'";
+                var sql = @"select dd.* 
+                from (
+                select eit.EmpSystemId,sh.SalaryHead ,Masterx.SalaryHeadId,
+                tac.Formula , tac.FormulaID,tem.IsLessOrMore,
+                (
+                select replace(tx.FormulaID,Masterx.SalaryHeadID,Masterx.GrossEarning)
+                from TaxExemptionApplicableChild tx
+                left join TaxEarningMasterChild tmc on tmc.Id=tx.TaxEarningMasterChildId
+                where tmc.Id=tem.Id and tx.Id=tac.Id
+                )as ExemptedValue
 
-                return _sqlRepository.GetDataTable(sql);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public DataTable FormulasQuery(string EmpId, string PolicyId, string YearId)
-        {
-            try
-            {
-                var sqlx = @"select eit.EmpSystemId,tem.SalaryHeadId as MasterId,
-                sh.SalaryHead , tac.Formula , tac.FormulaID,tem.IsLessOrMore
                 from EmployeeEarningData ed
                 left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
                 join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
                 left join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadId
                 right join TaxExemptionApplicableChild tac on tac.TaxEarningMasterChildId = tem.Id
-                where eit.EmpSystemId='" + EmpId + @"' and eit.TaxPolicyHeaderId='" + PolicyId + @"' 
-                and eit.TaxYearId='" + YearId + "'";
 
-                return _sqlRepository.GetDataTable(sqlx);
+                left join
+                (
+                select tem.SalaryHeadId ,ED.GrossEarning ,eit.EmpSystemId,tem.Id
+                from EmployeeEarningData ed
+                left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
+                join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
+                where eit.EmpSystemId='"+EmpId+@"' and
+                eit.TaxPolicyHeaderId='"+PolicyId+@"' and eit.TaxYearId='"+YearId+@"'
+                )
+                as Masterx on Masterx.EmpSystemId=eit.EmpSystemId
+                where eit.EmpSystemId='"+EmpId+@"' and
+                eit.TaxPolicyHeaderId='"+PolicyId+@"' and eit.TaxYearId='"+YearId+@"' and
+                tem.ExemptionApplicable='1'
+                ) as dd where dd.ExemptedValue NOT Like ('%SH%')
+                order by dd.SalaryHead";
+
+                return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
             {
@@ -1392,42 +1387,10 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                #region DataTable Creation Region
-
-                DataTable FormulaDt = FormulasQuery(EmpId, PolicyId, YearId);
-                List<Dictionary<string, string>> FormulaDict = GetDataTableDictionaryList(FormulaDt);
                 DataTable EarningDt = EarningQuery(EmpId, PolicyId, YearId);
-                List<Dictionary<string, string>> EarningDict = GetDataTableDictionaryList(EarningDt);
-
-                #endregion
-
                 for (int i = 0; i < EarningDt.Rows.Count; i++)                   
                 {
-                        char[] separator = { '+', '*','-','/','(',')' };
-                        string SalaryHeadId = clsWebLib.RetValidLen(EarningDt.Rows[i][@"SalaryHeadId"]).ToString();
-                        string Exemption = clsWebLib.GetBoolData(EarningDt.Rows[i][@"ExemptionApplicable"]).ToString();
-                        if (Exemption == "True")
-                        {
-                            foreach (Dictionary<string, string> Item in FormulaDict)
-                            {
-                                if (Item.ContainsKey("MasterId") && Item["MasterId"] == SalaryHeadId)
-                                {
-                                    string Formula = Item["FormulaID"].ToString();
-
-                                    String[] strlist= Formula.Split(separator);
-                                    foreach (String s in strlist)
-                                    {
-                                        foreach (Dictionary<string, string> Itemx in EarningDict)
-                                        {
-                                            if (Itemx.ContainsKey("SalaryHeadId") && Itemx["SalaryHeadId"] == s)
-                                            {
-                                               // strlist[s] = "";
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }                    
+                                        
                 }
             }
             catch (Exception ex)
