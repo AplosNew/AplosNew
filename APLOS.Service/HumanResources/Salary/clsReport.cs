@@ -14584,19 +14584,21 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
 							   " + bankNetPay + @"
 							   ,sh.HeadType,SPC.EmpInfoSystemID,spm.MonthNo ,CRC.Code currCode,CRC.Id CurrencyId
                                , ISNULL(CURR.IntegerInDisb,0) IntegerInDisb, ISNULL(CURR.DecimalNo,0) DecimalNo 
-                               , ISNULL(LGD.userName,'') Designation    
+                               , ISNULL(LGD.userName,'') Designation,jl.JobLocation    
                                , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag 
                                ,dm.EmployeeCategoryId as EmpTypeId , ec.UserName as EmployeeType
                                 FROM SalaryProcChild SPC
 							    INNER JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 								INNER JOIN SalaryHead SH ON SH.SalaryHeadID = SPC.SalaryHeadID 
 								--LEFT JOIN CurrencyRuleChild CURR ON CURR.SalaryHeadID = sh.SalaryHeadID
+								INNER JOIN SalaryProcessLogDetail D ON d.SalaryProcessId=spm.SystemID AND D.EmpSystemId=SPC.EmpInfoSystemID 
 								INNER JOIN EmployeeInformation EI ON EI.SystemId = SPC.EmpInfoSystemID 
+								INNER JOIN JobLocation AS jl ON jl.SystemID=ei.JobLocationID
                                 LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EI.SalaryRuleMasterSystemID
 								INNER JOIN CurrencyRuleChild CURR ON CURR.SalaryHeadID = sh.SalaryHeadID AND CURR.MstSystemID = srm.CurrencyRuleSystemID 
 								" + bankJoin + @"
                                 LEFT JOIN HKP.Designation DeG ON DeG.Id = EI.GivenDesignationId                                
-                                LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                                LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = D.LegalDesignationId
                                 INNER JOIN SCS.Currency AS CRC ON CRC.Id = SPC.DisbusmentCurrencyID
                                 left join mst.DesignationMasterLegalDesignation lld on lld.LegalDesignationId = LGD.Id
 								left join mst.DesignationMaster dm on dm.Id = lld.DesignationMasterId
@@ -14631,19 +14633,21 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
 							   " + bankNetPay + @"
 							   ,sh.HeadType,SPC.EmpInfoSystemID,spm.MonthNo ,CRC.Code currCode,CRC.Id CurrencyId
                                , ISNULL(CURR.IntegerInDisb,0) IntegerInDisb, ISNULL(CURR.DecimalNo,0) DecimalNo 
-                               , ISNULL(LGD.userName,'') Designation    
+                               , ISNULL(LGD.userName,'') Designation,jl.JobLocation      
                             , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag       
                                ,dm.EmployeeCategoryId as EmpTypeId, ec.UserName as EmployeeType
                                 FROM SalaryProcChild SPC
 							    INNER JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
 								INNER JOIN SalaryHead SH ON SH.SalaryHeadID = SPC.SalaryHeadID 
+                                INNER JOIN SalaryProcessLogDetail D ON d.SalaryProcessId=spm.SystemID AND D.EmpSystemId=SPC.EmpInfoSystemID 
 								INNER JOIN EmployeeInformation EI ON EI.SystemId = SPC.EmpInfoSystemID 
+								INNER JOIN JobLocation AS jl ON jl.SystemID=ei.JobLocationID
                                 LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EI.SalaryRuleMasterSystemID
 								INNER JOIN CurrencyRuleChild CURR ON CURR.SalaryHeadID = sh.SalaryHeadID AND CURR.MstSystemID = srm.CurrencyRuleSystemID 
 								
 								" + bankJoin + @"
                                 LEFT JOIN HKP.Designation DeG ON DeG.Id = EI.GivenDesignationId                                
-                                LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                                LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = D.LegalDesignationId
                                 INNER JOIN SCS.Currency AS CRC ON CRC.Id = SPC.DisbusmentCurrencyID
                                 left join mst.DesignationMasterLegalDesignation lld on lld.LegalDesignationId = LGD.Id
 								left join mst.DesignationMaster dm on dm.Id = lld.DesignationMasterId

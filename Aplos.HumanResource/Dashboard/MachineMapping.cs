@@ -1,9 +1,11 @@
-﻿using Library.Data.Sql;
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.HumanResource.Dashboard
@@ -263,6 +265,7 @@ from
 
         public List<Dictionary<string, object>> FilterWiseMachineData(out List<string> DateColumns ,  Dictionary<string, string> parameters , string fromDate , string toDate , out List<Dictionary<string, object>> dt)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             var str = @"Select isnull(req.CompanyId,'') as CompanyId , isnull(req.PlantId,'') as PlantId, isnull(req.EntityId,'') as EntityId ,
 Actual.MachineId , Actual.UserName as MachineName,
@@ -275,7 +278,7 @@ from
 								Left join ORG.Plant P ON P.Id=MB.PlantId
 								Left join ORG.Entity E ON E.Id=MB.EntityId
 								left join ORG.Company C on c.id = P.CompanyId
-								Where MM.CompanyGroupId='CG20181' AND
+								Where MM.CompanyGroupId='"+identity.CompanyGroupId+@"' AND
                                 isnull(C.Id,'') IN(" + parameters["CompanyId"] + @") AND
                                 isnull(P.Id,'') IN("+parameters["PlantId"]+ @") AND
                                 isnull(E.Id,'') IN(" + parameters["EntityId"] + @") 

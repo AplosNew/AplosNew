@@ -6,7 +6,8 @@
         PackingCredit,
         BuildUp,
         ERQ,
-        Negotiable
+        Negotiable,
+        LessCommission
     }
 
     public enum BuyerDeduction

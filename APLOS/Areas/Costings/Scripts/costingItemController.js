@@ -58,7 +58,7 @@ function costingItemController(cboService, commonMessage, $scope, $rootScope, ba
         PurchaseGroupId: null,
         ActivityMetarialNo: null,
         BudgetName: null,
-        //CostingItemType: null
+        ContractFundId: null
 
     };
     
@@ -159,10 +159,11 @@ function costingItemController(cboService, commonMessage, $scope, $rootScope, ba
     };
     getPurchaseGroup();
     getCostingGroup();
-    //$scope.ProcessList = [];
-    //cboService.getProcessCbo(function (result) {
-    //    $scope.ProcessList = result;
-    //})
+
+    $scope.ContractFundList = [];
+    cboService.getContractFundCbo(function (result) {
+        $scope.ContractFundList = result;
+    })
 
 
     $scope.ProcessList = [];

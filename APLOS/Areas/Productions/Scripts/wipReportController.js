@@ -39,7 +39,13 @@ function wipReportController(commonMessage, $scope, $rootScope, baseService, $ro
             ShowResult(e, 'failure');
         }
     };
-
+    $scope.GetWIPReportsku1 = function () {
+        try {
+            $rootScope.report('Productions/WIPReport/GetWipReportUptoSKU1?date=' + $scope.wipDate);
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
     
     
 }

@@ -14460,13 +14460,13 @@ where h.HeadCategory='GROSS'
 							 from EmployeeInformation EEI left join
 							  MST.PayrollGroupMaster  PGM  ON PGM.EmployeeId = EEI.SystemId  left join
 							  HKP.PayrollGroup PG  ON PGM.PayrollGroupId = PG.Id  ) AS K
-							ORDER BY sequence";
+							ORDER BY UserName,Sequence";
                 }
                 else
                 {
                     strSQL = @"SELECT HPG.Id, HPG.UserName 
                             FROM HKP.PayrollGroup HPG
-                            WHERE Id IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup WHERE UserId = '" + userId + @"') ORDER BY HPG.Sequence";
+                            WHERE Id IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup WHERE UserId = '" + userId + @"') ORDER BY HPG.UserName,HPG.Sequence";
                 }
 
                 return _sqlRepository.GetCombo(strSQL, "Id", "UserName");
