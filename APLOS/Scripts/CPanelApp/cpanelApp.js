@@ -91,6 +91,7 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .controller('EmployeeCodeGenerationController', EmployeeCodeGenerationController)
     .controller('WeekDefinitionController', WeekDefinitionController)
     .controller('EmployeeCodeTypeController', EmployeeCodeTypeController)
+    .controller('contractFundUtilizationController', contractFundUtilizationController)
 
     .config(HumanResourceConfig)
     .config(accountConfig)
@@ -104,6 +105,7 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .config(SetupConfig)
     .config(LogsConfig)
     .config(employeeConfig)
+    .config(CommercialConfig)
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function cpanelConfig($routeProvider, $locationProvider, $httpProvider) {
         $httpProvider.interceptors.push('errorInterceptor');
         $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';

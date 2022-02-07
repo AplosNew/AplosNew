@@ -4,7 +4,7 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
     $rootScope.title = 'Fund';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'Commercial/LCFundUtilization/';
+    $scope.path = 'Commercial/ContractFundUtilization/';
     $scope.getFundUtilizationListUrl = $scope.path + 'GetFundUtilizationList';
     $scope.getBuyerDeductionListUrl = $scope.path + 'GetBuyerDeductionList';
     $scope.saveUrl = $scope.path + 'Create';
@@ -16,7 +16,7 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
     $scope.searchByList = [{ value: 'FundUtilization', name: "FundUtilization" }, { value: 'FundUtilizationText', name: "FundUtilization Text" }];
 
     $scope.ModelTemp = {
-        FundUtilization: null, FundUtilizationText: null, Percentage: null, CurrencyId: null, UtilizationSourceType: null
+        Id: null, Sequence: null, StandardName: null, UserName: null, CommisssionCharge: null, AllowedExcessVariation: null, AllowedLessVariation: null, Remarks: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -33,12 +33,12 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
         $scope.getFundUtilizationData();
     });
 
-    $scope.buyerDeductionList = [];
-    cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
-        $scope.buyerDeductionList = result;
+    //$scope.buyerDeductionList = [];
+    //cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
+    //    $scope.buyerDeductionList = result;
 
-        $scope.getBuyerDeductionData();
-    });
+    //    $scope.getBuyerDeductionData();
+    //});
 
     $scope.getFundUtilizationData = function () {
         $http({
@@ -53,9 +53,15 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
                     for (var j = 0; j < $scope.fundUtilizationList.length; j++) {
                         if ($scope.ModelList[i].FundUtilization == $scope.fundUtilizationList[j].Text) {
 
-                            $scope.fundUtilizationList[j].FundUtilizationText = $scope.ModelList[i].FundUtilizationText;
-                            $scope.fundUtilizationList[j].Percentage = $scope.ModelList[i].Percentage;
-                            $scope.fundUtilizationList[j].CurrencyId = $scope.ModelList[i].CurrencyId;
+                            $scope.fundUtilizationList[j].Id = $scope.ModelList[i].Text;
+                            $scope.fundUtilizationList[j].Sequence = i;
+                            $scope.fundUtilizationList[j].StandardName = $scope.ModelList[i].StandardName;
+                            $scope.fundUtilizationList[j].UserName = $scope.ModelList[i].UserName;
+                            $scope.fundUtilizationList[j].BusinessDevelopmentCharge = $scope.ModelList[i].BusinessDevelopmentCharge;
+                            $scope.fundUtilizationList[j].AllowedExcessVariation = $scope.ModelList[i].AllowedExcessVariation;
+                            $scope.fundUtilizationList[j].AllowedLessVariation = $scope.ModelList[i].AllowedLessVariation;
+                            $scope.fundUtilizationList[j].Remarks = $scope.ModelList[i].Remarks;
+                            $scope.fundUtilizationList[j].Active = $scope.ModelList[i].Active;
                         }
                     }
                 }
