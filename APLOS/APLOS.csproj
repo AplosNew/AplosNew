@@ -3974,6 +3974,7 @@
     <Content Include="Areas\HumanResource\Views\PerformancePeriod\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\EmployeeTotalAdvanceWriteOff.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\MeetingPoints\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\_EmployeeTotalAdvancePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

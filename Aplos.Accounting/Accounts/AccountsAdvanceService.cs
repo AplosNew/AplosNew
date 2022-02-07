@@ -78,52 +78,20 @@ namespace Library.Accounting.Accounts
         public GridModel EmployeeTotalAdvanceQuery(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT * FROM 
-(SELECT AD.CompanyId, AD.PlantId
---, AM.PartyId, AM.PartyPlantId, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId, VD.EntityId
-								, EN.UserName AS EntityName, AD.CurrencyId, C.Code AS CurrencyCode
-								--, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
-								, AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-								--, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
-        --                        , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration
+(SELECT AD.CompanyId, AD.PlantId,AD.CurrencyId, C.Code AS CurrencyCode, GL.GLGeneralInfoId AS GLGeneralInfoId, AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+								, GL.BudgetMasterId, GL.ActivityId
 								, SUM(AD.Amount) AS Receivable, ISNULL((select SUM(Amount)WrittenOffAmount 
-								from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId),0)  AS Received--, 0 DrAmount, 0 CrAmount
+								from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId),0)  AS Received
                                 , SUM(AD.Amount)-ISNULL((select SUM(Amount)WrittenOffAmount 
 								from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId),0) AS Balance
-								--, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId
-        --                        , GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion, HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
                                 FROM TRN.EmployeeSubsequentTransaction AS AD
                                 INNER JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AD.EmployeeId
-                                --LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=AD.GLGeneralInfoId
-                                --LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=AD.BudgetMasterId
-                                --LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
-                                --LEFT JOIN [HKP].[Activity] AS A ON A.Id=AD.ActivityId
+								LEFT JOIN (select EmployeeId,GLGeneralInfoId,BudgetMasterId,ActivityId from [TRN].[AdvanceDetail] 
+								            where EmployeeId is not null  group by EmployeeId,GLGeneralInfoId,BudgetMasterId,ActivityId) GL ON GL.EmployeeId=AD.EmployeeId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=AD.CurrencyId
-                                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AD.EntityId
-                                --LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
-								--LEFT JOIN (
-								--    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-								--    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-								--    FROM [TRN].[VoucherDetailCurrency] AS VDC
-								--    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-								--    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20171'
-							 --   ) AS CC ON CC.VoucherDetailId=VD.Id
-							    --LEFT JOIN (
-							    --    SELECT VDC.ParallelCurrencyId AS CompanyGroupCurrencyId, VDC.FromCurrencyId AS CompanyGroupFromCurrencyId, VDC.ToCurrencyId,
-								   -- VDC.ToCurrencyRate AS CompanyGroupCurrencyRate, VDC.ToCurrencyConversion AS CompanyGroupCurrencyConversion, VDC.CrAmount AS CompanyGroupCurrencyAmount, VDC.VoucherDetailId
-								   -- FROM [TRN].[VoucherDetailCurrency] AS VDC
-								   -- JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-								   -- WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='C20171'
-							    --) AS GC ON GC.VoucherDetailId=VD.Id
-							    --LEFT JOIN (
-								   -- SELECT VDC.ParallelCurrencyId AS HardCurrencyId, VDC.FromCurrencyId AS HardFromCurrencyId, VDC.ToCurrencyId,
-								   -- VDC.ToCurrencyRate AS HardCurrencyRate, VDC.ToCurrencyConversion AS HardCurrencyConversion, VDC.CrAmount AS HardCurrencyAmount, VDC.VoucherDetailId
-								   -- FROM [TRN].[VoucherDetailCurrency] AS VDC
-								   -- JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-								   -- WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId='C20171'
-							    --) AS HC ON HC.VoucherDetailId=VD.Id
                                 WHERE  AD.CompanyGroupId='" + companyGroupId + @"' AND AD.CompanyId='" + companyId + @"' AND AD.PlantId='" + plantId + @"' AND AD.EmployeeId<>'' AND ISNULL(AD.AdvanceId,'') <>'' 
                                 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND ISNULL(AD.JournalType,'')<>'Salary'
-                                GROUP BY AD.CompanyId, AD.PlantId, EN.UserName, AD.CurrencyId, C.Code , AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName)X
+                                GROUP BY AD.CompanyId, AD.PlantId, AD.CurrencyId, C.Code , AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName, GL.GLGeneralInfoId, GL.BudgetMasterId, GL.ActivityId)X
                                 WHERE X.Balance > 0 ";
             return _sqlRepository.GetGridData(parameters);
         }
