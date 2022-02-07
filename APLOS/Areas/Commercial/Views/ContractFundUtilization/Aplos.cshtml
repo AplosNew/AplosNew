@@ -22,24 +22,26 @@
                     <tbody>
                         <tr ng-repeat="x in fundUtilizationList">
                             <td>{{x.Text}}</td>
-                            <td><input type="text" class="form-control" ng-model="x.Sequence"></td>
-                            <td><input type="text" class="form-control" ng-model="x.StandardName"></td>
-                            <td><input type="text" class="form-control" ng-model="x.UserName"></td>
+                            <td><input type="text" n-Decimals="2" class="form-control" ng-model="x.Sequence"></td>
+                            <td><input type="text" class="form-control" ng-model="x.StandardName" maxlength="50"></td>
+                            <td><input type="text" class="form-control" ng-model="x.UserName" maxlength="50"></td>
                             <td>
                                 <div class="radio">
                                     <label>
-                                        <input type="radio" name="CommisssionCharge" ng-model="x.BusinessDevelopmentCharge" value="Percentage">
+                                        <input type="radio" name="{{x.Text+x.CommisssionCharge}}" ng-model="x.CommisssionCharge" value="Percentage">
                                         <span class="cr"><i class="cr-icon"></i></span>Percentage
                                     </label>
                                     <label>
-                                        <input type="radio" name="CommisssionCharge" ng-model="x.BusinessDevelopmentCharge" value="Fixed">
-                                        <span class="cr"><i class="cr-icon"></i></span>Fix
+                                        <input type="radio" name="{{x.Text+x.CommisssionCharge}}" ng-model="x.CommisssionCharge" value="Fixed">
+                                        <span class="cr"><i class="cr-icon"></i></span>Fixed
                                     </label>
                                 </div>
+                                @*<input type="radio" name="{{x.Text+x.CommisssionCharge}}" ng-model="x.CommisssionCharge" value="Percentage"> Percentage
+                                    <input type="radio" name="{{x.Text+x.CommisssionCharge}}" ng-model="x.CommisssionCharge" value="Fixed"> Fixed*@
                             </td>
-                            <td><input type="text" class="form-control" ng-model="x.AllowedExcessVariation"></td>
-                            <td><input type="text" class="form-control" ng-model="x.AllowedLessVariation"></td>
-                            <td><input type="text" class="form-control" ng-model="x.Remarks"></td>
+                            <td><input type="text" class="form-control" ng-model="x.AllowedExcessVariation" only-numbers></td>
+                            <td><input type="text" class="form-control" ng-model="x.AllowedLessVariation" only-numbers></td>
+                            <td><input type="text" class="form-control" ng-model="x.Remarks" maxlength="250"></td>
                             <td>
                                 <div class="checkbox-site">
                                     <label>

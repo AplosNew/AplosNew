@@ -57,13 +57,27 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
                             $scope.fundUtilizationList[j].Sequence = i;
                             $scope.fundUtilizationList[j].StandardName = $scope.ModelList[i].StandardName;
                             $scope.fundUtilizationList[j].UserName = $scope.ModelList[i].UserName;
-                            $scope.fundUtilizationList[j].BusinessDevelopmentCharge = $scope.ModelList[i].BusinessDevelopmentCharge;
+                            $scope.fundUtilizationList[j].CommisssionCharge = $scope.ModelList[i].CommisssionCharge;
                             $scope.fundUtilizationList[j].AllowedExcessVariation = $scope.ModelList[i].AllowedExcessVariation;
                             $scope.fundUtilizationList[j].AllowedLessVariation = $scope.ModelList[i].AllowedLessVariation;
                             $scope.fundUtilizationList[j].Remarks = $scope.ModelList[i].Remarks;
                             $scope.fundUtilizationList[j].Active = $scope.ModelList[i].Active;
                         }
                     }
+                }
+            }
+            else {
+                for (var j = 0; j < $scope.fundUtilizationList.length; j++) {
+
+                    $scope.fundUtilizationList[j].Id = $scope.fundUtilizationList[j].Text;
+                    $scope.fundUtilizationList[j].Sequence = j+1;
+                    $scope.fundUtilizationList[j].StandardName = null;
+                    $scope.fundUtilizationList[j].UserName = null;
+                    $scope.fundUtilizationList[j].CommisssionCharge = 'Percentage';
+                    $scope.fundUtilizationList[j].AllowedExcessVariation = null;
+                    $scope.fundUtilizationList[j].AllowedLessVariation = null;
+                    $scope.fundUtilizationList[j].Remarks = null;
+                    $scope.fundUtilizationList[j].Active = true;
                 }
             }
         });
@@ -89,7 +103,7 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
                         }
                     }
                 }
-               
+
             }
         });
     };
@@ -115,22 +129,10 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.ModelNewForm1.$valid) {
 
-                for (var i = 0; i < $scope.fundUtilizationList.length; i++) {
-                    if (baseService.isUndefinedOrNull($scope.fundUtilizationList[i].FundUtilizationText)) {
-                        throw "Fund Utilization text is required.";
-                    }
-
-                }
-
-                for (var i = 0; i < $scope.fundUtilizationList.length; i++) {
-                    $scope.fundUtilizationList[i].FundUtilization = $scope.fundUtilizationList[i].Text;
-                    $scope.saveList.push($scope.fundUtilizationList[i]);
-                }
-
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'data': $scope.saveList },
+                    data: { 'data': $scope.fundUtilizationList },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
