@@ -21,14 +21,14 @@ using System.Web.Mvc;
 
 namespace Aplos.Areas.Commercial.Controllers
 {
-    public class LCFundUtilizationController : BaseController
+    public class ContractFundUtilizationController : BaseController
     {
-        string TableName = "dbo.LCFundUtilization";
+        string TableName = "dbo.ContractFundUtilization";
 
         #region Constructor
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
-        public LCFundUtilizationController(IUnitOfWork U, ISqlRepository R)
+        public ContractFundUtilizationController(IUnitOfWork U, ISqlRepository R)
         {
             _unitOfWork = U;
             _sqlRepository = R;
@@ -46,17 +46,17 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpPost, Authorize]
         public ActionResult GetFundUtilizationList(string column, string value)
         {
-            
-            string sql = @"SELECT * FROM " + TableName + " WHERE UtilizationSourceType='"+ UtilizationSourceType.FundUtilization + "'";
+
+            string sql = @"SELECT * FROM " + TableName + " order by Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
 
-        [HttpPost,Authorize]
-        public ActionResult GetBuyerDeductionList(string column, string value)
+        [HttpGet, Authorize]
+        public ActionResult GetCbo()
         {
 
-            string sql = @"SELECT * FROM " + TableName + " WHERE UtilizationSourceType='" + UtilizationSourceType.BuyerDeduction + "'";
+            string sql = @"SELECT * FROM dbo.ContractFundUtilization  Where Active=1 order by Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -69,7 +69,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(IEnumerable<LCFundUtilization> data)
+        public ActionResult Create(List<Dictionary<string, object>> data)
         {
             try
             {
@@ -81,58 +81,40 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Error = true, ex.Message });
             }
         }
-        private void SaveFundUtilizationData(IEnumerable<LCFundUtilization> data)
+        private void SaveFundUtilizationData(List<Dictionary<string, object>> data)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
                 if (data != null)
                 {
-                    ConnectionManager.DAL.ConManager objCon;
                     DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ContractFundUtilization", out dsMaster, false, "1");
+
                     foreach (var item in data)
                     {
-                        string sql = "SELECT * FROM "+TableName+ " WHERE FundUtilization='" + item.FundUtilization + "'";
-                        objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
 
-
-                        if (dsMaster.Tables[0].Rows.Count == 0)
+                        if (dv.Count == 0)
                         {
-                            DataRow dr = dsMaster.Tables[0].NewRow();
 
-                            dr["UtilizationSourceType"] = UtilizationSourceType.FundUtilization;
-                            dr["FundUtilization"] = item.FundUtilization;
-                            dr["FundUtilizationText"] = item.FundUtilizationText;
-                            dr["Percentage"] =item.Percentage;
-                            dr["CurrencyId"] = item.CurrencyId;
-                            dr["AddedBy"] = identity.Name;
-                            dr["AddedDate"] = DateTime.Now;
-                            dr["AddedFromIP"] = identity.IPAddress;
-
-                            dsMaster.Tables[0].Rows.Add(dr);
+                            AddNewRow(dsMaster.Tables[0], item);
                         }
                         else
                         {
-                            //edit
-                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-
-                            dr.BeginEdit();
-                            dr["UtilizationSourceType"] = UtilizationSourceType.FundUtilization;
-                            dr["FundUtilization"] = item.FundUtilization;
-                            dr["FundUtilizationText"] = item.FundUtilizationText;
-                            dr["Percentage"] = item.Percentage;
-                            dr["CurrencyId"] = item.CurrencyId;
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = DateTime.Now;
-                            dr["UpdatedFromIP"] = identity.IPAddress;
-
-                            dr.EndEdit();
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
                         }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsMaster);
                     }
+
+                   
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
                 }
+
+
+
             }
             catch (Exception ex)
             {
@@ -214,27 +196,27 @@ namespace Aplos.Areas.Commercial.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from '"+TableName+"' where Id = '"+ id + "'";
-                try
-                {
-                    if (string.IsNullOrEmpty(id))
-                        throw new Exception("Select entry first");
+            string sql = @"select * from '" + TableName + "' where Id = '" + id + "'";
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
 
-                    ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                    con.BeginTransaction();
-                    con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                    con.CommitTransaction();
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
 
-                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
-                }
-                catch (Exception ex)
-                {
+            }
+            catch (Exception ex)
+            {
 
-                    return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
 
-                }
-            
+            }
+
 
         }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -256,7 +238,7 @@ namespace Aplos.Areas.Commercial.Controllers
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            
+
             dt.Rows.Add(dr);
         }
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
@@ -281,7 +263,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
             dr.EndEdit();
         }
-        
+
     }
 
     public class LCFundUtilization

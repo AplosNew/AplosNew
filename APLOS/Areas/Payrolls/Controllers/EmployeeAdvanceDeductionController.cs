@@ -96,7 +96,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     left join EmployeeInformation e on e.SystemId=a.EmployeeId and e.SystemId=esa.EmployeeId
                                     left join [TRN].[EmployeeAdvanceDeduction] ead on ead.EmployeeId = a.EmployeeId and ead.AdvanceId = a.Id and ead.YearNo='" + Year + @"' and ead.MonthNo='" + Month + @"'
                                     where ars.YearNo='" + Year + "' and ars.MonthNo='" + Month + "' and a.EmployeeId<>'' and a.PlantId='" + plantId + @"'
-                                    and a.JournalType = 'Salary' order by a.EmployeeId";
+                                    and a.JournalType = 'Salary' and ISNULL(a.Amount,0)-ISNULL(a.WrittenOffAmount,0)>0  order by a.EmployeeId";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)

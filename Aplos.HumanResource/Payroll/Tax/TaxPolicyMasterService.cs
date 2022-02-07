@@ -10,13 +10,15 @@ using Library.Data;
 using Library.Service.Enums;
 using Library.Service.Logs;
 using System.Reflection;
+using System.Linq;
+using System.Text;
 
 namespace Library.HumanResource.Payroll.Tax
-{ 
+{
     public class TaxPolicyMasterService
     {
         #region Constructor 
-        
+
         ISqlRepository _sqlRepository;
         public TaxPolicyMasterService()
         {
@@ -69,7 +71,7 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region PlantChild Functions
-      
+
         public IEnumerable<object> getChildData(string MasterId)
         {
             try
@@ -100,7 +102,7 @@ namespace Library.HumanResource.Payroll.Tax
                     clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    Child["Id"] = "TPC"+_Id;
+                    Child["Id"] = "TPC" + _Id;
                     AddNewRow(dsMaster.Tables[0], Child);
                 }
                 else
@@ -119,7 +121,7 @@ namespace Library.HumanResource.Payroll.Tax
                 throw e;
             }
         }
-      
+
         public string DeleteChild(string id)
         {
             try
@@ -143,7 +145,7 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
-         
+
         #region Header Functions
         public double GetSequence()
         {
@@ -207,7 +209,7 @@ namespace Library.HumanResource.Payroll.Tax
                     clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    Header["Id"] = "TH"+_Id;
+                    Header["Id"] = "TH" + _Id;
                     AddNewRow(dsMaster.Tables[0], Header);
                 }
                 else
@@ -246,7 +248,7 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 var str = @"Select tc.*,sc.SalaryHead from dbo.taxEarningMasterChild TC LEFT JOIN salaryhead sc
                 on sc.SalaryHeadID=tc.SalaryHeadId
-                where TaxPolicyHeaderId ='"+Id+"'";
+                where TaxPolicyHeaderId ='" + Id + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -267,7 +269,7 @@ namespace Library.HumanResource.Payroll.Tax
                 throw e;
             }
         }
-       
+
         public Dictionary<string, object> SaveEarningMasterChild(Dictionary<string, object> Header)
         {
             try
@@ -298,7 +300,7 @@ namespace Library.HumanResource.Payroll.Tax
                     clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    Header["Id"] ="TMC"+ _Id;
+                    Header["Id"] = "TMC" + _Id;
                     AddNewRow(dsMaster.Tables[0], Header);
                 }
                 else
@@ -365,7 +367,7 @@ namespace Library.HumanResource.Payroll.Tax
                 GetTaxPolicyGeneralFormula(ExemptionFormula.Id, out dsFormula);
                 _TaxGeneralFormula(ref dsFormula, ExemptionFormula);
                 GetTaxPolicyFormulaDetail(ExemptionFormula.Id, out dsFormulaDetail);
-              
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 DataRow drF;
@@ -485,7 +487,7 @@ namespace Library.HumanResource.Payroll.Tax
             catch (Exception ex)
             {
                 throw (ex);
-            }            
+            }
         }
         public void DeleteFormula(string ID)
         {
@@ -586,7 +588,7 @@ namespace Library.HumanResource.Payroll.Tax
 								left join hkp.TaxSavingGroup tg on tg.Id = itm.TaxSavingGroupId
 								left join TaxPolicyHeader h on h.Id=itm.TaxPolicyHeaderId
                                 left join dbo.TaxType ty on ty.Id = itm.TaxTypeId
-                                where h.Id='" + HeaderId+"' order by tg.[Sequence]";
+                                where h.Id='" + HeaderId + "' order by tg.[Sequence]";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -601,7 +603,7 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 string sql = @"Select tc.* ,ti.UserName as TaxSavingItem from dbo.IncomeTaxItemChild tc
                                 left join hkp.TaxSavingItem ti on ti.Id = tc.TaxSavingItemId
-                                where tc.IncomeTaxItemMasterId = '"+id+"' order by tc.Sequence";
+                                where tc.IncomeTaxItemMasterId = '" + id + "' order by tc.Sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -610,7 +612,7 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
         #endregion
-      
+
         #region Saving Functions
         public Dictionary<string, object> Create(Dictionary<string, object> dataMaster)
         {
@@ -696,7 +698,7 @@ namespace Library.HumanResource.Payroll.Tax
                     clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    dataChild["Id"] = "ITC"+_Id;
+                    dataChild["Id"] = "ITC" + _Id;
                     AddNewRow(dsChild.Tables[0], dataChild);
                 }
                 else
@@ -734,7 +736,7 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 var str = @"select th.HeaderId,th.Id,st.TaxYearName,st.StartDate,st.EndDate,st.TaxYearCode,th.TaxYearId
                 from TaxYearHeaderTagging th left join [SCS].[TaxYear] st on st.id=th.taxyearid
-                where th.headerId='" + Id+ "'ORDER BY st.StartDate asc";
+                where th.headerId='" + Id + "'ORDER BY st.StartDate asc";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -761,7 +763,7 @@ namespace Library.HumanResource.Payroll.Tax
                 string TableName = "dbo.TaxYearHeaderTagging";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId ='" + TaxYearData["HeaderId"] + "' and TaxYearId='"+ TaxYearData["TaxYearId"] +"'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId ='" + TaxYearData["HeaderId"] + "' and TaxYearId='" + TaxYearData["TaxYearId"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -774,7 +776,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                     TaxYearData["Id"] = "THT" + _Id;
                     AddNewRow(dsMaster.Tables[0], TaxYearData);
-                }              
+                }
                 else
                 {
                     throw new Exception("Already Same Tax Year is Present!");
@@ -798,10 +800,10 @@ namespace Library.HumanResource.Payroll.Tax
         public IEnumerable<object> GetSlabInfo(string PolicyId)
         {
             try
-            {                
+            {
                 string strSQL = @"select si.* from TaxPolicySlabInfo si 
                 left join TaxPolicyHeader th on th.Id=si.PolicyId
-                where th.Id='"+PolicyId+"'";
+                where th.Id='" + PolicyId + "'";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -809,7 +811,7 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
-   
+
         #endregion
 
     }
@@ -853,7 +855,7 @@ namespace Library.HumanResource.Payroll.Tax
     public class EmployeeIncomeTaxService
     {
         #region Constructor 
-       
+
         ISqlRepository _sqlRepository;
         TaxPolicyMasterService _tax = new TaxPolicyMasterService();
         public EmployeeIncomeTaxService()
@@ -915,17 +917,17 @@ namespace Library.HumanResource.Payroll.Tax
 
         }
 
-        public IEnumerable<object> GetTaxPolicy(string Residence,string YearId,string Gender)
+        public IEnumerable<object> GetTaxPolicy(string Residence, string YearId, string Gender)
         {
             try
             {
-                string MValue="", FValue="";
-                if(Gender=="Male" || Gender=="M")
+                string MValue = "", FValue = "";
+                if (Gender == "Male" || Gender == "M")
                 {
                     MValue = "1";
                     FValue = "0";
                 }
-                else if(Gender == "Female" || Gender == "F")
+                else if (Gender == "Female" || Gender == "F")
                 {
                     FValue = "1";
                     MValue = "0";
@@ -937,9 +939,9 @@ namespace Library.HumanResource.Payroll.Tax
                 from TaxPolicyHeader th left join 
                 TaxYearHeaderTagging tht on tht.HeaderId=th.Id
                 left join scs.TaxYear ty on ty.Id=tht.TaxYearId
-                where th.CityOfResidence='" + Residence+@"' and th.Male='"+MValue+@"'
-                and th.Female='"+FValue+"' and ty.Id='"+YearId+"'";
-                
+                where th.CityOfResidence='" + Residence + @"' and th.Male='" + MValue + @"'
+                and th.Female='" + FValue + "' and ty.Id='" + YearId + "'";
+
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -948,7 +950,7 @@ namespace Library.HumanResource.Payroll.Tax
             }
 
         }
-         
+
         #endregion
 
         #region Investment/Deduction Tab Functions 
@@ -965,16 +967,16 @@ namespace Library.HumanResource.Payroll.Tax
             catch (Exception ex)
             {
                 throw (ex);
-            }          
+            }
         }
-        public void GetCheckParam(string EmpId,string PolicyId, out DataSet dsRef)
+        public void GetCheckParam(string EmpId, string PolicyId, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
                 strSQL = "select * from EmployeeIncomeTaxMaster" +
-                    " where EmpSystemId='"+EmpId+"' and TaxPolicyHeaderId = '"+PolicyId+"'";
+                    " where EmpSystemId='" + EmpId + "' and TaxPolicyHeaderId = '" + PolicyId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
@@ -983,7 +985,7 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
-        public IEnumerable<object> InvestDeductGridData(string PolicyHeaderId,string EmpSystemId)
+        public IEnumerable<object> InvestDeductGridData(string PolicyHeaderId, string EmpSystemId)
         {
             try
             {
@@ -991,7 +993,7 @@ namespace Library.HumanResource.Payroll.Tax
                 GetCheckParam(EmpSystemId, PolicyHeaderId, out DataSet dsRef);
                 if (dsRef.Tables[0].Rows.Count > 0)
                 {
-                    
+
                     sql = @"select eid.Id,eid.FileName,itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
                     it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
                     eid.ActualValue,eid.UserValue,eid.EmployeeIncomeTaxId,itc.DocumentApplicable,
@@ -1029,7 +1031,7 @@ namespace Library.HumanResource.Payroll.Tax
             try
             {
                 string sql = @"select FileName from InvestDeductDocumentInfo
-                where InvestmentDeductionId='"+Id+"'";
+                where InvestmentDeductionId='" + Id + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1079,7 +1081,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                 #region Child Saving
 
-                GetInvDetailsForSaving(MasterId, out DataSet dsChild);               
+                GetInvDetailsForSaving(MasterId, out DataSet dsChild);
                 if (data != null)
                 {
                     decimal GroupLimit = 0, SumofItems = 0;
@@ -1090,11 +1092,11 @@ namespace Library.HumanResource.Payroll.Tax
                         dsChild.Tables[0].DefaultView.RowFilter = @"IncomeTaxItemChildId='" + item.IncomeTaxItemChildId + "' ";
                         if (dsChild.Tables[0].DefaultView.Count == 0)
                         {
-                            DataRow drF = dsChild.Tables[0].NewRow();                            
+                            DataRow drF = dsChild.Tables[0].NewRow();
                             clsGenID genid = new clsGenID();
                             genid.GenID("EmployeeInvestmentDeduction", out string _pk);
-                            
-                            drF["Id"] = "EID"+_pk;
+
+                            drF["Id"] = "EID" + _pk;
                             drF["EmployeeIncomeTaxId"] = MasterId;
                             drF["ActualValue"] = item.ActualValue;
                             drF["UserValue"] = item.UserValue;
@@ -1102,7 +1104,7 @@ namespace Library.HumanResource.Payroll.Tax
                             drF["AddedBy"] = identity.Name;
                             drF["AddedFromIp"] = identity.IPAddress;
                             drF["AddedDate"] = DateTime.Now.ToString();
-                            
+
                             SumofItems += item.UserValue;
                             GroupLimit = item.SavingGpLimit;
                             dsChild.Tables[0].Rows.Add(drF);
@@ -1127,7 +1129,7 @@ namespace Library.HumanResource.Payroll.Tax
                     }
                     _info.SaveDataSets(dsChild);
                 }
-                
+
                 #endregion
             }
             catch (Exception ex)
@@ -1176,7 +1178,7 @@ namespace Library.HumanResource.Payroll.Tax
                 GetEarningDetailsForSaving(MasterId, out DataSet dsChild);
                 if (data != null)
                 {
-                 
+
                     foreach (var item in data)
                     {
                         decimal GrossEarnedValue = item.StructureValue + item.ArrearValue + item.OpeningValue + item.ActualValue;
@@ -1203,7 +1205,7 @@ namespace Library.HumanResource.Payroll.Tax
                         }
                         else
                         {
-                           
+
                             DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
 
@@ -1222,6 +1224,9 @@ namespace Library.HumanResource.Payroll.Tax
                 }
 
                 #endregion
+
+                ProcessingFunction(dataMaster["EmpSystemId"].ToString(), dataMaster["TaxPolicyHeaderId"].ToString(), dataMaster["TaxYearId"].ToString());
+
             }
             catch (Exception ex)
             {
@@ -1232,38 +1237,37 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region Earning Tab Functions
-        public IEnumerable<object> EarningGridData(string PolicyId, string EmpId,string StartDate,string ToDate,string YearId)
+        public IEnumerable<object> EarningGridData(string PolicyId, string EmpId, string StartDate, string ToDate, string YearId)
         {
             try
             {
-                string sql = @"declare @StartDate as DATE ='"+StartDate+@"',
-                            @EndDate as DATE='"+ToDate+@"';	
+                string sql = @"declare @StartDate as DATE ='" + StartDate + @"',
+                            @EndDate as DATE='" + ToDate + @"';	
 
                 select dd.EarningMasterId,dd.SalaryHeadId,dd.SalaryHead,
                 dd.LastCalculatedDate,isnull(dd.OpeningValue,'0')OpeningValue,
                 dd.ActualValue,dd.ArrearValue,dd.Rem_Months,
-                isnull((dd.DefineAmount*dd.Rem_Months),'0') as StructureValue,
-                dd.DeductionDone
+                isnull((dd.DefineAmount*dd.Rem_Months),'0') as StructureValue                
                 from (
                 select distinct tem.Id as EarningMasterId,tem.SalaryHeadID,
                 sh.SalaryHead, 
 				(select top 1 todate from SalaryProcMaster sl join SalaryProcChild sc
 			     on sc.SlrProcMstSystemID=sl.SystemID
-			     where EmpInfoSystemID='"+EmpId+@"'  
+			     where EmpInfoSystemID='" + EmpId + @"'  
 			      and sl.FromDate>=@StartDate and sl.ToDate<=@EndDate
 			     order by todate desc)as LastCalculatedDate,
 				
 				(select ed.OpeningValue from  EmployeeEarningData ed  left join  
 				EmployeeIncomeTaxMaster eim on eim.Id=ed.EmployeeIncomeTaxId
-				where eim.EmpSystemId='"+EmpId+@"' and ed.EarningMasterId=tem.Id
-				and eim.TaxPolicyHeaderId='"+PolicyId+@"' AND EIM.TaxYearId='"+YearId+@"'
+				where eim.EmpSystemId='" + EmpId + @"' and ed.EarningMasterId=tem.Id
+				and eim.TaxPolicyHeaderId='" + PolicyId + @"' AND EIM.TaxYearId='" + YearId + @"'
                 )as OpeningValue,
 
 				--- Actual Value
 				(select sum(procx.DisbusmentAmount) from 
 				 salaryprocchild procx
 				 join SalaryProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
-				 where EmpInfoSystemID='"+EmpId+@"' and salaryheadid=spc.SalaryHeadID
+				 where EmpInfoSystemID='" + EmpId + @"' and salaryheadid=spc.SalaryHeadID
 				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate
 				 group by procx.SalaryHeadID 
 				 ) as ActualValue,
@@ -1272,7 +1276,7 @@ namespace Library.HumanResource.Payroll.Tax
 			     ArrearValue=isnull((select sum(procx.Diff) from 
 				 ArrearProcChild procx
 				 join ArrearProcMaster slr on slr.SystemID=procx.SlrProcMstSystemID
-				 where EmpInfoSystemID='"+EmpId+@"' and salaryheadid=apc.SalaryHeadID
+				 where EmpInfoSystemID='" + EmpId + @"' and salaryheadid=apc.SalaryHeadID
 				 and slr.FromDate>=@StartDate and slr.ToDate<=@EndDate
 				 group by procx.SalaryHeadID 
 				 ),'0'),	
@@ -1281,7 +1285,7 @@ namespace Library.HumanResource.Payroll.Tax
 				(datediff(DAY,
 				(select top 1 todate from SalaryProcMaster sl join SalaryProcChild sc
 			     on sc.SlrProcMstSystemID=sl.SystemID
-			     where EmpInfoSystemID='"+EmpId+@"'  
+			     where EmpInfoSystemID='" + EmpId + @"'  
 			     and sl.FromDate>=@StartDate and sl.ToDate<=@EndDate
 			     order by todate desc),@EndDate)/30) As Rem_Months,
 				 Structure.DefineAmount
@@ -1301,18 +1305,18 @@ namespace Library.HumanResource.Payroll.Tax
 				sd.SalaryID=sdm.SystemID
 				join SalaryHead sh on sh.SalaryHeadID=sd.SalaryHeadID
 				join TaxEarningMasterChild tem on tem.SalaryHeadId=sh.SalaryHeadID				
-				 where EmpInfoSystemID='"+EmpId+@"'  and sh.HeadType='E'
-				and tem.TaxPolicyHeaderId='"+PolicyId+@"'			
+				 where EmpInfoSystemID='" + EmpId + @"'  and sh.HeadType='E'
+				and tem.TaxPolicyHeaderId='" + PolicyId + @"'			
 				) as Structure on Structure.SalaryHeadID=tem.SalaryHeadId
 				and tem.Id=Structure.Id
 
-                where spc.EmpInfoSystemID='"+EmpId+@"'
+                where spc.EmpInfoSystemID='" + EmpId + @"'
 				and sp.FromDate>=@StartDate and sp.ToDate<=@EndDate
                 and apm.FromDate>=@StartDate and apm.ToDate<=@EndDate
-                and tem.TaxPolicyHeaderId='"+PolicyId+@"' and sh.HeadType='E'
+                and tem.TaxPolicyHeaderId='" + PolicyId + @"' and sh.HeadType='E'
                 group by tem.SalaryHeadId,spc.SalaryHeadID,sh.SalaryHead,tem.Id,
 				sp.ToDate,Structure.DefineAmount,apc.SalaryHeadID
-				) as dd";            
+				) as dd";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1337,6 +1341,317 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
+
+        #region Net Earning Tab Functions
+        public DataTable EarningQuery(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                var sql = @"select dd.* 
+                from (
+                select eit.EmpSystemId,sh.SalaryHead ,sh.SalaryHeadId,ed.Id as EarningDataId,
+                tac.Formula , tac.FormulaID,tem.IsLessOrMore,
+                (
+                select replace(tx.FormulaID,Masterx.SalaryHeadID,Masterx.GrossEarning)
+                from TaxExemptionApplicableChild tx
+                left join TaxEarningMasterChild tmc on tmc.Id=tx.TaxEarningMasterChildId
+                where tmc.Id=tem.Id and tx.Id=tac.Id
+                )as ExemptedValue
+
+                from EmployeeEarningData ed
+                left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
+                join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
+                left join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadId
+                right join TaxExemptionApplicableChild tac on tac.TaxEarningMasterChildId = tem.Id
+
+                left join
+                (
+                select tem.SalaryHeadId ,ED.GrossEarning ,eit.EmpSystemId,tem.Id
+                from EmployeeEarningData ed
+                left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
+                join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
+                where eit.EmpSystemId='" + EmpId + @"' and
+                eit.TaxPolicyHeaderId='" + PolicyId + @"' and eit.TaxYearId='" + YearId + @"'
+                )
+                as Masterx on Masterx.EmpSystemId=eit.EmpSystemId
+                where eit.EmpSystemId='" + EmpId + @"' and
+                eit.TaxPolicyHeaderId='" + PolicyId + @"' and eit.TaxYearId='" + YearId + @"' and
+                tem.ExemptionApplicable='1'
+                ) as dd where dd.ExemptedValue NOT Like ('%SH%')
+                order by dd.SalaryHead";
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ProcessingFunction(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                Dictionary<string,List<ExemptionCalcualtionModel>> CalculatedDict =
+                    new Dictionary<string, List<ExemptionCalcualtionModel>>();
+
+                DataTable EarningDt = EarningQuery(EmpId, PolicyId, YearId);
+                if (EarningDt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < EarningDt.Rows.Count; i++)
+                    {
+                        string IsLessOrMore = EarningDt.Rows[i][@"IsLessOrMore"].ToString();
+                        string SalaryHeadId = EarningDt.Rows[i][@"SalaryHeadId"].ToString();
+                        string ExemptedValue = EarningDt.Rows[i][@"ExemptedValue"].ToString();
+                        string EarningDataId= EarningDt.Rows[i][@"EarningDataId"].ToString();
+
+
+                        StringToFormula stf = new StringToFormula();
+                        double result = stf.Eval(ExemptedValue);
+                        double value = 0;
+                        if (result >= 0)
+                        {
+                            value = result;
+                            if (CalculatedDict.ContainsKey(SalaryHeadId))
+                            {
+                                CalculatedDict[SalaryHeadId].Add(new ExemptionCalcualtionModel
+                                {
+                                    ExemptAmt = value,
+                                    LessOrMore = IsLessOrMore,
+                                    EarningDataId=EarningDataId
+                                });
+                            }
+                            else
+                            {
+                                var data = new List<ExemptionCalcualtionModel>();
+                                data.Add(new ExemptionCalcualtionModel
+                                {
+                                    ExemptAmt = value,
+                                    LessOrMore = IsLessOrMore,
+                                    EarningDataId = EarningDataId
+                                });
+                                CalculatedDict.Add(SalaryHeadId, data);
+                            }
+
+                        }
+                    }
+
+                    string strSql = string.Empty;                  
+
+                    foreach (var item in CalculatedDict)
+                    {
+                        List<ExemptionCalcualtionModel> data = item.Value;
+                        if (data == null)
+                        {
+                            continue; 
+                        }
+                        double Amt = 0;
+                        string Parameter=data[0].LessOrMore;
+                        string TableId = data[0].EarningDataId;
+
+                        if (Parameter== "Which Ever Is Less")
+                        {
+                           Amt = data.Min(x => x.ExemptAmt);
+                            if (strSql.Length == 0)
+                            {
+                                strSql = @"UPDATE EmployeeEarningData SET ExemptionAmt='"+Amt+@"'
+                                where id='"+ TableId+"'";
+                            }
+                            else
+                            {
+                                strSql += Environment.NewLine +
+                                    @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='"+ TableId+"'";
+                            }
+                        }
+                        else if(Parameter == "Which Ever Is More")
+                        {
+                            Amt = data.Max(x => x.ExemptAmt);
+                            if (strSql.Length == 0)
+                            {
+                                strSql = @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='"+ TableId+"'";
+                            }
+                            else
+                            {
+                                strSql += Environment.NewLine +
+                                       @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='"+ TableId+"'";
+                            }
+                        }
+                    }
+                    if (strSql.Length > 0)
+                    {
+                        UpdateStatus(strSql); 
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void UpdateStatus(string sql)
+        {
+            bool IsTransactionStarted = false;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                IsTransactionStarted = true;
+                objCon.ExecuteNonQueryWrapper(sql, true, "1");
+                objCon.CommitTransaction();
+                IsTransactionStarted = false;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (IsTransactionStarted)
+                {
+                    objCon.RollBack();
+                }
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }
+
+        #endregion
     }
+
+    public class StringToFormula
+    {
+        private string[] _operators = { "-", "+", "/", "*", "^" };
+        private Func<double, double, double>[] _operations = {
+        (a1, a2) => a1 - a2,
+        (a1, a2) => a1 + a2,
+        (a1, a2) => a1 / a2,
+        (a1, a2) => a1 * a2,
+        (a1, a2) => Math.Pow(a1, a2)
+    };
+
+        public double Eval(string expression)
+        {
+            List<string> tokens = getTokens(expression);
+            Stack<double> operandStack = new Stack<double>();
+            Stack<string> operatorStack = new Stack<string>();
+            int tokenIndex = 0;
+
+            while (tokenIndex < tokens.Count)
+            {
+                string token = tokens[tokenIndex];
+                if (token == "(")
+                {
+                    string subExpr = getSubExpression(tokens, ref tokenIndex);
+                    operandStack.Push(Eval(subExpr));
+                    continue;
+                }
+                if (token == ")")
+                {
+                    throw new ArgumentException("Mis-matched parentheses in expression");
+                }
+                //If this is an operator  
+                if (Array.IndexOf(_operators, token) >= 0)
+                {
+                    while (operatorStack.Count > 0 && Array.IndexOf(_operators, token) < Array.IndexOf(_operators, operatorStack.Peek()))
+                    {
+                        string op = operatorStack.Pop();
+                        double arg2 = operandStack.Pop();
+                        double arg1 = operandStack.Pop();
+                        operandStack.Push(_operations[Array.IndexOf(_operators, op)](arg1, arg2));
+                    }
+                    operatorStack.Push(token);
+                }
+                else
+                {
+                    operandStack.Push(double.Parse(token));
+                }
+                tokenIndex += 1;
+            }
+
+            while (operatorStack.Count > 0)
+            {
+                string op = operatorStack.Pop();
+                double arg2 = operandStack.Pop();
+                double arg1 = operandStack.Pop();
+                operandStack.Push(_operations[Array.IndexOf(_operators, op)](arg1, arg2));
+            }
+            return operandStack.Pop();
+        }
+
+        private string getSubExpression(List<string> tokens, ref int index)
+        {
+            StringBuilder subExpr = new StringBuilder();
+            int parenlevels = 1;
+            index += 1;
+            while (index < tokens.Count && parenlevels > 0)
+            {
+                string token = tokens[index];
+                if (tokens[index] == "(")
+                {
+                    parenlevels += 1;
+                }
+
+                if (tokens[index] == ")")
+                {
+                    parenlevels -= 1;
+                }
+
+                if (parenlevels > 0)
+                {
+                    subExpr.Append(token);
+                }
+
+                index += 1;
+            }
+
+            if ((parenlevels > 0))
+            {
+                throw new ArgumentException("Mis-matched parentheses in expression");
+            }
+            return subExpr.ToString();
+        }
+
+        private List<string> getTokens(string expression)
+        {
+            string operators = "()^*/+-";
+            List<string> tokens = new List<string>();
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char c in expression.Replace(" ", string.Empty))
+            {
+                if (operators.IndexOf(c) >= 0)
+                {
+                    if ((sb.Length > 0))
+                    {
+                        tokens.Add(sb.ToString());
+                        sb.Length = 0;
+                    }
+                    tokens.Add(c.ToString());
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            if ((sb.Length > 0))
+            {
+                tokens.Add(sb.ToString());
+            }
+            return tokens;
+        }
+    }
+
+    public class ExemptionCalcualtionModel
+    {
+        public double ExemptAmt { get; set; }
+        public string LessOrMore { get; set; }
+        public string EarningDataId { get; set; }
+    }
+   
 }
 

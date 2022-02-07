@@ -155,6 +155,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.Get = function (args) {
 
         $scope.fabricRollMaster = Object.assign({}, args.data);
+        console.log($scope.fabricRollMaster);
         //$scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -170,6 +171,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         $scope.getGRNDetail();
     };
     //#endregion Material
+
     //#region grnDetail
     $scope.grnDetailList = [];
     $scope.getGRNDetail = function () {
@@ -858,7 +860,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
                 method: 'POST',
                 url: 'Materials/FabricRoll/GetSampleFile',
                 data: {
-                    'reportFormat': ReportFormat, 'GridTempList': $scope.MaterialGridTempList
+                    'reportFormat': ReportFormat, 'GridTempList': $scope.MaterialGridTempList, 'fabricRollMaster': $scope.fabricRollMaster
                 },
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

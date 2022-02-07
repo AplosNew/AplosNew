@@ -28,8 +28,8 @@ namespace Library.Accounting.Accounts
             parameters.CmdText = @"SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId, VD.EntityId
 								, EN.UserName AS EntityName, AM.CurrencyId, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, AM.EmployeeId, EI.EmployeeCode, EI.EmployeeName
 								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
-                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount AS Received, 0 DrAmount, 0 CrAmount
-                                , AD.Amount-AD.WrittenOffAmount AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId
+                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount+ISNULL(SAVW.SalaryWrittenOffAmount,0) AS Received, 0 DrAmount, 0 CrAmount
+                                , AD.Amount-AD.WrittenOffAmount-ISNULL(SAVW.SalaryWrittenOffAmount,0)AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId
                                 , GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion, HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
                                 FROM [TRN].[AdvanceDetail] AS AD
                                 LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
@@ -43,6 +43,13 @@ namespace Library.Accounting.Accounts
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=AM.CurrencyId
                                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
+								LEFT JOIN (SELECT SUM(ARS.InstallmentAmount)SalaryWrittenOffAmount,ADV.Id AdvanceId
+                                    FROM  [TRN].EmployeeAdvanceDeduction EAD 
+                                    LEFT JOIN dbo.AdvanceReqSchedule  ARS ON EAD.AdvanceReqScheduleId=ARS.Id
+                                    INNER JOIN [TRN].EmployeeSalaryAdvance ESA ON ESA.Id=ARS.EmployeeSalaryAdvanceId
+                                    INNER JOIN [TRN].[Advance] ADV ON ADV.VoucherId=ESA.VoucherId
+                                    LEFT JOIN DBO.SalaryLock SL ON SL.YearNo=ARS.YearNo AND SL.MonthNo=ARS.MonthNo AND SL.EmpSystemId=ESA.EmployeeId AND SL.PayableVoucherId IS NULL
+									GROUP BY ADV.Id) SAVW ON SAVW.AdvanceId=AD.AdvanceId
 								LEFT JOIN (
 								    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
 								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
@@ -66,6 +73,26 @@ namespace Library.Accounting.Accounts
 							    ) AS HC ON HC.VoucherDetailId=VD.Id
                                 WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType in ('EmployeeAdvance','InterTransaction')
                                 AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "' AND AM.EmployeeId<>'' ";
+            return _sqlRepository.GetGridData(parameters);
+        }
+        public GridModel EmployeeTotalAdvanceQuery(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
+        {
+            parameters.CmdText = @"SELECT * FROM 
+(SELECT AD.CompanyId, AD.PlantId,AD.CurrencyId, C.Code AS CurrencyCode, GL.GLGeneralInfoId AS GLGeneralInfoId, AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+								, GL.BudgetMasterId, GL.ActivityId
+								, SUM(AD.Amount) AS Receivable, ISNULL((select SUM(Amount)WrittenOffAmount 
+								from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId),0)  AS Received
+                                , SUM(AD.Amount)-ISNULL((select SUM(Amount)WrittenOffAmount 
+								from TRN.EmployeeSubsequentTransaction where SourceType='EmployeeAdvanceWriteOff' AND  EmployeeId=AD.EmployeeId),0) AS Balance
+                                FROM TRN.EmployeeSubsequentTransaction AS AD
+                                INNER JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AD.EmployeeId
+								LEFT JOIN (select EmployeeId,GLGeneralInfoId,BudgetMasterId,ActivityId from [TRN].[AdvanceDetail] 
+								            where EmployeeId is not null  group by EmployeeId,GLGeneralInfoId,BudgetMasterId,ActivityId) GL ON GL.EmployeeId=AD.EmployeeId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=AD.CurrencyId
+                                WHERE  AD.CompanyGroupId='" + companyGroupId + @"' AND AD.CompanyId='" + companyId + @"' AND AD.PlantId='" + plantId + @"' AND AD.EmployeeId<>'' AND ISNULL(AD.AdvanceId,'') <>'' 
+                                AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND ISNULL(AD.JournalType,'')<>'Salary'
+                                GROUP BY AD.CompanyId, AD.PlantId, AD.CurrencyId, C.Code , AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName, GL.GLGeneralInfoId, GL.BudgetMasterId, GL.ActivityId)X
+                                WHERE X.Balance > 0 ";
             return _sqlRepository.GetGridData(parameters);
         }
         public GridModel GetEmployeeAvilabeAdvanceByIdList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string employeeId, SourceType sourceType)

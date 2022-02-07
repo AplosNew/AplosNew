@@ -4199,7 +4199,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.getFundUtilizationData = function () {
         $http({
             method: 'POST',
-            url: 'Commercial/LCFundUtilization/GetFundUtilizationList',
+            url: 'Commercial/ContractFundUtilization/GetFundUtilizationList',
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -4220,38 +4220,38 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     };
 
-    $scope.buyerDeductionList = [];
-    cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
-        $scope.buyerDeductionList = result;
+    //$scope.buyerDeductionList = [];
+    //cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
+    //    $scope.buyerDeductionList = result;
 
-        $scope.getBuyerDeductionData();
-    });
+    //    $scope.getBuyerDeductionData();
+    //});
 
-    $scope.dataList = [];
-    $scope.getBuyerDeductionData = function () {
-        $http({
-            method: 'POST',
-            url: 'Commercial/LCFundUtilization/GetBuyerDeductionList',
-            data: { column: $scope.searchBy, value: $scope.search },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (baseService.arrayLength(response.data) > 0) {
-                $scope.dataList = response.data;
-                for (var i = 0; i < $scope.dataList.length; i++) {
-                    for (var j = 0; j < $scope.buyerDeductionList.length; j++) {
-                        if ($scope.dataList[i].FundUtilization == $scope.buyerDeductionList[j].Text) {
+    //$scope.dataList = [];
+    //$scope.getBuyerDeductionData = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: 'Commercial/LCFundUtilization/GetBuyerDeductionList',
+    //        data: { column: $scope.searchBy, value: $scope.search },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (baseService.arrayLength(response.data) > 0) {
+    //            $scope.dataList = response.data;
+    //            for (var i = 0; i < $scope.dataList.length; i++) {
+    //                for (var j = 0; j < $scope.buyerDeductionList.length; j++) {
+    //                    if ($scope.dataList[i].FundUtilization == $scope.buyerDeductionList[j].Text) {
 
-                            $scope.buyerDeductionList[j].FundUtilization = $scope.dataList[i].FundUtilization;
-                            $scope.buyerDeductionList[j].FundUtilizationText = $scope.dataList[i].FundUtilizationText;
-                            $scope.buyerDeductionList[j].Percentage = $scope.dataList[i].Percentage;
-                            $scope.buyerDeductionList[j].OldPercentage = $scope.dataList[i].Percentage;
-                            $scope.buyerDeductionList[j].CurrencyId = $scope.dataList[i].CurrencyId;
-                        }
-                    }
-                }
-            }
-        });
-    };
+    //                        $scope.buyerDeductionList[j].FundUtilization = $scope.dataList[i].FundUtilization;
+    //                        $scope.buyerDeductionList[j].FundUtilizationText = $scope.dataList[i].FundUtilizationText;
+    //                        $scope.buyerDeductionList[j].Percentage = $scope.dataList[i].Percentage;
+    //                        $scope.buyerDeductionList[j].OldPercentage = $scope.dataList[i].Percentage;
+    //                        $scope.buyerDeductionList[j].CurrencyId = $scope.dataList[i].CurrencyId;
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    });
+    //};
 
     // #region checkbox all for TermsAndConditions
 

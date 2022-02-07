@@ -43,11 +43,15 @@ namespace Aplos.Areas.Leave.Controllers
         {
             return View();
         }
+        public ActionResult NewSystemEL()
+        {
+            return View();
+        }
 
         #endregion -- Pages
 
-        #region -- Operations
 
+        #region OLD System Report
         [HttpPost, Authorize]
         public JsonResult NewEarnReport(string FromDate, string ToDate)
         {
@@ -73,6 +77,41 @@ namespace Aplos.Areas.Leave.Controllers
                 string file = "";
                 string FileName = identity.Name  + DateTime.Now.ToString(@"\'dd''MMM''yyyy\'") + "EarnLeaveReport.xlsx";
                 file = L.GetReport(FromDate,ToDate);
+                return Json(new { File = file,ReportName= FileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region New System Report
+        [HttpPost, Authorize]
+        public JsonResult NewSystemEarnReport(string FromDate, string ToDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                #region Validation
+                if (Convert.ToDateTime(FromDate) > Convert.ToDateTime(ToDate))
+                {
+                    throw new Exception("FromDate cannot be greater than ToDate");
+                }
+                else
+                {                    
+                    DateTime start = Convert.ToDateTime(FromDate);
+                    DateTime end = Convert.ToDateTime(ToDate);
+                    var diffMonths = (end.Month + end.Year * 12) - (start.Month + start.Year * 12);
+                    if (diffMonths > 5)
+                    {
+                        throw new Exception("Cannot exceed more than 6 months");
+                    }
+                }
+                #endregion
+                string file = "";
+                string FileName = identity.Name  + DateTime.Now.ToString(@"\'dd''MMM''yyyy\'") + "EarnLeaveReport.xlsx";
+                file = L.GetNewReport(FromDate,ToDate);
                 return Json(new { File = file,ReportName= FileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
