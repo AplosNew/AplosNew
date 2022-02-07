@@ -476,7 +476,7 @@
     <Compile Include="Areas\Commercial\Controllers\POMappingWithPIController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PurchaseLCWithPOController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PurchaseLCAmendmentController.cs" />
-    <Compile Include="Areas\Commercial\Controllers\LCFundUtilizationController.cs" />
+    <Compile Include="Areas\Commercial\Controllers\ContractFundUtilizationController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PrePurchaseInvoiceController.cs" />
     <Compile Include="Areas\Commercial\Controllers\PurchaseLCController.cs" />
     <Compile Include="Areas\Commercial\Controllers\ContractController.cs" />
@@ -3246,7 +3246,7 @@
     <Content Include="Areas\Costings\Views\OrderCostingApproval\Aplos.cshtml" />
     <Content Include="Areas\Costings\Views\OrderCostingUnApproval\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\ServiceRequisition\ServiceReqCreation.cshtml" />
-    <Content Include="Areas\Commercial\Views\LCFundUtilization\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\ContractFundUtilization\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\Contract\MasterLC.cshtml" />
     <Content Include="Areas\Attendances\Views\ExtraOT\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\RawDataDownload\Aplos.cshtml" />
