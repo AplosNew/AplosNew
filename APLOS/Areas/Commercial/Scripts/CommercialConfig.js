@@ -41,7 +41,7 @@ function CommercialConfig($routeProvider) {
             controller: 'masterLCController'
         })
         .when('/fund', {
-            templateUrl: 'Commercial/LCFundUtilization/Aplos',
+            templateUrl: 'Commercial/ContractFundUtilization/Aplos',
             controller: 'contractFundUtilizationController'
         })
         .when('/prepurchase-invoice', {
