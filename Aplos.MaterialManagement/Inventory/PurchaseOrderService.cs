@@ -5201,7 +5201,7 @@ namespace Library.MaterialManagement.Inventory
                     LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=PO.AuthorizedBy
                     left join [SEC].[User] U on U.UserId=PO.AddedBy
                     LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
-                WHERE PO.Id = '" + purchaseOrderId + @"' ";
+                WHERE PO.Id = '" + purchaseOrderId + @"' order by MM.UserName";
                 return _sqlRepository.GetDataTable(strSQL);
 
             }
