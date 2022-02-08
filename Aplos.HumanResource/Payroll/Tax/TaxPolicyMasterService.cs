@@ -1524,13 +1524,15 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 string sql = @"select EmpSystemId,GrossEarning,
                 isnull(ed.ExemptionAmt,'0')ExemptionAmt,
-                (GrossEarning-isnull(ed.ExemptionAmt,'0'))as NetEarning,sh.SalaryHead,
+                NetEarning=
+				case when (GrossEarning-isnull(ed.ExemptionAmt,'0')) < 0 THEN GrossEarning
+				else (GrossEarning-isnull(ed.ExemptionAmt,'0')) end,sh.SalaryHead,
                 sh.SalaryHeadID
                 from EmployeeEarningData ed 
                 left join employeeincometaxmaster ei on ei.Id=ed.EmployeeIncomeTaxId
                 left join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
                 left join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadId
-                where ei.EmpSystemId='"+EmpId+"' and ei.TaxYearId='"+YearId+@"'
+                where ei.EmpSystemId='" + EmpId+"' and ei.TaxYearId='"+YearId+@"'
                 and ei.TaxPolicyHeaderId='"+PolicyId+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
