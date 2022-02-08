@@ -12,7 +12,7 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
     $controller("bankBaseController", { $scope: $scope, $http: $http });
     $controller("cashBaseController", { $scope: $scope, $http: $http });
     $scope.url = 'accounts/Advance';
-    $scope.deleteUrl = $scope.url + "/DeleteEmployeeAdvanceWriteOff";
+    $scope.deleteUrl = $scope.url + "/DeleteEmployeeTotalAdvanceWriteOff";
     $scope.postUrl = $scope.url + '/PostEmployeeAdvanceWriteOff';
     $scope.voucherDetailList = [];
     baseService.init('accounts/Advance/GetEmployeeAdvanceWriteOffList', null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");

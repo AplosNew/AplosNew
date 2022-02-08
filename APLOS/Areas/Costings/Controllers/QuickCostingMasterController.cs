@@ -1991,8 +1991,8 @@ namespace Aplos.Areas.Costings.Controllers
 						,m.MaterialMasterId, m.ArticleId, mm.UserName as MaterialMasterName, mma.StandardName as ArticleName
                         ,e.EmployeeName as ResponsiblePerson, e.SystemId as ResponsiblePersonId,um.UserName as UnitOfMeasurement, um.Id as UoMId, ci.UserName,
                         ISNULL(m.MinimumOfQuantity,ci.MinimumOfQuantity) AS MinimumOfQuantity,ISNULL(m.POIssueDeadLine,ci.POIssueDeadLine)POIssueDeadLine,
-                        ISNULL(m.PurchaseGroupId,ci.PurchaseGroupId) AS PurchaseGroupId,ISNULL(m.Particulars,ci.UserName) AS Particulars
-                      
+                        ISNULL(m.PurchaseGroupId,ci.PurchaseGroupId) AS PurchaseGroupId,ISNULL(m.Particulars,ci.UserName) AS Particulars,
+                        m.POInvoiceCriteria
 						 from hkp.CostingItem ci
                          JOIN [dbo].[PreCostingDirectMaterial] m on m.CostingItemId = ci.Id  and m.CostingMasterTemplateId = '" + costingMasterTemplateId + @"'
                         left join mst.MaterialGroupMaster MGM on MGM.Id=CI.MaterialGroupMasterId
