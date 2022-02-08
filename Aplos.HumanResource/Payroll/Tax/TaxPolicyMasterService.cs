@@ -1545,6 +1545,28 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
+
+        #region Taxable Income
+        public IEnumerable<object> GetTaxableIncome(string PolicyId, string EmpId, string YearId,string NetEarning)
+        {
+            try
+            {
+                string sql = @"select ei.EmpSystemId,'40000' as NetEarning,isnull(SUM(eid.UserValue),'0')as Investments,
+('40000'-SUM(eid.UserValue))as TaxableIncome
+from EmployeeInvestmentDeduction Eid LEFT JOIN
+EmployeeIncomeTaxMaster EI ON Eid.EmployeeIncomeTaxId=EI.Id
+where EmpSystemId='208468' and TaxPolicyHeaderId = 'TH2' and ei.TaxYearId='4'
+group by ei.EmpSystemId
+";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
     }
     public class StringToFormula
     {
