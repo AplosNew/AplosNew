@@ -47,7 +47,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Background / Issue Detail<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Background / Issue Detail" ng-model="ModelNew.BackgroundIssueDetail"  class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
+                <input type="text" name="Background / Issue Detail" ng-model="ModelNew.BackgroundIssueDetail" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
             </div>
         </div>
 
@@ -73,11 +73,11 @@
         </div>
 
         @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Cost Estimation<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Cost Estimation" ng-model="ModelNew.Code" class="form-control" required autocomplete="off" tabindex="2" maxlength="10">
-            </div>
-        </div>*@
+                <label class="col-sm-4 control-label">Cost Estimation<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Cost Estimation" ng-model="ModelNew.Code" class="form-control" required autocomplete="off" tabindex="2" maxlength="10">
+                </div>
+            </div>*@
 
 
         <div class="form-group" show-errors>
@@ -98,6 +98,40 @@
             <label class="col-sm-4 control-label">Attachment</label>
             <div class="col-sm-8">
                 <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection="false" e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <div class="col-sm-4 show-message">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button ng-click="showTalkingPointListPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Talking Point</i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-6 show-message">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button ng-click="showSuggestionsRecommendationListPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Suggestions & Recommendation</i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <div class="col-sm-4 show-message">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button ng-click="showActionablePointsPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Actionable Points</i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-6 show-message">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button ng-click="showMeetingDecisionPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Meeting Decision</i></button>
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -172,8 +206,8 @@
                 <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="10"></textarea>
             </div>
         </div>
-        
-        
+
+
 
     </div>
     <div class="common-btn">
@@ -276,7 +310,7 @@
                         </thead>
                         <tbody>
                             <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
-                                ng-dblclick="selectEmployeePopUp($index, x)"  pagination-id="metaData.name + 'employeeList'">
+                                ng-dblclick="selectEmployeePopUp($index, x)" pagination-id="metaData.name + 'employeeList'">
                                 <td>{{x.EmployeeCode}}</td>
                                 <td>{{x.FirstName}}</td>
                                 <td>{{x.MiddleName}}</td>
@@ -301,6 +335,189 @@
             </div>
             <div class="modal-footer common-btn">
                 <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="talkingPointPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Talking Points
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Talking Point</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelMeetingPoint.TalkingPointId" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Discussion Detail</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelMeetingPoint.DiscussionDetail" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">By Whom</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelMeetingPoint.ByWhomId" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="SaveMeetingPoint();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                <button ng-click="closeTalkingPointPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+            </div>
+        </div>
+</div>
+
+<div class="modal fade site-modal in" id="suggestionsRecommendationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Suggestions & Recommendation
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Suggestion</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelMeetingSuggestion.Suggestion" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Discussion Detail</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelMeetingSuggestion.DiscussionDetail" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">By Whom</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelMeetingSuggestion.ByWhomId" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="SaveSuggestionsRecommendation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                <button ng-click="closeSuggestionsRecommendationPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="actionablePointsPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Actionable Points
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Action To Be Taken</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelActionablePoints.ActionToBeTaken" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Status</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelActionablePoints.Status" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">By Whom</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelActionablePoints.ByWhomId" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="SaveActionablePoints();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                <button ng-click="closeActionablePointsPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="actionablePointsPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Actionable Points
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Action To Be Taken</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelActionablePoints.ActionToBeTaken" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Status</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelActionablePoints.Status" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">By Whom</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="ModelActionablePoints.ByWhomId" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="SaveActionablePoints();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                <button ng-click="closeActionablePointsPopUp();" class="btn"><i class=""></i> Close</button>
             </div>
         </div>
     </div>

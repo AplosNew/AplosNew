@@ -15,6 +15,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
     $scope.path = 'MeetingManagement/MeetingPoints/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
+    $scope.talkingPointUrl = $scope.path + 'GettalkingPoint';
 
     $scope.getData = function () {
         $http({
@@ -52,13 +53,30 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    //$scope.GetSequence = function () {
-    //    cboService.getSequence($scope.getSeqUrl, function (data) {
-    //        $scope.ModelTemp.Sequence = data;
-    //        $scope.ModelNew.Sequence = data;
-    //    });
-    //};
-    //$scope.GetSequence();
+    $scope.ModelMeet = {
+        Id: null,
+        Suggestion: null,
+        DiscussionDetail: null,
+        ByWhomId: null
+        };
+    $scope.ModelMeetingPoint = Object.assign({}, $scope.ModelMeet);
+
+    $scope.ModelMeetSug = {
+        Id: null,
+        TalkingPointId: null,
+        DiscussionDetail: null,
+        ByWhomId: null
+    };
+    $scope.ModelMeetingSuggestion = Object.assign({}, $scope.ModelMeetSug);
+
+    $scope.ModelActionable = {
+        Id: null,
+        ActionToBeTaken: null,
+        ByWhomId: null,
+        Status: null
+    };
+    $scope.ModelActionablePoints = Object.assign({}, $scope.ModelActionable);
+
 
     $scope.Get = function (args) {
 
@@ -150,6 +168,19 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         serverPagination: true
     };
 
+    //$scope.talkingPointLParameters = {
+    //    limit: 10,
+    //    offset: 0,
+    //    order: 'asc',
+    //    sort: 'Id, TalkingPointId, DiscussionDetail, ByWhomId',
+    //    searchBy: 'Id',
+    //    pageSize: 10,
+    //    total_count: 0,
+    //    search: null,
+    //    serverPagination: true
+    //};
+
+
     $scope.showEmployeeListPopUp = function () {
         try {
             
@@ -189,8 +220,33 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#employeePopUps')).modal('hide');
     };
 
+    $scope.selectTalkingPointPopUp = function (index, data) {
+        $scope.TalkingPointIndex = index;
 
-   
+        $scope.ModelMeetingPoint.Id = data.Id;
+        //$scope.ModelNew.ByWhomName = data.EmployeeName;
+        angular.element(document.querySelector('#talkingPointPopUp')).modal('hide');
+    };
+
+    $scope.selectsuggestionsRecommendationPopUp = function (index, data) {
+        $scope.SuggestionsRecommendationIndex = index;
+
+        $scope.ByWhomId = data.Id;
+        //$scope.ModelNew.ByWhomName = data.EmployeeName;
+        angular.element(document.querySelector('#suggestionsRecommendationPopUp')).modal('hide');
+
+    };
+    
+    $scope.selectActionablePointsPopUp = function (index, data) {
+        $scope.ActionablePointsIndex = index;
+
+        $scope.ByWhomId = data.Id;
+        //$scope.ModelNew.ByWhomName = data.EmployeeName;
+        angular.element(document.querySelector('#actionablePointsPopUp')).modal('hide');
+
+    };
+
+
     $scope.hideEmployeePopUp = function () {
         angular.element(document.querySelector('#employeePopUps')).modal('hide');
     };
@@ -243,4 +299,126 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     }
 
     //#endregion Meeting Points Picture upload
+
+    $scope.showTalkingPointListPopUp = function () {
+        try {
+
+            angular.element(document.querySelector('#talkingPointPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    $scope.closeTalkingPointPopUp = function () {
+
+        angular.element(document.querySelector('#talkingPointPopUp')).modal('hide');
+    };
+
+    $scope.SaveMeetingPoint = function () {
+        $scope.$broadcast('show-errors-check-validity');
+       
+            $http({
+                method: 'POST',
+                url: 'MeetingManagement/MeetingPoints/CreateMeetingPoint',
+                data: { 'data': $scope.ModelMeetingPoint },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    /*   ClearFields(response.data.Sequence);*/
+                    $scope.getData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+ 
+        angular.element(document.querySelector('#talkingPointPopUp')).modal('hide');
+    };
+
+
+    $scope.showSuggestionsRecommendationListPopUp = function () {
+        try {
+            angular.element(document.querySelector('#suggestionsRecommendationPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    $scope.closeSuggestionsRecommendationPopUp = function () {
+
+        angular.element(document.querySelector('#suggestionsRecommendationPopUp')).modal('hide');
+    };
+
+    $scope.SaveSuggestionsRecommendation = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        $http({
+            method: 'POST',
+            url: 'MeetingManagement/MeetingPoints/CreateSuggestionsRecommendation',
+            data: { 'data': $scope.ModelMeetingSuggestion },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                /*   ClearFields(response.data.Sequence);*/
+                $scope.getData();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+
+        angular.element(document.querySelector('#suggestionsRecommendationPopUp')).modal('hide');
+    };
+
+    $scope.showActionablePointsPopUp = function () {
+        try {
+            angular.element(document.querySelector('#actionablePointsPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.closeActionablePointsPopUp = function () {
+
+        angular.element(document.querySelector('#actionablePointsPopUp')).modal('hide');
+    };
+
+    $scope.SaveActionablePoints = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        $http({
+            method: 'POST',
+            url: 'MeetingManagement/MeetingPoints/CreateActionablePoints',
+            data: { 'data': $scope.ModelActionablePoints },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                /*   ClearFields(response.data.Sequence);*/
+                $scope.getData();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+
+        angular.element(document.querySelector('#actionablePointsPopUp')).modal('hide');
+    };
+
+
 }

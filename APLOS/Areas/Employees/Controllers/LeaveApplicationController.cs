@@ -385,7 +385,7 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
             report.SetHeaderText(ref sheet, ROW, COL, "Year End Encash", 15, ExcelHAlign.HAlignRight);
             int ColYearEndEncash = COL;
             COL++;
-
+             
             report.SetHeaderText(ref sheet, ROW, COL, "Year End Lapse", 15, ExcelHAlign.HAlignRight);
             int ColYearEndLapse = COL;
             COL++;
