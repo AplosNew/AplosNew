@@ -324,6 +324,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         });
     }
 
+    $scope.SumValue = 0;
     $scope.NetEarningGridPop = [];
     $scope.getNet_EarningFuncn = function () {
 
@@ -348,7 +349,11 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             }
             $scope.NetEarningGridPop = [];
             $scope.NetEarningGridPop = response.data;
-
+           
+            for (var j = 0; j < $scope.NetEarningGridPop.length; j++)
+            {
+                $scope.SumValue +=$scope.NetEarningGridPop[j].NetEarning;
+            }
         });
     }
 

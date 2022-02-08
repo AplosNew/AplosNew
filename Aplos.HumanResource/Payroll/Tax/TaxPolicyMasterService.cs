@@ -975,8 +975,10 @@ namespace Library.HumanResource.Payroll.Tax
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = "select * from EmployeeIncomeTaxMaster" +
-                    " where EmpSystemId='" + EmpId + "' and TaxPolicyHeaderId = '" + PolicyId + "'";
+                strSQL = @"select ei.* from EmployeeIncomeTaxMaster EI LEFT JOIN
+                    EmployeeInvestmentDeduction ED ON ED.EmployeeIncomeTaxId = EI.Id
+                    where EmpSystemId = '"+EmpId+"' and TaxPolicyHeaderId = '"+PolicyId+@"'
+                    and ed.EmployeeIncomeTaxId is not null";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
@@ -1534,6 +1536,28 @@ namespace Library.HumanResource.Payroll.Tax
                 left join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadId
                 where ei.EmpSystemId='" + EmpId+"' and ei.TaxYearId='"+YearId+@"'
                 and ei.TaxPolicyHeaderId='"+PolicyId+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
+        #region Taxable Income
+        public IEnumerable<object> GetTaxableIncome(string PolicyId, string EmpId, string YearId,string NetEarning)
+        {
+            try
+            {
+                string sql = @"select ei.EmpSystemId,'40000' as NetEarning,isnull(SUM(eid.UserValue),'0')as Investments,
+('40000'-SUM(eid.UserValue))as TaxableIncome
+from EmployeeInvestmentDeduction Eid LEFT JOIN
+EmployeeIncomeTaxMaster EI ON Eid.EmployeeIncomeTaxId=EI.Id
+where EmpSystemId='208468' and TaxPolicyHeaderId = 'TH2' and ei.TaxYearId='4'
+group by ei.EmpSystemId
+";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
