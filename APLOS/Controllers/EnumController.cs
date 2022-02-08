@@ -735,7 +735,7 @@ namespace Aplos.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetPOInvoiceCriticalityEnumCbo()
+        public JsonResult GetPOInvoiceCriteriaEnumCbo()
         {
             return Json(new SelectList(EnumService.GetEnumCbo<POInvoiceCriticality>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }

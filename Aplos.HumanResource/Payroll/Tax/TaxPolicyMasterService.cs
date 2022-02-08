@@ -975,8 +975,10 @@ namespace Library.HumanResource.Payroll.Tax
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = "select * from EmployeeIncomeTaxMaster" +
-                    " where EmpSystemId='" + EmpId + "' and TaxPolicyHeaderId = '" + PolicyId + "'";
+                strSQL = @"select ei.* from EmployeeIncomeTaxMaster EI LEFT JOIN
+                    EmployeeInvestmentDeduction ED ON ED.EmployeeIncomeTaxId = EI.Id
+                    where EmpSystemId = '"+EmpId+"' and TaxPolicyHeaderId = '"+PolicyId+@"'
+                    and ed.EmployeeIncomeTaxId is not null";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }

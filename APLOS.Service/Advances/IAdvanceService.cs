@@ -86,6 +86,7 @@ namespace Library.Service.Advances
         void DeleteInterTransaction(string advanceId, string voucherId);
         void DeleteVendorAdvance(string companyId, string plantId, string voucherId);
         void DeleteEmployeeAdvanceWriteOff(string advanceWriteOffId, string voucherId);
+        void DeleteEmployeeTotalAdvanceWriteOff(string advanceWriteOffId, string voucherId);
         void PostEmployeeAdvanceRequisition(string advanceId, string voucherId);
         void DeleteEmployeeAdvance(string companyId, string plantId, string voucherId);
 
