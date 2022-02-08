@@ -71,9 +71,9 @@
                     <li role="presentation" ng-class="{ active: isSet(3) }">
                         <a ng-click="setTab(3)" href="" data-toggle="tab">Item</a>
                     </li>
-                    <li role="presentation" ng-class="{ active: isSet(4) }">
+                    @*<li role="presentation" ng-class="{ active: isSet(4) }">
                         <a ng-click="setTab(4);GetMasterOrderAmountAndQty();" href="" data-toggle="tab">Contract</a>
-                    </li>
+                    </li>*@
                 </ul>
             </div>
 
@@ -643,7 +643,7 @@
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <!--<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                     <div class="form-elements form-horizontal" ng-form="modelNewForm">
                         <div class="row" id="mainGrid">
                             <div class="tab-design">
@@ -991,17 +991,17 @@
                                     <br />
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
-                                            <li> <button ng-click="SaveContract()" class="btn single-small-btn" ng-disabled="fileNew.Id===null"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNew.Id.length>0?'Update':'Save'}}</button></li>
+                                            <li> <button ng-click="SaveContract()" class="btn single-small-btn" ng-disabled="fileNew.Id===null"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNew.Id.length>0?'Update':'Save'}}</button></li>-->
                                             @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                                                 <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
-                                        </ul>
+                                        <!--</ul>
                                     </div>
 
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>-->
             </div>
 
             <div class="common-btn">

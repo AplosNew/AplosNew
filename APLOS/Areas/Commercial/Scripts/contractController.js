@@ -389,20 +389,20 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         }).then(function (response) {
             $scope.contractFundList = response.data;
 
-            if (baseService.arrayLength($scope.contractFundList) > 0) {
-                for (var i = 0; i < $scope.contractFundList.length; i++) {
-                    if ($scope.contractFundList[i].UtilizationSourceType === 'BuyerDeduction') {
-                        for (var j = 0; j < $scope.buyerDeductionList.length; j++) {
-                            if ($scope.contractFundList[i].FundUtilization === $scope.buyerDeductionList[j].FundUtilization) {
-                                $scope.buyerDeductionList[j].Percentage = $scope.contractFundList[i].Percentage;
-                                $scope.buyerDeductionList[j].OldPercentage = $scope.contractFundList[i].OldPercentage;
-                                $scope.buyerDeductionList[j].Commission = $scope.contractFundList[i].Commission;
-                                $scope.buyerDeductionList[j].Reason = $scope.contractFundList[i].Reason;
-                            }
-                        }
-                    }
-                }
-            }
+            //if (baseService.arrayLength($scope.contractFundList) > 0) {
+            //    for (var i = 0; i < $scope.contractFundList.length; i++) {
+            //        if ($scope.contractFundList[i].UtilizationSourceType === 'BuyerDeduction') {
+            //            for (var j = 0; j < $scope.buyerDeductionList.length; j++) {
+            //                if ($scope.contractFundList[i].FundUtilization === $scope.buyerDeductionList[j].FundUtilization) {
+            //                    $scope.buyerDeductionList[j].Percentage = $scope.contractFundList[i].Percentage;
+            //                    $scope.buyerDeductionList[j].OldPercentage = $scope.contractFundList[i].OldPercentage;
+            //                    $scope.buyerDeductionList[j].Commission = $scope.contractFundList[i].Commission;
+            //                    $scope.buyerDeductionList[j].Reason = $scope.contractFundList[i].Reason;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
 
             if (baseService.arrayLength($scope.contractFundList) > 0) {
                 for (var l = 0; l < $scope.contractFundList.length; l++) {
@@ -449,7 +449,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.getFundUtilizationData = function () {
         $http({
             method: 'POST',
-            url: 'Commercial/LCFundUtilization/GetFundUtilizationList',
+            url: 'Commercial/ContractFundUtilization/GetFundUtilizationList',
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -470,12 +470,12 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         });
     };
 
-    $scope.buyerDeductionList = [];
-    cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
-        $scope.buyerDeductionList = result;
+    //$scope.buyerDeductionList = [];
+    //cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
+    //    $scope.buyerDeductionList = result;
 
-        $scope.getBuyerDeductionData();
-    });
+    //   // $scope.getBuyerDeductionData();
+    //});
 
     $scope.dataList = [];
     $scope.getBuyerDeductionData = function () {
@@ -980,11 +980,11 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
             $scope.getFundUtilizationData();
         });
-        cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
-            $scope.buyerDeductionList = result;
+        //cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
+        //    $scope.buyerDeductionList = result;
 
-            $scope.getBuyerDeductionData();
-        });
+        //    $scope.getBuyerDeductionData();
+        //});
         $scope.GetMasterOrderList();
         $scope.Action = 'Save';
     }
