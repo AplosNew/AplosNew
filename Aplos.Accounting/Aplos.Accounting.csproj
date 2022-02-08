@@ -105,6 +105,7 @@
     <Compile Include="Accounts\AccountsInvoiceReportService.cs" />
     <Compile Include="Accounts\AccountsAdvanceService.cs" />
     <Compile Include="Accounts\AccountsInvoiceService.cs" />
+    <Compile Include="Accounts\AccountsTrialBalanceService.cs" />
     <Compile Include="Accounts\AssetWIPQueryService.cs" />
     <Compile Include="Accounts\TaxReportService.cs" />
     <Compile Include="FinishGoods\AccountingFinishGoodsService.cs" />

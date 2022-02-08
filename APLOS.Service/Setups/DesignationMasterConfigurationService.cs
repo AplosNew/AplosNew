@@ -63,6 +63,7 @@ namespace Library.Service.Setups
         public void InsertORUpdate(IEnumerable<DesignationMasterConfiguration> entities)
         {
             var flag = false;
+            string operators = "+-*/%()[]{}@#$^=";
             try
             {
                 if (entities != null)
@@ -102,11 +103,12 @@ namespace Library.Service.Setups
                                 foreach (var ob in eSICPolicy)
                                 {
                                     var dic = (Dictionary<string, object>)ob;
-                                    string[] split = dic["SalaryHeadID"].ToString().Split(',');
-                                    foreach (var sp in split)
-                                    {
-                                        myList.Add(sp);
-                                    }
+                                    string[] split = dic["SalaryHeadID"].ToString().Split(' ');
+                                    //foreach (var sp in split)
+                                    //{
+                                    //    myList.Add(sp);
+                                    //}
+                                    myList = GetListofHeadIds(operators, split);
                                 }
                                 ESICPolicyHeadList = myList.ToArray();
                             }
@@ -127,11 +129,13 @@ namespace Library.Service.Setups
                                 foreach (var y in pFPolicy)
                                 {
                                     var dic = (Dictionary<string, object>)y;
-                                    string[] split = dic["SalaryHeadID"].ToString().Split(',');
-                                    foreach (var spt in split)
-                                    {
-                                        mypFPolicyList.Add(spt);
-                                    }
+                                    string[] split = dic["SalaryHeadID"].ToString().Split(' ');
+
+                                    mypFPolicyList= GetListofHeadIds(operators,split);
+                                    //foreach (var spt in split)
+                                    //{
+                                    //    mypFPolicyList.Add(spt);
+                                    //}
                                 }
                                 PFPolicyHeadList = mypFPolicyList.ToArray();
                             }
@@ -152,7 +156,7 @@ namespace Library.Service.Setups
                         else
                         {
                             pk.MaxNumber++;
-                            item.Id =DateTime.Now.ToString("yy")+"-" +pk.MaxNumber.ToString();
+                            item.Id = DateTime.Now.ToString("yy") + "-" + pk.MaxNumber.ToString();
                             if (item.SalaryRuleMasterId != null && item.AttdnBonusPmtPolicyMasterId != null)
                             {
                                 //if (AttdnBonusPmtPolicyHeadList == null)
@@ -174,11 +178,12 @@ namespace Library.Service.Setups
                                 foreach (var ob in eSICPolicy)
                                 {
                                     var dic = (Dictionary<string, object>)ob;
-                                    string[] split = dic["SalaryHeadID"].ToString().Split(',');
-                                    foreach (var sp in split)
-                                    {
-                                        myList.Add(sp);
-                                    }
+                                    string[] split = dic["SalaryHeadID"].ToString().Split(' ');
+                                    //foreach (var sp in split)
+                                    //{
+                                    //    myList.Add(sp);
+                                    //}
+                                    myList = GetListofHeadIds(operators, split);
                                 }
                                 ESICPolicyHeadList = myList.ToArray();
                             }
@@ -201,11 +206,8 @@ namespace Library.Service.Setups
                                 foreach (var y in pFPolicy)
                                 {
                                     var dic = (Dictionary<string, object>)y;
-                                    string[] split = dic["SalaryHeadID"].ToString().Split(',');
-                                    foreach (var spt in split)
-                                    {
-                                        mypFPolicyList.Add(spt);
-                                    }
+                                    string[] split = dic["SalaryHeadID"].ToString().Split(' ');
+                                    mypFPolicyList = GetListofHeadIds(operators, split);
                                 }
                                 PFPolicyHeadList = mypFPolicyList.ToArray();
                             }
@@ -250,6 +252,31 @@ namespace Library.Service.Setups
                 if (flag)
                     _unitOfWork.Rollback();
             }
+        }
+
+        public List<string> GetListofHeadIds(string operators,string[]heads)
+        {
+            List<string> strHid = new List<string>();
+            foreach (var item in heads)
+            {
+                strHid.Add(item);
+            }
+
+            for (int i = 0; i < strHid.Count; i++)
+            {
+                strHid[i] = strHid[i].Trim();
+            }
+            foreach (char item in operators)
+            {
+               var hid= strHid.Where(x => x.Trim() == item.ToString()).ToList();
+
+                foreach (var h in hid)
+                {
+                    strHid.Remove(h);
+                }
+            }       
+
+            return strHid;
         }
 
         private bool Validation(string salaryRuleMasterId)
@@ -422,7 +449,7 @@ namespace Library.Service.Setups
 							LEFT JOIN HKP.LegalDesignation LD ON DMLD.LegalDesignationId=LD.Id
 							WHERE DMLD.DesignationMasterId=DM.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                          FROM MST.DesignationMaster DM
-						 LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId AND DC.PlantId = '" + plantId+ @"'
+						 LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId AND DC.PlantId = '" + plantId + @"'
                          LEFT JOIN HKP.Designation D ON DM.DesignationId=D.Id
                          LEFT JOIN HKP.EmployeeCategory C ON DM.EmployeeCategoryId=C.Id
                          WHERE DM.DesignationGroupId='" + designationGroupId + "' AND DM.CompanyGroupId='" + companyGroupId + "'";
@@ -440,15 +467,15 @@ namespace Library.Service.Setups
         {
             var _sql = @"SELECT ah.Id as Value,ah.UserName as Text FROM  AttdnBonusPlantChild ac
             left join AttdnBonusHeader ah on ac.HeaderId=ah.id
-            where ac.PlantId='" + plantId+"'";
+            where ac.PlantId='" + plantId + "'";
             return _sqlRepository.GetDataCollection(_sql);
         }
 
         public IEnumerable<object> GetBonusPolicyMasterCbo(string plantId, string companyGroupId)
         {
-            
+
             var _sql = @"SELECT SystemId [Value], PolicyName [Text] FROM [dbo].[BonusPolicyMaster]
-                        WHERE GroupID='"+ companyGroupId + @"' and SystemID IN (SELECT BonusPolicyID FROM [dbo].[BonusPolicyPlantWise] WHERE PlantId='"+ plantId + "')";
+                        WHERE GroupID='" + companyGroupId + @"' and SystemID IN (SELECT BonusPolicyID FROM [dbo].[BonusPolicyPlantWise] WHERE PlantId='" + plantId + "')";
             return _sqlRepository.GetDataCollection(_sql);
         }
 
