@@ -21,67 +21,147 @@
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Sequence" tabindex="1" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100%" required />
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" autocomplete="off" required tabindex="3">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Category" ng-model="ModelNew.Category" class="form-control" required autocomplete="off" tabindex="6" maxlength="50">
-            </div>
-        </div>
-        
-
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Description</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="9" maxlength="250"></textarea>
+                <div class="select-style">
+                    <select id="Department" class="form-control" ng-model="ModelNew.DepartmentId" name="Department" tabindex="6" @*ng-change="changeSectionByDept();"*@ required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in departmentList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Meeting Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required autocomplete="off" tabindex="2" maxlength="10">
+                <div class="select-style">
+                    <select id="Department" class="form-control" ng-model="ModelNew.MeetingTypeId" name="MeetingType" tabindex="6" @*ng-change="changeSectionByDept();*@ required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in meetingTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
             </div>
         </div>
+
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Background / Issue Detail<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+                <input type="text" name="Background / Issue Detail" ng-model="ModelNew.BackgroundIssueDetail"  class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
             </div>
         </div>
+
         <div class="form-group">
-            <label class="col-sm-4 control-label">Active</label>
-            <div class="col-sm-8">
+            <label class="col-sm-4 control-label">Action Applicable</label>
+            <div class="col-sm-2">
                 <div class="checkbox-site">
                     <label>
-                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="10">
+                        <input type="checkbox" ng-model="ModelNew.ActionApplicable" tabindex="10">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <label class="col-sm-4 control-label">Decision Applicable</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ModelNew.DecisionApplicable" tabindex="10">
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
+
+        @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Cost Estimation<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Sub Category" ng-model="ModelNew.SubCategory" class="form-control" required autocomplete="off" tabindex="7" maxlength="50">
+                <input type="text" name="Cost Estimation" ng-model="ModelNew.Code" class="form-control" required autocomplete="off" tabindex="2" maxlength="10">
+            </div>
+        </div>*@
+
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue Status<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="Department" class="form-control" ng-model="ModelNew.IssueStatus" name="IssueStatus<" tabindex="6" required>
+                        <option value="Active">Active</option>
+                        <option value="InProgress">In-Progress </option>
+                        <option value="Pending">Pending </option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Attachment</label>
+            <div class="col-sm-8">
+                <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection="false" e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="ByWhomName" ng-model="ModelNew.ByWhomName" class="form-control" readonly required>
+                    <span class="input-group-btn">
+                        <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue / Meeting Item Title<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Issue / Meeting Item Title" ng-model="ModelNew.IssueMeetingItemTitle" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue Critically<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="Department" class="form-control" ng-model="ModelNew.IssueCritically" name="IssueCritically<" tabindex="6" required>
+                        <option value="">--Select--</option>
+                        <option value="Critical">Critical </option>
+                        <option value="Important">Important </option>
+                        <option value="Normal">Normal</option>
+                        @*<option ng-repeat="option in meetingTypeList" value="{{option.Value}}">{{option.Text}}</option>*@
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-group" show-errors>
+
+
+            <label class="col-sm-4 control-label">Cost Applicable</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ModelNew.CostApplicable" tabindex="10">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <label class="col-sm-2 control-label">Cost Estimation<sup>*</sup></label>
+            <div class="col-sm-4 show-message">
+                <input type="text" name="Cost Estimation" ng-model="ModelNew.CostEstimation" class="form-control" required autocomplete="off" tabindex="2" maxlength="10">
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Meeting Leg Days<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Meeting Leg Days" ng-model="ModelNew.MeetingLegDays" class="form-control" required autocomplete="off" tabindex="7" only-numbers>
             </div>
         </div>
 
@@ -92,8 +172,8 @@
                 <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="10"></textarea>
             </div>
         </div>
-
-
+        
+        
 
     </div>
     <div class="common-btn">
@@ -130,16 +210,100 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
-            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
-            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
-            <div e-column e-field="Category" e-headertext="Category" e-width="5"></div>
-            <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="5"></div>
-            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+            <div e-column e-field="Department" e-headertext="Department" e-width="12" e-isprimarykey="true"></div>
+            <div e-column e-field="ByWhomName" e-headertext="By Whom" e-width="12"></div>
+            <div e-column e-field="MeetingType" e-headertext="Meeting Type" e-width="13"></div>
+            <div e-column e-field="IssueMeetingItemTitle" e-headertext="Issue / Meeting Item Title" e-width="15"></div>
+            <div e-column e-field="BackgroundIssueDetail" e-headertext="Background / Issue Detail" e-width="15"></div>
+            <div e-column e-field="IssueCritically" e-headertext="Issue Critically" e-width="15"></div>
+            @*<div e-column e-field="Category" e-headertext="Action Applicable" e-width="15"></div>*@
+            @*<div e-column e-field="SubCategory" e-headertext="Decision Applicable" e-width="15"></div>*@
+            @*<div e-column e-field="" e-headertext="Cost Applicable" e-width="12"></div>*@
+            <div e-column e-field="CostEstimation" e-headertext="Cost Estimation" e-width="12"></div>
+            <div e-column e-field="MeetingLegDays" e-headertext="Meeting Leg Days" e-width="12"></div>
+            <div e-column e-field="IssueStatus" e-headertext="Issue Status" e-width="12"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="12"></div>
+            <div e-column e-field="Attachment" e-headertext="Attachment" e-width="12"></div>
         </div>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="employeePopUps" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Entity</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-dblclick="selectEmployeePopUp($index, x)"  pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB | dateFiltering}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.EmploymentType}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-modal></confirm-modal>

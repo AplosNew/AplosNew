@@ -340,8 +340,8 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                eit.ProcessingFunction(EmpId, PolicyId, YearId);
-                return Json("c");
+                return Json(eit.NetEarningGridData(PolicyId, EmpId, YearId), JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {

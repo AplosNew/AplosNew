@@ -1518,10 +1518,32 @@ namespace Library.HumanResource.Payroll.Tax
                 objCon = null;
             }
         }
+        public IEnumerable<object> NetEarningGridData(string PolicyId, string EmpId,string YearId)
+        {
+            try
+            {
+                string sql = @"select EmpSystemId,GrossEarning,
+                isnull(ed.ExemptionAmt,'0')ExemptionAmt,
+                NetEarning=
+				case when (GrossEarning-isnull(ed.ExemptionAmt,'0')) < 0 THEN GrossEarning
+				else (GrossEarning-isnull(ed.ExemptionAmt,'0')) end,sh.SalaryHead,
+                sh.SalaryHeadID
+                from EmployeeEarningData ed 
+                left join employeeincometaxmaster ei on ei.Id=ed.EmployeeIncomeTaxId
+                left join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
+                left join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadId
+                where ei.EmpSystemId='" + EmpId+"' and ei.TaxYearId='"+YearId+@"'
+                and ei.TaxPolicyHeaderId='"+PolicyId+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         #endregion
     }
-
     public class StringToFormula
     {
         private string[] _operators = { "-", "+", "/", "*", "^" };
@@ -1645,7 +1667,6 @@ namespace Library.HumanResource.Payroll.Tax
             return tokens;
         }
     }
-
     public class ExemptionCalcualtionModel
     {
         public double ExemptAmt { get; set; }

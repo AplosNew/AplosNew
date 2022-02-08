@@ -451,6 +451,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getEarningGridList();
+                    $scope.getNet_EarningFuncn();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

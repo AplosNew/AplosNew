@@ -16,7 +16,7 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
     $scope.searchByList = [{ value: 'FundUtilization', name: "FundUtilization" }, { value: 'FundUtilizationText', name: "FundUtilization Text" }];
 
     $scope.ModelTemp = {
-        Id: null, Sequence: null, StandardName: null, UserName: null, CommisssionCharge: null, AllowedExcessVariation: null, AllowedLessVariation: null, Remarks: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+        Id: null, Sequence: null, StandardName: null, UserName: null, CommisssionCharge: null, CommisssionChargeValue: null, AllowedExcessVariation: null, AllowedLessVariation: null, Remarks: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 

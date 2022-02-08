@@ -202,6 +202,11 @@ function CurrencyRuleController(cboService, commonMessage, $scope, $rootScope, b
             if ($scope.CurrencyDetail.IsDecimalInDisb === false && $scope.CurrencyDetail.IntegerInDisb === false) {
                 throw "Select  Integer In Disbursement or Decimal In Disbursement";
             }
+            for (var i = 0; i < $scope.DetailList.length; i++) {
+                if ($scope.DetailList[i].SalaryHeadID == $scope.CurrencyDetail.SalaryHeadID) {
+                    throw "Already selected this SalryHead";
+                }
+            }
             var newObj = Object.assign({}, $scope.CurrencyDetail);
             $scope.DetailList.push(newObj);
             $scope.FormulaArray = [];
