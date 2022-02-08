@@ -10,6 +10,7 @@
 *.userosscache
 *.sln.docstates
 *.config
+Web.config
 
 ProductionSummarySFGController.js
 AplosSFG.cshtml
