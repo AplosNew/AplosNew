@@ -8295,11 +8295,16 @@ namespace Library.Service.Advances
                 var advanceWriteOff = _advanceWriteOffRepository.Find(advanceWriteOffId);
                 var advanceWriteOffDetail = _advanceWriteOffDetailRepository.Query(r => r.AdvanceWriteOffId == advanceWriteOffId).Select().ToList();
                 var employeePayableWriteOff = _employeePayableWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                var employeeSubsequentTransaction = _employeeSubsequentTransactionRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
 
 
                 foreach (var item in voucherdetailcurrnecy)
                 {
                     _voucherDetailCurrencyRepository.Delete(item.Id);
+                }
+                foreach (var item in employeeSubsequentTransaction)
+                {
+                    _employeeSubsequentTransactionRepository.Delete(item.Id);
                 }
 
                 foreach (var item in voucherdetail)
@@ -8345,6 +8350,104 @@ namespace Library.Service.Advances
 
                         _advanceDetailRepository.Update(advanceDetail);
                         base.Update(advance);
+                        _advanceWriteOffDetailRepository.Delete(item.Id);
+                    }
+                    _advanceWriteOffRepository.Delete(advanceWriteOff.Id);
+                }
+
+                _voucherRepository.Delete(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        public void DeleteEmployeeTotalAdvanceWriteOff(string advanceWriteOffId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherRepository.Find(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var advanceWriteOff = _advanceWriteOffRepository.Find(advanceWriteOffId);
+                var advanceWriteOffDetail = _advanceWriteOffDetailRepository.Query(r => r.AdvanceWriteOffId == advanceWriteOffId).Select().ToList();
+                var employeePayableWriteOff = _employeePayableWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                var employeeSubsequentTransaction = _employeeSubsequentTransactionRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+
+
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                }
+                foreach (var item in employeeSubsequentTransaction)
+                {
+                    _employeeSubsequentTransactionRepository.Delete(item.Id);
+                }
+
+                foreach (var item in voucherdetail)
+                {
+                    var gltransactionDetail = _gLTransactionDetailRepository.Find(item.Id);
+                    if (gltransactionDetail != null)
+                        _gLTransactionDetailRepository.Delete(gltransactionDetail.Id);
+                    _voucherDetailRepository.Delete(item.Id);
+                }
+
+
+                if (employeePayableWriteOff != null)
+                {
+                    var employeePayableWriteOffDetail = _employeePayableWriteOffDetailRepository.Query(r => r.EmployeePayableWriteOffId == employeePayableWriteOff.Id).Select().ToList();
+                    foreach (var item in employeePayableWriteOffDetail)
+                    {
+                        var employeePayable = _employeePayableRepository.Find(item.EmployeePayableId);
+                        var employeePayableDetail = _employeePayableDetailRepository.Find(item.EmployeePayableDetailId);
+
+                        employeePayableDetail.WrittenOffAmount -= item.Amount;
+                        employeePayable.WrittenOffAmount -= item.Amount;
+                        employeePayableDetail.IsWrittenOff = employeePayableDetail.NetAmount == employeePayableDetail.WrittenOffAmount;
+                        employeePayable.IsWrittenOff = employeePayable.Amount == employeePayable.WrittenOffAmount;
+
+                        _employeePayableDetailRepository.Update(employeePayableDetail);
+                        _employeePayableRepository.Update(employeePayable);
+                        _employeePayableWriteOffDetailRepository.Delete(item.Id);
+                    }
+                    _employeePayableWriteOffRepository.Delete(employeePayableWriteOff.Id);
+                }
+
+                if (advanceWriteOffDetail != null)
+                {
+                    foreach (var item in advanceWriteOffDetail)
+                    {
+                        //var advance = base.Find(item.AdvanceId);
+                        //var advanceDetail = _advanceDetailRepository.Find(item.AdvanceDetailId);
+
+                        //advanceDetail.WrittenOffAmount -= item.Amount;
+                        //advance.WrittenOffAmount -= item.Amount;
+                        //advanceDetail.IsWrittenOff = advanceDetail.NetAmount == advanceDetail.WrittenOffAmount;
+                        //advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
+
+                        //_advanceDetailRepository.Update(advanceDetail);
+                        //base.Update(advance);
                         _advanceWriteOffDetailRepository.Delete(item.Id);
                     }
                     _advanceWriteOffRepository.Delete(advanceWriteOff.Id);

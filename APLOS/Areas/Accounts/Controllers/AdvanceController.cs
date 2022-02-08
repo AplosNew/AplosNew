@@ -917,6 +917,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Success });
         }
 
+        [HttpPost]
+        public JsonResult DeleteEmployeeTotalAdvanceWriteOff(string advanceWriteOffId, string voucherId)
+        {
+            _advanceService.DeleteEmployeeTotalAdvanceWriteOff(advanceWriteOffId, voucherId);
+            return Json(new { Message = AplosMessage.Success });
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetEmployeeAdvanceWriteOffReport(ReportFormat reportFormat, string voucherId)
         {
