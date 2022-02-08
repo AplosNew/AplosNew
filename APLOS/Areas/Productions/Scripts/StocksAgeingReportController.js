@@ -6,24 +6,23 @@ function StocksAgeingReportController(cboService, commonMessage, $scope, $rootSc
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     // Variables
-    $scope.FromDate = null;
-    $scope.ToDate = null;
+    //$scope.FromDate = null;
+    //$scope.ToDate = null;
     $scope.masterData = [];
     //Operations
     $scope.getData = function () {
-        if (angular.isUndefinedOrNull($scope.FromDate) == true) {
-            ShowResult("Please select From Date");
-            throw ("Please select From Date");
-        }
-        if (angular.isUndefinedOrNull($scope.ToDate) == true) {
-            ShowResult("Please select To Date");
-            throw ("Please select To Date");
-        }
+        //if (angular.isUndefinedOrNull($scope.FromDate) == true) {
+        //    ShowResult("Please select From Date");
+        //    throw ("Please select From Date");
+        //}
+        //if (angular.isUndefinedOrNull($scope.ToDate) == true) {
+        //    ShowResult("Please select To Date");
+        //    throw ("Please select To Date");
+        //}
 
         $http({
             method: 'POST',
             url: $scope.path + 'getData',
-            data: {'FromDate':$scope.FromDate , 'ToDate':$scope.ToDate},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.masterData = [];
@@ -37,22 +36,19 @@ function StocksAgeingReportController(cboService, commonMessage, $scope, $rootSc
 
     $scope.downloadReport = function () {
 
-        if (angular.isUndefinedOrNull($scope.FromDate) == true) {
-            ShowResult("Please select From Date");
-            throw ("Please select From Date");
-        }
-        if (angular.isUndefinedOrNull($scope.ToDate) == true) {
-            ShowResult("Please select To Date");
-            throw ("Please select To Date");
-        }
+        //if (angular.isUndefinedOrNull($scope.FromDate) == true) {
+        //    ShowResult("Please select From Date");
+        //    throw ("Please select From Date");
+        //}
+        //if (angular.isUndefinedOrNull($scope.ToDate) == true) {
+        //    ShowResult("Please select To Date");
+        //    throw ("Please select To Date");
+        //}
 
         $http({
             method: 'POST',
             url: $scope.path + "getReport",
 
-            data: {
-                'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate
-            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
