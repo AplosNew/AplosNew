@@ -424,7 +424,12 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 0 and IsDespatch = 0 --and InventoryReceiveDetailId is not null";
+                var str = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId 
+                            from dbo.ItemScanChild S
+                            LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+                            where s.LotNo = '" + LotNo + @"' and s.ProductCode = '" + ProductCode + @"' and s.POId = '" + PO + @"' and s.Booked = 0 and IsDespatch = 0 
+                            AND R.ToLocation not in ( 'JOB WORK LOCATION', 'DyeHouse' , 'PACKING')
+                            --and InventoryReceiveDetailId is not null";
                 DataTable dt = _sqlRepository.GetDataTable(str);
                 var str1 = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 1 and IsDespatch = 0";
                 DataTable dt2 = _sqlRepository.GetDataTable(str1);
@@ -463,7 +468,7 @@ namespace Library.OrderManagement.Production
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
                         left join trn.POLotReference pol on pol.Id = isc.PackingId
                         where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
-                        and isc.IsDespatch = 0 
+                        and isc.IsDespatch = 0 and isc.Booked = 0
                         --and isc.InventoryReceiveDetailId is not null
                          group by isc.ProductCode , POId , isc.LotNo
                         ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId and StockQty.LotNo = sc.LotNo

@@ -80,7 +80,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
                 }
-                if (sourceType == SourceType.VendorAdvanceWriteOff.ToString() || sourceType == SourceType.CustomerAdvanceWriteOff.ToString())
+                if (sourceType == SourceType.VendorAdvanceWriteOff.ToString() || sourceType == SourceType.CustomerAdvanceWriteOff.ToString() || sourceType == SourceType.EmployeeAdvanceWriteOff.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var bankJournalSql = @"UPDATE [TRN].AdvanceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
