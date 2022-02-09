@@ -19,7 +19,7 @@ namespace Library.OrderManagement.Production
             ConManager = new ConnectionManager.clsConnectionManager();
         }
 
-        public IEnumerable<object> getData(string ToDate, string FromDate)
+        public IEnumerable<object> getData()
         {
             try
             {
@@ -164,7 +164,7 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
                                 )
                                 as cus on cus.Code = S.ProductCode and cus.POIdd = S.POId
                                 WHERE s.booked = 'False' AND R.ToLocation<> 'JOB WORK LOCATION'
-                                AND R.ToLocation<> 'DyeHouse' AND R.ToLocation<> 'PACKING' and sc.WorkDate between '"+FromDate+@"' and '"+ToDate+@"'
+                                AND R.ToLocation<> 'DyeHouse' AND R.ToLocation<> 'PACKING' --and sc.WorkDate between FromDate ToDate
                                 group by S.ProductCode, S.POId, S.LotNo,
                                 S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy,
                                 S.Shade, S.AddedBy, S.AddedDate, M.StandardName, R.FromLocation, R.ToLocation , cus.ProductLibraryId, sc.WorkDate , ma.UserName
@@ -180,7 +180,7 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
             }
         }
 
-        public DataTable getReport(string ToDate , string FromDate)
+        public DataTable getReport()
         {
             try
             {
@@ -254,7 +254,7 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
                                 )
                                 as cus on cus.Code = S.ProductCode and cus.POIdd = S.POId
                                 WHERE s.booked = 'False' AND R.ToLocation<> 'JOB WORK LOCATION'
-                                AND R.ToLocation<> 'DyeHouse' AND R.ToLocation<> 'PACKING' and sc.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                                AND R.ToLocation<> 'DyeHouse' AND R.ToLocation<> 'PACKING' --and sc.WorkDate between FromDate ToDate 
                                 group by S.ProductCode, S.POId, S.LotNo,
                                 S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy,
                                 S.Shade, S.AddedBy, S.AddedDate, M.StandardName, R.FromLocation, R.ToLocation , cus.ProductLibraryId, sc.WorkDate , ma.UserName

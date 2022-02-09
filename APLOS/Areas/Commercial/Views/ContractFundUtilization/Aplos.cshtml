@@ -12,7 +12,8 @@
                             <th>Sequence</th>
                             <th>Standard Name</th>
                             <th>User Name</th>
-                            <th>Commisssion Charge</th>
+                            <th>Commisssion</th>
+                            <th>Commisssion Value</th>
                             <th>Allowed Excess Variation</th>
                             <th>Allowed Less Variation</th>
                             <th>Remarks</th>
@@ -39,8 +40,23 @@
                                 @*<input type="radio" name="{{x.Id+x.CommisssionCharge}}" ng-model="x.CommisssionCharge" value="Percentage"> Percentage
                                     <input type="radio" name="{{x.Id+x.CommisssionCharge}}" ng-model="x.CommisssionCharge" value="Fixed"> Fixed*@
                             </td>
-                            <td><input type="text" class="form-control" ng-model="x.AllowedExcessVariation" only-numbers></td>
-                            <td><input type="text" class="form-control" ng-model="x.AllowedLessVariation" only-numbers></td>
+                            <td><input type="text" class="form-control" ng-model="x.CommisssionChargeValue" n-Decimals="2"></td>
+                            <td>
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="x.AllowedExcessVariation" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="x.AllowedLessVariation" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </td>
                             <td><input type="text" class="form-control" ng-model="x.Remarks" maxlength="250"></td>
                             <td>
                                 <div class="checkbox-site">

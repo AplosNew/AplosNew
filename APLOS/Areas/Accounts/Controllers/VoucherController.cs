@@ -695,6 +695,26 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet]
+        public ActionResult TrialBalanceReportCompanyLevel(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
+        {
+            AccountsTrialBalanceService accountsTrialBalanceService = new AccountsTrialBalanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsTrialBalanceService.GetTrialBalanceReport(identity.CompanyId, date, isBudgetLevel, isActivityLevel, isDetailLevel);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Trial Balance Sheet";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        [HttpGet]
         public ActionResult TrialBalanceReport(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
