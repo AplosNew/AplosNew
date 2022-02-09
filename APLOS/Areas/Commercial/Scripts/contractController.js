@@ -37,7 +37,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         DeliveryPartyPlantId: null,
         InvoicingByAddress: null,
         DeliveryByAddress: null,
-        Remarks:null,
+        Remarks: null,
         PlantId: $window.plantId
     };
     $scope.modelNew = Object.assign({}, $scope.model);
@@ -327,7 +327,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.modelNew.Amount = 0;
         $scope.modelNew.TotalQty = 0;
         $scope.modelNew.Currency = null;
-        
+
         $scope.GetMasterOrderByContractList($scope.modelNew.Id);
         $scope.GetContractFundData($scope.modelNew.Id);
         getPartyPlantEditList($scope.modelNew.InvoicingPartyPlantId, $scope.modelNew.InvoicingByAddress, $scope.modelNew.DeliveryPartyPlantId, $scope.modelNew.DeliveryByAddress, $scope.modelNew.DeliveryState, $scope.modelNew.DeliveryGSTIN);
@@ -380,50 +380,6 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         });
     };
 
-    $scope.contractFundList = [];
-    $scope.GetContractFundData = function (contractId) {
-        $scope.contractFundList = [];
-        $http({
-            method: 'GET',
-            url: "Commercial/Contract/GetContractFundData?contractId=" + contractId
-        }).then(function (response) {
-            $scope.contractFundList = response.data;
-
-            //if (baseService.arrayLength($scope.contractFundList) > 0) {
-            //    for (var i = 0; i < $scope.contractFundList.length; i++) {
-            //        if ($scope.contractFundList[i].UtilizationSourceType === 'BuyerDeduction') {
-            //            for (var j = 0; j < $scope.buyerDeductionList.length; j++) {
-            //                if ($scope.contractFundList[i].FundUtilization === $scope.buyerDeductionList[j].FundUtilization) {
-            //                    $scope.buyerDeductionList[j].Percentage = $scope.contractFundList[i].Percentage;
-            //                    $scope.buyerDeductionList[j].OldPercentage = $scope.contractFundList[i].OldPercentage;
-            //                    $scope.buyerDeductionList[j].Commission = $scope.contractFundList[i].Commission;
-            //                    $scope.buyerDeductionList[j].Reason = $scope.contractFundList[i].Reason;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-
-            if (baseService.arrayLength($scope.contractFundList) > 0) {
-                for (var l = 0; l < $scope.contractFundList.length; l++) {
-                    if ($scope.contractFundList[l].UtilizationSourceType === 'FundUtilization') {
-                        for (var k = 0; k < $scope.fundUtilizationList.length; k++) {
-                            if ($scope.contractFundList[l].FundUtilization === $scope.fundUtilizationList[k].FundUtilization) {
-
-                                $scope.fundUtilizationList[k].Percentage = $scope.contractFundList[l].Percentage;
-                                $scope.fundUtilizationList[k].OldPercentage = $scope.contractFundList[l].OldPercentage;
-                                $scope.fundUtilizationList[k].PurchaseMargin = $scope.contractFundList[l].PurchaseMargin;
-                                $scope.fundUtilizationList[k].Reason = $scope.contractFundList[l].Reason;
-                            }
-                        }
-                    }
-                }
-            }
-
-
-        });
-    };
-
     $scope.getPercentageValue = function () {
         var negotiable = 0;
         for (var j = 0; j < $scope.fundUtilizationList.length; j++) {
@@ -439,69 +395,17 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     }
 
     $scope.fundUtilizationList = [];
-    cboService.getEnumCbo("enum/GetFundUtilizationEnumCbo", function (result) {
-        $scope.fundUtilizationList = result;
-
-        $scope.getFundUtilizationData();
-    });
-
-    $scope.ModelList = [];
-    $scope.getFundUtilizationData = function () {
+    $scope.GetContractFundData = function (contractId) {
+        $scope.fundUtilizationList = [];
         $http({
-            method: 'POST',
-            url: 'Commercial/ContractFundUtilization/GetFundUtilizationList',
-            data: { column: $scope.searchBy, value: $scope.search },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (baseService.arrayLength(response.data) > 0) {
-                $scope.ModelList = response.data;
-                for (var i = 0; i < $scope.ModelList.length; i++) {
-                    for (var j = 0; j < $scope.fundUtilizationList.length; j++) {
-                        if ($scope.ModelList[i].FundUtilization == $scope.fundUtilizationList[j].Text) {
-                            $scope.fundUtilizationList[j].FundUtilization = $scope.ModelList[i].FundUtilization;
-                            $scope.fundUtilizationList[j].FundUtilizationText = $scope.ModelList[i].FundUtilizationText;
-                            $scope.fundUtilizationList[j].Percentage = $scope.ModelList[i].Percentage;
-                            $scope.fundUtilizationList[j].OldPercentage = $scope.ModelList[i].Percentage;
-                            $scope.fundUtilizationList[j].CurrencyId = $scope.ModelList[i].CurrencyId;
-                        }
-                    }
-                }
-            }
+            method: 'GET',
+            url: "Commercial/Contract/GetContractFundData?contractId=" + contractId
+        }).then(function (response) {
+            $scope.fundUtilizationList = response.data;
+            console.log('$scope.contractFundList', $scope.contractFundList);
         });
     };
 
-    //$scope.buyerDeductionList = [];
-    //cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
-    //    $scope.buyerDeductionList = result;
-
-    //   // $scope.getBuyerDeductionData();
-    //});
-
-    $scope.dataList = [];
-    $scope.getBuyerDeductionData = function () {
-        $http({
-            method: 'POST',
-            url: 'Commercial/LCFundUtilization/GetBuyerDeductionList',
-            data: { column: $scope.searchBy, value: $scope.search },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (baseService.arrayLength(response.data) > 0) {
-                $scope.dataList = response.data;
-                for (var i = 0; i < $scope.dataList.length; i++) {
-                    for (var j = 0; j < $scope.buyerDeductionList.length; j++) {
-                        if ($scope.dataList[i].FundUtilization == $scope.buyerDeductionList[j].Text) {
-
-                            $scope.buyerDeductionList[j].FundUtilization = $scope.dataList[i].FundUtilization;
-                            $scope.buyerDeductionList[j].FundUtilizationText = $scope.dataList[i].FundUtilizationText;
-                            $scope.buyerDeductionList[j].Percentage = $scope.dataList[i].Percentage;
-                            $scope.buyerDeductionList[j].OldPercentage = $scope.dataList[i].Percentage;
-                            $scope.buyerDeductionList[j].CurrencyId = $scope.dataList[i].CurrencyId;
-                        }
-                    }
-                }
-            }
-        });
-    };
 
     // #region checkbox all for TermsAndConditions
 
@@ -682,26 +586,6 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
             $scope.modelNew.Amount = $scope.modelNew.Amount.toFixed(2);
             $scope.modelNew.Amount = parseFloat($scope.modelNew.Amount);
-            $scope.saveFunds = [];
-
-            for (var i = 0; i < $scope.buyerDeductionList.length; i++) {
-                $scope.saveFunds.push($scope.buyerDeductionList[i]);
-            }
-
-            for (var i = 0; i < $scope.fundUtilizationList.length; i++) {
-                $scope.saveFunds.push($scope.fundUtilizationList[i]);
-            }
-
-            for (var i = 0; i < $scope.saveFunds.length; i++) {
-                if (baseService.isUndefinedOrNull($scope.saveFunds[i].Id)) {
-                    $scope.saveFunds[i].Id = null;
-                }
-                if ($scope.saveFunds[i].Percentage !== $scope.saveFunds[i].OldPercentage) {
-                    if (baseService.isUndefinedOrNull($scope.saveFunds[i].Reason)) {
-                        throw "Reason is required for " + $scope.saveFunds[i].FundUtilizationText + "";
-                    }
-                }
-            }
 
             $scope.$broadcast('show-errors-check-validity');
             if (baseService.arrayLength($scope.masterOrderCustomerList) === 0) {
@@ -717,7 +601,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                     data: {
                         'model': $scope.modelNew,
                         'selectedMasterOrderList': JSON.stringify($scope.masterOrderCustomerList)
-                        , 'funds': $scope.saveFunds
+                        , 'funds': $scope.fundUtilizationList
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -918,7 +802,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.model = {
             Id: null,
             CompanyId: null,
-            MasterOrderId:null,
+            MasterOrderId: null,
             ContractNo: null,
             CustomerId: null,
             Descriotion: null,
@@ -1077,7 +961,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     }
 
     // #endregion Contract Details Report
-   
+
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.modelNew.Id)) {
@@ -1253,11 +1137,11 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     };
 
-   // #region ContractItem
+    // #region ContractItem
 
     $scope.selectedmasterOrderDataList = [];
     $scope.GetContractItemDataList = function () {
-        
+
         $http({
             method: 'GET',
             url: 'Commercial/Contract/GetContractItemDataList?contractId=' + $scope.modelNew.Id
@@ -1349,10 +1233,10 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                                 ob.Currency = $scope.masterOrderDataList[i].Currency;
                                 ob.BuyerItemRef = $scope.masterOrderDataList[i].BuyerItemRef;
                                 ob.OwnItemRef = $scope.masterOrderDataList[i].OwnItemRef;
-                                                             
+
 
                                 $scope.selectedmasterOrderDataList.push(ob);
-                               
+
                                 $scope.hasError = false;
                             }
                         }
@@ -1365,7 +1249,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                 }
 
             }
-          
+
         } catch (e) {
             ShowResult(e, 'failure', 'masterOrderPopUp');
         }
