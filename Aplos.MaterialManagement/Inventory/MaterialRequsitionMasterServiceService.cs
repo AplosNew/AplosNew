@@ -136,12 +136,12 @@ namespace Library.MaterialManagement.Inventory
                 {
                     throw new CustomException("No Prefix Available for this Plant");
                 }
-                //var year1 = DateTime.Now.ToShortDateString().ToString();
-                //var yr = year1.Substring(7);
-                //var id = GetPK();
-                //var resId = id.Substring(2);
-                entity.Id = plantId + "-" + GetPK();
-                //entity.Id = GetPK();
+                
+                var year1 = DateTime.Now.ToShortDateString().ToString();
+                var yr = year1.Substring(7);
+                var id = GetPK();
+                var resId = id.Substring(2);
+                entity.Id = plantId + yr + resId;
          
                 AuditService.AddedLog(entity);
                 entity.ModelState = ModelState.Added;

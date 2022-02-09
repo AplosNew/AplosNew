@@ -333,14 +333,43 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region Net Earning Tab Functions
+        #region Net Earning & Taxable Tab Functions
         
         [HttpPost, Authorize]
         public ActionResult GetNetEarning(string EmpId, string PolicyId,string YearId)
         {
             try
             {
-                return Json(eit.NetEarningGridData(PolicyId, EmpId, YearId), JsonRequestBehavior.AllowGet);
+                return Json(eit.NetEarningGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult ProcessTaxableIncome(string EmpId, string PolicyId, string YearId,string Earn)
+        {
+            try
+            {
+                eit.ProcessTaxableIncome(EmpId, PolicyId, YearId, Earn);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetTaxableIncome(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                return Json(eit.TaxableGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)

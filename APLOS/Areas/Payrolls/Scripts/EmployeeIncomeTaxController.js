@@ -149,6 +149,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             $scope.getInvestDeductionList();
             $scope.getEarningGridList();
             $scope.getNet_EarningFuncn();
+            $scope.getTaxableIncomeGridData();
         });
     }
 
@@ -253,6 +254,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getInvestDeductionList();
+                    $scope.ProcessTaxableIncome();
                }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -356,7 +358,6 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             }
         });
     }
-
 
     // #endregion
 
@@ -475,4 +476,74 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
     // #endregion
 
-}
+    //#region Taxable Income Tab Functions
+
+    $scope.TaxableIncomeGridPopup = [];
+    $scope.getTaxableIncomeGridData = function () {
+
+        if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Invalid Request!!');
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetTaxableIncome",
+            data: {
+                'PolicyId': $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId,
+                'EmpId': $scope.EmployeeIncomeTaxModel.EmpSystemId,
+                'YearId': $scope.EmployeeIncomeTaxModel.TaxYearId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+                throw ('Invalid Request!');
+            }
+            $scope.TaxableIncomeGridPopup = [];
+            $scope.TaxableIncomeGridPopup = response.data;
+
+        });
+    }
+
+    $scope.ProcessTaxableIncome = function () {
+
+        if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Invalid Request!!');
+        }
+
+        if (angular.isUndefinedOrNull($scope.SumValue) || $scope.SumValue==0) {
+            throw ('Invalid Request!!');
+        }
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "ProcessTaxableIncome",
+                data: {
+                    'EmpId': $scope.EmployeeIncomeTaxModel.EmpSystemId,
+                    'PolicyId': $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId,
+                    'YearId': $scope.EmployeeIncomeTaxModel.TaxYearId,
+                    'Earn': $scope.SumValue
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getTaxableIncomeGridData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+    }
+
+    //#endregion
+
+};
+
+
+
