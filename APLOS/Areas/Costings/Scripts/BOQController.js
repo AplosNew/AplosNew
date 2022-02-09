@@ -256,5 +256,6 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
             ShowResult(response.data.Message, 'failure');
         };
     }
+
 }
 
