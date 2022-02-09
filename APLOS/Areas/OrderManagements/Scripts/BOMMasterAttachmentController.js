@@ -523,6 +523,15 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
 
         }
     }
+    $scope.DownloadByContract = function () {
+        try {
+            var file_src = $scope.Attachmentpath + 'DownloadByContract?ContractId=' + $scope.AttachmentSelectedBOMRow.ContractId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 
 
     $scope.ItemList = [];
@@ -563,7 +572,7 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
             $scope.ContractItemDataList = response.data;
         });
     }
-
+   
     $scope.refreshTemplateContract = function (args) {
         if (args.rowIndex == 0) {
             $("#headchkItems").ejCheckBox({ "change": CheckAllContractItem });
@@ -910,4 +919,51 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
 
 
     //#endregion
+
+
+    $scope.picdata = null;
+    $("#uploadImage").change(function () {
+        $scope.picdata = this.files[0];
+    });
+    $scope.UploadData = function () {
+        try {
+            $scope.msg = "";
+
+            var picData = new FormData();
+            //if (!baseService.isUndefinedOrNull($scope.picdata)) {
+            //    $scope.ModelNew.FileName = $scope.picdata.name;
+            //}
+
+
+            $http({
+                method: 'POST',
+                url: $scope.Attachmentpath +'UploadByContract',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                  
+                    if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                        picData.append('file', data.file);
+                    }
+                    return picData;
+                },
+                data: {'file': $scope.picdata }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
 }

@@ -31,6 +31,7 @@
                 <li role="presentation" ng-class="{ active: AttachmentEditisSet(1) }"><a ng-click="AttachmentEditsetTab(1)" href="" data-toggle="tab">Procurement Items</a></li>
                 <li role="presentation" ng-class="{ active: AttachmentEditisSet(2) }"><a ng-click="AttachmentEditsetTab(2)" href="" data-toggle="tab">Info Update</a></li>
                 <li role="presentation" ng-class="{ active: AttachmentEditisSet(3) }"><a ng-click="AttachmentEditsetTab(3)" href="" data-toggle="tab">Non Procurement Items</a></li>
+                <li role="presentation" ng-class="{ active: AttachmentEditisSet(4) }"><a ng-click="AttachmentEditsetTab(4)" href="" data-toggle="tab">Upload</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -185,6 +186,30 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':AttachmentEditisSet(4), active: AttachmentEditisSet(4) }">
+                <div class="row">
+                    <ul class="list-inline text-right small">
+                        <li>
+                            <span class="input-group-btn">
+                                <button ng-click="DownloadByContract();" class="btn single-small-btn"><i class="glyphicon glyphicon-download"></i>Download For Entire Contract</button>
+                                <button ng-click="DownloadByContract()" class="btn single-small-btn"><i class="glyphicon glyphicon-download">Download For Selected Item </i></button>
+                            </span>
+                        </li>
+                    </ul>
+
+
+
+                    <div class="col-md-12">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" value="Upload Data" class="btn btn-success" ng-click="UploadData()" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

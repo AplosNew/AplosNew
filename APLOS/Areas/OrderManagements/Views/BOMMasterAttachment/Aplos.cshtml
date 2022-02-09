@@ -235,8 +235,8 @@
                         <button ej-splitbutton e-size="medium" e-showroundedcorner="false" e-text="data.ContractNo" e-targetid="{{'c'+data.MasterOrderItemId}}"></button>
                         <ul id="{{'c'+data.MasterOrderItemId}}" style="display:none;">
                             @*<li>
-                                <span class="glyphicon glyphicon-list text-left" ng-click="$parent.ContractLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:10pt; padding: 0px; margin: 0px;"> Detail</span>
-                            </li>*@
+            <span class="glyphicon glyphicon-list text-left" ng-click="$parent.ContractLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:10pt; padding: 0px; margin: 0px;"> Detail</span>
+        </li>*@
                             <li>
                                 <span class="glyphicon glyphicon-list text-left" ng-click="$parent.ContractLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#0f0202'}};height: 38px; width: 100%; font-size:10pt; padding: 0px; margin: 0px;font-family:'Segoe UI'"> Detail</span>
                                 @*<span class="glyphicon glyphicon-circle-arrow-down text-left" ng-click="$parent.ContractLevelBOMReport(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"> Summary </span>*@
@@ -247,7 +247,9 @@
                             <li>
                                 <span class="glyphicon glyphicon-th-list text-left" ng-click="$parent.GetContractBOMReportByMaterial(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"> Item</span>
                             </li>
-
+                            <li>
+                                <span class="glyphicon glyphicon-th-list text-left" ng-click="$parent.DownloadByContract(data);" style="color:{{data.HasBOQ?'darkorange':'#1c1f32'}};height: 38px; width: 100%; font-size:12pt; padding: 0px; margin: 0px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"> Download Data For MOQ</span>
+                            </li>
                         </ul>
 
 
