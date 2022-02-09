@@ -42,7 +42,7 @@
             <div class="site-tab">
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material Attachment</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Quantity Distribution</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Info Update</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -109,23 +109,28 @@
                                  e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                                  e-allowselection="true" e-filtersettings-filterType="excel">
                                 <div e-columns>
-                                    <div e-column e-type="string" e-field="ItemDesc" e-headertext="Item Desc" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="CostingItem" e-headertext="Costing Item" e-width="120px"></div>
+                                    <div e-column e-template="#ItemDesc" e-headertext="Item Desc" e-width="120px"></div>
+                                    <div e-column e-template="#BuyerRef" e-headertext="Buyer Ref." e-width="120px"></div>
+                                    <div e-column e-template="#VendorItem" e-headertext="Vendor Item" e-width="120px"></div>
                                     <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120px"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120px"></div>
-                                    <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQCriteria" e-width="80px"></div>
+                                    <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQ Criteria" e-width="80px"></div>
                                     <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SO" e-width="60px"></div>
                                     <div e-column e-type="string" e-field="Destination" e-headertext="Destination" e-width="60px"></div>
                                     <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="50px"></div>
                                     <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="50px"></div>
-                                    <div e-column e-type="number" e-field="BOMQty" e-headertext="BOMQty" e-width="60px"></div>
+                                    <div e-column e-template="#RMSKU" e-headertext="RM SKU" e-width="120px"></div>
+                                    <div e-column e-template="#EnterSKUTemplate" e-headertext="Required Qty" e-width="120px"></div>
+                                    <div e-column e-type="number" e-field="BOMQty" e-headertext="BOM Qty" e-width="60px"></div>
 
                                     @*WithSKU	SalesOrderId	Destination	SKU1	SKU2	IncompleteMaterial	PreparedBy	CostingDate	Id	Sequence
-        ItemDesc	Material	Article	ItemRefNo	Vendor	MaterialCode
-        ArticleCode	ResponsiblePerson	BOMQty	RequiredQty	UOM	BOMAmount	BOQCriteria	Currency*@
+                                        ItemDesc	Material	Article	ItemRefNo	Vendor	MaterialCode
+                                        ArticleCode	ResponsiblePerson	BOMQty	RequiredQty	UOM	BOMAmount	BOQCriteria	Currency*@
 
                                     <div e-column e-template="#EnterSKUTemplate" e-headertext="Required Qty" e-width="120px"></div>
                                     <div e-column e-type="number" e-field="BalanceToPurchase" e-headertext="Reuse From Inventory" e-format="{0:N2}" e-width="100px"></div>
-                                    
+
                                     <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="50px"></div>
                                     <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="120px"></div>
 
@@ -135,17 +140,26 @@
                                 <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
                                     <input type="number" min="0" ng-model="data.RequiredQty" class="form-control">
                                 </div>
-                                @*<div class="col-xs-12 col-sm-2 col-md-2" style="padding:0px;margin:0px;" ng-show="data.WithSKU">
-                                    <div class="common-btn">
-                                        <ul class="list-inline small">
-                                            <li>
-                                                <button ng-click="$parent.showPartyPopUp(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                                                    <i class="glyphicon glyphicon-th-list"></i>
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>*@
+                            </script>
+                            <script type="text/template" id="ItemDesc">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-model="data.RMDescription" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="BuyerRef">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-model="data.RMCustomerSpec" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="VendorItem">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-model="data.RMVendorSpec" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="RMSKU">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-model="data.SKUDesc" class="form-control">
+                                </div>
                             </script>
                         </div>
                     </div>
