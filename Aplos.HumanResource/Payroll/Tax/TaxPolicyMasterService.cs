@@ -1129,7 +1129,7 @@ namespace Library.HumanResource.Payroll.Tax
                     {
                         throw new Exception(" Sum of Individual Items is more than Group Limit !! Please adjust Values.");
                     }
-                    _info.SaveDataSets(dsChild);
+                    _info.SaveDataSets(dsChild);                    
                 }
 
                 #endregion
@@ -1520,7 +1520,7 @@ namespace Library.HumanResource.Payroll.Tax
                 objCon = null;
             }
         }
-        public IEnumerable<object> NetEarningGridData(string PolicyId, string EmpId,string YearId)
+        public IEnumerable<object> NetEarningGridData(string EmpId, string PolicyId, string YearId)
         {
             try
             {
@@ -1546,18 +1546,106 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
-        #region Taxable Income
-        public IEnumerable<object> GetTaxableIncome(string PolicyId, string EmpId, string YearId,string NetEarning)
+        #region Taxable Income        
+        public DataTable GetTaxableIncome(string EmpId, string PolicyId, string YearId,string NetEarning)
         {
             try
             {
-                string sql = @"select ei.EmpSystemId,'40000' as NetEarning,isnull(SUM(eid.UserValue),'0')as Investments,
-('40000'-SUM(eid.UserValue))as TaxableIncome
-from EmployeeInvestmentDeduction Eid LEFT JOIN
-EmployeeIncomeTaxMaster EI ON Eid.EmployeeIncomeTaxId=EI.Id
-where EmpSystemId='208468' and TaxPolicyHeaderId = 'TH2' and ei.TaxYearId='4'
-group by ei.EmpSystemId
-";
+                string sql = @"select ei.EmpSystemId,
+                '"+NetEarning+@"' as NetEarning,isnull(SUM(eid.UserValue),'0')as Investments,
+                ('"+NetEarning+@"'-SUM(eid.UserValue))as TaxableIncome
+                from EmployeeInvestmentDeduction Eid LEFT JOIN
+                EmployeeIncomeTaxMaster EI ON Eid.EmployeeIncomeTaxId=EI.Id
+                where EmpSystemId='"+EmpId+@"' and TaxPolicyHeaderId = '"+PolicyId+@"' 
+                and ei.TaxYearId='"+YearId+@"'group by ei.EmpSystemId";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void ProcessTaxableIncome(string EmpId, string PolicyId, string YearId, string Earning)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            #region Already Existing Data Clearing Portion
+            
+            DataSet dsMaster, dsRef;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            var sql = @"select net.Id as NetTaxableIncomeId from NetTaxableIncome net 
+                left join EmployeeIncomeTaxMaster ei on
+                ei.Id=net.EmployeeIncomeTaxId
+                where ei.EmpSystemId='" + EmpId+"' and ei.TaxYearId='"+YearId+@"'
+                and ei.TaxPolicyHeaderId='"+PolicyId+"'";
+            con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+            if(dsMaster.Tables[0].Rows.Count>0)
+            {
+                var Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0][@"NetTaxableIncomeId"]).ToString();
+                var sqlx = @"delete from NetTaxableIncome where Id='"+Id+"'";
+                UpdateStatus(sqlx);
+            }
+
+            #endregion
+
+            var sqly = @"select * from NetTaxableIncome where 1=2";
+            con.OpenDataSetThroughAdapter(sqly, out dsRef, false, "1");
+
+
+            var sqlz = @"select * from EmployeeIncomeTaxMaster where
+                EmpSystemId='"+EmpId+@"'
+                and TaxYearId='"+YearId+"' and TaxPolicyHeaderId='"+PolicyId+"'";
+            con.OpenDataSetThroughAdapter(sqlz, out DataSet dsEmp, false, "1");
+
+            string EmployeeIncomeTaxId = "";
+            if (dsEmp.Tables[0].Rows.Count>0)
+            {
+                EmployeeIncomeTaxId = clsWebLib.RetValidLen(dsEmp.Tables[0].Rows[0][@"Id"]).ToString();
+            }
+
+
+            DataTable TaxableDt = GetTaxableIncome(EmpId, PolicyId, YearId,Earning);
+            if (TaxableDt.Rows.Count > 0)
+            {
+                for (int i = 0; i < TaxableDt.Rows.Count; i++)
+                {
+                    string NetEarning = TaxableDt.Rows[i][@"NetEarning"].ToString();
+                    string TaxableIncome = TaxableDt.Rows[i][@"TaxableIncome"].ToString();
+                    string Investments = TaxableDt.Rows[i][@"Investments"].ToString();
+                    
+                    DataRow drF = dsRef.Tables[0].NewRow();
+                    clsGenID genid = new clsGenID();
+                    genid.GenID("NetTaxableIncome", out string _Id);
+                    drF["Id"] = "NTI"+_Id;
+                    drF["EmployeeIncomeTaxId"] = EmployeeIncomeTaxId;
+                    drF["NetEarning"] = NetEarning;
+                    drF["TaxableIncome"] = TaxableIncome; 
+                    drF["Investments"] = Investments;
+                    drF["AddedBy"] = identity.UserId;
+                    drF["AddedFromIp"] = identity.IPAddress;
+                    drF["AddedDate"] = DateTime.Now.ToString();
+                    dsRef.Tables[0].Rows.Add(drF);
+                
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRef);
+            }
+        }
+
+        public IEnumerable<object> TaxableGridData(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                string sql = @"select ei.EmpSystemId,net.Investments,
+                net.taxableIncome,net.NetEarning,t.TaxYearName
+                from NetTaxableIncome net  
+                left join EmployeeIncomeTaxMaster ei on
+                ei.Id=net.EmployeeIncomeTaxId
+				left join scs.TaxYear t on t.Id=ei.TaxYearId
+                where ei.EmpSystemId='"+EmpId+@"' and ei.TaxYearId='"+YearId+@"'
+                and ei.TaxPolicyHeaderId='"+PolicyId+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
