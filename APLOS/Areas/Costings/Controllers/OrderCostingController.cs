@@ -2515,6 +2515,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                             dr["SourcingType"] = item.SourcingType;
                             dr["Usage"] = item.Usage;
+                            dr["POCriteria"] = item.POCriteria;
                             dr["IsUDApplicable"] = item.IsUDApplicable;
                             dr["IsGeneric"] = item.IsGeneric;
                             dr["IsMandatory"] = item.IsMandatory;
@@ -2565,6 +2566,8 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                             dr["SourcingType"] = item.SourcingType;
                             dr["Usage"] = item.Usage;
+                            dr["POCriteria"] = item.POCriteria;
+
                             dr["IsUDApplicable"] = item.IsUDApplicable;
                             dr["IsGeneric"] = item.IsGeneric;
                             dr["IsMandatory"] = item.IsMandatory;
@@ -2629,7 +2632,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                         ,e.EmployeeName as ResponsiblePerson, e.SystemId as ResponsiblePersonId,um.UserName as UnitOfMeasurement, um.Id as UoMId, ci.UserName
                         ,ISNULL(m.MinimumOfQuantity,ci.MinimumOfQuantity) AS MinimumOfQuantity,ISNULL(m.POIssueDeadLine,ci.POIssueDeadLine)POIssueDeadLine
                         ,ISNULL(m.PurchaseGroupId,ci.PurchaseGroupId) AS PurchaseGroupId,ISNULL(m.Particulars,ci.UserName) AS Particulars
-                        ,M.FileName,M.FileOriginalName
+                        ,M.FileName,M.FileOriginalName,m.POCriteria
 						 from hkp.CostingItem ci
                         JOIN [dbo].[OrderPreCostingDirectMaterial] m on m.CostingItemId = ci.Id  and m.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"'
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
@@ -2647,7 +2650,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                         ,e.EmployeeName as ResponsiblePerson, e.SystemId as ResponsiblePersonId,um.UserName as UnitOfMeasurement, um.Id as UoMId, ci.UserName
                         ,ISNULL(m.MinimumOfQuantity,ci.MinimumOfQuantity) AS MinimumOfQuantity,ISNULL(m.POIssueDeadLine,ci.POIssueDeadLine)POIssueDeadLine
                         ,ISNULL(m.PurchaseGroupId,ci.PurchaseGroupId) AS PurchaseGroupId,ISNULL(m.Particulars,ci.UserName) AS Particulars
-                      ,M.FileName,M.FileOriginalName
+                      ,M.FileName,M.FileOriginalName,m.POCriteria
 						 from hkp.CostingItem ci
                         JOIN [dbo].[OrderProcurementCostingDirectMaterial] m on m.CostingItemId = ci.Id  and m.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"'
                         left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
@@ -4404,6 +4407,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                             dr["SourcingType"] = item.SourcingType;
                             dr["Usage"] = item.Usage;
+                            dr["POCriteria"] = item.POCriteria;
                             dr["IsUDApplicable"] = item.IsUDApplicable;
                             dr["IsGeneric"] = item.IsGeneric;
                             dr["IsMandatory"] = item.IsMandatory;
@@ -4454,6 +4458,8 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                             dr["SourcingType"] = item.SourcingType;
                             dr["Usage"] = item.Usage;
+                            dr["POCriteria"] = item.POCriteria;
+                            
                             dr["IsUDApplicable"] = item.IsUDApplicable;
                             dr["IsGeneric"] = item.IsGeneric;
                             dr["IsMandatory"] = item.IsMandatory;
@@ -5815,6 +5821,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
         public string SourcingType { get; set; }
         public string Usage { get; set; }
+        public string POCriteria { get; set; }
         public bool IsUDApplicable { get; set; }
         public bool IsGeneric { get; set; }
         public bool IsMandatory { get; set; }
@@ -5977,6 +5984,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
         public string SourcingType { get; set; }
         public string Usage { get; set; }
+        public string POCriteria { get; set; }
         public bool IsUDApplicable { get; set; }
         public bool IsGeneric { get; set; }
         public bool IsMandatory { get; set; }

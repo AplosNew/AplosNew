@@ -1881,6 +1881,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["SourcingType"] = item.SourcingType;
                             dr["Sequence"] = item.Sequence;
                             dr["Usage"] = item.Usage;
+                            dr["POCriteria"] = item.POCriteria;
                             dr["IsUDApplicable"] = item.IsUDApplicable;
                             dr["IsGeneric"] = item.IsGeneric;
                             dr["IsMandatory"] = item.IsMandatory;
@@ -1930,6 +1931,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["SourcingType"] = item.SourcingType; 
                             dr["Sequence"] = item.Sequence;
                             dr["Usage"] = item.Usage;
+                            dr["POCriteria"] = item.POCriteria;
                             dr["IsUDApplicable"] = item.IsUDApplicable;
                             dr["IsGeneric"] = item.IsGeneric;
                             dr["IsMandatory"] = item.IsMandatory;
@@ -3529,6 +3531,7 @@ namespace Aplos.Areas.Costings.Controllers
 
         public string SourcingType { get; set; }
         public string Usage { get; set; }
+        public string POCriteria { get; set; }
         public bool IsUDApplicable { get; set; }
         public bool IsGeneric { get; set; }
         public bool IsMandatory { get; set; }

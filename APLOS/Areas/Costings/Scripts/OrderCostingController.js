@@ -4772,6 +4772,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(e, "failure");
         }
     }
-
+    $scope.POCriteriaList = [];
+    cboService.getEnumCbo("enum/GetPOInvoiceCriteriaEnumCbo", function (result) {
+        $scope.POCriteriaList = result;
+    });
     //#endregion
 }
