@@ -3285,9 +3285,9 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
-    $scope.POInvoiceCriticalityList = [];
+    $scope.POCriteriaList = [];
     cboService.getEnumCbo("enum/GetPOInvoiceCriteriaEnumCbo", function (result) {
-        $scope.POInvoiceCriticalityList = result;
+        $scope.POCriteriaList = result;
     });
 
 
