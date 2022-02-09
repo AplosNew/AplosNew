@@ -27,10 +27,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 {
     public class MeetingPointsController : BaseController
     {
-        string TableName = "dbo.MeetingPoints";
-        //authentication for
-        //GetList Create Delete
-
+       
 
         #region Constructor
 
@@ -52,7 +49,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         [HttpGet, Authorize]
         public JsonResult GetCbo()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM MeetingItemHeader"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -65,7 +62,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select top 100 * from (select MP.*,D.UserName Department,MT.UserName MeetingType,EI.EmployeeName ByWhomName
 			
-			from MeetingPoints MP
+			from MeetingItemHeader MP
 			left join ORG.Department D on D.Id=MP.DepartmentId
 			left join MeetingType MT on MT.Id=MP.MeetingTypeId
 			left join EmployeeInformation EI on EI.SystemId=MP.ByWhomId) AS TEMP WHERE " + strkey;
@@ -75,12 +72,6 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        //[HttpGet, Authorize]
-        //public JsonResult GetAutoSequence()
-        //{
-        //    return Json(GetSequence(), JsonRequestBehavior.AllowGet);
-        //}
-
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {
@@ -88,17 +79,10 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from MeetingPoints where   Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                //if (dsMaster.Tables[0].Rows.Count > 0)
-                //    throw new Exception("By Whom already exists!!!");
-
-                //con.OpenDataSetThroughAdapter("select * from MeetingPoints where   Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                //if (dsMaster.Tables[0].Rows.Count > 0)
-                //    throw new Exception("Code already exists!!!");
 
 
 
-                con.OpenDataSetThroughAdapter("select * from MeetingPoints where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from MeetingItemHeader where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -109,7 +93,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingItemHeader", out _Id);
 
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
@@ -147,7 +131,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
                     ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                     con.BeginTransaction();
-                    con.executeQuery("delete from MeetingPoints where id='" + id + "'");
+                    con.executeQuery("delete from MeetingItemHeader where id='" + id + "'");
                     con.CommitTransaction();
 
                     return Json(new { Error = false,/* Sequence = GetSequence(),*/ Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -283,7 +267,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
 
                     ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                    string sql = "select * from MeetingPoints where id='" + UploadDefault_data + "'";
+                    string sql = "select * from MeetingItemHeader where id='" + UploadDefault_data + "'";
                     DataSet dsLocal = null;
                     connection.BeginTransaction();
                     connection.getDataSet(sql, out dsLocal);
@@ -330,7 +314,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
             try
             {
-                return Json(_sqlRepository.GetDataCollection("SELECT Attachment FROM MeetingPoints WHERE Id ='" + Id + "' "), JsonRequestBehavior.AllowGet);
+                return Json(_sqlRepository.GetDataCollection("SELECT Attachment FROM MeetingItemHeader WHERE Id ='" + Id + "' "), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -341,6 +325,207 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
         #endregion upload product picture
 
+        [Authorize, HttpGet]
+        public JsonResult GettalkingPoint(GridParameter parameters, string plantId, string partyAccountGroupId, string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(plantId))
+            {
+                plantId = identity.PlantId;
+            }
+            return Json(GettalkingPoint(parameters, identity.CompanyId, plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
+        }
 
+        public GridModel GettalkingPoint(GridParameter parameters, string companyId, string plantId, string partyAccountGroupId, string partyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT * FROM dbo.MeetingTalkingPoint";
+
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateMeetingPoint(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from MeetingTalkingPoint where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingTalkingPoint", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateSuggestionsRecommendation(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from MeetingSuggestion where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingSuggestion", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateActionablePoints(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from MeetingActionablePoints where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingActionablePoints", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        
+        [HttpPost]
+        public JsonResult CreateMeetingDecision(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from MeetingDecision where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingDecision", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
     }
 }
