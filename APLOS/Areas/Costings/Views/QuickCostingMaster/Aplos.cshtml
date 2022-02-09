@@ -1058,6 +1058,7 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 150px !important">Costing Item</th>
+                                        <th style="width: 60px !important">Sub Material</th>
                                         <th style="width: 40px !important">Seq.No.</th>
                                         <th style="width: 150px !important;text-align:center!important;">Particulars</th>
                                         <th>UoM</th>
@@ -1102,6 +1103,11 @@
                                     <tr ng-repeat="x in DirectMaterialList">
                                         <td style="width:250px!important; cursor:pointer;" ng-click="NavigateToUpdatePreCosting(x);">
                                             <label style="color:blue;cursor:pointer; font-weight:inherit;">{{x.UserName}}</label>
+                                        </td>
+                                        <td style="min-width:60px;">
+                                            <span class="input-group-btn">
+                                                <button name="submit" ng-click="GetSubMaterial(x)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                                            </span>
                                         </td>
                                         @*<td style="width:90px!important;">{{x.MaterialGroup}}</td>*@
                                         <td class="text-right">
@@ -1299,13 +1305,13 @@
                                         <td style="width:150px!important;">{{x.UserName}}</td>
 
                                         @*<td>
-                                            <input type="number" ng-disabled="true" style="min-width:40px"  ng-model="x.SeqNo" ;" class="form-control">
+                                               <input type="number" ng-disabled="true" style="min-width:40px"  ng-model="x.SeqNo" ;" class="form-control">
 
-                                         </td>*@
-                                        
+                                            </td>*@
+
                                         <td>
                                             <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
-                                                                                
+
                                         </td>
 
                                         <td>
@@ -1331,7 +1337,8 @@
 
                                     </tr>
                                     <tr>
-                                        <td style="color: blue">Total
+                                        <td style="color: blue">
+                                            Total
                                         </td>
                                         <td colspan="2" style="color: blue " class="text-right"><label>{{TotalSegmentedValueByComponent | number:5}}</label></td>
                                         @*<td colspan="3"></td>*@
@@ -1363,7 +1370,7 @@
                                 <tbody>
                                     <tr ng-repeat="x in DirectProcessList">
                                         <td style="width:250px!important;">{{x.UserName}}</td>
-                                        
+
                                         <td>
                                             <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
 
@@ -1760,15 +1767,11 @@
             <div class="modal-header">Costing Items for {{SelectedQuickCostingComponent.UserName}} <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div class="col-xs-12 col-sm-12 col-md-12">
-
-
-
                     <div id="GridItemListForOperations" ej-grid e-datasource="CostingItemList" e-gridlines="vertical"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-template="#CheckForItemSelection" e-textalign="center" e-width="30"></div>
-
                             <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="20"></div>
                             <div e-column e-type="string" e-field="CostingCategory" e-headertext="Category" e-width="60"></div>
                             <div e-column e-type="string" e-field="UserName" e-headertext="Item Name" e-width="100"></div>
@@ -1776,7 +1779,6 @@
                         </div>
                     </div>
                     <script type="text/template" id="CheckForItemSelection">
-
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-value="data.Selected" e-checked="data.Selected" />
                     </script>
                 </div>
@@ -2411,5 +2413,82 @@
 <confirm-archive-generic modalid="DeleteValueLossPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteValueLoss()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDocDelete" title="Confirmation" data-ng-click-left-button="confirmCloseDocDelete()" message={{message_confirmation}} data-ng-click-right-button="removeDoc()"></confirm-archive-generic>
 
+<!-- #region SubMaterial popup -->
+<div class="modal fade site-modal in" id="SubMaterialPOPup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">SubMaterial <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-disabled="Segment=='Operation'" ng-click="showCostingItemListWithOperationPopUpInSubMaterial();" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> </button></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div id="GridI" ej-grid e-datasource="SubMaterialList" 
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="CostingItemId" e-headertext="Costing Item"></div>
+                            <div e-column e-field="CostingMasterTemplateId" e-headertext="CostingMasterTemplate Id"></div>
+                            <div e-column e-field="CostingItemId" e-headertext="CostingItemId"></div>
+                            <div e-column e-field="Consumption" e-headertext="Consumption"></div>
+                            <div e-column e-field="ValueLoss" e-headertext="Value Loss"></div>
+                            <div e-column e-field="Rate" e-headertext="Rate"></div>
+                            <div e-column e-field="GrossConsumption" e-headertext="Gross Consumption"></div>
+                            <div e-column e-field="GrossAmount" e-headertext="Gross Amount"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="CheckForItemSelection">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-value="data.Selected" e-checked="data.Selected" />
+                    </script>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="SaveSubMaterial();CloseSubMaterial();" class="btn"><i class=""></i> Save Item(s)</button>
+                <button ng-click="CloseSubMaterial();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
 
+    </div>
+</div>
 
+<ej-dialog id="General"
+           title="Sub Material"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#SubMaterialPOPup"
+           e-close="onDialogClose"
+           e-width="1020"
+           e-minheight="470"
+           e-open="enableBtn">
+
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div id="GridIt" ej-grid e-datasource="NewCostingItemList" e-gridlines="vertical"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-template="#CheckSelections" e-textalign="center" e-width="30"></div>
+
+                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="20"></div>
+                <div e-column e-type="string" e-field="CostingCategory" e-headertext="Category" e-width="60"></div>
+                <div e-column e-type="string" e-field="UserName" e-headertext="Item Name" e-width="100"></div>
+                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+            </div>
+        </div>
+        <script type="text/template" id="CheckSelections">
+
+            <input type="checkbox" ej-checkbox class="rowCheckbox" e-value="data.Selected" e-checked="data.Selected" />
+        </script>
+    </div>
+
+    <div class="modal-footer common-btn">
+        <button ng-click="SaveSubMaterialPart();hideSubMaterialPart();" class="btn"><i class=""></i> Select Item(s)</button>
+
+        <button ng-click="hideSubMaterialPart();" class="btn"><i class=""></i> Close</button>
+    </div>
+
+</ej-dialog>
+
+<!-- #endregion -->

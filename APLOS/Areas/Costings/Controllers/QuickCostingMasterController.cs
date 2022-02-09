@@ -219,6 +219,12 @@ namespace Aplos.Areas.Costings.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
+        public ActionResult SubMaterial()
+        {
+            var sql = @"";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
         public ActionResult SaveCostingItemsForCostingComponent(List<Dictionary<string, object>> itemList, string CostingMasterTemplateId, string costingComponentId, string Segment)
         {
             try
@@ -267,7 +273,7 @@ namespace Aplos.Areas.Costings.Controllers
                     if (MaxSequence < clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Sequence"].ToString()))
                         MaxSequence = clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Sequence"].ToString());
                 }
-                
+
 
                 DataTable dtMainItems = _sqlRepository.GetDataTable(@"SELECT * FROM hkp.CostingItem AS ci WHERE ci.Id IN  (" + CostingItemIds + ") ");
 
@@ -291,7 +297,7 @@ namespace Aplos.Areas.Costings.Controllers
                 int Index = 0;
                 foreach (var item in itemList)
                 {
-                    
+
                     Index++;
                     dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item["CostingItemId"].ToString() + "'";
                     if (bplib.clsWebLib.GetBoolData(item["Selected"].ToString()))
@@ -1917,7 +1923,7 @@ namespace Aplos.Areas.Costings.Controllers
 
 
                             dr["CostingItemId"] = item.CostingItemId;
-                            
+
                             dr["Consumption"] = item.Consumption;
                             dr["UOM"] = item.UOM;
                             dr["Rate"] = item.Rate;
@@ -1928,7 +1934,7 @@ namespace Aplos.Areas.Costings.Controllers
                             dr["CostingMasterTemplateId"] = costingMasterTemplateId;
                             dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
 
-                            dr["SourcingType"] = item.SourcingType; 
+                            dr["SourcingType"] = item.SourcingType;
                             dr["Sequence"] = item.Sequence;
                             dr["Usage"] = item.Usage;
                             dr["POCriteria"] = item.POCriteria;
@@ -2029,7 +2035,7 @@ namespace Aplos.Areas.Costings.Controllers
         {
             string sql = @"Select P.Id ProductMasterId,BUoM.Id AS Value,BUoM.UserName AS Text from [MST].[ProductMaster] P
                             LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=P.BaseUOMId
-                            Where ISNULL(BUoM.Id,'')<>'' and p.Id='"+ ProductMasterId + @"'
+                            Where ISNULL(BUoM.Id,'')<>'' and p.Id='" + ProductMasterId + @"'
                             UNION ALL
                             Select AUom.ProductMasterId,BUoM.Id,BUoM.UserName from MST.ProductMasterAlternativeUoM AUoM 
                             LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=AUom.AlternativeUOMId
@@ -3050,7 +3056,7 @@ namespace Aplos.Areas.Costings.Controllers
 
 
                         //now add percentage portion with the CurrentGrossValue
-                        CurrentGrossValue += (TotalFixedValue / ((100 - Percentage) / 100))- TotalFixedValue; //TotalFixedValue * (Percentage / 100);
+                        CurrentGrossValue += (TotalFixedValue / ((100 - Percentage) / 100)) - TotalFixedValue; //TotalFixedValue * (Percentage / 100);
 
                         dtReference.Rows[i]["TotalGrossAmount"] = CurrentGrossValue;
                     }
@@ -3217,7 +3223,7 @@ namespace Aplos.Areas.Costings.Controllers
             {
                 for (int i = 0; i < ChildData.Count; i++)
                 {
-                    if(OTSBD.clsStaticInfo.dbl(ChildData[i].Allowance) < 0)
+                    if (OTSBD.clsStaticInfo.dbl(ChildData[i].Allowance) < 0)
                         throw new Exception("Allowance data cannot be negative");
                     if (OTSBD.clsStaticInfo.dbl(ChildData[i].Actual) <= 0)
                         throw new Exception("Actual data cannot be less or equal zero");
@@ -3282,7 +3288,60 @@ namespace Aplos.Areas.Costings.Controllers
             {
                 throw ex;
             }
+        }
+        [HttpPost, Authorize]
+        public JsonResult SaveSubMaterial(List<Dictionary<string, object>> itemList, Dictionary<string, object> PreCDMaterial)
+        {
+            try
+            {
+                DataSet dsMaster;DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;int count = 0;
+                bplib.clsGenID objGenID = new bplib.clsGenID();
+                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "PreCostingDirectMaterialChilds", out string seed_detail);
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from PreCostingDirectMaterialChild where PreCostingDirectMaterialId='" + PreCDMaterial["Id"] + "' ", out dsMaster, false, "1");
+                
+                foreach (var item in itemList)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId = '" + item["CostingItemId"] + "' ";
 
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                        continue;
+
+                        count++;
+                        string pk = "ITT" + seed_detail + "_" + count;
+                        drMSave = dsMaster.Tables[0].NewRow();
+                        drMSave["Id"] = pk;
+                        drMSave["PreCostingDirectMaterialId"] = PreCDMaterial["Id"];
+                        drMSave["CostingItemId"] = item["CostingItemId"];
+                        drMSave["CostingMasterTemplateId"] = item["CostingMasterTemplateId"];
+
+                        drMSave["Consumption"] = 0;
+                        drMSave["Rate"] = 0;
+                        drMSave["ValueLoss"] = 0;
+                        drMSave["GrossConsumption"] = 0;
+                        drMSave["GrossAmount"] = 0;
+
+                        drMSave["AddedBy"] = identity.Name;
+                        drMSave["AddedDate"] = DateTime.Now;
+                        drMSave["AddedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(drMSave);
+                    
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetSubMaterialData(string MasterId)
+        {
+            string sql = @"SELECT * FROM PreCostingDirectMaterialChild where PreCostingDirectMaterialId ='"+MasterId+"'";
+            return Json(new { data = _sqlRepository.GetDataCollection(sql) }, JsonRequestBehavior.AllowGet);
         }
         #endregion
     }
