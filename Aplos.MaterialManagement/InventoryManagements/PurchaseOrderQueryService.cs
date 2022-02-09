@@ -39,14 +39,21 @@ namespace Library.MaterialManagement.InventoryManagements
             {
                 try
                 {
-                    string whereClause = @"WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
+                    //string whereClause = @"WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
+                    //            AND isnull(B.MasterOrderItemId,'') NOT IN (
+                    //            select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
+                    //            join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
+                    //            WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + identity.PlantId + @"'
+                    //        )
+
+                                            //";
+                    string whereClause = @"WHERE (b.VendorId='" + VendorId + @"' OR ISNULL(b.VendorId,'')='')
                                 AND isnull(B.MasterOrderItemId,'') NOT IN (
                                 select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
                                 join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
                                 WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + identity.PlantId + @"'
-                            )
+                            )  AND (moi.ContractId='" + ContractId + @"' OR ISNULL( b.CostingBOQMasterId,'')<>'') ";
 
-                                            ";
                     if (istradingPO)
                     {
                         whereClause = @"WHERE moi.ContractId='" + ContractId + @"'
@@ -171,7 +178,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                 " + whereClause + @"
 
 
-						AND b.isParent=0 --and isChild=0
+						AND ISNULL(b.isParent,0)=0 --and isChild=0
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
                     var Data = _sqlRepository.GetDataCollection(sql);
                     StringCollection strCol = new StringCollection();
