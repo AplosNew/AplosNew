@@ -38,7 +38,9 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         Department: null,
         MeetingType: null,
         BackgroundIssueDetail: null,
-        ActionApplicable: null,
+        ActionApplicable: null, 
+        ItemTitle: null,
+        ItemDetail: null,
         CostEstimation: null,
         IssueStatus: 'Active',
         ByWhomId: null,
@@ -76,6 +78,14 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         Status: null
     };
     $scope.ModelActionablePoints = Object.assign({}, $scope.ModelActionable);
+
+    $scope.ModelMeetingDec = {
+        Id: null,
+        Decision: null,
+        ByWhomId: null,
+        Remarks: null
+    };
+    $scope.ModelMeetingDecision = Object.assign({}, $scope.ModelMeetingDec);
 
 
     $scope.Get = function (args) {
@@ -243,6 +253,15 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         $scope.ByWhomId = data.Id;
         //$scope.ModelNew.ByWhomName = data.EmployeeName;
         angular.element(document.querySelector('#actionablePointsPopUp')).modal('hide');
+
+    };
+
+    $scope.selectMeetingDecisionPopUp = function (index, data) {
+        $scope.MeetingDecisionIndex = index;
+
+        $scope.ByWhomId = data.Id;
+        //$scope.ModelNew.ByWhomName = data.EmployeeName;
+        angular.element(document.querySelector('#meetingDecisionPopUp')).modal('hide');
 
     };
 
@@ -420,5 +439,42 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#actionablePointsPopUp')).modal('hide');
     };
 
+    $scope.showMeetingDecisionPopUp = function () {
+        try {
+            angular.element(document.querySelector('#meetingDecisionPopUp')).modal('show');
+        }
+        catch (e)
+        {
+            ShowResult(e, 'failure');
+        }
+    };
 
+    $scope.closeMeetingDecisionPopUp = function () {
+
+        angular.element(document.querySelector('#meetingDecisionPopUp')).modal('hide');
+    };
+
+    $scope.SaveMeetingDecision = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        $http({
+            method: 'POST',
+            url: 'MeetingManagement/MeetingPoints/CreateMeetingDecision',
+            data: { 'data': $scope.ModelMeetingDecision },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                /*   ClearFields(response.data.Sequence);*/
+                $scope.getData();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+        angular.element(document.querySelector('#meetingDecisionPopUp')).modal('hide');
+    };
 }
