@@ -1,5 +1,4 @@
 ﻿#region Using
-
 using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
@@ -28,7 +27,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Mvc;
-
 #endregion
 
 namespace Aplos.Areas.Commercial.Controllers
@@ -965,7 +963,6 @@ namespace Aplos.Areas.Commercial.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-
         [HttpGet, Authorize]
         public ActionResult GetMasterLCDataList()
         {
@@ -986,7 +983,7 @@ namespace Aplos.Areas.Commercial.Controllers
             string sql = @"SELECT  A.Id,A.Sequence,A.FundUtilization,A.UserName,SUM(A.FundValue) PurchaseMargin,A.CommisssionChargeValue [Percentage],A.CommisssionChargeValue [OldPercentage],A.Reason,A.CurrencyId FROM
 (
 SELECT CF.Id,CFU.Id FundUtilization,CFU.UserName ,C.*,MOI.TotalQty,CFU.CommisssionCharge
-,CASE WHEN CFU.CommisssionCharge='Percentage' THEN ISNULL(C.TotalGrossAmount,0)* ISNULL(MOI.TotalQty,0)*(1/CFU.CommisssionChargeValue)
+,CASE WHEN CFU.CommisssionCharge='Percentage' THEN ISNULL(C.TotalGrossAmount,0)* ISNULL(MOI.TotalQty,0)*(1/NULLIF(CFU.CommisssionChargeValue,0))
 ELSE CFU.CommisssionChargeValue END AS FundValue,CFU.CommisssionChargeValue,CFU.Sequence,CF.Reason,CF.CurrencyId
 FROM  dbo.ContractFundUtilization CFU 
 LEFT JOIN TRN.MasterOrderItem MOI ON MOI.ContractId='" + contractId + @"'

@@ -50,7 +50,6 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
-
         public ActionResult Aplos1()
         {
             return View();
@@ -79,15 +78,12 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
-
         [HttpPost]
         public JsonResult Update(List<Dictionary<string, object>> FabricRollData, string PackingForm)
         {
             _fabricRollMasterService.UpdateFabricRoll(FabricRollData, PackingForm);
             return Json(new { Message = AplosMessage.Updated });
         }
-
-
 
         [HttpPost, Authorize]
         public JsonResult GetRoll(int NoofRolls, Dictionary<string, object> SelectedRow, double Width, string PackingForm)
