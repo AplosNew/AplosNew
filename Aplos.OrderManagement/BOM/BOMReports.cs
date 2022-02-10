@@ -4891,7 +4891,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
 
         #region Upload Data
 
-        public IWorkbook DownloadByContract(string ContractId)
+        public IWorkbook Download(string Id, string SelectionType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -4905,6 +4905,20 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             //Load the existing Excel workbook into IWorkbook
 
             IWorksheet worksheet = workbook.Worksheets[0];
+
+
+            string WhereClause = @"       WHERE moi.ContractId='" + Id + @"' and isnull(B.Id,'') 
+                            NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' 
+                            AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + Id + @"'))
+                      ";
+            if (SelectionType.ToUpper() == "ITEM")
+            {
+                WhereClause = @"       WHERE moi.Id='" + Id + @"' and isnull(B.Id,'') 
+                            NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' 
+                            AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where Id='" + Id + @"'))
+                      ";
+            }
+
             string strsql = @"SELECT b.Id,b.MaterialMasterId,b.CurrencyId,b.ArticleId,b.POUoMId,b.BaseUoMId,b.UoMId, b.MasterOrderItemId,moi.MasterOrderId,moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,b.SalesOrderId,
                                  mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
 
@@ -4968,8 +4982,8 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
 								
 								) GRN On GRN.BOQDetailId = b.Id
 
-                                WHERE moi.ContractId='" + ContractId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"'))
-                                ORDER BY isnull(b.Sequence,0),b.SalesOrderId";
+                           " + WhereClause + @" 
+                        ORDER BY isnull(b.Sequence,0),b.SalesOrderId";
             DataTable dtData = _sqlRepository.GetDataTable(strsql);
 
 
@@ -5170,7 +5184,8 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true; //row 19 of heading 
             sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
             sheet.Range[ROW, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
-            sheet.Range[ROW, 1, ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
             int endCol = COL;
             ROW++;
 
@@ -5326,7 +5341,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
 
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.PlantHeader(ref worksheet, endCol, "Contract#" + ContractId, identity.PlantId);
+            reportUtility.PlantHeader(ref worksheet, endCol, SelectionType.ToLower() + "#" + Id, identity.PlantId);
             reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             worksheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;

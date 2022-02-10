@@ -460,6 +460,9 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
         };
 
     }
+    $scope.UploadDownloadPOP = function (args) {
+        $scope.AttachmentSelectedBOMRow = args;
+    }
     $scope.MasterOrderBOMReport = function (args) {
 
         try {
@@ -523,9 +526,11 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
 
         }
     }
-    $scope.DownloadByContract = function () {
+    $scope.Download = function (type) {
         try {
-            var file_src = $scope.Attachmentpath + 'DownloadByContract?ContractId=' + $scope.AttachmentSelectedBOMRow.ContractId;
+            var file_src = $scope.Attachmentpath + 'Download?Type=' + type + '&Id=' + $scope.AttachmentSelectedBOMRow.ContractId;
+            if (type == 'ITEM')
+                file_src = $scope.Attachmentpath + 'Download?Type=' + type + '&Id=' + $scope.AttachmentSelectedBOMRow.MasterOrderItemId;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -572,7 +577,7 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
             $scope.ContractItemDataList = response.data;
         });
     }
-   
+
     $scope.refreshTemplateContract = function (args) {
         if (args.rowIndex == 0) {
             $("#headchkItems").ejCheckBox({ "change": CheckAllContractItem });
@@ -937,16 +942,16 @@ function BOMMasterAttachmentController(commonMessage, $scope, $rootScope, baseSe
 
             $http({
                 method: 'POST',
-                url: $scope.Attachmentpath +'UploadByContract',
+                url: $scope.Attachmentpath + 'UploadByContract',
                 headers: { 'Content-Type': undefined },
                 transformRequest: function (data) {
-                  
+
                     if (baseService.isUndefinedOrNull($scope.picdata) === false) {
                         picData.append('file', data.file);
                     }
                     return picData;
                 },
-                data: {'file': $scope.picdata }
+                data: { 'file': $scope.picdata }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, "failure");

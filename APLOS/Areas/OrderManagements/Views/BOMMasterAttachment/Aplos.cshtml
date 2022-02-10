@@ -127,7 +127,7 @@
 
 
                         <div e-columns>
-                            <div e-column e-template="#ShowActionButtonsassigned" e-allowfiltering="false" e-isfrozen="true" e-headertext="" e-width="110"></div>
+                            <div e-column e-template="#ShowActionButtonsassigned" e-allowfiltering="false" e-isfrozen="true" e-headertext="" e-width="144"></div>
                             <div e-column e-type="string" e-field="BOMMasterId" e-headertext="BOM Id" e-width="50"></div>
                             <div e-column e-type="string" e-field="BomDesc" e-headertext="Description" e-width="120"></div>
                             <div e-column e-type="string" e-field="BOMMaterial" e-headertext="Material" e-width="100"></div>
@@ -177,18 +177,14 @@
                                         <i class="glyphicon glyphicon-pencil" style="color:{{data.HasBOQ?'#ffff04':'#808080'}}"></i>
                                     </button>
                                 </li>
-                                @*<li>
+                                <li>
 
-                        <button ng-click="$parent.MasterOrderBOMReport(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                            <i class="glyphicon glyphicon-circle-arrow-down" style="color:{{data.HasBOQ?'lightcyan':'#808080'}}"></i>
-                        </button>
-                    </li>
-                    <li>
-
-                        <button ng-click="$parent.MasterOrderBOMReportByMaterial(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                            <i class="glyphicon glyphicon-th-list" style="color:{{data.HasBOQ?'lightcyan':'#808080'}}"></i>
-                        </button>
-                    </li>*@
+                                    <button ng-click="$parent.AttachmentopenPopup('dialogBOMItemUploadDownload');$parent.UploadDownloadPOP(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-cloud-download" style="color:{{data.HasBOQ?'lightskyblue':'#808080'}}"></i>
+                                    </button>
+                                </li>
+                                
+                           
 
                             </ul>
                         </div>
@@ -322,7 +318,10 @@
            e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
     @Html.Partial("~/Areas/OrderManagements/Views/BOMMasterAttachment/EditBOMChildItem.cshtml")
 </ej-dialog>
-
+<ej-dialog id="dialogBOMItemUploadDownload" title=" Upload/Download BOM Items" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+    @Html.Partial("~/Areas/OrderManagements/Views/BOMMasterAttachment/UploadDownload.cshtml")
+</ej-dialog>
 <ej-dialog id="dialogBOMItemSelectionForReport" title="BOM Items" e-enablemodal="true" e-position-y="0" e-showoninit="false"
            e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
     <div class="row" style="padding-bottom:10px;">
