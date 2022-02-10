@@ -1,5 +1,4 @@
 ﻿#region Using
-
 using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
@@ -28,7 +27,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Mvc;
-
 #endregion
 
 namespace Aplos.Areas.Commercial.Controllers
@@ -964,7 +962,6 @@ namespace Aplos.Areas.Commercial.Controllers
                             WHERE MLC.CustomerId='" + customerId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-
 
         [HttpGet, Authorize]
         public ActionResult GetMasterLCDataList()
