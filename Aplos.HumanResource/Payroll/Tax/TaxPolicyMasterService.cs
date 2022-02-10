@@ -811,6 +811,90 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
+        public void DeleteIncomeSlab(string Id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [TaxPolicySlabInfo] where PolicyId='" + Id + "'");
+
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<Dictionary<string, object>> SaveSlabInfo(List<Dictionary<string, object>> IncomeSlab, string PolicyId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                string sql = "SELECT * FROM [dbo].[TaxPolicySlabInfo] WHERE PolicyId='" + PolicyId + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
+
+                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                {
+                    dsMaster.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < IncomeSlab.Count; i++)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    clsGenID genid = new clsGenID();
+                    genid.GenID("TaxPolicySlabInfo", out string _Id);
+
+                    #region Validations 
+
+                    if (clsWebLib.RetValidLen(IncomeSlab[i]["TaxRate"]).ToString() == "")
+                    {
+                        throw new Exception("Tax Rate can't be Null ...");
+                    }
+
+                    if (clsWebLib.RetValidLen(IncomeSlab[i]["Minimum"]).ToString() == "")
+                    {
+                        throw new Exception("Min Amount can't be Null ...");
+                    }
+                    if (clsWebLib.RetValidLen(IncomeSlab[i]["Maximum"]).ToString() == "")
+                    {
+                        throw new Exception("Max Amount can't be Null ...");
+                    }
+
+                    #endregion
+
+                    double Diff = clsStaticInfo.dbl(IncomeSlab[i]["Maximum"].ToString()) -
+                    clsStaticInfo.dbl(IncomeSlab[i]["Minimum"].ToString());
+
+                    dr["Id"] = "TSI" + _Id;
+                    dr["PolicyId"] = PolicyId;
+                    dr["Minimum"] = clsStaticInfo.dbl(IncomeSlab[i]["Minimum"].ToString());
+                    dr["Maximum"] = clsStaticInfo.dbl(IncomeSlab[i]["Maximum"].ToString());
+                    dr["DifferenceAmt"] = Diff;
+                    dr["TaxRate"] = clsStaticInfo.dbl(IncomeSlab[i]["TaxRate"].ToString());
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                return IncomeSlab;
+                
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         #endregion
 
