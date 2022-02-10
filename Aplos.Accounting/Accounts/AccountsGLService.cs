@@ -607,6 +607,30 @@ namespace Library.Accounting.Accounts
             }
         }
 
+        public GridModel GetCurrentAssetRevenueExpenseGLBudget(GridParameter parameters, string companyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT  BM.GLGeneralInfoId GLGeneralInfoId,BM.Id BudgetMasterId,
+						 AG.UserName AS AccountGroupName, GLGI.AccountCode AS GLGeneralInfoCode
+						 , GLGI.UserName AS GLGeneralInfoName, BM.RefNo, B.Code BudgetCode, B.UserName BudgetName
+						FROM [MST].[BudgetMaster] AS BM 
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLGI ON BM.GLGeneralInfoId=GLGI.Id
+						LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+						 LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+						WHERE ACT.Id IN ('" + AccountTypeEnum.Revenue + @"','" + AccountTypeEnum.Expense + "','" + AccountTypeEnum.Asset + "')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+
         public GridModel GetExpensesGLBudgetActivityCOAWise(GridParameter parameters, string coaId)
         {
             try

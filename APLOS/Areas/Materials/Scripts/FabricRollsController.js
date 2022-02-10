@@ -39,6 +39,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         VendorWidth: null
     }
     $scope.fabricRollMasterNew = Object.assign({}, $scope.fabricRollMaster);
+
     //#region Fabric Roll Pop Up
     $scope.selectedGRNRow = {};
     $scope.fabDistributeQty = 0;

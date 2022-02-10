@@ -256,5 +256,23 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
             ShowResult(response.data.Message, 'failure');
         };
     }
+
+
+    $scope.SelectedItemData = {};
+    $scope.UploadTableName = '';
+    $scope.uploadUrl = $scope.path + "UploadAttachment/";
+    $scope.ShowUploadBox = function (data/*, costingStage, DBTableName*/) {
+        $scope.SelectedItemData = data;
+/*        $scope.CostingStage = costingStage;*/
+/*        $scope.UploadTableName = DBTableName;*/
+
+        var _title = "Pre Costing";
+
+        //$("#UploadBox").ejDialog("setTitle", "Upload File (" + _title + ")");
+        var eDialog = $("#UploadBox").data("ejDialog");
+        eDialog.open();
+
+    }
+
 }
 
