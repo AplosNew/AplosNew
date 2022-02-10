@@ -3294,12 +3294,12 @@ namespace Aplos.Areas.Costings.Controllers
         {
             try
             {
-                DataSet dsMaster;DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;int count = 0;
+                DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; int count = 0;
                 bplib.clsGenID objGenID = new bplib.clsGenID();
-                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "PreCostingDirectMaterialChilds", out string seed_detail);
+                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "PreCostingDirectMaterialChild", out string seed_detail);
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from PreCostingDirectMaterialChild where PreCostingDirectMaterialId='" + PreCDMaterial["Id"] + "' ", out dsMaster, false, "1");
-                
+
                 foreach (var item in itemList)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId = '" + item["CostingItemId"] + "' ";
@@ -3307,25 +3307,25 @@ namespace Aplos.Areas.Costings.Controllers
                     if (dsMaster.Tables[0].DefaultView.Count > 0)
                         continue;
 
-                        count++;
-                        string pk = "ITT" + seed_detail + "_" + count;
-                        drMSave = dsMaster.Tables[0].NewRow();
-                        drMSave["Id"] = pk;
-                        drMSave["PreCostingDirectMaterialId"] = PreCDMaterial["Id"];
-                        drMSave["CostingItemId"] = item["CostingItemId"];
-                        drMSave["CostingMasterTemplateId"] = item["CostingMasterTemplateId"];
+                    count++;
+                    string pk = "MC" + seed_detail + "_" + count;
+                    drMSave = dsMaster.Tables[0].NewRow();
+                    drMSave["Id"] = pk;
+                    drMSave["PreCostingDirectMaterialId"] = PreCDMaterial["Id"];
+                    drMSave["CostingItemId"] = item["CostingItemId"];
+                    drMSave["CostingMasterTemplateId"] = item["CostingMasterTemplateId"];
 
-                        drMSave["Consumption"] = 0;
-                        drMSave["Rate"] = 0;
-                        drMSave["ValueLoss"] = 0;
-                        drMSave["GrossConsumption"] = 0;
-                        drMSave["GrossAmount"] = 0;
+                    drMSave["Consumption"] = 0;
+                    drMSave["Rate"] = 0;
+                    drMSave["ValueLoss"] = 0;
+                    drMSave["GrossConsumption"] = 0;
+                    drMSave["GrossAmount"] = 0;
 
-                        drMSave["AddedBy"] = identity.Name;
-                        drMSave["AddedDate"] = DateTime.Now;
-                        drMSave["AddedFromIP"] = identity.IPAddress;
-                        dsMaster.Tables[0].Rows.Add(drMSave);
-                    
+                    drMSave["AddedBy"] = identity.Name;
+                    drMSave["AddedDate"] = DateTime.Now;
+                    drMSave["AddedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(drMSave);
+
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
@@ -3340,8 +3340,51 @@ namespace Aplos.Areas.Costings.Controllers
         [HttpPost, Authorize]
         public ActionResult GetSubMaterialData(string MasterId)
         {
-            string sql = @"SELECT * FROM PreCostingDirectMaterialChild where PreCostingDirectMaterialId ='"+MasterId+"'";
+            string sql = @"SELECT  pcdmc.*,ci.UserName CostingItemName,cmt.StandardName  CostingMasterTemplate,pcdm.Id PCDMCID
+                              FROM PreCostingDirectMaterialChild AS pcdmc 
+                            LEFT JOIN HKP.CostingItem AS ci ON ci.Id = pcdmc.CostingItemId
+                            LEFT JOIN CostingMasterTemplate AS cmt ON cmt.Id = pcdmc.CostingMasterTemplateId
+                            LEFT JOIN PreCostingDirectMaterial AS pcdm ON pcdm.Id = pcdmc.PreCostingDirectMaterialId
+                            where PreCostingDirectMaterialId ='" + MasterId + "'";
             return Json(new { data = _sqlRepository.GetDataCollection(sql) }, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult UpdatePreCostingChild(List<Dictionary<string, object>> subMaterilaList, string MasterId)
+        {
+            try
+            {
+                DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; 
+                
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from PreCostingDirectMaterialChild where PreCostingDirectMaterialId='" + MasterId + "' ", out dsMaster, false, "1");
+
+                foreach (var item in subMaterilaList)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = "Id = '" + item["Id"] + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+                        drMSave = dsMaster.Tables[0].DefaultView[0].Row;
+                        drMSave.BeginEdit();
+                        drMSave["Consumption"] = clsStaticInfo.dbl(item["Consumption"]);
+                        drMSave["Rate"] = clsStaticInfo.dbl(item["Rate"]);
+                        drMSave["ValueLoss"] = clsStaticInfo.dbl(item["ValueLoss"]);
+                        drMSave["GrossConsumption"] = clsStaticInfo.dbl(item["GrossConsumption"]);
+                        drMSave["GrossAmount"] = clsStaticInfo.dbl(item["GrossAmount"]);
+
+                        drMSave["UpdatedBy"] = identity.Name;
+                        drMSave["UpdatedDate"] = DateTime.Now;
+                        drMSave["UpdatedFromIP"] = identity.IPAddress;
+                        drMSave.EndEdit();
+                    }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
         #endregion
     }

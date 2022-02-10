@@ -3390,6 +3390,26 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
             ShowResult(e,'info');
         }
     }
+    $scope.SaveSubMaterial = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "UpdatePreCostingChild",
+                data: { subMaterilaList: $scope.SubMaterialList, MasterId: $scope.SelectedLine.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSubMaterialData($scope.SelectedLine.Id);
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
     //#endregion
 
 }
