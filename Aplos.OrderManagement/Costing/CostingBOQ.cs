@@ -126,9 +126,10 @@ namespace Library.OrderManagement.Costing
 
             string sql = @"SELECT convert(bit,isnull(mm.WithSKU,0)) AS WithSKU,BOQ.CostingItemId,boq.SalesOrderId,d.UserName AS Destination,
                             cv1.UserName AS SKU1,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
-                                    BOQ.Id, ci.Sequence,ci.UserName AS ItemDesc,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
+                                    BOQ.Id, ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
                                     mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
-                                    boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency
+                                    boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency,
+                                    BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
@@ -312,9 +313,9 @@ namespace Library.OrderManagement.Costing
 
                 ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager();
                 ConManager.getDataSet("select * from CostingBOQMaster where Id='" + MasterData["Id"] + "'", out DataSet dsMaster);
-                ConManager.getDataSet("select TOP(1)* from CostingBOQMaster where Id<>'" + MasterData["Id"] + "' and UserName='"+MasterData["UserName"]+"' ", out DataSet dsValid);
+                ConManager.getDataSet("select TOP(1)* from CostingBOQMaster where Id<>'" + MasterData["Id"] + "' and UserName='" + MasterData["UserName"] + "' ", out DataSet dsValid);
                 string _masterId = "";
-                if (dsValid.Tables[0].Rows.Count>0)
+                if (dsValid.Tables[0].Rows.Count > 0)
                 {
                     throw new Exception("User Name Already Exist.");
                 }
@@ -1582,7 +1583,11 @@ namespace Library.OrderManagement.Costing
                     {
 
                         dsMaster.Tables[0].DefaultView[0].Row.BeginEdit();
-                        dsMaster.Tables[0].DefaultView[0]["RequiredQty"] = clsStaticInfo.dbl(QuantityData[i]["RequiredQty"]);
+                        dsMaster.Tables[0].DefaultView[0]["RequiredQty"] =QuantityData[i]["RequiredQty"];
+                        dsMaster.Tables[0].DefaultView[0]["RMDescription"] =QuantityData[i]["RMDescription"];
+                        dsMaster.Tables[0].DefaultView[0]["RMCustomerSpec"] =QuantityData[i]["RMCustomerSpec"];
+                        dsMaster.Tables[0].DefaultView[0]["RMVendorSpec"] =QuantityData[i]["RMVendorSpec"];
+                        dsMaster.Tables[0].DefaultView[0]["SKUDesc"] =QuantityData[i]["SKUDesc"];
 
 
 

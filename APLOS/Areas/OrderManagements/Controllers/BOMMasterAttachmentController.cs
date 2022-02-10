@@ -250,7 +250,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             return null;
         }
-        
+
 
         [HttpGet, Authorize]
         public ActionResult OrderLevelBOMReport(string MasterOrderId)// MasterOrderReport
@@ -544,6 +544,62 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         #endregion Operations
+
+
+
+        [HttpGet, Authorize]
+        public ActionResult Download(string Id, string Type)
+        {
+
+            try
+            {
+                if (string.IsNullOrEmpty(Id) || Id== "null" || Id == "undefined")
+                {
+                    if (Type.ToUpper() == "CONTRACT")
+                        throw new Exception("No Contract Id found");
+                    else
+                        throw new Exception("No Master Order Id found");
+                }
+                Library.OrderManagement.BOM.BOMReports attchment = new Library.OrderManagement.BOM.BOMReports();
+
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                IWorkbook workbook = attchment.Download(Id, Type);
+
+                string strFileName = "BOM Upload Template-" + Type.ToLower() + " " + Id + ".xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+
+            return null;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult UploadByContract()
+        {
+            string path;
+            try
+            {
+                Library.OrderManagement.BOM.BOMReports BOM = new Library.OrderManagement.BOM.BOMReports();
+                var file = Request.Files["file"];
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                BOM.UploadData(file);
+                JsonResult json = Json(new { Message = "Data uploaded successfully", Error = false }, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+
     }
 
 }

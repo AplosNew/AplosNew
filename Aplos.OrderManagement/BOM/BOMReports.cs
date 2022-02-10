@@ -1,4 +1,5 @@
 ﻿using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Service.Helpers;
 using OTSBD;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -587,9 +589,9 @@ SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) Require
 								
 								) GRN On GRN.BOQDetailId = b.Id
 
-                                WHERE MO.Id='"+MasterOrderId+@"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
+                                WHERE MO.Id='" + MasterOrderId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
 								JOIn TRN.MasterOrderItem MOI ON MOI.Id=BOQ.MasterOrderItemId
-								where isnull(ParentId,'')<>'' AND MO.Id='"+ MasterOrderId + @"'
+								where isnull(ParentId,'')<>'' AND MO.Id='" + MasterOrderId + @"'
                             
                                 )) AS K 
 								GROUP BY K.OwnReferenceNo,k.BuyerReferenceNo,k.VendorId,k.Material,
@@ -801,7 +803,7 @@ SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) Require
 								
 								) GRN On GRN.BOQDetailId = b.Id
 
-                               WHERE moi.Id='"+ MasterOrderItemId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
+                               WHERE moi.Id='" + MasterOrderItemId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
 								JOIn TRN.MasterOrderItem MOI ON MOI.Id=BOQ.MasterOrderItemId
 								where isnull(ParentId,'')<>'' AND MOI.Id='" + MasterOrderItemId + @"'
                             
@@ -1598,7 +1600,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             sheet[ROW, COL].Text = "SKU3";
             sheet[ROW, COL].ColumnWidth = 10;
             int colCharVal3 = COL;
-           
+
             COL++;
 
             sheet[ROW, COL].Text = "Customer Spec";
@@ -1673,7 +1675,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             sheet[ROW, COL].Text = "Vendor";
             sheet[ROW, COL].ColumnWidth = 10;
             int colVendor = COL;
-           
+
 
 
             sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true; //row 19 of heading 
@@ -1693,7 +1695,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                 sheet[ROW, colArticle].Text = dtData.Rows[i]["Article"].ToString();
                 sheet[ROW, colRMDescription].Text = dtData.Rows[i]["RMDescription"].ToString();
 
-               
+
                 sheet[ROW, colMOI].Text = dtData.Rows[i]["MOIIds"].ToString();
                 sheet[ROW, colRMCustomerSpec].Text = dtData.Rows[i]["RMCustomerSpec"].ToString();
                 sheet[ROW, colRMVendorSpec].Text = dtData.Rows[i]["RMVendorSpec"].ToString();
@@ -1743,7 +1745,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             sheet.Range[StartRow, colWastagePer, ROW, colWastagePer].NumberFormat = clsStaticInfo.NumberFormat(2);
 
         }
-        
+
         private void ContactLevelBOMData(DataTable dtData, IWorksheet sheet, ref int ROW)
         {
 
@@ -2654,7 +2656,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                     left join hkp.buyer B on b.id = mo.buyerid 
                     left join hkp.party p on p.id = mo.partyid 
                     left join hkp.BuyerDepartment BDept on BDept.id = mo.buyerDepartmentid 
-                    left join HKP.buyerdivision BDev on BDev.id = mo.BuyerDivisionId where mo.Id='"+ MasterOrderId + "'");
+                    left join HKP.buyerdivision BDev on BDev.id = mo.BuyerDivisionId where mo.Id='" + MasterOrderId + "'");
                 if (dtOrderMaster.Rows.Count == 0)
                     throw new Exception("No data found");
 
@@ -4884,6 +4886,630 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
 
         }
         #endregion
+
+
+
+        #region Upload Data
+
+        public IWorkbook Download(string Id, string SelectionType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+            IWorkbook workbook = application.Workbooks.Create(3);
+            //Load the existing Excel workbook into IWorkbook
+
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+
+            string WhereClause = @"       WHERE moi.ContractId='" + Id + @"' and isnull(B.Id,'') 
+                            NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' 
+                            AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + Id + @"'))
+                      ";
+            if (SelectionType.ToUpper() == "ITEM")
+            {
+                WhereClause = @"       WHERE moi.Id='" + Id + @"' and isnull(B.Id,'') 
+                            NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' 
+                            AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where Id='" + Id + @"'))
+                      ";
+            }
+
+            string strsql = @"SELECT b.Id,b.MaterialMasterId,b.CurrencyId,b.ArticleId,b.POUoMId,b.BaseUoMId,b.UoMId, b.MasterOrderItemId,moi.MasterOrderId,moi.OwnReferenceNo,moi.BuyerReferenceNo, b.VendorId,b.SalesOrderId,
+                                 mm.UserName AS Material,mma.StandardName AS Article,p.UserName AS Vendor,b.SKUDesc,
+
+                                v1.UserName AS CharVal1,v2.UserName AS CharVal2,v3.UserName AS CharVal3,convert(bit,isnull(b.isParent,0)) AS isParent,
+                                convert(bit,isnull(b.isChild,0)) AS isChild,PR.UserName AS Process,
+                               CONVERT(BIT, isnull(b.RequiredQtyApproved,0)) AS RequiredQtyApproved,CONVERT(BIT, isnull(b.IncompleteMaterial,0)) AS IncompleteMaterial,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+                                b.BOMQty,b.RequiredQty,b.RequiredQtyPO,uom.UserName AS UOM,uomm.UserName AS ParentUOM,
+                                POUOM.UserName AS POUOM,b.Rate,c.Code AS Currency,
+                                CONCAT(b.RMDescription, CASE WHEN ISNULL(bp.Id,'')<>'' THEN CONCAT(b.RMDescription,'(',mmp.UserName,'-',mmap.StandardName,')') ELSE '' END) AS RMDescription,
+                                b.RMCustomerSpec,	b.RMVendorSpec
+								,ISNULL(po.POQTY,0) POQTY,ISNULL(grn.GRNQty,0) GRNQty,
+								
+								 SO1 =STUFF((select distinct ','+xv1.UserName
+								               from BOQFGMapping AS XM	 
+										       JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+								               JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.FirstCharacteristicsValueId
+								             WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO2 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.SecondCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								SO3 =STUFF((select distinct ','+xv1.UserName
+										from BOQFGMapping AS XM	 
+										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
+										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.ThirdCharacteristicsValueId
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								POIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.PurchaseOrderDetail AS XB2 ON xb2.Id=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                  FROM BOQ AS b
+                                LEFT JOIN boq bp ON bp.ParentId=b.Id
+                                LEFT OUTER JOIN MST.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                                LEFT OUTER JOIN MST.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+                                
+                                LEFT OUTER JOIN MST.MaterialMaster AS mmp ON mmp.Id=bp.MaterialMasterId
+                                LEFT OUTER JOIN MST.MaterialMasterArticle AS mmap ON mmap.Id=b.ArticleId
+
+                                LEFT OUTER JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+                                LEFT OUTER JOIN SCS.UnitOfMeasurement AS POuom ON POuom.Id=b.POUoMId
+                                LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+                                LEFT OUTER JOIN TRN.SalesOrder AS so ON so.Id=b.SalesOrderId
+                                LEFT OUTER JOIN TRN.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+                                LEFT OUTER JOIN TRN.masterorder MO ON MO.Id=moi.MasterOrderId
+                                LEFT OUTER JOIN SCS.UnitOfMeasurement AS uomm ON uomm.Id=mo.TotalQtyUOMId
+                                LEFT JOIN HKP.Process AS pr ON pr.Id=b.ProcessId
+								LEFT JOIN scs.Currency AS c ON c.Id=b.CurrencyId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+                                LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+								Left outer join (	select BOQDetailId,sum(POBOQQty) as POQTY from trn.POBOQMAP  GRoup by BOQDetailId) PO On PO.BOQDetailId = b.Id
+								Left outer join (	
+								SELECT a.BOQDetailId , sum(b.TransactionQty) GRNQty 
+				FROM trn.POBOQMAP a
+				INNER JOIN trn.InventoryReceiveDetail b ON a.PODetailId=b.PODetailsId GRoup by BOQDetailId
+								
+								) GRN On GRN.BOQDetailId = b.Id
+
+                           " + WhereClause + @" 
+                        ORDER BY isnull(b.Sequence,0),b.SalesOrderId";
+            DataTable dtData = _sqlRepository.GetDataTable(strsql);
+
+
+            if (dtData.Rows.Count == 0)
+                throw new Exception("No data found");
+
+            DataTable dtCurrency = _sqlRepository.GetDataTable(@"  SELECT c.* FROM scs.CurrencyTransaction AS ct
+                               JOIN scs.Currency AS c ON c.Id=ct.CurrencyId
+                               WHERE ct.CompanyId='" + identity.CompanyId + @"'");
+
+            int ROW = 6; int COL = 1;
+
+
+            //Master Order Item....................................................................................................
+            StringCollection strColSO = new StringCollection();
+            IWorksheet sheet = workbook.Worksheets[0];
+
+
+            int colType = COL; sheet[ROW, COL].Text = "Type"; COL++;
+            int colId = COL; sheet[ROW, COL].Text = "Id"; COL++;
+            int colMaterialMasterId = COL; sheet[ROW, COL].Text = "MaterialMasterId"; COL++;
+            int colArticleId = COL; sheet[ROW, COL].Text = "ArticleId"; COL++;
+            int colPOUoMId = COL; sheet[ROW, COL].Text = "POUoMId"; COL++;
+            int colBaseUoMId = COL; sheet[ROW, COL].Text = "BaseUoMId"; COL++;
+            int colUoMId = COL; sheet[ROW, COL].Text = "UoMId"; COL++;
+            int colMasterOrderItemId = COL; sheet[ROW, COL].Text = "MasterOrderItemId"; COL++;
+            int colMasterOrderId = COL; sheet[ROW, COL].Text = "MasterOrderId"; COL++;
+            int colVendorId = COL; sheet[ROW, COL].Text = "VendorId"; COL++;
+            int colCurrencyId = COL; sheet[ROW, COL].Text = "CurrencyId"; COL++;
+            sheet.Range[1, 1, 1, COL - 1].ColumnWidth = 0;
+
+            sheet[ROW, COL].Text = "Sl. No";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 6;
+            int colSlNo = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Material";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colMaterial = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Article";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colArticle = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Own Reference No";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colOwnReferenceNo = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Buyer Reference No";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colBuyerReferenceNo = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Sales Order Id";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSalesOrderId = COL;
+            COL++;
+            sheet[ROW, COL].Text = "RM Desc";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int colRMDescription = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Process";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colProcess = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal2 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharVal3 = COL;
+            sheet.Range[ROW - 1, colCharVal1].Text = "RM SKU";
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].Merge();
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].CellStyle.Font.Bold = true;
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Green;
+            sheet.Range[ROW - 1, colCharVal1, ROW - 1, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+
+
+
+            COL++;
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharValSO1 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharValSO2 = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU3";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colCharValSO3 = COL;
+
+            sheet.Range[ROW - 1, colCharValSO1].Text = "FG SKU";
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].Merge();
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].CellStyle.Font.Bold = true;
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+            sheet.Range[ROW - 1, colCharValSO1, ROW - 1, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+
+            COL++;
+            sheet[ROW, COL].Text = "Customer Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMCustomerSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor Spec";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colRMVendorSpec = COL;
+            COL++;
+            sheet[ROW, COL].Text = "SKU Desc";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colSKUDesc = COL;
+            COL++;
+            sheet[ROW, COL].Text = "BOQ";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colBOMQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Booking Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colRequiredQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colRequiredQtyInPOUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Rate";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colRate = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Currency";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colCurrency = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colPOQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "GRN Qty";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colGRNQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Balance To Purchase";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 14;
+            int colBalTOProduce = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Balance To Recieve";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 14;
+            int colBalTORecieve = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colPOUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Consumption";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 9;
+            int colConsumption = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Wastage Per";
+            sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 8;
+            int colWastagePer = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Vendor";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int colVendor = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO NOs";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colPOIds = COL;
+            COL++;
+            sheet[ROW, COL].Text = "GRN Nos";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colGRNIds = COL;
+
+
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true; //row 19 of heading 
+            sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+            int endCol = COL;
+            ROW++;
+
+            int StartRow = ROW;
+            for (int i = 0; i < dtData.Rows.Count; i++)
+            {
+
+
+
+                sheet[ROW, colType].Text = "DATA";
+                sheet[ROW, colId].Text = dtData.Rows[i]["Id"].ToString();
+                sheet[ROW, colMaterialMasterId].Text = dtData.Rows[i]["MaterialMasterId"].ToString();
+                sheet[ROW, colArticleId].Text = dtData.Rows[i]["ArticleId"].ToString();
+                sheet[ROW, colPOUoMId].Text = dtData.Rows[i]["POUoMId"].ToString();
+                sheet[ROW, colBaseUoMId].Text = dtData.Rows[i]["BaseUoMId"].ToString();
+                sheet[ROW, colUoMId].Text = dtData.Rows[i]["UoMId"].ToString();
+                sheet[ROW, colMasterOrderItemId].Text = dtData.Rows[i]["MasterOrderItemId"].ToString();
+                sheet[ROW, colMasterOrderId].Text = dtData.Rows[i]["MasterOrderId"].ToString();
+                sheet[ROW, colOwnReferenceNo].Text = dtData.Rows[i]["OwnReferenceNo"].ToString();
+                sheet[ROW, colBuyerReferenceNo].Text = dtData.Rows[i]["BuyerReferenceNo"].ToString();
+                sheet[ROW, colSalesOrderId].Text = dtData.Rows[i]["SalesOrderId"].ToString();
+
+                sheet[ROW, colVendorId].Text = dtData.Rows[i]["VendorId"].ToString();
+                sheet[ROW, colCurrencyId].Text = dtData.Rows[i]["CurrencyId"].ToString();
+
+
+                sheet[ROW, colSlNo].Number = (i + 1);
+                sheet[ROW, colMaterial].Text = dtData.Rows[i]["Material"].ToString();
+                sheet[ROW, colArticle].Text = dtData.Rows[i]["Article"].ToString();
+                sheet[ROW, colRMDescription].Text = dtData.Rows[i]["RMDescription"].ToString();
+
+                sheet[ROW, colCharVal1].Text = dtData.Rows[i]["CharVal1"].ToString();
+                sheet[ROW, colCharVal2].Text = dtData.Rows[i]["CharVal2"].ToString();
+                sheet[ROW, colCharVal3].Text = dtData.Rows[i]["CharVal3"].ToString();
+
+                sheet[ROW, colCharValSO1].Text = dtData.Rows[i]["SO1"].ToString();
+                sheet[ROW, colCharValSO2].Text = dtData.Rows[i]["SO2"].ToString();
+                sheet[ROW, colCharValSO3].Text = dtData.Rows[i]["SO3"].ToString();
+
+                sheet[ROW, colRMCustomerSpec].Text = dtData.Rows[i]["RMCustomerSpec"].ToString();
+                sheet[ROW, colRMVendorSpec].Text = dtData.Rows[i]["RMVendorSpec"].ToString();
+                sheet[ROW, colSKUDesc].Text = dtData.Rows[i]["SKUDesc"].ToString();
+                sheet[ROW, colVendor].Text = dtData.Rows[i]["Vendor"].ToString();
+                sheet[ROW, colUOM].Text = dtData.Rows[i]["UOM"].ToString();
+                sheet[ROW, colPOUOM].Text = dtData.Rows[i]["POUOM"].ToString();
+                sheet[ROW, colProcess].Text = dtData.Rows[i]["Process"].ToString();
+                sheet[ROW, colPOIds].Text = dtData.Rows[i]["POIds"].ToString();
+                sheet[ROW, colGRNIds].Text = dtData.Rows[i]["GRNIds"].ToString();
+
+
+                sheet[ROW, colBOMQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["BOMQty"].ToString());
+                sheet[ROW, colRequiredQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["RequiredQty"].ToString());
+                sheet[ROW, colPOQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["POQTY"].ToString());
+                sheet[ROW, colGRNQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["GRNQty"].ToString());
+                sheet[ROW, colRequiredQtyInPOUOM].Number = clsStaticInfo.dbl(dtData.Rows[i]["RequiredQtyPO"].ToString());
+                sheet[ROW, colBalTOProduce].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colRequiredQtyInPOUOM) + ROW.ToString() + " - " + clsStaticInfo.GetxlsCol(colPOQty) + ROW.ToString() + ")";
+                sheet[ROW, colBalTORecieve].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colPOQty) + ROW.ToString() + " - " + clsStaticInfo.GetxlsCol(colGRNQty) + ROW.ToString() + ")";
+
+                sheet[ROW, colConsumption].Number = clsStaticInfo.dbl(dtData.Rows[i]["Consumption"].ToString());
+                sheet[ROW, colWastagePer].Number = clsStaticInfo.dbl(dtData.Rows[i]["WastagePer"].ToString());
+
+
+
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, colRequiredQtyInPOUOM, ROW, colCurrency].CellStyle.Locked = false;
+
+
+                sheet.Range[ROW, colRequiredQtyInPOUOM].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                sheet.Range[ROW, colRate].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                sheet.Range[ROW, colCurrency].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+
+            #region Currency
+            if (dtCurrency.Rows.Count > 0)
+            {
+                IWorksheet sheetShade = workbook.Worksheets[1];
+                int STOROW = 1;
+                for (int i = 0; i < dtCurrency.Rows.Count; i++)
+                {
+                    sheetShade[STOROW, 1].Text = dtCurrency.Rows[i]["Code"].ToString();
+                    STOROW++;
+                }
+
+                STOROW--;
+                IName name1 = workbook.Names.Add("Currency");
+                name1.RefersToRange = sheet.Range[StartRow, colCurrency, ROW - 1, colCurrency];
+                name1.Value = "Sheet2!$A$1:$A$" + STOROW.ToString();
+
+                sheet.Range[StartRow, colCurrency, ROW - 1, colCurrency].DataValidation.IsEmptyCellAllowed = true;
+                sheet.Range[StartRow, colCurrency, ROW - 1, colCurrency].DataValidation.AllowType = ExcelDataType.User;
+                sheet.Range[StartRow, colCurrency, ROW - 1, colCurrency].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                sheet.Range[StartRow, colCurrency, ROW - 1, colCurrency].DataValidation.FirstDateTime = new DateTime(1, 1, 1, 0, 0, 0);
+                sheet.Range[StartRow, colCurrency, ROW - 1, colCurrency].DataValidation.FirstFormula = "Currency";
+            }
+
+            #endregion Currency
+
+            #region Validations
+            sheet.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.IsEmptyCellAllowed = true;
+            sheet.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.AllowType = ExcelDataType.Decimal;
+            sheet.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+            sheet.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.FirstFormula = "0";
+            sheet.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+            sheet.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.ErrorBoxText = "Only positive numbers are allowed for Quantity";
+            sheet.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.ErrorBoxTitle = "Number Error";
+
+
+            sheet.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.IsEmptyCellAllowed = true;
+            sheet.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.AllowType = ExcelDataType.Decimal;
+            sheet.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+            sheet.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.FirstFormula = "0";
+            sheet.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+            sheet.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.ErrorBoxText = "Only positive numbers are allowed for Rate";
+            sheet.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.ErrorBoxTitle = "Number Error";
+            #endregion Validations
+
+
+
+            sheet.Range[StartRow, 1, ROW, endCol].WrapText = true;
+
+
+            sheet.AutoFilters.FilterRange = sheet.Range[StartRow - 1, 1, ROW, endCol];
+
+            for (int C = 0; C < endCol; C++)
+            {
+                IAutoFilter filter = sheet.AutoFilters[C];
+            }
+
+
+            sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
+            sheet.Range[StartRow, colBOMQty, ROW, colBOMQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[StartRow, colRequiredQty, ROW, colRequiredQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[StartRow, colConsumption, ROW, colConsumption].NumberFormat = clsStaticInfo.NumberFormat(4);
+            sheet.Range[StartRow, colWastagePer, ROW, colWastagePer].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+
+
+            sheet.Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD, ExcelSheetProtection.Filtering | ExcelSheetProtection.All);
+            workbook.Worksheets[1].Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD);
+            workbook.Protect(false, true, bplib.clsWebLib.REPORT_LOCK_PASSWORD);
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+            worksheet.UsedRange.WrapText = true;
+
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, endCol, SelectionType.ToLower() + "#" + Id, identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+            return workbook;
+
+        }
+
+        public void UploadData(System.Web.HttpPostedFileBase file)
+        {
+            try
+            {
+                SaveFiles(file, out string FilePath);
+                ReadFile(FilePath, out DataTable dtData);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //validations
+                //currency:
+                DataTable dtCurrency = _sqlRepository.GetDataTable(@"  SELECT c.* FROM scs.CurrencyTransaction AS ct
+                               JOIN scs.Currency AS c ON c.Id=ct.CurrencyId
+                               WHERE ct.CompanyId='" + identity.CompanyId + @"'");
+
+
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    OTSBD.clsStaticInfo.numericValidation(dtData.Rows[i]["Qty"].ToString(), false, false, false, "Quantity");
+                    OTSBD.clsStaticInfo.numericValidation(dtData.Rows[i]["Rate"].ToString(), false, false, false, "Rate");
+
+
+                    if (clsStaticInfo.dbl(dtData.Rows[i]["Rate"].ToString()) > 0)
+                    {
+                        if (string.IsNullOrEmpty(dtData.Rows[i]["Currency"].ToString()) == true)
+                        {
+                            throw new Exception("Rate has been provided without currency");
+                        }
+                    }
+
+                    dtCurrency.DefaultView.RowFilter = "Code='" + dtData.Rows[i]["Currency"].ToString().Trim() + "'";
+                    if (string.IsNullOrEmpty(dtData.Rows[i]["Currency"].ToString()) == false)
+                    {
+                        if (dtCurrency.DefaultView.Count > 0)
+                            dtData.Rows[i]["CurrencyId"] = dtCurrency.DefaultView[0]["Id"].ToString();
+                        else
+                            throw new Exception("Provided currency does not exists in the system for selected company [Provided Currency: " + dtData.Rows[i]["Currency"].ToString().Trim() + @"]");
+                    }
+
+                }
+
+
+
+
+                //update qty
+                Library.General.Conversions.UOMConversion uom = new General.Conversions.UOMConversion();
+                ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager(600);
+                ConManager.BeginTransaction();
+
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    string sql = @"UPDATE BOQ SET Rate = " + clsStaticInfo.dbl(dtData.Rows[i]["Rate"].ToString()) + @" ,CurrencyId =" + UpdateString(dtData.Rows[i]["CurrencyId"]) + @"
+                            ,RequiredQtyPO = " + clsStaticInfo.dbl(dtData.Rows[i]["Qty"].ToString()) + @"
+                            ,RequiredQty = " + uom.Convert(dtData.Rows[i]["MaterialMasterId"].ToString(), dtData.Rows[i]["POUoMId"].ToString(), dtData.Rows[i]["UoMId"].ToString(), clsStaticInfo.dbl(dtData.Rows[i]["Qty"].ToString())).ToString("F4") + @"
+                            ,RequiredQtyBase = " + uom.Convert(dtData.Rows[i]["MaterialMasterId"].ToString(), dtData.Rows[i]["POUoMId"].ToString(), dtData.Rows[i]["BaseUoMId"].ToString(), clsStaticInfo.dbl(dtData.Rows[i]["Qty"].ToString())).ToString("F4")
+                     + " WHERE Id='" + dtData.Rows[i]["Id"].ToString() + "'";
+
+
+                    ConManager.executeQuery(sql);
+
+                }
+
+                ConManager.CommitTransaction();
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+
+
+        }
+
+
+
+        public void SaveFiles(System.Web.HttpPostedFileBase file, out string path)
+        {
+            path = "";
+            try
+            {
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+                    }
+                    else
+                        throw new Exception("Required excel file");
+                }
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void ReadFile(string path, out DataTable dtExcel)
+        {
+            FileInfo docFile;
+            dtExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                workbook.Worksheets[0].UsedRange.ColumnWidth = 10;
+                //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                dtExcel = workbook.Worksheets[0].ExportDataTable(6, 1, 10000, workbook.Worksheets[0].UsedRange.Columns.Length, ExcelExportDataTableOptions.ColumnNames);
+                dtExcel.DefaultView.RowFilter = "isnull(Type,'')='DATA'";
+                dtExcel = dtExcel.DefaultView.ToTable();
+
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
+            }
+        }
+        private string UpdateString(object FieldValue)
+        {
+            if (FieldValue == null)
+                return "Null";
+
+            if (string.IsNullOrEmpty(FieldValue.ToString()))
+                return "Null";
+
+            if (FieldValue.ToString().ToLower() == "null")
+                return "NULL";
+
+            return "'" + FieldValue + "'";
+        }
+        #endregion Upload Data
 
     }
 }
