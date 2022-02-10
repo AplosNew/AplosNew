@@ -3326,7 +3326,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
             $scope.$broadcast('show-errors-check-validity');
             $http({
                 method: 'POST',
-                url: $scope.path + "GetCostingItemForSelection",
+                url: $scope.path + "GetSubMaterialSelection",
                 data: { CostingMasterTemplateId: $scope.CostingMasterTemplateId, costingComponentId: $scope.CostingComponentId, Segment: $scope.Segment },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
