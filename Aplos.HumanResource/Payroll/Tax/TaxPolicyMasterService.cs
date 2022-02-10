@@ -1655,6 +1655,24 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
+
+        #region Tax Slab Functions
+        public DataTable GetSlabInfo(string PolicyId)
+        {
+            try
+            {
+                string strSQL = @"select si.* from TaxPolicySlabInfo si 
+                left join TaxPolicyHeader th on th.Id=si.PolicyId
+                where th.Id='" + PolicyId + "'";
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
     }
     public class StringToFormula
     {
