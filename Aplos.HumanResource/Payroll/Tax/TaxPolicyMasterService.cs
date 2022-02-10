@@ -1574,7 +1574,7 @@ namespace Library.HumanResource.Payroll.Tax
             
             DataSet dsMaster, dsRef;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-            var sql = @"select net.Id as NetTaxableIncomeId from NetTaxableIncome net 
+            var sql = @"select net.Id as NetTaxableIncomeId from TaxableIncome net 
                 left join EmployeeIncomeTaxMaster ei on
                 ei.Id=net.EmployeeIncomeTaxId
                 where ei.EmpSystemId='" + EmpId+"' and ei.TaxYearId='"+YearId+@"'
@@ -1584,13 +1584,13 @@ namespace Library.HumanResource.Payroll.Tax
             if(dsMaster.Tables[0].Rows.Count>0)
             {
                 var Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0][@"NetTaxableIncomeId"]).ToString();
-                var sqlx = @"delete from NetTaxableIncome where Id='"+Id+"'";
+                var sqlx = @"delete from TaxableIncome where Id='"+Id+"'";
                 UpdateStatus(sqlx);
             }
 
             #endregion
 
-            var sqly = @"select * from NetTaxableIncome where 1=2";
+            var sqly = @"select * from TaxableIncome where 1=2";
             con.OpenDataSetThroughAdapter(sqly, out dsRef, false, "1");
 
 
@@ -1617,7 +1617,7 @@ namespace Library.HumanResource.Payroll.Tax
                     
                     DataRow drF = dsRef.Tables[0].NewRow();
                     clsGenID genid = new clsGenID();
-                    genid.GenID("NetTaxableIncome", out string _Id);
+                    genid.GenID("TaxableIncome", out string _Id);
                     drF["Id"] = "NTI"+_Id;
                     drF["EmployeeIncomeTaxId"] = EmployeeIncomeTaxId;
                     drF["NetEarning"] = NetEarning;
@@ -1640,7 +1640,7 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 string sql = @"select ei.EmpSystemId,net.Investments,
                 net.taxableIncome,net.NetEarning,t.TaxYearName
-                from NetTaxableIncome net  
+                from TaxableIncome net  
                 left join EmployeeIncomeTaxMaster ei on
                 ei.Id=net.EmployeeIncomeTaxId
 				left join scs.TaxYear t on t.Id=ei.TaxYearId
