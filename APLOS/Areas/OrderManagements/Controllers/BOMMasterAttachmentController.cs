@@ -548,21 +548,25 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult DownloadByContract(string ContractId)
+        public ActionResult Download(string Id, string Type)
         {
 
             try
             {
-                if (string.IsNullOrEmpty(ContractId))
-                    throw new Exception("No contract number found");
-
+                if (string.IsNullOrEmpty(Id) || Id== "null" || Id == "undefined")
+                {
+                    if (Type.ToUpper() == "CONTRACT")
+                        throw new Exception("No Contract Id found");
+                    else
+                        throw new Exception("No Master Order Id found");
+                }
                 Library.OrderManagement.BOM.BOMReports attchment = new Library.OrderManagement.BOM.BOMReports();
 
                 ExcelEngine excelEngine = new ExcelEngine();
 
-                IWorkbook workbook = attchment.DownloadByContract(ContractId);
+                IWorkbook workbook = attchment.Download(Id, Type);
 
-                string strFileName = "BOM Upload Template-" + ContractId + ".xlsx";
+                string strFileName = "BOM Upload Template-" + Type.ToLower() + " " + Id + ".xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
             }
