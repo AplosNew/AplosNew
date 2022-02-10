@@ -730,6 +730,7 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region TaxYear Tagging Functions
+     
         public IEnumerable<object> GetTaxYearMasterList(string Id)
         {
             try
@@ -797,6 +798,7 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region Tax Slab Functions
+       
         public IEnumerable<object> GetSlabInfo(string PolicyId)
         {
             try
@@ -829,7 +831,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-
         public List<Dictionary<string, object>> SaveSlabInfo(List<Dictionary<string, object>> IncomeSlab, string PolicyId)
         {
             try
@@ -894,7 +895,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-
 
         #endregion
 
@@ -1649,7 +1649,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
-
         public void ProcessTaxableIncome(string EmpId, string PolicyId, string YearId, string Earning)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1673,6 +1672,8 @@ namespace Library.HumanResource.Payroll.Tax
             }
 
             #endregion
+
+            #region Saving Data in TaxableIncome
 
             var sqly = @"select * from TaxableIncome where 1=2";
             con.OpenDataSetThroughAdapter(sqly, out dsRef, false, "1");
@@ -1716,9 +1717,15 @@ namespace Library.HumanResource.Payroll.Tax
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsRef);
             }
-        }
+            #endregion
 
-        public IEnumerable<object> TaxableGridData(string EmpId, string PolicyId, string YearId)
+            #region Calling Tax Calculation Function
+
+            ProcessTaxableAmt(EmpId, PolicyId, YearId);
+            
+            #endregion
+        }
+        public DataTable TaxableGridData(string EmpId, string PolicyId, string YearId)
         {
             try
             {
@@ -1730,7 +1737,7 @@ namespace Library.HumanResource.Payroll.Tax
 				left join scs.TaxYear t on t.Id=ei.TaxYearId
                 where ei.EmpSystemId='"+EmpId+@"' and ei.TaxYearId='"+YearId+@"'
                 and ei.TaxPolicyHeaderId='"+PolicyId+"'";
-                return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
             {
@@ -1745,7 +1752,8 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string strSQL = @"select si.* from TaxPolicySlabInfo si 
+                string strSQL = @"select si.Id,si.PolicyId,si.Minimum,si.Maximum,
+                si.TaxRate,si.DifferenceAmt as Range from TaxPolicySlabInfo si 
                 left join TaxPolicyHeader th on th.Id=si.PolicyId
                 where th.Id='" + PolicyId + "'";
                 return _sqlRepository.GetDataTable(strSQL);
@@ -1754,6 +1762,93 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 throw (ex);
             }
+        }
+        public void ProcessTaxableAmt(string EmpId, string PolicyId, string YearId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataTable TaxableIncome, TaxSlabRates;
+            DataSet dsRef;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+            #region Get Employee IncomeTaxId
+
+            var sqlz = @"select * from EmployeeIncomeTaxMaster where
+                EmpSystemId='" + EmpId + @"'
+                and TaxYearId='" + YearId + "' and TaxPolicyHeaderId='" + PolicyId + "'";
+            con.OpenDataSetThroughAdapter(sqlz, out DataSet dsEmp, false, "1");
+
+            string EmployeeIncomeTaxId = "";
+            if (dsEmp.Tables[0].Rows.Count > 0)
+            {
+                EmployeeIncomeTaxId = clsWebLib.RetValidLen(dsEmp.Tables[0].Rows[0][@"Id"]).ToString();
+            }
+            #endregion
+
+            #region Already Existing Data Clearing Portion
+
+            var sqlx = @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + EmployeeIncomeTaxId + "'";
+            UpdateStatus(sqlx);
+           
+            #endregion
+
+            #region Saving Region
+
+            TaxableIncome = TaxableGridData(EmpId, PolicyId, YearId);
+            TaxSlabRates = GetSlabInfo(PolicyId);
+            double Income=0;
+            if (TaxableIncome.Rows.Count > 0)
+            {
+                Income = clsStaticInfo.dbl(TaxableIncome.Rows[0][@"taxableIncome"].ToString());
+            }
+            var sqly = @"select * from EmployeeNetTax where 1=2";
+            con.OpenDataSetThroughAdapter(sqly, out dsRef, false, "1");
+           
+            if (TaxSlabRates.Rows.Count > 0)
+            {            
+                double TotalAmt = 0;
+                for (int j=0;j<TaxSlabRates.Rows.Count;j++)
+                {
+                    double Range = clsStaticInfo.dbl(TaxSlabRates.Rows[j]["Range"].ToString());
+                    int TaxPercent= Convert.ToInt32(TaxSlabRates.Rows[j]["TaxRate"].ToString());
+                    string SlabId = clsWebLib.RetValidLen(TaxSlabRates.Rows[j]["Id"]).ToString();
+                    double Amt;
+                    
+                    if ((Income-TotalAmt) >= Range)
+                    {
+                       Amt = Range;
+                       TotalAmt += Range;
+                    }
+                    else
+                    {
+                        Amt = Income - TotalAmt;
+                        TotalAmt += Amt;
+                    }
+                    if (Amt > 0)
+                    {
+                        DataRow drF = dsRef.Tables[0].NewRow();
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("EmployeeNetTax", out string _Id);
+                        drF["Id"] = "ENT" + _Id;
+                        drF["EmployeeIncomeTaxId"] = EmployeeIncomeTaxId;
+                        drF["SlabId"] = SlabId;
+                        drF["DistributedAmt"] = Amt;
+                        drF["TaxPercentage"] = TaxPercent;
+                        drF["TaxAmt"] = (Amt * TaxPercent) / 100;
+                        drF["AddedBy"] = identity.UserId;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+                        dsRef.Tables[0].Rows.Add(drF);
+                    }
+                }
+                if(Income==TotalAmt)
+                {
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsRef);
+                }
+            }
+           
+            #endregion
+
         }
 
         #endregion
