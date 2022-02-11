@@ -37,7 +37,7 @@ function FinishedStockReportController(cboService, commonMessage, $scope, $rootS
             data: {
                 //'ToDate': $scope.selectedValues.ToDate, 'FromDate': $scope.selectedValues.FromDate,
                 //'type': $rootScope.typeVal, 'group': $rootScope.groupVal, 'value': $scope.search, 'column': $scope.searchBy,
-                'ToDate': $scope.selectedValues.ToDate, 'FromDate': $scope.selectedValues.FromDate
+                'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate
                 , 'Loc': $scope.LocId
             },
             dataType: 'JSON'
