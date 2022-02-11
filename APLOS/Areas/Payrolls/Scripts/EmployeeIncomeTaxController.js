@@ -539,7 +539,6 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-
     }
 
     //#endregion
