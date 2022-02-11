@@ -1213,7 +1213,8 @@ namespace Library.HumanResource.Payroll.Tax
                     {
                         throw new Exception(" Sum of Individual Items is more than Group Limit !! Please adjust Values.");
                     }
-                    _info.SaveDataSets(dsChild);                    
+                    _info.SaveDataSets(dsChild); 
+                                      
                 }
 
                 #endregion
@@ -1719,11 +1720,8 @@ namespace Library.HumanResource.Payroll.Tax
             }
             #endregion
 
-            #region Calling Tax Calculation Function
-
             ProcessTaxableAmt(EmpId, PolicyId, YearId);
-            
-            #endregion
+
         }
         public DataTable TaxableGridData(string EmpId, string PolicyId, string YearId)
         {
