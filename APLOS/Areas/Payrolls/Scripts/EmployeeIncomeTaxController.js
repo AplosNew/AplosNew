@@ -254,11 +254,12 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.ProcessTaxableIncome();
-                    $scope.getInvestDeductionList();                   
-               }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
+                    $scope.getInvestDeductionList();
+                    $scope.getTaxableIncomeGridData();
+                }
+            })//, function errorCallBack(response) {
+            //    ShowResult(response.data.Message, 'failure');
+            //}
         }
         else {
             ShowResult("Please Choose Employee First ...", 'failure');
@@ -351,7 +352,8 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             }
             $scope.NetEarningGridPop = [];
             $scope.NetEarningGridPop = response.data;
-           
+
+            $scope.SumValue = 0;
             for (var j = 0; j < $scope.NetEarningGridPop.length; j++)
             {
                 $scope.SumValue +=$scope.NetEarningGridPop[j].NetEarning;
@@ -533,8 +535,6 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.getTaxableIncomeGridData();
-                    
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

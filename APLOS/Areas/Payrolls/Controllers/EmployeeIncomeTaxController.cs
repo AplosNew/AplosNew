@@ -369,7 +369,9 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                return Json(eit.TaxableGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
+                DataTable x = eit.TaxableGridData(EmpId, PolicyId, YearId);
+                var Result=Library.Service.Helpers.DataTableExtensions.DataTableToJson(x);
+                return Json(Result, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
