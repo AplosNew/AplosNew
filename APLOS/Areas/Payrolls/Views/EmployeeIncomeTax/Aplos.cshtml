@@ -255,21 +255,22 @@
           
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
 
-                @*<div class="row" style="margin:10px;">
+                <div class="row" style="margin:10px;">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div style="color:black;" ej-grid e-datasource="TaxableAmtGridPopup"
+                        <div style="color:black;" ej-grid e-datasource="TaxableAmtPopup"
                              e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
                              e-allowselection="true" e-filtersettings-filterType="excel"
                              e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
                             <div e-columns>
-                                <div e-column e-field="TaxYearName" e-headertext="TaxYear Name" e-width="2"></div>
-                                <div e-column e-field="NetEarning" e-headertext="Net Earning" e-width="2"></div>
-                                <div e-column e-field="Investments" e-headertext="Investments/Deductions" e-width="2"></div>
-                                <div e-column e-field="taxableIncome" e-headertext="Taxable Income" e-width="2"></div>
+                                <div e-column e-field="Minimum" e-headertext="Minimum Amount" e-width="2"></div>
+                                <div e-column e-field="Maximum" e-headertext="Maximum Amount" e-width="2"></div>
+                                <div e-column e-field="TaxPercentage" e-headertext="Tax % " e-width="2"></div>
+                                <div e-column e-field="DistributedAmt" e-headertext="Distributed Amount" e-width="2"></div>
+                                <div e-column e-field="TaxAmt" e-headertext="Tax Amount" e-width="2"></div>
                             </div>
                         </div>
                     </div>
-                </div>*@
+                </div>
             </div>
 
         </div>

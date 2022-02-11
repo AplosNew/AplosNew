@@ -1877,8 +1877,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
-
-
         #endregion
     }
     public class StringToFormula
