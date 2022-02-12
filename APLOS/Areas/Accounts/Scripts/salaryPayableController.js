@@ -785,7 +785,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
     $scope.issueAUCglList = [];
     $scope.GetRevenueExpensGLbudgetPopUp = function () {
        
-        $scope.IssueAUCGLUrl = "Accounts/glitem/GetRevenueExpenseGLBudget";
+        $scope.IssueAUCGLUrl = "Accounts/glitem/GetCurrentAssetRevenueExpenseGLBudget";
         baseService.setCurrentPage('issueAUCglList');
         $scope.GetIssueAUCGLData = function (pageno) {
 

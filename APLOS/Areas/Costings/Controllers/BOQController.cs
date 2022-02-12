@@ -1,20 +1,24 @@
 ﻿#region Using
 
 using Aplos.Controllers;
+using Aplos.Helpers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Setups;
 using Newtonsoft.Json;
 using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Web;
 using System.Web.Mvc;
 
 #endregion Using
@@ -90,6 +94,125 @@ namespace Aplos.Areas.Costings.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult UploadAttachment(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        {
+            try
+            {
+                UploadDefault_data = UploadDefault_data.Replace("\\", "");
+                DataTable AdditionalData = CustomJsonResult.ToDataTable(UploadDefault_data);
 
+                //var settings = new JsonSerializerSettings
+                //{
+                //    NullValueHandling = NullValueHandling.Ignore,
+                //    MissingMemberHandling = MissingMemberHandling.Ignore
+                //};
+                //List<Dictionary<string, string>> AdditionalData.Rows[0]1 = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(UploadDefault_data, settings);
+
+                //Dictionary<string, string> AdditionalData.Rows[0] = JsonConvert.DeserializeObject<Dictionary<string, string>>(UploadDefault_data, settings);
+
+
+                AdditionalData.Rows[0]["Id"] = AdditionalData.Rows[0]["Id"].ToString().Replace("\"", "");
+                if (string.IsNullOrEmpty(AdditionalData.Rows[0]["Id"].ToString()))
+                    throw new Exception("Save the item first");
+
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                foreach (var file in UploadDefault)
+                {
+
+                    string _Id = AdditionalData.Rows[0]["TableName"].ToString() + AdditionalData.Rows[0]["Id"].ToString();
+
+                    var fileName = Path.GetFileName(_Id + new FileInfo(file.FileName).Extension);
+                    var destinationPath = Path.Combine(ResourcesPathReader.CostingBoqPath(), _Id + new FileInfo(file.FileName).Extension);
+
+                    if (System.IO.Directory.Exists(ResourcesPathReader.CostingBoqPath()) == false)
+                    {
+                        try
+                        {
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.CostingBoqPath());
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+
+
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "select* from " + AdditionalData.Rows[0]["TableName"] + " where Id='" + AdditionalData.Rows[0]["Id"].ToString() + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
+
+
+
+
+                    if (dsLocal.Tables[0].Rows.Count > 0)
+                    {
+                        #region Task data update
+                        if (dsLocal.Tables[0].Rows[0]["FileName"].ToString() != "")
+                        {
+                            //try to delete the existing file
+                            try
+                            {
+                                var _Path = Path.Combine(ResourcesPathReader.GetToDoPath(), dsLocal.Tables[0].Rows[0]["FileName"].ToString());
+                                if (System.IO.File.Exists(_Path))
+                                    System.IO.File.Delete(_Path);
+                            }
+                            catch (Exception)
+                            {
+
+                            }
+
+                        }
+
+                        DataRow dr = dsLocal.Tables[0].Rows[0];
+
+                        dr.BeginEdit();
+
+                        dr["FileName"] = fileName;
+                        dr["FileOriginalName"] = file.FileName;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+
+                        #endregion data update
+
+
+
+
+
+                        file.SaveAs(destinationPath);
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
+
+
+
+                    }
+                }
+                return Content("");
+            }
+            catch (Exception ex)
+            {
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
+            }
+
+        }
     }
 }

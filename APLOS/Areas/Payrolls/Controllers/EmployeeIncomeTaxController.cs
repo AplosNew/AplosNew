@@ -369,7 +369,41 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                return Json(eit.TaxableGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
+                DataTable x = eit.TaxableGridData(EmpId, PolicyId, YearId);
+                var Result=Library.Service.Helpers.DataTableExtensions.DataTableToJson(x);
+                return Json(Result, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Slab Functions
+
+        [HttpPost, Authorize]
+        public ActionResult ProcessSlabData(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                eit.ProcessTaxableAmt(EmpId, PolicyId, YearId);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetTaxAmtGridData(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                return Json(eit.GetTaxAmtGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)

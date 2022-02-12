@@ -184,6 +184,18 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+
+		public static string CostingBoqPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/CostingBOQ/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 		public static string GetExpensesImagePath()
 		{
 			try

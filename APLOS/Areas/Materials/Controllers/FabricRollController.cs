@@ -50,7 +50,6 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
-
         public ActionResult Aplos1()
         {
             return View();
@@ -79,15 +78,12 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
-
         [HttpPost]
         public JsonResult Update(List<Dictionary<string, object>> FabricRollData, string PackingForm)
         {
             _fabricRollMasterService.UpdateFabricRoll(FabricRollData, PackingForm);
             return Json(new { Message = AplosMessage.Updated });
         }
-
-
 
         [HttpPost, Authorize]
         public JsonResult GetRoll(int NoofRolls, Dictionary<string, object> SelectedRow, double Width, string PackingForm)
@@ -557,9 +553,53 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 int xlsRow = 1, xlsCol = 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNNo");
                 sheet1[xlsRow, 2].Text = fabricRollMaster["GRNNo"].ToString();
-                xlsRow++;
                 xlsCol += 1;
 
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRN Date");
+                sheet1[xlsRow, 4].Text = fabricRollMaster["GRNDate"].ToString();
+                xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TotalDetailAmount");
+                sheet1[xlsRow, 6].Text = fabricRollMaster["TotalDetailAmount"].ToString()+""+ fabricRollMaster["TotalDetailAmount"].ToString();
+                xlsCol += 1;
+
+                xlsRow++;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO No");
+                sheet1[xlsRow, 2].Text = fabricRollMaster["POId"].ToString();
+                xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO Date");
+                sheet1[xlsRow, 4].Text = fabricRollMaster["PODate"].ToString();
+                xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Vendor Ref No");
+                sheet1[xlsRow, 6].Text = fabricRollMaster["VendorRefNo"].ToString();
+                xlsCol += 1;
+
+                xlsRow++;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC No");
+                sheet1[xlsRow, 2].Text = fabricRollMaster["PurchaseLCNo"].ToString();
+                xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC Date");
+                sheet1[xlsRow, 4].Text = fabricRollMaster["LCDate"].ToString();
+                xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PI No");
+                sheet1[xlsRow, 6].Text = fabricRollMaster["PINo"].ToString();
+                xlsCol += 1;
+
+                xlsRow++;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Vendor");
+                sheet1[xlsRow, 2].Text = fabricRollMaster["PartyName"].ToString();
+                xlsCol += 1;
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Opening Bank");
+                sheet1[xlsRow, 4].Text = fabricRollMaster["OpeningBank"].ToString();
+                xlsCol += 1;
 
                 xlsRow = 6; xlsCol = 1;
                 int endXlsCol = 1;

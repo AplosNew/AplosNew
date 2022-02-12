@@ -1002,6 +1002,7 @@ upanelApp.controller("StocksAgeingReportController", StocksAgeingReportControlle
 upanelApp.controller("NewEarnLeaveReportController", NewEarnLeaveReportController);
 upanelApp.controller("MeetingPointsController", MeetingPointsController);
 upanelApp.controller("NewSystemEarnLeaveReportController", NewSystemEarnLeaveReportController);
+upanelApp.controller("FinishedStockReportController", FinishedStockReportController);
 
 
 
