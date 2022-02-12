@@ -2,6 +2,7 @@
 using Library.Core;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.ChartOfAccounts;
 using Library.Service.ChartOfAccounts;
 using Library.Service.Enums;
 using Library.Service.Logs;
@@ -618,8 +619,9 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GLGI ON BM.GLGeneralInfoId=GLGI.Id
 						LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
-						 LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
-						WHERE ACT.Id IN ('" + AccountTypeEnum.Revenue + @"','" + AccountTypeEnum.Expense + "','" + AccountTypeEnum.Asset + "')";
+						LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                        LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GLGI.Id
+						WHERE ACT.Id IN ('" + AccountTypeEnum.Revenue + @"','" + AccountTypeEnum.Expense + "') OR GLAT.AccountType='"+ ReconcileAccountEnum.Employee.ToString() + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
