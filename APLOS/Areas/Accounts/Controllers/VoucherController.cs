@@ -1148,10 +1148,29 @@ namespace Aplos.Areas.Accounts.Controllers
             return workbook;
         }
         [HttpGet, Authorize]
-        public ActionResult DateRangeWiseTrialBalanceReport(ReportFormat reportFormat, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel)
+        public ActionResult DateRangeWiseTrialBalanceReport(ReportFormat reportFormat, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = GetDateRangeWiseTrialBalanceReport(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, isBudgetLevel, isActivityLevel,isDetailLevel);
+            var workbook = GetDateRangeWiseTrialBalanceReport(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, isBudgetLevel, isActivityLevel, isDetailLevel);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Trial Balance Sheet";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult DateRangeWiseTrialBalanceReportCompanyLevel(ReportFormat reportFormat, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel)
+        {
+            AccountsTrialBalanceService accountsTrialBalanceService = new AccountsTrialBalanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsTrialBalanceService.GetDateRangeWiseTrialBalanceReport(identity.CompanyId, fromDate, toDate, isBudgetLevel, isActivityLevel,isDetailLevel);
             var reportFileName = DateTime.Now.ToString("yyMMdd") + " Trial Balance Sheet";
             switch (reportFormat)
             {
