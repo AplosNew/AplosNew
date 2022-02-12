@@ -697,6 +697,7 @@
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
+    <Compile Include="Areas\Productions\Controllers\FGInventoryStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
@@ -2015,6 +2016,7 @@
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
+    <Content Include="Areas\Productions\Scripts\FGInventoryStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataMasterController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
@@ -3982,6 +3984,7 @@
     <Content Include="Areas\OrderManagements\Views\BOMMasterAttachment\CommonHeaderPopUp.cshtml" />
     <Content Include="Areas\OrderManagements\Views\BOMMasterAttachment\UploadDownload.cshtml" />
     <Content Include="Areas\Productions\Views\FinishedStockReport\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\FGInventoryStockReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
