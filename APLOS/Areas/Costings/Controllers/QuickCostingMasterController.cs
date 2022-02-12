@@ -3390,22 +3390,6 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetSubMaterialSelection(string CostingMasterTemplateId, string costingComponentId, string Segment)
         {
 
-
-            string TableName = "";
-            if (Segment == CostingSegment.DirectMaterial.ToString())
-                TableName = "PreCostingDirectMaterial";
-            else if (Segment == CostingSegment.DirectProcess.ToString())
-                TableName = "PreCostingDirectProcess";
-            else if (Segment == CostingSegment.Operation.ToString())
-                TableName = "PreCostingOperation";
-            else if (Segment == CostingSegment.Profit.ToString())
-                TableName = "PreCostingProfit";
-            else if (Segment == CostingSegment.SalesExpense.ToString())
-                TableName = "PreCostingSalesExpense";
-            else if (Segment == CostingSegment.ValueLoss.ToString())
-                TableName = "PreCostingValueLoss";
-
-
             string sql = @"SELECT ci.ShortName,cat.UserName AS CostingCategory, CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END) AS Selected, ci.CostingComponentId,ci.Id as CostingItemId,  ci.UserName,ci.Code,ci.Sequence, ci.StandardName, 
                         o.CostingMasterTemplateId,
                             ci.MinimumOfQuantity, ci.POIssueDeadLine,ci.UnitOfMeasurementId,cc.UserName as CostingComponent,cc.Id as CostingComponentId, 
@@ -3413,11 +3397,28 @@ namespace Aplos.Areas.Costings.Controllers
                             from hkp.CostingItem ci 
                             left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
                             LEFT OUTER JOIN hkp.CostingCategory AS cat ON cat.Id=ci.CostingCategoryId
-                            LEFT join " + TableName + @" o on o.CostingItemId = ci.Id AND o.CostingMasterTemplateId='" + CostingMasterTemplateId + @"'
+                            LEFT join PreCostingDirectMaterial o on o.CostingItemId = ci.Id AND o.CostingMasterTemplateId='" + CostingMasterTemplateId + @"'
                             WHERE ci.CostingComponentId='" + costingComponentId + @"'
                             ORDER BY CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END), ci.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult DeleteSubMaterial(string SubMaterialId)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from PreCostingDirectMaterialChild where id='" + SubMaterialId + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
         #endregion
     }
