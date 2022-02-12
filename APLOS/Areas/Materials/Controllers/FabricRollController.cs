@@ -139,7 +139,7 @@ namespace Aplos.Areas.Materials.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT IR.Id GRNNo
+            string sql = @"SELECT TOP 100 * FROM (SELECT IR.Id GRNNo
                                     ,IR.Status GRNStatus
                                     ,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
                                     , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -152,21 +152,20 @@ namespace Aplos.Areas.Materials.Controllers
 	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
                                     , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 									, IR.IsApproved, IR.IsPaymentHold
-                                    ,isnull(PO.POId,'') POId
-									,PO.PODate
-									,isnull(PO.PurchaseLCId,'') PurchaseLCId
-									,isnull(PO.ContractId,'') ContractId
-                                    ,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCANo,isnull(PO.LCDate,'') LCDate
+                                    ,isnull(PO.POId,NULL) POId,PO.PODate
+									,isnull(PO.PurchaseLCId,NULL) PurchaseLCId
+									,isnull(PO.ContractId,NULL) ContractId
+                                    ,ISNull(po.ContractNo,NULL) ContractNo,isnull(PO.LCANo,NULL) LCANo,isnull(PO.LCDate,NULL) LCDate
 									,PO.VendorRefNo,PO.PINo,PO.PurchaseLCNo
                                     ,IR.CheckedByStatus,IR.AuthorizedByStatus
                                     ,isnull(IR.GateEntryNo,0) GateEntryNo
-									,isnull(PWG.UserName ,'') GateName,IR.NoteForAccounts--,ISNULL(PDA.Id,'') PurchaseDocumentAcceptanceId
+									,isnull(PWG.UserName ,NULL) GateName,IR.NoteForAccounts--,ISNULL(PDA.Id,'') PurchaseDocumentAcceptanceId
 									,EI.EmployeeName CheckedBy,EI1.EmployeeName ApprovedBy
                                     
 									,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,IR.GRNType
 									,IRD.GRNQTY,IRD.GRNValue,IRD.Shortageqty,IRD.ShortageRatePercent,IRD.ShortageValue
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
-							,PO.UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank,ISNULL(Pr.UserName ,'') CustomerName
+							,PO.UDNo,ISNULL(MLC.OpeningBank,NULL) OpeningBank,ISNULL(Pr.UserName ,NULL) CustomerName
 							FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -551,54 +550,75 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 sheetSource = workbook.Worksheets[1];
 
                 int xlsRow = 1, xlsCol = 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNNo");
-                sheet1[xlsRow, 2].Text = fabricRollMaster["GRNNo"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNNo"); xlsCol += 1;
+                sheet1[xlsRow, xlsCol].Text = fabricRollMaster["GRNNo"].ToString();
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRN Date");
-                sheet1[xlsRow, 4].Text = fabricRollMaster["GRNDate"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRN Date"); xlsCol += 1;
+                sheet1[xlsRow, xlsCol].Text = fabricRollMaster["GRNDate"].ToString();
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TotalDetailAmount");
-                sheet1[xlsRow, 6].Text = fabricRollMaster["TotalDetailAmount"].ToString()+""+ fabricRollMaster["TotalDetailAmount"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Amount"); xlsCol++;
+                 sheet1[xlsRow, xlsCol].Text = fabricRollMaster["TransactionAmount"].ToString()+" "+ fabricRollMaster["CurrencyCode"].ToString();
                 xlsCol += 1;
 
-                xlsRow++;
+                xlsRow++; xlsCol = 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO No");
-                sheet1[xlsRow, 2].Text = fabricRollMaster["POId"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO No"); xlsCol++;
+                 //sheet1[xlsRow, xlsCol].Text = fabricRollMaster["POId"].ToString();
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["POId"])))
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["POId"].ToString();
+                }
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO Date");
-                sheet1[xlsRow, 4].Text = fabricRollMaster["PODate"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO Date"); xlsCol++;
+                //sheet1[xlsRow, xlsCol].Text = clsStaticInfo.SetDate(fabricRollMaster["PODate"].ToString());
+                clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Vendor Ref No");
-                sheet1[xlsRow, 6].Text = fabricRollMaster["VendorRefNo"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Vendor Ref No"); xlsCol++;
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["VendorRefNo"])))
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["VendorRefNo"].ToString(); 
+                }
                 xlsCol += 1;
 
-                xlsRow++;
+                xlsRow++; xlsCol = 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC No");
-                sheet1[xlsRow, 2].Text = fabricRollMaster["PurchaseLCNo"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC No"); xlsCol++;
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PurchaseLCNo"])))
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PurchaseLCNo"].ToString(); 
+                }
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC Date");
-                sheet1[xlsRow, 4].Text = fabricRollMaster["LCDate"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC Date"); xlsCol++;
+                clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["LCDate"]).ToString("dd-MMM-yyyy"));
+               
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PI No");
-                sheet1[xlsRow, 6].Text = fabricRollMaster["PINo"].ToString();
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PINo"])))
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PINo"].ToString(); 
+                }
                 xlsCol += 1;
 
-                xlsRow++;
+                xlsRow++; xlsCol = 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Vendor");
-                sheet1[xlsRow, 2].Text = fabricRollMaster["PartyName"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Vendor"); xlsCol++;
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PartyName"])))
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PartyName"].ToString(); 
+                }
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Opening Bank");
-                sheet1[xlsRow, 4].Text = fabricRollMaster["OpeningBank"].ToString();
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Opening Bank"); xlsCol++;
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["OpeningBank"])))
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["OpeningBank"].ToString(); 
+                }
                 xlsCol += 1;
 
                 xlsRow = 6; xlsCol = 1;
