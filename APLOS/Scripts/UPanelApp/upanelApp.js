@@ -334,6 +334,7 @@ upanelApp.controller("productController", ProductController);
 upanelApp.controller("productDefinitionController", productDefinitionController);
 upanelApp.controller("productionCalendarController", ProductionCalendarController);
 upanelApp.controller("productionOrderController", ProductionOrderController);
+upanelApp.controller("productionOrderBOQController", ProductionOrderBOQController);
 upanelApp.controller("productionOrderReportsController", productionOrderReportsController);
 upanelApp.controller("productionOrderSchedulingParametersType1Controller", ProductionOrderSchedulingParametersType1Controller);
 upanelApp.controller("productionOrderSubprocessController", ProductionOrderSubprocessController);

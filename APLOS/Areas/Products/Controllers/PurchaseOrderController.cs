@@ -74,6 +74,10 @@ namespace Aplos.Areas.Products.Controllers
 			return View();
 		}
 
+		public ActionResult POBOQ()
+		{
+			return View();
+		}
 		[Authorize]
 		public ActionResult GRNApproved()
 		{
