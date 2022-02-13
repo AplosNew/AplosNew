@@ -1,0 +1,138 @@
+﻿<style>
+    .modellgModify {
+        width: 1400px;
+    }
+</style>
+<togglable name="PO BOQ"></togglable>@*PO Without Requisition*@
+<div class="form-horizontal form-elements" ng-form="poBOQForm">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">PO Basic Info</legend>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Contract">Contract</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" name="ContractId" ng-model="productNew.ContractId" class="form-control" maxlength="100" ng-hide="true">
+                    <input type="text" name="ContractNo" ng-model="productNew.ContractNo" ng-disabled="true" class="form-control" maxlength="100">
+                    <span class="input-group-btn">
+                        <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-disabled="inventoryMaterialList.length"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="Clearcontract()" class="btn single-small-btn" ng-disabled="inventoryMaterialList.length"><i class="glyphicon glyphicon-refresh"></i></button>
+                        <button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Customer Name" ng-hide="productNew.OrderSpecific==='No'">Customer Name</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" name="Customer Name" ng-model="productNew.CustomerName" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" hidden id="masterId" /> @*<label id="PartyCode"></label>*@
+                        <span class="input-group-addon"> {{productNew.PartyCode}}</span>
+                        <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+
+<div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Invoicing Party</div>  @*<button type="button" class="close" ng-click="closeInvoicingPartyPopUp();">&times;</button>*@
+            <div class="modal-body form-elements form-horizontal">
+                @*//here some problem*@
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 col-md-4 control-label">Invoicing by</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select ng-model="productNew.InvoicingPartyPlantId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in plantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(productNew.InvoicingPartyPlantId,'billTo')">
+                                    @*<option value="">ddd</option>*@
+                                </select>
+                            </div>
+                            <p ng-hide="productNew.InvoicingPartyPlantId==null">State :{{productNew.InvoicingState}}</p>
+                            <p ng-hide="productNew.InvoicingPartyPlantId==null">GSTIN :{{productNew.InvoicingGSTIN}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Invoicing by Address</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="productNew.InvoicingByAddress" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Delivery by</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                @*<select class="form-control" ng-model="x.TaxCategoryId" ng-options="item.Value as item.Text for item in taxCategoryList" ng-change="onchangeFunction1(x.TaxCategoryId)"></select>*@
+                                <select class="form-control" ng-model="productNew.DeliveryPartyPlantId" ng-options="item.Value as item.Text for item in plantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(productNew.DeliveryPartyPlantId,'shipTo')">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <p ng-hide="productNew.InvoicingPartyPlantId==null">State :{{productNew.DeliveryState}}</p>
+                            <p ng-hide="productNew.InvoicingPartyPlantId==null">GSTIN :{{productNew.DeliveryGSTIN}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Delivery by Address</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="productNew.DeliveryByAddress" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeInvoicingPartyPopUp();" class="btn"> Done</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Contract <button type="button" class="close" ng-click="CloseContractPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="Gridd" ej-grid e-datasource="contractList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="SelectedContract"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="ContractId" e-headertext="Contract Id" e-width="70"></div>
+                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                                <div e-column e-field="LCRef" e-headertext="Master LC Ref No" e-width="80"></div>
+                                <div e-column e-field="MasterLCNo" e-headertext="Master Lc Id" e-width="70"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateChild">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="CloseContractPopUp();" class="btn"> Apply</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
