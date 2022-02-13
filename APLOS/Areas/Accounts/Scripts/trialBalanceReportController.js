@@ -10,7 +10,7 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
         IsBudgetLevel: false,
         IsActivityLevel: false,
         IsDetailLevel: false,
-        
+        OrganizationType: "Plant",
         ReportFormat: 'Pdf',
         //FromDate: $filter('dateFiltering')(Date.now()),
         FromDate: $filter('dateFiltering')(Date.now()),
@@ -21,6 +21,7 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
         IsBudgetLevel: false,
         IsActivityLevel: false,
         IsDetailLevel: false,
+        OrganizationType: "Plant",
         ReportFormat: 'Pdf',
         FromDate: $filter('dateFiltering')(new Date(date.getFullYear(), date.getMonth(), 1)),   
         ToDate: $filter('dateFiltering')(Date.now())
@@ -40,6 +41,7 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
                 IsBudgetLevel: false,
                 IsActivityLevel: false,
                 IsDetailLevel: false,
+                OrganizationType: "Plant",
                 ReportFormat: 'Pdf',
                 //FromDate: $filter('dateFiltering')(Date.now()),
                 FromDate: $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1)),
@@ -56,6 +58,7 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
                 IsBudgetLevel: false,
                 IsActivityLevel: false,
                 IsDetailLevel: false,
+                OrganizationType: "Plant",
                 ReportFormat: 'Pdf',
                 //FromDate: $filter('dateFiltering')(Date.now()),
                 FromDate: $filter('dateFiltering')(Date.now()),
@@ -136,8 +139,14 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
             manualValidation('div_FromDate', true, "Date is required.");
         }
         else {
-            var url = 'Accounts/Voucher/TrialBalanceReport?reportFormat=' + $scope.report.ReportFormat + '&date=' + $scope.report.FromDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel + '&isDetailLevel=' + $scope.report.IsDetailLevel;
-            $window.open(url, '_blank');
+            if ($scope.report.OrganizationType === "Company") {
+                var url = 'Accounts/Voucher/TrialBalanceReportCompanyLevel?reportFormat=' + $scope.report.ReportFormat + '&date=' + $scope.report.FromDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel + '&isDetailLevel=' + $scope.report.IsDetailLevel;
+                $window.open(url, '_blank');
+            }
+            else {
+                var url = 'Accounts/Voucher/TrialBalanceReport?reportFormat=' + $scope.report.ReportFormat + '&date=' + $scope.report.FromDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel + '&isDetailLevel=' + $scope.report.IsDetailLevel;
+                $window.open(url, '_blank');
+            }
         }
     };
     $scope.getDateWiseTrialBalanceReport = function () {
@@ -148,8 +157,14 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
             manualValidation('div_WDToDate', true, "To Date is required.");
         }
         else {
-            var url = 'Accounts/Voucher/DateRangeWiseTrialBalanceReport?reportFormat=' + $scope.report.ReportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel +'&isDetailLevel='+ $scope.report.IsDetailLevel;
-            $window.open(url, '_blank');
+            if ($scope.report.OrganizationType === "Company") {
+                var url = 'Accounts/Voucher/DateRangeWiseTrialBalanceReportCompanyLevel?reportFormat=' + $scope.report.ReportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel + '&isDetailLevel=' + $scope.report.IsDetailLevel;
+                $window.open(url, '_blank');
+            }
+            else {
+                var url = 'Accounts/Voucher/DateRangeWiseTrialBalanceReport?reportFormat=' + $scope.report.ReportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel + '&isDetailLevel=' + $scope.report.IsDetailLevel;
+                $window.open(url, '_blank');
+            }
         }
     };
 }
