@@ -3410,6 +3410,36 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
             ShowResult(e, 'info');
         }
     };
+    $scope.DeleteSubMaterialId = null;
+    $scope.DeleteSubMaterial = function (obj) {
+        $scope.DeleteSubMaterialId = obj;        
+        angular.element(document.querySelector('#confirmDelete')).modal('show');
+    }
+
+    $scope.DeleteSubMaterials = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteSubMaterial",
+                data: { SubMaterialId: $scope.DeleteSubMaterialId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSubMaterialData($scope.SelectedLine.Id);                   
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    
+
     //#endregion
 
 }
