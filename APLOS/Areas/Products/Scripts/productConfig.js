@@ -102,7 +102,7 @@ function ProductConfig($routeProvider, $locationProvider) {
         })
         .when('/po-boq', {
             templateUrl: 'Products/PurchaseOrder/POBOQ',
-            controller: 'PurchaseOrderBOQController'
+            controller: 'purchaseOrderBOQController'
         })
         .when('/GRN', {
             templateUrl: 'Products/GoodsReceiveNote/Aplos',
