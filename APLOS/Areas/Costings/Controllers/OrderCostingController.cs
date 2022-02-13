@@ -5694,6 +5694,10 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         {
             try
             {
+                if (itemList == null)
+                {
+                    throw new Exception("Nothing to update");
+                }
                 DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; int count = 0;
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "PreCostingDirectMaterialChild", out string seed_detail);
