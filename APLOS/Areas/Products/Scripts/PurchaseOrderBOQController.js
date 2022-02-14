@@ -185,5 +185,20 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.CloseContractPopUp = function () {
         angular.element(document.querySelector('#ContractPopUp')).modal('hide');
     }
+    $scope.poBoqItemList = [];
+    $scope.GetPOBoqItem = function () {
+        $scope.poBoqItemList = [];
+        $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.poBoqItemList = response.data;
+                        console.log('poBoqItemList', $scope.poBoqItemList);
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
 }//End Of main
 
