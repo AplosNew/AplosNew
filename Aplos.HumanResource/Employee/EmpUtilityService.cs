@@ -830,7 +830,7 @@ namespace Library.Service.EmployeeServices
         {
             try
             {
-                var _sql = @"SELECT EmployeeCode as Code,SystemID as Value
+                var _sql = @"SELECT EmployeeCode as Code,SystemID as Value,EmployeeName AS Text
                     FROM dbo.EmployeeInformation where EmployeeStatus = 'Active'
                     AND EmpType!='Guest' and GroupID= '" + CGId + "' and CompanyId='" + CId + "'";
                 return _sqlRepository.GetDataCollection(_sql, null);
