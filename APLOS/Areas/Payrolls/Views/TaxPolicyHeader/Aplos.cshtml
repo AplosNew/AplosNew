@@ -116,6 +116,8 @@
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="TaxYearTagging" role="tab" data-toggle="tab">Tax Year Tagging</a></li>
                     <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="TaxSlab" role="tab" data-toggle="tab">Tax Slab</a></li>
                     <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Tagging</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="TaxRebate" role="tab" data-toggle="tab">Tax Rebate</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" aria-controls="TaxSurcharge" role="tab" data-toggle="tab">Tax Surcharge</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -608,6 +610,16 @@
                     </div>
                 </div>
 
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+
+
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
+
+
+                </div>
+            
             </div>
 
         </div>

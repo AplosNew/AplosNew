@@ -316,7 +316,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             _financingService.DeleteLoanPayment(identity.CompanyId, identity.PlantId, voucherId);
-            return Json(new { Message = AplosMessage.Updated });
+            return Json(new { Message = AplosMessage.Deleted });
         }
 
         [HttpGet, Authorize]
@@ -436,7 +436,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetLoanInterestPayableReverseList(GridParameter parameters/*string column, string value*/)
         {
             AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);

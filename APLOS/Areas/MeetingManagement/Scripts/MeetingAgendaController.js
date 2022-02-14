@@ -1,14 +1,14 @@
 ﻿'use strict';
-MeetingPointsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Meeting Points';
+MeetingAgendaController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Meeting Agenda';
     $scope.Action = 'Save'; 
     $scope.ModelList = [];
     $scope.ModelTalkingPointList = [];
     $scope.ModelSuggestionsRecommendationList = [];
     $scope.ModelActionablePointsList = [];
     $scope.ModelMeetingDecisionList = [];
-    $scope.path = 'MeetingManagement/MeetingPoints/';
+    $scope.path = 'MeetingManagement/MeetingAgenda/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
