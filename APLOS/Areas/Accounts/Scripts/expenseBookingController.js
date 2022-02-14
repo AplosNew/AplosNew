@@ -1235,7 +1235,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
                 if ($scope.checkedInvoiceList.length - 1 == i) {
 
                     $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
-                    $scope.checkedInvoiceList[i].DistributedAmount = totali - $scope.TotalDistributedInvoiceAmount;
+                    $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
                 }
                 else {
                     $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
@@ -1266,7 +1266,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
                 if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
                     $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
 
-                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = tatalout - $scope.TotalDistributedInvoiceAmount;
+                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (tatalout - $scope.TotalDistributedInvoiceAmount).toFixed(2);
                 }
                 else {
                     $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
@@ -1314,7 +1314,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
                     if ($scope.checkedInvoiceList.length - 1 == i) {
 
                         $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
-                        $scope.checkedInvoiceList[i].DistributedAmount = totali - $scope.TotalDistributedInvoiceAmount;
+                        $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
                     }
                     else {
                         $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
@@ -1343,7 +1343,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
                     if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
                         $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
 
-                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = tatalout - $scope.TotalDistributedInvoiceAmount;
+                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (tatalout - $scope.TotalDistributedInvoiceAmount).toFixed(2);
                     }
                     else {
                         $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
@@ -1371,7 +1371,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
                     if ($scope.checkedInvoiceList.length - 1 == i) {
 
                         $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
-                        $scope.checkedInvoiceList[i].DistributedAmount = totali - $scope.TotalDistributedInvoiceAmount;
+                        $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
                     }
                     else {
                         $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
@@ -1396,7 +1396,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
                     if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
                         $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
 
-                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = tatalout - $scope.TotalDistributedInvoiceAmount;
+                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (tatalout - $scope.TotalDistributedInvoiceAmount).toFixed(2);
                     }
                     else {
                         $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
@@ -1456,6 +1456,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
                         , GLGeneralInfoId: $scope.GLGeneralInfoId
                         , BudgetMasterId: $scope.BudgetMasterId
                         , ActivityId: $scope.ActivityId
+                        , DocRefNo: a.DocRefNo
                     });
                 }
             });
@@ -1489,6 +1490,7 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
                             , GLGeneralInfoId: $scope.GLGeneralInfoId
                             , BudgetMasterId: $scope.BudgetMasterId
                             , ActivityId: $scope.ActivityId
+                            , DocRefNo: a.DocRefNo
                         });
                     }
                 }
