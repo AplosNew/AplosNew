@@ -692,6 +692,7 @@
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
+    <Compile Include="Areas\MeetingManagement\Controllers\MeetingAgendaController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
@@ -1109,6 +1110,7 @@
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
     <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
+    <Compile Include="Controllers\VisitorServiceController.cs" />
     <Compile Include="Controllers\MyParentsController.cs" />
     <Compile Include="Controllers\MyTeacherController.cs" />
     <Compile Include="Controllers\WasteTransactionController.cs" />
@@ -2009,6 +2011,7 @@
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
+    <Content Include="Areas\MeetingManagement\Scripts\MeetingAgendaController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingPointsController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
@@ -3983,6 +3986,7 @@
     <Content Include="Areas\OrderManagements\Views\BOMMasterAttachment\CommonHeaderPopUp.cshtml" />
     <Content Include="Areas\OrderManagements\Views\BOMMasterAttachment\UploadDownload.cshtml" />
     <Content Include="Areas\Productions\Views\FinishedStockReport\Aplos.cshtml" />
+    <Content Include="Areas\MeetingManagement\Views\MeetingAgenda\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
