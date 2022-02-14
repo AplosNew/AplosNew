@@ -337,8 +337,11 @@ namespace OTSBD
                                  GROUP BY lt.LeaveType,Ei.SystemID, lt.Sequence,lt.Id,lt.Code--,EncashWorkingDaysQty,EncashEarnLeaveQty
                                 ORDER BY Ei.SystemID,lt.Sequence";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSql, out dsRef);
 
                 List<DataRow> _data = new List<DataRow>();
                 string empId = "";

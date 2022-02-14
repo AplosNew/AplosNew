@@ -10,7 +10,7 @@
 *.userosscache
 *.sln.docstates
 
-*.config
+/web.Config
 ProductionSummarySFGController.js
 AplosSFG.cshtml
 
@@ -377,3 +377,6 @@ FodyWeavers.xsd
 
 #git tracking issue
 .opendb
+/APLOS/POPResources/BulletinTemplate
+/APLOS/POPResources
+/APLOS/Web.config

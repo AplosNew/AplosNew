@@ -1,5 +1,4 @@
 ﻿#region Using
-
 using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
@@ -28,7 +27,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Mvc;
-
 #endregion
 
 namespace Aplos.Areas.Commercial.Controllers
@@ -78,7 +76,7 @@ namespace Aplos.Areas.Commercial.Controllers
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
 							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId
 							LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id 
-                            WHERE C.PlantId='" + identity.PlantId+"' ORDER BY C.CustomerId";
+                            WHERE C.PlantId='" + identity.PlantId + "' ORDER BY C.CustomerId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -142,7 +140,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 List<MasterOrderItemModel> masterOrderItem = JsonConvert.DeserializeObject<List<MasterOrderItemModel>>(selectedMasterOrderList, settings);
 
                 SaveData(model, masterOrderItem, out string contractId, funds);
-                
+
 
                 return Json(new { Contract = model, Id = contractId, Message = AplosMessage.Insert });
             }
@@ -153,7 +151,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
         }
 
-        
+
 
         [HttpPost]
         public JsonResult UpdateContract(Contract model)
@@ -221,7 +219,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 dsMaster = null;
                 if (data != null)
                 {
-                   
+
                     ConnectionManager.DAL.ConManager objCon;
                     //DataSet dsMaster;
                     foreach (var item in data)
@@ -353,12 +351,12 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpGet, Authorize]
         public ActionResult GetMasterOrderListbyContract(string contractId)
         {
-            
-                try
-                {
-                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                    var sql = @"SELECT A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SI.TotalQty	
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var sql = @"SELECT A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SI.TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency, 0 Active,B.UserName Buyer, SO.Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
                             ,MM.UserName MaterialMaster,MMA.ShortName Article
                             FROM [TRN].[MasterOrderItem] AS I
@@ -379,15 +377,15 @@ namespace Aplos.Areas.Commercial.Controllers
 							GROUP BY MOI.Id
 							) SO ON SO.Id=I.Id
                             WHERE A.CompanyId='" + identity.CompanyId + "'  AND A.PlantId='" + identity.PlantId + "' AND I.ContractId='" + contractId + "' ORDER BY P.Id";
-                    return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-            
-            
+
+
         }
 
         [HttpGet, Authorize]
@@ -478,7 +476,7 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsMasterOrder, dsfunds;
+            DataSet dsMaster, dsMasterOrder, dsChild;
             string contId = string.Empty;
             string id = string.Empty;
             try
@@ -487,7 +485,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 string sql = "SELECT * FROM [dbo].[Contract] WHERE Id='" + data.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-              
+
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     DataRow dr = dsMaster.Tables[0].NewRow();
@@ -510,7 +508,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         dr["ContractDate"] = DBNull.Value;
                     else
                         dr["ContractDate"] = data.ContractDate;
-                 
+
                     dr["SOQty"] = data.SOQty;
 
                     dr["IsPrint"] = data.IsPrint;
@@ -620,15 +618,9 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 }
                 contractId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                //SaveFundUtilizationData(funds, contractId, out dsfunds);
 
                 #region FUND 
-
-                DataSet dsChild;
-
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ContractFund where  ContractId='" + contractId + "'", out dsChild, false, "1");
-                #region data update
-
                 if (funds != null)
                 {
                     foreach (var item in funds)
@@ -636,6 +628,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         DataView dv = new DataView(dsChild.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
 
+                        item["ContractId"] = contractId;
                         if (dv.Count == 0)
                         {
                             item["Id"] = GetContractFundPK();
@@ -650,13 +643,12 @@ namespace Aplos.Areas.Commercial.Controllers
                         }
                     }
                 }
-                #endregion
 
                 #endregion
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsMasterOrder, dsChild);
-                
+
             }
             catch (Exception ex)
             {
@@ -692,7 +684,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         if (dv.Count == 0)
                         {
                             item["Id"] = GetTNCPK();
-                            
+
                             AddNewRow(dsChild.Tables[0], item);
                         }
                         else
@@ -965,7 +957,6 @@ namespace Aplos.Areas.Commercial.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-
         [HttpGet, Authorize]
         public ActionResult GetMasterLCDataList()
         {
@@ -983,9 +974,26 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpGet, Authorize]
         public ActionResult GetContractFundData(string contractId)
         {
-            string sql = @"SELECT LC.UtilizationSourceType ,CF.* FROM [dbo].[ContractFund] CF
-                            INNER JOIN [dbo].[LCFundUtilization] LC ON LC.FundUtilization=CF.FundUtilization
-                            where ContractId='" + contractId + "'";
+            string sql = @"SELECT  A.Id,A.Sequence,A.FundUtilization,A.UserName,SUM(A.FundValue) CostingValue,A.StandardValue [Percentage],A.StandardValue CostingValuePercentage,A.Remarks,A.CurrencyId,A.UserValue FROM
+(
+SELECT CF.Id,CFU.Id FundUtilization,CFU.UserName ,C.*,MOI.TotalQty,CFU.ValueType
+,CASE WHEN CFU.ValueType='Percentage' THEN ISNULL(C.TotalGrossAmount,0)* ISNULL(MOI.TotalQty,0)*(1/NULLIF(CFU.StandardValue,0))
+ELSE CFU.StandardValue END AS FundValue,CFU.StandardValue,CFU.Sequence,CF.Remarks,CF.CurrencyId,CF.UserValue
+FROM  dbo.ContractFundUtilization CFU 
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.ContractId='" + contractId + @"'
+LEFT JOIN (
+ SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.GrossAmount AS TotalGrossAmount FROM OrderPreCostingDirectMaterial AS pc  INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
+    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingDirectProcess AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.[Value]  AS TotalGrossAmount FROM OrderPreCostingOperation AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingSalesExpense AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingValueLoss AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingProfit AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+) C ON C.OrderCostingMasterTemplateId=MOI.OrderCostingMasterTemplateId and C.ContractFundId = CFU.Id AND ISNULL(C.TotalGrossAmount,0)>0  
+LEFT JOIN ContractFund CF ON CF.ContractId=MOI.ContractId AND CFU.Id=CF.FundUtilization
+) A
+GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,A.CurrencyId,A.UserValue
+ORDER BY A.Sequence";
+
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -1074,7 +1082,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }//End of function
 
-        [Authorize,HttpPost]
+        [Authorize, HttpPost]
         public ActionResult DeleteContractTermsAndConditions(string id)
         {
             DeleteContractTermsAndConditionsData(id);
@@ -1658,9 +1666,9 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             string replaceString = "{MaterialDescription}";
 
-            DataTable sales, materialTax;         
+            DataTable sales, materialTax;
 
-            int LasColumnIndex =7;
+            int LasColumnIndex = 7;
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -1709,9 +1717,9 @@ namespace Aplos.Areas.Commercial.Controllers
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
             int colHSN = COL; COL++;
-            wTable.Rows[ROW].Cells[colHSN].Width = 48;          
+            wTable.Rows[ROW].Cells[colHSN].Width = 48;
 
-            
+
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty" + "(" + "" + dsOrderMaster.Rows[0]["UoM"].ToString() + "" + ")" + " ");
             range.ApplyCharacterFormat(FontBold);
@@ -1758,9 +1766,9 @@ namespace Aplos.Areas.Commercial.Controllers
                 TROW.Cells[colSrNo].AddParagraph().AppendText(sl.ToString());
                 //TROW.Cells[colDescriptionOfMaterial].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDescription"].ToString());
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
-                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());            
-                TROW.Cells[colSONo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SONo"].ToString());            
-                TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());            
+                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
+                TROW.Cells[colSONo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SONo"].ToString());
+                TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
                 //TROW.Cells[colDestination].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Destination"].ToString());            
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Qty"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Rate"].ToString()).ToString("#,##0.00"));
@@ -1779,11 +1787,11 @@ namespace Aplos.Areas.Commercial.Controllers
             _TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
 
             range.ApplyCharacterFormat(FontBold);
-            double total=0;
+            double total = 0;
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle  || C == colRate ||/* C == colQty ||*//* C == colDestination ||*/ C == colHSN || C == colDeliveryDate || C == colSONo)
+                if (C == colArticle || C == colRate ||/* C == colQty ||*//* C == colDestination ||*/ C == colHSN || C == colDeliveryDate || C == colSONo)
                     continue;
 
                 double value = 0;
@@ -1801,7 +1809,7 @@ namespace Aplos.Areas.Commercial.Controllers
             #endregion Total
             ROW++;
             #region Sub Total
-            
+
             #endregion Total
             ROW++;
             #region Total Payable
@@ -1819,7 +1827,7 @@ namespace Aplos.Areas.Commercial.Controllers
             myStyle.CharacterFormat.TextColor = Color.Black;
             myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
 
-         
+
             #endregion paragrpath formats
 
 
@@ -1907,11 +1915,11 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString()+"."+dsTermsAndCondition.Rows[i]["TermsAndConditions"].ToString());
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["TermsAndConditions"].ToString());
 
             }
             ROW++;
-        
+
             #region Total
             //int TotalRow = ROW;
             //wTable.AddRow();
@@ -1999,7 +2007,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 strSQL = @"SELECT ROW_NUMBER() OVER(ORDER BY TC.Sequence) RoWNo,
                         tc.Description as TermsAndConditions from dbo.ContractTermsAndConditions as ctc
                         left outer join hkp.TermsAndConditions as tc on tc.Id=ctc.TermsAndConditionsId
-                        where ctc.ContractId='"+ ContractId + "' Order By TC.Sequence ";
+                        where ctc.ContractId='" + ContractId + "' Order By TC.Sequence ";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -2681,7 +2689,7 @@ namespace Aplos.Areas.Commercial.Controllers
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
 							LEFT JOIN(Select SUM(Qty) Qty,Rate,MasterOrderItemId From TRN.SalesOrder Group By MasterOrderItemId,Rate) SO ON SO.MasterOrderItemId=MOI.Id
-                            WHERE A.CompanyId='" + identity.CompanyId + "' AND A.PlantId='" + identity.PlantId + "' AND CI.ContractId='"+ contractId + "' --ORDER BY P.Id";
+                            WHERE A.CompanyId='" + identity.CompanyId + "' AND A.PlantId='" + identity.PlantId + "' AND CI.ContractId='" + contractId + "' --ORDER BY P.Id";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -2731,7 +2739,7 @@ namespace Aplos.Areas.Commercial.Controllers
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
 							LEFT JOIN(Select SUM(Qty) Qty,Rate,MasterOrderItemId From TRN.SalesOrder Group By MasterOrderItemId,Rate) SO ON SO.MasterOrderItemId=MOI.Id
-                            WHERE A.CompanyId='" + identity.CompanyId+"' AND A.PlantId='"+identity.PlantId+"' --ORDER BY P.Id";
+                            WHERE A.CompanyId='" + identity.CompanyId + "' AND A.PlantId='" + identity.PlantId + "' --ORDER BY P.Id";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -3399,10 +3407,10 @@ namespace Aplos.Areas.Commercial.Controllers
 
     #region Classes
 
-    public class Contract 
+    public class Contract
     {
         public string Id { get; set; }
-              
+
         public string ContractNo { get; set; }
         public string CustomerId { get; set; }
         public string UDNo { get; set; }

@@ -1155,52 +1155,112 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         });
     }
 
-    //$scope.TaxSlabDefines = Object.assign({}, $scope.TaxSlabDefine);
-    //$scope.DataList.push(Object.assign({}, $scope.TaxSlabDefines));
+    $scope.TaxSlabDefines = Object.assign({}, $scope.TaxSlabDefine);
+    $scope.DataList.push(Object.assign({}, $scope.TaxSlabDefines));
 
-    //$scope.Remove = function (index) {
-    //    var removed = $scope.DataList.splice(index, 1);
-    //    $scope.Detail = removed;
-    //    if ($scope.DataList.length == 0) {
-    //        $scope.DataList.push(Object.assign({}, $scope.TaxSlabDefine));
-    //    }
-    //}
+    $scope.Remove = function (index) {
+        var removed = $scope.DataList.splice(index, 1);
+        $scope.Detail = removed;
+        if ($scope.DataList.length == 0) {
+            $scope.DataList.push(Object.assign({}, $scope.TaxSlabDefine));
+        }
+    }
 
-    //$scope.SubmitH = function (data) {
+    $scope.SubmitH = function (data) {
 
-    //    try {
-    //        if (data.Minimum < 0)
-    //            throw 'Minimum value cannot be negative';
-    //        if (data.Minimum == null) {
-    //            throw 'Enter Minimum Value';
-    //        }
+        try {
+            if (data.Minimum < 0)
+                throw 'Minimum value cannot be negative';
+            if (data.Minimum == null) {
+                throw 'Enter Minimum Value';
+            }
 
-    //        if (data.Maximum < 0)
-    //            throw 'Maximum value cannot be negative';
-
-
-    //        if (data.Minimum >= data.Maximum)
-    //            throw 'Maximum value should be greater than minimum value';
+            if (data.Maximum < 0)
+                throw 'Maximum value cannot be negative';
 
 
+            if (data.Minimum >= data.Maximum)
+                throw 'Maximum value should be greater than minimum value';
 
-    //        var newObj = Object.assign({}, $scope.TaxSlabDefine);
-    //        if (data != null) {
-    //            newObj = {
-    //                SystemID: null,
-    //                TaxRate: null,
-    //                Minimum: data.Maximum,
-    //                Maximum: 0,
-    //                TaxPolicyMstID: $scope.TaxPolicyMaster.SystemID,
-    //            }
-    //        }
 
-    //        $scope.DataList.push(newObj);
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
 
-    //};
+            var newObj = Object.assign({}, $scope.TaxSlabDefine);
+            if (data != null) {
+                newObj = {
+                    Id: null,
+                    TaxRate: null,
+                    Minimum: data.Maximum,
+                    Maximum: 0,
+                    PolicyId: $scope.TaxSlabDefine.PolicyId,
+                }
+            }
+
+            $scope.DataList.push(newObj);
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+
+    //#region Save Income Slab
+    $scope.SaveSlabInfo = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.TaxSlabDefine.PolicyId)) {
+                ShowResult("Tax PolicyId cann't be blank...");
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + "SaveSlabInfo",
+                data: { 'IncomeSlab': $scope.DataList, PolicyId: $scope.TaxSlabDefine.PolicyId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSlabInfo();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    //#endregion
+
+    $scope.DeleteSlab = function (obj) {
+        $scope.DeleteIncomeSlab = $scope.TaxSlabDefine.PolicyId;
+        if (!baseService.isUndefinedOrNull($scope.DeleteIncomeSlab))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmProcessIncomeSlab')).modal('show');
+    }
+
+    $scope.DeleteSlabsInfo = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteIncomeSlab",
+                data: { Id: $scope.DeleteIncomeSlab },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSlabInfo();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
 
     // #endregion

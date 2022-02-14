@@ -60,6 +60,7 @@ function contractFundUtilizationController(cboService, commonMessage, $scope, $r
                     $scope.fundUtilizationList[j].StandardName = null;
                     $scope.fundUtilizationList[j].UserName = null;
                     $scope.fundUtilizationList[j].CommisssionCharge = 'Percentage';
+                    $scope.fundUtilizationList[j].CommisssionChargeValue = null;
                     $scope.fundUtilizationList[j].AllowedExcessVariation = null;
                     $scope.fundUtilizationList[j].AllowedLessVariation = null;
                     $scope.fundUtilizationList[j].Remarks = null;

@@ -1,0 +1,45 @@
+﻿<div class="col-sm-12">
+    @Html.Partial("~/Areas/OrderManagements/Views/BOMMasterAttachment/CommonHeaderPopUp.cshtml")
+
+    <div class="row">
+        <div class="col-md-12">
+            <h4 style="background-color:#e0e0e0">Download</h4>
+        </div>
+        <div class="col-md-3">
+            <ul class="list-inline text-right small">
+                <li>
+                    <span class="input-group-btn">
+                        <button ng-click="Download('CONTRACT');" class="btn single-small-btn"><i class="glyphicon glyphicon-download"></i>Download For Entire Contract</button>
+                    </span>
+                </li>
+            </ul>
+
+        </div>
+        <div class="col-md-3">
+            <ul class="list-inline text-right small">
+                <li>
+                    <span class="input-group-btn">
+                        <button ng-click="Download('ITEM')" class="btn single-small-btn"><i class="glyphicon glyphicon-download"></i>Download For Selected Item </button>
+                    </span>
+                </li>
+            </ul>
+
+        </div>
+        <div class="col-md-6">
+        </div>
+        <br />
+        <div class="col-md-12">
+            <h4 style="background-color:#e0e0e0">Upload</h4>
+        </div>
+
+        <div class="col-md-12">
+            <div class="inputBtnSection common-btn">
+                <label class="fileUpload col-sm-4 ">
+                    <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                </label>
+                <input type="button" value="Upload Data" class="btn btn-success" ng-click="UploadData()" />
+            </div>
+        </div>
+    </div>
+</div>
+

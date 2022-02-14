@@ -808,6 +808,15 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetCurrentAssetRevenueExpenseGLBudget(GridParameter parameters)
+        {
+            AccountsGLService accountsGLService = new AccountsGLService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsGLService.GetCurrentAssetRevenueExpenseGLBudget(parameters, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult GetAssetMasterGLBudgetActivity(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

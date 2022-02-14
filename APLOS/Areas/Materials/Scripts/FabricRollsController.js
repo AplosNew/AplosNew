@@ -39,6 +39,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         VendorWidth: null
     }
     $scope.fabricRollMasterNew = Object.assign({}, $scope.fabricRollMaster);
+
     //#region Fabric Roll Pop Up
     $scope.selectedGRNRow = {};
     $scope.fabDistributeQty = 0;
@@ -825,8 +826,8 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     };
     //End Import File
-    $scope.fileName = $scope.fabricRollMaster.GRNNo+'-'+"Fabric Roll Management Template.xlsx";
-    $scope.ModelNew = { FileName: null};
+    $scope.fileName = $scope.fabricRollMaster.GRNNo + '-' + "Fabric Roll Management Template.xlsx";
+    $scope.ModelNew = { FileName: null };
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.MaterialGridTempList = [];
     $scope.GetSampleFile = function () {
@@ -927,6 +928,55 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     };
 
+    $scope.employee = [];
+    $scope.name = null;
+    $scope.getPopUpData = function (name) {
+        $scope.employee = [];
+        $scope.name = name;
+
+        $http({
+            method: 'GET',
+            url: 'HumanResource/leaveApplicationNew/getemployeelist'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+        });
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    }
+
+    $scope.setEmpData = function (obj) {
+        var data = obj.data;
+        if ($scope.name == 'Preparedby') {
+            $scope.fabricRollMaster.PreparedbyCode = data.EmployeeCode;
+            $scope.fabricRollMaster.PreparedbyID = data.SystemID;
+            $scope.fabricRollMaster.PreparedbyName = data.EmployeeName;
+        }
+        else {
+            $scope.fabricRollMaster.CheckedbyCode = data.EmployeeCode;
+            $scope.fabricRollMaster.CheckedbyID = data.SystemID;
+            $scope.fabricRollMaster.CheckedbyName = data.EmployeeName;
+        }
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+
+    };
+
+    $scope.ClearEmpdata = function (name) {
+        $scope.name = name;
+        if ($scope.name == 'Preparedby') {
+            $scope.fabricRollMaster.PreparedbyCode = null;
+            $scope.fabricRollMaster.PreparedbyID = null;
+            $scope.fabricRollMaster.PreparedbyName = null;
+        }
+        else {
+            $scope.fabricRollMaster.CheckedbyCode = null;
+            $scope.fabricRollMaster.CheckedbyID = null;
+            $scope.fabricRollMaster.CheckedbyName = null;
+        }
+    };
+
+    $scope.closeEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
+
     $scope.modeldata = {
         Id: null, PlantId: null, GRNId: $scope.fabricRollMaster.GRNNo, GRNDate: $scope.fabricRollMaster.GRNDate, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     }
@@ -972,7 +1022,54 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     };
 
+    //#region Meeting Points Picture upload
 
+    $scope.onBeginPBUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+                throw 'Please select/save the Meeting Points first'
+
+            args.data = $scope.ModelNew.Id;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadPBUrl = "MeetingManagement/MeetingPoints/SaveMeetingPointsDefault";
+
+    $scope.getFileList = function () {
+        $http({
+            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+            data: { Id: $scope.ModelNew.Id }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                var str = response.data[0].PicFileName;
+                var extention = str.substr(str.indexOf('.'));
+                $scope.PicFileName = virtualPath.MeetingPointsTemplateImage + '/' + $scope.ModelNew.Id + extention;
+                $scope.getData();
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+
+
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPBPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+            ShowResult('Please select/save the Meeting Points first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+
+    //#endregion Meeting Points Picture upload
 
 
 

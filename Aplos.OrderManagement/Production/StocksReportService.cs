@@ -274,6 +274,73 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
 
     } 
 
+    public class FGInventoryStockReportService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+        public FGInventoryStockReportService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+
+        public DataTable getStocksReport(string ToDate, string FromDate)
+        {
+            try
+            {
+                var str = @"Select ProductCategory, ProductSubCategory , Material , Article , ProductCode , POId , LotNo , Opening , Produce , Retrn , Dispatch , Issue , 
+                            ( Opening + Produce - Retrn - Dispatch - Issue ) as Closing
+                            from
+                            (
+                            Select pcc.UserName as ProductCategory , pscc.UserName as ProductSubCategory,ma.UserName as Material , M.StandardName as Article,S.ProductCode, S.POId, S.LotNo
+                            , Sum(Case When purp.UserName = 'PACKING' or purp.UserName= 'RE-PACK' then S.NetWeight else 0 end) as Produce
+                            , Sum(Case When purp.UserName = 'ISSUE' then S.NetWeight else 0 end) as Issue
+                            , Sum(Case When S.IsDespatch = 1 then S.NetWeight else 0 end) as Dispatch
+                            , Sum(Case When purp.UserName = 'RETURN' then S.NetWeight else 0 end) as Retrn
+                            , isnull(opens.Opening , 0) as Opening
+                            from ItemScanChild S
+                            LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+                            LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode
+                            LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId
+                            left join mst.MaterialMaster ma on ma.Id = M.MaterialMasterId
+                            left join  dbo.ItemScan sc on sc.Id = S.MasterId
+                            left join trn.ProductDefinition pd on pd.MaterialMasterId = ma.Id
+                            left join mst.ProductMaster pm on pm.Id = pd.ProductMasterId
+                            left join hkp.ProductCategory pcc on pcc.Id = pm.ProductCategoryId
+                            left join hkp.ProductSubCategory pscc on pscc.Id = pm.ProductSubCategoryId
+                            left join hkp.MaterialMovementPurpose purp on purp.Id = sc.PurposeId
+                            left join 
+                            (
+                            Select  dd.ProductCode , dd.POId,dd.LotNo , (dd.Produce - dd.Issue - dd.Retrn - dd.Dispatch) as Opening
+                            from
+                            (
+                            Select sc.ProductCode , sc.POId,sc.LotNo, Sum(Case When purp.UserName = 'PACKING' or purp.UserName= 'RE-PACK' then Sc.NetWeight else 0 end) as Produce
+                            , Sum(Case When purp.UserName = 'ISSUE' then Sc.NetWeight else 0 end) as Issue
+                            , Sum(Case When Sc.IsDespatch = 1 then Sc.NetWeight else 0 end) as Dispatch
+                            , Sum(Case When purp.UserName = 'RETURN' then Sc.NetWeight else 0 end) as Retrn
+                            from dbo.ItemScanChild sc
+                            left join ItemScan s on s.Id = sc.MasterId
+                            left join hkp.MaterialMovementPurpose purp on purp.Id = s.PurposeId
+                            where s.WorkDate < '"+FromDate+@"'
+                            group by  sc.ProductCode , sc.POId,sc.LotNo
+
+                            ) as dd
+                            ) as opens on opens.ProductCode = S.ProductCode and opens.POId = S.POId and opens.LotNo = S.LotNo
+                            where sc.WorkDate between '"+FromDate+@"' and '"+ToDate+@"' 
+                            --and  R.ToLocation<> 'JOB WORK LOCATION' AND R.ToLocation<> 'DyeHouse' AND R.ToLocation<> 'PACKING'
+                            group by pcc.UserName , pscc.UserName , ma.UserName , M.StandardName , S.ProductCode , S.POId, S.LotNo , opens.Opening
+                            ) as
+                            final";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+    }
+
 }
 
 

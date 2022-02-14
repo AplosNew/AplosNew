@@ -18,6 +18,7 @@ namespace Library.Model.Costings
         public string Remarks { get; set; }
         public string UserName { get; set; }
         public bool Active { get; set; }
+        public bool IsSubMaterial { get; set; }
         public bool isSystemGenerated { get; set; }
 
         public string CostingCategoryId { get; set; }
