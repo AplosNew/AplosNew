@@ -50,6 +50,8 @@ namespace Library.HumanResource.Employee
                         dr["Remarks"] = item.Remarks;
                         dr["OutDone"] = false;
                         dr["CardNo"] = item.CardNo;
+                        dr["NoOfPerson"] = item.NoOfPerson;
+                        dr["MobileNo"] = item.MobileNo;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = DateTime.Now.ToString();
                         dr["AddedFromIP"] = item.AddedFromIP;
