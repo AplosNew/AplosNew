@@ -17,6 +17,22 @@ namespace Aplos.Controllers
         public VisitorServiceController()
         {
             _emp = new FactoryVisitorService();
-        }    
+        }
+
+        [HttpPost]
+        public string SaveExpectedVisit([FromBody] IEnumerable<VisitorModel> DataToSave)
+        {
+            try
+            {
+                string Id = _emp.SaveExpectedVisit(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
     }
 }

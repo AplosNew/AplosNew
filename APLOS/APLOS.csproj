@@ -692,11 +692,13 @@
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
+    <Compile Include="Areas\MeetingManagement\Controllers\MeetingAgendaController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
+    <Compile Include="Areas\Productions\Controllers\FGInventoryStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
@@ -2010,12 +2012,14 @@
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
+    <Content Include="Areas\MeetingManagement\Scripts\MeetingAgendaController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingPointsController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
+    <Content Include="Areas\Productions\Scripts\FGInventoryStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataMasterController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
@@ -3984,6 +3988,8 @@
     <Content Include="Areas\OrderManagements\Views\BOMMasterAttachment\CommonHeaderPopUp.cshtml" />
     <Content Include="Areas\OrderManagements\Views\BOMMasterAttachment\UploadDownload.cshtml" />
     <Content Include="Areas\Productions\Views\FinishedStockReport\Aplos.cshtml" />
+    <Content Include="Areas\MeetingManagement\Views\MeetingAgenda\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\FGInventoryStockReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -7092,6 +7098,13 @@
     <Content Include="Views\MyParents\Dashboard.cshtml" />
     <Content Include="Views\MyParents\PasswordChange.cshtml" />
     <Content Include="Views\MyParents\PLayout.cshtml" />
+    <Content Include="Web.Config" />
+    <None Include="Web.Debug.Config">
+      <DependentUpon>Web.Config</DependentUpon>
+    </None>
+    <None Include="Web.Release.Config">
+      <DependentUpon>Web.Config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
