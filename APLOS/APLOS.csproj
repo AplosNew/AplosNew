@@ -7091,6 +7091,13 @@
     <Content Include="Views\MyParents\Dashboard.cshtml" />
     <Content Include="Views\MyParents\PasswordChange.cshtml" />
     <Content Include="Views\MyParents\PLayout.cshtml" />
+    <Content Include="Web.config" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
