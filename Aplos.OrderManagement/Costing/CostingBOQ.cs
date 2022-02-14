@@ -130,7 +130,9 @@ namespace Library.OrderManagement.Costing
                                     mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
                                     boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency,
                                     BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,
-  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName))
+  boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnRef,BOQ.Remark,
+  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName)),
+ CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName))
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
@@ -1359,13 +1361,13 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Required Qty";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet[ROW, COL].ColumnWidth = 10;
-                int colBOMQty = COL;
+                int colRequiredQty = COL;
 
                 COL++;
                 sheet[ROW, COL].Text = "Plan Qty";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet[ROW, COL].ColumnWidth = 10;
-                int colRequiredQty = COL;
+                int  colBOMQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Currency";
                 sheet[ROW, COL].ColumnWidth = 8;
