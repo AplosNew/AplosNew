@@ -5,6 +5,7 @@ using System.Data;
 using Library.Data.Sql;
 using OTSBD;
 using bplib;
+using Library.HumanResource.NewAttendanceProcess;
 
 namespace Library.HumanResource.Employee
 {
@@ -18,7 +19,7 @@ namespace Library.HumanResource.Employee
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
-        public string SaveExpectedVisit(IEnumerable<VisitorModel> DataToSave)
+        public string SaveEmployeeVisit(IEnumerable<VisitorModel> DataToSave)
         {
             try
             {
@@ -41,20 +42,29 @@ namespace Library.HumanResource.Employee
                         genid.GenID("VisitorService", out string _Id);
                      
                         dr["Id"] = "VSD"+ _Id;
-                        dr["CardNo"] = DBNull.Value;
-                        dr["ExpectedDate"] = item.ExpectedDate;
-                        dr["ExpectedTime"] = item.ExpectedTime;
                         dr["VisitorCategory"] = item.VisitorCategory;
                         dr["VisitorType"] = item.VisitorType;
                         dr["VisitorName"] = item.VisitorName;
                         dr["ToMeet"] = item.ToMeet;
                         dr["Purpose"] = item.Purpose;
                         dr["Remarks"] = item.Remarks;
-                        dr["InDone"] = false;
                         dr["OutDone"] = false;
+                        dr["CardNo"] = item.CardNo;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = DateTime.Now.ToString();
                         dr["AddedFromIP"] = item.AddedFromIP;
+                        if(item.param=="In")
+                        {
+                            dr["InDate"] = DateTime.Now.ToString("dd-MMM-yyyy");
+                            dr["InTime"] = DateTime.Now;
+                            dr["InDone"] = true;
+                        }
+                        else
+                        {
+                            dr["ExpectedDate"] = item.ExpectedDate;
+                            dr["ExpectedTime"] = item.ExpectedTime;
+                            dr["InDone"] = false;                           
+                        }
                         dsMaster.Tables[0].Rows.Add(dr);
                     }                   
 
@@ -71,6 +81,101 @@ namespace Library.HumanResource.Employee
                 return ex.ToString();
             }
         }
+        public IEnumerable<object> GetTodayMineList(string EmpId)
+        {
+            try
+            {
+                var sql = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                VisitorName,VisitorType,Purpose
+                from VisitorServiceData where ToMeet='"+EmpId+@"'
+                and ExpectedDate=CONVERT(date,GETDATE()) and InDone='0' and OutDone='0'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetExpectedInList()
+        {
+            try
+            {
+                var sql = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                VisitorName,VisitorType,Purpose
+                from VisitorServiceData where ExpectedDate=CONVERT(date,GETDATE()) and InDone='0' 
+                and OutDone='0'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetExpectedOutList()
+        {
+            try
+            {
+                var sql = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                VisitorName,VisitorType,Purpose
+                from VisitorServiceData where InDone='1' and OutDone='0'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string SaveOutTime(IEnumerable<VisitorModel> DataToSave)
+        {
+            try
+            {
+                if (DataToSave.Count() == 0)
+                {
+                    return "No Data Found";
+                }
+                var items = DataToSave.ToList();
+                var sql = @"update VisitorServiceData set 
+                OutTime=GETDATE(),OutDate=CONVERT(date,GETDATE()),OutDone=1
+                where Id='"+items[0].Id+"' and CardNo='"+items[0].CardNo+"'";
+
+                NewAttendanceProcessService apd = new NewAttendanceProcessService();
+                apd.UpdateStatus(sql);
+
+                return "true";
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        public string SaveInTime(IEnumerable<VisitorModel> DataToSave)
+        {
+            try
+            {
+                if (DataToSave.Count() == 0)
+                {
+                    return "No Data Found";
+                }
+                var items = DataToSave.ToList();
+                var sql = @"update VisitorServiceData set 
+                InTime=GETDATE(),InDate=CONVERT(date,GETDATE()),InDone=1
+                where Id='" + items[0].Id + "' and CardNo='" + items[0].CardNo + "'";
+
+                NewAttendanceProcessService apd = new NewAttendanceProcessService();
+                apd.UpdateStatus(sql);
+
+                return "true";
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
     }
 
     public class VisitorModel
@@ -85,6 +190,7 @@ namespace Library.HumanResource.Employee
         #endregion
 
         #region Other Fields
+        public string param { get; set; }
         public string Id { get; set; }
         public string CardNo { get; set; }
         public string Purpose { get; set; }
