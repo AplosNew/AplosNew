@@ -20,20 +20,20 @@
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
+        <!--<div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Department<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="Department" class="form-control" ng-model="ModelNew.DepartmentId" name="Department" tabindex="6" @*ng-change="changeSectionByDept();"*@ required>
+                    <select id="Department" class="form-control" ng-model="ModelNew.DepartmentId" name="Department" tabindex="6"--> @*ng-change="changeSectionByDept();"*@ <!--required>
                         <option value="">--Select--</option>
                         <option ng-repeat="option in departmentList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
-        </div>
+        </div>-->
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Meeting Type<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Meeting Orginizes By<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select id="Department" class="form-control" ng-model="ModelNew.MeetingTypeId" name="MeetingType" tabindex="6" @*ng-change="changeSectionByDept();*@ required>
