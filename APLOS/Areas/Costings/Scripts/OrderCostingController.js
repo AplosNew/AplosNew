@@ -4816,7 +4816,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             $scope.$broadcast('show-errors-check-validity');
             $http({
                 method: 'POST',
-                url: $scope.path + "GetCostingItemForSelection",
+                url: $scope.path + "GetCostingItemForSubMaterial",
                 data: { CostingStage: $scope.CostingStage, OrderCostingMasterTemplateId: $scope.OrderCostingMasterTemplateId, costingComponentId: $scope.CostingComponentId, Segment: $scope.Segment },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -4927,6 +4927,12 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         } catch (e) {
             ShowResult(e, "failure");
         }
+    };
+    $scope.CalculationSubMaterial = function (data, index) {
+        data.GrossConsumption = parseFloat(data.Consumption) / (100 - (parseFloat(data.ValueLoss) / 100)) / 100;
+        data.GrossAmount = parseFloat(data.Rate) * parseFloat(data.GrossConsumption);
+        $scope.SubMaterialList[index].GrossConsumption = parseFloat(data.GrossConsumption.toFixed(4));
+        $scope.SubMaterialList[index].GrossAmount = parseFloat(data.GrossAmount.toFixed(4));
     };
     //#endregion
 
