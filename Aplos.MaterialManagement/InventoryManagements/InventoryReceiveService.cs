@@ -3514,33 +3514,25 @@ namespace Library.MaterialManagement.InventoryManagements
 				var Head = "";
 				if (Asset == "false" && Inventory == "true")
 				{
-
 					Head = "Material Stock Balance ( Of Inventory )";
-
-
 				}
-
 				else if (Asset == "true" && Inventory == "false")
 				{
-
 					Head = "Material Stock Balance (Of Fixed Asset)";
-
-
 				}
 
 				else if (Asset == "true" && Inventory == "true")
 				{
 					Head = "Material Stock Balance (Of Fixed Asset And Inventory)";
-
 				}
 				InventoryStockReportService inventoryStockReportService = new InventoryStockReportService();
 				inventoryStockReportService.CreateMaterialStockBalanceSheet(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
 				workbook.Version = ExcelVersion.Excel2016;
 				return workbook;
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				throw;
+				throw ex;
 			}
 		}
 

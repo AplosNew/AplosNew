@@ -1109,6 +1109,7 @@
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
     <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
+    <Compile Include="Controllers\VisitorServiceController.cs" />
     <Compile Include="Controllers\MyParentsController.cs" />
     <Compile Include="Controllers\MyTeacherController.cs" />
     <Compile Include="Controllers\WasteTransactionController.cs" />
@@ -5694,9 +5695,6 @@
     <Content Include="SyncfusionLib\Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="SyncfusionLib\Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="SyncfusionLib\Scripts\modernizr-2.8.3.js" />
-    <Content Include="Web.config">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Areas\Setups\Views\ProcessUoM\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInformation\_BudgetMasterActivityPopUp.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInformation\_BudgetMasterActivityAddPopUp.cshtml" />
@@ -7094,12 +7092,6 @@
     <Content Include="Views\MyParents\Dashboard.cshtml" />
     <Content Include="Views\MyParents\PasswordChange.cshtml" />
     <Content Include="Views\MyParents\PLayout.cshtml" />
-    <None Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
-    <None Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">

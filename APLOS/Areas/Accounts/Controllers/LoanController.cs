@@ -436,7 +436,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetLoanInterestPayableReverseList(GridParameter parameters/*string column, string value*/)
         {
             AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);

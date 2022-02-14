@@ -402,7 +402,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             url: "Commercial/Contract/GetContractFundData?contractId=" + contractId
         }).then(function (response) {
             $scope.fundUtilizationList = response.data;
-            console.log('$scope.contractFundList', $scope.contractFundList);
+            //console.log('$scope.contractFundList', $scope.contractFundList);
         });
     };
 
@@ -859,16 +859,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.fundUtilizationList = [];
         $scope.buyerDeductionList = [];
         $scope.TermsAndConditionsList = [];
-        cboService.getEnumCbo("enum/GetFundUtilizationEnumCbo", function (result) {
-            $scope.fundUtilizationList = result;
-
-            $scope.getFundUtilizationData();
-        });
-        //cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
-        //    $scope.buyerDeductionList = result;
-
-        //    $scope.getBuyerDeductionData();
-        //});
+   
         $scope.GetMasterOrderList();
         $scope.Action = 'Save';
     }
