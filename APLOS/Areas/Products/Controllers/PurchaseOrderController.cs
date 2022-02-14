@@ -74,6 +74,10 @@ namespace Aplos.Areas.Products.Controllers
 			return View();
 		}
 
+		public ActionResult POBOQ()
+		{
+			return View();
+		}
 		[Authorize]
 		public ActionResult GRNApproved()
 		{
@@ -5110,7 +5114,28 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
 			}
 		}
-		
+
+		#endregion
+
+		#region PO BOQ
+		[Authorize, HttpGet]
+		public JsonResult GetPOBOQItems(string ContractId, string VendorId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
+
+				var jsondata = Json(obj.GetPOBOQItems(ContractId, VendorId), JsonRequestBehavior.AllowGet);
+				jsondata.MaxJsonLength = int.MaxValue;
+				return jsondata;
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+
+		}
 		#endregion
 	}
 }

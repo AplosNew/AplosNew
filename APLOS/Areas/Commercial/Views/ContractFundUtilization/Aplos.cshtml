@@ -12,8 +12,8 @@
                             <th>Sequence</th>
                             <th>Standard Name</th>
                             <th>User Name</th>
-                            <th>Commisssion</th>
-                            <th>Commisssion Value</th>
+                            <th>Value Type</th>
+                            <th>Standard Value</th>
                             <th>Allowed Excess Variation</th>
                             <th>Allowed Less Variation</th>
                             <th>Remarks</th>
@@ -27,7 +27,7 @@
                             <td><input type="text" class="form-control" ng-model="x.StandardName" maxlength="50"></td>
                             <td><input type="text" class="form-control" ng-model="x.UserName" maxlength="50"></td>
                             <td>
-                                <div class="radio">
+                                <div class="radio" style="width: 150px;">
                                     <label>
                                         <input type="radio" name="{{x.Id+x.CommisssionCharge}}" ng-model="x.CommisssionCharge" value="Percentage">
                                         <span class="cr"><i class="cr-icon"></i></span>Percentage

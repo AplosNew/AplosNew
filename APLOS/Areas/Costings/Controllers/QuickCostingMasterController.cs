@@ -191,8 +191,12 @@ namespace Aplos.Areas.Costings.Controllers
 
 
             string TableName = "";
+            string aND = "";
             if (Segment == CostingSegment.DirectMaterial.ToString())
+            {
                 TableName = "PreCostingDirectMaterial";
+                aND = "AND ci.IsSubMaterial = 0";
+            }
             else if (Segment == CostingSegment.DirectProcess.ToString())
                 TableName = "PreCostingDirectProcess";
             else if (Segment == CostingSegment.Operation.ToString())
@@ -204,7 +208,6 @@ namespace Aplos.Areas.Costings.Controllers
             else if (Segment == CostingSegment.ValueLoss.ToString())
                 TableName = "PreCostingValueLoss";
 
-
             string sql = @"SELECT ci.ShortName,cat.UserName AS CostingCategory, CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END) AS Selected, ci.CostingComponentId,ci.Id as CostingItemId,  ci.UserName,ci.Code,ci.Sequence, ci.StandardName, 
                         o.CostingMasterTemplateId,
                             ci.MinimumOfQuantity, ci.POIssueDeadLine,ci.UnitOfMeasurementId,cc.UserName as CostingComponent,cc.Id as CostingComponentId, 
@@ -213,7 +216,7 @@ namespace Aplos.Areas.Costings.Controllers
                             left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
                             LEFT OUTER JOIN hkp.CostingCategory AS cat ON cat.Id=ci.CostingCategoryId
                             LEFT join " + TableName + @" o on o.CostingItemId = ci.Id AND o.CostingMasterTemplateId='" + CostingMasterTemplateId + @"'
-                            WHERE ci.CostingComponentId='" + costingComponentId + @"'
+                            WHERE ci.CostingComponentId='" + costingComponentId + @"' "+ aND + @"
                             ORDER BY CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END), ci.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -3294,6 +3297,10 @@ namespace Aplos.Areas.Costings.Controllers
         {
             try
             {
+                if (itemList == null)
+                {
+                    throw new Exception("Nothing to update");
+                }
                 DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; int count = 0;
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "PreCostingDirectMaterialChild", out string seed_detail);
@@ -3398,7 +3405,7 @@ namespace Aplos.Areas.Costings.Controllers
                             left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
                             LEFT OUTER JOIN hkp.CostingCategory AS cat ON cat.Id=ci.CostingCategoryId
                             LEFT join PreCostingDirectMaterial o on o.CostingItemId = ci.Id AND o.CostingMasterTemplateId='" + CostingMasterTemplateId + @"'
-                            WHERE ci.CostingComponentId='" + costingComponentId + @"'
+                            WHERE ci.CostingComponentId='" + costingComponentId + @"' AND ci.IsSubMaterial = 1
                             ORDER BY CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END), ci.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);

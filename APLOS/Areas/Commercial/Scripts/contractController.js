@@ -859,16 +859,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.fundUtilizationList = [];
         $scope.buyerDeductionList = [];
         $scope.TermsAndConditionsList = [];
-        cboService.getEnumCbo("enum/GetFundUtilizationEnumCbo", function (result) {
-            $scope.fundUtilizationList = result;
-
-            $scope.getFundUtilizationData();
-        });
-        //cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
-        //    $scope.buyerDeductionList = result;
-
-        //    $scope.getBuyerDeductionData();
-        //});
+   
         $scope.GetMasterOrderList();
         $scope.Action = 'Save';
     }

@@ -567,10 +567,14 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
             string TableName = "";
+            string aND = "";
             if (CostingStage == "PRE")
             {
                 if (Segment == CostingSegment.DirectMaterial.ToString())
+                {
                     TableName = "OrderPreCostingDirectMaterial";
+                    aND = "AND ci.IsSubMaterial = 0";
+                }
                 else if (Segment == CostingSegment.DirectProcess.ToString())
                     TableName = "OrderPreCostingDirectProcess";
                 else if (Segment == CostingSegment.Operation.ToString())
@@ -608,7 +612,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
                             LEFT OUTER JOIN hkp.CostingCategory AS cat ON cat.Id=ci.CostingCategoryId
                             LEFT join " + TableName + @" o on o.CostingItemId = ci.Id AND o.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"'
-                            WHERE ci.CostingComponentId='" + costingComponentId + @"'
+                            WHERE ci.CostingComponentId='" + costingComponentId + @"' "+ aND + @"
                             ORDER BY CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END), ci.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -5694,6 +5698,10 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         {
             try
             {
+                if (itemList == null)
+                {
+                    throw new Exception("Nothing to update");
+                }
                 DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; int count = 0;
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "PreCostingDirectMaterialChild", out string seed_detail);

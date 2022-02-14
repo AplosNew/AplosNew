@@ -697,7 +697,6 @@
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
-    <Compile Include="Areas\Productions\Controllers\FGInventoryStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
@@ -2016,7 +2015,6 @@
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
-    <Content Include="Areas\Productions\Scripts\FGInventoryStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataMasterController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
@@ -2362,6 +2360,7 @@
     <Content Include="Areas\Products\Scripts\GRNUncheckedAndUnApprovedController.js" />
     <Content Include="Areas\Products\Scripts\POParameterChangeController.js" />
     <Content Include="Areas\Products\Scripts\FOCController.js" />
+    <Content Include="Areas\Products\Scripts\PurchaseOrderBOQController.js" />
     <Content Include="Areas\Products\Scripts\purchaseReturnPostController.js" />
     <Content Include="Areas\Products\Scripts\InOutGatePassController.js" />
     <Content Include="Areas\Products\Scripts\InventoryDashboardStatusController.js" />
@@ -3984,7 +3983,6 @@
     <Content Include="Areas\OrderManagements\Views\BOMMasterAttachment\CommonHeaderPopUp.cshtml" />
     <Content Include="Areas\OrderManagements\Views\BOMMasterAttachment\UploadDownload.cshtml" />
     <Content Include="Areas\Productions\Views\FinishedStockReport\Aplos.cshtml" />
-    <Content Include="Areas\Productions\Views\FGInventoryStockReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4037,6 +4035,7 @@
     <Content Include="Areas\SalesManagements\Views\SalesPackingPost.cshtml" />
     <Content Include="Areas\Products\Views\POParameterChange\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\InventoryReceive\FOC.cshtml" />
+    <Content Include="Areas\Products\Views\PurchaseOrder\POBOQ.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
@@ -5695,9 +5694,6 @@
     <Content Include="SyncfusionLib\Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="SyncfusionLib\Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="SyncfusionLib\Scripts\modernizr-2.8.3.js" />
-    <Content Include="Web.config">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Areas\Setups\Views\ProcessUoM\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInformation\_BudgetMasterActivityPopUp.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInformation\_BudgetMasterActivityAddPopUp.cshtml" />
@@ -7095,12 +7091,6 @@
     <Content Include="Views\MyParents\Dashboard.cshtml" />
     <Content Include="Views\MyParents\PasswordChange.cshtml" />
     <Content Include="Views\MyParents\PLayout.cshtml" />
-    <None Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
-    <None Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
