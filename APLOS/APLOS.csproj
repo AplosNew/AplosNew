@@ -1110,6 +1110,7 @@
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
     <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
+    <Compile Include="Controllers\VisitorServiceController.cs" />
     <Compile Include="Controllers\MyParentsController.cs" />
     <Compile Include="Controllers\MyTeacherController.cs" />
     <Compile Include="Controllers\WasteTransactionController.cs" />

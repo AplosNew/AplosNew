@@ -129,7 +129,8 @@ namespace Library.OrderManagement.Costing
                                     BOQ.Id, ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
                                     mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
                                     boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency,
-                                    BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc
+                                    BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,
+  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName))
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
@@ -1583,11 +1584,11 @@ namespace Library.OrderManagement.Costing
                     {
 
                         dsMaster.Tables[0].DefaultView[0].Row.BeginEdit();
-                        dsMaster.Tables[0].DefaultView[0]["RequiredQty"] =QuantityData[i]["RequiredQty"];
-                        dsMaster.Tables[0].DefaultView[0]["RMDescription"] =QuantityData[i]["RMDescription"];
-                        dsMaster.Tables[0].DefaultView[0]["RMCustomerSpec"] =QuantityData[i]["RMCustomerSpec"];
-                        dsMaster.Tables[0].DefaultView[0]["RMVendorSpec"] =QuantityData[i]["RMVendorSpec"];
-                        dsMaster.Tables[0].DefaultView[0]["SKUDesc"] =QuantityData[i]["SKUDesc"];
+                        dsMaster.Tables[0].DefaultView[0]["RequiredQty"] = QuantityData[i]["RequiredQty"];
+                        dsMaster.Tables[0].DefaultView[0]["RMDescription"] = QuantityData[i]["RMDescription"];
+                        dsMaster.Tables[0].DefaultView[0]["RMCustomerSpec"] = QuantityData[i]["RMCustomerSpec"];
+                        dsMaster.Tables[0].DefaultView[0]["RMVendorSpec"] = QuantityData[i]["RMVendorSpec"];
+                        dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = QuantityData[i]["SKUDesc"];
 
 
 
