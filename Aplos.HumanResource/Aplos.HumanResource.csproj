@@ -171,6 +171,7 @@
     <Compile Include="Attendance\DailyAttendanceReport.cs" />
     <Compile Include="Attendance\DownloadApi.cs" />
     <Compile Include="Employee\EmployeeLastPunchService.cs" />
+    <Compile Include="Employee\FactoryVisitorService.cs" />
     <Compile Include="Leave\clsLeaveBalanceToDate.cs" />
     <Compile Include="Leave\clsNewEarnLeaveReport.cs" />
     <Compile Include="NewAttendanceProcess\EmployeeShiftUpdatesService.cs" />
