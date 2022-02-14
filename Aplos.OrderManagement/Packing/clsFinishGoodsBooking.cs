@@ -954,7 +954,7 @@ namespace Library.OrderManagement.Packing
                                         //edit
                                         DataRow dr = dsItemScanChild.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
-
+                                        dr["IsDespatch"] = true;
                                         dr["InventoryReceiveDetailId"] = detailId;
                                         dr["UpdatedBy"] = identity.Name;
                                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
