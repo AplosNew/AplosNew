@@ -1660,7 +1660,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                 DataSet dsMaster, dsRef;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                var sql = @"select net.Id as NetTaxableIncomeId from TaxableIncome net 
+                var sql = @"select ei.Id as EmployeeIncomeTaxId from TaxableIncome net 
                 left join EmployeeIncomeTaxMaster ei on
                 ei.Id=net.EmployeeIncomeTaxId
                 where ei.EmpSystemId='" + EmpId + "' and ei.TaxYearId='" + YearId + @"'
@@ -1669,9 +1669,13 @@ namespace Library.HumanResource.Payroll.Tax
 
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    var Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0][@"NetTaxableIncomeId"]).ToString();
-                    var sqlx = @"delete from TaxableIncome where Id='" + Id + "'";
+                    var Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0][@"EmployeeIncomeTaxId"]).ToString();
+                    var sqlx = @"delete from TaxableIncome where EmployeeIncomeTaxId='" + Id + "'";
                     UpdateStatus(sqlx);
+                   
+                    var sqla = @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + Id + "'";
+                    UpdateStatus(sqla);
+
                 }
 
                 #endregion
@@ -1788,14 +1792,7 @@ namespace Library.HumanResource.Payroll.Tax
                     EmployeeIncomeTaxId = clsWebLib.RetValidLen(dsEmp.Tables[0].Rows[0][@"Id"]).ToString();
                 }
                 #endregion
-
-                #region Already Existing Data Clearing Portion
-
-                var sqlx = @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + EmployeeIncomeTaxId + "'";
-                UpdateStatus(sqlx);
-
-                #endregion
-
+                               
                 #region Saving Region
 
                 TaxableIncome = TaxableGridData(EmpId, PolicyId, YearId);

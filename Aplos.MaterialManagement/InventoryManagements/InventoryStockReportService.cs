@@ -1150,13 +1150,13 @@ namespace Library.MaterialManagement.InventoryManagements
                     {
                         if (Country == "undefined" || Country == "null") Country = "false";
 
-                        StartRange = 12;
+                        StartRange = 13;
                         EndRange = StartRange + 1;
                         if (materialStorage == "undefined" || materialStorage == "null") materialStorage = "false";
 
                         if (materialStorage == "true")
                         {
-                            StartRange = 13;
+                            StartRange = 14;
                             EndRange = StartRange + 1;
                         }
 
@@ -1832,9 +1832,6 @@ namespace Library.MaterialManagement.InventoryManagements
                 }
                 else if (Amount == "" && Qty != "")
                 {
-
-
-
                     //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material");
                     //sheet1headreColIndex++;
 
@@ -2176,99 +2173,116 @@ namespace Library.MaterialManagement.InventoryManagements
                     }
                     else
                     {
-                        sheet1.Range[_row, 12, _row, 13].Text = "Opening Balance";
-                        sheet1.Range[_row, 12, _row, 13].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 12, _row, 13].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 12, _row, 13].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 12, _row, 13].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 12, _row, 13].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 12, _row, 13].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 12, _row, 13].Merge();
+                        StartRange = 12;
+                        EndRange = StartRange + 1;
+                        if (materialStorage == "true")
+                        {
+                            StartRange = 13;
+                            EndRange = StartRange + 1;
+                        }
 
-                        sheet1.Range[_row, 14, _row, 15].Text = "Material Receipts";
-                        sheet1.Range[_row, 14, _row, 15].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 14, _row, 15].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 14, _row, 15].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 14, _row, 15].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 14, _row, 15].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 14, _row, 15].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 14, _row, 15].Merge();
-
-
-
-                        sheet1.Range[_row, 16, _row, 17].Text = "Issue Material";
-                        sheet1.Range[_row, 16, _row, 17].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 16, _row, 17].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 16, _row, 17].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 16, _row, 17].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 16, _row, 17].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 16, _row, 17].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 16, _row, 17].Merge();
-
-                        sheet1.Range[_row, 18, _row, 19].Text = "Issue Material Return";
-                        sheet1.Range[_row, 18, _row, 19].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 18, _row, 19].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 18, _row, 19].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 18, _row, 19].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 18, _row, 19].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 18, _row, 19].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 18, _row, 19].Merge();
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Opening Balance";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
+                        StartRange = EndRange + 1;
+                        EndRange = StartRange + 1;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Material Receipts";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
+                        StartRange = EndRange + 1;
+                        EndRange = StartRange + 1;
 
 
-                        sheet1.Range[_row, 20, _row, 21].Text = "Purchase Material Return";
-                        sheet1.Range[_row, 20, _row, 21].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 20, _row, 21].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 20, _row, 21].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 20, _row, 21].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 20, _row, 21].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 20, _row, 21].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 20, _row, 21].Merge();
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Issue Material";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
+                        StartRange = EndRange + 1;
+                        EndRange = StartRange + 1;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Issue Material Return";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
+                        StartRange = EndRange + 1;
+                        EndRange = StartRange + 1;
 
-                        sheet1.Range[_row, 22, _row, 23].Text = "Adjustment Material";
-                        sheet1.Range[_row, 22, _row, 23].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 22, _row, 23].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 22, _row, 23].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 22, _row, 23].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 22, _row, 23].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 22, _row, 23].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 22, _row, 23].Merge();
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Purchase Material Return";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
+                        StartRange = EndRange + 1;
+                        EndRange = StartRange + 1;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Adjustment Material";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
+                        StartRange = EndRange + 1;
+                        EndRange = StartRange + 1;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Inventory Sales";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
+                        StartRange = EndRange + 1;
+                        EndRange = StartRange + 1;
 
-                        sheet1.Range[_row, 24, _row, 25].Text = "Inventory Sales";
-                        sheet1.Range[_row, 24, _row, 25].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 24, _row, 25].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 24, _row, 25].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 24, _row, 25].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 24, _row, 25].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 24, _row, 25].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 24, _row, 25].Merge();
-
-
-                        sheet1.Range[_row, 26, _row, 27].Text = "Inventory Scrap";
-                        sheet1.Range[_row, 26, _row, 27].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 26, _row, 27].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 26, _row, 27].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 26, _row, 27].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 26, _row, 27].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 26, _row, 27].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 26, _row, 27].Merge();
-
-                        sheet1.Range[_row, 28, _row, 29].Text = "Inventory Transfer";
-                        sheet1.Range[_row, 28, _row, 29].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 28, _row, 29].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 28, _row, 29].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 28, _row, 29].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 28, _row, 29].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 28, _row, 29].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 28, _row, 29].Merge();
-
-                        sheet1.Range[_row, 30, _row, 31].Text = "Closing Balance";
-                        sheet1.Range[_row, 30, _row, 31].CellStyle.Font.Size = 10;
-                        sheet1.Range[_row, 30, _row, 31].CellStyle.Font.Bold = true;
-                        sheet1.Range[_row, 30, _row, 31].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[_row, 30, _row, 31].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 30, _row, 31].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[_row, 30, _row, 31].CellStyle.FillBackground = ExcelKnownColors.Tan;
-                        sheet1.Range[_row, 30, _row, 31].Merge();
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Inventory Scrap";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
+                        StartRange = EndRange + 1;
+                        EndRange = StartRange + 1;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Inventory Transfer";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
+                        StartRange = EndRange + 1;
+                        EndRange = StartRange + 1;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Text = "Closing Balance";
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Size = 10;
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.Font.Bold = true;
+                        sheet1.Range[_row, StartRange, _row, EndRange].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderAround(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].BorderInside(ExcelLineStyle.Hair);
+                        sheet1.Range[_row, StartRange, _row, EndRange].CellStyle.FillBackground = ExcelKnownColors.Tan;
+                        sheet1.Range[_row, StartRange, _row, EndRange].Merge();
                     }
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "SL";
