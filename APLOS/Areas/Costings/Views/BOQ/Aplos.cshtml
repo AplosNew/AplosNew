@@ -109,10 +109,12 @@
                                  e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                                  e-allowselection="true" e-filtersettings-filterType="excel">
                                 <div e-columns>
+                                    
+                                    <div e-column e-type="string" e-field="CostingItemId" e-headertext="Costing Item Id" e-width="80px"></div>
                                     <div e-column e-type="string" e-field="CostingItem" e-headertext="Costing Item" e-width="120px"></div>
                                     <div e-column e-template="#ItemDesc" e-headertext="Item Desc" e-width="120px"></div>
                                     <div e-column e-template="#BuyerRef" e-headertext="Buyer Ref." e-width="120px"></div>
-                                    <div e-column e-template="#VendorItem" e-headertext="Vendor Item" e-width="120px"></div>
+                                    <div e-column e-template="#VendorItem" e-headertext="Vendor Ref." e-width="120px"></div>
                                     <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120px"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120px"></div>
                                     <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQ Criteria" e-width="80px"></div>
@@ -120,13 +122,13 @@
                                     <div e-column e-type="string" e-field="Destination" e-headertext="Destination" e-width="60px"></div>
                                     <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="50px"></div>
                                     <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="50px"></div>
-                                    <div e-column e-template="#RMSKU" e-headertext="RM SKU" e-width="120px"></div>
+                                    <div e-column e-template="#RMSKU" e-headertext="SKU Desc" e-width="120px"></div>
                                     <div e-column e-template="#EnterSKUTemplate" e-headertext="Required Qty" e-width="120px"></div>
                                     <div e-column e-type="number" e-field="BOMQty" e-headertext="BOM Qty" e-width="60px"></div>
 
                                     @*WithSKU	SalesOrderId	Destination	SKU1	SKU2	IncompleteMaterial	PreparedBy	CostingDate	Id	Sequence
-                ItemDesc	Material	Article	ItemRefNo	Vendor	MaterialCode
-                ArticleCode	ResponsiblePerson	BOMQty	RequiredQty	UOM	BOMAmount	BOQCriteria	Currency*@
+        ItemDesc	Material	Article	ItemRefNo	Vendor	MaterialCode
+        ArticleCode	ResponsiblePerson	BOMQty	RequiredQty	UOM	BOMAmount	BOQCriteria	Currency*@
 
                                     <div e-column e-template="#EnterSKUTemplate" e-headertext="Required Qty" e-width="120px"></div>
                                     <div e-column e-type="number" e-field="BalanceToPurchase" e-headertext="Reuse From Inventory" e-format="{0:N2}" e-width="100px"></div>
@@ -162,7 +164,7 @@
                             </script>
                             <script type="text/template" id="RMSKU">
                                 <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
-                                    <input type="text" ng-model="data.SKUDesc" class="form-control">
+                                    <input type="text" ng-model="data.SKUDescConcat" class="form-control">
                                 </div>
                             </script>
                             <script type="text/template" id="Attachment">
