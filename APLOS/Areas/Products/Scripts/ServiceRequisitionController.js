@@ -854,6 +854,7 @@ function ServiceRequisitionController(accountService, addressService, $window, c
         .then(function (response) {
             $scope.serviceList = response.data;
         });
+
     $scope.closeServiceChargePopUp = function () {
         $scope.serviceReqDetailModel = {};
         $scope.receiveTaxList = [];
@@ -862,6 +863,23 @@ function ServiceRequisitionController(accountService, addressService, $window, c
         $scope.serviceReqDetailModel.TransactionRate = 0;
         angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
     };
+    $scope.serviceSelectionList = [];
+    $scope.showServiceSelectionPopUp = function () {
+        $http.get('Setups/CompanyServiceMaster/GetServicePopUpByCompany')
+            .then(function (response) {
+                $scope.serviceSelectionList = response.data;
+            });
+        angular.element(document.querySelector('#serviceSelectionPopUp')).modal('show');
+    };
+
+    $scope.closeServiceSelectionPopUp = function () {
+        angular.element(document.querySelector('#serviceSelectionPopUp')).modal('hide');
+    };
+    $scope.SelectPopUpService = function (args) {
+        $scope.serviceReqDetailModel.ServiceMasterId = null;
+        $scope.serviceReqDetailModel.ServiceMasterId = args.data.Value;
+        angular.element(document.querySelector('#serviceSelectionPopUp')).modal('hide');
+    }
 
     $scope.calculateSvcTaxCategory = function () {
         $scope.serviceModel.TotalTaxAmount = 0;

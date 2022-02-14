@@ -20,5 +20,6 @@ namespace Library.Service.Setups
         void Delete(string Id);
 
         IEnumerable<object> GetCboService();
+        IEnumerable<object> GetServicePopUpByCompany(string companyId);
     }
 }

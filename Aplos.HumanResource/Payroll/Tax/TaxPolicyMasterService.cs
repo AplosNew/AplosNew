@@ -898,6 +898,68 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
+        #region Tax Surcharge Functions   
+        public void SaveTaxSurcharge(TaxRebate Slab, string masterID, List<Dictionary<string, object>> TaxSurchargeList)
+        {
+            try
+            {
+                DataSet dsUpdateMaster;
+                DataSet dsDetails;
+                DataSet dsValidation;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string TaxSurchargeMasterId = string.Empty;
+
+               // GetTexSurchargeMaster(masterID, out dsUpdateMaster);
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from TaxSurchargeMaster where Description='" + Slab.Description + "' AND  Id<>'" + Slab.Id + "' ", out dsValidation, false, "1");
+                if (dsValidation.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Description already exists!!!");
+
+              //  _UpdateMasterTaxSurcharge(ref dsUpdateMaster, Slab, masterID, ref TaxSurchargeMasterId);
+
+                ConnectionManager.DAL.ConManager objCon;
+                string DetailsId = string.Empty;
+                string sql = "select * From TaxSurchargeDetail where TaxSurchargeMasterId='" + TaxSurchargeMasterId + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsDetails, false, "1");
+
+                while (dsDetails.Tables[0].DefaultView.Count > 0)
+                {
+                    dsDetails.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < TaxSurchargeList.Count; i++)
+                {
+                    DataRow dr = dsDetails.Tables[0].NewRow();
+                    string sID = string.Empty;
+                    bplib.clsGenID objGenID = new bplib.clsGenID();
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[TaxSurChargeDetails]", out sID);
+                    DetailsId = "TSD" + sID;
+                    dr["Id"] = DetailsId;
+                    dr["TaxSurchargeMasterId"] = TaxSurchargeMasterId;
+                    dr["Minimum"] = clsStaticInfo.dbl(TaxSurchargeList[i]["Minimum"]);
+                    dr["Maximum"] = clsStaticInfo.dbl(TaxSurchargeList[i]["Maximum"]);
+                    dr["TaxRate"] = clsStaticInfo.dbl(TaxSurchargeList[i]["TaxRate"]);
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsDetails.Tables[0].Rows.Add(dr);
+
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                //_info.SaveDataSets(dsUpdateMaster, dsDetails);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
     }
     public class TaxExemptionFormula
     {
@@ -1660,7 +1722,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                 DataSet dsMaster, dsRef;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                var sql = @"select net.Id as NetTaxableIncomeId from TaxableIncome net 
+                var sql = @"select ei.Id as EmployeeIncomeTaxId from TaxableIncome net 
                 left join EmployeeIncomeTaxMaster ei on
                 ei.Id=net.EmployeeIncomeTaxId
                 where ei.EmpSystemId='" + EmpId + "' and ei.TaxYearId='" + YearId + @"'
@@ -1669,9 +1731,13 @@ namespace Library.HumanResource.Payroll.Tax
 
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    var Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0][@"NetTaxableIncomeId"]).ToString();
-                    var sqlx = @"delete from TaxableIncome where Id='" + Id + "'";
+                    var Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0][@"EmployeeIncomeTaxId"]).ToString();
+                    var sqlx = @"delete from TaxableIncome where EmployeeIncomeTaxId='" + Id + "'";
                     UpdateStatus(sqlx);
+                   
+                    var sqla = @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + Id + "'";
+                    UpdateStatus(sqla);
+
                 }
 
                 #endregion
@@ -1788,14 +1854,7 @@ namespace Library.HumanResource.Payroll.Tax
                     EmployeeIncomeTaxId = clsWebLib.RetValidLen(dsEmp.Tables[0].Rows[0][@"Id"]).ToString();
                 }
                 #endregion
-
-                #region Already Existing Data Clearing Portion
-
-                var sqlx = @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + EmployeeIncomeTaxId + "'";
-                UpdateStatus(sqlx);
-
-                #endregion
-
+                               
                 #region Saving Region
 
                 TaxableIncome = TaxableGridData(EmpId, PolicyId, YearId);

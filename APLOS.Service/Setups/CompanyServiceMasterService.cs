@@ -185,6 +185,30 @@ namespace Library.Service.Setups
                 throw;
             }
         }
+
+        public IEnumerable<object> GetServicePopUpByCompany(string companyId)
+        {
+            try
+            {
+                var _sql = @"SELECT CC.Id AS [Value], CC.UserName AS [Text], CC.HSNCodeId,HN.Code HSNCode ,SG.UserName ServiceGroup,CCCE.CompanyId
+							,GL.UserName GL,B.UserName Budget,A.UserName Activity
+							FROM [HKP].[CompanyServiceMaster] AS CCCE
+                            LEFT JOIN [HKP].[ServiceMaster] AS CC  ON CC.Id=CCCE.ServiceMasterId
+                            LEFT JOIN [HKP].[ServiceGroup] AS SG ON CC.ServiceGroupId=SG.Id
+                            LEFT JOIN [HKP].[HSNCode] AS HN ON HN.Id=CC.HSNCodeId
+							LEFT JOIN HKP.ServiceGroupGL SGGL ON SGGL.ServiceGroupId=SG.Id
+							LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=SGGL.ServiceGLId
+							LEFT JOIN MST.BudgetMaster BM ON BM.Id=SGGL.ServiceBudgetMasterId
+							LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+							LEFT JOIN HKP.Activity A ON A.Id=SGGL.ServiceActivityId
+                            WHERE CCCE.CompanyId = '" + companyId + @"' ORDER BY CC.UserName";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public IEnumerable<object> GetCboService()
         {
             try
