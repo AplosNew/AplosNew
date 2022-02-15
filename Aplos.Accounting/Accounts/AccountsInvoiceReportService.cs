@@ -2664,6 +2664,304 @@ namespace Library.Accounting.Accounts
 
         }
         #endregion
-      
+
+        #region Expense Distribution Report-InboundInvoice
+        public IWorkbook GetVendorInvoiceReportExpenseDistribution(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId)
+        {
+            var reportUtility = new ReportUtility();
+            var excelEngine = new ExcelEngine();
+            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "Expense Distribution Report";
+
+            var header = GetVendorInvoiceHeaderExpenseDistribution(companyGroupId, companyId, plantId, voucherId, SourceType.VendorInvoice);
+
+            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
+
+            var dsLocal = GetCustomerInvoiceVoucherExpenseDistribution(voucherId);
+
+            var transcationCurrency = header["CurrencyId"].ToString();
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            accountsCommonService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
+            //_companyParallelCurrencyService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
+
+            var row = 5;
+            var colLast = 1;
+            int xlsCol = 1;
+            int colGl = 0;
+            int colInvoiceNo = 0;
+            int colVendorCustomer = 0;
+            int colInvoiceAmount = 0;
+            int colDistributedAmount = 0;
+            int colInvoiceType = 0;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
+            reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");
+            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());
+            sheet[row, 4].ColumnWidth = 15;
+            sheet[row, 5].ColumnWidth = 15;
+            row++;
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
+            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");
+            reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
+            //sheet[row, 5].ColumnWidth = 15;
+            row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor:");
+            reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
+            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
+            //sheet[row, 5].ColumnWidth = 15;
+            row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
+            reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
+            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
+            //sheet[row, 5].ColumnWidth = 15;
+            row++;
+
+            colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
+            reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            sheet[row, 2].ColumnWidth = 30;
+
+            row++;  //10
+
+            //if (companyCurrencyId == transcationCurrency)
+            //{
+            //    reportUtility.SetHeaderText(ref sheet, row, 4, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+            //    sheet[row, 4, row, 5].Merge();
+            //}
+            //else
+            //{
+            //    reportUtility.SetHeaderText(ref sheet, row, 4, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
+            //    sheet[row, 4, row, 5].Merge();
+
+            //    reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+            //    sheet[row, 6, row, 7].Merge();
+            //}
+            sheet[row, 6].ColumnWidth = 15;
+            sheet[row, 7].ColumnWidth = 15;
+            //sheet.Range[row, 4, row, colLast].BorderAround(ExcelLineStyle.Hair);
+            //sheet.Range[row, 4, row, colLast].BorderInside(ExcelLineStyle.Hair);
+            row++;
+
+
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL",20); colGl = xlsCol; xlsCol++;
+            //sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
+
+            //xlsCol++; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Type", 13, ExcelHAlign.HAlignLeft); colInvoiceType = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Invoice No", 13, ExcelHAlign.HAlignLeft); colInvoiceNo = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Vendor/Customer", 13, ExcelHAlign.HAlignLeft); colVendorCustomer = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Amount", 15, ExcelHAlign.HAlignRight); colInvoiceAmount = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "DistributedAmount", 20, ExcelHAlign.HAlignRight); colDistributedAmount = xlsCol;
+            colLast = xlsCol;
+
+               
+            int formulaStartRow = 0;
+            int formulaEndRow = 0;
+
+            if (dsLocal.Rows.Count > 0)
+            {
+                double totalTranAmount = 0;
+                double totalBookCurrencyAmount = 0;
+                row++; 
+
+                formulaStartRow = row;
+                for (int i = 0; i < dsLocal.Rows.Count; i++)
+                {
+                    var glName = dsLocal.Rows[i]["Budget"].ToString();
+                    reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dsLocal.Rows[i]["Activity"]);
+                    reportUtility.SetText(ref sheet, row, colInvoiceType, dsLocal.Rows[i]["InvoiceType"].ToString());
+                    reportUtility.SetText(ref sheet, row, colInvoiceNo, dsLocal.Rows[i]["DocRefNo"].ToString());
+                    reportUtility.SetText(ref sheet, row, colVendorCustomer, dsLocal.Rows[i]["CustomerPlant"].ToString());
+                    reportUtility.SetTextDecimalThree(ref sheet, row, colInvoiceAmount, Convert.ToDouble(dsLocal.Rows[i]["Amount"].ToString()));
+                    reportUtility.SetTextDecimalThree(ref sheet, row, colDistributedAmount, Convert.ToDouble(dsLocal.Rows[i]["DistributedAmount"].ToString()));
+                    
+                    totalTranAmount += Convert.ToDouble(dsLocal.Rows[i]["DistributedAmount"].ToString());
+
+                    sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);
+
+                    glName = string.Empty;
+
+                    row++;
+                }
+
+
+                formulaEndRow = row - 1;
+
+
+                //reportUtility.SetText(ref sheet, row, 3, "Total: ", true);
+
+
+                //if (companyCurrencyId != transcationCurrency)
+                //{
+                //    sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrDebit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalThree();
+                //    sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
+
+                //    sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrCredit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalThree();
+                //    sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
+
+                //    sheet.Range[row, colusdDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colusdDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colusdDebit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colusdDebit].NumberFormat = reportUtility.NumberFormatDecimalThree();
+                //    sheet.Range[row, colusdDebit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colusdDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colusdDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colusdDebit].BorderAround(ExcelLineStyle.Hair);
+
+                //    sheet.Range[row, colusdCradit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colusdCradit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colusdCradit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colusdCradit].NumberFormat = reportUtility.NumberFormatDecimalThree();
+                //    sheet.Range[row, colusdCradit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colusdCradit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colusdCradit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colusdCradit].BorderAround(ExcelLineStyle.Hair);
+                //}
+                //else
+                //{
+                //    sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrDebit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalThree();
+                //    sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
+
+                //    sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrCredit) + (formulaEndRow) + ")";
+                //    sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalThree();
+                //    sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
+                //    sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //    sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //    sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
+                //}
+
+                //sheet.Range[row, colinrDebit, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                //sheet.Range[row, colinrDebit, row, colLast].BorderAround(ExcelLineStyle.Hair);
+
+                //sheet.Range[row, 1, row - 1, colLast].BorderAround(ExcelLineStyle.Thin);
+                //sheet.Range[row, 1, row - 1, colLast].BorderInside(ExcelLineStyle.Thin);
+
+                //row += 2;
+                //reportUtility.SetText(ref sheet, row, 1, "In Word:", true);
+
+                //if (companyCurrencyId != transcationCurrency)
+                //{
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = reportUtility.InWord(totalTranAmount, transcationCurrency);
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+                //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+                //    row++;
+                //}
+
+                //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = reportUtility.InWord(totalBookCurrencyAmount, companyCurrencyId);
+                //sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+                //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+
+                //sheet.UsedRange.AutofitColumns();
+                //sheet[1, 2].ColumnWidth = 60;
+                sheet.UsedRange.CellStyle.Font.Size = 8;
+                row += 4;
+                reportUtility.SetSignatureText(ref sheet, row - 1, 1, header["AddedBy"].ToString());
+                sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
+                sheet[row, 1].ColumnWidth = 25;
+
+                reportUtility.SetSignatureText(ref sheet, row - 1, 3, header["PostedBy"].ToString());
+                sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
+                sheet[row, 3].ColumnWidth = 25;
+
+                sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                reportUtility.SetTextMiddle(ref sheet, row, 5, "Authorized By", true);
+
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Expense Distribution Report", companyId, plantId, plantName, null);
+                reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+
+
+            }
+            else
+            {
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.CellStyle.Font.Size = 8;
+                reportUtility.CompanyPlantHeader(ref sheet, 7, header["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
+                reportUtility.PageSetup(ref sheet, 7, ExcelPageOrientation.Portrait);
+            }
+
+            return workbook;
+        }
+
+        private DataTable GetCustomerInvoiceVoucherExpenseDistribution(string voucherId)
+        {
+            try
+            {
+                var sql = @"SELECT GL.Id AS AccountCodeId, VD.DrAmount AS DrAmount, VD.CrAmount AS CrAmount, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+                            , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.UserName AS Customer, PP.UserName AS CustomerPlant,  BUD.UserName AS Budget
+                            ,Activity=CASE WHEN VD.CashMasterId<>'' THEN  CM.UserName  WHEN VD.BankMasterId<>'' THEN BNM.AccountTitle Else ACT.UserName end 
+                            ,ID.InvoiceType,ID.DistributedAmount,IV.Id AS InvoiceId,IV.DocRefNo,ID.Amount
+                            FROM TRN.InvoiceDetailCharges ID
+                            JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=ID.VoucherDetailId
+							JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=ID.VoucherDetailId
+                            JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                            LEFT JOIN [TRN].[Invoice] AS IV ON IV.Id=ID.InvoiceId
+                            LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                            LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] BUM ON VD.BudgetMasterId=BUM.Id
+                            LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id=BUM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
+                            LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
+                            LEFT JOIN [MST].[BankMaster] AS BNM ON BNM.Id=VD.BankMasterId
+                            WHERE V.Archive=0 AND V.Id='" + voucherId + "' ORDER BY VD.DrAmount DESC";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        private Dictionary<string, object> GetVendorInvoiceHeaderExpenseDistribution(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
+        {
+            var cmdText = @"
+                            SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+							, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
+                            , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo
+							, AddedBy =case when u.FullName<>'' then u.FullName else v.AddedBy end
+							,PostedBy = case when up.FullName<>'' then up.FullName else v.PostedBy end
+
+							--, AddedBy =case when u.FullName<>'' then u.FullName else v.AddedBy end
+							--,PostedBy = case when u.FullName<>'' then u.FullName else v.PostedBy end
+							 , UPPER(V.Narration) AS Narration 
+					    	, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
+                            , P.UserName AS Vendor, PP.UserName AS VendorPlant, BJ.CurrencyId, C.Code AS CurrencyCode
+                            FROM [TRN].[Invoice] AS BJ
+                            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
+                            LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
+							LEFT JOIN [HKP].[Party] AS P ON P.Id=BJ.PartyId
+							LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=BJ.PartyPlantId
+							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+							left join [sec].[User] U on U.UserId=v.AddedBy
+							left join sec.[User] up on up.UserId=v.PostedBy
+                            WHERE BJ.Archive=0 --AND BJ.CompanyGroupId='" + companyGroupId + @"' AND BJ.CompanyId='" + companyId + @"' AND BJ.PlantId='" + plantId + @"' 
+                            AND BJ.VoucherId='" + voucherId + @"' AND BJ.SourceType='" + sourceType + @"'";
+            return _sqlRepository.GetData(cmdText);
+        }
+        #endregion
+
     }
 }

@@ -136,8 +136,12 @@ namespace Aplos.Areas.Productions.Controllers
             int ColOpen = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Produce", 15, ExcelHAlign.HAlignCenter);
-            int ColProduce = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Packing", 15, ExcelHAlign.HAlignCenter);
+            int ColPakcing = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "RePacking", 15, ExcelHAlign.HAlignCenter);
+            int ColRPakcing = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Return", 15, ExcelHAlign.HAlignCenter);
@@ -178,7 +182,8 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColPo].Text = data.Rows[i]["POId"].ToString();
                 sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
                 sheet[ROW, ColOpen].Number = clsStaticInfo.dbl(data.Rows[i]["Opening"].ToString());
-                sheet[ROW, ColProduce].Number = clsStaticInfo.dbl(data.Rows[i]["Produce"].ToString());
+                sheet[ROW, ColPakcing].Number = clsStaticInfo.dbl(data.Rows[i]["Packing"].ToString());
+                sheet[ROW, ColRPakcing].Number = clsStaticInfo.dbl(data.Rows[i]["RePacking"].ToString());
                 sheet[ROW, ColRet].Number = clsStaticInfo.dbl(data.Rows[i]["Retrn"].ToString());
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["Dispatch"].ToString());
                 sheet[ROW, ColIss].Number = clsStaticInfo.dbl(data.Rows[i]["Issue"].ToString());
