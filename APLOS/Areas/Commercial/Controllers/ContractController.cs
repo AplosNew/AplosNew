@@ -1,5 +1,4 @@
 ﻿#region Using
-
 using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
@@ -28,7 +27,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Mvc;
-
 #endregion
 
 namespace Aplos.Areas.Commercial.Controllers
@@ -478,7 +476,7 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsMasterOrder, dsfunds;
+            DataSet dsMaster, dsMasterOrder, dsChild;
             string contId = string.Empty;
             string id = string.Empty;
             try
@@ -620,15 +618,9 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 }
                 contractId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                //SaveFundUtilizationData(funds, contractId, out dsfunds);
 
                 #region FUND 
-
-                DataSet dsChild;
-
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ContractFund where  ContractId='" + contractId + "'", out dsChild, false, "1");
-                #region data update
-
                 if (funds != null)
                 {
                     foreach (var item in funds)
@@ -636,6 +628,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         DataView dv = new DataView(dsChild.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
 
+                        item["ContractId"] = contractId;
                         if (dv.Count == 0)
                         {
                             item["Id"] = GetContractFundPK();
@@ -650,7 +643,6 @@ namespace Aplos.Areas.Commercial.Controllers
                         }
                     }
                 }
-                #endregion
 
                 #endregion
 
@@ -965,7 +957,6 @@ namespace Aplos.Areas.Commercial.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-
         [HttpGet, Authorize]
         public ActionResult GetMasterLCDataList()
         {
@@ -983,11 +974,11 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpGet, Authorize]
         public ActionResult GetContractFundData(string contractId)
         {
-            string sql = @"SELECT  A.Id,A.Sequence,A.FundUtilization,A.UserName,SUM(A.FundValue) PurchaseMargin,A.CommisssionChargeValue [Percentage],A.CommisssionChargeValue [OldPercentage],A.Reason,A.CurrencyId FROM
+            string sql = @"SELECT  A.Id,A.Sequence,A.FundUtilization,A.UserName,SUM(A.FundValue) CostingValue,A.StandardValue [Percentage],A.StandardValue CostingValuePercentage,A.Remarks,A.CurrencyId,A.UserValue FROM
 (
-SELECT CF.Id,CFU.Id FundUtilization,CFU.UserName ,C.*,MOI.TotalQty,CFU.CommisssionCharge
-,CASE WHEN CFU.CommisssionCharge='Percentage' THEN ISNULL(C.TotalGrossAmount,0)* ISNULL(MOI.TotalQty,0)*(1/CFU.CommisssionChargeValue)
-ELSE CFU.CommisssionChargeValue END AS FundValue,CFU.CommisssionChargeValue,CFU.Sequence,CF.Reason,CF.CurrencyId
+SELECT CF.Id,CFU.Id FundUtilization,CFU.UserName ,C.*,MOI.TotalQty,CFU.ValueType
+,CASE WHEN CFU.ValueType='Percentage' THEN ISNULL(C.TotalGrossAmount,0)* ISNULL(MOI.TotalQty,0)*(1/NULLIF(CFU.StandardValue,0))
+ELSE CFU.StandardValue END AS FundValue,CFU.StandardValue,CFU.Sequence,CF.Remarks,CF.CurrencyId,CF.UserValue
 FROM  dbo.ContractFundUtilization CFU 
 LEFT JOIN TRN.MasterOrderItem MOI ON MOI.ContractId='" + contractId + @"'
 LEFT JOIN (
@@ -1000,7 +991,7 @@ LEFT JOIN (
 ) C ON C.OrderCostingMasterTemplateId=MOI.OrderCostingMasterTemplateId and C.ContractFundId = CFU.Id AND ISNULL(C.TotalGrossAmount,0)>0  
 LEFT JOIN ContractFund CF ON CF.ContractId=MOI.ContractId AND CFU.Id=CF.FundUtilization
 ) A
-GROUP BY A.UserName,A.CommisssionChargeValue,A.Sequence,A.FundUtilization,A.Id,A.Reason,A.CurrencyId
+GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,A.CurrencyId,A.UserValue
 ORDER BY A.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -1058,7 +1049,7 @@ ORDER BY A.Sequence";
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strUSQL = "update TRN.MasterOrderItem set ContractId=NULL Where ContractId='" + Id + "'";
+                strUSQL = "delete TRN.MasterOrderItem set ContractId=NULL Where ContractId='" + Id + "'";
                 strCFSQL = "delete from dbo.ContractFund Where ContractId='" + Id + "'";
                 strCNFSQL = "delete from dbo.ContractTermsAndConditions Where ContractId='" + Id + "'";
                 strSQL = "delete from dbo.Contract Where Id='" + Id + "'";

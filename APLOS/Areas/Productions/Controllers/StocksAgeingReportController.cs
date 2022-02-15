@@ -175,6 +175,10 @@ namespace Aplos.Areas.Productions.Controllers
             int DG360 = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Total", 12, ExcelHAlign.HAlignCenter);
+            int ColTot = COL;
+            COL++;
+
             ROW++;
             endCol = COL;
             #endregion Headers
@@ -185,12 +189,6 @@ namespace Aplos.Areas.Productions.Controllers
             int RowIndex = ROW;
             startRow = ROW;
 
-            string Article = "";
-            string LotNum = "";
-            int ArtRow = 0;
-            int LotRow = 0;
-
-            double[] arr = new double[3];
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
@@ -212,14 +210,30 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, D150T180].Number = clsStaticInfo.dbl(data.Rows[i]["D150T180"].ToString());
                 sheet[ROW, D180T360].Number = clsStaticInfo.dbl(data.Rows[i]["D180T360"].ToString());
                 sheet[ROW, DG360].Number = clsStaticInfo.dbl(data.Rows[i]["DG360"].ToString());
-                
+                sheet[ROW, ColTot].Number = sheet.Range[ROW, D15, ROW, DG360].Sum();
 
-                sheet.Range[ROW, ColPCat, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                sheet.Range[ROW, ColPCat, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                sheet.Range[ROW, ColPCat, ROW, endCol-1].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, ColPCat, ROW, endCol-1].BorderAround(ExcelLineStyle.Hair);
 
                 ROW++;
 
             }
+
+            sheet[ROW, ColPCat].Text = "Total";
+            sheet[ROW, D15].Number = sheet.Range[startRow, D15, ROW-1, D15].Sum();
+            sheet[ROW, D15T30].Number = sheet.Range[startRow, D15T30, ROW-1, D15T30].Sum();
+            sheet[ROW, D30T60].Number = sheet.Range[startRow, D30T60, ROW-1, D30T60].Sum();
+            sheet[ROW, D60T90].Number = sheet.Range[startRow, D60T90, ROW-1, D60T90].Sum();
+            sheet[ROW, D90T120].Number = sheet.Range[startRow, D90T120, ROW-1, D90T120].Sum();
+            sheet[ROW, D120T150].Number = sheet.Range[startRow, D120T150, ROW-1, D120T150].Sum();
+            sheet[ROW, D150T180].Number = sheet.Range[startRow, D150T180, ROW-1, D150T180].Sum();
+            sheet[ROW, D180T360].Number = sheet.Range[startRow, D180T360, ROW-1, D180T360].Sum();
+            sheet[ROW, DG360].Number = sheet.Range[startRow, DG360, ROW-1, DG360].Sum();
+            sheet[ROW, ColTot].Number = sheet.Range[startRow, ColTot, ROW-1, ColTot].Sum();
+            sheet.Range[ROW, ColPCat, ROW, endCol - 1].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, ColPCat, ROW, endCol - 1].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, ColPCat, ROW, endCol - 1].CellStyle.Font.Bold= true;
 
             ROW++;
 

@@ -407,6 +407,9 @@ namespace Library.Accounting.Accounts
                                         ,OI.Id OtherInvoiceId
                                         ,OtherIsPark=CASE WHEN OI.VoucherId<>'' THEN 'OtherInvoicePosted' WHEN  OI.VoucherId IS NULL THEN '' ELSE 'OtherInvoiceParked' end
                                         ,OI.VoucherId OtherInvoiceVoucherId
+                                        ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
+										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
+										WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END
                                         FROM TRN.[Invoice] AS I
                                         JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -425,7 +428,7 @@ namespace Library.Accounting.Accounts
                                         ,IsAdditionalTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.EmployeePayableId IS NULL THEN '' ELSE 'Parked' end,V.VoucherTypeId,I.CompanyCurrencyRate
                                         ,I.PartyId,I.PartyPlantId,I.EmployeeId
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
-                                        ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId
+                                        ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId,0 IsExpenseDistribution
                                         FROM TRN.[EmployeePayable] AS I
                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId

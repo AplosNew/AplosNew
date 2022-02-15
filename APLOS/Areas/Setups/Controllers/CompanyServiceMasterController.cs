@@ -35,6 +35,13 @@ namespace Aplos.Areas.Setups.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetServicePopUpByCompany()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_serviceMasterCompanyExtensionService.GetServicePopUpByCompany(identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetCboServiceList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

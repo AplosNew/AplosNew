@@ -3326,7 +3326,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
             $scope.$broadcast('show-errors-check-validity');
             $http({
                 method: 'POST',
-                url: $scope.path + "GetCostingItemForSelection",
+                url: $scope.path + "GetSubMaterialSelection",
                 data: { CostingMasterTemplateId: $scope.CostingMasterTemplateId, costingComponentId: $scope.CostingComponentId, Segment: $scope.Segment },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -3390,6 +3390,62 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
             ShowResult(e,'info');
         }
     }
+    $scope.SaveSubMaterial = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "UpdatePreCostingChild",
+                data: { subMaterilaList: $scope.SubMaterialList, MasterId: $scope.SelectedLine.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSubMaterialData($scope.SelectedLine.Id);
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
+    $scope.DeleteSubMaterialId = null;
+    $scope.DeleteSubMaterial = function (obj) {
+        $scope.DeleteSubMaterialId = obj;        
+        angular.element(document.querySelector('#confirmDelete')).modal('show');
+    }
+
+    $scope.DeleteSubMaterials = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteSubMaterial",
+                data: { SubMaterialId: $scope.DeleteSubMaterialId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSubMaterialData($scope.SelectedLine.Id);                   
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.CalculationSubMaterial = function (data, index) {
+        data.GrossConsumption = parseFloat(data.Consumption) / (100 - (parseFloat(data.ValueLoss)/100)) / 100;
+        data.GrossAmount = parseFloat(data.Rate) * parseFloat(data.GrossConsumption);
+        $scope.SubMaterialList[index].GrossConsumption = parseFloat(data.GrossConsumption.toFixed(4));
+        $scope.SubMaterialList[index].GrossAmount = parseFloat(data.GrossAmount.toFixed(4));
+    };
+
     //#endregion
 
 }

@@ -440,37 +440,8 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ConnectionManager.DAL.ConManager objCon;
-                string sql = "SELECT * FROM [dbo].[TaxPolicySlabInfo] WHERE PolicyId='" + PolicyId + "' ";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
-
-                while (dsMaster.Tables[0].DefaultView.Count > 0)
-                {
-                    dsMaster.Tables[0].DefaultView[0].Delete();
-                }
-
-                    for (int i = 0; i < IncomeSlab.Count; i++)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-                        clsGenID genid = new clsGenID();
-                        genid.GenID("TaxPolicySlabInfo", out string _Id);
-
-                        dr["Id"] = "TSI" + _Id;
-                        dr["PolicyId"] = PolicyId;
-                        dr["Minimum"] = clsStaticInfo.dbl(IncomeSlab[i]["Minimum"].ToString());
-                        dr["Maximum"] = clsStaticInfo.dbl(IncomeSlab[i]["Maximum"].ToString());
-                        dr["TaxRate"] = clsStaticInfo.dbl(IncomeSlab[i]["TaxRate"].ToString());
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = DateTime.Now;
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dsMaster.Tables[0].Rows.Add(dr);
-
-                    }
-                    clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
-                    return Json(new { Error = false, Data = IncomeSlab, Message = AplosMessage.Updated });
+                var x = ds.SaveSlabInfo(IncomeSlab, PolicyId);
+                return Json(new { Error = false, Data = x, Message = AplosMessage.Updated });
                 
             }
             catch (Exception ex)
@@ -491,7 +462,21 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteIncomeSlab(string Id)
+        {
+            try
+            {
+                ds.DeleteIncomeSlab(Id);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         #endregion
 
     }

@@ -9,6 +9,7 @@
         <thead>
             <tr>
                 <th style="width: 150px !important">Costing Item</th>
+                <th style="width: 60px !important">Sub Material</th>
                 <th style="width: 40px !important">Seq.No.</th>
                 <th style="width: 150px !important;text-align:center!important;">Particulars</th>
                 <th>UoM</th>
@@ -54,7 +55,11 @@
 
             <tr ng-repeat="x in DirectMaterialList">
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
-
+                <td style="min-width:60px;">
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="GetSubMaterial(x)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                    </span>
+                </td>
                 <td class="text-right">
                     <input type="number" style="min-width:80px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.Sequence>0?x.Sequence:x.Sequence=''" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
                 </td>
@@ -219,20 +224,14 @@
                 <td>
                     <div class="input-group" style="width:150px!important">
                         <button name="submit" ng-click="ShowUploadBox(x,'PRE','OrderPreCostingDirectMaterial')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-paperclip"></i></button>
-
                         <a href="POPResources/OrderCosting/{{x.FileName}}" target="_blank">
                             <span style="color:red;padding:4px;">  </span>
                             <span style="height:20px;width:20px;color:blue;">
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
                 </td>
-
             </tr>
             <tr style="border:1px solid #dcdcdc !important">
                 <td>Total</td>
@@ -820,3 +819,100 @@
     </p>
 </ej-dialog>
 <!--#endregion-->
+<!-- #region SubMaterial popup -->
+<div class="modal site-modal" id="SubMaterialPOPupOC" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">SubMaterial <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-disabled="Segment=='Operation'" ng-click="showCostingItemListWithOperationPopUpInSubMaterial('PRE');" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> </button></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                @*<th>PreCostingDirectMaterialId</th>*@
+                                <th>Costing Master Template</th>
+                                <th>Costing Item</th>
+                                <th>Consumption</th>
+                                <th>Value Loss</th>
+                                <th>Rate</th>
+                                <th>Gross Consumption</th>
+                                <th>Gross Amount</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in SubMaterialList">
+                                @*<td>{{item.PCDMCID}}></td>*@
+                                <td>{{item.CostingMasterTemplate}}</td>
+                                <td>{{item.CostingItemName}}</td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" ng-model="item.Consumption" class="form-control" /></td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" ng-model="item.ValueLoss" class="form-control" /></td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" ng-model="item.Rate" class="form-control" /></td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" disabled ng-model="item.GrossConsumption" class="form-control" /></td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" disabled ng-model="item.GrossAmount" class="form-control" /></td>
+                                <td>
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-center">
+                                            <li> <button ng-click="DeleteSubMaterial(item.Id);" class="btn"><i class="glyphicon glyphicon-trash"></i> </button></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="SaveSubMaterial();CloseSubMaterial();" class="btn"><i class=""></i> Save </button>
+                <button ng-click="CloseSubMaterial();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="confirmDelete" data-target="#SubMaterialPOPup" title="Confirmation" message="Are you sure, you want to delete permanently ?" data-ng-click-right-button="DeleteSubMaterials();"></confirm-archive-generic>
+
+<ej-dialog id="GeneralSub"
+           title="Sub Material"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#SubMaterialPOPupOC"
+           e-close="onDialogClose"
+           e-width="1020"
+           e-minheight="470"
+           e-open="enableBtn">
+
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div id="GridIt" ej-grid e-datasource="NewCostingItemList" e-gridlines="vertical"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-template="#CheckSelections" e-textalign="center" e-width="30"></div>
+
+                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="20"></div>
+                <div e-column e-type="string" e-field="CostingCategory" e-headertext="Category" e-width="60"></div>
+                <div e-column e-type="string" e-field="UserName" e-headertext="Item Name" e-width="100"></div>
+                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+            </div>
+        </div>
+        <script type="text/template" id="CheckSelections">
+
+            <input type="checkbox" ej-checkbox class="rowCheckbox" e-value="data.Selected" e-checked="data.Selected" />
+        </script>
+    </div>
+
+    <div class="modal-footer common-btn">
+        <button ng-click="SaveSubMaterialPart();hideSubMaterialPart();" class="btn"><i class=""></i> Select Item(s)</button>
+
+        <button ng-click="hideSubMaterialPart();" class="btn"><i class=""></i> Close</button>
+    </div>
+
+</ej-dialog>
+
+<!-- #endregion -->

@@ -350,6 +350,7 @@ upanelApp.controller("projectPlanningController", ProjectPlanningController);
 upanelApp.controller("projectPlanningPurchaseOrderController", ProjectPlanningPurchaseOrderController);
 upanelApp.controller("projectPlanningRequisitionController", ProjectPlanningRequisitionController);
 upanelApp.controller("PurchaseOrderByRequisitionController", PurchaseOrderByRequisitionController);
+upanelApp.controller("purchaseOrderBOQController", purchaseOrderBOQController);
 upanelApp.controller("purchaseOrderGroupController", purchaseOrderGroupController);
 upanelApp.controller("PurchaseReturnController", PurchaseReturnController);
 upanelApp.controller("PurchaseReturnRegisterController", PurchaseReturnRegisterController);
@@ -1002,6 +1003,9 @@ upanelApp.controller("StocksAgeingReportController", StocksAgeingReportControlle
 upanelApp.controller("NewEarnLeaveReportController", NewEarnLeaveReportController);
 upanelApp.controller("MeetingPointsController", MeetingPointsController);
 upanelApp.controller("NewSystemEarnLeaveReportController", NewSystemEarnLeaveReportController);
+upanelApp.controller("FinishedStockReportController", FinishedStockReportController);
+upanelApp.controller("FGInventoryStockReportController", FGInventoryStockReportController);
+upanelApp.controller("MeetingAgendaController", MeetingAgendaController);
 
 
 

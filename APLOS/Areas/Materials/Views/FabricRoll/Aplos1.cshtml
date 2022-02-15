@@ -15,7 +15,6 @@
                             </span>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PO No  :</span></label>
                         <label class="col-sm-8 control-label">{{fabricRollMaster.POId}}</label>
@@ -27,21 +26,21 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label"><span style="font-weight:bold">Party :</span></label>
                         <label class="col-sm-10 control-label">{{fabricRollMaster.PartyName}}</label>
-
-                        @*<label class="col-sm-2 control-label">&nbsp;</label>*@
                     </div>
-                    <!--<div class="form-group">
-                        <label class="col-sm-4 control-label">No Of Rolls<sup>*</sup></label>
-                        <div class="col-sm-8">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Prepared by<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <input type="text" only-numbers ng-model="fabricRollMasterNew.GRNSplitQty" class="form-control">-->
-                                @*<span class="input-group-btn">
-                                        <button name="submit" ng-click="saveRoll()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i></button>
-                                        <button name="submit" ng-click="clearSplitRow()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
-                                    </span>*@
-                            <!--</div>
+                                <span class="input-group-addon">{{fabricRollMaster.PreparedbyCode}}</span>
+                                <input type="text" name="Vendor" ng-model="fabricRollMaster.PreparedbyName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="getPopUpData('Preparedby')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-click="ClearEmpdata('Preparedby')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
                         </div>
-                    </div>-->
+                    </div>
+
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
@@ -60,6 +59,19 @@
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">Opening Bank :</span></label>
                         <label class="col-sm-8 control-label">{{fabricRollMaster.OpeningBank}}</label>
                     </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Checked by<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <span class="input-group-addon">{{fabricRollMaster.CheckedbyCode}}</span>
+                                <input type="text" name="Vendor" ng-model="fabricRollMaster.CheckedbyName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="getPopUpData('Checkedby')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-click="ClearEmpdata('Checkedby')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
 
@@ -75,14 +87,21 @@
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PI No :</span></label>
                         <label class="col-sm-8 control-label">{{fabricRollMaster.PINo}}</label>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Attachment :</span></label>
+                        <div class="col-sm-8">
+                            <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection="false" e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
+                        </div>
+                    </div>
                 </div>
-
-                @*<div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
-                    </ul>
-                </div>*@
-
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Remarks</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" rows="3" ng-model="fabricRollMaster.Remarks" tabindex="7" maxlength="250"></textarea>
+                    </div>
+                </div>
             </div>
             <div class="col-xs-12" ng-show="MaterialGridList.length>0">
                 <div style="color:black;" id="MaterialGrid" ej-grid e-datasource="MaterialGridList"
@@ -105,9 +124,7 @@
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                 </script>
-                @*<script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="headchk" />
-                </script>*@
+               
                 <script type="text/template" id="rollsNo">
                     <input type="text" only-numbers ng-model="data.RollNo" style="color:black;" class="form-control" />
                 </script>
@@ -127,8 +144,6 @@
                         </ul>
                     </div>
                 </div>
-
-
 
                 <div class="row">
                     <div class="col-sm-12" ng-show="grnDetailList.length>0">
@@ -179,7 +194,6 @@
                         </div>
                     </div>
                 </div>
-
 
             </div>
         </div>
@@ -290,7 +304,7 @@
                     <div class="col-xs-12 col-sm-12 col-md-12">
 
                         <div class="form-group">
-                            <label class="col-sm-10 control-label"><span style="font-weight:bold">Party :</span>{{fabricRollMaster.PartyName}}</label>
+                            <label class="col-sm-10 control-label"><span style="font-weight:bold">Vendor :</span>{{fabricRollMaster.PartyName}}</label>
                             <label class="col-sm-2 control-label">&nbsp;</label>
                         </div>
 
@@ -674,6 +688,38 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmRollDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 

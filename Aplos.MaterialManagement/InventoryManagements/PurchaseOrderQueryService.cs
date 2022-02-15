@@ -31,6 +31,127 @@ namespace Library.MaterialManagement.InventoryManagements
         }
         #endregion Constructor
 
+        public IEnumerable<object> GetPOBOQItems(string ContractId, string VendorId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            
+                    var sql = "";
+                    sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.Sequence Sequence1
+						,b.MasterOrderItemId
+						,moi.MasterOrderId
+						,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
+						,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
+
+						,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
+						,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
+						, b.VendorId
+						,b.SalesOrderId
+						,mm.Id MaterialMasterId,mma.Id ArticleId
+						,IsNULL(mm.UserName,'') AS UserName
+						,IsNULL(mma.StandardName,'') AS StandardName
+						,IsNULL(p.UserName,'') AS Vendor
+						,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
+						,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
+						,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
+
+						,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+						,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+						,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
+						,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
+						,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
+						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+						b.BOMQty,C.Id
+						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
+						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+						,ISNULL(cpo.PONumber,'') PONumber
+						,b.RequiredQty
+						,uom.UserName BOQUOM
+						,b.POUoMId FromPoUomId
+					    ,b.POUoMId
+						,b.RequiredQtyPO 
+						,b.RequiredQtyPO RequiredQtyPOOrginal
+						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
+						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
+						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
+                        ,Round(Round(ISNULL(b.RequiredQtyPO,0),4),4) TransactionQty,0 Tolerance
+						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
+						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
+        					  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
+						ELSE
+							case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END
+           
+							 END AS PurchaseAuthority,
+						   case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId,ISNULL(b.ItemRefNo,'') BOQItemRefNo
+						   ,ISNULL(CI.UserName,'') CostingItemName,ISNULL(b.SKUDesc,'')SKUDesc,ISNULL(b.RMDescription,'')RMDescription
+						   ,ISNULL(b.RMVendorSpec,'')RMVendorSpec,ISNULL(b.RMCustomerSpec,'')RMCustomerSpec
+
+						FROM BOQ AS b
+						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+						LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+						LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+						LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+						LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+						left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
+
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+
+						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
+						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
+						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
+                        left outer join mst.Destination DE ON DE.Id=so.DestinationId
+						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						
+								LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+                            LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
+						where b.Id in (
+						select B.ID from boq B
+						join CostingBOQSalesOrder BSO on b.CostingBOQMasterId=Bso.CostingBOQMasterId
+						join trn.SalesOrder SO ON SO.Id=bso.SalesOrderId
+						join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+						where MOI.ContractId='"+ ContractId + @"'
+						)
+						AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='"+ VendorId + @"')
+						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
+                    var Data = _sqlRepository.GetDataCollection(sql);
+                    StringCollection strCol = new StringCollection();
+                    string MaterialMasterList = "''";
+                    for (int i = 0; i < Data.Count; i++)
+                    {
+                        if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+                            continue;
+                        strCol.Add(Data[i]["MaterialMasterId"].ToString());
+                        MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+
+                    }
+
+                    var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+																	union
+																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+																	) AS M
+																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
+																	 where m.Id in (" + MaterialMasterList + @")");
+
+                    for (int i = 0; i < Data.Count; i++)
+                    {
+                        var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+                        Data[i]["uoMList"] = temp;
+                    }
+
+                    return Data;
+
+        }
 
         public IEnumerable<object> GetBOQItems(string ContractId, string VendorId, string IsOwnVendor, string inveReveiveMasterId, bool istradingPO)
         {
@@ -128,7 +249,9 @@ namespace Library.MaterialManagement.InventoryManagements
 							 END AS PurchaseAuthority,
 						   case when isnull(MOI.JobWorkType,'')<>'' THEN 
 								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
-						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId,ISNULL(b.ItemRefNo,'') BOQItemRefNo
+						   ,ISNULL(CI.UserName,'') CostingItemName,ISNULL(b.SKUDesc,'')SKUDesc,ISNULL(b.RMDescription,'')RMDescription
+						   ,ISNULL(b.RMVendorSpec,'')RMVendorSpec,ISNULL(b.RMCustomerSpec,'')RMCustomerSpec
 
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
@@ -171,6 +294,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+                            LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
 
                         --LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						--LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId

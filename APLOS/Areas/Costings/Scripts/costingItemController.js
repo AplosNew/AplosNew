@@ -54,6 +54,7 @@ function costingItemController(cboService, commonMessage, $scope, $rootScope, ba
         Remarks: null,
         isSystemGenerated: false,
         Active: true,
+        IsSubMaterial: false,
         POIssueDeadLine: null,
         PurchaseGroupId: null,
         ActivityMetarialNo: null,

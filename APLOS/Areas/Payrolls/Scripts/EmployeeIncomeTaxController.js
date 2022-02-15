@@ -150,6 +150,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             $scope.getEarningGridList();
             $scope.getNet_EarningFuncn();
             $scope.getTaxableIncomeGridData();
+            $scope.GetTaxAmtGridData();
         });
     }
 
@@ -239,6 +240,12 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     $scope.SaveInvestDeduction = function () {
 
         if (!baseService.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.EmpSystemId)) {
+
+            if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+                ShowResult("Please First Configure the Policy !", 'failure');
+                throw ('Please First Configure the Policy !!');
+            }
+
             $http({
                 method: 'POST',
                 url: $scope.path + "SaveInvestDeduction",
@@ -253,12 +260,12 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.getInvestDeductionList();
                     $scope.ProcessTaxableIncome();
-               }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
+                    $scope.getInvestDeductionList();
+                    $scope.getTaxableIncomeGridData();
+                    $scope.GetTaxAmtGridData();
+                }
+            })
         }
         else {
             ShowResult("Please Choose Employee First ...", 'failure');
@@ -351,7 +358,8 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             }
             $scope.NetEarningGridPop = [];
             $scope.NetEarningGridPop = response.data;
-           
+
+            $scope.SumValue = 0;
             for (var j = 0; j < $scope.NetEarningGridPop.length; j++)
             {
                 $scope.SumValue +=$scope.NetEarningGridPop[j].NetEarning;
@@ -442,28 +450,35 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     $scope.SaveEarningData = function () {
 
         if (!baseService.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.EmpSystemId)) {
-            $http({
-                method: 'POST',
-                url: $scope.path + "SaveEarningData",
-                data: {
-                    'Masterdata': $scope.EmployeeIncomeTaxModel,
-                    'ChildData': $scope.EarningGridValue
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.getEarningGridList();
-                    $scope.getNet_EarningFuncn();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
+
+            if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+                ShowResult("Please First Configure the Policy !", 'failure');
+                throw ('Please First Configure the Policy !!');
             }
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "SaveEarningData",
+                    data: {
+                        'Masterdata': $scope.EmployeeIncomeTaxModel,
+                        'ChildData': $scope.EarningGridValue
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.getEarningGridList();
+                        $scope.getNet_EarningFuncn();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+
+                }
         }
-        else {
+        else
+        {
             ShowResult("Please Choose Employee First ...", 'failure');
         }
     };
@@ -476,7 +491,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
     // #endregion
 
-    //#region Taxable Income Tab Functions
+    //#region Taxable Income Functions
 
     $scope.TaxableIncomeGridPopup = [];
     $scope.getTaxableIncomeGridData = function () {
@@ -533,16 +548,40 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.getTaxableIncomeGridData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-
     }
 
-    //#endregion
+    $scope.TaxableAmtPopup = [];
+    $scope.GetTaxAmtGridData = function () {
 
+        if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Invalid Request!!');
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetTaxAmtGridData",
+            data: {
+                'PolicyId': $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId,
+                'EmpId': $scope.EmployeeIncomeTaxModel.EmpSystemId,
+                'YearId': $scope.EmployeeIncomeTaxModel.TaxYearId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+                throw ('Invalid Request!');
+            }
+            $scope.TaxableAmtPopup = [];
+            $scope.TaxableAmtPopup = response.data;
+
+        });
+    }
+    // #endregion
 };
 
 

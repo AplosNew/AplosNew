@@ -564,13 +564,15 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         [HttpPost, Authorize]
         public ActionResult GetCostingItemForSelection(string CostingStage, string OrderCostingMasterTemplateId, string costingComponentId, string Segment)
         {
-
-
             string TableName = "";
+            string aND = "";
             if (CostingStage == "PRE")
             {
                 if (Segment == CostingSegment.DirectMaterial.ToString())
+                {
                     TableName = "OrderPreCostingDirectMaterial";
+                    aND = "AND ci.IsSubMaterial = 0";
+                }
                 else if (Segment == CostingSegment.DirectProcess.ToString())
                     TableName = "OrderPreCostingDirectProcess";
                 else if (Segment == CostingSegment.Operation.ToString())
@@ -598,8 +600,6 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 else if (Segment == CostingSegment.ValueLoss.ToString())
                     TableName = "OrderProcurementCostingValueLoss";
             }
-
-
             string sql = @"SELECT ci.ShortName,cat.UserName AS CostingCategory, CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END) AS Selected, ci.CostingComponentId,ci.Id as CostingItemId,  ci.UserName,ci.Code,ci.Sequence, ci.StandardName, 
                         o.OrderCostingMasterTemplateId,
                             ci.MinimumOfQuantity, ci.POIssueDeadLine,ci.UnitOfMeasurementId,cc.UserName as CostingComponent,cc.Id as CostingComponentId, 
@@ -608,11 +608,14 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
                             LEFT OUTER JOIN hkp.CostingCategory AS cat ON cat.Id=ci.CostingCategoryId
                             LEFT join " + TableName + @" o on o.CostingItemId = ci.Id AND o.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"'
-                            WHERE ci.CostingComponentId='" + costingComponentId + @"'
+                            WHERE ci.CostingComponentId='" + costingComponentId + @"' "+ aND + @"
                             ORDER BY CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END), ci.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+       
+
         [HttpPost, Authorize]
         public ActionResult SaveCostingItemsForCostingComponent(string CostingStage, List<Dictionary<string, object>> itemList, string OrderCostingMasterTemplateId, string costingComponentId, string Segment)
         {
@@ -5689,7 +5692,195 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult SaveSubMaterial(List<Dictionary<string, object>> itemList, Dictionary<string, object> PreCDMaterial)
+        {
+            try
+            {
+                if (itemList == null)
+                {
+                    throw new Exception("Nothing to update");
+                }
+                DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; int count = 0;
+                bplib.clsGenID objGenID = new bplib.clsGenID();
+                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "OrderPreCostingDirectMaterialChild", out string seed_detail);
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectMaterialChild where OrderPreCostingDirectMaterialId='" + PreCDMaterial["Id"] + "' ", out dsMaster, false, "1");
 
+                foreach (var item in itemList)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId = '" + item["CostingItemId"] + "' ";
+
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                        continue;
+
+                    count++;
+                    string pk = "MC" + seed_detail + "_" + count;
+                    drMSave = dsMaster.Tables[0].NewRow();
+                    drMSave["Id"] = pk;
+                    drMSave["OrderPreCostingDirectMaterialId"] = PreCDMaterial["Id"];
+                    drMSave["CostingItemId"] = item["CostingItemId"];
+                    drMSave["OrderCostingMasterTemplateId"] = item["OrderCostingMasterTemplateId"];
+
+                    drMSave["Consumption"] = 0;
+                    drMSave["Rate"] = 0;
+                    drMSave["ValueLoss"] = 0;
+                    drMSave["GrossConsumption"] = 0;
+                    drMSave["GrossAmount"] = 0;
+
+                    drMSave["AddedBy"] = identity.Name;
+                    drMSave["AddedDate"] = DateTime.Now;
+                    drMSave["AddedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(drMSave);
+
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetSubMaterialData(string MasterId)
+        {
+            string sql = @"SELECT  pcdmc.*,ci.UserName CostingItemName,cmt.StandardName  CostingMasterTemplate,pcdm.Id PCDMCID
+                              FROM OrderPreCostingDirectMaterialChild AS pcdmc 
+                            LEFT JOIN HKP.CostingItem AS ci ON ci.Id = pcdmc.CostingItemId
+                            LEFT JOIN OrderCostingMasterTemplate AS cmt ON cmt.Id = pcdmc.OrderCostingMasterTemplateId
+                            LEFT JOIN OrderPreCostingDirectMaterial AS pcdm ON pcdm.Id = pcdmc.OrderPreCostingDirectMaterialId
+                            where OrderPreCostingDirectMaterialId ='" + MasterId + "'";
+            return Json(new { data = _sqlRepository.GetDataCollection(sql) }, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult UpdatePreCostingChild(List<Dictionary<string, object>> subMaterilaList, string MasterId)
+        {
+            try
+            {
+                DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectMaterialChild where OrderPreCostingDirectMaterialId='" + MasterId + "' ", out dsMaster, false, "1");
+
+                foreach (var item in subMaterilaList)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = "Id = '" + item["Id"] + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+                        drMSave = dsMaster.Tables[0].DefaultView[0].Row;
+                        drMSave.BeginEdit();
+                        drMSave["Consumption"] = clsStaticInfo.dbl(item["Consumption"]);
+                        drMSave["Rate"] = clsStaticInfo.dbl(item["Rate"]);
+                        drMSave["ValueLoss"] = clsStaticInfo.dbl(item["ValueLoss"]);
+                        drMSave["GrossConsumption"] = clsStaticInfo.dbl(item["GrossConsumption"]);
+                        drMSave["GrossAmount"] = clsStaticInfo.dbl(item["GrossAmount"]);
+
+                        drMSave["UpdatedBy"] = identity.Name;
+                        drMSave["UpdatedDate"] = DateTime.Now;
+                        drMSave["UpdatedFromIP"] = identity.IPAddress;
+                        drMSave.EndEdit();
+                    }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetSubMaterialSelection(string CostingMasterTemplateId, string costingComponentId, string Segment)
+        {
+
+            string sql = @"SELECT ci.ShortName,cat.UserName AS CostingCategory, CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END) AS Selected, ci.CostingComponentId,ci.Id as CostingItemId,  ci.UserName,ci.Code,ci.Sequence, ci.StandardName, 
+                        o.CostingMasterTemplateId,
+                            ci.MinimumOfQuantity, ci.POIssueDeadLine,ci.UnitOfMeasurementId,cc.UserName as CostingComponent,cc.Id as CostingComponentId, 
+                            ci.POIssueDeadLine, ci.Wastage,ci.Description
+                            from hkp.CostingItem ci 
+                            left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
+                            LEFT OUTER JOIN hkp.CostingCategory AS cat ON cat.Id=ci.CostingCategoryId
+                            LEFT join PreCostingDirectMaterial o on o.CostingItemId = ci.Id AND o.CostingMasterTemplateId='" + CostingMasterTemplateId + @"'
+                            WHERE ci.CostingComponentId='" + costingComponentId + @"'
+                            ORDER BY CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END), ci.Sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult DeleteSubMaterial(string SubMaterialId)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from OrderPreCostingDirectMaterialChild where id='" + SubMaterialId + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetCostingItemForSubMaterial(string CostingStage, string OrderCostingMasterTemplateId, string costingComponentId, string Segment)
+        {
+            string TableName = "";
+            string aND = "";
+            if (CostingStage == "PRE")
+            {
+                if (Segment == CostingSegment.DirectMaterial.ToString())
+                {
+                    TableName = "OrderPreCostingDirectMaterial";
+                    aND = "AND ci.IsSubMaterial = 1";
+                }
+                else if (Segment == CostingSegment.DirectProcess.ToString())
+                    TableName = "OrderPreCostingDirectProcess";
+                else if (Segment == CostingSegment.Operation.ToString())
+                    TableName = "OrderPreCostingOperation";
+                else if (Segment == CostingSegment.Profit.ToString())
+                    TableName = "OrderPreCostingProfit";
+                else if (Segment == CostingSegment.SalesExpense.ToString())
+                    TableName = "OrderPreCostingSalesExpense";
+                else if (Segment == CostingSegment.ValueLoss.ToString())
+                    TableName = "OrderPreCostingValueLoss";
+            }
+            if (CostingStage == "PROCUREMENT")
+            {
+
+                if (Segment == CostingSegment.DirectMaterial.ToString())
+                    TableName = "OrderProcurementCostingDirectMaterial";
+                else if (Segment == CostingSegment.DirectProcess.ToString())
+                    TableName = "OrderProcurementCostingDirectProcess";
+                else if (Segment == CostingSegment.Operation.ToString())
+                    TableName = "OrderProcurementCostingOperation";
+                else if (Segment == CostingSegment.Profit.ToString())
+                    TableName = "OrderProcurementCostingProfit";
+                else if (Segment == CostingSegment.SalesExpense.ToString())
+                    TableName = "OrderProcurementCostingSalesExpense";
+                else if (Segment == CostingSegment.ValueLoss.ToString())
+                    TableName = "OrderProcurementCostingValueLoss";
+            }
+
+
+            string sql = @"SELECT ci.ShortName,cat.UserName AS CostingCategory, CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END) AS Selected, ci.CostingComponentId,ci.Id as CostingItemId,  ci.UserName,ci.Code,ci.Sequence, ci.StandardName, 
+                        o.OrderCostingMasterTemplateId,
+                            ci.MinimumOfQuantity, ci.POIssueDeadLine,ci.UnitOfMeasurementId,cc.UserName as CostingComponent,cc.Id as CostingComponentId, 
+                            ci.POIssueDeadLine, ci.Wastage,ci.Description
+                            from hkp.CostingItem ci 
+                            left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
+                            LEFT OUTER JOIN hkp.CostingCategory AS cat ON cat.Id=ci.CostingCategoryId
+                            LEFT join " + TableName + @" o on o.CostingItemId = ci.Id AND o.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"'
+                            WHERE ci.CostingComponentId='" + costingComponentId + @"' " + aND + @"
+                            ORDER BY CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END), ci.Sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
     }
