@@ -87,7 +87,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select Id,CardNo,ExpectedDate,format(ExpectedTime,'HH:mm tt')ExpectedTime,
+                var sql = @"select Id,CardNo,ExpectedDate,format(ExpectedTime,'hh:mm tt')ExpectedTime,
                 VisitorCategory,
                 VisitorName,VisitorType,Purpose
                 from VisitorServiceData where ToMeet='"+EmpId+@"'
