@@ -405,6 +405,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                 data.NetAmount = parseFloat(data.TransactionAmount).toFixed(2);
             }
         } else {
+            data.SalesQty = 0;
             ShowResult("Balance cann't less than 0.");
         }
     }

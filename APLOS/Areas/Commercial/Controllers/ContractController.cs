@@ -128,7 +128,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Contract model, string selectedMasterOrderList, List<Dictionary<string, object>> funds)
+        public JsonResult Create(Dictionary<string, object> model, string selectedMasterOrderList, List<Dictionary<string, object>> funds)
         {
             try
             {
@@ -472,7 +472,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }//End of function
 
-        private void SaveData(Contract data, List<MasterOrderItemModel> masterOrderItem, out string contractId, List<Dictionary<string, object>> funds)
+        private void XSaveData(Contract data, List<MasterOrderItemModel> masterOrderItem, out string contractId, List<Dictionary<string, object>> funds)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
@@ -596,6 +596,110 @@ namespace Aplos.Areas.Commercial.Controllers
                     if (string.IsNullOrEmpty(contId))
                     {
                         cId = data.Id;
+                    }
+                    else
+                    {
+                        cId = contId;
+                    }
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+
+                        drmo["ContractId"] = cId;
+                        drmo["UpdatedBy"] = identity.Name;
+                        drmo["UpdatedDate"] = DateTime.Now.ToString();
+                        drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                        drmo.EndEdit();
+
+                    }
+
+                }
+                contractId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region FUND 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ContractFund where  ContractId='" + contractId + "'", out dsChild, false, "1");
+                if (funds != null)
+                {
+                    foreach (var item in funds)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        item["ContractId"] = contractId;
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = GetContractFundPK();
+                            item["ContractId"] = contractId;
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsMasterOrder, dsChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void SaveData(Dictionary<string, object> data, List<MasterOrderItemModel> masterOrderItem, out string contractId, List<Dictionary<string, object>> funds)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsMasterOrder, dsChild;
+            string contId = string.Empty;
+            string id = string.Empty;
+            try
+            {
+                RemoveMOICon(data["Id"].ToString());
+                string sql = "SELECT * FROM [dbo].[Contract] WHERE Id='" + data["Id"].ToString() + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    data["Id"] = "C" + GetPK(); 
+                    data["PlantId"] = identity.PlantId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+                foreach (var item in masterOrderItem)
+                {
+                    if (id == "")
+                        id = "'" + item.MasterOrderItemId + "'";
+                    else
+                        id = id + ",'" + item.MasterOrderItemId + "'";
+                }
+                string mosql = "SELECT * FROM TRN.MasterOrderItem WHERE Id IN (" + id + ")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                foreach (var item in masterOrderItem)
+                {
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + item.MasterOrderItemId + "'";
+                    if (string.IsNullOrEmpty(contId))
+                    {
+                        cId = data["Id"].ToString();
                     }
                     else
                     {
