@@ -23,8 +23,8 @@ namespace Aplos.Areas.EmployeeServices.Controllers
     public class EmployeeServiceBookingController : BaseController
     {
         string TableName = "dbo.EmpServiceData";
-      
-      
+
+
 
         #region Constructor
 
@@ -35,10 +35,10 @@ namespace Aplos.Areas.EmployeeServices.Controllers
         }
 
         #endregion Constructor
-       
 
 
-    
+
+
         public ActionResult Aplos()
         {
             return View();
@@ -47,7 +47,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
         [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM "+ TableName +"  "), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + "  "), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -59,15 +59,15 @@ namespace Aplos.Areas.EmployeeServices.Controllers
         [Authorize, HttpGet]
         public JsonResult getcategory(string serviceid, string CatId)
         {
-            if(CatId=="null")
+            if (CatId == "null")
             {
                 return Json(_sqlRepository.GetDataCollection("select Id as Value,Category as Text from dbo.EmpServiceCategory where EmpServiceTypeId='" + serviceid + "' order by Category "), JsonRequestBehavior.AllowGet);
             }
             else
             {
-                return Json(_sqlRepository.GetDataCollection("select Id as Value,Category as Text from dbo.EmpServiceCategory where EmpServiceTypeId='" + serviceid + "' and Id='"+ CatId +"' order by Category "), JsonRequestBehavior.AllowGet);
+                return Json(_sqlRepository.GetDataCollection("select Id as Value,Category as Text from dbo.EmpServiceCategory where EmpServiceTypeId='" + serviceid + "' and Id='" + CatId + "' order by Category "), JsonRequestBehavior.AllowGet);
             }
-            
+
         }
 
         [Authorize, HttpGet]
@@ -80,15 +80,15 @@ namespace Aplos.Areas.EmployeeServices.Controllers
         [Authorize, HttpPost]
         public JsonResult getform(string CategoryId, string ServicesId)
         {
-            return Json(_sqlRepository.GetDataCollection("select est.Form from dbo.EmpServiceType est left join dbo.EmpServiceCategory esc on est.Id=esc.EmpServiceTypeId where esc.Id='"+ CategoryId + "' and esc.EmpServiceTypeId='"+ ServicesId + "' "), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("select est.Form from dbo.EmpServiceType est left join dbo.EmpServiceCategory esc on est.Id=esc.EmpServiceTypeId where esc.Id='" + CategoryId + "' and esc.EmpServiceTypeId='" + ServicesId + "' "), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public JsonResult getshift()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-              return Json(_sqlRepository.GetDataCollection("SELECT SystemID as Value,UserName AS Text FROM dbo.ShiftDefination where GroupID='" + identity.CompanyGroupId + @"' order by UserName"), JsonRequestBehavior.AllowGet);
-       //     return Json(_sqlRepository.GetDataCollection("SELECT SystemID as Value,UserName AS Text FROM dbo.ShiftDefination where PlantID='"+ identity.PlantId + @"' order by UserName"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT SystemID as Value,UserName AS Text FROM dbo.ShiftDefination where GroupID='" + identity.CompanyGroupId + @"' order by UserName"), JsonRequestBehavior.AllowGet);
+            //     return Json(_sqlRepository.GetDataCollection("SELECT SystemID as Value,UserName AS Text FROM dbo.ShiftDefination where PlantID='"+ identity.PlantId + @"' order by UserName"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -97,7 +97,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string sql = @"SELECT sd.SystemID as Value,sd.UserName AS Text FROM dbo.ShiftDefination sd 
-                           left join dbo.EmpServiceData esd on sd.SystemID=esd.ShiftId where esd.Id='"+ Id + @"' ";
+                           left join dbo.EmpServiceData esd on sd.SystemID=esd.ShiftId where esd.Id='" + Id + @"' ";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -129,7 +129,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
+
 
             string sql = @"select distinct esd.*,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime],ei.SystemId,ei.EmployeeCode
                                                                     ,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as ShiftName,esc.Category,est.Form,est.Service as ServiceName
@@ -142,7 +142,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
 																	left join SCS.UnitOfMeasurement uom on uom.Id=est.UOMId
 																    WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' order by Date desc ";
 
-          return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         private string GetPK()
@@ -165,7 +165,8 @@ namespace Aplos.Areas.EmployeeServices.Controllers
 
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-
+                    if (clsStaticInfo.nullrecorder(data["EmployeeId"].ToString()) == "")
+                        throw new Exception("Select employee");
 
                     //con.OpenDataSetThroughAdapter("select * from " + TableName + " where Service='" + data["Service"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                     //if (dsMaster.Tables[0].Rows.Count > 0)
@@ -204,7 +205,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
                 }
 
             }
-            
+
 
             catch (Exception ex)
             {
@@ -269,13 +270,13 @@ namespace Aplos.Areas.EmployeeServices.Controllers
 																	left join dbo.EmpServiceCategory esc on esc.Id=esd.EmployeeServiceCategoryId
 																	left join dbo.EmpServiceType est on est.Id=esc.EmpServiceTypeId
 																	left join SCS.UnitOfMeasurement uom on uom.Id=est.UOMId
-																	where Date='" + Date + "' and EmployeeServiceCategoryId='" + CategoryId + "' and est.Id='"+ ServicesId + "') AS TEMP order by Time desc";
+																	where Date='" + Date + "' and EmployeeServiceCategoryId='" + CategoryId + "' and est.Id='" + ServicesId + "') AS TEMP order by Time desc";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
-        public JsonResult getduplicatedata(string ServicesId, string CategoryId, string Date,string EmployeeId)
+        public JsonResult getduplicatedata(string ServicesId, string CategoryId, string Date, string EmployeeId)
         {
             string sql = @"select top 100 * from (select distinct esd.*,ei.SystemId,ei.EmployeeCode,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as Shift,esc.Category,est.Form,est.Service,est.Id as EmployeeServicesId,uom.UserName as Text,uom.Id as UOMId from dbo.EmpServiceData esd
                                                                     left join dbo.EmployeeInformation ei on ei.SystemId=esd.EmployeeId
@@ -283,7 +284,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
 																	left join dbo.EmpServiceCategory esc on esc.Id=esd.EmployeeServiceCategoryId
 																	left join dbo.EmpServiceType est on est.Id=esc.EmpServiceTypeId
 																	left join SCS.UnitOfMeasurement uom on uom.Id=est.UOMId
-																	where Date='" + Date + "' and EmployeeServiceCategoryId='" + CategoryId + "' and est.Id='" + ServicesId + "' and esd.EmployeeId='"+ EmployeeId + "') AS TEMP order by Time desc";
+																	where Date='" + Date + "' and EmployeeServiceCategoryId='" + CategoryId + "' and est.Id='" + ServicesId + "' and esd.EmployeeId='" + EmployeeId + "') AS TEMP order by Time desc";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

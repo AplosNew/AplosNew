@@ -391,7 +391,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 CostingType.Add(item.ToString(), AccessInfo.GetEnumDescription((CostingType)(int)item));
             }
 
-            for (int i = 0; i < data.Count; i++) 
+            for (int i = 0; i < data.Count; i++)
             {
                 try
                 {
@@ -408,7 +408,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetOrderCostingReport(string OrderCostingId ,string preCosting,string ProcurementCosting, string MOIId)
+        public ActionResult GetOrderCostingReport(string OrderCostingId, string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
@@ -588,7 +588,10 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
             {
 
                 if (Segment == CostingSegment.DirectMaterial.ToString())
+                {
                     TableName = "OrderProcurementCostingDirectMaterial";
+                    aND = "AND ci.IsSubMaterial = 0";
+                }
                 else if (Segment == CostingSegment.DirectProcess.ToString())
                     TableName = "OrderProcurementCostingDirectProcess";
                 else if (Segment == CostingSegment.Operation.ToString())
@@ -608,13 +611,13 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
                             LEFT OUTER JOIN hkp.CostingCategory AS cat ON cat.Id=ci.CostingCategoryId
                             LEFT join " + TableName + @" o on o.CostingItemId = ci.Id AND o.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"'
-                            WHERE ci.CostingComponentId='" + costingComponentId + @"' "+ aND + @"
+                            WHERE ci.CostingComponentId='" + costingComponentId + @"' " + aND + @"
                             ORDER BY CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END), ci.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-       
+
 
         [HttpPost, Authorize]
         public ActionResult SaveCostingItemsForCostingComponent(string CostingStage, List<Dictionary<string, object>> itemList, string OrderCostingMasterTemplateId, string costingComponentId, string Segment)
@@ -695,7 +698,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                     DataSet dsMaster;
 
-                    
+
 
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                     string _id = string.Empty;
@@ -2024,7 +2027,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        private string ProductParameters(string ProductMasterId) 
+        private string ProductParameters(string ProductMasterId)
         {
             return @"select  pm.UserName as ProductMaster 
 							,pc.UserName as ProductCategory
@@ -2038,7 +2041,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             LEFT OUTER JOIN [TRN].[ProductMasterEfficency] EF ON ef.ProductMasterId=pm.Id AND ef.EfficencyName='Costing'
                             LEFT OUTER JOIN CostingTypes AS ct ON ct.CostingType=pm.CostingType
 							where pm.Id = '" + ProductMasterId + "'";
-        } 
+        }
         [HttpGet, Authorize]
         public ActionResult ProductMasterDetail(string ProductMasterId)
         {
@@ -3761,7 +3764,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                         //now add percentage portion with the CurrentGrossValue
-                        CurrentGrossValue += (TotalFixedValue / ((100 - Percentage) / 100))- TotalFixedValue; //TotalFixedValue * (Percentage / 100);TotalFixedValue * (Percentage / 100);
+                        CurrentGrossValue += (TotalFixedValue / ((100 - Percentage) / 100)) - TotalFixedValue; //TotalFixedValue * (Percentage / 100);TotalFixedValue * (Percentage / 100);
 
                         dtReference.Rows[i]["TotalGrossAmount"] = CurrentGrossValue;
                     }
@@ -3869,7 +3872,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                         //now add percentage portion with the CurrentGrossValue
-                        CurrentGrossValue += (TotalFixedValue / ((100 - Percentage) / 100))- TotalFixedValue; //TotalFixedValue * (Percentage / 100);TotalFixedValue * (Percentage / 100);
+                        CurrentGrossValue += (TotalFixedValue / ((100 - Percentage) / 100)) - TotalFixedValue; //TotalFixedValue * (Percentage / 100);TotalFixedValue * (Percentage / 100);
 
                         dtReference.Rows[i]["TotalGrossAmount"] = CurrentGrossValue;
                     }
@@ -4096,7 +4099,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 SetForeignKey(OrderPreCostingProfit, "OrderCostingMasterTemplateId", NewId);
                 for (int i = 0; i < OrderPreCostingDirectMaterial.Tables[0].Rows.Count; i++)
                 {
-                    OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView.RowFilter = "CostingItemId='"+ OrderPreCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
+                    OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView.RowFilter = "CostingItemId='" + OrderPreCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
                     for (int k = 0; k < OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView.Count; k++)
                         OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView[k]["OrderPreCostingDirectMaterialId"] = OrderPreCostingDirectMaterial.Tables[0].Rows[i]["Id"];
                 }
@@ -4462,7 +4465,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             dr["SourcingType"] = item.SourcingType;
                             dr["Usage"] = item.Usage;
                             dr["POCriteria"] = item.POCriteria;
-                            
+
                             dr["IsUDApplicable"] = item.IsUDApplicable;
                             dr["IsGeneric"] = item.IsGeneric;
                             dr["IsMandatory"] = item.IsMandatory;
@@ -5755,6 +5758,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             where OrderPreCostingDirectMaterialId ='" + MasterId + "'";
             return Json(new { data = _sqlRepository.GetDataCollection(sql) }, JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
         public JsonResult UpdatePreCostingChild(List<Dictionary<string, object>> subMaterilaList, string MasterId)
         {
             try
@@ -5854,7 +5858,10 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
             {
 
                 if (Segment == CostingSegment.DirectMaterial.ToString())
+                {
                     TableName = "OrderProcurementCostingDirectMaterial";
+                    aND = "AND ci.IsSubMaterial = 1";
+                }
                 else if (Segment == CostingSegment.DirectProcess.ToString())
                     TableName = "OrderProcurementCostingDirectProcess";
                 else if (Segment == CostingSegment.Operation.ToString())
@@ -5880,6 +5887,127 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             ORDER BY CONVERT(BIT, CASE WHEN isnull(o.Id,'')<>'' THEN 1 ELSE 0 END), ci.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetSubMaterialDataPro(string MasterId)
+        {
+            string sql = @"SELECT  pcdmc.*,ci.UserName CostingItemName,cmt.StandardName  CostingMasterTemplate,pcdm.Id PCDMCID
+                              FROM OrderProcurementCostingDirectMaterialChild AS pcdmc 
+                            LEFT JOIN HKP.CostingItem AS ci ON ci.Id = pcdmc.CostingItemId
+                            LEFT JOIN OrderCostingMasterTemplate AS cmt ON cmt.Id = pcdmc.OrderCostingMasterTemplateId
+                            LEFT JOIN OrderProcurementCostingDirectMaterial AS pcdm ON pcdm.Id = pcdmc.OrderProcurementCostingDirectMaterialId
+                            where OrderProcurementCostingDirectMaterialId ='" + MasterId + "'";
+            return Json(new { data = _sqlRepository.GetDataCollection(sql) }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public JsonResult SaveSubMaterialPro(List<Dictionary<string, object>> itemList, Dictionary<string, object> PreCDMaterial)
+        {
+            try
+            {
+                if (itemList == null)
+                {
+                    throw new Exception("Nothing to update");
+                }
+                DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; int count = 0;
+                bplib.clsGenID objGenID = new bplib.clsGenID();
+                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "OrderProcurementCostingDirectMaterialChild", out string seed_detail);
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectMaterialChild where OrderProcurementCostingDirectMaterialId='" + PreCDMaterial["Id"] + "' ", out dsMaster, false, "1");
+
+                foreach (var item in itemList)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId = '" + item["CostingItemId"] + "' ";
+
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                        continue;
+
+                    count++;
+                    string pk = "OP" + seed_detail + "_" + count;
+                    drMSave = dsMaster.Tables[0].NewRow();
+                    drMSave["Id"] = pk;
+                    drMSave["OrderProcurementCostingDirectMaterialId"] = PreCDMaterial["Id"];
+                    drMSave["CostingItemId"] = item["CostingItemId"];
+                    drMSave["OrderCostingMasterTemplateId"] = item["OrderCostingMasterTemplateId"];
+
+                    drMSave["Consumption"] = 0;
+                    drMSave["Rate"] = 0;
+                    drMSave["ValueLoss"] = 0;
+                    drMSave["GrossConsumption"] = 0;
+                    drMSave["GrossAmount"] = 0;
+
+                    drMSave["AddedBy"] = identity.Name;
+                    drMSave["AddedDate"] = DateTime.Now;
+                    drMSave["AddedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(drMSave);
+
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult UpdatePreCostingChildPro(List<Dictionary<string, object>> subMaterilaList, string MasterId)
+        {
+            try
+            {
+                if (subMaterilaList==null)
+                    throw new Exception("Nothing to update");
+
+                DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectMaterialChild where OrderProcurementCostingDirectMaterialId='" + MasterId + "' ", out dsMaster, false, "1");
+
+                foreach (var item in subMaterilaList)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = "Id = '" + item["Id"] + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+                        drMSave = dsMaster.Tables[0].DefaultView[0].Row;
+                        drMSave.BeginEdit();
+                        drMSave["Consumption"] = clsStaticInfo.dbl(item["Consumption"]);
+                        drMSave["Rate"] = clsStaticInfo.dbl(item["Rate"]);
+                        drMSave["ValueLoss"] = clsStaticInfo.dbl(item["ValueLoss"]);
+                        drMSave["GrossConsumption"] = clsStaticInfo.dbl(item["GrossConsumption"]);
+                        drMSave["GrossAmount"] = clsStaticInfo.dbl(item["GrossAmount"]);
+
+                        drMSave["UpdatedBy"] = identity.Name;
+                        drMSave["UpdatedDate"] = DateTime.Now;
+                        drMSave["UpdatedFromIP"] = identity.IPAddress;
+                        drMSave.EndEdit();
+                    }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult DeleteSubMaterialPro(string SubMaterialId)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from OrderProcurementCostingDirectMaterialChild where id='" + SubMaterialId + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
         #endregion
 
