@@ -13,7 +13,10 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/'; 
-    $scope.Action = 'Save';
+    $scope.ActionTalkingPoint = 'Save';
+    $scope.ActionSuggestionsRecommendation = 'Save';
+    $scope.ActionActionablePoints = 'Save';
+    $scope.ActionMeetingDecision = 'Save';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
@@ -48,8 +51,9 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         MeetingItemHeaderId: null,
         TalkingPoint: null,
         DiscussionDetail: null,
-        TalkingPointByWhomName: null,
-        TalkingPointByWhomCode: null
+        TalkingPointId : null,
+        TalkingPointByWhomCode:null,
+        TalkingPointByWhomName:null,
     };
     $scope.ModelTalkingPoint = Object.assign({}, $scope.ModelTalkingTemp);
 
@@ -58,8 +62,9 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         MeetingItemHeaderId: null,
         Suggestion: null,
         DiscussionDetail: null,
+        MeetingSuggestionId :null,
         SuggestionsByWhomCode: null,
-        SuggestionsByWhomName: null
+        SuggestionsByWhomName: null,
     };
     $scope.ModelMeetingSuggestion = Object.assign({}, $scope.ModelMeetSug);
 
@@ -67,6 +72,8 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         Id: null,
         MeetingItemHeaderId: null,
         ActionToBeTaken: null,
+        ActionablePointsId:null,
+        MeetingActionId:null,
         ActionByWhomCode: null,
         ActionByWhomName: null,
         Status: null
@@ -77,8 +84,9 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         Id: null,
         MeetingItemHeaderId: null,
         Decision: null,
-        DecisionByWhomName: null,
+        MeetingDecisionId:null,
         DecisionByWhomCode: null,
+        DecisionByWhomName: null,
         Remarks: null
     };
     $scope.ModelMeetingDecision = Object.assign({}, $scope.ModelMeetingDec);
@@ -97,6 +105,15 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     }
     $scope.getData();
 
+    $scope.Get = function (args) {
+
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
     $scope.getTalkingPointData = function () {
         $http({
             method: 'POST',
@@ -108,11 +125,11 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             $scope.ModelTalkingPointList = response.data;
         });
     }
-   
+
     $scope.GetTalkingPoint = function (args) {
 
         $scope.ModelTalkingPoint = Object.assign({}, args.data);
-        $scope.Action = 'Update';
+        $scope.ActionTalkingPoint = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -129,12 +146,11 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             $scope.ModelSuggestionsRecommendationList = response.data;
         });
     }
-    
 
     $scope.GetSuggestionsRecommendation = function (args) {
 
         $scope.ModelMeetingSuggestion = Object.assign({}, args.data);
-        $scope.Action = 'Update';
+        $scope.ActionSuggestionsRecommendation = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -151,12 +167,11 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             $scope.ModelActionablePointsList = response.data;
         });
     }
-    
 
     $scope.GetActionablePoints = function (args) {
 
         $scope.ModelActionablePoints = Object.assign({}, args.data);
-        $scope.Action = 'Update';
+        $scope.ActionActionablePoints = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -177,20 +192,13 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     $scope.GetMeetingDecision = function (args) {
 
         $scope.ModelMeetingDecision = Object.assign({}, args.data);
-        $scope.Action = 'Update';
+        $scope.ActionMeetingDecision = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
 
-    $scope.Get = function (args) {
-
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
+    
 
     $scope.Save = function () {
         
@@ -213,7 +221,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
                             ShowResult(response.data.Message, 'success');
                             $scope.ModelNew.Id = response.data.Id;
                             $scope.getData();
-
+                            $scope.Clear();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -240,7 +248,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getData();
-                    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+                    scope.Clear();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -270,6 +278,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             CostApplicable: false,
             Remarks: null
         };
+        $scope.Action = 'Save';
     };
     
 
@@ -335,22 +344,22 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             $scope.ModelNew.ByWhomCode = data.EmployeeCode;
         }
         else if ($scope.Name == 'Talking') {
-            $scope.ModelTalkingPoint.ByWhomId = data.SystemId;
+            $scope.ModelTalkingPoint.TalkingPointId = data.SystemId;
             $scope.ModelTalkingPoint.TalkingPointByWhomName = data.EmployeeName;
             $scope.ModelTalkingPoint.TalkingPointByWhomCode = data.EmployeeCode;
         }
         else if ($scope.Name == 'Suggestions') {
-            $scope.ModelMeetingSuggestion.ByWhomId = data.SystemId;
+            $scope.ModelMeetingSuggestion.MeetingSuggestionId = data.SystemId;
             $scope.ModelMeetingSuggestion.SuggestionsByWhomName = data.EmployeeName;
             $scope.ModelMeetingSuggestion.SuggestionsByWhomCode = data.EmployeeCode;
         }
         else if ($scope.Name == 'Action') {
-            $scope.ModelActionablePoints.ByWhomId = data.SystemId;
+            $scope.ModelActionablePoints.ActionablePointsId = data.SystemId;
             $scope.ModelActionablePoints.ActionByWhomName = data.EmployeeName;
             $scope.ModelActionablePoints.ActionByWhomCode = data.EmployeeCode;
         }
         else {
-            $scope.ModelMeetingDecision.ByWhomId = data.SystemId;
+            $scope.ModelMeetingDecision.MeetingDecisionId = data.SystemId;
             $scope.ModelMeetingDecision.DecisionByWhomName = data.EmployeeName;
             $scope.ModelMeetingDecision.DecisionByWhomCode = data.EmployeeCode;
         }
@@ -362,14 +371,14 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     $scope.selectTalkingPointPopUp = function (index, data) {
         $scope.TalkingPointIndex = index;
 
-        $scope.ModelTalkingPoint.Id = data.Id;
+        $scope.TalkingPointId = data.Id;
         angular.element(document.querySelector('#talkingPointPopUp')).modal('hide');
     };
 
     $scope.selectsuggestionsRecommendationPopUp = function (index, data) {
         $scope.SuggestionsRecommendationIndex = index;
 
-        $scope.ByWhomId = data.Id;
+        $scope.MeetingSuggestionId = data.Id;
         angular.element(document.querySelector('#suggestionsRecommendationPopUp')).modal('hide');
 
     };
@@ -377,7 +386,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     $scope.selectActionablePointsPopUp = function (index, data) {
         $scope.ActionablePointsIndex = index;
 
-        $scope.ByWhomId = data.Id;
+        $scope.MeetingActionId = data.Id;
         angular.element(document.querySelector('#actionablePointsPopUp')).modal('hide');
 
     };
@@ -385,7 +394,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     $scope.selectMeetingDecisionPopUp = function (index, data) {
         $scope.MeetingDecisionIndex = index;
 
-        $scope.ByWhomId = data.Id;
+        $scope.MeetingDecisionId = data.Id;
         angular.element(document.querySelector('#meetingDecisionPopUp')).modal('hide');
 
     };
@@ -517,10 +526,11 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             MeetingItemHeaderId: null,
             TalkingPoint: null,
             DiscussionDetail: null,
-            TalkingPointByWhomName: null,
-            TalkingPointByWhomCode: null
+            TalkingPointId: null,
+            TalkingPointByWhomCode:null,
+            TalkingPointByWhomName:null,
         };
-        
+        $scope.ActionTalkingPoint = 'Save';
     };
 
 
@@ -557,7 +567,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.getSuggestionsRecommendationData();
-                            $scope.ModelMeetingSuggestion = {};
+                            $scope.SuggestionsRecommendationClear();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -598,9 +608,11 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             MeetingItemHeaderId: null,
             Suggestion: null,
             DiscussionDetail: null,
+            MeetingSuggestionId:null,
             SuggestionsByWhomCode: null,
-            SuggestionsByWhomName: null
+            SuggestionsByWhomName: null,
         };
+        $scope.ActionSuggestionsRecommendation = 'Save';
     };
 
 
@@ -638,7 +650,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.getActionablePointsData();
-                            $scope.ModelActionablePoints = {};
+                            $scope.ActionablePointsClear();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -678,10 +690,13 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             Id: null,
             MeetingItemHeaderId: null,
             ActionToBeTaken: null,
+            ActionablePointsId:null,
+            MeetingActionId:null,
             ActionByWhomCode: null,
             ActionByWhomName: null,
             Status: null
         };
+        $scope.ActionActionActionablePoints = 'Save';
     };
 
 
@@ -719,7 +734,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.getMeetingDecisionData();
-                            $scope.ModelMeetingDecision ={};
+                            $scope.MeetingDecisionClear();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -759,10 +774,12 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             Id: null,
             MeetingItemHeaderId: null,
             Decision: null,
-            DecisionByWhomName: null,
+            MeetingDecisionId:null,
             DecisionByWhomCode: null,
+            DecisionByWhomName: null,
             Remarks: null
         };
+        $scope.ActionMeetingDecision = 'Save';
     };
 
    
