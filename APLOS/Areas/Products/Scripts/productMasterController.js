@@ -113,7 +113,8 @@ function ProductMasterController(cboService,commonMessage, $scope, $rootScope, b
         , TargetQty: null
         , CostingType: null
         ,PlanningType:null
-        , BaseUOMId:null
+        , BaseUOMId: null
+        , OIRUoMId:null
     };
     $scope.productMasterNew = angular.copy($scope.productMaster);
 
