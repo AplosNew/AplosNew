@@ -2132,10 +2132,13 @@ namespace OTSBD
 
             string str = obj.ToString();
             //this function returns an empty string(not a null) from null or empty or '&nbsp;' from the page
-            if (str == "&nbsp;")
-                str = "";
             if (string.IsNullOrEmpty(str) == true)
-                str = "";
+                return "";
+            if (str == "&nbsp;")
+                return "";
+            if (str.ToLower() == "null")
+                return "";
+
 
             return str;
         }
@@ -2146,12 +2149,8 @@ namespace OTSBD
 
             string str = obj.ToString();
             //this function returns an empty string(not a null) from null or empty or '&nbsp;' from the page
-            if (str == "&nbsp;")
-                str = "";
-            if (string.IsNullOrEmpty(str) == true)
-                str = "";
-
-            return str;
+          
+            return nullrecorder(str);
         }
 
         public static int dateDiff(string firstDate, string lastDate)

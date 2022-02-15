@@ -144,6 +144,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColRPakcing = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Adjustment", 15, ExcelHAlign.HAlignCenter);
+            int ColAdj = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Return", 15, ExcelHAlign.HAlignCenter);
             int ColRet = COL;
             COL++;
@@ -184,6 +188,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColOpen].Number = clsStaticInfo.dbl(data.Rows[i]["Opening"].ToString());
                 sheet[ROW, ColPakcing].Number = clsStaticInfo.dbl(data.Rows[i]["Packing"].ToString());
                 sheet[ROW, ColRPakcing].Number = clsStaticInfo.dbl(data.Rows[i]["RePacking"].ToString());
+                sheet[ROW, ColAdj].Number = clsStaticInfo.dbl(data.Rows[i]["Adjustment"].ToString());
                 sheet[ROW, ColRet].Number = clsStaticInfo.dbl(data.Rows[i]["Retrn"].ToString());
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["Dispatch"].ToString());
                 sheet[ROW, ColIss].Number = clsStaticInfo.dbl(data.Rows[i]["Issue"].ToString());

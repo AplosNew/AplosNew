@@ -20,11 +20,95 @@ namespace Aplos.Controllers
         }
 
         [HttpPost]
-        public string SaveExpectedVisit([FromBody] IEnumerable<VisitorModel> DataToSave)
+        public string SaveEmpVisit([FromBody] IEnumerable<VisitorModel> DataToSave)
         {
             try
             {
-                string Id = _emp.SaveExpectedVisit(DataToSave);
+                string Id = _emp.SaveEmployeeVisit(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        [HttpGet]
+        public IHttpActionResult GetTodayMineList(string EmpId)
+        {
+            try
+            {
+                var result = _emp.GetTodayMineList(EmpId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+      
+        [HttpGet]
+        public IHttpActionResult GetExpectedInList()
+        {
+            try
+            {
+                var result = _emp.GetExpectedInList();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+        
+        [HttpGet]
+        public IHttpActionResult GetExpectedOutList()
+        {
+            try
+            {
+                var result = _emp.GetExpectedOutList();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+     
+        [HttpPost]
+        public string SaveOutTime([FromBody] IEnumerable<VisitorModel> DataToSave)
+        {
+            try
+            {
+                string Id = _emp.SaveOutTime(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        [HttpPost]
+        public string SaveInTime([FromBody] IEnumerable<VisitorModel> DataToSave)
+        {
+            try
+            {
+                string Id = _emp.SaveInTime(DataToSave);
                 return Id;
             }
             catch (Exception ex)

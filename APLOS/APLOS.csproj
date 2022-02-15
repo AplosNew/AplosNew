@@ -704,6 +704,7 @@
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionGeneralReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinishedStockReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\StocksAdjustmentController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAgeingReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteTransactionReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteMasterController.cs" />
@@ -2025,6 +2026,7 @@
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
+    <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteTransactionReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteMasterController.js" />
@@ -3990,6 +3992,7 @@
     <Content Include="Areas\Productions\Views\FinishedStockReport\Aplos.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\MeetingAgenda\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\FGInventoryStockReport\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\StocksAdjustment\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
