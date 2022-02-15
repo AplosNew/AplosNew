@@ -73,7 +73,7 @@ namespace Aplos.Areas.Employees.Controllers
             IEnumerable<object> SeparationTypeFixedAmount = null;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string SeparationTypesql = @"SELECT * FROM hkp.[SeparationType] WHERE Id='" + Id + "'";
-            string SeparationTypeDetailssql = @"SELECT * FROM [SeparationTypeDetails] WHERE SeparationTypeId='" + Id + "' ORDER BY CONVERT( int ,YearNo)";
+            string SeparationTypeDetailssql = @"SELECT * FROM [SeparationTypeDetails] WHERE SeparationTypeId='" + Id + "' ORDER BY CONVERT(decimal(18,2),YearNo)";
             string SeparationTypeFiexdDayAmountsql = @"SELECT EmploymentType,DayNo FROM SeparationTypeFixedDayAmount  WHERE SeparationTypeId='" + Id + "'";
 
             var SeparationType = _sqlRepository.GetDataCollection(SeparationTypesql);

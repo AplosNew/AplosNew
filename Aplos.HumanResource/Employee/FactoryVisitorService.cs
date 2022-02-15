@@ -50,6 +50,8 @@ namespace Library.HumanResource.Employee
                         dr["Remarks"] = item.Remarks;
                         dr["OutDone"] = false;
                         dr["CardNo"] = item.CardNo;
+                        dr["NoOfPerson"] = item.NoOfPerson;
+                        dr["MobileNo"] = item.MobileNo;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = DateTime.Now.ToString();
                         dr["AddedFromIP"] = item.AddedFromIP;
@@ -85,7 +87,8 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                var sql = @"select Id,CardNo,ExpectedDate,format(ExpectedTime,'hh:mm tt')ExpectedTime,
+                VisitorCategory,
                 VisitorName,VisitorType,Purpose
                 from VisitorServiceData where ToMeet='"+EmpId+@"'
                 and ExpectedDate=CONVERT(date,GETDATE()) and InDone='0' and OutDone='0'";

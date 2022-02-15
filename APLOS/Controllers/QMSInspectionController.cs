@@ -25,12 +25,7 @@ namespace Aplos.Controllers
 
 
         #endregion Constructor
-
-        /// <summary>
-        /// monir@s API
-        /// </summary>
-        ///
-
+               
         [HttpGet]
         public IHttpActionResult GetShiftGroupCbo(string plantId)
         {
@@ -288,22 +283,6 @@ namespace Aplos.Controllers
             }
         }
 
-        //[HttpPost]
-        //public void SaveDetail([FromUri] string inpid, [FromBody] IEnumerable<QMSInspectionChild> ChildData)
-        //{
-        //    try
-        //    {
-        //        _QMSInspection.SaveDetail(inpid, ChildData);
-        //    }
-
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
-
-      
         [HttpPost]
         public string Create([FromBody] IEnumerable<QMSInspection> DataToSave)
         {
@@ -338,25 +317,6 @@ namespace Aplos.Controllers
                // return "";
             }
         }
-
-        //[HttpPost]
-        //[Route("api/Insp/MasterId/{MasterId}")]
-        //public string SaveDetail([FromUri] string MasterId, [FromBody]IEnumerable<QMSInspectionChild> ChildData)
-        //{
-
-        //    try
-        //    {
-        //        _QMSInspection.SaveDetail(MasterId, ChildData);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //      //  throw ex;
-        //      //  throw ex;
-        //        return ex.ToString();
-        //    }
-        //    return "";
-        //}
 
         [HttpPost]
         public void Delete([FromBody] IEnumerable<QMSInspection> DataToDelete)

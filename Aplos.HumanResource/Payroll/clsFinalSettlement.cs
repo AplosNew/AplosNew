@@ -148,6 +148,10 @@ namespace OTSBD
 
                     DateTime _DOS = Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOS"].ToString());
                     int years = new DateTime(_DOS.Subtract(Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"].ToString())).Ticks).Year - 1;
+
+                    TimeSpan ts = _DOS.Subtract(Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"].ToString()));
+
+                    int TotalServiceYear =(int)Math.Round( (double)ts.Days / 365.00,0);
                     DateTime PastYearDate = (Convert.ToDateTime(dsTenure.Tables[0].Rows[0]["DOJ"].ToString())).AddYears(years);
                     int month = 0;
                     for (int i = 1; i <= 12; i++)
@@ -185,9 +189,9 @@ namespace OTSBD
                     obj.EmpDOS = dsTenure.Tables[0].Rows[0]["DOS"].ToString();
 
                     //Count Days
-                    if (years > 0)
+                    if (TotalServiceYear > 0)
                     {
-                        dvSeparationTypeDetails.RowFilter = "Yearno='" + years + "'";
+                        dvSeparationTypeDetails.RowFilter = "Convert(Yearno,'System.Decimal')=" + TotalServiceYear + "";
                         if (dvSeparationTypeDetails.Count > 0)
                         {
                             if (Convert.ToBoolean(dvSeparationTypeDetails[0]["RoundUp"]) == true)
