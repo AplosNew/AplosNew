@@ -316,7 +316,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             _financingService.DeleteLoanPayment(identity.CompanyId, identity.PlantId, voucherId);
-            return Json(new { Message = AplosMessage.Updated });
+            return Json(new { Message = AplosMessage.Deleted });
         }
 
         [HttpGet, Authorize]

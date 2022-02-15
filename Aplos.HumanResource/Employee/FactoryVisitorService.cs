@@ -5,6 +5,7 @@ using System.Data;
 using Library.Data.Sql;
 using OTSBD;
 using bplib;
+using Library.HumanResource.NewAttendanceProcess;
 
 namespace Library.HumanResource.Employee
 {
@@ -18,7 +19,7 @@ namespace Library.HumanResource.Employee
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
-        public string SaveExpectedVisit(IEnumerable<VisitorModel> DataToSave)
+        public string SaveEmployeeVisit(IEnumerable<VisitorModel> DataToSave)
         {
             try
             {
@@ -29,7 +30,7 @@ namespace Library.HumanResource.Employee
                     return "";
                 List<VisitorModel> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from dbo.ItemScan where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.VisitorServiceData where 1=2", out dsMaster, false, "1");
 
                 foreach (VisitorModel item in DataToSave)
                 {
@@ -37,44 +38,37 @@ namespace Library.HumanResource.Employee
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
-
-
-                        bplib.clsGenID id = new bplib.clsGenID();
-                        id.GenIDYearly(DateTime.Now.ToShortDateString(), "Item Scan", out string NewId);
-
-
-
-                        dr["Id"] = NewId;
-                        dr["WorkDate"] = item.WorkDate;
-                        dr["Time"] = item.Time;
-                        dr["ShiftId"] = item.ShiftId;
-                        dr["Grade"] = item.Grade;
-                        dr["LocMasterId"] = item.LocMasterId;
-                        dr["PurposeId"] = item.PurposeId;
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("VisitorService", out string _Id);
+                     
+                        dr["Id"] = "VSD"+ _Id;
+                        dr["VisitorCategory"] = item.VisitorCategory;
+                        dr["VisitorType"] = item.VisitorType;
+                        dr["VisitorName"] = item.VisitorName;
+                        dr["ToMeet"] = item.ToMeet;
+                        dr["Purpose"] = item.Purpose;
                         dr["Remarks"] = item.Remarks;
+                        dr["OutDone"] = false;
+                        dr["CardNo"] = item.CardNo;
+                        dr["NoOfPerson"] = item.NoOfPerson;
+                        dr["MobileNo"] = item.MobileNo;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        if(item.param=="In")
+                        {
+                            dr["InDate"] = DateTime.Now.ToString("dd-MMM-yyyy");
+                            dr["InTime"] = DateTime.Now;
+                            dr["InDone"] = true;
+                        }
+                        else
+                        {
+                            dr["ExpectedDate"] = item.ExpectedDate;
+                            dr["ExpectedTime"] = item.ExpectedTime;
+                            dr["InDone"] = false;                           
+                        }
                         dsMaster.Tables[0].Rows.Add(dr);
-
-
-                    }
-                    else
-                    {
-                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-
-                        dr["WorkDate"] = item.WorkDate;
-                        dr["Time"] = item.Time;
-                        dr["ShiftId"] = item.ShiftId;
-                        dr["Grade"] = item.Grade;
-                        dr["LocMasterId"] = item.LocMasterId;
-                        dr["PurposeId"] = item.PurposeId;
-                        dr["Remarks"] = item.Remarks;
-                        dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = DateTime.Now.ToString();
-
-                        dr.EndEdit();
-                    }
+                    }                   
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
@@ -89,25 +83,137 @@ namespace Library.HumanResource.Employee
                 return ex.ToString();
             }
         }
+        public IEnumerable<object> GetTodayMineList(string EmpId)
+        {
+            try
+            {
+                var sql = @"select Id,CardNo,ExpectedDate,format(ExpectedTime,'hh:mm tt')ExpectedTime,
+                VisitorCategory,
+                VisitorName,VisitorType,Purpose
+                from VisitorServiceData where ToMeet='"+EmpId+@"'
+                and ExpectedDate=CONVERT(date,GETDATE()) and InDone='0' and OutDone='0'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetExpectedInList()
+        {
+            try
+            {
+                var sql = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                VisitorName,VisitorType,Purpose
+                from VisitorServiceData where ExpectedDate=CONVERT(date,GETDATE()) and InDone='0' 
+                and OutDone='0'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetExpectedOutList()
+        {
+            try
+            {
+                var sql = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                VisitorName,VisitorType,Purpose
+                from VisitorServiceData where InDone='1' and OutDone='0'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string SaveOutTime(IEnumerable<VisitorModel> DataToSave)
+        {
+            try
+            {
+                if (DataToSave.Count() == 0)
+                {
+                    return "No Data Found";
+                }
+                var items = DataToSave.ToList();
+                var sql = @"update VisitorServiceData set 
+                OutTime=GETDATE(),OutDate=CONVERT(date,GETDATE()),OutDone=1
+                where Id='"+items[0].Id+"' and CardNo='"+items[0].CardNo+"'";
+
+                NewAttendanceProcessService apd = new NewAttendanceProcessService();
+                apd.UpdateStatus(sql);
+
+                return "true";
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        public string SaveInTime(IEnumerable<VisitorModel> DataToSave)
+        {
+            try
+            {
+                if (DataToSave.Count() == 0)
+                {
+                    return "No Data Found";
+                }
+                var items = DataToSave.ToList();
+                var sql = @"update VisitorServiceData set 
+                InTime=GETDATE(),InDate=CONVERT(date,GETDATE()),InDone=1
+                where Id='" + items[0].Id + "' and CardNo='" + items[0].CardNo + "'";
+
+                NewAttendanceProcessService apd = new NewAttendanceProcessService();
+                apd.UpdateStatus(sql);
+
+                return "true";
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
     }
 
     public class VisitorModel
-    {
-        public string Id { get; set; }
+    {       
+        #region Fixed Fields
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public string AddedFromIP { get; set; }
         public string UpdatedFromIP { get; set; }
-        public string PurposeId { get; set; }
-        public string Remarks { get; set; }
-        public DateTime WorkDate { get; set; }
-        public DateTime Time { get; set; }
-        public string Grade { get; set; }
-        public string LocMasterId { get; set; }
-        public string ShiftId { get; set; }
+        #endregion
 
+        #region Other Fields
+        public string param { get; set; }
+        public string Id { get; set; }
+        public string CardNo { get; set; }
+        public string Purpose { get; set; }
+        public string Remarks { get; set; }
+        public DateTime ExpectedDate { get; set; }
+        public DateTime ExpectedTime { get; set; }
+        public DateTime InDate { get; set; }
+        public DateTime InTime { get; set; }
+        public DateTime OutDate { get; set; }
+        public DateTime OutTime { get; set; }
+        public string VisitorType { get; set; }
+        public string VisitorCategory { get; set; }
+        public string VisitorName { get; set; }
+        public string MobileNo { get; set; }
+        public string ToMeet { get; set; }
+        public decimal NoOfPerson { get; set; }
+        public string InDone { get; set; }
+        public string OutDone { get; set; }
+
+        #endregion
     }
 
 }

@@ -850,11 +850,11 @@
                                 @*<td>{{item.PCDMCID}}></td>*@
                                 <td>{{item.CostingMasterTemplate}}</td>
                                 <td>{{item.CostingItemName}}</td>
-                                <td><input type="number" step="any" @*ng-change="Calculation(item)"*@ ng-model="item.Consumption" class="form-control" /></td>
-                                <td><input type="number" step="any" ng-model="item.ValueLoss" class="form-control" /></td>
-                                <td><input type="number" step="any" @*ng-change="Calculation(item)"*@ ng-model="item.Rate" class="form-control" /></td>
-                                <td><input type="number" step="any" ng-model="item.GrossConsumption" class="form-control" /></td>
-                                <td><input type="number" step="any" ng-model="item.GrossAmount" class="form-control" /></td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" ng-model="item.Consumption" class="form-control" /></td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" ng-model="item.ValueLoss" class="form-control" /></td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" ng-model="item.Rate" class="form-control" /></td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" disabled ng-model="item.GrossConsumption" class="form-control" /></td>
+                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" disabled ng-model="item.GrossAmount" class="form-control" /></td>
                                 <td>
                                     <div class="common-btn">
                                         <ul class="list-inline text-center">

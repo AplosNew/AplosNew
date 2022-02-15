@@ -2,20 +2,95 @@
 MeetingPointsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Meeting Points';
-    $scope.Action = 'Save';
+    $scope.Action = 'Save'; 
     $scope.ModelList = [];
+    $scope.ModelTalkingPointList = [];
+    $scope.ModelSuggestionsRecommendationList = [];
+    $scope.ModelActionablePointsList = [];
+    $scope.ModelMeetingDecisionList = [];
     $scope.path = 'MeetingManagement/MeetingPoints/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.Action = 'Save';
+    $scope.deleteUrl = $scope.path + 'delete/'; 
+    $scope.ActionTalkingPoint = 'Save';
+    $scope.ActionSuggestionsRecommendation = 'Save';
+    $scope.ActionActionablePoints = 'Save';
+    $scope.ActionMeetingDecision = 'Save';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
-    $scope.path = 'MeetingManagement/MeetingPoints/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
     $scope.talkingPointUrl = $scope.path + 'GettalkingPoint';
+
+
+    $scope.ModelTemp = {
+        Id: null,
+        Department: null,
+        MeetingType: null,
+        ItemDetail: null,
+        BackgroundIssueDetail: null,
+        ActionApplicable: true,
+        DecisionApplicable: true,
+        IssueStatus: 'Active',
+        Attachment: null,
+        ByWhomId: null,
+        ByWhomCode: null,
+        ItemTitle: null,
+        IssueMeetingItemTitle: null,
+        IssueCritically: null,
+        CostEstimation: null,
+        MeetingLegDays: 7,
+        CostApplicable: false,
+        Remarks: null
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.ModelTalkingTemp = {
+        Id: null,
+        MeetingItemHeaderId: null,
+        TalkingPoint: null,
+        DiscussionDetail: null,
+        TalkingPointId : null,
+        TalkingPointByWhomCode:null,
+        TalkingPointByWhomName:null,
+    };
+    $scope.ModelTalkingPoint = Object.assign({}, $scope.ModelTalkingTemp);
+
+    $scope.ModelMeetSug = {
+        Id: null,
+        MeetingItemHeaderId: null,
+        Suggestion: null,
+        DiscussionDetail: null,
+        MeetingSuggestionId :null,
+        SuggestionsByWhomCode: null,
+        SuggestionsByWhomName: null,
+    };
+    $scope.ModelMeetingSuggestion = Object.assign({}, $scope.ModelMeetSug);
+
+    $scope.ModelActionable = {
+        Id: null,
+        MeetingItemHeaderId: null,
+        ActionToBeTaken: null,
+        ActionablePointsId:null,
+        MeetingActionId:null,
+        ActionByWhomCode: null,
+        ActionByWhomName: null,
+        Status: null
+    };
+    $scope.ModelActionablePoints = Object.assign({}, $scope.ModelActionable);
+
+    $scope.ModelMeetingDec = {
+        Id: null,
+        MeetingItemHeaderId: null,
+        Decision: null,
+        MeetingDecisionId:null,
+        DecisionByWhomCode: null,
+        DecisionByWhomName: null,
+        Remarks: null
+    };
+    $scope.ModelMeetingDecision = Object.assign({}, $scope.ModelMeetingDec);
+
 
     $scope.getData = function () {
         $http({
@@ -24,69 +99,11 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            //for (var i = 0; i < response.data.length; i++) {
-            //    response.data[i].AddedDate = new Date(response.data[i].AddedDate);
-            //}
+           
             $scope.ModelList = response.data;
         });
     }
     $scope.getData();
-
-    
-    $scope.ModelTemp = {
-        Id: null,
-        Department: null,
-        MeetingType: null,
-        BackgroundIssueDetail: null,
-        ActionApplicable: null, 
-        ItemTitle: null,
-        ItemDetail: null,
-        CostEstimation: null,
-        IssueStatus: 'Active',
-        ByWhomId: null,
-        ByWhomName: null,
-        IssueMeetingItemTitle:null,
-        IssueCritically: null,
-        DecisionApplicable: true,
-        CostApplicable: null,
-        MeetingLegDays: 7,
-        Remarks: null, 
-        Attachment: null
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-
-    $scope.ModelMeet = {
-        Id: null,
-        Suggestion: null,
-        DiscussionDetail: null,
-        ByWhomId: null
-        };
-    $scope.ModelMeetingPoint = Object.assign({}, $scope.ModelMeet);
-
-    $scope.ModelMeetSug = {
-        Id: null,
-        TalkingPointId: null,
-        DiscussionDetail: null,
-        ByWhomId: null
-    };
-    $scope.ModelMeetingSuggestion = Object.assign({}, $scope.ModelMeetSug);
-
-    $scope.ModelActionable = {
-        Id: null,
-        ActionToBeTaken: null,
-        ByWhomId: null,
-        Status: null
-    };
-    $scope.ModelActionablePoints = Object.assign({}, $scope.ModelActionable);
-
-    $scope.ModelMeetingDec = {
-        Id: null,
-        Decision: null,
-        ByWhomId: null,
-        Remarks: null
-    };
-    $scope.ModelMeetingDecision = Object.assign({}, $scope.ModelMeetingDec);
-
 
     $scope.Get = function (args) {
 
@@ -97,29 +114,125 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         }
     };
 
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                 /*   ClearFields(response.data.Sequence);*/
-                    $scope.getData();
+    $scope.getTalkingPointData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetTalkingPointList",
+            data: { column: $scope.searchBy, value: $scope.search, meetingItemHeaderId: $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+           
+            $scope.ModelTalkingPointList = response.data;
+        });
+    }
 
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
+    $scope.GetTalkingPoint = function (args) {
 
+        $scope.ModelTalkingPoint = Object.assign({}, args.data);
+        $scope.ActionTalkingPoint = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
         }
+    };
+
+    $scope.getSuggestionsRecommendationData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetSuggestionsRecommendationList",
+            data: { column: $scope.searchBy, value: $scope.search, meetingItemHeaderId: $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+
+            $scope.ModelSuggestionsRecommendationList = response.data;
+        });
+    }
+
+    $scope.GetSuggestionsRecommendation = function (args) {
+
+        $scope.ModelMeetingSuggestion = Object.assign({}, args.data);
+        $scope.ActionSuggestionsRecommendation = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.getActionablePointsData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetActionablePointsList",
+            data: { column: $scope.searchBy, value: $scope.search, meetingItemHeaderId: $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+
+            $scope.ModelActionablePointsList = response.data;
+        });
+    }
+
+    $scope.GetActionablePoints = function (args) {
+
+        $scope.ModelActionablePoints = Object.assign({}, args.data);
+        $scope.ActionActionablePoints = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.getMeetingDecisionData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetMeetingDecisionList",
+            data: { column: $scope.searchBy, value: $scope.search, meetingItemHeaderId: $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+
+            $scope.ModelMeetingDecisionList = response.data;
+        });
+    }
+
+    $scope.GetMeetingDecision = function (args) {
+
+        $scope.ModelMeetingDecision = Object.assign({}, args.data);
+        $scope.ActionMeetingDecision = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    
+
+    $scope.Save = function () {
+        
+        try {
+            angular.copy($scope.ModelNew, $scope.ModelTemp);
+            $scope.$broadcast('show-errors-check-validity');
+
+            if ($scope.ModelNewForm.$valid) {
+                if ($scope.Action === 'Save') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: { 'data': $scope.ModelNew },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.ModelNew.Id = response.data.Id;
+                            $scope.getData();
+                            $scope.Clear();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                }
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+        
     };
 
     $scope.Delete = function () {
@@ -134,33 +247,47 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    /*ClearFields(response.data.Sequence);*/
                     $scope.getData();
+                    scope.Clear();
                 }
                 function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure'); 
+                    ShowResult(response.data.Message, 'failure');
                 }
             });
-        } 
+        }
     };
 
     $scope.Clear = function () {
-        ClearFields();
-        return true;
-    };
-
-    function ClearFields() {
+        $scope.ModelNew = {
+            Id: null,
+            Department: null,
+            MeetingType: null,
+            ItemDetail: null,
+            BackgroundIssueDetail: null,
+            ActionApplicable: true,
+            DecisionApplicable: true,
+            IssueStatus: 'Active',
+            Attachment: null,
+            ByWhomId: null,
+            ByWhomCode: null,
+            ItemTitle: null,
+            IssueMeetingItemTitle: null,
+            IssueCritically: null,
+            CostEstimation: null,
+            MeetingLegDays: 7,
+            CostApplicable: false,
+            Remarks: null
+        };
         $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    }
-
+    };
     
+
     $scope.departmentList = [];
     cboService.getCboDepartmentByCompanyGroup(null, function (result) {
         $scope.departmentList = result;
     });
 
-    
+
     $scope.meetingTypeList = [];
     cboService.getCbomeetingType(function (result) {
         $scope.meetingTypeList = result;
@@ -178,30 +305,16 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         serverPagination: true
     };
 
-    //$scope.talkingPointLParameters = {
-    //    limit: 10,
-    //    offset: 0,
-    //    order: 'asc',
-    //    sort: 'Id, TalkingPointId, DiscussionDetail, ByWhomId',
-    //    searchBy: 'Id',
-    //    pageSize: 10,
-    //    total_count: 0,
-    //    search: null,
-    //    serverPagination: true
-    //};
-
-
-    $scope.showEmployeeListPopUp = function () {
+    
+    $scope.Name = null;
+    $scope.showEmployeeListPopUp = function (name) {
         try {
-            
-          
+            $scope.Name = name;
+
             $scope.employeeParameters.searchBy = 'EmployeeCode';
             baseService.setCurrentPage('employeeList');
             $scope.searchEmployeeByList = [];
             $scope.getEmployeeData = function (pageno) {
-                //$scope.employeeParameters.plantId = $scope.fileNew.PlantId;
-                //$scope.employeeParameters.partyAccountGroupId = $scope.fileNew.PartyAccountGroupId;
-                //$scope.employeeParameters.partyId = $scope.fileNew.PartyId;
                 baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
                     .then(function (result) {
                         $scope.employeeList = result.Rows;
@@ -225,33 +338,55 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     $scope.selectEmployeePopUp = function (index, data) {
         $scope.employeeIndex = index;
         
-        $scope.ModelNew.ByWhomId = data.SystemId;
-        $scope.ModelNew.ByWhomName = data.EmployeeName;
+        if ($scope.Name == 'Main') {
+            $scope.ModelNew.ByWhomId = data.SystemId;
+            $scope.ModelNew.ByWhomName = data.EmployeeName;
+            $scope.ModelNew.ByWhomCode = data.EmployeeCode;
+        }
+        else if ($scope.Name == 'Talking') {
+            $scope.ModelTalkingPoint.TalkingPointId = data.SystemId;
+            $scope.ModelTalkingPoint.TalkingPointByWhomName = data.EmployeeName;
+            $scope.ModelTalkingPoint.TalkingPointByWhomCode = data.EmployeeCode;
+        }
+        else if ($scope.Name == 'Suggestions') {
+            $scope.ModelMeetingSuggestion.MeetingSuggestionId = data.SystemId;
+            $scope.ModelMeetingSuggestion.SuggestionsByWhomName = data.EmployeeName;
+            $scope.ModelMeetingSuggestion.SuggestionsByWhomCode = data.EmployeeCode;
+        }
+        else if ($scope.Name == 'Action') {
+            $scope.ModelActionablePoints.ActionablePointsId = data.SystemId;
+            $scope.ModelActionablePoints.ActionByWhomName = data.EmployeeName;
+            $scope.ModelActionablePoints.ActionByWhomCode = data.EmployeeCode;
+        }
+        else {
+            $scope.ModelMeetingDecision.MeetingDecisionId = data.SystemId;
+            $scope.ModelMeetingDecision.DecisionByWhomName = data.EmployeeName;
+            $scope.ModelMeetingDecision.DecisionByWhomCode = data.EmployeeCode;
+        }
+
         angular.element(document.querySelector('#employeePopUps')).modal('hide');
+        $scope.Name = null;
     };
 
     $scope.selectTalkingPointPopUp = function (index, data) {
         $scope.TalkingPointIndex = index;
 
-        $scope.ModelMeetingPoint.Id = data.Id;
-        //$scope.ModelNew.ByWhomName = data.EmployeeName;
+        $scope.TalkingPointId = data.Id;
         angular.element(document.querySelector('#talkingPointPopUp')).modal('hide');
     };
 
     $scope.selectsuggestionsRecommendationPopUp = function (index, data) {
         $scope.SuggestionsRecommendationIndex = index;
 
-        $scope.ByWhomId = data.Id;
-        //$scope.ModelNew.ByWhomName = data.EmployeeName;
+        $scope.MeetingSuggestionId = data.Id;
         angular.element(document.querySelector('#suggestionsRecommendationPopUp')).modal('hide');
 
     };
-    
+
     $scope.selectActionablePointsPopUp = function (index, data) {
         $scope.ActionablePointsIndex = index;
 
-        $scope.ByWhomId = data.Id;
-        //$scope.ModelNew.ByWhomName = data.EmployeeName;
+        $scope.MeetingActionId = data.Id;
         angular.element(document.querySelector('#actionablePointsPopUp')).modal('hide');
 
     };
@@ -259,8 +394,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     $scope.selectMeetingDecisionPopUp = function (index, data) {
         $scope.MeetingDecisionIndex = index;
 
-        $scope.ByWhomId = data.Id;
-        //$scope.ModelNew.ByWhomName = data.EmployeeName;
+        $scope.MeetingDecisionId = data.Id;
         angular.element(document.querySelector('#meetingDecisionPopUp')).modal('hide');
 
     };
@@ -296,9 +430,10 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
                 ShowResult('error', 'failure');
             }
             else {
-                var str = response.data[0].PicFileName;
+                var str = response.data[0].Attachment;
                 var extention = str.substr(str.indexOf('.'));
-                $scope.PicFileName = virtualPath.MeetingPointsTemplateImage + '/' + $scope.ModelNew.Id + extention;
+                $scope.Attachment = virtualPath.MeetingPointsTemplateImage + '/' + $scope.ModelNew.Id + extention;
+                $scope.ModelNew.Attachment = response.data[0].Attachment;
                 $scope.getData();
             }
         }, function errorCallback(response) {
@@ -312,7 +447,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     }
     $scope.errorPBPicUpload = function (e) {
         if (angular.isUndefinedOrNull($scope.ModelNew.Id))
-            ShowResult('Please select/save the Meeting Points first', 'Error');
+            ShowResult('Please select/save first', 'Error');
         else
             ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
@@ -321,8 +456,8 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.showTalkingPointListPopUp = function () {
         try {
-
             angular.element(document.querySelector('#talkingPointPopUp')).modal('show');
+            $scope.getTalkingPointData();
         }
         catch (e) {
             ShowResult(e, 'failure');
@@ -333,37 +468,77 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#talkingPointPopUp')).modal('hide');
     };
 
-    $scope.SaveMeetingPoint = function () {
-        $scope.$broadcast('show-errors-check-validity');
-       
-            $http({
-                method: 'POST',
-                url: 'MeetingManagement/MeetingPoints/CreateMeetingPoint',
-                data: { 'data': $scope.ModelMeetingPoint },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    /*   ClearFields(response.data.Sequence);*/
-                    $scope.getData();
+    $scope.SaveTalkingPoint = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            $scope.ModelTalkingPoint.MeetingItemHeaderId = $scope.ModelNew.Id;
 
+            if ($scope.talkingPointForm.$valid) {
+                    $http({
+                        method: 'POST',
+                        url: 'MeetingManagement/MeetingPoints/CreateTalkingPoint',
+                        data: { 'data': $scope.ModelTalkingPoint },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.getTalkingPointData();
+                            $scope.TalkingPointClear();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
                 }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
             }
+      
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
- 
-        angular.element(document.querySelector('#talkingPointPopUp')).modal('hide');
+    $scope.DeleteTalkingPoint = function () {
+        
+                $http({
+                    method: 'POST',
+                    url: 'MeetingManagement/MeetingPoints/deleteTalkingPoint/' + $scope.ModelTalkingPoint.Id,
+                    dataType: 'JSON'
+                }).then(function (response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure');
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.getTalkingPointData();
+                        $scope.TalkingPointClear();
+
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+    };
+
+    $scope.TalkingPointClear = function () {
+        $scope.ModelTalkingPoint = {
+            Id: null,
+            MeetingItemHeaderId: null,
+            TalkingPoint: null,
+            DiscussionDetail: null,
+            TalkingPointId: null,
+            TalkingPointByWhomCode:null,
+            TalkingPointByWhomName:null,
+        };
+        $scope.ActionTalkingPoint = 'Save';
     };
 
 
     $scope.showSuggestionsRecommendationListPopUp = function () {
         try {
             angular.element(document.querySelector('#suggestionsRecommendationPopUp')).modal('show');
-        }
+            $scope.getSuggestionsRecommendationData();
+            }
         catch (e) {
             ShowResult(e, 'failure');
         }
@@ -374,34 +549,77 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.SaveSuggestionsRecommendation = function () {
-        $scope.$broadcast('show-errors-check-validity');
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            $scope.ModelMeetingSuggestion.MeetingItemHeaderId = $scope.ModelNew.Id;
+
+            if ($scope.suggestionsRecommendationForm.$valid) {
+                
+                    $http({
+                        method: 'POST',
+                        url: 'MeetingManagement/MeetingPoints/CreateSuggestionsRecommendation',
+                        data: { 'data': $scope.ModelMeetingSuggestion },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.getSuggestionsRecommendationData();
+                            $scope.SuggestionsRecommendationClear();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                }
+        
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+       
+    };
+
+    $scope.DeleteSuggestionsRecommendation = function () {
 
         $http({
             method: 'POST',
-            url: 'MeetingManagement/MeetingPoints/CreateSuggestionsRecommendation',
-            data: { 'data': $scope.ModelMeetingSuggestion },
+            url: 'MeetingManagement/MeetingPoints/deleteSuggestionsRecommendation/' + $scope.ModelMeetingSuggestion.Id,
             dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        }).then(function (response) {
+            if (response.data.Error === true)
                 ShowResult(response.data.Message, 'failure');
-            }
             else {
                 ShowResult(response.data.Message, 'success');
-                /*   ClearFields(response.data.Sequence);*/
-                $scope.getData();
-
+                $scope.getSuggestionsRecommendationData();
+                $scope.SuggestionsRecommendationClear();
             }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-
-
-        angular.element(document.querySelector('#suggestionsRecommendationPopUp')).modal('hide');
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
     };
+
+
+    $scope.SuggestionsRecommendationClear = function () {
+        $scope.ModelMeetingSuggestion = {
+            Id: null,
+            MeetingItemHeaderId: null,
+            Suggestion: null,
+            DiscussionDetail: null,
+            MeetingSuggestionId:null,
+            SuggestionsByWhomCode: null,
+            SuggestionsByWhomName: null,
+        };
+        $scope.ActionSuggestionsRecommendation = 'Save';
+    };
+
 
     $scope.showActionablePointsPopUp = function () {
         try {
             angular.element(document.querySelector('#actionablePointsPopUp')).modal('show');
+            $scope.getActionablePointsData();
         }
         catch (e) {
             ShowResult(e, 'failure');
@@ -414,37 +632,80 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.SaveActionablePoints = function () {
-        $scope.$broadcast('show-errors-check-validity');
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            $scope.ModelActionablePoints.MeetingItemHeaderId = $scope.ModelNew.Id;
 
+            if ($scope.actionablePointsForm.$valid) {
+               
+                    $http({
+                        method: 'POST',
+                        url: 'MeetingManagement/MeetingPoints/CreateActionablePoints',
+                        data: { 'data': $scope.ModelActionablePoints },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.getActionablePointsData();
+                            $scope.ActionablePointsClear();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+
+                }
+            }
+      
+        catch (ex) {
+                    ShowResult(ex, 'failure');
+                }
+    };
+
+
+
+    $scope.DeleteActionablePoints = function () {
         $http({
             method: 'POST',
-            url: 'MeetingManagement/MeetingPoints/CreateActionablePoints',
-            data: { 'data': $scope.ModelActionablePoints },
+            url: 'MeetingManagement/MeetingPoints/deleteActionablePoint/' + $scope.ModelActionablePoints.Id,
             dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        }).then(function (response) {
+            if (response.data.Error === true)
                 ShowResult(response.data.Message, 'failure');
-            }
             else {
                 ShowResult(response.data.Message, 'success');
-                /*   ClearFields(response.data.Sequence);*/
-                $scope.getData();
-
+                $scope.getActionablePointsData();
+                $scope.ActionablePointsClear();
             }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-
-
-        angular.element(document.querySelector('#actionablePointsPopUp')).modal('hide');
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
     };
+
+    $scope.ActionablePointsClear = function () {
+        $scope.ModelActionablePoints = {
+            Id: null,
+            MeetingItemHeaderId: null,
+            ActionToBeTaken: null,
+            ActionablePointsId:null,
+            MeetingActionId:null,
+            ActionByWhomCode: null,
+            ActionByWhomName: null,
+            Status: null
+        };
+        $scope.ActionActionActionablePoints = 'Save';
+    };
+
 
     $scope.showMeetingDecisionPopUp = function () {
         try {
             angular.element(document.querySelector('#meetingDecisionPopUp')).modal('show');
+            $scope.getMeetingDecisionData();
         }
-        catch (e)
-        {
+        catch (e) {
             ShowResult(e, 'failure');
         }
     };
@@ -455,26 +716,71 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.SaveMeetingDecision = function () {
-        $scope.$broadcast('show-errors-check-validity');
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            $scope.ModelMeetingDecision.MeetingItemHeaderId = $scope.ModelNew.Id;
+
+            if ($scope.meetingDecisionForm.$valid) {
+                
+                    $http({
+                        method: 'POST',
+                        url: 'MeetingManagement/MeetingPoints/CreateMeetingDecision',
+                        data: { 'data': $scope.ModelMeetingDecision },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.getMeetingDecisionData();
+                            $scope.MeetingDecisionClear();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                }
+            }
+     
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+        
+        //angular.element(document.querySelector('#meetingDecisionPopUp')).modal('hide');
+    };
+
+    $scope.DeleteMeetingDecision = function () {
 
         $http({
             method: 'POST',
-            url: 'MeetingManagement/MeetingPoints/CreateMeetingDecision',
-            data: { 'data': $scope.ModelMeetingDecision },
+            url: 'MeetingManagement/MeetingPoints/deleteMeetingDecision/' + $scope.ModelMeetingDecision.Id,
             dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        }).then(function (response) {
+            if (response.data.Error === true)
                 ShowResult(response.data.Message, 'failure');
-            }
             else {
                 ShowResult(response.data.Message, 'success');
-                /*   ClearFields(response.data.Sequence);*/
-                $scope.getData();
-
+                $scope.getMeetingDecisionData();
+                $scope.MeetingDecisionClear();
             }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-        angular.element(document.querySelector('#meetingDecisionPopUp')).modal('hide');
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
     };
+
+    $scope.MeetingDecisionClear = function () {
+        $scope.ModelMeetingDecision = {
+            Id: null,
+            MeetingItemHeaderId: null,
+            Decision: null,
+            MeetingDecisionId:null,
+            DecisionByWhomCode: null,
+            DecisionByWhomName: null,
+            Remarks: null
+        };
+        $scope.ActionMeetingDecision = 'Save';
+    };
+
+   
 }

@@ -12,5 +12,8 @@ function MeetingManagementConfig($routeProvider, $locationProvider) {
             controller: 'MeetingPointsController'
         })
 
-
+        .when('/meeting-agenda', {
+            templateUrl: 'MeetingManagement/MeetingAgenda/Aplos',
+            controller: 'MeetingAgendaController'
+        })
 };

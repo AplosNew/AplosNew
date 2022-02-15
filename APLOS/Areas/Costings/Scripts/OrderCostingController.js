@@ -4778,7 +4778,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     });
     //#endregion
 
-    //#region POPUp For Sub Material
+    //#region POPUp For OrderPreCosting-Sub Material
 
     $scope.SubMaterialList = [];
     $scope.SelectedLine = {};
@@ -4798,8 +4798,15 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
             $scope.CostingStage = costingStage;
 
-            var eDialog = $("#GeneralSub").data("ejDialog");
-            eDialog.open();
+            if (costingStage == 'PROCUREMENT') {
+                var eDialog = $("#GeneralSubPro").data("ejDialog");
+                eDialog.open();
+            }
+            else {
+                var eDialog = $("#GeneralSub").data("ejDialog");
+                eDialog.open();
+            }
+            
 
             $scope.AddNewCostingItemPopUp();
 
@@ -4816,7 +4823,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             $scope.$broadcast('show-errors-check-validity');
             $http({
                 method: 'POST',
-                url: $scope.path + "GetCostingItemForSelection",
+                url: $scope.path + "GetCostingItemForSubMaterial",
                 data: { CostingStage: $scope.CostingStage, OrderCostingMasterTemplateId: $scope.OrderCostingMasterTemplateId, costingComponentId: $scope.CostingComponentId, Segment: $scope.Segment },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -4866,12 +4873,12 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(e, "failure");
         }
     }
-    $scope.getSubMaterialData = function (PreCostingDirectMaterialId) {
+    $scope.getSubMaterialData = function (OrderPreCostingDirectMaterialId) {
         try {
             $http({
                 method: 'POST',
                 url: $scope.path + "GetSubMaterialData",
-                data: { MasterId: PreCostingDirectMaterialId },
+                data: { MasterId: OrderPreCostingDirectMaterialId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.SubMaterialList = response.data.data;
@@ -4928,6 +4935,134 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(e, "failure");
         }
     };
+    $scope.CalculationSubMaterial = function (data, index) {
+        data.GrossConsumption = parseFloat(data.Consumption) / (100 - (parseFloat(data.ValueLoss) / 100)) / 100;
+        data.GrossAmount = parseFloat(data.Rate) * parseFloat(data.GrossConsumption);
+        $scope.SubMaterialList[index].GrossConsumption = parseFloat(data.GrossConsumption.toFixed(4));
+        $scope.SubMaterialList[index].GrossAmount = parseFloat(data.GrossAmount.toFixed(4));
+    };
     //#endregion
 
+    //#region POPUp For OrderProcurementCosting-Sub Material
+
+    $scope.SubMaterialListPro = [];
+    $scope.SelectedLinePro = {};
+    $scope.GetSubMaterialPro = function (item) {
+        //try {
+        $scope.SelectedLinePro = {};
+        $scope.SelectedLinePro = item;
+
+        $scope.getSubMaterialDataPro($scope.SelectedLinePro.Id);
+        angular.element(document.querySelector("#SubMaterialPOPupOCPRo")).modal("show");
+
+    }
+    $scope.CloseSubMaterialPro = function () {
+        angular.element(document.querySelector("#SubMaterialPOPupOCPRo")).modal("hide");
+    }
+    $scope.getSubMaterialDataPro = function (OrderProcurementCostingDirectMaterialId) {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetSubMaterialDataPro",
+                data: { MasterId: OrderProcurementCostingDirectMaterialId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.SubMaterialListPro = response.data.data;
+            });
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    }
+    $scope.hideSubMaterialPartPro = function () {
+        var eDialog = $("#GeneralSubPro").data("ejDialog");
+        eDialog.close();
+    }
+    $scope.SaveSubMaterialPartPro = function () {
+        try {
+            //$scope.SelectedLine;
+            var selectedList = [];
+            for (var i = 0; i < $scope.NewCostingItemList.length; i++) {
+                if ($scope.NewCostingItemList[i].Selected) {
+                    selectedList.push($scope.NewCostingItemList[i]);
+                }
+            }
+            if (angular.isUndefinedOrNull($scope.OrderCostingMasterTemplateId))
+                throw 'Please save the costing master first';
+            $http({
+                method: 'POST',
+                url: $scope.path + "SaveSubMaterialPro",
+                data: { itemList: selectedList, 'PreCDMaterial': $scope.SelectedLinePro },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSubMaterialDataPro($scope.SelectedLinePro.Id);
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+    $scope.CalculationSubMaterialPro = function (data, index) {
+        data.GrossConsumption = parseFloat(data.Consumption) / (100 - (parseFloat(data.ValueLoss) / 100)) / 100;
+        data.GrossAmount = parseFloat(data.Rate) * parseFloat(data.GrossConsumption);
+        $scope.SubMaterialListPro[index].GrossConsumption = parseFloat(data.GrossConsumption.toFixed(4));
+        $scope.SubMaterialListPro[index].GrossAmount = parseFloat(data.GrossAmount.toFixed(4));
+    };
+    $scope.SaveSubMaterialPro = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "UpdatePreCostingChildPro",
+                data: { subMaterilaList: $scope.SubMaterialListPro, MasterId: $scope.SelectedLinePro.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSubMaterialData($scope.SelectedLinePro.Id);
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
+    $scope.DeleteSubMaterialIdPro = null;
+    $scope.DeleteSubMaterialPro = function (obj) {
+        $scope.DeleteSubMaterialIdPro = obj;
+        angular.element(document.querySelector('#confirmDeletePro')).modal('show');
+    }
+
+    $scope.DeleteSubMaterialsPro = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteSubMaterialPro",
+                data: { SubMaterialId: $scope.DeleteSubMaterialIdPro },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSubMaterialDataPro($scope.SelectedLinePro.Id);
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    //#endregion
 }

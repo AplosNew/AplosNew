@@ -332,13 +332,14 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
                 //            ) as
                 //            final";
 
-                var str = @"Select ProductCategory, ProductSubCategory , Material , Article , ProductCode  , LotNo , Opening , Packing , RePacking , Retrn , Dispatch , Issue , 
-                            ( Opening + Packing + RePacking - Retrn - Dispatch - Issue ) as Closing
+                var str = @"Select ProductCategory, ProductSubCategory , Material , Article , ProductCode  , LotNo , Opening , Packing , RePacking , Adjustment , Retrn , Dispatch , Issue , 
+                            ( Opening + Adjustment + Packing + RePacking - Retrn - Dispatch - Issue ) as Closing
                             from
                             (
                             Select pcc.UserName as ProductCategory , pscc.UserName as ProductSubCategory,ma.UserName as Material , M.StandardName as Article,S.ProductCode, S.LotNo
                             , Sum(Case When Sc.PurposeId = 'MP4'  then S.NetWeight else 0 end) as Packing
 							, Sum(Case When Sc.PurposeId = 'MP10' then S.NetWeight else 0 end) as RePacking
+							, isnull(sa.Adj,0) as Adjustment
                             , Sum(Case When Sc.PurposeId  = 'MP8' then S.NetWeight else 0 end) as Issue
                             , Sum(Case When S.IsDespatch = 1 then S.NetWeight else 0 end) as Dispatch
                             , Sum(Case When Sc.PurposeId = 'MP11' then S.NetWeight else 0 end) as Retrn
@@ -354,26 +355,41 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
                             left join hkp.ProductCategory pcc on pcc.Id = pm.ProductCategoryId
                             left join hkp.ProductSubCategory pscc on pscc.Id = pm.ProductSubCategoryId
                             left join hkp.MaterialMovementPurpose purp on purp.Id = sc.PurposeId
+							left join
+							(
+							Select ProductCode, LotNo , Sum(Qty) as Adj 
+							from dbo.StocksAdjustment 
+							where WorkDate between '" + FromDate + @"' and '" + ToDate + @"' 
+							group by ProductCode, LotNo
+							) as sa on sa.ProductCode = S.ProductCode and sa.LotNo = S.LotNo
                             left join 
                             (
-                            Select  dd.ProductCode , dd.POId,dd.LotNo , (dd.Produce - dd.Issue - dd.Retrn - dd.Dispatch) as Opening
+                            Select  dd.ProductCode , dd.POId,dd.LotNo , (dd.Produce + dd.Adj - dd.Issue - dd.Retrn - dd.Dispatch) as Opening
                             from
                             (
-                            Select sc.ProductCode , sc.POId,sc.LotNo, Sum(Case When purp.UserName = 'PACKING' or purp.UserName= 'RE-PACK' then Sc.NetWeight else 0 end) as Produce
+                           Select sc.ProductCode , sc.POId,sc.LotNo, Sum(Case When purp.UserName = 'PACKING' or purp.UserName= 'RE-PACK' then Sc.NetWeight else 0 end) as Produce
                             , Sum(Case When purp.UserName = 'ISSUE' then Sc.NetWeight else 0 end) as Issue
                             , Sum(Case When Sc.IsDespatch = 1 then Sc.NetWeight else 0 end) as Dispatch
                             , Sum(Case When purp.UserName = 'RETURN' then Sc.NetWeight else 0 end) as Retrn
+							, sa.Adj as Adj
                             from dbo.ItemScanChild sc
                             left join ItemScan s on s.Id = sc.MasterId
                             left join hkp.MaterialMovementPurpose purp on purp.Id = s.PurposeId
+							left join
+							(
+							Select ProductCode, LotNo , Sum(Qty) as Adj 
+							from dbo.StocksAdjustment 
+							where WorkDate  < '" + FromDate + @"'
+							group by ProductCode, LotNo
+							) as sa on sa.ProductCode = sc.ProductCode and sa.LotNo = Sc.LotNo
                             where s.WorkDate < '" + FromDate + @"'
-                            group by  sc.ProductCode , sc.POId,sc.LotNo
+                            group by  sc.ProductCode , sc.POId,sc.LotNo, sa.Adj
 
                             ) as dd
                             ) as opens on opens.ProductCode = S.ProductCode and opens.POId = S.POId and opens.LotNo = S.LotNo
                             where sc.WorkDate between '" + FromDate + @"' and '" + ToDate + @"' 
                             --and  R.ToLocation<> 'JOB WORK LOCATION' AND R.ToLocation<> 'DyeHouse' AND R.ToLocation<> 'PACKING'
-                            group by pcc.UserName , pscc.UserName , ma.UserName , M.StandardName , S.ProductCode , S.LotNo --, opens.Opening
+                            group by pcc.UserName , pscc.UserName , ma.UserName , M.StandardName , S.ProductCode , S.LotNo , sa.Adj --, opens.Opening
                             ) as
                             final";
                 return _sqlRepository.GetDataTable(str);
@@ -386,6 +402,105 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
         }
     }
 
+    public class StocksAdjustmentService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+          
+        public StocksAdjustmentService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+
+        public IEnumerable<object> getCurrentList()
+        {
+            try
+            {
+                var str = @"Select * , format(WorkDate , 'dd-MMM-yyyy') as DDate from dbo.StocksAdjustment";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetSampAdjReport()
+        {
+            try
+            {
+                var str = @"Select ProductCode , LotNo , WorkDate , Qty from dbo.StocksAdjustment where 1 = 2";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void SaveFileList(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+               
+                string TableName = "dbo.StocksAdjustment";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1 = 2", out dsMaster, false, "1");
+
+                string _Id = "";
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    int indexa = 0;
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        Dictionary<string, object> jj = data[i];
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+                        indexa++;
+                        jj["Id"] = _Id;
+
+                        AddNewRow(dsMaster.Tables[0], jj);
+                    }
+
+
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+            dt.Rows.Add(dr);
+        }
+    }
 }
 
 
