@@ -104,6 +104,7 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/PurchaseOrder/POBOQ',
             controller: 'purchaseOrderBOQController'
         })
+        
         .when('/GRN', {
             templateUrl: 'Products/GoodsReceiveNote/Aplos',
             controller: 'goodsReceiveNoteController'

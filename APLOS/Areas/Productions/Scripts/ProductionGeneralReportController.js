@@ -254,6 +254,49 @@ function ProductionGeneralReportController(cboService, commonMessage, $scope, $r
         });
     }
 
+    // Viewing the PO Wise Report
+    $scope.viewDynData = function ()
+    {
+        $http({
+            method: 'POST',
+            url: $scope.path + "generate",
+            data: { 'PO': $scope.selPo },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+
+            var ColumnList = [
+                { field: 'PO', width: 80, headerText: "PO" },
+                { field: 'SO', width: 80, headerText: "SO" },
+                { field: 'Buyer', width: 80, headerText: "Buyer" },
+                { field: 'BuyerRef', width: 80, headerText: "Buyer Ref" },
+                { field: 'OwnRef', width: 80, headerText: "Own Ref" },
+                { field: 'SKU1', width: 80, headerText: "SKU" },
+                //{ field: 'SKU1', width: 80, headerText: "SKU" },
+                { field: 'OrderQty', width: 80, headerText: "Order Qty" , type:"number" },
+                { field: 'PlanQty', width: 80, headerText: "Plan Qty", type: "number"},
+            ];
+
+
+            for (var i = 0; i < response.data.Cols.length; i++) {
+                ColumnList.push({ field: response.data.Cols[i], width: 100, headerText: response.data.Cols[i], format: "{0:N2}", type: "number" });
+            }
+
+            $("#summaryGrid").ejGrid({
+                dataSource: response.data.Data,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: ColumnList
+                //queryCellInfo: $scope.cellColorChange
+            });
+
+            var gridObj = $("#summaryGrid").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        });
+    }
+
+       
 
     //Initial Loading Functions
     $scope.getFilters();
