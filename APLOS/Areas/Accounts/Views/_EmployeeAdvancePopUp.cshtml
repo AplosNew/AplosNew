@@ -36,6 +36,7 @@
                                 <th>DocDate</th>
                                 <th>Doc Ref No</th>
                                 <th>Entity</th>
+                                <th>Transaction Type</th>
                                 <th>Currency</th>
                                 <th>Advanced</th>
                                 <th>Write-off</th>
@@ -50,6 +51,7 @@
                                 <td>{{x.DocDate |dateFiltering}}</td>
                                 <td>{{x.DocRefNo}}</td>
                                 <td>{{x.EntityName}}</td>
+                                <td>{{x.EmployeeTransactionTypeName}}</td>
                                 <td>{{x.CurrencyCode}}</td>
                                 <td class="text-right">{{x.Receivable | number:2}}</td>
                                 <td class="text-right">{{x.Received | number:2}}</td>
