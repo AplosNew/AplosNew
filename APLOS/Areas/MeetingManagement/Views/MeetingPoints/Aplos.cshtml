@@ -36,7 +36,7 @@
             <label class="col-sm-4 control-label">Meeting Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="Department" class="form-control" ng-model="ModelNew.MeetingTypeId" name="MeetingType" tabindex="6" @*ng-change="changeSectionByDept();*@ required>
+                    <select id="meetingType" class="form-control" ng-model="ModelNew.MeetingTypeId" name="MeetingType" tabindex="6" @*ng-change="changeSectionByDept();*@ required>
                         <option value="">--Select--</option>
                         <option ng-repeat="option in meetingTypeList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
@@ -262,9 +262,6 @@
             <div e-column e-field="IssueMeetingItemTitle" e-headertext="Issue / Meeting Item Title" e-width="15"></div>
             <div e-column e-field="BackgroundIssueDetail" e-headertext="Background / Issue Detail" e-width="15"></div>
             <div e-column e-field="IssueCritically" e-headertext="Issue Critically" e-width="15"></div>
-            @*<div e-column e-field="Category" e-headertext="Action Applicable" e-width="15"></div>*@
-            @*<div e-column e-field="SubCategory" e-headertext="Decision Applicable" e-width="15"></div>*@
-            @*<div e-column e-field="" e-headertext="Cost Applicable" e-width="12"></div>*@
             <div e-column e-field="CostEstimation" e-headertext="Cost Estimation" e-width="12"></div>
             <div e-column e-field="MeetingLegDays" e-headertext="Meeting Leg Days" e-width="12"></div>
             <div e-column e-field="IssueStatus" e-headertext="Issue Status" e-width="12"></div>
@@ -303,8 +300,8 @@
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-6 control-label">By Whom<sup>*</sup></label>
-                        <div class="col-sm-6 show-message">
+                        <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
                             <div class="input-group">
                                 <span class="input-group-addon">{{ModelTalkingPoint.TalkingPointByWhomCode}}</span>
                                 <input type="text" name="By Whom Name" ng-model="ModelTalkingPoint.TalkingPointByWhomName" class="form-control" readonly required>
@@ -319,7 +316,7 @@
 
                 </div>
             <div class="modal-footer common-btn">
-                <button ng-click="SaveTalkingPoint();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                <button ng-click="SaveTalkingPoint();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{ActionTalkingPoint}}</button>
                 <button ng-click="DeleteTalkingPoint();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
                 @*<button ng-click="closeTalkingPointPopUp();" class="btn"><i class=""></i> Close</button>*@
                 <button ng-click="TalkingPointClear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
@@ -368,8 +365,8 @@
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-6 control-label">By Whom<sup>*</sup></label>
-                        <div class="col-sm-6 show-message">
+                        <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
                             <div class="input-group">
                                 <span class="input-group-addon">{{ModelMeetingSuggestion.SuggestionsByWhomCode}}</span>
                                 <input type="text" name="By Whom" ng-model="ModelMeetingSuggestion.SuggestionsByWhomName" class="form-control" readonly required>
@@ -383,7 +380,7 @@
 
                 </div>
             <div class="modal-footer common-btn">
-                <button ng-click="SaveSuggestionsRecommendation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                <button ng-click="SaveSuggestionsRecommendation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{ActionSuggestionsRecommendation}}</button>
                 <button ng-click="DeleteSuggestionsRecommendation();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
                 @*<button ng-click="closeSuggestionsRecommendationPopUp();" class="btn"><i class=""></i> Close</button>*@
                 <button ng-click="SuggestionsRecommendationClear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
@@ -423,18 +420,23 @@
                     </div>
 
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Status<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Current Status<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <textarea type="text" name="Status" rows="3" ng-model="ModelActionablePoints.Status" class="form-control" required maxlength="300"></textarea>
+                            <textarea type="text" name="Status" rows="3" ng-model="ModelActionablePoints.CurrentStatus" class="form-control" required maxlength="300"></textarea>
                         </div>
                     </div>
 
-
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Target Date" ng-model="ModelActionablePoints.TargetDate" datepicker class="form-control" required tabindex="6">
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-6 control-label">By Whom<sup>*</sup></label>
-                        <div class="col-sm-6 show-message">
+                        <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
                             <div class="input-group">
                                 <span class="input-group-addon">{{ModelActionablePoints.ActionByWhomCode}}</span>
                                 <input type="text" name="By Whom" ng-model="ModelActionablePoints.ActionByWhomName" class="form-control" readonly required>
@@ -444,10 +446,24 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Final Status<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <textarea type="text" name="Final Status" rows="3" ng-model="ModelActionablePoints.FinalStatus" class="form-control" required maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" name="Remarks" rows="3" ng-model="ModelActionablePoints.Remarks" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
                 </div>
                 </div>
             <div class="modal-footer common-btn">
-                <button ng-click="SaveActionablePoints();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                <button ng-click="SaveActionablePoints();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{ActionActionablePoints}}</button>
                 <button ng-click="DeleteActionablePoints();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
                 @*<button ng-click="closeActionablePointsPopUp();" class="btn"><i class=""></i> Close</button>*@
                 <button ng-click="ActionablePointsClear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
@@ -458,8 +474,11 @@
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
                         <div e-column e-field="ActionToBeTaken" e-headertext="Action To Be Taken" e-width="12" e-isprimarykey="true"></div>
-                        <div e-column e-field="Status" e-headertext="Status" e-width="12"></div>
                         <div e-column e-field="ActionByWhomName" e-headertext="By Whom" e-width="13"></div>
+                        <div e-column e-field="CurrentStatus" e-headertext="Status" e-width="12"></div>
+                        <div e-column e-field="FinalStatus" e-headertext="Final Status" e-width="13"></div>
+                        <div e-column e-field="TargetDate" e-headertext="Target Date" e-width="13"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="13"></div>
                     </div>
                 </div>
             </div>
@@ -497,8 +516,8 @@
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-6 control-label">By Whom<sup>*</sup></label>
-                        <div class="col-sm-6 show-message">
+                        <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
                             <div class="input-group">
                                 <span class="input-group-addon">{{ModelMeetingDecision.DecisionByWhomCode}}</span>
                                 <input type="text" name="By Whom" ng-model="ModelMeetingDecision.DecisionByWhomName" class="form-control" readonly required>
@@ -511,7 +530,7 @@
                     </div>
                 </div>
             <div class="modal-footer common-btn">
-                <button ng-click="SaveMeetingDecision();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
+                <button ng-click="SaveMeetingDecision();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{ActionMeetingDecision}}</button>
                 <button ng-click="DeleteMeetingDecision();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
                 @*<button ng-click="closeMeetingDecisionPopUp();" class="btn"><i class=""></i> Close</button>*@
                 <button ng-click="MeetingDecisionClear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button>

@@ -406,7 +406,8 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpPost, Authorize]
         public ActionResult generate(string PO)
         {
-            return Json(ps.generate(PO), JsonRequestBehavior.AllowGet);
+            var data = ps.generate(PO, out List<string> DynCols);
+            return Json( new { Data = data , Cols = DynCols}, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]

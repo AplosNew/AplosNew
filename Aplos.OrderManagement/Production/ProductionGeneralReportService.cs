@@ -391,7 +391,7 @@ namespace Library.OrderManagement.Production
 
         #region MasterGrid
 
-        public IEnumerable<object> generate(string PO)
+        public IEnumerable<object> generate(string PO, out List<string> DynCols)
         {
             try
             {
@@ -548,6 +548,8 @@ namespace Library.OrderManagement.Production
                 DataTable dtFirst =  _sqlRepository.GetDataTable(str);
                 DataTable dtProcess = _sqlRepository.GetDataTable(proclist);
 
+                List<string> Cols = new List<string>();
+
                 DataTable ff = new DataTable();
                 ff.Columns.Add("PO", typeof(string));
                 ff.Columns.Add("SO", typeof(string));
@@ -561,12 +563,14 @@ namespace Library.OrderManagement.Production
                 for(int i = 0; i < dtProcess.Rows.Count; i++)
                 {
                     string s = dtProcess.Rows[i]["UserName"].ToString() + "Qty";
+                    Cols.Add(s);
                     ff.Columns.Add(s , typeof(string));
                 }
 
                 for (int i = 1; i < dtProcess.Rows.Count; i++)
                 {
                     string s = dtProcess.Rows[i]["UserName"].ToString() + "WIP";
+                    Cols.Add(s);
                     ff.Columns.Add(s, typeof(string));
                 }
 
@@ -579,7 +583,7 @@ namespace Library.OrderManagement.Production
                     dr["Buyer"] = dtFirst.Rows[0]["Buyer"].ToString();
                     dr["BuyerRef"] = dtFirst.Rows[0]["BuyRef"].ToString();
                     dr["OwnRef"] = dtFirst.Rows[0]["OwnRef"].ToString();
-                    dr["OwnRef"] = dtFirst.Rows[0]["OwnRef"].ToString();
+                    //dr["OwnRef"] = dtFirst.Rows[0]["OwnRef"].ToString();
                     dr["SKU1"] = dtFirst.Rows[0]["CharV"].ToString();
                     dr["OrderQty"] = clsStaticInfo.dbl(dtFirst.Rows[0]["OrderQty"].ToString());
                     dr["PlanQty"] = clsStaticInfo.dbl(dtFirst.Rows[0]["PlanQty"].ToString());
@@ -619,6 +623,7 @@ namespace Library.OrderManagement.Production
                     ff.Rows.Add(dr);
                 }
 
+                DynCols = Cols;
 
                 return Library.Service.Helpers.DataTableExtensions.DataTableToJson(ff);
             }
