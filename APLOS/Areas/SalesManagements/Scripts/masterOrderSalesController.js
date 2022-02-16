@@ -953,16 +953,18 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         angular.element(document.querySelector("#materialmastersearchpopup")).modal("hide");
     };
 
-    function getTaxCategoryList(hsnCodeId, soId, transactionAmount) {
+    function getTaxCategoryList(hsnCodeId, soId, transactionAmount, FirstCharacteristicsValueId,SecondCharacteristicsValueId) {
         $http({
             method: 'GET',
-            //url: 'OrderManagements/masterorder/GetTaxCategoryList?masterOrderId=' + $scope.salesVM.MasterOrderId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
             url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
         }).then(function (response) {
             $scope.materialtaxCategoryList = response.data;
+            for (var i = 0; i < $scope.materialtaxCategoryList.length; i++) {
+                $scope.materialtaxCategoryList[i].Id = null;
+            }
 
             for (var i = 0; i < $scope.selectedMasterOrderItemList.length; i++) {
-                if ($scope.selectedMasterOrderItemList[i].SONo === soId) {
+                if ($scope.selectedMasterOrderItemList[i].SONo === soId && $scope.selectedMasterOrderItemList[i].FirstCharacteristicsValueId === FirstCharacteristicsValueId && $scope.selectedMasterOrderItemList[i].SecondCharacteristicsValueId === SecondCharacteristicsValueId) {
                     $scope.selectedMasterOrderItemList[i].TaxList = $scope.materialtaxCategoryList;
 
                     for (var j = 0; j < $scope.selectedMasterOrderItemList[i].TaxList.length; j++) {
@@ -2490,7 +2492,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
                         $scope.selectedMasterOrderItemList.push(moi);
 
-                        getTaxCategoryList($scope.masterOrderItemList[i].HSNCodeId, moi.SONo, moi.TransactionAmount);
+                        getTaxCategoryList($scope.masterOrderItemList[i].HSNCodeId, moi.SONo, moi.TransactionAmount, moi.FirstCharacteristicsValueId, moi.SecondCharacteristicsValueId);
 
                     }
                     else if ($scope.mValid == false) {
