@@ -27,6 +27,103 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.PartyId = null;
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+    $scope.isSubmitted = 'No';
+    $scope.SubmitContractId = null;
+    $scope.SubmitContractNo = null;
+    $scope.SubmitCustomerName = null;
+    $scope.SubmitPartyCode = null;
+    $scope.SubmitPartyName = null;
+    $scope.SubmitPartyId = null;
+    
+
+    $scope.contractList = [];
+    $scope.GetPopUpContract = function () {
+        $scope.contractList = [];
+        $http.get("Products/PurchaseOrder/GetLCContractList?isProcurementOnBom=" + $scope.productNew.IsTradingPO)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.contractList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#ContractPopUp')).modal('show');
+    };
+    $scope.Clearcontract = function () {
+        $scope.SubmitContractId = null;
+        $scope.SubmitContractNo = null;
+        $scope.SubmitCustomerName = null;
+    };
+
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        $scope.SubmitPartyCode = party.Code;
+        $scope.SubmitPartyName = party.UserName;
+        $scope.SubmitPartyId = party.Id;
+        $scope.SubmitPaymentTermId = party.PaymentTermId;
+        $scope.SubmitCurrencyId = party.CurrencyId;
+        getPartyPlantList();
+        $scope.hidePartyPopUp();
+    };
+    function getPartyPlantList() {
+        $scope.plantList = [];
+        $http.get('Products/PurchaseOrder/GetPartyPlantCbo?partyId=' + $scope.SubmitPartyId + '&Id=' + $scope.Id).then(function (response) {
+            angular.forEach(response.data, function (item) {
+                $scope.plantList.push(item);
+                if (item.IsDefault) {
+                    $scope.productNew.InvoicingPartyPlantId = item.Value;
+                    $scope.productNew.DeliveryPartyPlantId = item.Value;
+                    $scope.productNew.InvoicingByAddress = item.Address1;
+                    $scope.productNew.DeliveryByAddress = item.Address2;
+                    $scope.productNew.InvoicingState = item.StateName;
+                    $scope.productNew.InvoicingGSTIN = item.GSTIN;
+                    $scope.productNew.DeliveryState = item.StateName;
+                    $scope.productNew.DeliveryGSTIN = item.GSTIN;
+                }
+            });
+        });
+
+    }
+
+    $scope.SelectedContract = function (obj) {
+        $scope.SubmitContractId = obj.data.ContractId;
+        $scope.SubmitContractNo = obj.data.ContractNo;
+        $scope.SubmitCustomerName = obj.data.CustomerName;
+        angular.element(document.querySelector('#ContractPopUp')).modal('hide');
+    }
+
+    $scope.CloseContractPopUp = function () {
+        angular.element(document.querySelector('#ContractPopUp')).modal('hide');
+    }
+    $scope.poBoqItemList = [];
+    $scope.GetPOBoqItem = function () {
+        $scope.poBoqItemList = [];
+        $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.SubmitContractId + '&VendorId=' + $scope.SubmitPartyId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.poBoqItemList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
+
+
+    $http({
+        method: 'GET',
+        url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
+    }).then(function successCallback(response) {
+        $scope.baseCurrencyId = response.data[0].Value;
+        $scope.productNew.BaseCurrencyId = response.data[0].Value;
+    });
+    $scope.currencyList = [];
+    cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        $scope.currencyList = result;
+    });
 
     $scope.product = {
         Id: null
@@ -100,105 +197,128 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     };
     $scope.productNew = Object.assign({}, $scope.product);
 
-    $scope.contractList = [];
-    $scope.GetPopUpContract = function () {
-        $scope.contractList = [];
-        $http.get("Products/PurchaseOrder/GetLCContractList?isProcurementOnBom=" + $scope.productNew.IsTradingPO)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.contractList = response.data;
+    $scope.submit = function () {
+        $scope.productNew.PartyCode=  $scope.SubmitPartyCode;
+        $scope.productNew.PartyName = $scope.SubmitPartyName;
+        $scope.productNew.PartyId = $scope.SubmitPartyId;
+        $scope.productNew.PaymentTermId = $scope.SubmitPaymentTermId;
+        $scope.productNew.CurrencyId = $scope.SubmitCurrencyId;
+        $scope.productNew.ContractId = $scope.SubmitContractId;
+        $scope.productNew.ContractNo = $scope.SubmitContractNo;
+        $scope.productNew.CustomerName = $scope.SubmitCustomerName;
+        $scope.submitBOQItem();
+        $scope.isSubmitted = 'Yes';
+    }
+    $scope.Back = function () {
+        $scope.isSubmitted = 'No';
+
+    };
+    $scope.poBoqItemListNew = [];
+    $scope.submitBOQItem = function () {
+        try {
+            $scope.poBoqItemListNew = [];
+                for (var i = 0; i < $scope.poBoqItemList.length; i++) {
+                    if ((baseService.isUndefinedOrNull($scope.poBoqItemList[i].TransactionQty) || $scope.poBoqItemList[i].TransactionQty === 0) && $scope.poBoqItemList[i].CheckedStatus === true) {
+                        ShowResult('Enter the Selected  Material Qty', 'failure');
+                        return false;
                     }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-        angular.element(document.querySelector('#ContractPopUp')).modal('show');
-    };
-    $scope.Clearcontract = function () {
-        $scope.productNew.CustomerName = "";
-        $scope.productNew.ContractId = "";
-        $scope.productNew.ContractNo = "";
+                    if ($scope.poBoqItemList[i].CheckedStatus === true) {
+                            if ((parseFloat($scope.poBoqItemList[i].TransactionQty) + parseFloat($scope.poBoqItemList[i].OtherPOQty)) > parseFloat($scope.poBoqItemList[i].RequiredQtyPO)) {
+                                ShowResult('Trasaction qty can not grater than booking Qty', 'failure');
+                                $scope.poBoqItemList[i].TransactionQty = '';
+                                return false;
+                            }
+                            if (baseService.isUndefinedOrNull($scope.poBoqItemList[i].TransactionQty)) {
+                                ShowResult('Enter the current Qty.Zero not allowed', 'failure');
+                                return false;
+                            }
+                            if ($scope.poBoqItemList[i].TransactionQty < 0) {
+                                ShowResult('Negative Qty  not allowed', 'failure');
+                                return false;
+                            }
+                            if ($scope.poBoqItemList[i].TransactionQty === 0 || $scope.poBoqItemList[i].TransactionQty === 0.00 || $scope.poBoqItemList[i].TransactionQty === 0.0) {
+                                ShowResult('Enter the current Qty.Zero not allowed', 'failure');
+                                return false;
+                            }
+                            if (baseService.isUndefinedOrNull($scope.poBoqItemList[i].TransactionRate)) {
+                                ShowResult('Enter the current rate.Zero not allowed', 'failure');
+                                return false;
+                            }
+                            if ($scope.poBoqItemList[i].TransactionRate === 0 || $scope.poBoqItemList[i].TransactionRate === 0.0 || $scope.poBoqItemList[i].TransactionRate === 0.00) {
+                                ShowResult('Enter the current rate.Zero not allowed', 'failure');
+                                return false;
+                            }
+                            if ($scope.poBoqItemList[i].RequiredQtyApproved === 'No') {
+                                ShowResult('Required Qty not yet Approved.So you can not take this material', 'failure');
+                                return false;
+                            }
+                            if ($scope.poBoqItemList[i].IncompleteMaterial === 'Yes') {
+                                ShowResult('This is incomplete material.So you can not take this material', 'failure');
+                                return false;
+                            }
 
-    };
-
-    $scope.closePartyPopUp = function (x) {
-
-        //if ($scope.partyIndex !== -1) {
-        var party = x.data;
-        // var party = $scope.partyList[$scope.partyIndex];
-        $scope.productNew.PartyCode = party.Code;
-        $scope.productNew.PartyName = party.UserName;
-        $scope.productNew.PartyId = party.Id;
-        $scope.productNew.PaymentTermId = party.PaymentTermId;
-        $scope.productNew.CurrencyId = party.CurrencyId;
-        $scope.IsBaseOnDueDateEnable = false;
-        $scope.productNew.BaseOnDueDate = null;
-        $scope.productNew.BaseNoOfDays = null;
-        $scope.productNew.MatureDate = null;
-
-        $scope.productNew.TaxApplicable = party.TaxApplicable;
-        $scope.productNew.IsTaxApplicableChangeable = party.IsTaxApplicableChangeable;
-        if (party.TaxApplicable === 'Mandatory')
-            $scope.productNew.IsTaxApplicable = true;
-        else
-            $scope.productNew.IsTaxApplicable = false;
-
-        if (!baseService.isUndefinedOrNull($scope.productNew.DocDate))
-        getPartyPlantList();
-        $scope.hidePartyPopUp();
-    };
-    function getPartyPlantList() {
-
-
-        //var aa = $scope.Id;
-        $scope.plantList = [];
-        $http.get('Products/PurchaseOrder/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
-            angular.forEach(response.data, function (item) {
-                $scope.plantList.push(item);
-                if (item.IsDefault) {
-                    $scope.productNew.InvoicingPartyPlantId = item.Value;
-                    $scope.productNew.DeliveryPartyPlantId = item.Value;
-                    $scope.productNew.InvoicingByAddress = item.Address1;
-                    $scope.productNew.DeliveryByAddress = item.Address2;
-                    $scope.productNew.InvoicingState = item.StateName;
-                    $scope.productNew.InvoicingGSTIN = item.GSTIN;
-                    $scope.productNew.DeliveryState = item.StateName;
-                    $scope.productNew.DeliveryGSTIN = item.GSTIN;
+                            else {
+                                $scope.poBoqItemList[i].TrnAmount = $scope.poBoqItemList[i].TransactionQty * $scope.poBoqItemList[i].TransactionRate
+                                $scope.poBoqItemListNew.push($scope.poBoqItemList[i]);
+                                $scope.tempList.push($scope.poBoqItemList[i]);
+                            }
+                    }
                 }
-            });
-        });
+            $scope.UOMValidation();
+            $scope.groupList = [];
+            $scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
+        } catch (e) {
+        }
+    };
 
+    $scope.groupList = [];
+    $scope.processgroupList = function (oldlist, newlist) {
+        for (var i = 0; i < oldlist.length; i++) {
+            var getRow = $filter("filter")(oldlist, { "MaterialMasterId": oldlist[i].MaterialMasterId, "ArticleId": oldlist[i].ArticleId, "FirstCharacteristicsValueId": oldlist[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": oldlist[i].SecondCharacteristicsValueId, "ThitrdCharacteristicsValueId": oldlist[i].ThitrdCharacteristicsValueId });
+            var ExistingRow = $filter("filter")(newlist, { "MaterialMasterId": oldlist[i].MaterialMasterId, "ArticleId": oldlist[i].ArticleId, "FirstCharacteristicsValueId": oldlist[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": oldlist[i].SecondCharacteristicsValueId, "ThitrdCharacteristicsValueId": oldlist[i].ThitrdCharacteristicsValueId });
+            // getRow.TransactionQty = $filter('sumByKey')($filter('filter')(oldlist), 'TaxAmount');
+            if (ExistingRow.length === 0) {
+                if (!baseService.isUndefinedOrNull(getRow[0].MaterialMasterId)) {
+                    newlist.push(getRow[0]);
+                }
+
+
+            }
+            var getRowWithoutMaterial = $filter("filter")(oldlist, { "MaterialDetail": oldlist[i].MaterialDetail, "RequisitionDetailId": oldlist[i].RequisitionDetailId });
+
+            if (getRowWithoutMaterial.length === 1) {
+                if (baseService.isUndefinedOrNull(getRowWithoutMaterial[0].MaterialMasterId)) {
+                    newlist.push(getRowWithoutMaterial[0]);
+                }
+            }
+
+        }
+        return newlist;
+    };
+    $scope.tempList = [];
+    $scope.UOMValidation = function () {
+        var getRow3
+        $scope.invalid = false;
+        for (var i = 0; i < $scope.tempList.length; i++) {
+            getRow3 = $filter("filter")($scope.tempList, { "MaterialMasterId": $scope.tempList[i].MaterialMasterId, "ArticleId": $scope.tempList[i].ArticleId, "FirstCharacteristicsValueId": $scope.tempList[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.tempList[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.tempList[i].ThirdCharacteristicsValueId });
+        }
+        $scope.TransactionUoMId = '';
+        for (var k = 0; k < getRow3.length; k++) {
+            $scope.TransactionUoMId = getRow3[0].TransactionUoMId;
+            if (getRow3[k].TransactionUoMId != $scope.TransactionUoMId) {
+                    ShowResult('Have you selected Same UOM?', 'failure', 'ListOfPOMaterial');
+                    return true;
+            }
+        }
+        return false;
     }
 
-    $scope.SelectedContract = function (obj) {
-
-        //var data = obj.data.ContractId;
-        $scope.productNew.ContractId = obj.data.ContractId;
-        $scope.productNew.CustomerName = obj.data.CustomerName;
-        $scope.productNew.ContractNo = obj.data.ContractNo;
-        $scope.productNew.LCRef = obj.data.LCRef;
-        //console.log($scope.productNew);
-        angular.element(document.querySelector('#ContractPopUp')).modal('hide');
-    }
-
-    $scope.CloseContractPopUp = function () {
-        angular.element(document.querySelector('#ContractPopUp')).modal('hide');
-    }
-    $scope.poBoqItemList = [];
-    $scope.GetPOBoqItem = function () {
-        $scope.poBoqItemList = [];
-        $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyId)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.poBoqItemList = response.data;
-                        console.log('poBoqItemList', $scope.poBoqItemList);
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    }
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 }//End Of main
 

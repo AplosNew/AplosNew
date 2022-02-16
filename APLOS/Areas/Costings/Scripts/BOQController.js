@@ -258,21 +258,87 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     }
 
 
-    $scope.SelectedItemData = {};
-    $scope.UploadTableName = '';
-    $scope.uploadUrl = $scope.path + "UploadAttachment/";
-    $scope.ShowUploadBox = function (data/*, costingStage, DBTableName*/) {
-        $scope.SelectedItemData = data;
-/*        $scope.CostingStage = costingStage;*/
-/*        $scope.UploadTableName = DBTableName;*/
+    //$scope.SelectedItemData = {};
+    //$scope.UploadTableName = '';
+    //$scope.uploadUrl = $scope.path + "UploadAttachment/";
+    //$scope.ShowUploadBox = function (data/*, costingStage, DBTableName*/) {
+    //    $scope.SelectedItemData = data;
 
-        var _title = "Pre Costing";
 
-        //$("#UploadBox").ejDialog("setTitle", "Upload File (" + _title + ")");
-        var eDialog = $("#UploadBox").data("ejDialog");
-        eDialog.open();
+    //    var _title = "Pre Costing";
+
+    //    //$("#UploadBox").ejDialog("setTitle", "Upload File (" + _title + ")");
+    //    var eDialog = $("#UploadBox").data("ejDialog");
+    //    eDialog.open();
+    //}
+
+
+    //$scope.uploadPBUrl ="Costings/BOQ/UploadAttachment";
+
+    //$scope.onBeginPBUpload = function (args) {
+    //    try {
+    //        if (angular.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
+    //            throw 'Please select/save the production order first'
+
+    //        args.data = $scope.bulletinTemplateNew.Id;
+    //    } catch (e) {
+
+    //        args.cancel = true;
+    //        ShowResult(e, 'Error');
+    //    }
+
+    //}
+    //$scope.errorPBPicUpload = function (e) {
+    //    if (angular.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
+    //        ShowResult('Please select/save the production order first', 'Error');
+    //    else
+    //        ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    //}
+
+
+    //#region Production Bulletin Picture upload
+
+
+
+
+
+    $scope.onBeginPBUpload = function (args) {
+        try {
+            args['data'] = args.model.Data;
+        } catch (e) {
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
 
     }
+    $scope.uploadPBUrl = "Costings/BOQ/UploadAttachment";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPBPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
+            ShowResult('Please select/save the production order first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+    //$scope.getFileList = function () {
+    //    $http({
+    //        method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+    //        data: { Id: args.Model.Data}
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            ShowResult('error', 'failure');
+    //        }
+    //        else {
+    //            var str = response.data[0].PicFileName;
+    //            var extention = str.substr(str.indexOf('.'));
+    //            $scope.PicFileName = virtualPath.ProductionBulletinImage + '/' + $scope.bulletinTemplateNew.Id + extention;
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult('Failed', 'failure');
+    //    });
+    //}
+    //#endregion Production Bulletin Picture upload
 
 }
 
