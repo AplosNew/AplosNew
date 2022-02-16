@@ -104,8 +104,10 @@ namespace Library.HumanResource.Employee
             try
             {
                 var sql = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
-                VisitorName,VisitorType,Purpose
-                from VisitorServiceData where ExpectedDate=CONVERT(date,GETDATE()) and InDone='0' 
+                VisitorName,VisitorType,Purpose,e.EmployeeName as ToMeet
+                from VisitorServiceData d
+				left join EmployeeInformation e on e.SystemId=d.ToMeet
+				where ExpectedDate=CONVERT(date,GETDATE()) and InDone='0' 
                 and OutDone='0'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -118,10 +120,13 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
-                VisitorName,VisitorType,Purpose
-                from VisitorServiceData where InDone='1' and OutDone='0'";
-                return _sqlRepository.GetDataCollection(sql, null);
+                var sqlx = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                VisitorName,VisitorType,Purpose,e.EmployeeName as ToMeet
+                from VisitorServiceData d
+				left join EmployeeInformation e on e.SystemId=d.ToMeet
+				where ExpectedDate=CONVERT(date,GETDATE()) and InDone='1' 
+                and OutDone='0'";
+                return _sqlRepository.GetDataCollection(sqlx, null);
             }
             catch (Exception ex)
             {
