@@ -30,8 +30,8 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         MeetingType: null,
         ItemDetail: null,
         BackgroundIssueDetail: null,
-        ActionApplicable: true,
-        DecisionApplicable: true,
+        ActionApplicable: false,
+        DecisionApplicable: false,
         IssueStatus: 'Active',
         Attachment: null,
         ByWhomId: null,
@@ -76,7 +76,10 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         MeetingActionId:null,
         ActionByWhomCode: null,
         ActionByWhomName: null,
-        Status: null
+        TargetDate: null,
+        Remarks:null,
+        FinalStatus: null,
+        CurrentStatus:null
     };
     $scope.ModelActionablePoints = Object.assign({}, $scope.ModelActionable);
 
@@ -694,7 +697,10 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             MeetingActionId:null,
             ActionByWhomCode: null,
             ActionByWhomName: null,
-            Status: null
+            TargetDate: null,
+            Remarks:null,
+            FinalStatus: null,
+            CurrentStatus: null
         };
         $scope.ActionActionActionablePoints = 'Save';
     };
