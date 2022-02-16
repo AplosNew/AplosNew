@@ -103,10 +103,13 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
-                VisitorName,VisitorType,Purpose,e.EmployeeName as ToMeet
+                var sql = @"select d.Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                VisitorName,VisitorType,Purpose,e.EmployeeName as ToMeet,p.UserName as Department,
+				l.UserName as Designation
                 from VisitorServiceData d
 				left join EmployeeInformation e on e.SystemId=d.ToMeet
+				left join org.Department p on p.Id=e.DepartmentId
+				left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId                     
 				where ExpectedDate=CONVERT(date,GETDATE()) and InDone='0' 
                 and OutDone='0'";
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -120,10 +123,13 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sqlx = @"select Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
-                VisitorName,VisitorType,Purpose,e.EmployeeName as ToMeet
+                var sqlx = @"select d.Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                VisitorName,VisitorType,Purpose,e.EmployeeName as ToMeet,p.UserName as Department,
+				l.UserName as Designation
                 from VisitorServiceData d
 				left join EmployeeInformation e on e.SystemId=d.ToMeet
+				left join org.Department p on p.Id=e.DepartmentId
+				left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId                     
 				where ExpectedDate=CONVERT(date,GETDATE()) and InDone='1' 
                 and OutDone='0'";
                 return _sqlRepository.GetDataCollection(sqlx, null);
