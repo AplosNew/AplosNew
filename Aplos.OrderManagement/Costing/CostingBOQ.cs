@@ -131,9 +131,9 @@ namespace Library.OrderManagement.Costing
                                     boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency,
                                     BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,
   boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
-  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName)),
- CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName)),
- BOQ.FileName,BOQ.POCriteria
+  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+ CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+ BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
 
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
@@ -1599,11 +1599,11 @@ namespace Library.OrderManagement.Costing
 
                         dsMaster.Tables[0].DefaultView[0].Row.BeginEdit();
                         dsMaster.Tables[0].DefaultView[0]["RequiredQty"] = QuantityData[i]["RequiredQty"];
-                        dsMaster.Tables[0].DefaultView[0]["RMDescription"] = QuantityData[i]["RMDescription"];
-                        dsMaster.Tables[0].DefaultView[0]["RMCustomerSpec"] = QuantityData[i]["RMCustomerSpec"];
-                        dsMaster.Tables[0].DefaultView[0]["RMVendorSpec"] = QuantityData[i]["RMVendorSpec"];
-                        dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = QuantityData[i]["SKUDesc"];
-                        dsMaster.Tables[0].DefaultView[0]["OwnReferenceNo"] = QuantityData[i]["OwnReferenceNo"];
+                        dsMaster.Tables[0].DefaultView[0]["RMDescription"] = clsStaticInfo.nullrecorder(QuantityData[i]["RMDescription"]).Trim();
+                        dsMaster.Tables[0].DefaultView[0]["RMCustomerSpec"] = clsStaticInfo.nullrecorder(QuantityData[i]["RMCustomerSpec"]).Trim();
+                        dsMaster.Tables[0].DefaultView[0]["RMVendorSpec"] = clsStaticInfo.nullrecorder(QuantityData[i]["RMVendorSpec"]).Trim();
+                        dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = clsStaticInfo.nullrecorder(QuantityData[i]["SKUDesc"]).Trim();
+                        dsMaster.Tables[0].DefaultView[0]["OwnReferenceNo"] = clsStaticInfo.nullrecorder(QuantityData[i]["OwnReferenceNo"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["Remark"] = QuantityData[i]["Remark"];
 
 
