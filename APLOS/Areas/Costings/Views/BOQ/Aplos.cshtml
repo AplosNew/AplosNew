@@ -112,6 +112,7 @@
 
                                     <div e-column e-type="string" e-field="CostingItemId" e-headertext="Costing Item Id" e-width="80px"></div>
                                     <div e-column e-type="string" e-field="CostingItem" e-headertext="Costing Item" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="ItemRefNo" e-headertext="Item Ref." e-width="120px"></div>
                                     <div e-column e-type="string" e-field="BOQCriteria" e-headertext="Criteria" e-width="80px"></div>
                                     <div e-column e-type="string" e-field="CriteriaDetail" e-headertext="Criteria Detail" e-width="120px"></div>
                                     <div e-column e-type="string" e-field="Id" e-headertext="BOQ Id" e-width="120px"></div>
@@ -131,7 +132,7 @@
                                     <div e-column e-type="string" e-field="ArticleCode" e-headertext="Article Code" e-width="120px"></div>
                                     <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="50px"></div>
                                     <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="50px"></div>
-                                    <div e-column e-template="#RMSKU" e-headertext="SKU Desc" e-width="120px"></div>
+                                    <div e-column e-template="#RMSKU" e-headertext="SKU Desc." e-width="120px"></div>
                                     <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120px"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120px"></div>
                                     <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SO Id" e-width="80px"></div>
@@ -143,11 +144,10 @@
                                         ArticleCode	ResponsiblePerson	BOMQty	RequiredQty	UOM	BOMAmount	BOQCriteria	Currency*@
 
                                     <div e-column e-type="number" e-field="BalanceToPurchase" e-headertext="Reuse From Inventory" e-format="{0:N2}" e-width="100px"></div>
-
-                                    @*<div e-column e-type="string" e-field="Destination" e-headertext="PO Criteria" e-width="60px"></div>*@
+                                    <div e-column e-type="string" e-field="Destination" e-headertext="PO Criteria" e-width="100px"></div>
                                     <div e-column e-type="string" e-field="Remark" e-headertext="Remark" e-width="80px"></div>
                                     <div e-column e-type="string" e-field="FileName" e-headertext="File Name" e-width="100px"></div>
-                                    <div e-column e-template="#Attachment" e-headertext="Attachment" e-width="80px"></div>
+                                    <div e-column e-template="#Attachment" e-headertext="Attachment" e-width="60px"></div>
                                 </div>
                             </div>
 
@@ -185,7 +185,7 @@
                             </script>
                             <script type="text/template" id="Attachment">
                                 @*<div id="UploadDefault" e-data="data.Id" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="100%" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" e-height="30" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadboxe-saveurl="uploadPBUrl" e-extensionsallow=".pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"></div>*@
-                                <div id="UploadDefault" e-dialogtext-title="BOQ"  e-data="data.Id" e-width="70%" e-autoupload="true" e-begin="$parent.onBeginPBUpload" e-filesize="2097152" e-buttontext-browse="+File" ej-uploadbox e-saveurl="$parent.uploadPBUrl" e-multiplefilesselection=false e-success="$parent.getFileList" e-extensionsallow=".pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"></div>
+                                <div id="UploadDefault" e-dialogtext-title="BOQ"  e-data="data.Id" e-width="100%" e-autoupload="true" e-begin="$parent.onBeginPBUpload" e-filesize="2097152" e-buttontext-browse="+File" ej-uploadbox e-saveurl="$parent.uploadPBUrl" e-multiplefilesselection=false e-success="$parent.getFileList" e-extensionsallow=".pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"></div>
                             </script>
                         </div>
                     </div>
