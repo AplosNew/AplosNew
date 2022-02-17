@@ -3466,16 +3466,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
 
-
-
     $scope.FileDownload = function (data) {
         $scope.dwonloadUrl = null;
         var str = data.FileName;
         var extention = str.substr(str.indexOf('.'));
         $scope.dwonloadUrl = virtualPath.MOIPath + '/' + data.Id + extention;
     };
-
-
 
     //#endregion
 
@@ -4876,6 +4872,35 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     //#endregion 
 
+    $scope.orderCostingMasterTemplateList = [];
+    $scope.ShowOrderCostingMasterTemplatePopUp = function (index,articleId) {
+        $scope.orderCostingMasterTemplateList = [];
+        $scope.itemIndex = index;
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetOrderCostingMasterTemplateDataByArticle?articleId=' + articleId
+        }).then(function successCallback(response) {
+            $scope.orderCostingMasterTemplateList = response.data;
+            angular.element(document.querySelector('#OrderCostingMasterTemplatePopup')).modal('show');
+        });
+    };
+
+    $scope.CloseOrderCostingMasterTemplatePopup= function () {
+        angular.element(document.querySelector('#OrderCostingMasterTemplatePopup')).modal('hide');
+    }
+
+    $scope.SetOrderCosting = function (obj) {
+        $scope.itemList[$scope.itemIndex].OrderCostingMasterTemplateId = obj.data.Id;
+        $scope.itemList[$scope.itemIndex].OrderCostingMasterTemplate = obj.data.UserName;
+        angular.element(document.querySelector('#OrderCostingMasterTemplatePopup')).modal('hide');
+        $scope.itemIndex = -1;
+    }
+
+    $scope.clearOrderCosting = function (index) {
+        $scope.itemIndex = index;
+        $scope.itemList[$scope.itemIndex].OrderCostingMasterTemplateId = null;
+        $scope.itemList[$scope.itemIndex].OrderCostingMasterTemplate = null;
+    }
 }
 
 

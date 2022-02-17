@@ -751,7 +751,6 @@ namespace Library.OrderManagement.Costing
                 dicExistingData.Add(KEY, dsExistingBOQ.Tables[0].Rows[i]);
             }
 
-
             //delete unused data
             for (int i = 0; i < dsExistingBOQ.Tables[0].Rows.Count; i++)
             {

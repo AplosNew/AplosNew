@@ -27,11 +27,13 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
     var a = document.getElementById("Filters");
     var b = document.getElementById("Filters2");
+    var c = document.getElementById("Date");
     x.style.display = "block";
     z.style.display = "none";
     u.style.display = "none";
     a.style.display = "block";
     b.style.display = "block";
+    c.style.display = "block";
     $scope.clickdde1 = function () {
         if (x.style.display === "none") {
             z.style.display = "none";
@@ -39,6 +41,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             u.style.display = "none";
             a.style.display = "block";
             b.style.display = "block";
+            c.style.display = "block";
         }
     };
     
@@ -50,6 +53,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             u.style.display = "none";
             a.style.display = "none";
             b.style.display = "none";
+            c.style.display = "none";
             
         }
     };
@@ -62,6 +66,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             u.style.display = "block";
             a.style.display = "none";
             b.style.display = "none";
+            c.style.display = "none";
             
         }
     };
@@ -516,13 +521,18 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     $scope.totalPlanned ="";
     $scope.getLotRef = function () {
 
-        $scope.validations();
         var counter = 0;
         for (var i = 0; i < $scope.PackingLineItemGrid.length; i++) {
             if ($scope.PackingLineItemGrid[i]["checked"] == true) {
                 counter++;
             }
         }
+
+        if (angular.isUndefinedOrNull($scope.selectedValues.ToDate) == true) {
+            ShowResult("Please select To Date");
+            throw ("Please select To Date");
+        }
+
         if (counter == 0) {
             ShowResult("Please Select SO");
             throw ("Please Select SO");

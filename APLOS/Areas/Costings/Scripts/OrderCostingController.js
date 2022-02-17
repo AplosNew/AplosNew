@@ -5011,7 +5011,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         }
     }
     $scope.CalculationSubMaterialPro = function (data, index) {
-        data.GrossConsumption = parseFloat(data.Consumption) / (100 - (parseFloat(data.ValueLoss) / 100)) / 100;
+        data.GrossConsumption = parseFloat(data.Consumption) / ((100 - (parseFloat(data.ValueLoss)) / 100));
         data.GrossAmount = parseFloat(data.Rate) * parseFloat(data.GrossConsumption);
         $scope.SubMaterialListPro[index].GrossConsumption = parseFloat(data.GrossConsumption.toFixed(4));
         $scope.SubMaterialListPro[index].GrossAmount = parseFloat(data.GrossAmount.toFixed(4));

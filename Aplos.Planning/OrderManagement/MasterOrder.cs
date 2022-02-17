@@ -920,6 +920,19 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
                             Order by ProductMasterId";
             return _sqlRepository.GetDataCollection(sql);
         }
-
+        public IEnumerable<object> GetOrderCostingMasterTemplateDataByArticle(string articleId)
+        {
+            string sql = @"Select OCT.* from dbo.OrderCostingMasterTemplate OCT
+                            LEFT JOIN dbo.CostingMasterTemplate CMT ON CMT.Id=OCT.CostingMasterTemplateId
+                            LEFT JOIN dbo.ProductLibrary PL ON PL.CostingMasterTemplateId=CMT.Id
+                            Where PL.ArticleId='"+ articleId + @"'
+                            UNION
+                            Select OCT.* from dbo.OrderCostingMasterTemplate OCT
+                            JOIN dbo.CostingMasterTemplate CMT ON CMT.Id=OCT.CostingMasterTemplateId
+                            JOIN dbo.ProductLibrary PL ON PL.CostingMasterTemplateId=CMT.Id
+                            JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=PL.ArticleId
+                            Where MOI.ArticleId='" + articleId + @"'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
     }
 }

@@ -637,14 +637,14 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
             $scope.WorkCenterMasterId = $scope.productionSummaryNew.ToWorkCenterMasterId;
         }
 
-        if ($scope.Status === 'PROCESS') {
-            $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
-        } else {
-            $scope.ProcessId = $scope.productionSummaryNew.ToProcessId;
-        }
+        //if ($scope.Status === 'PROCESS') {
+        //    $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
+        //} else {
+        //    $scope.ProcessId = $scope.productionSummaryNew.ToProcessId;
+        //}
 
         $scope.ProductOrderList = [];
-        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.ProcessId)
+        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&status=' + $scope.Status)
             .then(
                 function successCallback(response) {
                     $scope.ProductOrderList = response.data;
@@ -1419,7 +1419,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                 }
 
             } else {
-                $scope.ProcessId = $scope.productionSummaryNew.ToProcessId;
+                $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
 
                 if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                     if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionOrderId)) {
