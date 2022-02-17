@@ -418,6 +418,7 @@
                                         <th>Extra Order Percentage</th>
                                         <th>Repeat</th>
                                         <th>Product Library</th>
+                                        <th>Order Costing</th>
                                         <th>Product</th>
                                         <th class="col-sm-1">Action</th>
                                         <th>Copy SO</th>
@@ -488,9 +489,9 @@
                                             <div class="select-style">
                                                 @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
 
-                                                         <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
-                                                        <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
-                                                    </select>*@
+                     <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
+                    <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
+                </select>*@
                                                 <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
                                                         ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
                                                         ng-selected="x.ByDefault == item.ByDefault"></select>
@@ -511,19 +512,28 @@
                                             </div>
                                         </td>
                                         @*<td>
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="x.ProductLibraryId"
-                                                            ng-options="item.Value as item.Text for item in ProductLibraryList" style="width: 180px;">
-                                                        <option value="">--Select--</option>
-                                                    </select>
-                                                </div>
-                                            </td>*@
+            <div class="select-style">
+                <select class="form-control" ng-model="x.ProductLibraryId"
+                        ng-options="item.Value as item.Text for item in ProductLibraryList" style="width: 180px;">
+                    <option value="">--Select--</option>
+                </select>
+            </div>
+        </td>*@
                                         <td>
                                             <div class="input-group">
                                                 <input type="text" name="ProductLibrary" ng-model="x.ProductLibrary" class="form-control" readonly style="width: 200px;">
                                                 <span class="input-group-btn">
                                                     <button ng-click="GetProductLibraryList($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                                     <button ng-click="clearProductLibrary($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <input type="text" name="ProductLibrary" ng-model="x.OrderCostingMasterTemplate" class="form-control" readonly style="width: 200px;">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="ShowOrderCostingMasterTemplatePopUp($index,x.ArticleId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="clearOrderCosting($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                                 </span>
                                             </div>
                                         </td>
@@ -3715,6 +3725,32 @@
                 </div>
                 <ul class="common-btn list-inline text-right">
                     <li><button ng-click="closeProductLibraryPopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="OrderCostingMasterTemplatePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Order Costing List <button type="button" class="close" ng-click="CloseOrderCostingMasterTemplatePopup();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+
+                    <div style="color:black;" id="OCGrid" ej-grid e-datasource="orderCostingMasterTemplateList" e-recorddoubleclick="SetOrderCosting"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                        <div e-columns>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                            <div e-column e-field="ShortName" e-headertext="ShortName" e-width="50"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="130"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="CloseOrderCostingMasterTemplatePopup();" class="btn"> Close</button></li>
                 </ul>
             </div>
         </div>
