@@ -1150,13 +1150,13 @@ namespace Library.MaterialManagement.InventoryManagements
                     {
                         if (Country == "undefined" || Country == "null") Country = "false";
 
-                        StartRange = 13;
+                        StartRange = 12;
                         EndRange = StartRange + 1;
                         if (materialStorage == "undefined" || materialStorage == "null") materialStorage = "false";
 
                         if (materialStorage == "true")
                         {
-                            StartRange = 14;
+                            StartRange = 13;
                             EndRange = StartRange + 1;
                         }
 
