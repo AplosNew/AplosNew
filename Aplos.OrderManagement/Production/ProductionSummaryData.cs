@@ -359,7 +359,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetProductionOrderData(string entityid, string workCenterMasterId, string productionLevel, string processId)
+        public IEnumerable<object> GetProductionOrderData(string entityid, string workCenterMasterId, string productionLevel, string processId, string status)
         {
             //string CmdText = @"SELECT SO.CustomerPOId
             //                     ,CPO.PONumber
@@ -411,10 +411,20 @@ namespace Library.OrderManagement.Production
             //                    LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
             //                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
             //                    WHERE PS.UserName = 'Running' AND POSP.ProcessId = '" + processId + "'";
+            string wc = string.Empty;
+            if (status== "PROCESS")
+            {
+                wc = "PS.ProcessId = '" + processId + @"'";
+            }
+            else
+            {
+                wc = "PS.FromSFGInventoryId = '" + processId + @"'";
+            }
+
             string CmdText = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 								  ,PlannedQty=CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END
-                            ,((CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END)-PRS.TotalProductionQty) RemainingQty
+                            ,((CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
                             , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
 									,SONo=STUFF((select distinct ','+XSO.Id from 
                                                                  trn.SalesOrder XSO 
@@ -427,7 +437,7 @@ namespace Library.OrderManagement.Production
 								  LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
 								  LEFT JOIN 
 								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
-                                       FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId
+                                       FROM [TRN].[ProductionSummary] PS WHERE " + wc+ @" GROUP BY PS.ProductionOrderId
                                   ) AS PRS ON PRS.ProductionOrderId = PO.Id
 								   LEFT JOIN 
 								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory--,SO.Qty
@@ -502,7 +512,7 @@ namespace Library.OrderManagement.Production
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								   WHERE PS.UserName = 'Running' Order by PD.BuyerOrder";
+								   WHERE PS.UserName = 'Running' Order by PD.Description,PD.BuyerOrder";
 
             return _sqlRepository.GetDataCollection(CmdText);
         }
