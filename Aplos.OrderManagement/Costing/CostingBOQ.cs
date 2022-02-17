@@ -133,7 +133,7 @@ namespace Library.OrderManagement.Costing
   boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
   SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName)),
  CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName)),
- BOQ.FileName
+ BOQ.FileName,BOQ.POCriteria
 
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
@@ -1257,6 +1257,7 @@ namespace Library.OrderManagement.Costing
                                     ci.Id, ci.Sequence,ci.UserName AS ItemDesc,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
                                     mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
                                     boq.BOMQty,boq.RequiredQty,uom.UserName AS UOM,boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency
+,boq.POCriteria
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
@@ -1285,7 +1286,6 @@ namespace Library.OrderManagement.Costing
         }
         public void ReportXls(string CostingBOQMasterId)
         {
-
             try
             {
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -1300,8 +1300,6 @@ namespace Library.OrderManagement.Costing
                 sheet.Name = "BOQ Report";
 
                 DataTable dtEmployeeData = BOQReportQuery(CostingBOQMasterId);
-
-
 
                 int ROW = 6;
                 int COL = 1;
@@ -1362,6 +1360,10 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colSKU2 = COL;
                 COL++;
+                sheet[ROW, COL].Text = "PO Criteria";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPOCriteria = COL;
+                COL++;
                 sheet[ROW, COL].Text = "UOM";
                 sheet[ROW, COL].ColumnWidth = 8;
                 int colUOM = COL;
@@ -1421,6 +1423,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colCurrency].Text = dtEmployeeData.Rows[i]["Currency"].ToString();
                     sheet[ROW, colBOQCriteria].Text = dtEmployeeData.Rows[i]["BOQCriteria"].ToString();
                     sheet[ROW, colItemRefNo].Text = dtEmployeeData.Rows[i]["ItemRefNo"].ToString();
+                    sheet[ROW, colPOCriteria].Text = dtEmployeeData.Rows[i]["POCriteria"].ToString();
 
                     sheet[ROW, colBOMQty].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["BOMQty"].ToString());
                     sheet[ROW, colRequiredQty].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["RequiredQty"].ToString());
