@@ -236,9 +236,9 @@ namespace Aplos.Areas.Costings.Controllers
                         {
                             System.IO.Directory.CreateDirectory(ResourcesPathReader.CostingBoqPath());
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-
+                          throw ex;
                         }
                     }
 
@@ -263,7 +263,6 @@ namespace Aplos.Areas.Costings.Controllers
                         file.SaveAs(destinationPath);
                         clsStaticInfo info = new clsStaticInfo();
                         info.SaveDataSets(dsLocal);
-
 
 
                     }

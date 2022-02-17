@@ -1873,7 +1873,6 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-
         public void DeleteMultiProductionOperation(string id)
         {
             string strSQL;
@@ -1894,9 +1893,9 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
                     objCon.RollBack();
                     throw (ex);
                 }
-                catch (Exception exx)
+                catch (Exception)
                 {
-                    throw exx;
+                    throw;
                 }
             }
             finally

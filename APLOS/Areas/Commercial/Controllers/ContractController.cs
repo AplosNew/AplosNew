@@ -128,7 +128,7 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> model, string selectedMasterOrderList, List<Dictionary<string, object>> funds)
+        public JsonResult Create(Contract model, string selectedMasterOrderList, List<Dictionary<string, object>> funds)
         {
             try
             {
@@ -472,7 +472,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }//End of function
 
-        private void XSaveData(Contract data, List<MasterOrderItemModel> masterOrderItem, out string contractId, List<Dictionary<string, object>> funds)
+        private void SaveData(Contract data, List<MasterOrderItemModel> masterOrderItem, out string contractId, List<Dictionary<string, object>> funds)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
@@ -540,10 +540,11 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr.BeginEdit();
 
                     dr["PlantId"] = identity.PlantId;
-                    dr["IsLC"] = data.IsLC;
-                    dr["ContractNo"] = data.ContractNo;
+                    dr["CustomerId"] = data.CustomerId;
                     dr["Description"] = data.Description;
                     dr["Remarks"] = data.Remarks;
+                    dr["IsLC"] = data.IsLC;
+                    dr["ContractNo"] = data.ContractNo;
                     dr["Amount"] = data.Amount;
                     dr["TotalQty"] = data.TotalQty;
                     dr["SOQty"] = data.SOQty;
@@ -656,7 +657,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-        private void SaveData(Dictionary<string, object> data, List<MasterOrderItemModel> masterOrderItem, out string contractId, List<Dictionary<string, object>> funds)
+        private void XSaveData(Dictionary<string, object> data, List<MasterOrderItemModel> masterOrderItem, out string contractId, List<Dictionary<string, object>> funds)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;

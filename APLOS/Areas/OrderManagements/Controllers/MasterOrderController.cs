@@ -85,6 +85,20 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 throw ex;
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOrderCostingMasterTemplateDataByArticle(string articleId)
+        {
+            try
+            {
+                return Json(MasterOrder.GetOrderCostingMasterTemplateDataByArticle(articleId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetProductLibrary()
         {

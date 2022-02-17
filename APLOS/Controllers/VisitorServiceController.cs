@@ -89,26 +89,11 @@ namespace Aplos.Controllers
         }
      
         [HttpPost]
-        public string SaveOutTime([FromBody] IEnumerable<VisitorModel> DataToSave)
+        public string SaveInOutTime([FromBody] IEnumerable<VisitorModel> DataToSave)
         {
             try
             {
-                string Id = _emp.SaveOutTime(DataToSave);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
-
-        [HttpPost]
-        public string SaveInTime([FromBody] IEnumerable<VisitorModel> DataToSave)
-        {
-            try
-            {
-                string Id = _emp.SaveInTime(DataToSave);
+                string Id = _emp.SaveInOutTime(DataToSave);
                 return Id;
             }
             catch (Exception ex)
