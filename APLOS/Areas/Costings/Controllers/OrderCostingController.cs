@@ -3986,6 +3986,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 , OrderCostingDetailTemplate
                 , OrderPreCostingDirectMaterial
                 , OrderPreCostingDirectMaterialConsumption
+                , OrderPreCostingDirectMaterialChild
                 , OrderPreCostingOperation
                 , OrderPreCostingDirectProcess
                 , OrderPreCostingValueLoss
@@ -3995,6 +3996,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                 , OrderProcurementCostingDirectMaterial
                 , OrderProcurementCostingDirectMaterialConsumption
+                , OrderProcurementCostingDirectMaterialChild
                 , OrderProcurementCostingOperation
                 , OrderProcurementCostingDirectProcess
                 , OrderProcurementCostingValueLoss
@@ -4015,6 +4017,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 con.OpenDataSetThroughAdapter("select * from OrderCostingDetailTemplate where 1=2", out OrderCostingDetailTemplate, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectMaterial where 1=2", out OrderPreCostingDirectMaterial, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectMaterialConsumption where 1=2", out OrderPreCostingDirectMaterialConsumption, false, "1");
+                con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectMaterialChild where 1=2", out OrderPreCostingDirectMaterialChild, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingOperation where 1=2", out OrderPreCostingOperation, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectProcess where 1=2", out OrderPreCostingDirectProcess, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingValueLoss where 1=2", out OrderPreCostingValueLoss, false, "1");
@@ -4023,6 +4026,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectMaterial where 1=2", out OrderProcurementCostingDirectMaterial, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectMaterialConsumption where 1=2", out OrderProcurementCostingDirectMaterialConsumption, false, "1");
+                con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectMaterialChild where 1=2", out OrderProcurementCostingDirectMaterialChild, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingOperation where 1=2", out OrderProcurementCostingOperation, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectProcess where 1=2", out OrderProcurementCostingDirectProcess, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingValueLoss where 1=2", out OrderProcurementCostingValueLoss, false, "1");
@@ -4034,6 +4038,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 DataTable CostingDetailTemplate = _sqlRepository.GetDataTable("select * from [dbo].[CostingDetailTemplate] WHERE CostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingDirectMaterial = _sqlRepository.GetDataTable("select * from [dbo].[PreCostingDirectMaterial] WHERE CostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingDirectMaterialConsumption = _sqlRepository.GetDataTable("select * from [dbo].[PreCostingDirectMaterialConsumption] WHERE CostingMasterTemplateId='" + SourceId + "'");
+                DataTable PreCostingDirectMaterialChild = _sqlRepository.GetDataTable("select * from [dbo].[PreCostingDirectMaterialChild] WHERE CostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingOperation = _sqlRepository.GetDataTable("select * from [dbo].[PreCostingOperation] WHERE CostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingDirectProcess = _sqlRepository.GetDataTable("select * from [dbo].[PreCostingDirectProcess] WHERE CostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingValueLoss = _sqlRepository.GetDataTable("select * from [dbo].[PreCostingValueLoss] WHERE CostingMasterTemplateId='" + SourceId + "'");
@@ -4047,6 +4052,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 CopyDataTable(CostingDetailTemplate, OrderCostingDetailTemplate.Tables[0], NewId);
                 CopyDataTable(PreCostingDirectMaterial, OrderPreCostingDirectMaterial.Tables[0], NewId);
                 CopyDataTable(PreCostingDirectMaterialConsumption, OrderPreCostingDirectMaterialConsumption.Tables[0], NewId);
+                CopyDataTable(PreCostingDirectMaterialChild, OrderPreCostingDirectMaterialChild.Tables[0], NewId);
                 CopyDataTable(PreCostingOperation, OrderPreCostingOperation.Tables[0], NewId);
                 CopyDataTable(PreCostingDirectProcess, OrderPreCostingDirectProcess.Tables[0], NewId);
                 CopyDataTable(PreCostingValueLoss, OrderPreCostingValueLoss.Tables[0], NewId);
@@ -4055,6 +4061,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                 CopyDataTable(PreCostingDirectMaterial, OrderProcurementCostingDirectMaterial.Tables[0], NewId);
                 CopyDataTable(PreCostingDirectMaterialConsumption, OrderProcurementCostingDirectMaterialConsumption.Tables[0], NewId);
+                CopyDataTable(PreCostingDirectMaterialChild, OrderProcurementCostingDirectMaterialChild.Tables[0], NewId);
                 CopyDataTable(PreCostingOperation, OrderProcurementCostingOperation.Tables[0], NewId);
                 CopyDataTable(PreCostingDirectProcess, OrderProcurementCostingDirectProcess.Tables[0], NewId);
                 CopyDataTable(PreCostingValueLoss, OrderProcurementCostingValueLoss.Tables[0], NewId);
@@ -4092,6 +4099,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 SetForeignKey(OrderCostingDetailTemplate, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingDirectMaterial, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingDirectMaterialConsumption, "OrderCostingMasterTemplateId", NewId);
+                SetForeignKey(OrderPreCostingDirectMaterialChild, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingOperation, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingDirectProcess, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingValueLoss, "OrderCostingMasterTemplateId", NewId);
@@ -4102,10 +4110,16 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                     OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView.RowFilter = "CostingItemId='" + OrderPreCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
                     for (int k = 0; k < OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView.Count; k++)
                         OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView[k]["OrderPreCostingDirectMaterialId"] = OrderPreCostingDirectMaterial.Tables[0].Rows[i]["Id"];
+
+                    OrderPreCostingDirectMaterialChild.Tables[0].DefaultView.RowFilter = "ParentCostingItemId='" + OrderPreCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
+                    for (int k = 0; k < OrderPreCostingDirectMaterialChild.Tables[0].DefaultView.Count; k++)
+                        OrderPreCostingDirectMaterialChild.Tables[0].DefaultView[k]["OrderPreCostingDirectMaterialId"] = OrderPreCostingDirectMaterial.Tables[0].Rows[i]["Id"];
+
                 }
 
                 SetForeignKey(OrderProcurementCostingDirectMaterial, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderProcurementCostingDirectMaterialConsumption, "OrderCostingMasterTemplateId", NewId);
+                SetForeignKey(OrderProcurementCostingDirectMaterialChild, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderProcurementCostingOperation, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderProcurementCostingDirectProcess, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderProcurementCostingValueLoss, "OrderCostingMasterTemplateId", NewId);
@@ -4116,11 +4130,15 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                     OrderProcurementCostingDirectMaterialConsumption.Tables[0].DefaultView.RowFilter = "CostingItemId='" + OrderProcurementCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
                     for (int k = 0; k < OrderProcurementCostingDirectMaterialConsumption.Tables[0].DefaultView.Count; k++)
                         OrderProcurementCostingDirectMaterialConsumption.Tables[0].DefaultView[k]["OrderProcurementCostingDirectMaterialId"] = OrderProcurementCostingDirectMaterial.Tables[0].Rows[i]["Id"];
+
+                    OrderProcurementCostingDirectMaterialChild.Tables[0].DefaultView.RowFilter = "ParentCostingItemId='" + OrderProcurementCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
+                    for (int k = 0; k < OrderProcurementCostingDirectMaterialChild.Tables[0].DefaultView.Count; k++)
+                        OrderProcurementCostingDirectMaterialChild.Tables[0].DefaultView[k]["OrderProcurementCostingDirectMaterialId"] = OrderProcurementCostingDirectMaterial.Tables[0].Rows[i]["Id"];
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(OrderCostingMasterTemplate, OrderCostingDetailTemplate,
-                    OrderPreCostingDirectMaterial, OrderPreCostingDirectMaterialConsumption, OrderPreCostingOperation, OrderPreCostingDirectProcess, OrderPreCostingValueLoss, OrderPreCostingSalesExpense, OrderPreCostingProfit,
-                    OrderProcurementCostingDirectMaterial, OrderProcurementCostingDirectMaterialConsumption, OrderProcurementCostingOperation, OrderProcurementCostingDirectProcess, OrderProcurementCostingValueLoss, OrderProcurementCostingSalesExpense, OrderProcurementCostingProfit);
+                    OrderPreCostingDirectMaterial, OrderPreCostingDirectMaterialConsumption, OrderPreCostingDirectMaterialChild, OrderPreCostingOperation, OrderPreCostingDirectProcess, OrderPreCostingValueLoss, OrderPreCostingSalesExpense, OrderPreCostingProfit,
+                    OrderProcurementCostingDirectMaterial, OrderProcurementCostingDirectMaterialConsumption, OrderProcurementCostingDirectMaterialChild, OrderProcurementCostingOperation, OrderProcurementCostingDirectProcess, OrderProcurementCostingValueLoss, OrderProcurementCostingSalesExpense, OrderProcurementCostingProfit);
 
                 try
                 {
@@ -4152,6 +4170,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 , OrderCostingDetailTemplate
                 , OrderPreCostingDirectMaterial
                 , OrderPreCostingDirectMaterialConsumption
+                , OrderPreCostingDirectMaterialChild
                 , OrderPreCostingOperation
                 , OrderPreCostingDirectProcess
                 , OrderPreCostingValueLoss
@@ -4161,6 +4180,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                 , OrderProcurementCostingDirectMaterial
                 , OrderProcurementCostingDirectMaterialConsumption
+                , OrderProcurementCostingDirectMaterialChild
                 , OrderProcurementCostingOperation
                 , OrderProcurementCostingDirectProcess
                 , OrderProcurementCostingValueLoss
@@ -4181,6 +4201,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 con.OpenDataSetThroughAdapter("select * from OrderCostingDetailTemplate where 1=2", out OrderCostingDetailTemplate, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectMaterial where 1=2", out OrderPreCostingDirectMaterial, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectMaterialConsumption where 1=2", out OrderPreCostingDirectMaterialConsumption, false, "1");
+                con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectMaterialChild where 1=2", out OrderPreCostingDirectMaterialChild, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingOperation where 1=2", out OrderPreCostingOperation, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingDirectProcess where 1=2", out OrderPreCostingDirectProcess, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderPreCostingValueLoss where 1=2", out OrderPreCostingValueLoss, false, "1");
@@ -4189,6 +4210,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectMaterial where 1=2", out OrderProcurementCostingDirectMaterial, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectMaterialConsumption where 1=2", out OrderProcurementCostingDirectMaterialConsumption, false, "1");
+                con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectMaterialChild where 1=2", out OrderProcurementCostingDirectMaterialChild, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingOperation where 1=2", out OrderProcurementCostingOperation, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingDirectProcess where 1=2", out OrderProcurementCostingDirectProcess, false, "1");
                 con.OpenDataSetThroughAdapter("select * from OrderProcurementCostingValueLoss where 1=2", out OrderProcurementCostingValueLoss, false, "1");
@@ -4200,6 +4222,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 DataTable CostingDetailTemplate = _sqlRepository.GetDataTable("select * from [dbo].[OrderCostingDetailTemplate] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingDirectMaterial = _sqlRepository.GetDataTable("select * from [dbo].[OrderPreCostingDirectMaterial] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingDirectMaterialConsumption = _sqlRepository.GetDataTable("select * from [dbo].[OrderPreCostingDirectMaterialConsumption] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
+                DataTable PreCostingDirectMaterialChild = _sqlRepository.GetDataTable("select * from [dbo].[OrderPreCostingDirectMaterialChild] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingOperation = _sqlRepository.GetDataTable("select * from [dbo].[OrderPreCostingOperation] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingDirectProcess = _sqlRepository.GetDataTable("select * from [dbo].[OrderPreCostingDirectProcess] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
                 DataTable PreCostingValueLoss = _sqlRepository.GetDataTable("select * from [dbo].[OrderPreCostingValueLoss] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
@@ -4208,6 +4231,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                 DataTable OrderCostingDirectMaterial = _sqlRepository.GetDataTable("select * from [dbo].[OrderProcurementCostingDirectMaterial] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
                 DataTable OrderCostingDirectMaterialConsumption = _sqlRepository.GetDataTable("select * from [dbo].[OrderProcurementCostingDirectMaterialConsumption] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
+                DataTable OrderCostingDirectMaterialChild = _sqlRepository.GetDataTable("select * from [dbo].[OrderProcurementCostingDirectMaterialChild] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
                 DataTable OrderCostingOperation = _sqlRepository.GetDataTable("select * from [dbo].[OrderProcurementCostingOperation] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
                 DataTable OrderCostingDirectProcess = _sqlRepository.GetDataTable("select * from [dbo].[OrderProcurementCostingDirectProcess] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
                 DataTable OrderCostingValueLoss = _sqlRepository.GetDataTable("select * from [dbo].[OrderProcurementCostingValueLoss] WHERE OrderCostingMasterTemplateId='" + SourceId + "'");
@@ -4220,6 +4244,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 CopyDataTable(CostingDetailTemplate, OrderCostingDetailTemplate.Tables[0], NewId);
                 CopyDataTable(PreCostingDirectMaterial, OrderPreCostingDirectMaterial.Tables[0], NewId);
                 CopyDataTable(PreCostingDirectMaterialConsumption, OrderPreCostingDirectMaterialConsumption.Tables[0], NewId);
+                CopyDataTable(PreCostingDirectMaterialChild, OrderPreCostingDirectMaterialChild.Tables[0], NewId);
                 CopyDataTable(PreCostingOperation, OrderPreCostingOperation.Tables[0], NewId);
                 CopyDataTable(PreCostingDirectProcess, OrderPreCostingDirectProcess.Tables[0], NewId);
                 CopyDataTable(PreCostingValueLoss, OrderPreCostingValueLoss.Tables[0], NewId);
@@ -4228,6 +4253,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                 CopyDataTable(OrderCostingDirectMaterial, OrderProcurementCostingDirectMaterial.Tables[0], NewId);
                 CopyDataTable(OrderCostingDirectMaterialConsumption, OrderProcurementCostingDirectMaterialConsumption.Tables[0], NewId);
+                CopyDataTable(OrderCostingDirectMaterialChild, OrderProcurementCostingDirectMaterialChild.Tables[0], NewId);
                 CopyDataTable(OrderCostingOperation, OrderProcurementCostingOperation.Tables[0], NewId);
                 CopyDataTable(OrderCostingDirectProcess, OrderProcurementCostingDirectProcess.Tables[0], NewId);
                 CopyDataTable(OrderCostingValueLoss, OrderProcurementCostingValueLoss.Tables[0], NewId);
@@ -4265,6 +4291,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 SetForeignKey(OrderCostingDetailTemplate, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingDirectMaterial, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingDirectMaterialConsumption, "OrderCostingMasterTemplateId", NewId);
+                SetForeignKey(OrderPreCostingDirectMaterialChild, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingOperation, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingDirectProcess, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderPreCostingValueLoss, "OrderCostingMasterTemplateId", NewId);
@@ -4275,10 +4302,15 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                     OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView.RowFilter = "CostingItemId='" + OrderPreCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
                     for (int k = 0; k < OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView.Count; k++)
                         OrderPreCostingDirectMaterialConsumption.Tables[0].DefaultView[k]["OrderPreCostingDirectMaterialId"] = OrderPreCostingDirectMaterial.Tables[0].Rows[i]["Id"];
+
+                    OrderPreCostingDirectMaterialChild.Tables[0].DefaultView.RowFilter = "ParentCostingItemId='" + OrderPreCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
+                    for (int k = 0; k < OrderPreCostingDirectMaterialChild.Tables[0].DefaultView.Count; k++)
+                        OrderPreCostingDirectMaterialChild.Tables[0].DefaultView[k]["OrderPreCostingDirectMaterialId"] = OrderPreCostingDirectMaterial.Tables[0].Rows[i]["Id"];
                 }
 
                 SetForeignKey(OrderProcurementCostingDirectMaterial, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderProcurementCostingDirectMaterialConsumption, "OrderCostingMasterTemplateId", NewId);
+                SetForeignKey(OrderProcurementCostingDirectMaterialChild, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderProcurementCostingOperation, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderProcurementCostingDirectProcess, "OrderCostingMasterTemplateId", NewId);
                 SetForeignKey(OrderProcurementCostingValueLoss, "OrderCostingMasterTemplateId", NewId);
@@ -4289,12 +4321,16 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                     OrderProcurementCostingDirectMaterialConsumption.Tables[0].DefaultView.RowFilter = "CostingItemId='" + OrderProcurementCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
                     for (int k = 0; k < OrderProcurementCostingDirectMaterialConsumption.Tables[0].DefaultView.Count; k++)
                         OrderProcurementCostingDirectMaterialConsumption.Tables[0].DefaultView[k]["OrderProcurementCostingDirectMaterialId"] = OrderProcurementCostingDirectMaterial.Tables[0].Rows[i]["Id"];
+
+                    OrderProcurementCostingDirectMaterialChild.Tables[0].DefaultView.RowFilter = "ParentCostingItemId='" + OrderProcurementCostingDirectMaterial.Tables[0].Rows[i]["CostingItemId"].ToString() + "'";
+                    for (int k = 0; k < OrderProcurementCostingDirectMaterialChild.Tables[0].DefaultView.Count; k++)
+                        OrderProcurementCostingDirectMaterialChild.Tables[0].DefaultView[k]["OrderProcurementCostingDirectMaterialId"] = OrderProcurementCostingDirectMaterial.Tables[0].Rows[i]["Id"];
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(OrderCostingMasterTemplate, OrderCostingDetailTemplate,
-                    OrderPreCostingDirectMaterial, OrderPreCostingDirectMaterialConsumption, OrderPreCostingOperation, OrderPreCostingDirectProcess, OrderPreCostingValueLoss, OrderPreCostingSalesExpense, OrderPreCostingProfit,
-                    OrderProcurementCostingDirectMaterial, OrderProcurementCostingDirectMaterialConsumption, OrderProcurementCostingOperation, OrderProcurementCostingDirectProcess, OrderProcurementCostingValueLoss, OrderProcurementCostingSalesExpense, OrderProcurementCostingProfit);
+                    OrderPreCostingDirectMaterial, OrderPreCostingDirectMaterialConsumption, OrderPreCostingDirectMaterialChild, OrderPreCostingOperation, OrderPreCostingDirectProcess, OrderPreCostingValueLoss, OrderPreCostingSalesExpense, OrderPreCostingProfit,
+                    OrderProcurementCostingDirectMaterial, OrderProcurementCostingDirectMaterialConsumption, OrderProcurementCostingDirectMaterialChild, OrderProcurementCostingOperation, OrderProcurementCostingDirectProcess, OrderProcurementCostingValueLoss, OrderProcurementCostingSalesExpense, OrderProcurementCostingProfit);
 
 
                 try
@@ -5724,6 +5760,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                     drMSave["OrderPreCostingDirectMaterialId"] = PreCDMaterial["Id"];
                     drMSave["CostingItemId"] = item["CostingItemId"];
                     drMSave["OrderCostingMasterTemplateId"] = item["OrderCostingMasterTemplateId"];
+                    drMSave["ParentCostingItemId"] = PreCDMaterial["CostingItemId"];
 
                     drMSave["Consumption"] = 0;
                     drMSave["Rate"] = 0;
@@ -5928,7 +5965,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                     drMSave["OrderProcurementCostingDirectMaterialId"] = PreCDMaterial["Id"];
                     drMSave["CostingItemId"] = item["CostingItemId"];
                     drMSave["OrderCostingMasterTemplateId"] = item["OrderCostingMasterTemplateId"];
-
+                    drMSave["ParentCostingItemId"] = PreCDMaterial["CostingItemId"];
                     drMSave["Consumption"] = 0;
                     drMSave["Rate"] = 0;
                     drMSave["ValueLoss"] = 0;
@@ -5956,7 +5993,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         {
             try
             {
-                if (subMaterilaList==null)
+                if (subMaterilaList == null)
                     throw new Exception("Nothing to update");
 
                 DataSet dsMaster; DataRow drMSave; var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -6009,6 +6046,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
         #endregion
 
     }

@@ -3321,6 +3321,7 @@ namespace Aplos.Areas.Costings.Controllers
                     drMSave["PreCostingDirectMaterialId"] = PreCDMaterial["Id"];
                     drMSave["CostingItemId"] = item["CostingItemId"];
                     drMSave["CostingMasterTemplateId"] = item["CostingMasterTemplateId"];
+                    drMSave["ParentCostingItemId"] = PreCDMaterial["CostingItemId"];
 
                     drMSave["Consumption"] = 0;
                     drMSave["Rate"] = 0;
