@@ -170,12 +170,12 @@ namespace Library.HumanResource.Employee
                         {
                             dr["OutDone"] = false;
                             dr["InDone"] = true;
-                            dr["InDate"] = DateTime.Now.ToString("dd-MM-yyyy");
+                            dr["InDate"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
                             dr["InTime"] = DateTime.Now;
                         }
                         else
                         {
-                            dr["OutDate"] = DateTime.Now.ToString("dd-MM-yyyy");
+                            dr["OutDate"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
                             dr["OutTime"] = DateTime.Now;
                             dr["OutDone"] = true;
                             dr["InDone"] = true;
