@@ -839,6 +839,26 @@
                         <li><button ng-disabled="Segment=='Operation'" ng-click="showCostingItemListWithOperationPopUpInSubMaterial('PROCUREMENT');" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> </button></li>
                     </ul>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Costing Item</label>
+                    <label class="col-sm-4 control-label">{{SelectedLinePro.UserName}}</label>
+                    <label class="col-sm-2 control-label">Particulars</label>
+                    <label class="col-sm-4 control-label">{{SelectedLinePro.Particulars}}</label>
+                    <label class="col-sm-2 control-label">UOM</label>
+                    <label class="col-sm-4 control-label">{{SelectedLinePro.UnitOfMeasurement}}</label>
+                    <label class="col-sm-2 control-label">Consumption</label>
+                    <label class="col-sm-4 control-label">{{SelectedLinePro.Consumption}}</label>
+                    <label class="col-sm-2 control-label">Value Loss (%)</label>
+                    <label class="col-sm-4 control-label">{{SelectedLinePro.ValueLoss}}</label>
+                    <label class="col-sm-2 control-label">Min. Quantity</label>
+                    <label class="col-sm-4 control-label">{{SelectedLinePro.MinimumOfQuantity}}</label>
+                    <label class="col-sm-2 control-label">Rate</label>
+                    <label class="col-sm-4 control-label">{{SelectedLinePro.Rate}}</label>
+                    <label class="col-sm-2 control-label">Gross Consumption</label>
+                    <label class="col-sm-4 control-label">{{SelectedLinePro.GrossConsumption}}</label>
+                    <label class="col-sm-2 control-label">Gross Amount</label>
+                    <label class="col-sm-4 control-label">{{SelectedLinePro.GrossAmount}}</label>
+                </div>
                 <div class="col-xs-12 col-sm-12 col-md-12 table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -875,6 +895,7 @@
                         </tbody>
                     </table>
                 </div>
+                <label class="col-sm-6 control-label" style="color:blue">Note: Please enter consumption for each {{SelectedLinePro.UnitOfMeasurement}}</label>
             </div>
             <div class="modal-footer common-btn">
                 <button ng-click="SaveSubMaterialPro();CloseSubMaterialPro();" class="btn"><i class=""></i> Save </button>
