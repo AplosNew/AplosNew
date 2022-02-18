@@ -130,8 +130,7 @@ namespace Library.HumanResource.Employee
 				left join EmployeeInformation e on e.SystemId=d.ToMeet
 				left join org.Department p on p.Id=e.DepartmentId
 				left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId                     
-				where ExpectedDate=CONVERT(date,GETDATE()) and InDone='1' 
-                and OutDone='0'";
+				where InDone='1' and OutDone='0'";
                 return _sqlRepository.GetDataCollection(sqlx, null);
             }
             catch (Exception ex)
