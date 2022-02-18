@@ -161,13 +161,13 @@ namespace Library.HumanResource.Employee
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
                        
-                        dr["CardNo"] = item.CardNo;
-                        dr["Purpose"] = item.Purpose;
-                        dr["Remarks"] = item.Remarks;
-                        dr["NoOfPerson"] = item.NoOfPerson;
-                        dr["MobileNo"] = item.MobileNo;
                         if (item.param == "In")
                         {
+                            dr["CardNo"] = item.CardNo;
+                            dr["Purpose"] = item.Purpose;
+                            dr["Remarks"] = item.Remarks;
+                            dr["NoOfPerson"] = item.NoOfPerson;
+                            dr["MobileNo"] = item.MobileNo;
                             dr["OutDone"] = false;
                             dr["InDone"] = true;
                             dr["InDate"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
