@@ -130,8 +130,7 @@ namespace Library.HumanResource.Employee
 				left join EmployeeInformation e on e.SystemId=d.ToMeet
 				left join org.Department p on p.Id=e.DepartmentId
 				left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId                     
-				where ExpectedDate=CONVERT(date,GETDATE()) and InDone='1' 
-                and OutDone='0'";
+				where InDone='1' and OutDone='0'";
                 return _sqlRepository.GetDataCollection(sqlx, null);
             }
             catch (Exception ex)
@@ -161,21 +160,21 @@ namespace Library.HumanResource.Employee
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
                        
-                        dr["CardNo"] = item.CardNo;
-                        dr["Purpose"] = item.Purpose;
-                        dr["Remarks"] = item.Remarks;
-                        dr["NoOfPerson"] = item.NoOfPerson;
-                        dr["MobileNo"] = item.MobileNo;
                         if (item.param == "In")
                         {
+                            dr["CardNo"] = item.CardNo;
+                            dr["Purpose"] = item.Purpose;
+                            dr["Remarks"] = item.Remarks;
+                            dr["NoOfPerson"] = item.NoOfPerson;
+                            dr["MobileNo"] = item.MobileNo;
                             dr["OutDone"] = false;
                             dr["InDone"] = true;
-                            dr["InDate"] = DateTime.Now.ToString("dd-MM-yyyy");
+                            dr["InDate"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
                             dr["InTime"] = DateTime.Now;
                         }
                         else
                         {
-                            dr["OutDate"] = DateTime.Now.ToString("dd-MM-yyyy");
+                            dr["OutDate"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
                             dr["OutTime"] = DateTime.Now;
                             dr["OutDone"] = true;
                             dr["InDone"] = true;
