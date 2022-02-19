@@ -189,7 +189,7 @@ namespace Library.Service.Helpers
 		{
 			try
 			{
-				return ResolveFilePath(GetVirtualDirectory() + "/BOQ Attachment/");
+				return ResolveFilePath(GetVirtualDirectory() + "/BOQAttachment/");
 			}
 			catch
 			{

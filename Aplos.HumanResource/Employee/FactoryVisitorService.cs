@@ -130,8 +130,7 @@ namespace Library.HumanResource.Employee
 				left join EmployeeInformation e on e.SystemId=d.ToMeet
 				left join org.Department p on p.Id=e.DepartmentId
 				left join hkp.LegalDesignation l on l.Id=e.LegalDesignationId                     
-				where ExpectedDate=CONVERT(date,GETDATE()) and InDone='1' 
-                and OutDone='0'";
+				where InDone='1' and OutDone='0'";
                 return _sqlRepository.GetDataCollection(sqlx, null);
             }
             catch (Exception ex)
@@ -139,50 +138,57 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
-        public string SaveOutTime(IEnumerable<VisitorModel> DataToSave)
+        public string SaveInOutTime(IEnumerable<VisitorModel> DataToSave)
         {
             try
             {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
                 if (DataToSave.Count() == 0)
                 {
                     return "No Data Found";
                 }
                 var items = DataToSave.ToList();
-                var sql = @"update VisitorServiceData set 
-                OutTime=GETDATE(),OutDate=CONVERT(date,GETDATE()),OutDone=1
-                where Id='"+items[0].Id+"' and CardNo='"+items[0].CardNo+"'";
-
-                NewAttendanceProcessService apd = new NewAttendanceProcessService();
-                apd.UpdateStatus(sql);
-
-                return "true";
-
-
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-        }
-        public string SaveInTime(IEnumerable<VisitorModel> DataToSave)
-        {
-            try
-            {
-                if (DataToSave.Count() == 0)
+                con.OpenDataSetThroughAdapter("select * from dbo.VisitorServiceData where Id='"+items[0].Id+"'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    return "No Data Found";
-                }
-                var items = DataToSave.ToList();
-                var sql = @"update VisitorServiceData set 
-                InTime=GETDATE(),InDate=CONVERT(date,GETDATE()),InDone=1
-                where Id='" + items[0].Id + "' and CardNo='" + items[0].CardNo + "'";
-
-                NewAttendanceProcessService apd = new NewAttendanceProcessService();
-                apd.UpdateStatus(sql);
+                   
+                    foreach (VisitorModel item in DataToSave)
+                    {
+                   
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                       
+                        if (item.param == "In")
+                        {
+                            dr["CardNo"] = item.CardNo;
+                            dr["Purpose"] = item.Purpose;
+                            dr["Remarks"] = item.Remarks;
+                            dr["NoOfPerson"] = item.NoOfPerson;
+                            dr["MobileNo"] = item.MobileNo;
+                            dr["OutDone"] = false;
+                            dr["InDone"] = true;
+                            dr["InDate"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
+                            dr["InTime"] = DateTime.Now;
+                        }
+                        else
+                        {
+                            dr["OutDate"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
+                            dr["OutTime"] = DateTime.Now;
+                            dr["OutDone"] = true;
+                            dr["InDone"] = true;
+                        }
+                        dr["UpdatedBy"] = item.AddedBy;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = item.AddedFromIP;
+                        dr.EndEdit();
+                    }
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);
+                }               
 
                 return "true";
-
-
             }
             catch (Exception ex)
             {

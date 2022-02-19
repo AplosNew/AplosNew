@@ -115,7 +115,7 @@
                     </div>
 
                 </script>
-               
+
             </div>
         </div>
         <div class="common-btn" ng-show="poBoqItemList.length">
@@ -169,7 +169,7 @@
             <div class="form-group" id="div_docDate">
                 <label class="col-sm-4 control-label ">Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message ">
-                    <input type="text" name="PO Date"  ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
+                    <input type="text" name="PO Date" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
                 </div>
             </div>
         </div>
@@ -183,7 +183,7 @@
             <div class="form-group" id="div_docDate">
                 <label class="col-sm-4 control-label ">Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message ">
-                    <input type="text" name="Date"  ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                    <input type="text" name="Date" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
                 </div>
             </div>
             <div class="form-group" id="div_currency">
@@ -191,69 +191,111 @@
                 <div class="col-sm-3 show-message ">
                     <div class="select-style">
                         <select class="form-control" id="currency" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-                                ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
+                                ng-change="GetCurrencyExchangeRateList();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
                             <option value=""></option>
                         </select>
                     </div>
                 </div>
                 <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
                 <div class="col-sm-2 show-message pdl3">
-                    <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
+                    <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
                 </div>
             </div>
         </div>
-        <div class="clearfix"></div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Trading PO</label>
-                <div class="col-sm-1">
-                    <div class="checkbox-site">
-                        <label>
-                            <input type="checkbox" ng-disabled="productNew.OrderSpecific==='No' || poBoqItemListNew.length" ng-model="productNew.IsTradingPO" ng-change="changeIsTradingPO()">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
-                    </div>
-                </div>
-                <label class="col-sm-2 control-label" ng-show="productNew.TaxApplicable=='Mandatory'">Revers Charge</label>
-                <div class="col-sm-1" ng-show="productNew.TaxApplicable=='Mandatory'">
-                    <div class="checkbox-site">
-                        <label>
-                            <input type="checkbox" ng-disabled="!productNew.IsTaxApplicableChangeable" ng-model="productNew.IsTaxApplicable">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="clearfix"></div>
-
-        <div class="clearfix"></div>
-        <div class="col-sm-6 col-md-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Non Creditable</label>
-                <div class="col-sm-1">
-                    <div class="checkbox-site">
-                        <label>
-                            <input type="checkbox" ng-disabled="poBoqItemListNew.length>0" ng-model="productNew.IsNonCreditable">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
-                    </div>
-                </div>
-                <label class="col-sm-2 control-label" ng-show="productNew.TaxApplicable=='Mandatory'">Revers Charge</label>
-                <div class="col-sm-1" ng-show="productNew.TaxApplicable=='Mandatory'">
-                    <div class="checkbox-site">
-                        <label>
-                            <input type="checkbox" ng-disabled="!productNew.IsTaxApplicableChangeable" ng-model="productNew.IsTaxApplicable">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </fieldset>
+
+    <div class="col-md-12" ng-hide="isSubmitted=='No'">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Payment Term Info</legend>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select id="paymentTermId" class="form-control" name="Payment Term" ng-model="productNew.PaymentTermId" ng-change="changePaymentTerm();PaymentModeByPaymentTerm();" tabindex="12" required>
+                                <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-5 control-label">Payment Mode:{{productNew.PaymentMode}}</label>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+
+    @*<div class="col-md-12" ng-hide="isSubmitted=='No'">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Terms And Instruction</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Terms and Conditions</label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select id="TypeId" class="form-control" name="Terms And Conditions" ng-model="productNew.TermsAndConditionsId" ng-change="LoadTermsAndConditionGrid();" tabindex="12" required>
+                                    <option ng-repeat="option in TermsAndConditionsList" value="{{option.Id}}">{{option.TermsAndConditions}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style" ng-show="checkedByList.length">
+                                <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
+                                    <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Delivery Instruction (If Any)<sup></sup></label>
+                        <div class="col-sm-8 show-message">
+                            <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Special Instruction (If Any)<sup></sup></label>
+                        <div class="col-sm-8 show-message">
+                            <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" id="div_docNo">
+                        <label class="col-sm-5 control-label"><b>Discount Amount</b><sup>*</sup></label>
+                        <div class="col-sm-7 show-message">
+                            <input type="number" name="DiscountAmount" ng-model="productNew.DiscountAmount" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" id="div_docNonos">
+                        <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </div>*@
+
     <div class="clearfix"></div>
     <div class="col-md-6 text-left" style="padding-top: 17px;" ng-hide="isSubmitted=='No'">
         <div>
@@ -292,7 +334,7 @@
     </div>
     <div class="col-md-6 text-left" style="padding-top: 17px;" ng-hide="isSubmitted=='No'">
         <ul class="common-btn list-inline text-right">
-            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+            <li><button ng-click="detailPOSaveForBOQ();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionPOBOQ}}</button></li>
             <li><button ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             <li><button ng-click="Back();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back</button></li>
@@ -319,7 +361,6 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>RowId</th>
                                 <th>Material Group</th>
                                 <th>Material Master</th>
                                 <th>Article</th>
@@ -342,7 +383,6 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="x in poBoqItemListNew">
-                                <td>{{x.InventoryReceiveDetailId}}</td>
                                 <td>{{x.MaterialGroupMasterName}}</td>
                                 <td>{{x.UserName}}</td>
                                 <td>{{x.StandardName}}</td>

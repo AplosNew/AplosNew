@@ -146,12 +146,9 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     $scope.Griddata = [];
     $scope.POTypeStatus = 'Pending';
     $scope.getalldata = function () {
+        $scope.Griddata = [];
         if ($scope.POTypeStatus === 'Pending') {
             $scope.POTypeStatus = 'Pending'
-        }
-        else {
-
-            // $scope.POTypeStatus;
         }
 
         $http({

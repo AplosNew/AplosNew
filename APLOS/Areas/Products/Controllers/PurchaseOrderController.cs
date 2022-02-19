@@ -5136,6 +5136,44 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			}
 
 		}
+
+		[HttpPost, Authorize]
+		public JsonResult POBoqInsertUpdate(PurchaseOrder entity, string groupList, string boqmapList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			entity.CompanyGroupId = identity.CompanyGroupId;
+			entity.CompanyId = identity.CompanyId;
+			entity.PlantId = identity.PlantId;
+			if (identity.EmployeeId == entity.CheckedBy)
+			{
+				throw new CustomException("Please select another employee for Check by.");
+			}
+			
+				entity.CheckedBy = entity.CheckedBy;
+				entity.CheckedByStatus = "Pending";
+				entity.AuthorizedBy = null;
+				entity.AuthorizedByStatus = null;
+				entity.POType = "PO";
+				entity.IsApproved = false;
+
+			entity.IsClosed = false;
+			entity.MasterOrderId = null;
+			//entity.CheckedBy = "";
+			entity.AddedBy = null;
+			entity.EmployeeId = identity.EmployeeId;
+			if (groupList == null)
+			{
+				throw new CustomException("Please select Items");
+			}
+			else
+			{
+
+				List<InventoryMaterialViewModel> groupListDetailVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(groupList);
+				List<InventoryMaterialViewModel> boqmapListVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(boqmapList);
+				_purchseOrderDetailService.POBoqInsertUpdate(entity, groupListDetailVM, boqmapListVM, taxCategoryList, PoId);
+			}
+			return Json(new { entity, Message = AplosMessage.Success });
+		}
 		#endregion
 	}
 }
