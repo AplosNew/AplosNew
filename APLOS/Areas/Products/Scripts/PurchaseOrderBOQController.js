@@ -274,82 +274,101 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
     };
     $scope.poBoqItemListNew = [];
+    $scope.tempList = [];
     $scope.submitBOQItem = function () {
+        var poboqlist = [];
+        for (var i = 0; i < $scope.poBoqItemList.length; i++) {
+            poboqlist.push(Object.assign({}, $scope.poBoqItemList[i]));
+        }
+      
         try {
             $scope.poBoqItemListNew = [];
-            for (var i = 0; i < $scope.poBoqItemList.length; i++) {
-                if ((baseService.isUndefinedOrNull($scope.poBoqItemList[i].TransactionQty) || $scope.poBoqItemList[i].TransactionQty === 0) && $scope.poBoqItemList[i].CheckedStatus === true) {
+            $scope.tempList = [];
+           
+            for (var i = 0; i < poboqlist.length; i++) {
+                if ((baseService.isUndefinedOrNull(poboqlist[i].TransactionQty) || poboqlist[i].TransactionQty === 0) && poboqlist[i].CheckedStatus === true) {
                     ShowResult('Enter the Selected  Material Qty', 'failure');
                     return false;
                 }
-                if ($scope.poBoqItemList[i].CheckedStatus === true) {
-                    if ((parseFloat($scope.poBoqItemList[i].TransactionQty) + parseFloat($scope.poBoqItemList[i].OtherPOQty)) > parseFloat($scope.poBoqItemList[i].RequiredQtyPO)) {
+                if (poboqlist[i].CheckedStatus === true) {
+                    if ((parseFloat(poboqlist[i].TransactionQty) + parseFloat(poboqlist[i].OtherPOQty)) > parseFloat(poboqlist[i].RequiredQtyPO)) {
                         ShowResult('Trasaction qty can not grater than booking Qty', 'failure');
-                        $scope.poBoqItemList[i].TransactionQty = '';
+                        poboqlist[i].TransactionQty = '';
                         return false;
                     }
-                    if (baseService.isUndefinedOrNull($scope.poBoqItemList[i].TransactionQty)) {
+                    if (baseService.isUndefinedOrNull(poboqlist[i].TransactionQty)) {
                         ShowResult('Enter the current Qty.Zero not allowed', 'failure');
                         return false;
                     }
-                    if ($scope.poBoqItemList[i].TransactionQty < 0) {
+                    if (poboqlist[i].TransactionQty < 0) {
                         ShowResult('Negative Qty  not allowed', 'failure');
                         return false;
                     }
-                    if ($scope.poBoqItemList[i].TransactionQty === 0 || $scope.poBoqItemList[i].TransactionQty === 0.00 || $scope.poBoqItemList[i].TransactionQty === 0.0) {
+                    if (poboqlist[i].TransactionQty === 0 || poboqlist[i].TransactionQty === 0.00 || poboqlist[i].TransactionQty === 0.0) {
                         ShowResult('Enter the current Qty.Zero not allowed', 'failure');
                         return false;
                     }
-                    if (baseService.isUndefinedOrNull($scope.poBoqItemList[i].TransactionRate)) {
+                    if (baseService.isUndefinedOrNull(poboqlist[i].TransactionRate)) {
                         ShowResult('Enter the current rate.Zero not allowed', 'failure');
                         return false;
                     }
-                    if ($scope.poBoqItemList[i].TransactionRate === 0 || $scope.poBoqItemList[i].TransactionRate === 0.0 || $scope.poBoqItemList[i].TransactionRate === 0.00) {
+                    if (poboqlist[i].TransactionRate === 0 || poboqlist[i].TransactionRate === 0.0 || poboqlist[i].TransactionRate === 0.00) {
                         ShowResult('Enter the current rate.Zero not allowed', 'failure');
                         return false;
                     }
-                    if ($scope.poBoqItemList[i].RequiredQtyApproved === 'No') {
+                    if (poboqlist[i].RequiredQtyApproved === 'No') {
                         ShowResult('Required Qty not yet Approved.So you can not take this material', 'failure');
                         return false;
                     }
-                    if ($scope.poBoqItemList[i].IncompleteMaterial === 'Yes') {
+                    if (poboqlist[i].IncompleteMaterial === 'Yes') {
                         ShowResult('This is incomplete material.So you can not take this material', 'failure');
                         return false;
                     }
 
                     else {
-                        $scope.poBoqItemList[i].TrnAmount = Math.round(($scope.poBoqItemList[i].TransactionQty * $scope.poBoqItemList[i].TransactionRate) * 100 + Number.EPSILON) / 100
                         var getRow = $filter("filter")($scope.poBoqItemListNew, {
-                            "MaterialMasterId": $scope.poBoqItemList[i].MaterialMasterId, "ArticleId": $scope.poBoqItemList[i].ArticleId
-                            , "FirstCharacteristicsValueId": $scope.poBoqItemList[i].FirstCharacteristicsValueId
-                            , "SecondCharacteristicsValueId": $scope.poBoqItemList[i].SecondCharacteristicsValueId
-                            , "ThitrdCharacteristicsValueId": $scope.poBoqItemList[i].ThitrdCharacteristicsValueId
-                            , "GroupId": $scope.poBoqItemList[i].GroupId
+                            "MaterialMasterId": poboqlist[i].MaterialMasterId, "ArticleId": poboqlist[i].ArticleId
+                            , "FirstCharacteristicsValueId": poboqlist[i].FirstCharacteristicsValueId
+                            , "SecondCharacteristicsValueId": poboqlist[i].SecondCharacteristicsValueId
+                            , "ThitrdCharacteristicsValueId": poboqlist[i].ThitrdCharacteristicsValueId
+                            , "GroupId": poboqlist[i].GroupId
                         });
+                        var temp = {};
+                        temp = poboqlist[i];
+                        $scope.tempList.push(temp);
+                        temp = {};
 
                         if (getRow.length == 0) {
-                            $scope.poBoqItemListNew.push($scope.poBoqItemList[i]);
-                        } else {
+                            poboqlist[i].TrnAmount = Math.round((poboqlist[i].TransactionQty * poboqlist[i].TransactionRate) * 100 + Number.EPSILON) / 100
+                            poboqlist[i].TransactionQty = Math.round((poboqlist[i].TransactionQty) * 100 + Number.EPSILON) / 100
+                            $scope.poBoqItemListNew.push(poboqlist[i]);
+                        }
+                        else {
                             for (var j = 0; j < $scope.poBoqItemListNew.length; j++) {
                                 var row = $scope.poBoqItemListNew[j];
-                                if ( row.MaterialMasterId == $scope.poBoqItemList[i].MaterialMasterId
-                                    && row.ArticleId == $scope.poBoqItemList[i].ArticleId
-                                    && row.FirstCharacteristicsValueId == $scope.poBoqItemList[i].FirstCharacteristicsValueId
-                                    && row.SecondCharacteristicsValueId == $scope.poBoqItemList[i].SecondCharacteristicsValueId
-                                    && row.ThitrdCharacteristicsValueId == $scope.poBoqItemList[i].ThitrdCharacteristicsValueId
-                                    && row.GroupId == $scope.poBoqItemList[i].GroupId
-                                )
-                                $scope.poBoqItemListNew[j].TransactionQty = Math.round($scope.poBoqItemListNew[j].TransactionQty * 100 + Number.EPSILON) / 100 + Math.round($scope.poBoqItemList[i].TransactionQty * 100 + Number.EPSILON) / 100;
-                                $scope.poBoqItemListNew[j].TrnAmount = Math.round($scope.poBoqItemListNew[j].TrnAmount * 100 + Number.EPSILON) / 100 + Math.round($scope.poBoqItemList[i].TrnAmount * 100 + Number.EPSILON) / 100;
+                                if (row.MaterialMasterId == getRow[0].MaterialMasterId
+                                    && row.ArticleId == getRow[0].ArticleId
+                                    && row.FirstCharacteristicsValueId == getRow[0].FirstCharacteristicsValueId
+                                    && row.SecondCharacteristicsValueId == getRow[0].SecondCharacteristicsValueId
+                                    && row.ThitrdCharacteristicsValueId == getRow[0].ThitrdCharacteristicsValueId
+                                    && row.GroupId == getRow[0].GroupId
+                                ) {
+                                    var currentqty = Math.round(poboqlist[i].TransactionQty * 100 + Number.EPSILON) / 100;
+                                    var currentamt = Math.round((poboqlist[i].TransactionQty * poboqlist[i].TransactionRate) * 100 + Number.EPSILON) / 100;
+                                    $scope.poBoqItemListNew[j].TransactionQty = Math.round($scope.poBoqItemListNew[j].TransactionQty * 100 + Number.EPSILON) / 100 + currentqty;
+                                    $scope.poBoqItemListNew[j].TrnAmount = Math.round($scope.poBoqItemListNew[j].TrnAmount * 100 + Number.EPSILON) / 100 + currentamt;
+                                    currentqty = 0;
+                                    currentamt = 0;
+                                }
+
                             }
                         }
-                        $scope.tempList.push($scope.poBoqItemList[i]);
                     }
                 }
             }
             $scope.UOMValidation();
             $scope.groupList = [];
-            $scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
+            //$scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
         } catch (e) {
         }
     };
@@ -378,7 +397,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         }
         return newlist;
     };
-    $scope.tempList = [];
+
     $scope.UOMValidation = function () {
         var getRow3
         $scope.invalid = false;
@@ -433,7 +452,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         method: 'POST',
                         url: 'Products/PurchaseOrder/POBoqInsertUpdate',
                         data: {
-                              entity: $scope.productNew
+                            entity: $scope.productNew
                             , groupList: JSON.stringify($scope.poBoqItemListNew)
                             , boqmapList: JSON.stringify($scope.tempList)
                             , taxCategoryList: $scope.taxCategoryList//$scope.taxCategoryList
