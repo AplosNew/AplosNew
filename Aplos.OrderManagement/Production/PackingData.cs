@@ -121,7 +121,7 @@ namespace Library.OrderManagement.Production
                         for (int j = 0; j < Cartons.Count; j++)
                         {
 
-                            if (Cartons[j]["LotNo"].ToString() == jj["LotNo"].ToString() && Cartons[j]["ProductCode"].ToString() == jj["ProductCode"].ToString() && Cartons[j]["PO"].ToString() == jj["PONo"].ToString())
+                            if (Cartons[j]["LotNo"].ToString().Trim() == jj["LotNo"].ToString().Trim() && Cartons[j]["ProductCode"].ToString().Trim() == jj["ProductCode"].ToString().Trim() && Cartons[j]["PO"].ToString().Trim() == jj["PONo"].ToString().Trim())
                             {
                                 var sqls = @"Update dbo.ItemScanChild Set PackingId = '" + jj["Id"].ToString() + "' , UpdatedBy = '" + identity.Name + "' ,BookedDate = GETDATE(), Booked = 1  where RefNo IN(" + Cartons[j]["RefNo"] + @")";
 
@@ -467,7 +467,7 @@ namespace Library.OrderManagement.Production
                         dbo.ItemScanChild isc 
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
                         left join trn.POLotReference pol on pol.Id = isc.PackingId
-                        where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                        where isch.WorkDate <= '" + ToDate + @"'
                         and isc.IsDespatch = 0 and isc.Booked = 0
                         --and isc.InventoryReceiveDetailId is not null
                          group by isc.ProductCode , POId , isc.LotNo
@@ -476,14 +476,14 @@ namespace Library.OrderManagement.Production
                         Select isc.ProductCode , isc.POId , isnull(sum(isc.NetWeight),0) as Despatch from
                         dbo.ItemScanChild isc 
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
-                        where isc.IsDespatch = 1 and isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                        where isc.IsDespatch = 1 and isch.WorkDate <= '" + ToDate + @"'
                         group by ProductCode , POId
                         ) desp on desp.ProductCode = sc.ProductCode and desp.POId = sc.POId
                         left join (
                         Select isc.ProductCode , isc.POId ,isc.LotNo, isnull(sum(isc.NetWeight),0) as BookQty from
                         dbo.ItemScanChild isc 
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
-                        where isc.Booked = 1 and isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                        where isc.Booked = 1 and isch.WorkDate <= '" + ToDate + @"'
                         group by ProductCode , POId , LotNo
                         ) as bb on  bb.ProductCode = sc.ProductCode and bb.LotNo = sc.LotNo and bb.POId=sc.POId 
                         left join(

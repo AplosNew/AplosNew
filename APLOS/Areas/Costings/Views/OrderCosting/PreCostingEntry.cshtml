@@ -830,6 +830,26 @@
                         <li><button ng-disabled="Segment=='Operation'" ng-click="showCostingItemListWithOperationPopUpInSubMaterial('PRE');" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> </button></li>
                     </ul>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Costing Item</label>
+                    <label class="col-sm-3 control-label">{{SelectedLine.UserName}}</label>
+                    <label class="col-sm-3 control-label">Particulars</label>
+                    <label class="col-sm-3 control-label">{{SelectedLine.Particulars}}</label>
+                    <label class="col-sm-3 control-label">UOM</label>
+                    <label class="col-sm-3 control-label">{{SelectedLine.UnitOfMeasurement}}</label>
+                    <label class="col-sm-3 control-label">Consumption</label>
+                    <label class="col-sm-3 control-label">{{SelectedLine.Consumption}}</label>
+                    <label class="col-sm-3 control-label">Value Loss (%)</label>
+                    <label class="col-sm-3 control-label">{{SelectedLine.ValueLoss}}</label>
+                    <label class="col-sm-3 control-label">Min. Quantity</label>
+                    <label class="col-sm-3 control-label">{{SelectedLine.MinimumOfQuantity}}</label>
+                    <label class="col-sm-3 control-label">Rate</label>
+                    <label class="col-sm-3 control-label">{{SelectedLine.Rate}}</label>
+                    <label class="col-sm-3 control-label">Gross Consumption</label>
+                    <label class="col-sm-3 control-label">{{SelectedLine.GrossConsumption}}</label>
+                    <label class="col-sm-3 control-label">Gross Amount</label>
+                    <label class="col-sm-3 control-label">{{SelectedLine.GrossAmount}}</label>
+                </div>
                 <div class="col-xs-12 col-sm-12 col-md-12 table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -850,11 +870,11 @@
                                 @*<td>{{item.PCDMCID}}></td>*@
                                 <td>{{item.CostingMasterTemplate}}</td>
                                 <td>{{item.CostingItemName}}</td>
-                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" ng-model="item.Consumption" class="form-control" /></td>
-                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" ng-model="item.ValueLoss" class="form-control" /></td>
-                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" ng-model="item.Rate" class="form-control" /></td>
-                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" disabled ng-model="item.GrossConsumption" class="form-control" /></td>
-                                <td><input type="number" step="any"ng-change="CalculationSubMaterial(item,$index)" disabled ng-model="item.GrossAmount" class="form-control" /></td>
+                                <td><input type="number" step="any" ng-change="CalculationSubMaterial(item,$index)" ng-model="item.Consumption" class="form-control" /></td>
+                                <td><input type="number" step="any" ng-change="CalculationSubMaterial(item,$index)" ng-model="item.ValueLoss" class="form-control" /></td>
+                                <td><input type="number" step="any" ng-change="CalculationSubMaterial(item,$index)" ng-model="item.Rate" class="form-control" /></td>
+                                <td><input type="number" step="any" ng-change="CalculationSubMaterial(item,$index)" disabled ng-model="item.GrossConsumption" class="form-control" /></td>
+                                <td><input type="number" step="any" ng-change="CalculationSubMaterial(item,$index)" disabled ng-model="item.GrossAmount" class="form-control" /></td>
                                 <td>
                                     <div class="common-btn">
                                         <ul class="list-inline text-center">
@@ -866,6 +886,7 @@
                         </tbody>
                     </table>
                 </div>
+                <label class="col-sm-6 control-label" style="color:blue">Note: Please enter consumption for each {{SelectedLine.UnitOfMeasurement}}</label>
             </div>
             <div class="modal-footer common-btn">
                 <button ng-click="SaveSubMaterial();CloseSubMaterial();" class="btn"><i class=""></i> Save </button>

@@ -537,7 +537,7 @@ namespace Aplos.MaterialManagement
 							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
 							)PO ON PO.GRNId = IR.Id
-                        WHERE  IR.CheckedByStatus='Checked' And IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 1 ANd IR.POId is null AND IR.GRNType='GRN' Order by IR.GRNDate ASC";
+                        WHERE  IR.CheckedByStatus='Checked' And IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.AuthorizedByStatus ='For Approval' ANd IR.POId is null AND IR.GRNType='GRN' Order by IR.GRNDate ASC";
 
 
 				return _sqlRepository.GetDataCollection(sql);

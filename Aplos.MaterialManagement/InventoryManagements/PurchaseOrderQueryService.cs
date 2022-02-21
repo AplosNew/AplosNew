@@ -36,7 +36,9 @@ namespace Library.MaterialManagement.InventoryManagements
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             
                     var sql = "";
-                    sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.Sequence Sequence1
+                    sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
+                        ,GroupId=CASE WHEN isnull(b.POCriteria,'CostingItem')='CostingItem' THEN b.CostingItemId ELSE b.Id END
+                        ,b.Sequence Sequence1
 						,b.MasterOrderItemId
 						,moi.MasterOrderId
 						,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
@@ -47,6 +49,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						, b.VendorId
 						,b.SalesOrderId
 						,mm.Id MaterialMasterId,mma.Id ArticleId
+                        ,IsNULL(MGA.UserName,'') AS MaterialGroupMasterName
 						,IsNULL(mm.UserName,'') AS UserName
 						,IsNULL(mma.StandardName,'') AS StandardName
 						,IsNULL(p.UserName,'') AS Vendor
@@ -91,6 +94,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                        LEFT OUTER JOIN MST.MaterialGroupMaster AS MGA ON MGA.Id=mm.MaterialGroupMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
 						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
 						LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
@@ -120,7 +124,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						join CostingBOQSalesOrder BSO on b.CostingBOQMasterId=Bso.CostingBOQMasterId
 						join trn.SalesOrder SO ON SO.Id=bso.SalesOrderId
 						join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
-						where MOI.ContractId='"+ ContractId + @"'
+						where MOI.ContractId='" + ContractId + @"'
 						)
 						AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='"+ VendorId + @"')
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
@@ -160,20 +164,18 @@ namespace Library.MaterialManagement.InventoryManagements
             {
                 try
                 {
-                    //string whereClause = @"WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
-                    //            AND isnull(B.MasterOrderItemId,'') NOT IN (
-                    //            select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
-                    //            join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
-                    //            WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + identity.PlantId + @"'
-                    //        )
-
-                                            //";
-                    string whereClause = @"WHERE (b.VendorId='" + VendorId + @"' OR ISNULL(b.VendorId,'')='')
+                    string whereClause = @"WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
                                 AND isnull(B.MasterOrderItemId,'') NOT IN (
                                 select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
                                 join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
                                 WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + identity.PlantId + @"'
-                            )  AND (moi.ContractId='" + ContractId + @"' OR ISNULL( b.CostingBOQMasterId,'')<>'') ";
+                            )";
+                    //string whereClause = @"WHERE (b.VendorId='" + VendorId + @"' OR ISNULL(b.VendorId,'')='')
+                    //            AND isnull(B.MasterOrderItemId,'') NOT IN (
+                    //            select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
+                    //            join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
+                    //            WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + identity.PlantId + @"'
+                    //        )  AND (moi.ContractId='" + ContractId + @"' OR ISNULL( b.CostingBOQMasterId,'')<>'') ";
 
                     if (istradingPO)
                     {

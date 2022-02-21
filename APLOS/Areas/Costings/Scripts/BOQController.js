@@ -305,6 +305,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     $scope.onBeginPBUpload = function (args) {
         try {
             args['data'] = args.model.Data;
+            $scope.GetItemList();
         } catch (e) {
             args.cancel = true;
             ShowResult(e, 'Error');

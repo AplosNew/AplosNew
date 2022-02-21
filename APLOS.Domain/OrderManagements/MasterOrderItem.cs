@@ -79,6 +79,7 @@ namespace Library.Model.OrderManagements
         public string PartyId { get; set; }
         public string ContractId { get; set; }
         public string UOMId { get; set; }
+        public string OrderCostingMasterTemplateId { get; set; }
 
         #endregion Navigation Properties
     }

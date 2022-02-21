@@ -121,46 +121,71 @@ namespace Library.HumanResource.Report.Employee
                 sheet1.Range[xlsRow, colSl].ColumnWidth = 7;
 
                 xlsCol += 1;
-                colBudgetCode = xlsCol;
-                sheet1.Range[xlsRow, colBudgetCode].Text = "Budget Code";
-                sheet1.Range[xlsRow, colBudgetCode].ColumnWidth = 10;
-
-
-
-                xlsCol += 1;
                 int colPlant = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Plant";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+
+                xlsCol += 1;
+                int colDiv = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Division";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+
                 xlsCol += 1;
                 int colEntity = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Entity";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+
+                xlsCol += 1;
+                int colUnit = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Unit";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                
+
                 xlsCol += 1;
                 int colDepartment = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Department";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                
                 xlsCol += 1;
                 int colSection = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Section";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                
                 xlsCol += 1;
                 int colSubSection = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "SubSection";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
 
                 xlsCol += 1;
-                colLegalDesignation = xlsCol;
-                sheet1.Range[xlsRow, colLegalDesignation].Text = "Legal Designation";
-                sheet1.Range[xlsRow, colLegalDesignation].ColumnWidth = 25;
-                //xlsCol += 1;
-                //colActivity = xlsCol;
-                //sheet1.Range[xlsRow, colActivity].Text = "Activity";
-                //sheet1.Range[xlsRow, colActivity].ColumnWidth = 20;
+                colActivity = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Activity";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
 
                 xlsCol += 1;
-                colRemarks = xlsCol;
-                sheet1.Range[xlsRow, colRemarks].Text = "Remarks";
-                sheet1.Range[xlsRow, colRemarks].ColumnWidth = 25;
+                int colEmpType = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Employee Type";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+
+                xlsCol += 1;
+                int colDesignation = xlsCol;
+                sheet1.Range[xlsRow, colDesignation].Text = "Designation";
+                sheet1.Range[xlsRow, colDesignation].ColumnWidth = 25;
+
+                //xlsCol += 1;
+                //int colFactor = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Factor";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+
+                xlsCol += 1;
+                int colShift = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Shift";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+
+                xlsCol += 1;
+                colBudgetCode = xlsCol;
+                sheet1.Range[xlsRow, colBudgetCode].Text = "Budget Code";
+                sheet1.Range[xlsRow, colBudgetCode].ColumnWidth = 10;
+
 
                 xlsCol += 1;
                 colTotalMP = xlsCol;
@@ -171,6 +196,11 @@ namespace Library.HumanResource.Report.Employee
                 colBudgtedMP = xlsCol;
                 sheet1.Range[xlsRow, colBudgtedMP].Text = "Bugeted MP";
                 sheet1.Range[xlsRow, colBudgtedMP].ColumnWidth = 14;
+
+                xlsCol += 1;
+                int colDepMP = xlsCol;
+                sheet1.Range[xlsRow, colDepMP].Text = "Deployed MP";
+                sheet1.Range[xlsRow, colDepMP].ColumnWidth = 14;
 
                 xlsCol += 1;
                 colDiff = xlsCol;
@@ -208,18 +238,27 @@ namespace Library.HumanResource.Report.Employee
                     try
                     {
                         sheet1.Range[xlsRow, colSl].Text = SLNo.ToString();
-                        sheet1.Range[xlsRow, colBudgetCode].Text = dtMPBudgetDesig.Rows[i]["BudgetCode"].ToString();
-                        sheet1.Range[xlsRow, colLegalDesignation].Text = dtMPBudgetDesig.Rows[i]["LegalDesignation"].ToString();
                         sheet1.Range[xlsRow, colPlant].Text = dtMPBudgetDesig.Rows[i]["PlantName"].ToString();
+                        sheet1.Range[xlsRow, colDiv].Text = dtMPBudgetDesig.Rows[i]["Division"].ToString();
                         sheet1.Range[xlsRow, colEntity].Text = dtMPBudgetDesig.Rows[i]["EntityName"].ToString();
+                        sheet1.Range[xlsRow, colUnit].Text = dtMPBudgetDesig.Rows[i]["Unit"].ToString();
                         sheet1.Range[xlsRow, colDepartment].Text = dtMPBudgetDesig.Rows[i]["DepartmentName"].ToString();
                         sheet1.Range[xlsRow, colSection].Text = dtMPBudgetDesig.Rows[i]["SectionName"].ToString();
                         sheet1.Range[xlsRow, colSubSection].Text = dtMPBudgetDesig.Rows[i]["SubSectionName"].ToString();
+                        sheet1.Range[xlsRow, colActivity].Text = dtMPBudgetDesig.Rows[i]["Activity"].ToString();
+                        sheet1.Range[xlsRow, colEmpType].Text = dtMPBudgetDesig.Rows[i]["EmployeeType"].ToString();
+                        sheet1.Range[xlsRow, colDesignation].Text = dtMPBudgetDesig.Rows[i]["GivenDesignation"].ToString();
+                        //sheet1.Range[xlsRow, colFactor].Text = dtMPBudgetDesig.Rows[i]["Factor"].ToString();
+                        sheet1.Range[xlsRow, colShift].Text = dtMPBudgetDesig.Rows[i]["Shifts"].ToString();
+
+                        sheet1.Range[xlsRow, colBudgetCode].Text = dtMPBudgetDesig.Rows[i]["BudgetCode"].ToString();
+                       
                         sheet1.Range[xlsRow, colRequirement].Text = dtMPBudgetDesig.Rows[i]["Requirement"].ToString();
 
                         //sheet1.Range[xlsRow, colActivity].Text = dtMPBudgetDesig.Rows[i]["Activity"].ToString();
-                        sheet1.Range[xlsRow, colRemarks].Text = dtMPBudgetDesig.Rows[i]["Remarks"].ToString();
+                        //sheet1.Range[xlsRow, colRemarks].Text = dtMPBudgetDesig.Rows[i]["Remarks"].ToString();
                         sheet1.Range[xlsRow, colBudgtedMP].Number = clsStaticInfo.dbl(dtMPBudgetDesig.Rows[i]["BudgetNo"].ToString());
+                        sheet1.Range[xlsRow, colDepMP].Number = clsStaticInfo.dbl(dtMPBudgetDesig.Rows[i]["Deployed"].ToString());
                         sheet1.Range[xlsRow, colTotalMP].Number = clsStaticInfo.dbl(dtMPBudgetDesig.Rows[i]["totalEmp"].ToString());
                         sheet1.Range[xlsRow, colDiff].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBudgtedMP) + xlsRow + "-" + clsStaticInfo.GetxlsCol(colTotalMP) + (xlsRow) + ")";
                         sheet1.Range[xlsRow, colDiffReq].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colRequirement) + xlsRow + "-" + clsStaticInfo.GetxlsCol(colTotalMP) + (xlsRow) + ")";
@@ -232,14 +271,14 @@ namespace Library.HumanResource.Report.Employee
                         throw ex;
                     }
                 }
-                sheet1.Range[xlsRow, colRemarks].Text = "Total";
+                sheet1.Range[xlsRow, colBudgetCode].Text = "Total";
 
                 sheet1.Range[xlsRow, colTotalMP].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalMP) + startXlsRow + ":" + clsStaticInfo.GetxlsCol(colTotalMP) + (xlsRow - 1) + ")";
                 sheet1.Range[xlsRow, colDiff].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colDiff) + startXlsRow + ":" + clsStaticInfo.GetxlsCol(colDiff) + (xlsRow - 1) + ")";
                 sheet1.Range[xlsRow, colRequirement].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colRequirement) + startXlsRow + ":" + clsStaticInfo.GetxlsCol(colRequirement) + (xlsRow - 1) + ")";
                 sheet1.Range[xlsRow, colDiffReq].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colDiffReq) + startXlsRow + ":" + clsStaticInfo.GetxlsCol(colDiffReq) + (xlsRow - 1) + ")";
 
-                sheet1.Range[xlsRow, colRemarks, xlsRow, colDiffReq].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, colBudgetCode, xlsRow, colDiffReq].CellStyle.Font.Bold = true;
 
 
                 sheet1.Range[xlsRow, colBudgtedMP].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBudgtedMP) + startXlsRow + ":" + clsStaticInfo.GetxlsCol(colBudgtedMP) + (xlsRow - 1) + ")";
@@ -867,17 +906,56 @@ namespace Library.HumanResource.Report.Employee
         {
 
 
-            string strSql = @"SELECT MB.Code BudgetCode, B.BudgetCodeId,B.LegalDesignationId,ld.UserName LegalDesignation,plant.UserName PlantName,plant.Id PlantId,ENt.UserName EntityName,ENt.Id EntityId
-								 ,Dept.UserName DepartmentName,Dept.Id DepartmentId, Sec.UserName SectionName, Sec.id Sectionid, SSec.Id SubSectionId,SSec.UserName SubSectionName, DB.Activity, DB.Remarks
-								 ,SUM(B.BudgetNo) AS BudgetNo,SUM(Actual) AS totalEmp,sum(B.Requirement) Requirement  
+            //   string strSql = @"SELECT plant.UserName PlantName, plant.Id PlantId, dd.UserName as Division ,ENt.UserName EntityName,ENt.Id EntityId ,
+            //                       uu.UserName as Unit, Dept.UserName DepartmentName,Dept.Id DepartmentId, Sec.UserName SectionName, Sec.id Sectionid,
+            //                       SSec.Id SubSectionId,SSec.UserName SubSectionName, DB.Activity , ec.UserName as EmployeeType,B.LegalDesignationId,ld.UserName LegalDesignation ,
+            //                       ld.Factor , sd.UserName as Shifts
+            //                       ,MB.Code BudgetCode, isnull(Sum(Cast (Deployment as numeric)),0) as Deployed
+            //,SUM(B.BudgetNo) AS BudgetNo,SUM(Actual) AS totalEmp,sum(B.Requirement) Requirement 
+            //                           FROM  (
+            //SELECT BudgetCodeId,LegalDesignationId,BudgetNo,0 AS Actual,ISNULL(Activity,'') Activity,ISNULL(Remarks,'') Remarks,ISNULL(Requirement,0) Requirement FROM DesignationBudget
+            //UNION ALL
+            //SELECT BudgetCode,LegalDesignationId,0 AS BudgetNo,COUNT(*),'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
+            //                           WHERE (DOJ<='" + Date + @"' AND (DOS IS NULL OR DOS >= '" + Date + @"'))
+            //GROUP BY BudgetCode,LegalDesignationId
+            //) B
+            //  LEFT JOIN HKP.LegalDesignation LD ON LD.Id = B.LegalDesignationId 
+            //                        LEFT JOIN MST.ManpowerBudget MB ON MB.Id = B.BudgetCodeId
+            //                        LEFT JOIN DesignationBudget DB ON DB.BudgetCodeId = B.BudgetCodeId
+
+            //                        LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+            //                        LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
+            //                        lEFT JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+            //                        lEFT JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+
+            //                        LEFT OUTER JOIN [ORG].[Plant] AS plant ON plant.id = ENT.PlantId
+            //                        LEFT OUTER JOIN [ORG].Department AS Dept ON Dept.Id = PO.DepartmentId
+            //                        LEFT OUTER JOIN [ORG].Section AS Sec ON Sec.Id = PO.SectionId
+            //                        LEFT OUTER JOIN [ORG].SubSection AS SSec ON SSec.Id = PO.SubSectionId 
+            //                        left outer join org.Division dd on dd.Id = PO.DivisionId
+            //left outer join org.Unit uu on uu.Id = ENT.UnitId
+            //left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = B.LegalDesignationId
+            //left join mst.DesignationMaster dm on dm.id = ddm.DesignationMasterId
+            //left join hkp.EmployeeCategory ec on ec.ID = dm.EmployeeCategoryId
+            //left join ShiftDefination sd on sd.SystemID = mb.ShiftDefinationId";
+            string strSql = @"SELECT plant.UserName PlantName, plant.Id PlantId, dd.UserName as Division ,ENt.UserName EntityName,ENt.Id EntityId ,
+                                uu.UserName as Unit, Dept.UserName DepartmentName,Dept.Id DepartmentId, Sec.UserName SectionName, Sec.id Sectionid,
+                                SSec.Id SubSectionId,SSec.UserName SubSectionName, DB.Activity , ec.UserName as EmployeeType,B.GivenDesignationId,ld.UserName GivenDesignation ,
+                                 sd.UserName as Shifts
+                                ,MB.Code BudgetCode, isnull(Sum(Cast (Deployment as numeric)),0) as Deployed
+								 ,SUM(B.BudgetNo) AS BudgetNo,SUM(Actual) AS totalEmp,sum(B.Requirement) Requirement 
                                     FROM  (
-								 SELECT BudgetCodeId,LegalDesignationId,BudgetNo,0 AS Actual,ISNULL(Activity,'') Activity,ISNULL(Remarks,'') Remarks,ISNULL(Requirement,0) Requirement FROM DesignationBudget
-								 UNION ALL
-								 SELECT BudgetCode,LegalDesignationId,0 AS BudgetNo,COUNT(*),'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
+								 --SELECT BudgetCodeId,LegalDesignationId,BudgetNo,0 AS Actual,ISNULL(Activity,'') Activity,ISNULL(Remarks,'') Remarks,ISNULL(Requirement,0) Requirement FROM DesignationBudget
+								 --UNION ALL
+								 --SELECT BudgetCode,LegalDesignationId,0 AS BudgetNo,COUNT(*),'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
+         --                            WHERE (DOJ<='" + Date + @"' AND (DOS IS NULL OR DOS >= '" + Date + @"'))
+								 --GROUP BY BudgetCode,LegalDesignationId
+
+								 SELECT BudgetCode as BudgetCodeId,GivenDesignationId,0 AS BudgetNo,COUNT(*) as Actual,'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
                                     WHERE (DOJ<='" + Date + @"' AND (DOS IS NULL OR DOS >= '" + Date + @"'))
-								 GROUP BY BudgetCode,LegalDesignationId
+								 GROUP BY BudgetCode,GivenDesignationId
 								 ) B
-								   LEFT JOIN HKP.LegalDesignation LD ON LD.Id = B.LegalDesignationId 
+								   LEFT JOIN HKP.Designation LD ON LD.Id = B.GivenDesignationId
                                  LEFT JOIN MST.ManpowerBudget MB ON MB.Id = B.BudgetCodeId
                                  LEFT JOIN DesignationBudget DB ON DB.BudgetCodeId = B.BudgetCodeId
 
@@ -889,7 +967,13 @@ namespace Library.HumanResource.Report.Employee
                                  LEFT OUTER JOIN [ORG].[Plant] AS plant ON plant.id = ENT.PlantId
                                  LEFT OUTER JOIN [ORG].Department AS Dept ON Dept.Id = PO.DepartmentId
                                  LEFT OUTER JOIN [ORG].Section AS Sec ON Sec.Id = PO.SectionId
-                                 LEFT OUTER JOIN [ORG].SubSection AS SSec ON SSec.Id = PO.SubSectionId ";
+                                 LEFT OUTER JOIN [ORG].SubSection AS SSec ON SSec.Id = PO.SubSectionId 
+                                 left outer join org.Division dd on dd.Id = PO.DivisionId
+								 left outer join org.Unit uu on uu.Id = ENT.UnitId
+								 --left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = B.GivenDesignationId
+								 left join mst.DesignationMaster dm on dm.DesignationId = B.GivenDesignationId
+								 left join hkp.EmployeeCategory ec on ec.ID = dm.EmployeeCategoryId
+								 left join ShiftDefination sd on sd.SystemID = mb.ShiftDefinationId";
             if (string.IsNullOrEmpty(plantIds))
             {
 
@@ -900,11 +984,11 @@ namespace Library.HumanResource.Report.Employee
 
                 strSql += @" WHERE C.Id = '" + companyId + @"' and plant.Id IN (" + plantIds + @")";
             }
-            strSql += @"  GROUP BY  B.BudgetCodeId,B.LegalDesignationId,MB.Code,  DB.Activity, DB.Remarks
+            strSql += @"  GROUP BY  B.BudgetCodeId,B.GivenDesignationId,MB.Code,  DB.Activity, DB.Remarks
 								 ,plant.UserName ,ENt.UserName ,ld.UserName
 								 ,Dept.UserName , Sec.UserName , SSec.UserName 
 								 ,plant.Id ,ENt.Id ,ld.Id
-								 ,Dept.Id , Sec.Id , SSec.Id ";
+								 ,Dept.Id , Sec.Id , SSec.Id, dd.UserName , uu.UserName , ec.UserName  , sd.UserName  ";
 
             return _sqlRepository.GetDataTable(strSql);
         }

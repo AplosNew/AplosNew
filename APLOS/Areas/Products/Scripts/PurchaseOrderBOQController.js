@@ -2,7 +2,7 @@
 purchaseOrderBOQController.$inject = ['accountService', 'addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller', '$location'];
 function purchaseOrderBOQController(accountService, addressService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $location) {
     $rootScope.title = "PO BOQ";
-    $scope.Action = 'Save';
+    $scope.ActionPOBOQ = 'Save';
     $scope.index = -1;
     $scope.products = [];
     $scope.path = 'Products/PurchaseOrder/';
@@ -34,7 +34,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.SubmitPartyCode = null;
     $scope.SubmitPartyName = null;
     $scope.SubmitPartyId = null;
-    
+
 
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
@@ -125,6 +125,21 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.currencyList = result;
     });
 
+
+    $http({
+        method: 'GET',
+        url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
+    }).then(function successCallback(response) {
+        $scope.baseCurrencyId = response.data[0].Value;
+        $scope.productNew.BaseCurrencyId = response.data[0].Value;
+    });
+    $http({
+        method: 'GET',
+        url: 'accounts/PaymentTerm/getvendorcbo'
+    }).then(function successCallback(response) {
+
+        $scope.paymentTermList = response.data;
+    });
     $scope.product = {
         Id: null
         , GRNDate: null
@@ -197,8 +212,53 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     };
     $scope.productNew = Object.assign({}, $scope.product);
 
+
+    $scope.TermsAndConditions = {
+        Id: null
+        , Description: null
+        , TermsAndConditions: null
+    };
+    $scope.TermsAndConditionsList = [];
+    $scope.TermsAndConditions = function () {
+
+        $http({
+            method: 'GET',
+            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+            url: 'Products/PurchaseOrder/TermsAndConditions'
+        }).then(function successCallback(response) {
+            $scope.TermsAndConditionsList = response.data;
+            //$scope.TermsAndCondition.TermsAndConditions = response.data[0].TermsAndConditions;
+
+        });
+    }
+    $scope.TermsAndConditions();
+    $scope.changeTermsAndCondition = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
+            var paymentTerm = $.grep($scope.TermsAndConditionsList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
+            $scope.productNew.PaymentTermCode = paymentTerm.PaymentTermCode;
+            $scope.productNew.BaseNoOfDays = paymentTerm.NoOfDay;
+            if (paymentTerm.BaseLineDate !== null)
+                if (paymentTerm.BaseLineDate === 'documentdate') {
+                    $scope.productNew.BaseOnDueDate = $filter('dateFiltering')($scope.productNew.DocDate);
+                    $scope.IsBaseOnDueDateEnable = true;
+                }
+                else {
+                    $scope.productNew.BaseOnDueDate = null;
+                    $scope.IsBaseOnDueDateEnable = false;
+                }
+            $scope.getMatureDate($scope.productNew.BaseOnDueDate, $scope.productNew.BaseNoOfDays);
+        }
+    };
+    $scope.getMatureDate = function (date, days) {
+        if (baseService.isUndefinedOrNull(date)) return $scope.productNew.MatureDate = null;
+        date = new Date(date);
+        date.setDate(date.getDate() + days);
+        $scope.productNew.MatureDate = $filter('date')(date, 'dd-MMM-yyyy');
+    };
+
     $scope.submit = function () {
-        $scope.productNew.PartyCode=  $scope.SubmitPartyCode;
+        $scope.productNew.PartyCode = $scope.SubmitPartyCode;
         $scope.productNew.PartyName = $scope.SubmitPartyName;
         $scope.productNew.PartyId = $scope.SubmitPartyId;
         $scope.productNew.PaymentTermId = $scope.SubmitPaymentTermId;
@@ -214,59 +274,114 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
     };
     $scope.poBoqItemListNew = [];
+    $scope.tempList = [];
     $scope.submitBOQItem = function () {
+        var poboqlist = [];
+        for (var i = 0; i < $scope.poBoqItemList.length; i++) {
+            poboqlist.push(Object.assign({}, $scope.poBoqItemList[i]));
+        }
+
         try {
             $scope.poBoqItemListNew = [];
-                for (var i = 0; i < $scope.poBoqItemList.length; i++) {
-                    if ((baseService.isUndefinedOrNull($scope.poBoqItemList[i].TransactionQty) || $scope.poBoqItemList[i].TransactionQty === 0) && $scope.poBoqItemList[i].CheckedStatus === true) {
-                        ShowResult('Enter the Selected  Material Qty', 'failure');
+            $scope.tempList = [];
+
+            for (var i = 0; i < poboqlist.length; i++) {
+                if ((baseService.isUndefinedOrNull(poboqlist[i].TransactionQty) || poboqlist[i].TransactionQty === 0) && poboqlist[i].CheckedStatus === true) {
+                    ShowResult('Enter the Selected  Material Qty', 'failure');
+                    return false;
+                }
+                if (poboqlist[i].CheckedStatus === true) {
+                    if ((parseFloat(poboqlist[i].TransactionQty) + parseFloat(poboqlist[i].OtherPOQty)) > parseFloat(poboqlist[i].RequiredQtyPO)) {
+                        ShowResult('Trasaction qty can not grater than booking Qty', 'failure');
+                        poboqlist[i].TransactionQty = '';
                         return false;
                     }
-                    if ($scope.poBoqItemList[i].CheckedStatus === true) {
-                            if ((parseFloat($scope.poBoqItemList[i].TransactionQty) + parseFloat($scope.poBoqItemList[i].OtherPOQty)) > parseFloat($scope.poBoqItemList[i].RequiredQtyPO)) {
-                                ShowResult('Trasaction qty can not grater than booking Qty', 'failure');
-                                $scope.poBoqItemList[i].TransactionQty = '';
-                                return false;
-                            }
-                            if (baseService.isUndefinedOrNull($scope.poBoqItemList[i].TransactionQty)) {
-                                ShowResult('Enter the current Qty.Zero not allowed', 'failure');
-                                return false;
-                            }
-                            if ($scope.poBoqItemList[i].TransactionQty < 0) {
-                                ShowResult('Negative Qty  not allowed', 'failure');
-                                return false;
-                            }
-                            if ($scope.poBoqItemList[i].TransactionQty === 0 || $scope.poBoqItemList[i].TransactionQty === 0.00 || $scope.poBoqItemList[i].TransactionQty === 0.0) {
-                                ShowResult('Enter the current Qty.Zero not allowed', 'failure');
-                                return false;
-                            }
-                            if (baseService.isUndefinedOrNull($scope.poBoqItemList[i].TransactionRate)) {
-                                ShowResult('Enter the current rate.Zero not allowed', 'failure');
-                                return false;
-                            }
-                            if ($scope.poBoqItemList[i].TransactionRate === 0 || $scope.poBoqItemList[i].TransactionRate === 0.0 || $scope.poBoqItemList[i].TransactionRate === 0.00) {
-                                ShowResult('Enter the current rate.Zero not allowed', 'failure');
-                                return false;
-                            }
-                            if ($scope.poBoqItemList[i].RequiredQtyApproved === 'No') {
-                                ShowResult('Required Qty not yet Approved.So you can not take this material', 'failure');
-                                return false;
-                            }
-                            if ($scope.poBoqItemList[i].IncompleteMaterial === 'Yes') {
-                                ShowResult('This is incomplete material.So you can not take this material', 'failure');
-                                return false;
-                            }
+                    if (baseService.isUndefinedOrNull(poboqlist[i].TransactionQty)) {
+                        ShowResult('Enter the current Qty.Zero not allowed', 'failure');
+                        return false;
+                    }
+                    if (poboqlist[i].TransactionQty < 0) {
+                        ShowResult('Negative Qty  not allowed', 'failure');
+                        return false;
+                    }
+                    if (poboqlist[i].TransactionQty === 0 || poboqlist[i].TransactionQty === 0.00 || poboqlist[i].TransactionQty === 0.0) {
+                        ShowResult('Enter the current Qty.Zero not allowed', 'failure');
+                        return false;
+                    }
+                    if (baseService.isUndefinedOrNull(poboqlist[i].TransactionRate)) {
+                        ShowResult('Enter the current rate.Zero not allowed', 'failure');
+                        return false;
+                    }
+                    if (poboqlist[i].TransactionRate === 0 || poboqlist[i].TransactionRate === 0.0 || poboqlist[i].TransactionRate === 0.00) {
+                        ShowResult('Enter the current rate.Zero not allowed', 'failure');
+                        return false;
+                    }
+                    if (poboqlist[i].RequiredQtyApproved === 'No') {
+                        ShowResult('Required Qty not yet Approved.So you can not take this material', 'failure');
+                        return false;
+                    }
+                    if (poboqlist[i].IncompleteMaterial === 'Yes') {
+                        ShowResult('This is incomplete material.So you can not take this material', 'failure');
+                        return false;
+                    }
 
-                            else {
-                                $scope.poBoqItemList[i].TrnAmount = $scope.poBoqItemList[i].TransactionQty * $scope.poBoqItemList[i].TransactionRate
-                                $scope.poBoqItemListNew.push($scope.poBoqItemList[i]);
-                                $scope.tempList.push($scope.poBoqItemList[i]);
+                    else {
+
+                        
+
+
+                        var getRow = $filter("filter")($scope.poBoqItemListNew, {
+                            "MaterialMasterId": poboqlist[i].MaterialMasterId, "ArticleId": poboqlist[i].ArticleId
+                            , "FirstCharacteristicsValueId": poboqlist[i].FirstCharacteristicsValueId
+                            , "SecondCharacteristicsValueId": poboqlist[i].SecondCharacteristicsValueId
+                            , "ThitrdCharacteristicsValueId": poboqlist[i].ThitrdCharacteristicsValueId
+                            , "GroupId": poboqlist[i].GroupId
+                        });
+
+                        if (getRow.length == 0) {
+                            poboqlist[i].TrnAmount = Math.round((poboqlist[i].TransactionQty * poboqlist[i].TransactionRate) * 100 + Number.EPSILON) / 100
+                            poboqlist[i].TransactionQty = Math.round((poboqlist[i].TransactionQty) * 100 + Number.EPSILON) / 100
+                            $scope.poBoqItemListNew.push(poboqlist[i]);
+                        }
+                        else {
+                            for (var j = 0; j < $scope.poBoqItemListNew.length; j++) {
+                                var row = $scope.poBoqItemListNew[j];
+                                if (row.MaterialMasterId == getRow[0].MaterialMasterId
+                                    && row.ArticleId == getRow[0].ArticleId
+                                    && row.FirstCharacteristicsValueId == getRow[0].FirstCharacteristicsValueId
+                                    && row.SecondCharacteristicsValueId == getRow[0].SecondCharacteristicsValueId
+                                    && row.ThitrdCharacteristicsValueId == getRow[0].ThitrdCharacteristicsValueId
+                                    && row.GroupId == getRow[0].GroupId
+                                ) {
+                                    var currentqty = Math.round(poboqlist[i].TransactionQty * 100 + Number.EPSILON) / 100;
+                                    var currentamt = Math.round((poboqlist[i].TransactionQty * poboqlist[i].TransactionRate) * 100 + Number.EPSILON) / 100;
+                                    $scope.poBoqItemListNew[j].TransactionQty = Math.round($scope.poBoqItemListNew[j].TransactionQty * 100 + Number.EPSILON) / 100 + currentqty;
+                                    $scope.poBoqItemListNew[j].TrnAmount = Math.round($scope.poBoqItemListNew[j].TrnAmount * 100 + Number.EPSILON) / 100 + currentamt;
+                                    currentqty = 0;
+                                    currentamt = 0;
+                                }
+
                             }
+                        }
+
+                        for (var a = 0; a < $scope.poBoqItemList.length; a++) {
+                            if ($scope.poBoqItemList[a].MaterialMasterId == poboqlist[i].MaterialMasterId
+                                && $scope.poBoqItemList[a].ArticleId == poboqlist[i].ArticleId
+                                && $scope.poBoqItemList[a].FirstCharacteristicsValueId == poboqlist[i].FirstCharacteristicsValueId
+                                && $scope.poBoqItemList[a].SecondCharacteristicsValueId == poboqlist[i].SecondCharacteristicsValueId
+                                && $scope.poBoqItemList[a].ThitrdCharacteristicsValueId == poboqlist[i].ThitrdCharacteristicsValueId
+                                && $scope.poBoqItemList[a].GroupId == poboqlist[i].GroupId
+                                && $scope.poBoqItemList[a].BOQId == poboqlist[i].BOQId
+                            ) {
+                                $scope.tempList.push($scope.poBoqItemList[a]);
+                            }
+                        }
                     }
                 }
+            }
             $scope.UOMValidation();
             $scope.groupList = [];
-            $scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
+            //$scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
         } catch (e) {
         }
     };
@@ -295,7 +410,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         }
         return newlist;
     };
-    $scope.tempList = [];
+
     $scope.UOMValidation = function () {
         var getRow3
         $scope.invalid = false;
@@ -306,8 +421,8 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         for (var k = 0; k < getRow3.length; k++) {
             $scope.TransactionUoMId = getRow3[0].TransactionUoMId;
             if (getRow3[k].TransactionUoMId != $scope.TransactionUoMId) {
-                    ShowResult('Have you selected Same UOM?', 'failure', 'ListOfPOMaterial');
-                    return true;
+                ShowResult('Have you selected Same UOM?', 'failure', 'ListOfPOMaterial');
+                return true;
             }
         }
         return false;
@@ -319,6 +434,91 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     };
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
+    };
+
+    $scope.GetCurrencyExchangeRateList = function () {
+
+        //if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+        if (!baseService.isUndefinedOrNull(!baseService.isUndefinedOrNull($scope.productNew.CurrencyId))) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.productNew.DocDate + "&currencyId=" + $scope.productNew.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.productNew.ToCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = null;
+        }
+    };
+
+    $scope.detailPOSaveForBOQ = function () {
+        ;
+        try {
+            $scope.UOMValidation();
+
+            if ($scope.ActionPOBOQ === 'Save') {
+                if (!$scope.UOMValidation()) {//$scope.invalid &&
+
+                    $http({
+                        method: 'POST',
+                        url: 'Products/PurchaseOrder/POBoqInsertUpdate',
+                        data: {
+                            entity: $scope.productNew
+                            , groupList: JSON.stringify($scope.poBoqItemListNew)
+                            , boqmapList: JSON.stringify($scope.tempList)
+                            , taxCategoryList: $scope.taxCategoryList//$scope.taxCategoryList
+                            , PoId: $scope.productNew.Id
+                        },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true)
+                            ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
+                        else {
+                            ShowResult(response.data.Message, 'success', 'ListOfPOMaterial');
+                            getInventoryMaterialList($scope.productNew.Id);
+                            angular.element(document.querySelector('#ListOfPOMaterial')).modal('hide');
+
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
+                    };
+
+                }
+            }
+
+            else if ($scope.ActionPOBOQ === "Update") {
+                $scope.materialValidationForBOQItem();
+                if (!$scope.UOMValidation() && !$scope.trnRateDiff()) {
+                    $http({
+                        method: 'POST',
+                        url: 'Products/PurchaseOrder/detailPOUpdateForBOQ',
+                        data: {
+                            entity: $scope.productNew
+                            , groupList: JSON.stringify($scope.poBoqItemListNew)
+                            , boqmapList: JSON.stringify($scope.tempList)
+                            , taxCategoryList: $scope.taxCategoryList//$scope.taxCategoryList
+                            , PoId: $scope.productNew.Id
+                        },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true)
+                            ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial1');
+                        else {
+                            ShowResult(response.data.Message, 'success', 'ListOfPOMaterial1');
+                            getInventoryMaterialList($scope.productNew.Id);
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial1');
+                    };
+
+                }
+            }
+
+        } catch (e) {
+            //ShowResult(e, 'fail', 'detailPopUp');
+        }
     };
 }//End Of main
 

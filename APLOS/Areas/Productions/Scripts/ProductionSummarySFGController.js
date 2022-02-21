@@ -637,14 +637,14 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
             $scope.WorkCenterMasterId = $scope.productionSummaryNew.ToWorkCenterMasterId;
         }
 
-        if ($scope.Status === 'PROCESS') {
-            $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
-        } else {
-            $scope.ProcessId = $scope.productionSummaryNew.ToProcessId;
-        }
+        //if ($scope.Status === 'PROCESS') {
+        //    $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
+        //} else {
+        //    $scope.ProcessId = $scope.productionSummaryNew.ToProcessId;
+        //}
 
         $scope.ProductOrderList = [];
-        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.ProcessId)
+        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&status=' + $scope.Status)
             .then(
                 function successCallback(response) {
                     $scope.ProductOrderList = response.data;
@@ -1419,7 +1419,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                 }
 
             } else {
-                $scope.ProcessId = $scope.productionSummaryNew.ToProcessId;
+                $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
 
                 if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                     if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionOrderId)) {
@@ -1511,16 +1511,16 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                 }
             }
             $scope.ProdQty = 0;
-            if ($scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU1' || $scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU2' || $scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU3') {
+            
+            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 for (var i = 0; i < $scope.ProductionSummaryDetail.length; i++) {
-
                     if (!baseService.isUndefinedOrNull($scope.ProductionSummaryDetail[i].Qty)) {
                         $scope.ProdQty = $scope.ProdQty + $scope.ProductionSummaryDetail[i].Qty;
                     }
                 }
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
             }
-            if ($scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU1' || $scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU2' || $scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU3') {
+            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 if ($scope.ProdQty === 0) {
                     throw "SKU Qty is required.";
                 }

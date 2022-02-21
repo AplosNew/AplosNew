@@ -437,7 +437,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 for (int i = 0; i < Leave.Count; i++)
                 {
                     //Data[i]["LDTId"].ToString();
-                    dsMaster1.Tables[0].DefaultView.RowFilter = @"Id = '" + bplib.clsWebLib.RetValidLen(Leave[i]["LDTId"]).ToString() + "'";
+                    dsMaster1.Tables[0].DefaultView.RowFilter = @"LeaveTypeId = '" + bplib.clsWebLib.RetValidLen(Leave[i]["LTId"]).ToString() + "'";
                     if (dsMaster1.Tables[0].DefaultView.Count > 0)
                     {
                         DataRow dr = dsMaster1.Tables[0].DefaultView[0].Row;
@@ -586,7 +586,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 for (int i = 0; i< Data.Count;i++)
                 {
                     //Data[i]["LDTId"].ToString();
-                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id = '" + bplib.clsWebLib.RetValidLen(Data[i]["LDTId"]).ToString() + "'";
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"LeaveTypeId = '" + bplib.clsWebLib.RetValidLen(Data[i]["LTId"]).ToString() + "'";
                     if(dsMaster.Tables[0].DefaultView.Count > 0)
                     {
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;

@@ -131,9 +131,9 @@ namespace Library.OrderManagement.Costing
                                     boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency,
                                     BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,
   boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
-  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName)),
- CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,'-',d.UserName,'-',cv1.UserName,'-',cv2.UserName)),
- BOQ.FileName
+  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+ CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+ BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
 
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
@@ -751,7 +751,6 @@ namespace Library.OrderManagement.Costing
                 dicExistingData.Add(KEY, dsExistingBOQ.Tables[0].Rows[i]);
             }
 
-
             //delete unused data
             for (int i = 0; i < dsExistingBOQ.Tables[0].Rows.Count; i++)
             {
@@ -1257,6 +1256,7 @@ namespace Library.OrderManagement.Costing
                                     ci.Id, ci.Sequence,ci.UserName AS ItemDesc,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
                                     mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
                                     boq.BOMQty,boq.RequiredQty,uom.UserName AS UOM,boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency
+,boq.POCriteria
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
@@ -1285,7 +1285,6 @@ namespace Library.OrderManagement.Costing
         }
         public void ReportXls(string CostingBOQMasterId)
         {
-
             try
             {
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -1300,8 +1299,6 @@ namespace Library.OrderManagement.Costing
                 sheet.Name = "BOQ Report";
 
                 DataTable dtEmployeeData = BOQReportQuery(CostingBOQMasterId);
-
-
 
                 int ROW = 6;
                 int COL = 1;
@@ -1362,6 +1359,10 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colSKU2 = COL;
                 COL++;
+                sheet[ROW, COL].Text = "PO Criteria";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPOCriteria = COL;
+                COL++;
                 sheet[ROW, COL].Text = "UOM";
                 sheet[ROW, COL].ColumnWidth = 8;
                 int colUOM = COL;
@@ -1421,6 +1422,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colCurrency].Text = dtEmployeeData.Rows[i]["Currency"].ToString();
                     sheet[ROW, colBOQCriteria].Text = dtEmployeeData.Rows[i]["BOQCriteria"].ToString();
                     sheet[ROW, colItemRefNo].Text = dtEmployeeData.Rows[i]["ItemRefNo"].ToString();
+                    sheet[ROW, colPOCriteria].Text = dtEmployeeData.Rows[i]["POCriteria"].ToString();
 
                     sheet[ROW, colBOMQty].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["BOMQty"].ToString());
                     sheet[ROW, colRequiredQty].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["RequiredQty"].ToString());
@@ -1596,11 +1598,11 @@ namespace Library.OrderManagement.Costing
 
                         dsMaster.Tables[0].DefaultView[0].Row.BeginEdit();
                         dsMaster.Tables[0].DefaultView[0]["RequiredQty"] = QuantityData[i]["RequiredQty"];
-                        dsMaster.Tables[0].DefaultView[0]["RMDescription"] = QuantityData[i]["RMDescription"];
-                        dsMaster.Tables[0].DefaultView[0]["RMCustomerSpec"] = QuantityData[i]["RMCustomerSpec"];
-                        dsMaster.Tables[0].DefaultView[0]["RMVendorSpec"] = QuantityData[i]["RMVendorSpec"];
-                        dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = QuantityData[i]["SKUDesc"];
-                        dsMaster.Tables[0].DefaultView[0]["OwnReferenceNo"] = QuantityData[i]["OwnReferenceNo"];
+                        dsMaster.Tables[0].DefaultView[0]["RMDescription"] = clsStaticInfo.nullrecorder(QuantityData[i]["RMDescription"]).Trim();
+                        dsMaster.Tables[0].DefaultView[0]["RMCustomerSpec"] = clsStaticInfo.nullrecorder(QuantityData[i]["RMCustomerSpec"]).Trim();
+                        dsMaster.Tables[0].DefaultView[0]["RMVendorSpec"] = clsStaticInfo.nullrecorder(QuantityData[i]["RMVendorSpec"]).Trim();
+                        dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = clsStaticInfo.nullrecorder(QuantityData[i]["SKUDesc"]).Trim();
+                        dsMaster.Tables[0].DefaultView[0]["OwnReferenceNo"] = clsStaticInfo.nullrecorder(QuantityData[i]["OwnReferenceNo"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["Remark"] = QuantityData[i]["Remark"];
 
 
