@@ -491,6 +491,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('MeetingTypeController', MeetingTypeController)
     .controller('PerformancePeriodController', PerformancePeriodController)
     .controller('VehicleMovementLocationsController', VehicleMovementLocationsController)
+    .controller('ServicesApprovingAuthorityController', ServicesApprovingAuthorityController)
 
 
     .config(accountConfig)

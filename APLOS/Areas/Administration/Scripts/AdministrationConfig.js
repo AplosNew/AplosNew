@@ -5,5 +5,9 @@ function AdministrationConfig($routeProvider, $locationProvider) {
         .when('/vehicle-movement-locations', {
             templateUrl: 'Administration/VehicleMovementLocations',
             controller: 'VehicleMovementLocationsController'
-        })      
+        })
+        .when('/services-approving-authority', {
+            templateUrl: 'Administration/ServicesApprovingAuthority',
+            controller: 'ServicesApprovingAuthorityController'
+        })
 };
