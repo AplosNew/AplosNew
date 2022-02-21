@@ -45,6 +45,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("employeeMyAppLeaveApplicationController", employeeMyAppLeaveApplicationController)
     .controller("firstAuthEmpLeaveApprovalController", firstAuthEmpLeaveApprovalController)
     .controller("GatePassPotalController", GatePassPotalController)
+    .controller("MeetingPointsController", MeetingPointsController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -260,6 +261,10 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 controller: 'PurchaseReturnCheckedApprovedByController'
             })
 
+            .when('/meeting-points', {
+                templateUrl: 'MeetingManagement/MeetingPoints',
+                controller: 'MeetingPointsController'
+            })
 
             .when('/inventory-sales-checking', {
                 templateUrl: 'Products/InventoryIssue/InventorySalesChecked',
