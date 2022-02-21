@@ -8,38 +8,48 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Web.Mvc;
-using Library.MaterialManagement.InventoryManagements;
+using Library.General.AdministrationTasks;
 #endregion Using
 
 namespace Aplos.Areas.Administration.Controllers
 {
     public class VehicleMovementLocationsController : BaseController
     {
-        string TableName = "hkp.MaterialMovementPurpose";
-     
-
+       
         #region Constructor
-        MaterialMovementPurposeService tg = new MaterialMovementPurposeService();
+        VehicleMovementLocationsService vl = new VehicleMovementLocationsService();
         private readonly ISqlRepository _sqlRepository;
 
         public VehicleMovementLocationsController(ISqlRepository R)
         {
             _sqlRepository = R;
+            vl = new VehicleMovementLocationsService();
         }
 
         #endregion Constructor
 
-
-     
+        #region Views
+       
         public ActionResult Aplos()
         {
             return View();
         }
 
+        #endregion
+
+        #region Functions
+
         [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
-            return Json(tg.GetCbo(), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(vl.GetCbo(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [Authorize, HttpPost]
@@ -47,14 +57,11 @@ namespace Aplos.Areas.Administration.Controllers
         {
             try
             {
-                var _master = tg.Get(Id);
-
-
+                var _master = vl.Get(Id);
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 
@@ -63,13 +70,27 @@ namespace Aplos.Areas.Administration.Controllers
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
-            return Json(tg.GetList(column, value), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(vl.GetList(column, value), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(vl.GetSequence(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpPost]
@@ -77,10 +98,10 @@ namespace Aplos.Areas.Administration.Controllers
         {
             try
             {
-                string ret = tg.Create(data);
+                string ret = vl.Create(data);
                 if (ret == "Success")
                 {
-                    return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                    return Json(new { Error = false, Data = data, Sequence = vl.GetSequence(), Message = AplosMessage.Updated });
                 }
                 else
                 {
@@ -101,11 +122,11 @@ namespace Aplos.Areas.Administration.Controllers
             try
             {
 
-                string ret = tg.Delete(id);
+                string ret = vl.Delete(id);
 
                 if (ret == "Success")
                 {
-                    return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                    return Json(new { Error = false, Sequence = vl.GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
@@ -122,14 +143,7 @@ namespace Aplos.Areas.Administration.Controllers
 
 
         }
-
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
+        
+        #endregion
     }
 }
