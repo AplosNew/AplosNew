@@ -1615,15 +1615,16 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             //$scope.index = index;
             //$scope.budgetCodeChange = $scope.employees[$scope.index];
             //$scope.budgetCodeChangeOld = $scope.employees[$scope.index];
-            $scope.obj = $filter("filter")($scope.employees, { SystemId: data.data.SystemId });
+           // $scope.obj = $filter("filter")($scope.employees, { SystemId: data.data.SystemId });
+            $scope.obj = data.data;
 
             //$scope.budgetCodeChange = $scope.obj[0];         
             //$scope.budgetCodeChangeOld = $scope.obj[0];
             //$scope.budgetCodeChangeNew = $scope.obj[0];
 
-            angular.copy($scope.obj[0], $scope.budgetCodeChange);
-            angular.copy($scope.obj[0], $scope.budgetCodeChangeOld);
-            angular.copy($scope.obj[0], $scope.budgetCodeChangeNew);
+            angular.copy($scope.obj, $scope.budgetCodeChange);
+            angular.copy($scope.obj, $scope.budgetCodeChangeOld);
+            angular.copy($scope.obj, $scope.budgetCodeChangeNew);
 
 
             $scope.NewbudgetCodeChange.EntityName = $scope.budgetCodeChangeOld.EntityName;

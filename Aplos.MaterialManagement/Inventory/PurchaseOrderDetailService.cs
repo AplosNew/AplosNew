@@ -3225,7 +3225,8 @@ namespace Library.MaterialManagement.Inventory
 					}
 
 					//POBOQMap PoBOQDetail = new POBOQMap();
-					foreach (var POReqDetail in boqmapList.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId))
+					foreach (var POReqDetail in boqmapList.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId 
+														&& r.ThirdCharacteristicsValueId == itemDetail.ThirdCharacteristicsValueId && r.POCriteria==itemDetail.POCriteria))
 
 					{
 						try
