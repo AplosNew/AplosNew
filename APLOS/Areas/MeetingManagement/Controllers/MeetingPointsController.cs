@@ -7,10 +7,12 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Setups;
+using Library.Service.Attendances;
 using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.Service.Setups;
+using Library.ViewModel.Organizations;
 using OTSBD;
 using System;
 using System.Collections.Generic;
@@ -27,7 +29,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 {
     public class MeetingPointsController : BaseController
     {
-       
+
 
         #region Constructor
 
@@ -110,7 +112,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Message = AplosMessage.Updated, Id= _Id });
+                return Json(new { Error = false, Message = AplosMessage.Updated, Id = _Id });
 
             }
             catch (Exception ex)
@@ -123,7 +125,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
         public ActionResult Delete(string id)
         {
-            string strUSQL,talkingSQL, suggestionSQL,actionSQL,meetingSQL;
+            string strUSQL, talkingSQL, suggestionSQL, actionSQL, meetingSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
@@ -184,7 +186,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
 
 
-           
+
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
@@ -210,14 +212,14 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 }
             }
 
-            
+
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
 
             dr.EndEdit();
         }
-       
+
 
         [Authorize, HttpGet]
         public JsonResult GetEmployeeListByWhom(GridParameter parameters, string plantId, string partyAccountGroupId, string partyId)
@@ -243,7 +245,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                             LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             WHERE EI.CompanyId='" + companyId + "' AND EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
-               
+
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -406,7 +408,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Message = AplosMessage.Updated, Id=_Id });
+                return Json(new { Error = false, Message = AplosMessage.Updated, Id = _Id });
 
             }
             catch (Exception ex)
@@ -505,7 +507,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        
+
         [HttpPost]
         public JsonResult CreateMeetingDecision(Dictionary<string, object> data)
         {
@@ -551,6 +553,57 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         }
 
         [HttpPost, Authorize]
+        public JsonResult CreateExpectedPerson(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from MeetingExpectedPerson", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "ExpectedPersonId='" + item["ExpectedPersonId"] + "'";
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingExpectedPerson", out _Id);
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id;
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Updated, Id = _Id });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetTalkingPointList(string column, string value, string meetingItemHeaderId)
         {
             string strkey = "1=1";
@@ -566,7 +619,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpPost, Authorize]
         public ActionResult GetSuggestionsRecommendationList(string column, string value, string meetingItemHeaderId)
         {
@@ -584,8 +637,8 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        
-       [HttpPost, Authorize]
+
+        [HttpPost, Authorize]
         public ActionResult GetActionablePointsList(string column, string value, string meetingItemHeaderId)
         {
             string strkey = "1=1";
@@ -593,7 +646,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select MAP.*,EI.EmployeeName ActionByWhomName,EI.EmployeeCode ActionByWhomCode
+            string sql = @"select top 100 * from (select MAP.*,FORMAT(MAP.TargetDate,'dd-MMM-yyyy') TDate,EI.EmployeeName ActionByWhomName,EI.EmployeeCode ActionByWhomCode
                                                 from MeetingActionablePoints MAP
                                                 left join EmployeeInformation EI on EI.SystemId=MAP.ByWhomId
                                                 WHERE MeetingItemHeaderId = '" + meetingItemHeaderId + @"'
@@ -619,8 +672,33 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetExpectedPersonList(string column, string value, string meetingItemHeaderId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (select MEP.Id,MEP.MeetingItemHeaderId,MEP.ExpectedPersonId,EI.EmployeeName ExpectedPerson,EI.*,D.UserName Designation,Dep.UserName Department,Div.UserName Division
+                                                    ,EC.UserName EmployeeCategory,S.UserName Section,SS.UserName SubSection,L.UserName Line
+                                                    from MeetingExpectedPerson MEP
+                                                    left join EmployeeInformation EI on EI.SystemId=MEP.ExpectedPersonId
+                                                    left join HKP.Designation D on D.Id=EI.DesignationSystemID
+                                                    left join ORG.Department Dep on Dep.Id=EI.DepartmentId
+                                                    left join ORG.Division Div on Div.Id=EI.DivisionId
+                                                    left join HKP.EmployeeCategory EC on EC.Id=EI.EmployeeCategorySystemID
+                                                    left join ORG.Section S on S.Id=EI.SectionId
+                                                    left join ORG.SubSection SS on SS.Id=EI.SubSectionId
+                                                    left join ORG.Line L on L.Id=EI.LineId
+                                                    WHERE MeetingItemHeaderId = '" + meetingItemHeaderId + @"'
+                                                ) AS TEMP WHERE " + strkey;
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
-        public ActionResult deleteTalkingPoint(string id)
+        public JsonResult deleteTalkingPoint(string id)
         {
             try
             {
@@ -702,5 +780,124 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        //[HttpPost]
+        //public ActionResult deleteExpectedPerson(string id)
+        //{
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(id))
+        //            throw new Exception("Select entry first");
+
+        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+        //        con.BeginTransaction();
+        //        con.executeQuery("delete from MeetingExpectedPerson where id='" + id + "'");
+        //        con.CommitTransaction();
+
+        //        return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+        //    }
+        //}
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeInformation(string criteria)
+        {
+            string sql = string.Empty;
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var data = GetEmpInfo(identity.CompanyGroupId, identity.PlantId, criteria);
+
+                //return Json(new { LeaveInfo = data }, JsonRequestBehavior.AllowGet);
+
+                JsonResult LeaveInfo = Json(data, JsonRequestBehavior.AllowGet);
+                LeaveInfo.MaxJsonLength = int.MaxValue;
+                return LeaveInfo;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+
+        public List<Dictionary<string, object>> GetEmpInfo(string companyGroupId, string plantId, string criteria)
+        {
+
+            try
+            {
+
+                var cmdText = @"SELECT * FROM (  SELECT DISTINCT [CheckBoxSelect] = Convert(bit, 'false'),
+                                     isnull(e.SystemId,'') SystemId
+									,ISNULL(e.EmployeeId,'')  EmployeeId                                     
+                                    , EmployeeCode
+                                    ,ISNULL(e.EmployeeName,'') EmployeeName								
+                                    ,ISNULL(mpb.EntityId,'') EntityId
+									,ISNULL(mpb.PositionId,'') PositionId                                     
+                                    ,isnull(ISNULL(egdsg.UserName,ld.UserName),'') Designation                                       
+									,ISNULL(Department.UserName,'') Department 
+									,ISNULL(Division.UserName,'') Division 
+									,ISNULL(EmpC.UserName,'') EmployeeCategory
+									,ISNULL(Plant.UserName,'') Plant 
+									,ISNULL(Section.UserName,'') Section 
+									,ISNULL(SubSection.UserName,'') SubSection 
+									,ISNULL(Unit.UserName,'') Unit 
+                                    ,ISNULL(eL.UserName,'') Line
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
+                                    ,ISNULL(e.EmployeeStatus,'') EmployeeStatus , e.EmployeeCodePreFix,e.EmployeeCodeNumeric
+                                    ,E.PlantId
+								  
+                                    FROM EmployeeInformation e
+
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+
+                                    LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=mpb.LineId
+                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
+                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
+                                    LEFT OUTER JOIN ORG.Section es on es.id=PO.SectionId
+                                    LEFT OUTER JOIN ORG.SubSection ess on ess.id=PO.SubSectionId
+                                    LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
+                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
+                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
+                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
+                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
+                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
+									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
+									FROM mst.DesignationMaster dm
+									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
+									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                  
+                                    LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
+                                    LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
+                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.LegalDesignationId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
+                                    LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
+
+                                  WHERE e.plantId='" + plantId + @"' and e.GroupID='" + companyGroupId + @"' and e.EmployeeStatus='Active'
+                                     ) DD ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+
+                return _sqlRepository.GetDataCollection(cmdText);
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }//end of function
+
     }
 }
