@@ -59,7 +59,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select MA.* ,EI.EmployeeName MeetingOrganizedBy,EI.EmployeeCode MeetingOrganizedByCode
+            string sql = @"select top 100 * from (select MA.* ,FORMAT(MA.Date,'dd-MMM-yyyy') TDate,EI.EmployeeName MeetingOrganizedBy,EI.EmployeeCode MeetingOrganizedByCode
 			                                    ,MT.UserName MeetingType,EID.EmployeeName ChairedBy,EID.EmployeeCode ChairedByCode
                                                 from MeetingAgenda MA
                                                 left join EmployeeInformation EI on EI.SystemId=MA.MeetingOrganizedById

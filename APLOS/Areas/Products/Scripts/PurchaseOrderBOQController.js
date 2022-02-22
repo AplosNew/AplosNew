@@ -280,11 +280,11 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         for (var i = 0; i < $scope.poBoqItemList.length; i++) {
             poboqlist.push(Object.assign({}, $scope.poBoqItemList[i]));
         }
-      
+
         try {
             $scope.poBoqItemListNew = [];
             $scope.tempList = [];
-           
+
             for (var i = 0; i < poboqlist.length; i++) {
                 if ((baseService.isUndefinedOrNull(poboqlist[i].TransactionQty) || poboqlist[i].TransactionQty === 0) && poboqlist[i].CheckedStatus === true) {
                     ShowResult('Enter the Selected  Material Qty', 'failure');
@@ -326,6 +326,10 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                     }
 
                     else {
+
+                        
+
+
                         var getRow = $filter("filter")($scope.poBoqItemListNew, {
                             "MaterialMasterId": poboqlist[i].MaterialMasterId, "ArticleId": poboqlist[i].ArticleId
                             , "FirstCharacteristicsValueId": poboqlist[i].FirstCharacteristicsValueId
@@ -333,10 +337,6 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             , "ThitrdCharacteristicsValueId": poboqlist[i].ThitrdCharacteristicsValueId
                             , "GroupId": poboqlist[i].GroupId
                         });
-                        var temp = {};
-                        temp = poboqlist[i];
-                        $scope.tempList.push(temp);
-                        temp = {};
 
                         if (getRow.length == 0) {
                             poboqlist[i].TrnAmount = Math.round((poboqlist[i].TransactionQty * poboqlist[i].TransactionRate) * 100 + Number.EPSILON) / 100
@@ -361,6 +361,19 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                                     currentamt = 0;
                                 }
 
+                            }
+                        }
+
+                        for (var a = 0; a < $scope.poBoqItemList.length; a++) {
+                            if ($scope.poBoqItemList[a].MaterialMasterId == poboqlist[i].MaterialMasterId
+                                && $scope.poBoqItemList[a].ArticleId == poboqlist[i].ArticleId
+                                && $scope.poBoqItemList[a].FirstCharacteristicsValueId == poboqlist[i].FirstCharacteristicsValueId
+                                && $scope.poBoqItemList[a].SecondCharacteristicsValueId == poboqlist[i].SecondCharacteristicsValueId
+                                && $scope.poBoqItemList[a].ThitrdCharacteristicsValueId == poboqlist[i].ThitrdCharacteristicsValueId
+                                && $scope.poBoqItemList[a].GroupId == poboqlist[i].GroupId
+                                && $scope.poBoqItemList[a].BOQId == poboqlist[i].BOQId
+                            ) {
+                                $scope.tempList.push($scope.poBoqItemList[a]);
                             }
                         }
                     }
