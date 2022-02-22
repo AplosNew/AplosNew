@@ -27,6 +27,7 @@ using System.Web.Script.Serialization;
 using Library.OrderManagement.ShipmentControl;
 using Library.OrderManagement.TermsAndConditions;
 using Library.MaterialManagement.InventoryManagements;
+using Aplos.MaterialManagement.MaterialQuery;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -5118,6 +5119,18 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		#endregion
 
 		#region PO BOQ
+
+		[HttpPost, Authorize]
+		public JsonResult GetCompanyBOQPartyDataListNew(string column, string value, string partyType)
+		{
+			PurchaseOrderBOQQueryService purchaseOrderBOQQueryService = new PurchaseOrderBOQQueryService(_sqlRepository);
+			 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			var res = purchaseOrderBOQQueryService.GetCompanyBOQPartyListNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
+			var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+			jsondata.MaxJsonLength = int.MaxValue;
+			return jsondata;
+		}
+
 		[Authorize, HttpGet]
 		public JsonResult GetPOBOQItems(string ContractId, string VendorId)
 		{

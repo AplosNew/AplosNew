@@ -50,6 +50,7 @@
     @Scripts.Render("~/bundles/payrolls")
     @Scripts.Render("~/bundles/EmployeeServices")
     @Scripts.Render("~/bundles/MeetingManagement")
+    @Scripts.Render("~/bundles/Administration")
     @Scripts.Render("~/bundles/apanel")
 
 
@@ -140,6 +141,15 @@
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>House Keeping</a>
                             <ul>
+
+                                <li>
+                                    <a>Administration Tasks</a>
+                                    <ul>
+                                        <li><a href="{{bootPoint}}services-approving-authority">Service Approving Authority</a></li>
+                                        <li><a href="{{bootPoint}}vehicle-movement-locations">Vehicle Movement Locations</a></li>
+                                    </ul>
+                                </li>
+
                                 <li>
                                     <a>Setups</a>
                                     <ul>

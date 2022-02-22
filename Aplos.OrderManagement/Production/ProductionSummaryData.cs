@@ -519,6 +519,17 @@ namespace Library.OrderManagement.Production
 
         public IEnumerable<object> GetSFGSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string status, bool IsFirst, string ProductionOrderId)
         {
+
+            string wc = string.Empty;
+            if (status == "PROCESS")
+            {
+                wc = "PS.ProcessId = '" + processId + @"'";
+            }
+            else
+            {
+                wc = "PS.FromSFGInventoryId = '" + processId + @"'";
+            }
+
             if (productionLevel == ProductionBookingLevel.SalesOrder.ToString())
             {
                 if (status == "PROCESS")
@@ -557,8 +568,8 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
-	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
-	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + processId + @"'
+	                                FROM [TRN].[ProductionSummary] PS WHERE " + wc + @" GROUP BY PS.SalesOrderId,PS.ProcessId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id
                                 LEFT JOIN HKP.Party b ON b.id = mo.PartyId
                                 LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
                                 LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
@@ -576,7 +587,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PS.UserName = 'Running' AND PO.Id='" + ProductionOrderId + "'";
 
                         return _sqlRepository.GetDataCollection(CmdText);
                     }
@@ -614,8 +625,8 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
-	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
-	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + processId + @"'
+	                                FROM [TRN].[ProductionSummary] PS WHERE " + wc + @"  GROUP BY PS.SalesOrderId,PS.ProcessId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id
                                 LEFT JOIN HKP.Party b ON b.id = mo.PartyId
                                 LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
                                 LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
@@ -633,7 +644,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PS.UserName = 'Running' AND PO.Id='" + ProductionOrderId + "'";
 
                         return _sqlRepository.GetDataCollection(CmdText);
                     }
@@ -674,8 +685,8 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.FromSFGInventoryId
-	                                FROM [TRN].[ProductionSummary] PS WHERE PS.FromSFGInventoryId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.FromSFGInventoryId
-	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.FromSFGInventoryId = '" + processId + @"'
+	                                FROM [TRN].[ProductionSummary] PS WHERE " + wc + @" GROUP BY PS.SalesOrderId,PS.FromSFGInventoryId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id
                                 LEFT JOIN HKP.Party b ON b.id = mo.PartyId
                                 LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
                                 LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
@@ -730,8 +741,8 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.FromSFGInventoryId
-	                                FROM [TRN].[ProductionSummary] PS WHERE PS.FromSFGInventoryId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.FromSFGInventoryId
-	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.FromSFGInventoryId = '" + processId + @"'
+	                                FROM [TRN].[ProductionSummary] PS WHERE " + wc + @" GROUP BY PS.SalesOrderId,PS.FromSFGInventoryId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id
                                 LEFT JOIN HKP.Party b ON b.id = mo.PartyId
                                 LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
                                 LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
@@ -788,8 +799,8 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
-	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
-	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + processId + @"'
+	                                FROM [TRN].[ProductionSummary] PS WHERE " + wc + @" GROUP BY PS.SalesOrderId,PS.ProcessId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id
                                 LEFT JOIN HKP.Party b ON b.id = mo.PartyId
                                 LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
                                 LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
@@ -846,8 +857,8 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
-	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
-	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + processId + @"'
+	                                FROM [TRN].[ProductionSummary] PS WHERE " + wc + @" GROUP BY PS.SalesOrderId,PS.ProcessId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id
                                 LEFT JOIN HKP.Party b ON b.id = mo.PartyId
                                 LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
                                 LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
@@ -865,7 +876,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running' AND PO.Id='" + ProductionOrderId + "'";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }

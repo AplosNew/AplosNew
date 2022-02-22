@@ -10,25 +10,25 @@
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="row">
-                       
-                            <div style="color:black;" id="Grid2" ej-grid e-datasource="contractList" e-recorddoubleclick="selectContract"
-                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                                <div e-columns>
-                                    <div e-column e-type="string" e-field="Id" e-headertext="ContractId" e-width="50"></div>
-                                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
-                                    <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
-                                    <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                                    <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
-                                    <div e-column e-type="string" e-field="MasterOrderId" e-headertext="MasterOrder No" e-width="150"></div>
-                                    <div e-column e-field="IsLC" e-headertext="IsLC" e-width="50"></div>
-                                    <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
-                                    <div e-column e-headertext="Actions" e-width="130">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Details" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.MasterOrderReport(this);"></i></button>
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Summary" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.GetDetailsReport(this);"></i></button>
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport(this);"></i></button>
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice without Agent" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport1(this);"></i></button>
-                                    </div>
+
+                        <div style="color:black;" id="Grid2" ej-grid e-datasource="contractList" e-recorddoubleclick="selectContract"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Id" e-headertext="ContractId" e-width="50"></div>
+                                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                                <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
+                                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="MasterOrder No" e-width="150"></div>
+                                <div e-column e-field="IsLC" e-headertext="IsLC" e-width="50"></div>
+                                <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                                <div e-column e-headertext="Actions" e-width="130">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Details" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.MasterOrderReport(this);"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Summary" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.GetDetailsReport(this);"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport(this);"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice without Agent" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport1(this);"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -326,60 +326,59 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
                     <div class="row">
-                            <div class="col-xs-12">
-                                <h3 class="site-heading">
-                                    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Fund Utilization
-                                </h3>
-                                <div class="table-responsive modal-table">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Sequence</th>
-                                                <th>Fund Item</th>
-                                                <th class="text-right">Costing Value</th>
-                                                <th class="text-right">User Value</th>
-                                                <th class="text-right">Costing Value(%)</th>
-                                                <th>Currency</th>
-                                                <th>Remarks</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in fundUtilizationList">
-                                                <td>{{x.Sequence}}</td>
-                                                <td>{{x.UserName}}</td>
-                                                <td>
-                                                    <input type="text" style="text-align:right" n-decimals="2" class="form-control" ng-model="x.CostingValue" ng-disabled="true">
-                                                </td>
-                                                <td>
-                                                    <input type="text" style="text-align:right" n-decimals="2" class="form-control" ng-model="x.UserValue">
-                                                </td>
-                                                <td>
-                                                    <input type="text" style="text-align:right" n-decimals="2" class="form-control" ng-model="x.CostingValuePercentage" ng-disabled="true">
-                                                </td>
+                        <div class="col-xs-12">
+                            <h3 class="site-heading">
+                                <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Fund Utilization
+                            </h3>
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Sequence</th>
+                                            <th>Fund Item</th>
+                                            <th class="text-right">Costing Value(%)</th>
+                                            <th class="text-right">Costing Value</th>
+                                            <th class="text-right">User Value</th>
+                                            <th>Currency</th>
+                                            <th>Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in fundUtilizationList">
+                                            <td>{{x.Sequence}}</td>
+                                            <td>{{x.UserName}}</td>
+                                            <td>
+                                                <input type="text" style="text-align:right" n-decimals="2" class="form-control" ng-model="x.CostingValuePercentage" ng-disabled="true">
+                                            </td>
+                                            <td>
+                                                <input type="text" style="text-align:right" n-decimals="2" class="form-control" ng-model="x.CostingValue" ng-disabled="true">
+                                            </td>
+                                            <td>
+                                                <input type="text" style="text-align:right" n-decimals="2" class="form-control" ng-model="x.UserValue">
+                                            </td>
 
-                                                <td>
-                                                    <div class="select-style">
-                                                        <select name="Currency" class="form-control" ng-model="x.CurrencyId" ng-options="item.Value as item.Text for item in currencyList">
-                                                            <option value=""></option>
-                                                        </select>
-                                                    </div>
-                                                </td>
-                                                <td><input type="text" class="form-control" ng-model="x.Remarks" ng-maxlength="50"></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Total:</strong></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td class="text-right"><strong>{{fundUtilizationList | sumByKey : 'Percentage'| setDecimal:2| number:2 }}</strong></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
+                                            <td>
+                                                <div class="select-style">
+                                                    <select name="Currency" class="form-control" ng-model="x.CurrencyId" ng-options="item.Value as item.Text for item in currencyList">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td><input type="text" class="form-control" ng-model="x.Remarks" ng-maxlength="50"></td>
+                                        </tr>
+                                        @*<tr>
+                                            <td><strong>Total:</strong></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-right"><strong>{{fundUtilizationList | sumByKey : 'Percentage'| setDecimal:2| number:2 }}</strong></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>*@
+                                    </tbody>
+                                </table>
                             </div>
+                        </div>
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
@@ -595,7 +594,7 @@
                                             <th>Buyer Item#</th>
                                             <th>Own Item#</th>
                                             <th>Action</th>
-                                            
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -813,8 +812,8 @@
                             <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
                         </script>
                         @*<script type="text/x-jsrender" id="headerTemplateMO">
-                            <input type="checkbox" id="headchk" />
-                        </script>*@
+                                <input type="checkbox" id="headchk" />
+                            </script>*@
                         <script type="text/template" id="BuyerItemRef">
                             <div class="col-sm-10" style="padding:0px; width:70px;">
                                 <input type="text" ng-model="data.BuyerItemRef" ng-maxlength="50" style="color:black;" class="form-control" />
