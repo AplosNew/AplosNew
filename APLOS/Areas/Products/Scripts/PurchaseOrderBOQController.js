@@ -56,6 +56,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.SubmitContractNo = null;
         $scope.SubmitCustomerName = null;
     };
+
     $scope.showBOQPartyPopUpNew = function () {
        
         if ($scope.partyType === 'Vendor') {
@@ -71,10 +72,10 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.partyList = response.data;
         });
         //}
-        angular.element(document.querySelector('#partyPopUp')).modal('show');
+        angular.element(document.querySelector('#boqpartyPopUp')).modal('show');
     };
 
-    $scope.closePartyPopUp = function (x) {
+    $scope.closeBOQPartyPopUp = function (x) {
         var party = x.data;
         $scope.SubmitPartyCode = party.Code;
         $scope.SubmitPartyName = party.UserName;
@@ -82,8 +83,16 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.SubmitPaymentTermId = party.PaymentTermId;
         $scope.SubmitCurrencyId = party.CurrencyId;
         getPartyPlantList();
-        $scope.hidePartyPopUp();
+        $scope.hideBOQPartyPopUp();
     };
+    $scope.hideBOQPartyPopUp = function () {
+        angular.element(document.querySelector('#boqpartyPopUp')).modal('hide');
+        $scope.partyIndex = -1;
+        $scope.partySelected = null;
+    };
+    $scope.closeBOQPartyPopUpNew = function () {
+        angular.element(document.querySelector('#boqpartyPopUp')).modal('hide');
+    }
     function getPartyPlantList() {
         $scope.plantList = [];
         $http.get('Products/PurchaseOrder/GetPartyPlantCbo?partyId=' + $scope.SubmitPartyId + '&Id=' + $scope.Id).then(function (response) {
@@ -249,6 +258,17 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         });
     }
     $scope.TermsAndConditions();
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        $scope.productNew.PartyCode = party.Code;
+        $scope.productNew.PartyName = party.UserName;
+        $scope.productNew.PartyId = party.Id;
+        $scope.productNew.PaymentTermId = party.PaymentTermId;
+        $scope.productNew.CurrencyId = party.CurrencyId;
+        getPartyPlantList();
+        $scope.hidePartyPopUp();
+    };
+
     $scope.changeTermsAndCondition = function () {
 
         if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
@@ -445,6 +465,15 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         return false;
     }
 
+    $scope.Validation = function () {
+        if (baseService.isUndefinedOrNull($scope.productNew.PartyId)) {
+            ShowResult('Please select Vendor', 'failure');
+            return true;
+        }
+        
+        return false;
+    }
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -476,7 +505,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.UOMValidation();
 
             if ($scope.ActionPOBOQ === 'Save') {
-                if (!$scope.UOMValidation()) {//$scope.invalid &&
+                if (!$scope.UOMValidation() && !$scope.Validation()) {//$scope.invalid &&
 
                     $http({
                         method: 'POST',

@@ -232,7 +232,7 @@
         </fieldset>
     </div>
 
-    @*<div class="col-md-12" ng-hide="isSubmitted=='No'">
+    <div class="col-md-12" ng-hide="isSubmitted=='No'">
         <fieldset class="scheduler-border">
             <legend class="scheduler-border">Terms And Instruction</legend>
             <div class="col-xs-12 col-sm-12 col-md-12">
@@ -299,7 +299,7 @@
             </div>
 
         </fieldset>
-    </div>*@
+    </div>
 
     <div class="clearfix"></div>
     <div class="col-md-6 text-left" style="padding-top: 17px;" ng-hide="isSubmitted=='No'">
@@ -436,9 +436,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="8" class="text-right"><strong>Total : </strong></td>
-
-                                <td class="text-right"><strong>{{poBoqItemListNew | sumByKey : 'TransactionQty'| setDecimal:2| number:2 }}</strong></td>
+                                <td colspan="9" class="text-right"><strong>Total : </strong></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -647,6 +645,7 @@
 
     </div>
 </div>
+@Html.Partial("~/Areas/Parties/Views/Party/_BOQVendorPopUpNew.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 
 <div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
