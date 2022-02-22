@@ -7,11 +7,6 @@ function MeetingManagementConfig($routeProvider, $locationProvider) {
             controller: 'MeetingTypeController'
         })
 
-        .when('/meeting-points', {
-            templateUrl: 'MeetingManagement/MeetingPoints',
-            controller: 'MeetingPointsController'
-        })
-
         .when('/meeting-agenda', {
             templateUrl: 'MeetingManagement/MeetingAgenda/Aplos',
             controller: 'MeetingAgendaController'

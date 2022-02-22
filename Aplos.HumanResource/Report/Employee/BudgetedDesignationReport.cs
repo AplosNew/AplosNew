@@ -167,14 +167,14 @@ namespace Library.HumanResource.Report.Employee
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
 
                 xlsCol += 1;
-                colLegalDesignation = xlsCol;
-                sheet1.Range[xlsRow, colLegalDesignation].Text = "Legal Designation";
-                sheet1.Range[xlsRow, colLegalDesignation].ColumnWidth = 25;
+                int colDesignation = xlsCol;
+                sheet1.Range[xlsRow, colDesignation].Text = "Designation";
+                sheet1.Range[xlsRow, colDesignation].ColumnWidth = 25;
 
-                xlsCol += 1;
-                int colFactor = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Factor";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                //xlsCol += 1;
+                //int colFactor = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Factor";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
 
                 xlsCol += 1;
                 int colShift = xlsCol;
@@ -247,8 +247,8 @@ namespace Library.HumanResource.Report.Employee
                         sheet1.Range[xlsRow, colSubSection].Text = dtMPBudgetDesig.Rows[i]["SubSectionName"].ToString();
                         sheet1.Range[xlsRow, colActivity].Text = dtMPBudgetDesig.Rows[i]["Activity"].ToString();
                         sheet1.Range[xlsRow, colEmpType].Text = dtMPBudgetDesig.Rows[i]["EmployeeType"].ToString();
-                        sheet1.Range[xlsRow, colLegalDesignation].Text = dtMPBudgetDesig.Rows[i]["LegalDesignation"].ToString();
-                        sheet1.Range[xlsRow, colFactor].Text = dtMPBudgetDesig.Rows[i]["Factor"].ToString();
+                        sheet1.Range[xlsRow, colDesignation].Text = dtMPBudgetDesig.Rows[i]["GivenDesignation"].ToString();
+                        //sheet1.Range[xlsRow, colFactor].Text = dtMPBudgetDesig.Rows[i]["Factor"].ToString();
                         sheet1.Range[xlsRow, colShift].Text = dtMPBudgetDesig.Rows[i]["Shifts"].ToString();
 
                         sheet1.Range[xlsRow, colBudgetCode].Text = dtMPBudgetDesig.Rows[i]["BudgetCode"].ToString();
@@ -906,20 +906,56 @@ namespace Library.HumanResource.Report.Employee
         {
 
 
+            //   string strSql = @"SELECT plant.UserName PlantName, plant.Id PlantId, dd.UserName as Division ,ENt.UserName EntityName,ENt.Id EntityId ,
+            //                       uu.UserName as Unit, Dept.UserName DepartmentName,Dept.Id DepartmentId, Sec.UserName SectionName, Sec.id Sectionid,
+            //                       SSec.Id SubSectionId,SSec.UserName SubSectionName, DB.Activity , ec.UserName as EmployeeType,B.LegalDesignationId,ld.UserName LegalDesignation ,
+            //                       ld.Factor , sd.UserName as Shifts
+            //                       ,MB.Code BudgetCode, isnull(Sum(Cast (Deployment as numeric)),0) as Deployed
+            //,SUM(B.BudgetNo) AS BudgetNo,SUM(Actual) AS totalEmp,sum(B.Requirement) Requirement 
+            //                           FROM  (
+            //SELECT BudgetCodeId,LegalDesignationId,BudgetNo,0 AS Actual,ISNULL(Activity,'') Activity,ISNULL(Remarks,'') Remarks,ISNULL(Requirement,0) Requirement FROM DesignationBudget
+            //UNION ALL
+            //SELECT BudgetCode,LegalDesignationId,0 AS BudgetNo,COUNT(*),'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
+            //                           WHERE (DOJ<='" + Date + @"' AND (DOS IS NULL OR DOS >= '" + Date + @"'))
+            //GROUP BY BudgetCode,LegalDesignationId
+            //) B
+            //  LEFT JOIN HKP.LegalDesignation LD ON LD.Id = B.LegalDesignationId 
+            //                        LEFT JOIN MST.ManpowerBudget MB ON MB.Id = B.BudgetCodeId
+            //                        LEFT JOIN DesignationBudget DB ON DB.BudgetCodeId = B.BudgetCodeId
+
+            //                        LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+            //                        LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
+            //                        lEFT JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+            //                        lEFT JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
+
+            //                        LEFT OUTER JOIN [ORG].[Plant] AS plant ON plant.id = ENT.PlantId
+            //                        LEFT OUTER JOIN [ORG].Department AS Dept ON Dept.Id = PO.DepartmentId
+            //                        LEFT OUTER JOIN [ORG].Section AS Sec ON Sec.Id = PO.SectionId
+            //                        LEFT OUTER JOIN [ORG].SubSection AS SSec ON SSec.Id = PO.SubSectionId 
+            //                        left outer join org.Division dd on dd.Id = PO.DivisionId
+            //left outer join org.Unit uu on uu.Id = ENT.UnitId
+            //left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = B.LegalDesignationId
+            //left join mst.DesignationMaster dm on dm.id = ddm.DesignationMasterId
+            //left join hkp.EmployeeCategory ec on ec.ID = dm.EmployeeCategoryId
+            //left join ShiftDefination sd on sd.SystemID = mb.ShiftDefinationId";
             string strSql = @"SELECT plant.UserName PlantName, plant.Id PlantId, dd.UserName as Division ,ENt.UserName EntityName,ENt.Id EntityId ,
                                 uu.UserName as Unit, Dept.UserName DepartmentName,Dept.Id DepartmentId, Sec.UserName SectionName, Sec.id Sectionid,
-                                SSec.Id SubSectionId,SSec.UserName SubSectionName, DB.Activity , ec.UserName as EmployeeType,B.LegalDesignationId,ld.UserName LegalDesignation ,
-                                ld.Factor , sd.UserName as Shifts
+                                SSec.Id SubSectionId,SSec.UserName SubSectionName, DB.Activity , ec.UserName as EmployeeType,B.GivenDesignationId,ld.UserName GivenDesignation ,
+                                 sd.UserName as Shifts
                                 ,MB.Code BudgetCode, isnull(Sum(Cast (Deployment as numeric)),0) as Deployed
 								 ,SUM(B.BudgetNo) AS BudgetNo,SUM(Actual) AS totalEmp,sum(B.Requirement) Requirement 
                                     FROM  (
-								 SELECT BudgetCodeId,LegalDesignationId,BudgetNo,0 AS Actual,ISNULL(Activity,'') Activity,ISNULL(Remarks,'') Remarks,ISNULL(Requirement,0) Requirement FROM DesignationBudget
-								 UNION ALL
-								 SELECT BudgetCode,LegalDesignationId,0 AS BudgetNo,COUNT(*),'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
+								 --SELECT BudgetCodeId,LegalDesignationId,BudgetNo,0 AS Actual,ISNULL(Activity,'') Activity,ISNULL(Remarks,'') Remarks,ISNULL(Requirement,0) Requirement FROM DesignationBudget
+								 --UNION ALL
+								 --SELECT BudgetCode,LegalDesignationId,0 AS BudgetNo,COUNT(*),'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
+         --                            WHERE (DOJ<='" + Date + @"' AND (DOS IS NULL OR DOS >= '" + Date + @"'))
+								 --GROUP BY BudgetCode,LegalDesignationId
+
+								 SELECT BudgetCode as BudgetCodeId,GivenDesignationId,0 AS BudgetNo,COUNT(*) as Actual,'' Activity,'' Remarks,0 Requirement FROM EmployeeInformation 
                                     WHERE (DOJ<='" + Date + @"' AND (DOS IS NULL OR DOS >= '" + Date + @"'))
-								 GROUP BY BudgetCode,LegalDesignationId
+								 GROUP BY BudgetCode,GivenDesignationId
 								 ) B
-								   LEFT JOIN HKP.LegalDesignation LD ON LD.Id = B.LegalDesignationId 
+								   LEFT JOIN HKP.Designation LD ON LD.Id = B.GivenDesignationId
                                  LEFT JOIN MST.ManpowerBudget MB ON MB.Id = B.BudgetCodeId
                                  LEFT JOIN DesignationBudget DB ON DB.BudgetCodeId = B.BudgetCodeId
 
@@ -934,8 +970,8 @@ namespace Library.HumanResource.Report.Employee
                                  LEFT OUTER JOIN [ORG].SubSection AS SSec ON SSec.Id = PO.SubSectionId 
                                  left outer join org.Division dd on dd.Id = PO.DivisionId
 								 left outer join org.Unit uu on uu.Id = ENT.UnitId
-								 left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = B.LegalDesignationId
-								 left join mst.DesignationMaster dm on dm.id = ddm.DesignationMasterId
+								 --left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = B.GivenDesignationId
+								 left join mst.DesignationMaster dm on dm.DesignationId = B.GivenDesignationId
 								 left join hkp.EmployeeCategory ec on ec.ID = dm.EmployeeCategoryId
 								 left join ShiftDefination sd on sd.SystemID = mb.ShiftDefinationId";
             if (string.IsNullOrEmpty(plantIds))
@@ -948,11 +984,11 @@ namespace Library.HumanResource.Report.Employee
 
                 strSql += @" WHERE C.Id = '" + companyId + @"' and plant.Id IN (" + plantIds + @")";
             }
-            strSql += @"  GROUP BY  B.BudgetCodeId,B.LegalDesignationId,MB.Code,  DB.Activity, DB.Remarks
+            strSql += @"  GROUP BY  B.BudgetCodeId,B.GivenDesignationId,MB.Code,  DB.Activity, DB.Remarks
 								 ,plant.UserName ,ENt.UserName ,ld.UserName
 								 ,Dept.UserName , Sec.UserName , SSec.UserName 
 								 ,plant.Id ,ENt.Id ,ld.Id
-								 ,Dept.Id , Sec.Id , SSec.Id, dd.UserName , uu.UserName , ec.UserName , ld.Factor , sd.UserName ";
+								 ,Dept.Id , Sec.Id , SSec.Id, dd.UserName , uu.UserName , ec.UserName  , sd.UserName  ";
 
             return _sqlRepository.GetDataTable(strSql);
         }

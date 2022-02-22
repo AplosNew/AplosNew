@@ -124,9 +124,9 @@ namespace Aplos.Areas.Productions.Controllers
             int ColPc = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "PO", 15, ExcelHAlign.HAlignCenter);
-            int ColPo = COL;
-            COL++;
+            //report.SetHeaderText(ref sheet, ROW, COL, "PO", 15, ExcelHAlign.HAlignCenter);
+            //int ColPo = COL;
+            //COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Lot No", 15, ExcelHAlign.HAlignCenter);
             int ColLot = COL;
@@ -183,7 +183,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColMat].Text = data.Rows[i]["Material"].ToString();
                 sheet[ROW, ColArt].Text = data.Rows[i]["Article"].ToString();
                 sheet[ROW, ColPc].Text = data.Rows[i]["ProductCode"].ToString();
-                sheet[ROW, ColPo].Text = data.Rows[i]["POId"].ToString();
+                //sheet[ROW, ColPo].Text = data.Rows[i]["POId"].ToString();
                 sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
                 sheet[ROW, ColOpen].Number = clsStaticInfo.dbl(data.Rows[i]["Opening"].ToString());
                 sheet[ROW, ColPakcing].Number = clsStaticInfo.dbl(data.Rows[i]["Packing"].ToString());
