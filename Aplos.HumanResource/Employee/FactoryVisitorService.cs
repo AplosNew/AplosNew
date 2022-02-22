@@ -233,5 +233,45 @@ namespace Library.HumanResource.Employee
         #endregion
     }
 
+    public class VehicleRequistionService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public VehicleRequistionService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+        public IEnumerable<object> GetToLocation(string Id)
+        {
+            try
+            {
+                var sql = @"select Id as Value,UserName as Text from 
+                hkp.transportservicelocations 
+                where Id <>'"+Id+"'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetFromLocation()
+        {
+            try
+            {
+                var sql = @"select Id as Value,UserName as Text from
+                hkp.transportservicelocations";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+      
+    }
+
 }
   
