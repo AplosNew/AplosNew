@@ -637,12 +637,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
             $scope.WorkCenterMasterId = $scope.productionSummaryNew.ToWorkCenterMasterId;
         }
 
-        //if ($scope.Status === 'PROCESS') {
-        //    $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
-        //} else {
-        //    $scope.ProcessId = $scope.productionSummaryNew.ToProcessId;
-        //}
-
+        
         $scope.ProductOrderList = [];
         $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&status=' + $scope.Status)
             .then(
