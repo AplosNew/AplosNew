@@ -245,7 +245,6 @@ namespace Library.General.AdministrationTasks
             }
         }
 
-
         public string Create(Dictionary<string, object> data)
         {
             try
@@ -330,6 +329,25 @@ namespace Library.General.AdministrationTasks
             }
         }
 
+        public IEnumerable<object> getEmployeeList()
+        {
+            try
+            {
+                var str = @"select SystemId,EmployeeName,
+                Format(DOJ,'yyyy-MMM-dd')DOJ,d.UserName as Department,
+                s.UserName as Section,ss.UserName as SubSection
+                from EmployeeInformation E left join org.Department d on d.Id=e.DepartmentId
+                left join org.Section s on s.Id=e.SectionId
+                left join org.SubSection ss on ss.Id=e.SubSectionId
+                where EmployeeStatus='Active'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -351,6 +369,7 @@ namespace Library.General.AdministrationTasks
 
             dt.Rows.Add(dr);
         }
+      
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
