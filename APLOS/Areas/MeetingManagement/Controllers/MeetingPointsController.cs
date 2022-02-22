@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Aplos.Controllers;
+using Aplos.Helpers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -74,7 +75,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult Create(Dictionary<string, object> data)
         {
             try
@@ -82,14 +83,9 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-
-
                 con.OpenDataSetThroughAdapter("select * from MeetingItemHeader where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
-
-
-
 
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -111,18 +107,15 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-
                 return Json(new { Error = false, Message = AplosMessage.Updated, Id = _Id });
-
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
-
             }
         }
-
+        
+        [HttpPost, Authorize]
         public ActionResult Delete(string id)
         {
             string strUSQL, talkingSQL, suggestionSQL, actionSQL, meetingSQL;
@@ -258,18 +251,21 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
         #region upload Production Bulletin picture
         [HttpPost, Authorize]
+
         public ActionResult SaveMeetingPointsDefault(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
         {
             try
             {
-                UploadDefault_data = UploadDefault_data.Replace("\"", "");
-                if (string.IsNullOrEmpty(UploadDefault_data))
-                    throw new Exception("Save the Meeting Points first");
+                UploadDefault_data = UploadDefault_data.Replace("\\", "");
+
+                DataTable AdditionalData = CustomJsonResult.ToDataTable(UploadDefault_data);
+                
 
                 foreach (var file in UploadDefault)
                 {
 
-                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    //var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    var fileName = Path.GetFileName(AdditionalData.Rows[0]["Id"].ToString() + new FileInfo(file.FileName).Extension);
                     var fileN = file.FileName;
                     var destinationPath = Path.Combine(ResourcesPathReader.GetMeetingPointsImagePath(), fileName);
 
@@ -290,15 +286,15 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
 
                     ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                    string sql = "select * from MeetingItemHeader where id='" + UploadDefault_data + "'";
+                    string sql = "select * from MeetingItemHeader where id='" + AdditionalData.Rows[0]["Id"].ToString() + "'";
                     DataSet dsLocal = null;
                     connection.BeginTransaction();
                     connection.getDataSet(sql, out dsLocal);
                     connection.CommitTransaction();
                     var FN = dsLocal.Tables[0].Rows[0]["Attachment"].ToString();
                     if (fileN != FN)
-                        if (System.IO.File.Exists(path + UploadDefault_data + Path.GetExtension(FN)))
-                            System.IO.File.Delete(path + UploadDefault_data + Path.GetExtension(FN));
+                        if (System.IO.File.Exists(path + AdditionalData.Rows[0]["Id"].ToString() + Path.GetExtension(FN)))
+                            System.IO.File.Delete(path + AdditionalData.Rows[0]["Id"].ToString() + Path.GetExtension(FN));
                     if (dsLocal.Tables[0].Rows.Count > 0)
                     {
                         dsLocal.Tables[0].Rows[0].BeginEdit();
@@ -348,35 +344,8 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
         #endregion upload product picture
 
-        //[Authorize, HttpGet]
-        //public JsonResult GettalkingPoint(GridParameter parameters, string plantId, string partyAccountGroupId, string partyId, string MeetingItemHeaderId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    if (string.IsNullOrEmpty(plantId))
-        //    {
-        //        plantId = identity.PlantId;
-        //    }
-        //    return Json(GettalkingPoint(parameters, MeetingItemHeaderId), JsonRequestBehavior.AllowGet);
-        //}
 
-        //public GridModel GettalkingPoint(GridParameter parameters,string MeetingItemHeaderId)
-        //{
-        //    try
-        //    {
-        //        parameters.CmdText = @"SELECT * FROM dbo.MeetingTalkingPoint
-        //        where MeetingItemHeaderId='"+ MeetingItemHeaderId + @"'";
-
-        //        return _sqlRepository.GetGridData(parameters);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new CustomException(ex.Message, ex,
-        //            Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-        //            ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-        //    }
-        //}
-
-        [HttpPost]
+        [HttpPost,Authorize]
         public JsonResult CreateTalkingPoint(Dictionary<string, object> data)
         {
             try
@@ -394,6 +363,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingTalkingPoint", out _Id);
 
                     data["Id"] = _Id;
+                
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -419,7 +389,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateSuggestionsRecommendation(Dictionary<string, object> data)
         {
             try
@@ -463,7 +433,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public JsonResult CreateActionablePoints(Dictionary<string, object> data)
         {
             try
@@ -508,7 +478,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateMeetingDecision(Dictionary<string, object> data)
         {
             try
@@ -611,7 +581,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select MTP.*,EI.EmployeeName TalkingPointByWhomName,EI.EmployeeCode TalkingPointByWhomCode 
+            string sql = @"select top 100 * from (select MTP.*,EI.EmployeeName ByWhomName,EI.EmployeeCode ByWhomCode 
                                                 from MeetingTalkingPoint MTP
                                                 left join EmployeeInformation EI on EI.SystemId=MTP.ByWhomId
                                                 WHERE MeetingItemHeaderId = '" + meetingItemHeaderId + @"'
@@ -628,7 +598,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select MS.*,EI.EmployeeName SuggestionsByWhomName,EI.EmployeeCode SuggestionsByWhomCode
+            string sql = @"select top 100 * from (select MS.*,EI.EmployeeName ByWhomName,EI.EmployeeCode ByWhomCode
                                                 from MeetingSuggestion MS
                                                 left join EmployeeInformation EI on EI.SystemId=MS.ByWhomId
                                                 WHERE MeetingItemHeaderId = '" + meetingItemHeaderId + @"'
@@ -646,7 +616,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select MAP.*,FORMAT(MAP.TargetDate,'dd-MMM-yyyy') TDate,EI.EmployeeName ActionByWhomName,EI.EmployeeCode ActionByWhomCode
+            string sql = @"select top 100 * from (select MAP.*,FORMAT(MAP.TargetDate,'dd-MMM-yyyy') TDate,EI.EmployeeName ByWhomName,EI.EmployeeCode ByWhomCode
                                                 from MeetingActionablePoints MAP
                                                 left join EmployeeInformation EI on EI.SystemId=MAP.ByWhomId
                                                 WHERE MeetingItemHeaderId = '" + meetingItemHeaderId + @"'
@@ -663,7 +633,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select MD.*,EI.EmployeeName DecisionByWhomName,EI.EmployeeCode DecisionByWhomCode
+            string sql = @"select top 100 * from (select MD.*,EI.EmployeeName ByWhomName,EI.EmployeeCode ByWhomCode
                                                 from MeetingDecision MD
                                                 left join EmployeeInformation EI on EI.SystemId=MD.ByWhomId
                                                 WHERE MeetingItemHeaderId = '" + meetingItemHeaderId + @"'
@@ -697,13 +667,13 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        public JsonResult deleteTalkingPoint(string id)
+        [HttpPost,Authorize]
+        public JsonResult DeleteTalkingPointData(string id)
         {
             try
             {
                 if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
+                    throw new Exception("Select File first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
@@ -718,13 +688,13 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult deleteSuggestionsRecommendation(string id)
+        [HttpPost,Authorize]
+        public ActionResult DeleteSuggestionsRecommendationData(string id)
         {
             try
             {
                 if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
+                    throw new Exception("Select File first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
@@ -739,13 +709,13 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult deleteActionablePoint(string id)
+        [HttpPost, Authorize]
+        public ActionResult DeleteActionablePointData(string id)
         {
             try
             {
                 if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
+                    throw new Exception("Select File first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
@@ -760,13 +730,13 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult deleteMeetingDecision(string id)
+        [HttpPost,Authorize]
+        public ActionResult DeleteMeetingDecisionData(string id)
         {
             try
             {
                 if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
+                    throw new Exception("Select File first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
@@ -781,26 +751,27 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        //[HttpPost]
-        //public ActionResult deleteExpectedPerson(string id)
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrEmpty(id))
-        //            throw new Exception("Select entry first");
+        [HttpPost, Authorize]
+        public ActionResult DeleteExpectedPersonData(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select File first");
 
-        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-        //        con.BeginTransaction();
-        //        con.executeQuery("delete from MeetingExpectedPerson where id='" + id + "'");
-        //        con.CommitTransaction();
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from MeetingExpectedPerson where id='" + id + "'");
+                con.CommitTransaction();
 
-        //        return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-        //    }
-        //}
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
 
         [HttpGet, Authorize]
         public ActionResult GetEmployeeInformation(string criteria)

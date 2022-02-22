@@ -4004,6 +4004,7 @@
     <Content Include="Areas\Administration\Views\web.config" />
     <Content Include="Areas\Administration\Views\VehicleMovementLocations\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\ServicesApprovingAuthority\Aplos.cshtml" />
+    <Content Include="Areas\Parties\Views\Party\_BOQVendorPopUpNew.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

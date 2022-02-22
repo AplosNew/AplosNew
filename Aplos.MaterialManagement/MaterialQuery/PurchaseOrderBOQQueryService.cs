@@ -43,12 +43,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
                                     , RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName
                                     , RGL.ReconciliationBudgetId, RGL.ReconciliationBudgetCode, RGL.ReconciliationBudgetName
                                     , RGL.ReconciliationActivityId, RGL.ReconciliationActivityCode, RGL.ReconciliationActivityName
-                                    , DGL.DownPaymentGLId, DGL.DownPaymentGLCode, DGL.DownPaymentGLName
-                                    , DGL.DownPaymentBudgetId, DGL.DownPaymentBudgetCode, DGL.DownPaymentBudgetName
-                                    , DGL.DownPaymentActivityId, DGL.DownPaymentActivityCode, DGL.DownPaymentActivityName
-                                    , SGL.SuspenseGLId, SGL.SuspenseGLCode, SGL.SuspenseGLName
-                                    , SGL.SuspenseBudgetId, SGL.SuspenseBudgetCode, SGL.SuspenseBudgetName
-                                    , SGL.SuspenseActivityId, SGL.SuspenseActivityCode, SGL.SuspenseActivityName
                                     , CP.TaxApplicable, CP.IsTaxApplicableChangeable
 									, (SELECT COUNT(Id) FROM [HKP].[PartyPlant] WHERE PartyId=P.Id) AS TotalPartyPlant
                                     FROM [HKP].[Party] AS P
@@ -70,28 +64,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
                                     LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
                                     WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
                                     ) AS RGL ON RGL.CompanyPartyId=CP.Id
-                                    LEFT JOIN(
-                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS DownPaymentGLId, GL.AccountCode AS DownPaymentGLCode, GL.UserName AS DownPaymentGLName
-                                    , CPGL.BudgetMasterId AS DownPaymentBudgetId, B.Code AS DownPaymentBudgetCode, B.UserName AS DownPaymentBudgetName
-                                    , CPGL.ActivityId AS DownPaymentActivityId, A.Code AS DownPaymentActivityCode, A.UserName AS DownPaymentActivityName
-                                    FROM [HKP].[CompanyPartyGL] AS CPGL
-                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
-                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
-                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
-                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
-                                    WHERE CPGL.PartyGLType='" + PartyGLType.DownPaymentGL + @"'
-                                    ) AS DGL ON DGL.CompanyPartyId=CP.Id
-                                    LEFT JOIN(
-										SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS SuspenseGLId, GL.AccountCode AS SuspenseGLCode, GL.UserName AS SuspenseGLName
-										, CPGL.BudgetMasterId AS SuspenseBudgetId, B.Code AS SuspenseBudgetCode, B.UserName AS SuspenseBudgetName
-										, CPGL.ActivityId AS SuspenseActivityId, A.Code AS SuspenseActivityCode, A.UserName AS SuspenseActivityName
-										FROM [HKP].[CompanyPartyGL] AS CPGL
-										LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
-										LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
-										LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
-										LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
-										WHERE CPGL.PartyGLType='" + PartyGLType.SuspenseGL + @"'
-                                    ) AS SGL ON SGL.CompanyPartyId=CP.Id
+                                    JOIN (SELECT DISTINCT VendorId FROM  BOQ )AS boq ON boq.VendorId=P.Id 
+                                    
                                     WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + temp + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"'
                                     ) AS TEMP WHERE " + strkey + " order by Code ";
                 return _sqlRepository.GetDataCollection(sql);
