@@ -330,7 +330,7 @@
                                 <td class="text-right">{{x.Amount | number| setDecimal:2}}</td>
                             </tr>
                             <tr>
-                                <td colspan="2" class="text-right"><strong>Total : </strong></td>
+                                <td colspan="3" class="text-right"><strong>Total : </strong></td>
                                 <td class="text-right" ><strong>{{packingDetailList | sumByKey : 'Qty' }}</strong></td>
                                 <td class="text-right"><strong>{{packingDetailList | sumByKey : 'Amount'| number| setDecimal:2}}</strong></td>
                             </tr>

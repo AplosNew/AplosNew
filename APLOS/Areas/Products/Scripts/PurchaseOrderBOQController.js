@@ -56,6 +56,23 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.SubmitContractNo = null;
         $scope.SubmitCustomerName = null;
     };
+    $scope.showBOQPartyPopUpNew = function () {
+       
+        if ($scope.partyType === 'Vendor') {
+            $scope.partyUrl = 'Products/PurchaseOrder/GetCompanyBOQPartyDataListNew?partyType=' + $scope.partyType;
+        }
+        
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        //}
+        angular.element(document.querySelector('#partyPopUp')).modal('show');
+    };
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
