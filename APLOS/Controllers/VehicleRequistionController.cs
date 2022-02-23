@@ -5,16 +5,19 @@ using System.Net.Http;
 using System.Web.Http;
 using APLOS;
 using Library.HumanResource.Employee;
+using Library.Service.Setups;
 
 namespace Aplos.Controllers
 {
     [BasicAuthentication]
     public class VehicleRequistionController : ApiController
     {
-        VehicleRequistionService veh = new VehicleRequistionService();
-        public VehicleRequistionController()
+        private readonly IMailSenderService _mailSenderService;
+        VehicleRequistionService veh ;
+        public VehicleRequistionController(IMailSenderService mailSenderService)
         {
-            veh = new VehicleRequistionService();
+            _mailSenderService = mailSenderService;
+            veh = new VehicleRequistionService(_mailSenderService);
         }       
 
         [HttpGet]

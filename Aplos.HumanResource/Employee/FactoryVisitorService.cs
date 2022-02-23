@@ -6,6 +6,7 @@ using Library.Data.Sql;
 using OTSBD;
 using bplib;
 using Library.HumanResource.NewAttendanceProcess;
+using Library.Service.Setups;
 
 namespace Library.HumanResource.Employee
 {
@@ -270,11 +271,14 @@ namespace Library.HumanResource.Employee
     {
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
+        private readonly IMailSenderService _mailSenderService;
 
-        public VehicleRequistionService()
+        public VehicleRequistionService(IMailSenderService mailSenderService)
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
+            _mailSenderService = mailSenderService;
+
         }
         public IEnumerable<object> GetToLocation(string Id)
         {
@@ -366,6 +370,32 @@ namespace Library.HumanResource.Employee
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+
+                #region Email Sender Service
+
+                if (!string.IsNullOrEmpty(items[0].ApprovingAuthority))
+                {
+                    string mailMessage = "";
+                    DataTable dtApprovalEmpInfo = _sqlRepository.GetDataTable(@"select * from EmployeeInformation where SystemId = '" + items[0].ApprovingAuthority + @"'");
+                    string ApprovalEmpName = dtApprovalEmpInfo.Rows[0]["EmployeeName"].ToString();
+                    string RespEmailId = dtApprovalEmpInfo.Rows[0]["EmailId"].ToString();
+
+                    DataTable dtEmpInfo = _sqlRepository.GetDataTable(@"select * from EmployeeInformation where SystemId = '" + items[0].EmployeeId + @"'");
+                    string EmpName = dtEmpInfo.Rows[0]["EmployeeName"].ToString();
+                    string EmpCode= dtEmpInfo.Rows[0]["EmployeeCode"].ToString();
+
+                    mailMessage = @"Dear " + ApprovalEmpName + "<br> <br> <br>" +
+                       " You have a Vehicle Requistion Approval request of " + EmpName + "(" + dtEmpInfo.Rows[0]["EmployeeCode"].ToString() + ") For " + items[0].FromTime + " To " + items[0].ToTime +
+                       ". Please go to the App for Approving." +
+                       "<br> <br> <br>" +
+                       "Thank you";
+
+                    _mailSenderService.SendVehicleRequistionApproveMail(items[0].ApprovingAuthority, mailMessage, RespEmailId,
+                        ApprovalEmpName, items[0].EmployeeId, EmpName, EmpCode);
+                }
+                #endregion
+
 
                 return MasterId;
 
