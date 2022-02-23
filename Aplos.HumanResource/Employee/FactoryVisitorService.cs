@@ -106,7 +106,7 @@ namespace Library.HumanResource.Employee
             {
                 var sql = @"select d.Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
                 VisitorName,VisitorType,Purpose,e.EmployeeName as ToMeet,p.UserName as Department,
-				l.UserName as Designation
+				l.UserName as Designation,d.VisitorLocation
                 from VisitorServiceData d
 				left join EmployeeInformation e on e.SystemId=d.ToMeet
 				left join org.Department p on p.Id=e.DepartmentId
