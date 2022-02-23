@@ -6,12 +6,9 @@ using Library.Data.Sql;
 using OTSBD;
 using bplib;
 using Library.HumanResource.NewAttendanceProcess;
-using Library.Service.Setups;
 
 namespace Library.HumanResource.Employee
 {
-    #region Visitor Process Functions
-
     public class FactoryVisitorService
     {
         SqlRepository _sqlRepository;
@@ -236,49 +233,15 @@ namespace Library.HumanResource.Employee
         #endregion
     }
 
-    #endregion
-
-    #region Vehicle Requistion Module Functions
-
-    public class VehicleRequistionModel
-    {
-        #region Fixed Fields
-        public string AddedBy { get; set; }
-        public DateTime AddedDate { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public string AddedFromIP { get; set; }
-        public string UpdatedFromIP { get; set; }
-        #endregion
-
-        #region Other Fields
-        public string Id { get; set; }
-        public string Reason { get; set; }
-        public string Purpose { get; set; }
-        public string Remarks { get; set; }
-        public DateTime Date { get; set; }
-        public DateTime FromTime { get; set; }
-        public DateTime ToTime { get; set; }
-        public string ApprovingAuthority { get; set; }
-        public string ToLoc { get; set; }
-        public string FromLoc { get; set; }
-        public string EmployeeId { get; set; }
-        public string IsApproved { get; set; }
-      
-        #endregion
-    }
     public class VehicleRequistionService
     {
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
-        private readonly IMailSenderService _mailSenderService;
 
-        public VehicleRequistionService(IMailSenderService mailSenderService)
+        public VehicleRequistionService()
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
-            _mailSenderService = mailSenderService;
-
         }
         public IEnumerable<object> GetToLocation(string Id)
         {
@@ -294,7 +257,6 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
-       
         public IEnumerable<object> GetFromLocation()
         {
             try
@@ -308,105 +270,8 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
-
-        public IEnumerable<object> GetApprovingAuthList()
-        {
-            try
-            {
-                var sql = @"select ei.EmployeeName as Text,ei.SystemId as Value
-                from ServicesApprovingAuthority s left join EmpServiceType e on e.Id=s.ServiceId
-                left join EmployeeInformation ei on ei.SystemId=s.EmpId
-                where e.Service='Transport'";
-                return _sqlRepository.GetDataCollection(sql, null);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public string SaveData(IEnumerable<VehicleRequistionModel> DataToSave)
-        {
-            try
-            {
-                DataSet dsMaster;
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-                List<VehicleRequistionModel> items = DataToSave.ToList();
-
-                con.OpenDataSetThroughAdapter("select * from dbo.VehicleRequistionData where 1=2", out dsMaster, false, "1");
-
-                foreach (VehicleRequistionModel item in DataToSave)
-                {
-
-                    if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-                        clsGenID genid = new clsGenID();
-                        genid.GenID("VehicleRequistion", out string _Id);
-
-                        dr["Id"] = "VR" + _Id;
-                        dr["Date"] = DateTime.Now.ToString("dd-MMM-yyyy");
-                        dr["EmployeeId"] = item.EmployeeId;
-                        dr["FromLoc"] = item.FromLoc;
-                        dr["ToLoc"] = item.ToLoc;
-                        dr["FromTime"] = item.FromTime;
-                        dr["ToTime"] = item.ToTime;
-                        dr["Purpose"] = item.Purpose;
-                        dr["Remarks"] = item.Remarks;
-                        dr["Reason"] = item.Reason;
-                        dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = DateTime.Now.ToString();
-                        dr["AddedFromIP"] = item.AddedFromIP;
-                        dr["IsApproved"] = false;
-                        dr["ApprovingAuthority"] = item.ApprovingAuthority;
-                    
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
-
-                }
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-
-                #region Email Sender Service
-
-                if (!string.IsNullOrEmpty(items[0].ApprovingAuthority))
-                {
-                    string mailMessage = "";
-                    DataTable dtApprovalEmpInfo = _sqlRepository.GetDataTable(@"select * from EmployeeInformation where SystemId = '" + items[0].ApprovingAuthority + @"'");
-                    string ApprovalEmpName = dtApprovalEmpInfo.Rows[0]["EmployeeName"].ToString();
-                    string RespEmailId = dtApprovalEmpInfo.Rows[0]["EmailId"].ToString();
-
-                    DataTable dtEmpInfo = _sqlRepository.GetDataTable(@"select * from EmployeeInformation where SystemId = '" + items[0].EmployeeId + @"'");
-                    string EmpName = dtEmpInfo.Rows[0]["EmployeeName"].ToString();
-                    string EmpCode= dtEmpInfo.Rows[0]["EmployeeCode"].ToString();
-
-                    mailMessage = @"Dear " + ApprovalEmpName + "<br> <br> <br>" +
-                       " You have a Vehicle Requistion Approval request of " + EmpName + "(" + dtEmpInfo.Rows[0]["EmployeeCode"].ToString() + ") For " + items[0].FromTime + " To " + items[0].ToTime +
-                       ". Please go to the App for Approving." +
-                       "<br> <br> <br>" +
-                       "Thank you";
-
-                    _mailSenderService.SendVehicleRequistionApproveMail(items[0].ApprovingAuthority, mailMessage, RespEmailId,
-                        ApprovalEmpName, items[0].EmployeeId, EmpName, EmpCode);
-                }
-                #endregion
-
-
-                return MasterId;
-
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-        }
-
+      
     }
 
-    #endregion
 }
+  

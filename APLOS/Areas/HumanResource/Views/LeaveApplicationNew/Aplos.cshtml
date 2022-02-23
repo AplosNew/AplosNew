@@ -161,21 +161,29 @@
                 <thead>
                     <tr>
                         <th>Leave Name</th>
-                        <th>Opening Balance</th>
-                        <th>Allocated</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Brought Forward</th>
+                        <th>Current Period Allocation</th>
+                        <th>Leave Days Allowed</th>
                         <th>Applied</th>
                         <th>Availed</th>
-                        <th>Closing Balance</th>
+                        <th>Encashed</th>
+                        <th>Balance</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="x in LeaveBalanceList">
                         <td>{{x.LeaveName}}</td>
-                        <td>{{(x.CarryForwardOpeningBalance+x.BroughtForward).toFixed(2)}}</td>
-                        <td>{{(x.CurrentYearAllocation).toFixed(2)}}</td>
-                        <td>{{(x.AppliedLeave).toFixed(2)}}</td>
-                        <td>{{(x.AvailedDays).toFixed(2)}}</td>
-                        <td>{{(x.CarryForwardOpeningBalance+x.BroughtForward+x.CurrentYearAllocation-x.AvailedDays).toFixed(2)}}</td>
+                        <td>{{x.FromDate}}</td>
+                        <td>{{x.ToDate}}</td>
+                        <td>{{x.BroughtForward}}</td>
+                        <td>{{x.CurrentAllocation}}</td>
+                        <td>{{x.LeaveDays}}</td>
+                        <td>{{x.Applied}}</td>
+                        <td>{{x.Availed}}</td>
+                        <td>{{x.EncashedInbetween}}</td>
+                        <td>{{x.Balance}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -183,11 +191,44 @@
         <div class="common-btn">
             <ul class="list-inline text-left">
                 <li>
-                    <button ng-click="LeaveAppNewReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download Leave Summary</button>
+                    <button ng-click="LeaveAppReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download Leave Summary</button>
                 </li>
             </ul>
         </div>
     </div>
+    @*<div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Leave Name</th>
+                            <th>Opening Balance</th>
+                            <th>Allocated</th>
+                            <th>Applied</th>
+                            <th>Availed</th>
+                            <th>Closing Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in LeaveBalanceList">
+                            <td>{{x.LeaveName}}</td>
+                            <td>{{(x.CarryForwardOpeningBalance+x.BroughtForward).toFixed(2)}}</td>
+                            <td>{{(x.CurrentYearAllocation).toFixed(2)}}</td>
+                            <td>{{(x.AppliedLeave).toFixed(2)}}</td>
+                            <td>{{(x.AvailedDays).toFixed(2)}}</td>
+                            <td>{{(x.CarryForwardOpeningBalance+x.BroughtForward+x.CurrentYearAllocation-x.AvailedDays).toFixed(2)}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li>
+                        <button ng-click="LeaveAppNewReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download Leave Summary</button>
+                    </li>
+                </ul>
+            </div>
+        </div>*@
     <div class="clearfix"></div>
 </div>
 <div class="table-responsive modal-table  aplos-grid-toggle">

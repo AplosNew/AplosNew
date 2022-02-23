@@ -209,8 +209,6 @@ namespace Library.Service.Setups
         /// <param name="appVersion"></param>
         void SendControlChart(string addedBy, string ip, string appVersion);
 
-        void SendVehicleRequistionApproveMail(string empSystemId, string emailMessage, string toEmailId, string toEmailEmployeeName, string laEmpSystemId, string laEmpName, string laEmpCode);
-
         void SendFirstLeaveApproveRequestMail(string empSystemId, string plantId, string emailMessage, string toEmailId, string toEmailEmployeeName, string laEmpSystemId, string laEmpName, string laEmpCode);
         IWorkbook GetDailyAttendanceDataForView(string companyGroupId, string companyId, string plantId, string SheetHeader, string SheetName, string workDate);
 
