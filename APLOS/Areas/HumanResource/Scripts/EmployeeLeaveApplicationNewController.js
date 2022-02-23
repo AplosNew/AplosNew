@@ -82,12 +82,12 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
     cboService.getCboLeaveYear(function (result) {
         $scope.leaveYearlist = result;
         $scope.YearNo = $filter("filter")($scope.leaveYearlist, { Text: new Date().getFullYear() })[0].Value;
-        $scope.getLeaveBalance();
+        //$scope.getLeaveBalance();
     });
 
     $scope.YearNo = null;
     $scope.getLeaveBalance = function () {
-        $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalance?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo)
+        $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalanceNew?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo)
             .then(function (response) {
                 $scope.LeaveBalanceList = response.data;
                 //console.log($scope.LeaveBalanceList);

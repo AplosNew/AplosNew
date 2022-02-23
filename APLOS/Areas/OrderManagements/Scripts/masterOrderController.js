@@ -479,7 +479,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
         $scope.ExchangeDisplayExchangeRates($scope.fileNew.Id, $scope.fileNew.CurrencyId);//reloading currency exchange rates
         $scope.GetPaymentTermChangeable();
-        //$scope.GetContractByMasterOrder();
+        $scope.GetContractByMasterOrder();
     };
 
     $scope.GetPaymentTermChangeable = function () {
@@ -3196,14 +3196,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     };
 
-    $scope.chvChange = function (args) {
-        if (!args.isInteraction)
-            return;
+    $scope.chvChange = function (characteristicsValueId, index) {
         for (var i = 1; i < baseService.arrayLength($scope.skuList); i++) {
-            //$scope.skuList[i].childList[index].CharacteristicsValueId = args.selectedValue;
-            $scope.skuList[i].childList[args.model.name].CharacteristicsValueId = args.selectedValue;
+            $scope.skuList[i].childList[index].CharacteristicsValueId = characteristicsValueId;
         }
-        $scope.verifySkuMatrix();
     };
 
     $scope.chvKeyChange = function (value, index) {
@@ -4494,7 +4490,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         $scope.modelNew.Id = response.data.Id;
 
                         //$scope.GetContractByMasterOrder();
-                        //$scope.GetContractFundData($scope.modelNew.Id);
+                        $scope.GetContractFundData($scope.modelNew.Id);
                         $scope.getMasterItemList();
                     }
                 }), function errorCallBack(response) {
@@ -4875,7 +4871,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
 
     //#endregion 
-
 
     $scope.orderCostingMasterTemplateList = [];
     $scope.ShowOrderCostingMasterTemplatePopUp = function (index,articleId) {

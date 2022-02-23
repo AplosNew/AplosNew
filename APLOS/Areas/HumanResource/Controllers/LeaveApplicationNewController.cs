@@ -511,7 +511,12 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
                 throw;
             }
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetEmpLeaveBalanceNew(string EmpsystemId, string calanderYearId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_leaveTransactionService.LoadGrdAllocatedLvDetailsNew(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
+        }
         #endregion -- Operations
     }
 }

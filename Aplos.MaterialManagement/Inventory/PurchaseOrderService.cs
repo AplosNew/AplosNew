@@ -253,7 +253,24 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+        public  void InsertPOBOQMaster(PurchaseOrder entity)
+        {
+            try
+            {
+                ResetCurrencyRate(entity);
+                entity.Id = GetPK();
+                base.Insert(entity);
+                //TODO:
+                
 
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
         public void TnCDeleteDetail(string POId)
         {
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
