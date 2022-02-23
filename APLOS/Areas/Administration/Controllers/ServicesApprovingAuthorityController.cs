@@ -3,62 +3,53 @@
 using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Data.Sql;
-using OTSBD;
+using Library.General.AdministrationTasks;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Web.Mvc;
-using Library.OrderManagement.Production;
 
 #endregion Using
 
 namespace Aplos.Areas.Administration.Controllers
 {
-    public class ServicesApprovingAuthorityController  : BaseController
+
+    public class ServicesApprovingAuthorityController : BaseController
     {
 
-        WasteMasterService ws = new WasteMasterService();
-        string TableName = "dbo.WasteMaster";
-        
         #region Constructor
-
+        ServicesApprovingAuthorityClass sa = new ServicesApprovingAuthorityClass();
         private readonly ISqlRepository _sqlRepository;
+
         public ServicesApprovingAuthorityController(ISqlRepository R)
         {
             _sqlRepository = R;
+            sa = new ServicesApprovingAuthorityClass();
         }
 
         #endregion Constructor
+
+        #region Views
 
         public ActionResult Aplos()
         {
             return View();
         }
-        
-      
-        [Authorize, HttpPost]
-        public ActionResult getProcess()
-        {
-            return Json(ws.getProcess(), JsonRequestBehavior.AllowGet);
-        }
 
-     
-        [Authorize, HttpGet]
-        public ActionResult getUOM()
-        {
-            return Json(ws.getUOM(), JsonRequestBehavior.AllowGet);
-        }
+        #endregion
 
-        [Authorize, HttpPost]
-        public ActionResult getBudget()
-        {
-            return Json(ws.getBudgetId(), JsonRequestBehavior.AllowGet);
-        }
+        #region Functions
 
         [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM dbo.WasteMaster"), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(sa.GetCbo(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [Authorize, HttpPost]
@@ -66,40 +57,56 @@ namespace Aplos.Areas.Administration.Controllers
         {
             try
             {
-                var _master = ws.GetMaster(Id);
-                var _child = ws.GetChild(Id);
-                return Json(new { master = _master , child = _child }, JsonRequestBehavior.AllowGet);
+                var _master = sa.Get(Id);
+                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-            return Json(ws.GetList(strkey), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(sa.GetList(column, value), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(sa.GetSequence(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> datas , List<string> budgets)
+        public JsonResult Create(Dictionary<string, object> data)
         {
             try
             {
-                var data = ws.Create(datas , budgets);
-                return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                string ret = sa.Create(data);
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Data = data, Sequence = sa.GetSequence(), Message = AplosMessage.Updated });
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret });
+                }
 
             }
             catch (Exception ex)
@@ -114,9 +121,17 @@ namespace Aplos.Areas.Administration.Controllers
         {
             try
             {
-                ws.Delete(id);
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                string ret = sa.Delete(id);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Sequence = sa.GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
 
             }
             catch (Exception ex)
@@ -128,14 +143,7 @@ namespace Aplos.Areas.Administration.Controllers
 
 
         }
-        
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
-            return 1;
-        }
+        #endregion
     }
 }
