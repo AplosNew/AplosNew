@@ -72,8 +72,8 @@
                         <a ng-click="setTab(3)" href="" data-toggle="tab">Item</a>
                     </li>
                     @*<li role="presentation" ng-class="{ active: isSet(4) }">
-                        <a ng-click="setTab(4);GetMasterOrderAmountAndQty();" href="" data-toggle="tab">Contract</a>
-                    </li>*@
+                            <a ng-click="setTab(4);GetMasterOrderAmountAndQty();" href="" data-toggle="tab">Contract</a>
+                        </li>*@
                 </ul>
             </div>
 
@@ -489,9 +489,9 @@
                                             <div class="select-style">
                                                 @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
 
-                     <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
-                    <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
-                </select>*@
+                                                         <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
+                                                        <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
+                                                    </select>*@
                                                 <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
                                                         ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
                                                         ng-selected="x.ByDefault == item.ByDefault"></select>
@@ -512,13 +512,13 @@
                                             </div>
                                         </td>
                                         @*<td>
-            <div class="select-style">
-                <select class="form-control" ng-model="x.ProductLibraryId"
-                        ng-options="item.Value as item.Text for item in ProductLibraryList" style="width: 180px;">
-                    <option value="">--Select--</option>
-                </select>
-            </div>
-        </td>*@
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="x.ProductLibraryId"
+                                                            ng-options="item.Value as item.Text for item in ProductLibraryList" style="width: 180px;">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </td>*@
                                         <td>
                                             <div class="input-group">
                                                 <input type="text" name="ProductLibrary" ng-model="x.ProductLibrary" class="form-control" readonly style="width: 200px;">
@@ -1002,9 +1002,9 @@
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
                                             <li> <button ng-click="SaveContract()" class="btn single-small-btn" ng-disabled="fileNew.Id===null"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNew.Id.length>0?'Update':'Save'}}</button></li>-->
-                                            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                                                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
-                                        <!--</ul>
+                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                <!--</ul>
                                     </div>
 
                                 </div>
@@ -2176,12 +2176,18 @@
                                         @*<button ng-click="AddSOSKU('2');" title="Add New {{columnName}}" align="left" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> </button>*@
                                         <button ng-click="removeSkuMatrixColumn($index)" class="btn btn-action tooltip-here pull-right" tooltip data-placement="top" title="Remove" ng-disabled="skuList[0].childList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
                                         @*<div class="select-style">
+            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
+                    ng-change="chvChange(x.CharacteristicsValueId, $index); verifySkuMatrix();">
+                <option value=""></option>
+            </select>
+        </div>*@
+                                        @*<div class="select-style">
                                             <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
                                                     ng-change="chvChange(x.CharacteristicsValueId, $index); verifySkuMatrix();">
                                                 <option value=""></option>
                                             </select>
                                         </div>*@
-                                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="char2ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="verifySkuMatrix" e-width="100px" />
+                                        <input ej-dropdownlist e-enablefiltersearch="true" e-name="$index" e-datasource="char2ValueList" e-value="x.CharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-change="chvChange" e-width="100px" />
                                         <div>
                                             <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index); verifySkuMatrix();" class="form-control" maxlength="15">
                                         </div>
@@ -2194,6 +2200,11 @@
                             <tbody>
                                 <tr ng-repeat="x in skuList">
                                     <td>
+                                        @*<div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                                <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                                    <option value=""></option>
+                                                </select>
+                                            </div>*@
                                         @*<div class="select-style" ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
                                             <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifySkuMatrix();" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
                                                 <option value=""></option>
