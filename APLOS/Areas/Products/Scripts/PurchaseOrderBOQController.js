@@ -287,6 +287,56 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.getMatureDate($scope.productNew.BaseOnDueDate, $scope.productNew.BaseNoOfDays);
         }
     };
+
+
+    $scope.TermsAndConditionGridList = [];
+    $scope.LoadTermsAndConditionGrid = function (TermsAndConditionId, POId) {
+        $scope.TermsAndConditionGridList = [];
+
+        $scope.termandconditionURL = $scope.path + "GetTermsAndConditionsPOList";
+
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.termandconditionURL,
+                data: { 'TermsAndConditionMasterId': TermsAndConditionId, 'POId': POId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.TermsAndConditionGridList = [];
+                $scope.TermsAndConditionGridList = response.data;
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+
+
+        }
+    }
+    $scope.TermsAndConditionDetailGridList = [];
+    $scope.LoadTermsAndConditionDetailGrid = function () {
+        $scope.TermsAndConditionDetailGridList = [];
+
+        $scope.termandconditiondetailURL = $scope.path + "GetTermsAndConditionsPODetailList";
+
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.termandconditiondetailURL,
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.TermsAndConditionDetailGridList = [];
+                $scope.TermsAndConditionDetailGridList = response.data;
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+
+
+        }
+    }
+    $scope.LoadTermsAndConditionDetailGrid();
+
     $scope.getMatureDate = function (date, days) {
         if (baseService.isUndefinedOrNull(date)) return $scope.productNew.MatureDate = null;
         date = new Date(date);
@@ -520,12 +570,14 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
                         if (response.data.Error === true)
-                            ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
+                            ShowResult(response.data.Message, 'failure');
                         else {
-                            ShowResult(response.data.Message, 'success', 'ListOfPOMaterial');
-                            getInventoryMaterialList($scope.productNew.Id);
-                            angular.element(document.querySelector('#ListOfPOMaterial')).modal('hide');
-
+                            ShowResult(response.data.Message, 'success');
+                            $scope.productNew.Id = response.data.entity.Id;
+                            $scope.productNew.PartyName = $scope.product.PartyName;
+                            $scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id);
+                            $scope.LoadTermsAndConditionDetailGrid();
+                            $scope.Action = "Update";
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
@@ -566,5 +618,235 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             //ShowResult(e, 'fail', 'detailPopUp');
         }
     };
+
+    $scope.serviceChargePopUp = function () {
+        $scope.productNew.TaxOptionService = 'Yes';
+        if (baseService.arrayLength($scope.poBoqItemListNew) === 0)
+            return ShowResult('Without material charges not aplicable.');
+        $scope.serviceModel = {
+            Id: null
+            , ServiceMasterId: null
+            , InventoryReceiveId: $scope.productNew.Id
+            , CurrencyName: angular.element("#currency :selected").text()
+            , CurrencyId: $scope.productNew.CurrencyId
+            , BaseCurrencyId: $scope.baseCurrencyId
+            , DocDate: $scope.productNew.DocDate
+            , TransactionAmount: null
+            , BaseAmount: 0
+            , TotalTaxAmount: 0
+            , ToCurrencyRate: $scope.productNew.ToCurrencyRate
+            , IsNonCreditable: $scope.productNew.IsNonCreditable
+        };
+        angular.element(document.querySelector('#serviceChargePopUp')).modal('show');
+    };
+    $http.get('Setups/CompanyServiceMaster/GetCboList')
+
+        .then(function (response) {
+            $scope.serviceList = response.data;
+        });
+    $scope.closeServiceChargePopUp = function () {
+        $scope.serviceModel = {};
+        $scope.receiveTaxList = [];
+        angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
+    };
+    $scope.changeService = function () {
+
+        if (baseService.isUndefinedOrNull($scope.serviceModel.ServiceMasterId))
+            return $scope.taxCategoryList = [];
+        var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === $scope.serviceModel.ServiceMasterId; })[0].HSNCodeId;
+        var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === $scope.serviceModel.ServiceMasterId; })[0].HSNCode;
+        getTaxCategoryList(hsnCodeId, HSNCode);
+    };
+
+    $scope.calculateSvcTaxCategory = function () {
+        $scope.serviceModel.TotalTaxAmount = 0;
+        for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
+            $scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.serviceModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
+            $scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+        }
+        if (isNaN($scope.serviceModel.TotalTaxAmount)) $scope.serviceModel.TotalTaxAmount = 0;
+    };
+    $scope.sumSvcTaxAmount = function () {
+        $scope.serviceModel.TotalTaxAmount = 0;
+        for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
+            $scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+        }
+    };
+
+    $scope.serviceSave = function () {
+        try {
+            $scope.manualValidationAddRemove('div_svc', 'serviceModel', 'ServiceMasterId');
+            $scope.manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');
+
+            $http({
+                method: 'POST',
+                url: $scope.sreviceSaveUrl,
+                data: {
+                    entity: $scope.serviceModel
+                    , taxCategoryList: $scope.taxCategoryList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
+                else {
+                    ShowResult(response.data.Message, 'success', 'serviceChargePopUp');
+                    $scope.serviceModel = {
+                        Id: null
+                        , ServiceMasterId: null
+                        , InventoryReceiveId: $scope.productNew.Id
+                        , CurrencyName: angular.element("#currency :selected").text()
+                        , CurrencyId: $scope.productNew.CurrencyId
+                        , BaseCurrencyId: $scope.baseCurrencyId
+                        , DocDate: $scope.productNew.DocDate
+                        , TransactionAmount: null
+                        , BaseAmount: 0
+                        , TotalTaxAmount: 0
+                        , ToCurrencyRate: $scope.productNew.ToCurrencyRate
+                        , IsNonCreditable: $scope.productNew.IsNonCreditable
+                    };
+                    $scope.taxCategoryList = [];
+                    getServiceChargeList($scope.productNew.Id);
+                    getInventoryMaterialList($scope.productNew.Id);
+                    $scope.getDataList();
+                    $scope.getalldata();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
+            };
+        } catch (e) {
+        }
+    };
+
+    $scope.delModal = function (id) {
+        $scope.id = id;
+        $scope.message = 'Are you sure want to permanently delete this?';
+        angular.element(document.querySelector('#removePopUp')).modal('show');
+    };
+    $scope.serviceDelete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.sreviceDeleteUrl + $scope.id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.id = null;
+                    getServiceChargeList($scope.productNew.Id);
+                    getInventoryMaterialList($scope.productNew.Id);
+                    $scope.getDataList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+    $scope.getServiceTaxList = function (data, flag, ServiceId, index) {
+
+
+        $scope.LoadTaxButtonClick();
+        $scope.Currency = $("#currency option:selected").text();
+        $scope.ServiceId = ServiceId;
+        $scope.taxAbleAmnt = data.Amount;//+ data.TotalTaxAmount;
+        $scope.percentageColumn = flag;
+        $scope.currentMaterialRow = index;
+        $scope.receiveTaxList = [];
+        if (data.ChargeTaxList.length > 0) {
+            $scope.HSNCode = data.ChargeTaxList[0].HSNCode;
+            $scope.receiveTaxList = data.ChargeTaxList;
+        }
+        $scope.total = 0;
+        for (var j = 0; j < $scope.receiveTaxList.length; j++) {
+            $scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
+        }
+        $scope.productNew.TaxOptionServiceModify = 'Yes';
+        angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('show');
+    }
+    $scope.GetServiceTaxData = function (masterId) {
+        $scope.ChargeTaxList = [];
+        $http({
+            method: "GET",
+            url: $scope.path + 'GetServiceTaxList?serviceId=' + $scope.productNew.Id
+        }).then(function (response) {
+            $scope.ChargeTaxList = response.data;
+            for (var i = 0; i < $scope.chargesList.length; i++) {
+                var linepk1 = $scope.chargesList[i].Id;
+                var list1 = gettaxlist1(linepk1);
+                $scope.chargesList[i].ChargeTaxList = list1;
+            }
+        });
+    };
+    function gettaxlist1(linepk1) {
+        var result1 = [];
+        for (var i = 0; i < $scope.ChargeTaxList.length; i++) {
+            if ($scope.ChargeTaxList[i].InventoryServiceId === linepk1) {
+                result1.push($scope.ChargeTaxList[i]);
+            }
+        }
+        return result1;
+    }
+    function getServiceChargeList(inveReveiveId) {
+        $scope.chargesList = [];
+        $http.get($scope.path + 'GetServiceChargeList?receiveId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.chargesList = response.data;
+                //$scope.ServiceId = $scope.chargesList[0].Id;
+                $scope.GetServiceTaxData();
+            });
+    }
+
+    $scope.serviceChargePopUpEdit = function (Id, Amount, TotalTaxAmount) {
+        if (baseService.arrayLength($scope.poBoqItemListNew) === 0)
+            return ShowResult('Without material charges not aplicable.');
+
+        for (var i = 0; i < $scope.chargesList.length; i++) {
+            for (var t = 0; t < $scope.chargesList[i].ChargeTaxList.length; t++) {
+                $scope.receiveTaxList.push($scope.chargesList[i].ChargeTaxList[t]);
+            }
+        }
+        $scope.productNew.Id
+        $http({
+            method: 'POST',
+            url: 'Products/PurchaseOrder/UpdateServiceAndTax',
+            data: {
+                entity: $scope.chargesList,
+                receiveTaxList: $scope.receiveTaxList
+            },
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+        $scope.enable = true;
+        $scope.MSAction = "Edit";
+        $scope.serviceModel = {
+            Id: null
+            , ServiceMasterId: null
+            , InventoryReceiveId: $scope.productNew.Id
+            , CurrencyName: angular.element("#currency :selected").text()
+            , CurrencyId: $scope.productNew.CurrencyId
+            , BaseCurrencyId: $scope.baseCurrencyId
+            , DocDate: $scope.productNew.DocDate
+            , TransactionAmount: null
+            , BaseAmount: 0
+            , TotalTaxAmount: 0
+            , ToCurrencyRate: $scope.productNew.ToCurrencyRate
+            , IsNonCreditable: $scope.productNew.IsNonCreditable
+        };
+
+    };
+    // #endregion Service
+
 }//End Of main
 

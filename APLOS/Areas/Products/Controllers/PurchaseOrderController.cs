@@ -5185,7 +5185,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 				List<InventoryMaterialViewModel> boqmapListVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(boqmapList);
 				_purchseOrderDetailService.POBoqInsertUpdate(entity, groupListDetailVM, boqmapListVM, taxCategoryList, PoId);
 			}
-			return Json(new { entity, Message = AplosMessage.Success });
+			return Json(new { entity, Message = AplosMessage.Success + " PO no <b>" + entity.Id + "</b>" });
 		}
 		#endregion
 	}

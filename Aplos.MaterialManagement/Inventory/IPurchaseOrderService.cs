@@ -208,6 +208,8 @@ namespace Library.MaterialManagement.Inventory
 		IEnumerable<object> GetLCList(string masterId);
 		IEnumerable<object> GetGRNList(string masterId);
 		IEnumerable<object> GetAcceptanceList(string masterId);
+		void InsertPOBOQMaster(PurchaseOrder entity);
+		void SaveTermsData(string TitleId, string POId);
 
 	}
 }
