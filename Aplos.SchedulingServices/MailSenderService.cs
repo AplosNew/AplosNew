@@ -320,7 +320,7 @@ namespace Library.SchedulingServices.Setups
         }
 
         /// <summary>
-        /// Vehicle Requistion Approval Mail
+        /// Visitor Alert Mail
         /// </summary>
         public void SendVisitorEntryAlertMail(string ApprovalempId, string emailMessage, string RespEmailId, string toEmailEmployeeName,string VisitorName)
         {
