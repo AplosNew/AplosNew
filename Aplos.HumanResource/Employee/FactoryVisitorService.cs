@@ -16,11 +16,14 @@ namespace Library.HumanResource.Employee
     {
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
+        private readonly IMailSenderService _mailSenderService;
 
-        public FactoryVisitorService()
+        public FactoryVisitorService(IMailSenderService mailSenderService)
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
+            _mailSenderService = mailSenderService;
+
         }
         public string SaveEmployeeVisit(IEnumerable<VisitorModel> DataToSave)
         {
@@ -77,6 +80,28 @@ namespace Library.HumanResource.Employee
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region Email Sender Service
+
+                if (!string.IsNullOrEmpty(items[0].ToMeet))
+                {
+                    string mailMessage = "";
+                    DataTable dtEmpInfo = _sqlRepository.GetDataTable(@"select * from EmployeeInformation where SystemId = '" + items[0].ToMeet + @"'");
+                    string EmpName = dtEmpInfo.Rows[0]["EmployeeName"].ToString();
+                    string EmailId = dtEmpInfo.Rows[0]["EmailId"].ToString();
+
+                   
+                    mailMessage = @"Dear " + EmpName + "<br> <br> <br>" +
+                       " You have a Entry of a Visitor "+ items[0].VisitorName +" for the Purpose of "+items[0].Purpose+ 
+                       ". Please go to the App to View the List." +
+                       "<br> <br> <br>" +
+                       "Thank you";
+
+                    _mailSenderService.SendVisitorEntryAlertMail(items[0].ToMeet, mailMessage, EmailId,
+                        EmpName, items[0].VisitorName);
+                }
+                #endregion
+
 
                 return MasterId;
 

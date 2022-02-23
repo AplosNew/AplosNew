@@ -319,9 +319,89 @@ namespace Library.SchedulingServices.Setups
             }
         }
 
+        /// <summary>
+        /// Vehicle Requistion Approval Mail
+        /// </summary>
+        public void SendVisitorEntryAlertMail(string ApprovalempId, string emailMessage, string RespEmailId, string toEmailEmployeeName,string VisitorName)
+        {
+            var log = new MailLog
+            {
+                AddedBy = "",
+                AddedDate = DateTime.Now,
+                AddedFromIP = "",
+                AppVersion = "",
+                CompanyGroupId = "",
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "VisitorAlertMail",
+                UserId = null,
+                AttachmentName = "N/A",
+                IsSuccess = false,
+                MailGenerator = MailGenerator.Scheduler.ToString(),
+                Remarks = "VisitorAlertMail",
+                Subject = "Visitor " + VisitorName + "Entry against you ..."
+            };
+
+            try
+            {
+                var emailList = GetAdministrativeMailList();
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var companyList = _companyRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                foreach (var companyGroup in companyGroupList)
+                {
+                    log.CompanyGroupId = companyGroup.Id;
+                    var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                    var email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                    var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                    log.CcList = ccList;
+                    var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                    log.BccList = bccList;
+                    var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+
+                    if (!string.IsNullOrEmpty(RespEmailId))
+                    {
+                        log.SenderEmail = smtpConfigurationCG.SenderSystemEmail;
+                        log.SenderName = smtpConfigurationCG.SenderSystemName;
+
+                        emailMessage += "<br>" + log.SenderName;
+
+                        emailMessage += "<br><br><br> Please Go to Mobile App ... ";
+                        try
+                        {
+                            var message = email.PrepareMessage(log.SenderName + "<" + log.SenderEmail + ">",
+                                    toEmailEmployeeName + "<" + RespEmailId + ">", ccList, bccList, log.Subject, emailMessage);
+
+                            if (message != null)
+                            {
+                                email.Send(message);
+                                log.ToList = RespEmailId;
+                                log.CcList = ccList;
+                                log.BccList = bccList;
+                                log.IsSuccess = true;
+                                log.HasAttachment = false;
+                                log.Remarks = "Visitor Entry Alert Mail has been send Successfully";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.IsSuccess = false;
+                            log.HasAttachment = false;
+                            log.Remarks = ex.Message;
+                            continue;
+                        }
+
+                    }
 
 
+                }
+                _mailLogRepository.Insert(log);
+                _unitOfWork.SaveChanges();
+            }
+            catch (Exception)
+            {
 
+            }
+        }
 
         /// <summary>
         /// Approved Employees after preRecruitement Confirmation.

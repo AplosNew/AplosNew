@@ -7,16 +7,19 @@ using System.Net.Http;
 using System.Web.Http;
 using APLOS;
 using Library.HumanResource.Employee;
+using Library.Service.Setups;
 
 namespace Aplos.Controllers
 {
     [BasicAuthentication]
     public class VisitorServiceController : ApiController
     {
-        FactoryVisitorService _emp = new FactoryVisitorService();
-        public VisitorServiceController()
+        private readonly IMailSenderService _mailSenderService;
+        FactoryVisitorService _emp ;
+        public VisitorServiceController(IMailSenderService mailSenderService)
         {
-            _emp = new FactoryVisitorService();
+            _mailSenderService = mailSenderService;
+            _emp = new FactoryVisitorService(_mailSenderService);
         }
 
         [HttpPost]
