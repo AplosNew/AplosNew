@@ -1079,25 +1079,27 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpGet, Authorize]
         public ActionResult GetContractFundData(string contractId)
         {
-            string sql = @"SELECT  A.Id,A.Sequence,A.FundUtilization,A.UserName,SUM(A.FundValue) CostingValue,A.StandardValue [Percentage],A.StandardValue CostingValuePercentage,A.Remarks,A.CurrencyId,A.UserValue FROM
+            string sql = @"SELECT A.Id,A.Sequence,A.FundUtilization,A.UserName,CONVERT(decimal(18,2),SUM(A.FundValue)) CostingValue,A.StandardValue [Percentage],A.StandardValue CostingValuePercentage,A.Remarks,A.CurrencyId,A.UserValue 
+,CostingPercentage=CONVERT(decimal(18,2),CASE WHEN SUM(A.OrderValue)>0 THEN SUM(A.FundValue)/SUM(A.OrderValue) ELSE 0 END)
+FROM
 (
-SELECT CF.Id,CFU.Id FundUtilization,CFU.UserName ,C.*,MOI.TotalQty,CFU.ValueType
-,CASE WHEN CFU.ValueType='Percentage' THEN ISNULL(C.TotalGrossAmount,0)* ISNULL(MOI.TotalQty,0)*(1/NULLIF(CFU.StandardValue,0))
-ELSE CFU.StandardValue END AS FundValue,CFU.StandardValue,CFU.Sequence,CF.Remarks,CF.CurrencyId,CF.UserValue
+SELECT CF.Id,CFU.Id FundUtilization,CFU.UserName ,C.*,MOI.TotalQty,CFU.ValueType,SO.OrderValue
+,FundValue=CASE WHEN CFU.ValueType='Percentage' THEN ISNULL(C.TotalGrossAmount,0)* ISNULL(MOI.TotalQty,0)*(1/NULLIF(CFU.StandardValue,0)) ELSE CFU.StandardValue END
+,CFU.StandardValue,CFU.Sequence,CF.Remarks,CF.CurrencyId,CF.UserValue
 FROM  dbo.ContractFundUtilization CFU 
 LEFT JOIN TRN.MasterOrderItem MOI ON MOI.ContractId='" + contractId + @"'
+LEFT JOIN (Select SUM(Rate*Qty) OrderValue,MasterOrderItemId From TRN.SalesOrder Group BY MasterOrderItemId) SO ON SO.MasterOrderItemId=MOI.Id
 LEFT JOIN (
  SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.GrossAmount AS TotalGrossAmount FROM OrderPreCostingDirectMaterial AS pc  INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
     UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingDirectProcess AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
-    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.[Value]  AS TotalGrossAmount FROM OrderPreCostingOperation AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.[Value] AS TotalGrossAmount FROM OrderPreCostingOperation AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
     UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingSalesExpense AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
     UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingValueLoss AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
     UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingProfit AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
 ) C ON C.OrderCostingMasterTemplateId=MOI.OrderCostingMasterTemplateId and C.ContractFundId = CFU.Id AND ISNULL(C.TotalGrossAmount,0)>0  
 LEFT JOIN ContractFund CF ON CF.ContractId=MOI.ContractId AND CFU.Id=CF.FundUtilization
 ) A
-GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,A.CurrencyId,A.UserValue
-ORDER BY A.Sequence";
+GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,A.CurrencyId,A.UserValue ORDER BY A.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
