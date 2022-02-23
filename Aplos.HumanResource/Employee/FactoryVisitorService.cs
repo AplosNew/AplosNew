@@ -9,6 +9,8 @@ using Library.HumanResource.NewAttendanceProcess;
 
 namespace Library.HumanResource.Employee
 {
+    #region Visitor Process Functions
+
     public class FactoryVisitorService
     {
         SqlRepository _sqlRepository;
@@ -233,6 +235,37 @@ namespace Library.HumanResource.Employee
         #endregion
     }
 
+    #endregion
+
+    #region Vehicle Requistion Module Functions
+
+    public class VehicleRequistionModel
+    {
+        #region Fixed Fields
+        public string AddedBy { get; set; }
+        public DateTime AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedFromIP { get; set; }
+        #endregion
+
+        #region Other Fields
+        public string Id { get; set; }
+        public string Reason { get; set; }
+        public string Purpose { get; set; }
+        public string Remarks { get; set; }
+        public DateTime Date { get; set; }
+        public DateTime FromTime { get; set; }
+        public DateTime ToTime { get; set; }
+        public string ApprovingAuthority { get; set; }
+        public string ToLoc { get; set; }
+        public string FromLoc { get; set; }
+        public string EmployeeId { get; set; }
+        public string IsApproved { get; set; }
+      
+        #endregion
+    }
     public class VehicleRequistionService
     {
         SqlRepository _sqlRepository;
@@ -257,6 +290,7 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
+       
         public IEnumerable<object> GetFromLocation()
         {
             try
@@ -270,8 +304,79 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
-      
+
+        public IEnumerable<object> GetApprovingAuthList()
+        {
+            try
+            {
+                var sql = @"select ei.EmployeeName as Text,ei.SystemId as Value
+                from ServicesApprovingAuthority s left join EmpServiceType e on e.Id=s.ServiceId
+                left join EmployeeInformation ei on ei.SystemId=s.EmpId
+                where e.Service='Transport'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string SaveData(IEnumerable<VehicleRequistionModel> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<VehicleRequistionModel> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.VehicleRequistionData where 1=2", out dsMaster, false, "1");
+
+                foreach (VehicleRequistionModel item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("VehicleRequistion", out string _Id);
+
+                        dr["Id"] = "VR" + _Id;
+                        dr["Date"] = DateTime.Now.ToString("dd-MMM-yyyy");
+                        dr["EmployeeId"] = item.EmployeeId;
+                        dr["FromLoc"] = item.FromLoc;
+                        dr["ToLoc"] = item.ToLoc;
+                        dr["FromTime"] = item.FromTime;
+                        dr["ToTime"] = item.ToTime;
+                        dr["Purpose"] = item.Purpose;
+                        dr["Remarks"] = item.Remarks;
+                        dr["Reason"] = item.Reason;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["IsApproved"] = false;
+                        dr["ApprovingAuthority"] = item.ApprovingAuthority;
+                    
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
     }
 
+    #endregion
 }
-  

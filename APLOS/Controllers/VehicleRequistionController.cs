@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -51,7 +52,39 @@ namespace Aplos.Controllers
                 throw new HttpResponseException(resp);
             }
         }
-        
+
+        [HttpGet]
+        public IHttpActionResult GetApprovingAuthList()
+        {
+            try
+            {
+                var result = veh.GetApprovingAuthList();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
       
+        [HttpPost]
+        public string SaveData([FromBody] IEnumerable<VehicleRequistionModel> DataToSave)
+        {
+            try
+            {
+                string Id = veh.SaveData(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
     }
 }
