@@ -134,7 +134,9 @@ namespace Library.OrderManagement.Costing
   SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
  CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
  BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
-
+,SONumber=STUFF((select distinct ','+XSO.Id 
+                                         from   trn.SalesOrder XSO 	                                    
+							             where XSO.Id=boq.SalesOrderId     	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
