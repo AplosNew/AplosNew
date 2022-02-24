@@ -986,6 +986,8 @@ namespace Library.HumanResource.Payroll.Tax
         public string EmployeeIncomeTaxId { get; set; }
         public string IncomeTaxItemChildId { get; set; }
         public decimal SavingGpLimit { get; set; }
+        public string TaxSavingGroupId { get; set; }
+        public string TaxSavingGroup { get; set; }
     }
     public class EarningModelClass
     {
@@ -1100,13 +1102,13 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region Investment/Deduction Tab Functions 
-        public void GetInvDetailsForSaving(string Id, out DataSet dsRef)
+        public void GetInvDetailsForSaving(out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = "select * from EmployeeInvestmentDeduction WHERE EmployeeIncomeTaxId= '" + Id + @"'";
+                strSQL = "select * from EmployeeInvestmentDeduction WHERE 1=2";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
@@ -1195,6 +1197,9 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
+
+                #region Master Saving
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 string TableName = "dbo.EmployeeIncomeTaxMaster";
@@ -1207,7 +1212,8 @@ namespace Library.HumanResource.Payroll.Tax
                 con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
                 string _Id = "";
-                #region Master Saving
+               
+               
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     clsGenID genid = new clsGenID();
@@ -1221,65 +1227,108 @@ namespace Library.HumanResource.Payroll.Tax
                     dataMaster["Id"] = _Id;
                     _tax.EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
                 }
-                #endregion
-
+               
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
+                #endregion
+
                 #region Child Saving
 
-                GetInvDetailsForSaving(MasterId, out DataSet dsChild);
                 if (data != null)
                 {
-                    decimal GroupLimit = 0, SumofItems = 0;
+                    #region Validation Check
+
+                    Dictionary<string, List<InvestDeductModelClass>> CalculatedDict =
+                    new Dictionary<string, List<InvestDeductModelClass>>();
 
                     foreach (var item in data)
                     {
-
-                        dsChild.Tables[0].DefaultView.RowFilter = @"IncomeTaxItemChildId='" + item.IncomeTaxItemChildId + "' ";
-                        if (dsChild.Tables[0].DefaultView.Count == 0)
+                        if (CalculatedDict.ContainsKey(item.TaxSavingGroupId))
                         {
-                            DataRow drF = dsChild.Tables[0].NewRow();
-                            clsGenID genid = new clsGenID();
-                            genid.GenID("EmployeeInvestmentDeduction", out string _pk);
-
-                            drF["Id"] = "EID" + _pk;
-                            drF["EmployeeIncomeTaxId"] = MasterId;
-                            drF["ActualValue"] = item.ActualValue;
-                            drF["UserValue"] = item.UserValue;
-                            drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
-                            drF["AddedBy"] = identity.Name;
-                            drF["AddedFromIp"] = identity.IPAddress;
-                            drF["AddedDate"] = DateTime.Now.ToString();
-
-                            SumofItems += item.UserValue;
-                            GroupLimit = item.SavingGpLimit;
-                            dsChild.Tables[0].Rows.Add(drF);
+                            CalculatedDict[item.TaxSavingGroupId].Add(new InvestDeductModelClass
+                            {                                
+                                SavingGpLimit = item.SavingGpLimit,
+                                UserValue = item.UserValue,
+                                ActualValue = item.ActualValue,
+                                TaxSavingGroup = item.TaxSavingGroup
+                            });
                         }
                         else
                         {
-                            DataRow dr = dsChild.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["ActualValue"] = item.ActualValue;
-                            dr["UserValue"] = item.UserValue;
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = DateTime.Now.ToString();
-                            dr["UpdatedFromIp"] = identity.IPAddress;
-                            SumofItems += item.UserValue;
-                            GroupLimit = item.SavingGpLimit;
-                            dr.EndEdit();
+                            var datax = new List<InvestDeductModelClass>();
+                            datax.Add(new InvestDeductModelClass
+                            {
+                                SavingGpLimit = item.SavingGpLimit,
+                                UserValue = item.UserValue,
+                                ActualValue = item.ActualValue,
+                                TaxSavingGroup = item.TaxSavingGroup
+                            });
+                            CalculatedDict.Add(item.TaxSavingGroupId, datax);
                         }
+
                     }
-                    if (GroupLimit < SumofItems)
+
+                    foreach (var item in CalculatedDict)
                     {
-                        throw new Exception(" Sum of Individual Items is more than Group Limit !! Please adjust Values.");
+                        List<InvestDeductModelClass> caldata = item.Value;
+                        if (caldata == null)
+                        {
+                            continue;
+                        }
+                        decimal Amt = 0;                            
+                        Amt = caldata.Sum(x => x.UserValue);
+                        decimal Limit = caldata[0].SavingGpLimit;
+                        string Group = caldata[0].TaxSavingGroup;
+
+                        if (Amt>Limit)
+                        {   
+                            throw new Exception(" Sum of Individual Items in "+ Group+ " is more than Group Limit !! Please adjust Values !!");
+                        }
+
                     }
-                    _info.SaveDataSets(dsChild); 
-                                      
+
+                    #endregion
+
+                    #region Already Existing Data Clearing Portion
+
+                    var sqlx = @"delete from TaxableIncome where EmployeeIncomeTaxId='" + MasterId + "'";
+
+                    sqlx += Environment.NewLine + @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + MasterId + "'";
+
+                    sqlx += Environment.NewLine + @"delete from EmployeeInvestmentDeduction where EmployeeIncomeTaxId='" + MasterId + "'";
+                    UpdateStatus(sqlx);
+
+                    #endregion
+
+                    #region Saving Part
+
+                    GetInvDetailsForSaving(out DataSet dsChild);
+                    foreach (var item in data)
+                    {                      
+                        DataRow drF = dsChild.Tables[0].NewRow();
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("EmployeeInvestmentDeduction", out string _pk);
+
+                        drF["Id"] = "EID" + _pk;
+                        drF["EmployeeIncomeTaxId"] = MasterId;
+                        drF["ActualValue"] = item.ActualValue;
+                        drF["UserValue"] = item.UserValue;
+                        drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
+                        drF["AddedBy"] = identity.Name;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+
+                        dsChild.Tables[0].Rows.Add(drF);                       
+                    }
+                    _info.SaveDataSets(dsChild);
+
+                    #endregion
                 }
 
                 #endregion
+            
             }
             catch (Exception ex)
             {
@@ -1395,7 +1444,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                 select dd.EarningMasterId,dd.SalaryHeadId,dd.SalaryHead,
                 dd.LastCalculatedDate,isnull(dd.OpeningValue,'0')OpeningValue,
-                dd.ActualValue,dd.ArrearValue,dd.Rem_Months,
+                dd.ActualValue,dd.ArrearValue,dd.Rem_Months, isnull((dd.DefineAmount),'0') as MonthlyStructureValue, 
                 isnull((dd.DefineAmount*dd.Rem_Months),'0') as StructureValue                
                 from (
                 select distinct tem.Id as EarningMasterId,tem.SalaryHeadID,
@@ -1436,7 +1485,7 @@ namespace Library.HumanResource.Payroll.Tax
 			     on sc.SlrProcMstSystemID=sl.SystemID
 			     where EmpInfoSystemID='" + EmpId + @"'  
 			     and sl.FromDate>=@StartDate and sl.ToDate<=@EndDate
-			     order by todate desc),@EndDate)/30) As Rem_Months,
+			     order by todate desc),@EndDate)/28) As Rem_Months,
 				 Structure.DefineAmount
 			
 			    from TaxEarningMasterChild tem 
@@ -1718,30 +1767,9 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                #region Already Existing Data Clearing Portion
-
-                DataSet dsMaster, dsRef;
+                DataSet dsRef;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                var sql = @"select ei.Id as EmployeeIncomeTaxId from TaxableIncome net 
-                left join EmployeeIncomeTaxMaster ei on
-                ei.Id=net.EmployeeIncomeTaxId
-                where ei.EmpSystemId='" + EmpId + "' and ei.TaxYearId='" + YearId + @"'
-                and ei.TaxPolicyHeaderId='" + PolicyId + "'";
-                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                {
-                    var Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0][@"EmployeeIncomeTaxId"]).ToString();
-                    var sqlx = @"delete from TaxableIncome where EmployeeIncomeTaxId='" + Id + "'";
-                    UpdateStatus(sqlx);
-                   
-                    var sqla = @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + Id + "'";
-                    UpdateStatus(sqla);
-
-                }
-
-                #endregion
-
+             
                 #region Saving Data in TaxableIncome
 
                 var sqly = @"select * from TaxableIncome where 1=2";
