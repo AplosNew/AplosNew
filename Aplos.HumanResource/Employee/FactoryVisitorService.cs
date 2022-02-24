@@ -30,6 +30,9 @@ namespace Library.HumanResource.Employee
                     return "";
                 List<VisitorModel> items = DataToSave.ToList();
 
+                //  select distinct CardNo from visitorservicedata where InDone='1'
+              //  and OutDone = '0'
+
                 con.OpenDataSetThroughAdapter("select * from dbo.VisitorServiceData where 1=2", out dsMaster, false, "1");
 
                 foreach (VisitorModel item in DataToSave)
@@ -57,6 +60,7 @@ namespace Library.HumanResource.Employee
                         dr["AddedFromIP"] = item.AddedFromIP;
                         if(item.param=="In")
                         {
+                            dr["VehicleNo"] = item.VehicleNo;
                             dr["VisitorLocation"] = item.VisitorLocation;
                             dr["InDate"] = DateTime.Now.ToString("dd-MMM-yyyy");
                             dr["InTime"] = DateTime.Now;
@@ -168,6 +172,7 @@ namespace Library.HumanResource.Employee
                             dr["Remarks"] = item.Remarks;
                             dr["NoOfPerson"] = item.NoOfPerson;
                             dr["MobileNo"] = item.MobileNo;
+                            dr["VehicleNo"] = item.VehicleNo;
                             dr["VisitorLocation"] = item.VisitorLocation;
                             dr["OutDone"] = false;
                             dr["InDone"] = true;
@@ -224,6 +229,7 @@ namespace Library.HumanResource.Employee
         public DateTime OutDate { get; set; }
         public DateTime OutTime { get; set; }
         public string VisitorType { get; set; }
+        public string VehicleNo { get; set; }
         public string VisitorCategory { get; set; }
         public string VisitorName { get; set; }
         public string MobileNo { get; set; }
