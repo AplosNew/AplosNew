@@ -221,7 +221,6 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             $rootScope.toggle();
         }
     };
-
     $scope.getExpectedPersonData = function () {
         $http({
             method: 'POST',
@@ -234,6 +233,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
 
         });
     }
+
     $scope.Clear = function () {
         $scope.ModelNew = {
             Id: null,
@@ -257,7 +257,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         };
         $scope.Action = 'Save';
     };
-   
+
     $scope.Save = function () {
 
         try {
@@ -265,23 +265,23 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
             $scope.$broadcast('show-errors-check-validity');
 
             if ($scope.ModelNewForm.$valid) {
-                        $http({
-                        method: 'POST',
-                        url: $scope.saveUrl,
-                        data: { 'data': $scope.ModelNew },
-                        dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.ModelNew.Id = response.data.Id;
-                            $scope.getData();
-                            $scope.Clear();
-                        }
-                    }), function errorCallBack(response) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'data': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.ModelNew.Id = response.data.Id;
+                        $scope.getData();
+                        $scope.Clear();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
                 }
             }
         }
@@ -313,7 +313,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         }
     };
 
-    
+
 
 
     $scope.departmentList = [];
@@ -474,7 +474,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
 
     }
     $scope.uploadPBUrl = "MeetingManagement/MeetingPoints/SaveMeetingPointsDefault";
-   
+
 
     $scope.errorPBPicUpload = function (e) {
 
@@ -919,31 +919,61 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         //angular.element(document.querySelector('#meetingDecisionPopUp')).modal('hide');
     };
 
-    $scope.ConfirmExpectedPerson = function () {
+    //$scope.ConfirmExpectedPerson = function () {
+    //    if (!baseService.isUndefinedOrNull($scope.ModelExpectedPerson.Id))
+    //        $scope.message_confirmation = 'Are you sure want to delete ?';
+    //    angular.element(document.querySelector('#confirmExpectedPerson')).modal('show');
+    //}
+
+    //$scope.DeleteExpectedPerson = function () {
+
+    //    $http({
+    //        method: 'POST',
+    //        url: 'MeetingManagement/MeetingPoints/DeleteExpectedPersonData',
+    //        data: { id: $scope.ModelExpectedPerson.Id },
+    //        dataType: 'JSON'
+    //    }).then(function (response) {
+    //        if (response.data.Error === true)
+    //            ShowResult(response.data.Message, 'failure');
+    //        else {
+    //            ShowResult(response.data.Message, 'success');
+    //            $scope.getExpectedPersonData();
+    //            $scope.ExpectedPersonClear();
+    //        }
+    //        function errorCallBack(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //    });
+    //};
+
+    $scope.message_confirmation = null;
+    $scope.removeExpectedPerson = function (obj) {
+
+        $scope.ModelExpectedPerson = obj.data;
         if (!baseService.isUndefinedOrNull($scope.ModelExpectedPerson.Id))
-            $scope.message_confirmation = 'Are you sure want to delete ?';
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
         angular.element(document.querySelector('#confirmExpectedPerson')).modal('show');
     }
 
     $scope.DeleteExpectedPerson = function () {
-
         $http({
             method: 'POST',
             url: 'MeetingManagement/MeetingPoints/DeleteExpectedPersonData',
             data: { id: $scope.ModelExpectedPerson.Id },
-            dataType: 'JSON'
-        }).then(function (response) {
-            if (response.data.Error === true)
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
+            }
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.getExpectedPersonData();
                 $scope.ExpectedPersonClear();
             }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
         });
+
     };
 
 
@@ -986,6 +1016,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         } catch (e) {
             ShowResult(e, "failure");
         }
+
     };
 
     function checkDoubleEmployee(list, Id) {

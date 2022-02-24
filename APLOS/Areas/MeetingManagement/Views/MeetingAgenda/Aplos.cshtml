@@ -34,13 +34,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-3" style="padding-top:10px;">
-                    Meeting Item
-                </div>
-                <div class="col-md-3">
-                    <div style="margin-left:10px;margin-top:5px;"><select id="dropdownDate" ej-dropdownlist e-datasource="Datelist" e-text="Shipment Date" e-value="ShipmentD" e-change="dateValueChange"></select></div>
 
-                </div>
 
                 <div class="row" style="margin:10px; margin-top:20px;">
                     <div class="col-lg-12">
@@ -53,21 +47,27 @@
                                 <input type="text" name="From Date" ng-model="fromDate" datepicker class="form-control" required tabindex="5">
                             </div>
 
-                            
+
                         </div>
                         <div class="col-lg-4" style="margin-top:20px;">
                             <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
                             <div class="col-sm-9 show-message">
                                 <input type="text" name="To Date" ng-model="toDate" datepicker class="form-control" required tabindex="6">
                             </div>
-                           
+
                         </div>
 
-                        
+
                     </div>
 
                 </div>
+                <div class="col-md-3" style="padding-top:10px;">
+                    Meeting Item
+                </div>
+                <div class="col-md-3">
+                    <div style="margin-left:10px;margin-top:5px;"><select id="dropdownDate" ej-dropdownlist e-datasource="Datelist" e-text="Shipment Date" e-value="ShipmentD" e-change="dateValueChange"></select></div>
 
+                </div>
             </div>
         </div>
     </div>
@@ -163,7 +163,6 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="MeetingType" e-headertext="Meeting Type" e-width="12"></div>
             <div e-column e-field="MeetingOrganizedBy" e-headertext="Meeting Organized By" e-width="12"></div>
             <div e-column e-field="ChairedBy" e-headertext="Chaired By" e-width="13"></div>
             <div e-column e-field="TDate" e-headertext="Date" e-width="13"></div>

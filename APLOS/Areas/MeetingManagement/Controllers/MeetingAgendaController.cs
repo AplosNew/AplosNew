@@ -255,12 +255,13 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         {
             try
             {
-                var sql = @"SELECT * FROM ( select MA.* ,FORMAT(MA.Date,'dd-MMM-yyyy') TDate,EI.EmployeeName Attendee,EI.EmployeeCode MeetingOrganizedByCode
-			                                    ,MT.UserName MeetingType,D.UserName Department
-                                                from MeetingAgenda MA
-                                                left join EmployeeInformation EI on EI.SystemId=MA.MeetingOrganizedById
-												left join ORG.Department D on D.Id=EI.DepartmentId
-                                                left join MeetingType MT on MT.Id=MA.MeetingTypeId) AS KK	";
+                var sql = @"SELECT * FROM (select MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically,D.Id DeptId,D.UserName Department,EI.EmployeeName Attendee
+												--,FORMAT(MIH.AddedDate,'dd-MMM-yyyy') TDate
+			                                    
+                                                from MeetingItemHeader MIH
+                                                left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
+												left join ORG.Department D on D.Id=MIH.DepartmentId
+                                                left join MeetingType MT on MT.Id=MIH.MeetingTypeId) AS KK	";
                
                 //return _sqlRepository.GetDataCollection(sql);
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
