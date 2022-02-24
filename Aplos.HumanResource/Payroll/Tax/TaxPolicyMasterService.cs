@@ -1445,7 +1445,7 @@ namespace Library.HumanResource.Payroll.Tax
 				join salaryprocmaster sp on spc.SlrProcMstSystemID=sp.SystemID
                 join SalaryHead sh on sh.SalaryHeadID=tem.SalaryHeadID
                 left join ArrearProcChild apc on apc.SalaryHeadID=tem.SalaryHeadId
-                join ArrearProcMaster apm on apm.SystemID=apc.SlrProcMstSystemID
+                left join ArrearProcMaster apm on apm.SystemID=apc.SlrProcMstSystemID
 			
 				left join
 				(					
@@ -1460,8 +1460,8 @@ namespace Library.HumanResource.Payroll.Tax
 				and tem.Id=Structure.Id
 
                 where spc.EmpInfoSystemID='" + EmpId + @"'
-				and sp.FromDate>=@StartDate and sp.ToDate<=@EndDate
-                and apm.FromDate>=@StartDate and apm.ToDate<=@EndDate
+				and ((sp.FromDate>=@StartDate and sp.ToDate<=@EndDate)
+                or (apm.FromDate>=@StartDate and apm.ToDate<=@EndDate))
                 and tem.TaxPolicyHeaderId='" + PolicyId + @"' and sh.HeadType='E'
                 group by tem.SalaryHeadId,spc.SalaryHeadID,sh.SalaryHead,tem.Id,
 				sp.ToDate,Structure.DefineAmount,apc.SalaryHeadID

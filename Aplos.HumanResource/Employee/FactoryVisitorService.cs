@@ -5,7 +5,6 @@ using System.Data;
 using Library.Data.Sql;
 using OTSBD;
 using bplib;
-using Library.HumanResource.NewAttendanceProcess;
 
 namespace Library.HumanResource.Employee
 {
@@ -19,6 +18,7 @@ namespace Library.HumanResource.Employee
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
+        #region API's 
         public string SaveEmployeeVisit(IEnumerable<VisitorModel> DataToSave)
         {
             try
@@ -203,6 +203,42 @@ namespace Library.HumanResource.Employee
             }
         }
 
+        #endregion
+
+        #region Report Functions
+        public IEnumerable<object> GetVisitorList(string InDone,string OutDone,string FromDate,string ToDate )
+        {
+            try
+            {
+                TimeSpan ts = Convert.ToDateTime(ToDate).Subtract(Convert.ToDateTime(FromDate));
+                if (ts.Days >= 0)
+                {
+                    var sql = @"select v.Id,v.CardNo,v.VisitorCategory,
+                    v.VisitorType,v.VisitorName,v.NoOfPerson,v.MobileNo,
+                    e.EmployeeName as ToMeet,v.Purpose,format(v.InDate,'dd-MMM-yyyy')InDate,
+                    format(v.InTime,'hh:mm tt')InTime,
+                    format(v.OutDate,'dd-MMM-yyyy')OutDate,format(v.OutTime,'hh:mm tt')OutTime,
+                    v.AddedBy,v.VisitorLocation,
+                    v.VehicleNo
+                    from visitorservicedata v left join EmployeeInformation e on e.SystemId=v.ToMeet
+                    WHERE InDone='1' and OutDone='1'
+                    and InDate between '"+FromDate+"' and '"+ToDate+"'";
+                    
+                    return _sqlRepository.GetDataCollection(sql, null);
+                
+                }
+                else
+                {
+                    throw new Exception("Please choose a valid Date !!");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
     }
 
     public class VisitorModel
