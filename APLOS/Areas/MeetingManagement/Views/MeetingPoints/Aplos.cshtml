@@ -103,50 +103,53 @@
             </div>
         </div>
 
-        <div class="form-group" show-errors>
-            <div class="col-sm-4 show-message">
-                <div class="input-group">
-                    <span class="input-group-btn">
-                        <button ng-click="showTalkingPointListPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Talking Point</i></button>
-                    </span>
+        @*<div class="form-group" show-errors>
+                <div class="col-sm-4 show-message">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button ng-click="showTalkingPointListPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Talking Point</i></button>
+                        </span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-sm-6 show-message">
-                <div class="input-group">
-                    <span class="input-group-btn">
-                        <button ng-click="showSuggestionsRecommendationListPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Suggestions & Recommendation</i></button>
-                    </span>
+                <div class="col-sm-6 show-message">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button ng-click="showSuggestionsRecommendationListPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Suggestions & Recommendation</i></button>
+                        </span>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </div>*@
 
-        <div class="form-group" show-errors>
-            <div class="col-sm-4 show-message">
-                <div class="input-group">
-                    <span class="input-group-btn">
-                        <button ng-click="showActionablePointsPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Actionable Points</i></button>
-                    </span>
+        @*<div class="form-group" show-errors>
+                <div class="col-sm-4 show-message">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button ng-click="showActionablePointsPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Actionable Points</i></button>
+                        </span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-sm-6 show-message">
-                <div class="input-group">
-                    <span class="input-group-btn">
-                        <button ng-click="showMeetingDecisionPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Meeting Decision</i></button>
-                    </span>
+                <div class="col-sm-6 show-message">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button ng-click="showMeetingDecisionPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Meeting Decision</i></button>
+                        </span>
+                    </div>
                 </div>
-            </div>
 
 
-        </div>
-        <div class="form-group" show-errors>
-            <div class="col-sm-6 show-message">
-                <div class="input-group">
-                    <span class="input-group-btn">
-                        <button ng-click="showExpectedPersonPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Expected Person</i></button>
-                    </span>
+            </div>*@
+        @*<div class="form-group" show-errors>
+                <div class="col-sm-6 show-message">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button ng-click="showExpectedPersonPopUp();" class="btn single-small-btn" tabindex="15"><i class="glyphicon">Expected Person</i></button>
+                        </span>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </div>*@
+
+
+
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -231,6 +234,19 @@
 
 
     </div>
+    <div class="col-xs-12">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);showTalkingPointListPopUp();" href="" aria-controls="doc" role="tab" data-toggle="tab">Talking Point</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);showSuggestionsRecommendationListPopUp();" href="" aria-controls="doc" role="tab" data-toggle="tab">Suggestions & Recommendation</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);showActionablePointsPopUp();" href="" aria-controls="general" role="tab" data-toggle="tab">Actionable Points</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);showMeetingDecisionPopUp();" href="" aria-controls="general" role="tab" data-toggle="tab">Meeting Decision</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);showExpectedPersonPopUp();" href="" aria-controls="doc" role="tab" data-toggle="tab">Expected Person</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -314,8 +330,8 @@
                         <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <span class="input-group-addon">{{ModelTalkingPoint.TalkingPointByWhomCode}}</span>
-                                <input type="text" name="By Whom Name" ng-model="ModelTalkingPoint.TalkingPointByWhomName" class="form-control" readonly required>
+                                <span class="input-group-addon">{{ModelTalkingPoint.ByWhomCode}}</span>
+                                <input type="text" name="By Whom Name" ng-model="ModelTalkingPoint.ByWhomName" class="form-control" readonly required>
                                 <span class="input-group-btn">
                                     <button ng-click="showEmployeeListPopUp('Talking');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
@@ -328,8 +344,7 @@
             </div>
             <div class="modal-footer common-btn">
                 <button ng-click="SaveTalkingPoint();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{ActionTalkingPoint}}</button>
-                <button ng-click="DeleteTalkingPoint();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
-                @*<button ng-click="closeTalkingPointPopUp();" class="btn"><i class=""></i> Close</button>*@
+                <button data-toggle="modal" class="btn" ng-click="ConfirmTalkingPoint();" tabindex="10"><i class="glyphicon glyphicon-trash"></i>Delete</button>
                 <button ng-click="TalkingPointClear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
             </div>
             <div class="table-responsive">
@@ -339,7 +354,7 @@
                     <div e-columns>
                         <div e-column e-field="TalkingPoint" e-headertext="Talking Point" e-width="12" e-isprimarykey="true"></div>
                         <div e-column e-field="DiscussionDetail" e-headertext="Discussion Detail" e-width="12"></div>
-                        <div e-column e-field="TalkingPointByWhomName" e-headertext="By Whom" e-width="13"></div>
+                        <div e-column e-field="ByWhomName" e-headertext="By Whom" e-width="13"></div>
                     </div>
                 </div>
             </div>
@@ -379,8 +394,8 @@
                         <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <span class="input-group-addon">{{ModelMeetingSuggestion.SuggestionsByWhomCode}}</span>
-                                <input type="text" name="By Whom" ng-model="ModelMeetingSuggestion.SuggestionsByWhomName" class="form-control" readonly required>
+                                <span class="input-group-addon">{{ModelMeetingSuggestion.ByWhomCode}}</span>
+                                <input type="text" name="By Whom" ng-model="ModelMeetingSuggestion.ByWhomName" class="form-control" readonly required>
                                 <span class="input-group-btn">
                                     <button ng-click="showEmployeeListPopUp('Suggestions');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
@@ -392,7 +407,7 @@
             </div>
             <div class="modal-footer common-btn">
                 <button ng-click="SaveSuggestionsRecommendation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{ActionSuggestionsRecommendation}}</button>
-                <button ng-click="DeleteSuggestionsRecommendation();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                <button data-toggle="modal" class="btn" ng-click="ConfirmSuggestionsRecommendation();" tabindex="10"><i class="glyphicon glyphicon-trash"></i>Delete</button>
                 @*<button ng-click="closeSuggestionsRecommendationPopUp();" class="btn"><i class=""></i> Close</button>*@
                 <button ng-click="SuggestionsRecommendationClear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
             </div>
@@ -403,7 +418,7 @@
                     <div e-columns>
                         <div e-column e-field="Suggestion" e-headertext="Suggestion" e-width="12" e-isprimarykey="true"></div>
                         <div e-column e-field="DiscussionDetail" e-headertext="Discussion Detail" e-width="12"></div>
-                        <div e-column e-field="SuggestionsByWhomName" e-headertext="By Whom" e-width="13"></div>
+                        <div e-column e-field="ByWhomName" e-headertext="By Whom" e-width="13"></div>
                     </div>
                 </div>
             </div>
@@ -449,8 +464,8 @@
                         <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <span class="input-group-addon">{{ModelActionablePoints.ActionByWhomCode}}</span>
-                                <input type="text" name="By Whom" ng-model="ModelActionablePoints.ActionByWhomName" class="form-control" readonly required>
+                                <span class="input-group-addon">{{ModelActionablePoints.ByWhomCode}}</span>
+                                <input type="text" name="By Whom" ng-model="ModelActionablePoints.ByWhomName" class="form-control" readonly required>
                                 <span class="input-group-btn">
                                     <button ng-click="showEmployeeListPopUp('Action');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
@@ -475,8 +490,8 @@
             </div>
             <div class="modal-footer common-btn">
                 <button ng-click="SaveActionablePoints();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{ActionActionablePoints}}</button>
-                <button ng-click="DeleteActionablePoints();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
-                @*<button ng-click="closeActionablePointsPopUp();" class="btn"><i class=""></i> Close</button>*@
+                @* <button ng-click="DeleteActionablePoints();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>*@
+                <button data-toggle="modal" class="btn" ng-click="ConfirmActionablePoints();" tabindex="10"><i class="glyphicon glyphicon-trash"></i>Delete</button>
                 <button ng-click="ActionablePointsClear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
             </div>
             <div class="table-responsive">
@@ -485,7 +500,7 @@
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
                         <div e-column e-field="ActionToBeTaken" e-headertext="Action To Be Taken" e-width="12" e-isprimarykey="true"></div>
-                        <div e-column e-field="ActionByWhomName" e-headertext="By Whom" e-width="13"></div>
+                        <div e-column e-field="ByWhomName" e-headertext="By Whom" e-width="13"></div>
                         <div e-column e-field="CurrentStatus" e-headertext="Status" e-width="12"></div>
                         <div e-column e-field="FinalStatus" e-headertext="Final Status" e-width="13"></div>
                         <div e-column e-field="TDate" e-headertext="Target Date" e-width="13"></div>
@@ -530,8 +545,8 @@
                         <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <span class="input-group-addon">{{ModelMeetingDecision.DecisionByWhomCode}}</span>
-                                <input type="text" name="By Whom" ng-model="ModelMeetingDecision.DecisionByWhomName" class="form-control" readonly required>
+                                <span class="input-group-addon">{{ModelMeetingDecision.ByWhomCode}}</span>
+                                <input type="text" name="By Whom" ng-model="ModelMeetingDecision.ByWhomName" class="form-control" readonly required>
                                 <span class="input-group-btn">
                                     <button ng-click="showEmployeeListPopUp('Decision');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
@@ -542,7 +557,7 @@
             </div>
             <div class="modal-footer common-btn">
                 <button ng-click="SaveMeetingDecision();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{ActionMeetingDecision}}</button>
-                <button ng-click="DeleteMeetingDecision();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                <button data-toggle="modal" class="btn" ng-click="ConfirmMeetingDecision();" tabindex="10"><i class="glyphicon glyphicon-trash"></i>Delete</button>
                 @*<button ng-click="closeMeetingDecisionPopUp();" class="btn"><i class=""></i> Close</button>*@
                 <button ng-click="MeetingDecisionClear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
             </div>
@@ -553,7 +568,7 @@
                     <div e-columns>
                         <div e-column e-field="Decision" e-headertext="Decision" e-width="12" e-isprimarykey="true"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="12"></div>
-                        <div e-column e-field="DecisionByWhomName" e-headertext="By Whom" e-width="13"></div>
+                        <div e-column e-field="ByWhomName" e-headertext="By Whom" e-width="13"></div>
                     </div>
                 </div>
             </div>
@@ -657,7 +672,6 @@
             <div class="table-responsive">
                 <div id="GridNew" ej-grid
                      e-datasource="EmployeeListNew"
-                     @*e-recorddoubleclick="GetExpectedPerson"*@
                      e-allowscrolling="true"
                      e-pageSettings-pageSize="15"
                      e-allowfiltering="true"
@@ -679,11 +693,12 @@
                         <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
                         <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
                         <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
-                        @*<div e-column e-headertext="Actions" e-width="70" e-template="#GridNewDelete"></div>*@
+                        <div e-column e-headertext="Actions" e-width="70" e-template="#GridNewDelete"></div>
                     </div>
                 </div>
                 <script type="text/template" id="GridNewDelete">
-                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 28px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.remove(this);" style="margin: -6px;"></i></button>
+                    <button class="btn" ng-click="ConfirmExpectedPerson();"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                    @* <button style="color: #f3f3ec;background-color: #1c1f32;height: 28px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.remove(this);" style="margin: -6px;"></i></button>*@
                 </script>
             </div>
 
@@ -770,6 +785,17 @@
     </div>
 </div>
 
+
+
+<confirm-archive-generic modalid="confirmTalkingPoint" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteTalkingPoint();"></confirm-archive-generic>
+
+<confirm-archive-generic modalid="confirmActionablePoints" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteActionablePoints();"></confirm-archive-generic>
+
+<confirm-archive-generic modalid="confirmSuggestionsRecommendation" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteSuggestionsRecommendation();"></confirm-archive-generic>
+
+<confirm-archive-generic modalid="confirmMeetingDecision" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteMeetingDecision();"></confirm-archive-generic>
+
+<confirm-archive-generic modalid="confirmExpectedPerson" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteExpectedPerson();"></confirm-archive-generic>
 
 
 

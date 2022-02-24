@@ -3062,7 +3062,8 @@ namespace Library.MaterialManagement.Inventory
 				var NewId1 = "";
 				var currentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(Id, CHARINDEX('-',id)+1,len(Id))    AS INT)), 0) Id FROM[TRN].[PurchaseOrderDetail] WHERE  InventoryReceiveId = '{PoId}'").First();
 				decimal TransactionQtyGroupSum = 0;
-				_inventoryReceiveService.Insert(entity);
+				_inventoryReceiveService.InsertPOBOQMaster(entity);
+
 				var groupListentity = groupList;
 				foreach (var itemDetail in groupListentity)
 				{
@@ -3260,11 +3261,12 @@ namespace Library.MaterialManagement.Inventory
 
 				}
 				_unitOfWork.SaveChanges();
-				
 				flag = false;
 				_unitOfWork.Commit();
+				_inventoryReceiveService.SaveTermsData(entity.TermsAndConditionsId, entity.Id);
+
 			}
-			
+
 			catch (Exception ex)
 			{
 				throw new CustomException(ex.Message, ex,

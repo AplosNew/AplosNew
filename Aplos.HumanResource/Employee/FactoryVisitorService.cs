@@ -57,6 +57,7 @@ namespace Library.HumanResource.Employee
                         dr["AddedFromIP"] = item.AddedFromIP;
                         if(item.param=="In")
                         {
+                            dr["VisitorLocation"] = item.VisitorLocation;
                             dr["InDate"] = DateTime.Now.ToString("dd-MMM-yyyy");
                             dr["InTime"] = DateTime.Now;
                             dr["InDone"] = true;
@@ -105,7 +106,7 @@ namespace Library.HumanResource.Employee
             {
                 var sql = @"select d.Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
                 VisitorName,VisitorType,Purpose,e.EmployeeName as ToMeet,p.UserName as Department,
-				l.UserName as Designation
+				l.UserName as Designation,d.VisitorLocation
                 from VisitorServiceData d
 				left join EmployeeInformation e on e.SystemId=d.ToMeet
 				left join org.Department p on p.Id=e.DepartmentId
@@ -123,9 +124,9 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sqlx = @"select d.Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,
+                var sqlx = @"select d.Id,CardNo,ExpectedDate,ExpectedTime,VisitorCategory,d.VisitorLocation,
                 VisitorName,VisitorType,Purpose,e.EmployeeName as ToMeet,p.UserName as Department,
-				l.UserName as Designation
+				l.UserName as Designation,format(d.InDate,'dd-MMM-yyyy')InDate,format(d.InTime,'hh:mm tt')InTime
                 from VisitorServiceData d
 				left join EmployeeInformation e on e.SystemId=d.ToMeet
 				left join org.Department p on p.Id=e.DepartmentId
@@ -167,6 +168,7 @@ namespace Library.HumanResource.Employee
                             dr["Remarks"] = item.Remarks;
                             dr["NoOfPerson"] = item.NoOfPerson;
                             dr["MobileNo"] = item.MobileNo;
+                            dr["VisitorLocation"] = item.VisitorLocation;
                             dr["OutDone"] = false;
                             dr["InDone"] = true;
                             dr["InDate"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
@@ -229,8 +231,48 @@ namespace Library.HumanResource.Employee
         public decimal NoOfPerson { get; set; }
         public string InDone { get; set; }
         public string OutDone { get; set; }
-
+        public string VisitorLocation { get; set; }
         #endregion
+    }
+
+    public class VehicleRequistionService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public VehicleRequistionService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+        public IEnumerable<object> GetToLocation(string Id)
+        {
+            try
+            {
+                var sql = @"select Id as Value,UserName as Text from 
+                hkp.transportservicelocations 
+                where Id <>'"+Id+"'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetFromLocation()
+        {
+            try
+            {
+                var sql = @"select Id as Value,UserName as Text from
+                hkp.transportservicelocations";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+      
     }
 
 }

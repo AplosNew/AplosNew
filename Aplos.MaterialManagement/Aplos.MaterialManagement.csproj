@@ -184,6 +184,7 @@
     <Compile Include="JobWork\OSReceiptValueAddedService.cs" />
     <Compile Include="JobWork\JobWorkRegisterService.cs" />
     <Compile Include="JobWork\MaterialReconcilationReportService.cs" />
+    <Compile Include="MaterialQuery\PurchaseOrderBOQQueryService.cs" />
     <Compile Include="MaterialQuery\InventoryReceiveQueryService.cs" />
     <Compile Include="Material\clsInvoiceTagWithLc.cs" />
     <Compile Include="Material\clsMaterial.cs" />
