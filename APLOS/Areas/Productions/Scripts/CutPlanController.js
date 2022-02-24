@@ -178,53 +178,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.CalculatedSkuValueList = [];
     $scope.Clicked = false;
     $scope.ErrorThrow = true;
-    //$scope.CalculatePly = function () {
-    //    try {
-    //        $scope.CalculatedSkuValueList = [];
-    //        for (var j = 0; j < $scope.SkuValueList.length; j++) {
-    //            if ($scope.SkuValueList[j].IsSelect) {
-    //                var CalculationArry = [];
-    //                $scope.ErrorThrow = false;
-    //                $scope.CalculatedSkuValueList.push($scope.SkuValueList[j]);
-    //                for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
-    //                    for (var k = 0; k < $scope.SkuValueList[j].Qty.length; k++) {
-    //                        if ($scope.SkuValueList[j].Qty[k].Ratio == $scope.FGCharacteristicsValueList[i].Ratio) {
-    //                            CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty[k].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
-    //                        }
-    //                    }
-    //                }
-
-    //                $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
-    //                var MiniValue = parseFloat($scope.MinimumPlyValue).toFixed(2);
-    //                var OptionBasedMinValue = '';
-    //                if ($scope.CalculateOn == 'Round') {
-    //                    OptionBasedMinValue = parseFloat(Math.round($scope.MinimumPlyValue)).toFixed(2);
-    //                }
-    //                else if ($scope.CalculateOn == 'RoundUp') {
-    //                    OptionBasedMinValue = parseFloat(Math.ceil($scope.MinimumPlyValue)).toFixed(2);
-    //                }
-    //                else {
-    //                    OptionBasedMinValue = parseFloat(Math.floor($scope.MinimumPlyValue)).toFixed(2);
-    //                }
-                    //$scope.Clicked = true;
-
-                    //for (var k = 0; k < $scope.CalculatedSkuValueList.length; k++) {
-                        //if ($scope.SkuValueList[j].CharacteristicsId == $scope.CalculatedSkuValueList[k].CharacteristicsId) {
-                            //$scope.CalculatedSkuValueList[k].MinimumPlyActualValue = MiniValue;
-                            //$scope.CalculatedSkuValueList[k].MinimumPlyOptionValue = OptionBasedMinValue;
-                        //}
-                    //}
-
-    //            }
-    //        }
-    //        if ($scope.ErrorThrow) {
-    //            throw "Select Value For Calculation.. ";
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
-
+    
     $scope.CalculatePly = function () {
         try {
             $scope.CalculatedSkuValueList = [];
@@ -335,4 +289,53 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             ShowResult(e, "failure");
         }
     };
+
+    //$scope.CalculatePly = function () {
+    //    try {
+    //        $scope.CalculatedSkuValueList = [];
+    //        for (var i = 0; i < $scope.SkuValueList.length; i++) {
+    //            if ($scope.SkuValueList[i].IsSelect) {
+    //                var CalculationArry = [];
+    //                $scope.ErrorThrow = false;
+    //                $scope.CalculatedSkuValueList.push($scope.SkuValueList[i]);
+    //                for (var j = 0; j < $scope.SkuValueList[i].Qty.length; j++) {
+    //                    CalculationArry.push(parseFloat($scope.SkuValueList[i].Qty[j].Qty) / parseFloat($scope.SkuValueList[i].Qty[j].Ratio));
+    //                }
+
+    //                $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
+    //                var MiniValue = parseFloat($scope.MinimumPlyValue).toFixed(2);
+    //                var OptionBasedMinValue = '';
+    //                if ($scope.CalculateOn == 'Round') {
+    //                    OptionBasedMinValue = parseFloat(Math.round($scope.MinimumPlyValue)).toFixed(2);
+    //                }
+    //                else if ($scope.CalculateOn == 'RoundUp') {
+    //                    OptionBasedMinValue = parseFloat(Math.ceil($scope.MinimumPlyValue)).toFixed(2);
+    //                }
+    //                else {
+    //                    OptionBasedMinValue = parseFloat(Math.floor($scope.MinimumPlyValue)).toFixed(2);
+    //                }
+
+
+
+    //                $scope.Clicked = true;
+    //                $scope.SkuValueList[i].MinimumPlyActualValue = MiniValue;
+    //                $scope.SkuValueList[i].MinimumPlyOptionValue = OptionBasedMinValue;
+    //            }
+    //        }
+
+    //        for (var i = 0; i < $scope.CalculatedSkuValueList.length; i++) {
+    //            var c = 0;
+    //            for (var j = 0; j < $scope.CalculatedSkuValueList[i].Qty.length; j++) {
+    //                c = parseFloat($scope.CalculatedSkuValueList[i].MinimumPlyOptionValue) * parseFloat($scope.CalculatedSkuValueList[i].Qty[j].Ratio);
+    //                $scope.CalculatedSkuValueList[i].Qty[j].CalculatedPlyQty = c.toFixed(2);
+    //            }
+    //        }
+    //        if ($scope.ErrorThrow) {
+    //            throw "Select Value For Calculation.. ";
+    //        }
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
+
 }

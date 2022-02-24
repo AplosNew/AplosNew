@@ -87,7 +87,7 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row" ng-show="Iteration ==1">
             <div class="col-md-8" ng-show="CalculationOption">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="Round" value="Round">
@@ -107,7 +107,7 @@
                 </div>
             </div>
         </div>
-        <div class="table-responsive modal-table" ng-show="FGCharacteristicsValueList.length>0 ">
+        <div class="table-responsive modal-table" ng-show="FGCharacteristicsValueList.length>0 && Iteration ==1">
             @*&& Iteration ==1*@
             <table class="table table-striped">
                 <thead>
@@ -147,7 +147,7 @@
             </div>
             <br />
         </div>
-        <div class="table-responsive modal-table" ng-show="Clicked ">
+        <div class="table-responsive modal-table" ng-show="Clicked && Iteration ==1">
             @*&& Iteration == 1*@
             <table class="table table-striped">
                 <thead>
@@ -184,7 +184,7 @@
                 <thead>
                     <tr>
                         <th>{{CharacteristicsName}}</th>
-                        <th colspan="3" ng-repeat="x in FGCharacteristicsValueList"style="text-align:center">{{x.Characteristicsvalue}}</th>
+                        <th colspan="3" ng-repeat="x in FGCharacteristicsValueList" style="text-align:center">{{x.Characteristicsvalue}}</th>
                     </tr>
                     <tr>
                         <th>Ratio</th>
@@ -204,21 +204,15 @@
                         <td style="vertical-align: middle; text-align:center"><input disabled type="text" value="{{y.CalculatedPlyQty}}" class="form-control"></td>
                         <td style="vertical-align: middle; text-align:center" ng-repeat-end><input disabled type="text" value="{{y.AvailableQty}}" class="form-control"></td>
                     </tr>
-                    @*<tr ng-repeat="x in CalculatedSkuValueList">
-                        <td>{{x.Characteristicsvalue}}</td>
-                        <td ng-repeat="y in x.Qty">
-                            Total: <input disabled type="text" value="{{y.Qty}}" class="form-control">
-                            Calculated: <input disabled type="text" value="{{y.CalculatedPlyQty}}" class="form-control">
-                            Available: <input disabled type="text" value="{{y.AvailableQty}}" class="form-control">
-                        </td>
-                    </tr>*@
                 </tbody>
             </table>
+            <br />
             <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="Save();" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="CalculatePly();" class="btn single-small-btn" tabindex="6"><i class="fa fa-calculator" aria-hidden="true"></i> Calculate</button></li>
                 </ul>
             </div>
+            <br />
         </div>
     </div>
 </div>
