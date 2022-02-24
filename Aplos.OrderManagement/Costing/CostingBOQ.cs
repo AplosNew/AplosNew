@@ -1570,8 +1570,6 @@ namespace Library.OrderManagement.Costing
 
                 Library.General.Conversions.UOMConversion conversion = new Library.General.Conversions.UOMConversion();
 
-
-
                 ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager();
                 ConManager.getDataSet("select * from BOQ where CostingBOQMasterId='" + Id + "'", out DataSet dsMaster);
                 for (int i = 0; i < MaterialAttachmentData.Count; i++)
@@ -1604,7 +1602,6 @@ namespace Library.OrderManagement.Costing
                         dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = clsStaticInfo.nullrecorder(QuantityData[i]["SKUDesc"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["OwnReferenceNo"] = clsStaticInfo.nullrecorder(QuantityData[i]["OwnReferenceNo"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["Remark"] = QuantityData[i]["Remark"];
-
 
 
                         string BaseUOM = conversion.GetMaterialUOMByCategory(dsMaster.Tables[0].DefaultView[0]["MaterialMasterId"].ToString(), General.Conversions.UOMConversion.UOMCategory.BaseUOMId);
