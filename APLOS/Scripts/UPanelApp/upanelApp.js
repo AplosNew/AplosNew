@@ -875,6 +875,7 @@ upanelApp.controller("salaryProcessedReportExtraOTCTCOriginalController", salary
 upanelApp.controller("FarmingDashboardController", FarmingDashboardController);
 upanelApp.controller("BOQPurchaseOrderController", BOQPurchaseOrderController);
 upanelApp.controller("PhysicalVerificationReportController", PhysicalVerificationReportController);
+upanelApp.controller("VisitorListReportController", VisitorListReportController);
 upanelApp.controller("payRegisterBDReportContractorController", payRegisterBDReportContractorController);
 upanelApp.controller("yearlySalaryProcessedReportController", yearlySalaryProcessedReportController);
 upanelApp.controller("MovementScanDataReportController", MovementScanDataReportController);
@@ -1010,6 +1011,7 @@ upanelApp.controller("StocksAdjustmentController", StocksAdjustmentController);
 
 
 upanelApp.config(AccessControllerConfig);
+upanelApp.config(AdministrationConfig);
 upanelApp.config(accountConfig);
 upanelApp.config(bankConfig);
 upanelApp.config(BiometricConfig);
