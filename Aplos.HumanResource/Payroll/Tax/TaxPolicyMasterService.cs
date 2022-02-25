@@ -760,11 +760,28 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
+        
+        public void DeleteSavingItem(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");                
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();              
+                con.executeQuery("delete from IncomeTaxItemChild where Id='" + ID + "'");
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #endregion
 
         #region TaxYear Tagging Functions
-     
+
         public IEnumerable<object> GetTaxYearMasterList(string Id)
         {
             try

@@ -421,9 +421,19 @@
                                                     <div e-column e-field="IsDeduction" e-headertext="Is Deduction" e-width="50"></div>
                                                     <div e-column e-field="DocumentApplicable" e-headertext="Document Applicable" e-width="50"></div>
                                                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
+                                                    <div e-column e-headertext="Actions" e-template="#DeleteSavingItem" e-width="50"></div>
                                                 </div>
                                             </div>
+
+                                            <script type="text/ng-template" id="DeleteSavingItem">
+                                                <div class="common-btn">
+                                                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Delete" class="btn">
+                                                        <i class="glyphicon glyphicon-trash" ng-click="$parent.ConfirmDeleteSavingItem(this);"></i>
+                                                    </button>
+                                                </div>
+                                            </script>
                                         </div>
+
                                     </div>
                                 </fieldset>
                             </div>

@@ -399,6 +399,25 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
+        #region Delete Functions
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteSavingItem(string ID)
+        {
+            try
+            {
+                ds.DeleteSavingItem(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        #endregion
+
         #endregion
 
         #region TaxYear Tagging Functions

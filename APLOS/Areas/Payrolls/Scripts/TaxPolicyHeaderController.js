@@ -537,6 +537,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
+    //#endregion
+
     // #region Delete Earning Head Functions
 
     $scope.ConfirmDeleteEarningHead = function (obj) {
@@ -549,7 +551,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             $http({
                 method: 'POST',
                 url: $scope.path + "DeleteEarnMaster",
-                data: { ID: $scope.EarningMasterModel.Id  },
+                data: { ID: $scope.EarningMasterModel.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -571,6 +573,38 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     //#endregion
 
 
+    // #region Delete Saving Item Functions
+
+    $scope.ConfirmDeleteSavingItem = function (obj) {
+        $scope.InvestDeductModelChild.Id = obj.data.Id;
+        $scope.DeleteSavingItem();
+    };
+
+    $scope.DeleteSavingItem = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteSavingItem",
+                data: { ID: $scope.InvestDeductModelChild.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getIncomeChildData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    //#endregion
 
     // #region Double Click Formula Grid 
 
