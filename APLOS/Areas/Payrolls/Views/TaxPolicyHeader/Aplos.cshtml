@@ -289,8 +289,18 @@
                                             <div e-column e-field="SalaryHead" e-headertext="SalaryHead" e-width="120"></div>
                                             <div e-column e-field="ExemptionApplicable" e-headertext="Exemption Applicable" e-width="80"></div>
                                             <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="50"></div>
+                                            <div e-column e-headertext="Delete" e-template="#DeleteEarning" e-width="50"></div>
                                         </div>
                                     </div>
+                                  
+                                    <script type="text/ng-template" id="DeleteEarning">
+                                        <div class="common-btn">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Delete" class="btn">
+                                                <i class="glyphicon glyphicon-trash" ng-click="$parent.ConfirmDeleteEarningHead(this);"></i>
+                                            </button>
+                                        </div>
+                                    </script>
+                                    
                                     <script type="text/ng-template" id="ShowButtons">
                                         <div class="common-btn">
                                             <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">

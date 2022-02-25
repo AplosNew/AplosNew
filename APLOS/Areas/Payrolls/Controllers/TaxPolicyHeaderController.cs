@@ -120,6 +120,20 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region Earning Screen Functions
 
         [HttpPost, Authorize]
+        public JsonResult DeleteEarnMaster(string ID)
+        {
+            try
+            {
+                ds.DeleteEarnMaster(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetEarningMasterList(string Id)
         {
             return Json(ds.GetEarningMasterList(Id), JsonRequestBehavior.AllowGet);
