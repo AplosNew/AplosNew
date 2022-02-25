@@ -7,32 +7,36 @@ using System.Data;
 using Syncfusion.XlsIO;
 using Library.Service.Helpers;
 using System.IO;
-using Library.HumanResource.NewAttendanceProcess;
+using Library.HumanResource.Employee;
 
 namespace Aplos.Areas.Administration.Controllers
 {
     public class VisitorListReportController : BaseController
     {
-        PhysicalVerificationReportService rep = new PhysicalVerificationReportService();
+        #region Constructor
+
+        FactoryVisitorService rep = new FactoryVisitorService();
 
         public VisitorListReportController()
         {
-            rep = new PhysicalVerificationReportService();
+            rep = new FactoryVisitorService();
         }
+        #endregion
 
-        
+        #region View
         public ActionResult Aplos()
         {
             return View();
         }
-             
 
-        [HttpGet, Authorize]
-        public JsonResult GetData(string WkDate)
+        #endregion
+
+        [HttpPost, Authorize]
+        public JsonResult GetData(string In,string Out, string FromDate, string ToDate)
         {
             try
             {
-                var jsondata = Json(new { Error = false, DATA = rep.GetData(WkDate) }, JsonRequestBehavior.AllowGet);
+                var jsondata = Json(new { Error = false, DATA = rep.GetVisitorList(In,Out,FromDate,ToDate) }, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }
@@ -44,14 +48,14 @@ namespace Aplos.Areas.Administration.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPrintReport(string WkDate,string EmpId)
+        public ActionResult GetPrintReport(string In, string Out, string FromDate, string ToDate, string Id)
         {
 
             try
             {
-                var workbook = GetFilterData(WkDate, EmpId);
+                var workbook= GetFilterData(In,Out,FromDate,ToDate,Id);
 
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "PhysicalVerification.xlsx";
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "VisitorList.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
 
@@ -64,7 +68,7 @@ namespace Aplos.Areas.Administration.Controllers
         }
 
 
-        private IWorkbook GetFilterData(string WkDate, string EmpId)
+        private IWorkbook GetFilterData(string In, string Out, string FromDate, string ToDate, string Id)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -72,65 +76,70 @@ namespace Aplos.Areas.Administration.Controllers
             workbook.Version = ExcelVersion.Excel2016;
 
             var sheet = workbook.Worksheets[0];
-            sheet.Name = "PhysicalVerificationReport";
+            sheet.Name = "VisitorListReport";
 
 
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-            DataTable data = rep.GetReportData(WkDate, EmpId);
+
+            DataTable data = rep.GetReportData(In, Out, FromDate, ToDate, Id);
 
             #region Headers
 
-            report.SetHeaderText(ref sheet, ROW, COL, "EmployeeCode", 13, ExcelHAlign.HAlignCenter);
-            int ColEmployeeCode = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Visitor Name", 15, ExcelHAlign.HAlignCenter);
+            int ColVisitorName = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "EmployeeName", 18, ExcelHAlign.HAlignCenter);
-            int ColEmployeeName = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Visitor Type", 13, ExcelHAlign.HAlignCenter);
+            int ColType = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 15, ExcelHAlign.HAlignCenter);
-            int ColDepartment = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Visitor Category", 13, ExcelHAlign.HAlignCenter);
+            int ColCategory = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Section", 15, ExcelHAlign.HAlignCenter);
-            int ColSection = COL;
-            COL++;
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "SubSection", 15, ExcelHAlign.HAlignCenter);
-            int ColSubSection = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Visitor Location", 15, ExcelHAlign.HAlignCenter);
+            int ColLocation = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 15, ExcelHAlign.HAlignCenter);
-            int ColLglDesgn = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "To Meet", 15, ExcelHAlign.HAlignCenter);
+            int ColToMeet = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Unit", 15, ExcelHAlign.HAlignCenter);
-            int ColUnit = COL;
-            COL++;
-                       
-            report.SetHeaderText(ref sheet, ROW, COL, "Date", 13, ExcelHAlign.HAlignCenter);
-            int ColDate = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Purpose", 15, ExcelHAlign.HAlignCenter);
+            int ColPurpose = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "InTime", 18, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "InDate", 15, ExcelHAlign.HAlignCenter);
+            int ColIn = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "InTime", 15, ExcelHAlign.HAlignCenter);
             int ColInTime = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "OutTime", 18, ExcelHAlign.HAlignCenter);
+
+            report.SetHeaderText(ref sheet, ROW, COL, "OutDate", 15, ExcelHAlign.HAlignCenter);
+            int ColOut = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "OutTime", 15, ExcelHAlign.HAlignCenter);
             int ColOutTime = COL;
+            COL++;
+           
+            report.SetHeaderText(ref sheet, ROW, COL, "Vehicle No", 15, ExcelHAlign.HAlignCenter);
+            int ColVehicle = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "AddedBy", 13, ExcelHAlign.HAlignCenter);
             int ColAddedBy = COL;
             ROW++;
             endCol = COL;
-          
+
             #endregion Headers
 
 
@@ -141,18 +150,19 @@ namespace Aplos.Areas.Administration.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColUnit].Text = data.Rows[i]["Unit"].ToString();
-                sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
-                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-                sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
-                sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
-                sheet[ROW, ColLglDesgn].Text = data.Rows[i]["LegalDesignation"].ToString();
-                sheet[ROW, ColDate].Text = data.Rows[i]["WorkDate"].ToString();
+                sheet[ROW, ColIn].Text = data.Rows[i]["InDate"].ToString();
+                sheet[ROW, ColOut].Text = data.Rows[i]["OutDate"].ToString();
+                sheet[ROW, ColVisitorName].Text = data.Rows[i]["VisitorName"].ToString();
+                sheet[ROW, ColType].Text = data.Rows[i]["VisitorType"].ToString();
+                sheet[ROW, ColCategory].Text = data.Rows[i]["VisitorCategory"].ToString();
+                sheet[ROW, ColLocation].Text = data.Rows[i]["VisitorLocation"].ToString();
+                sheet[ROW, ColToMeet].Text = data.Rows[i]["ToMeet"].ToString();
+                sheet[ROW, ColPurpose].Text = data.Rows[i]["Purpose"].ToString();
                 sheet[ROW, ColInTime].Text = data.Rows[i]["InTime"].ToString();
                 sheet[ROW, ColOutTime].Text = data.Rows[i]["OutTime"].ToString();
                 sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
-      
+                sheet[ROW, ColVehicle].Text = data.Rows[i]["VehicleNo"].ToString();
+
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
@@ -160,8 +170,8 @@ namespace Aplos.Areas.Administration.Controllers
 
             }
             endRow = ROW - 1;
-            string reportname = "Physical Verification Report";
-            
+            string reportname = "Visitor List Report";
+
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
@@ -169,7 +179,7 @@ namespace Aplos.Areas.Administration.Controllers
             ReportUtility reportUtility = new ReportUtility();
             reportUtility.PlantHeader(ref sheet, endCol, reportname, identity.PlantId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                      
+
             return workbook;
         }
 

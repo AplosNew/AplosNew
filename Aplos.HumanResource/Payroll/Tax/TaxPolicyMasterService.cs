@@ -1480,12 +1480,12 @@ namespace Library.HumanResource.Payroll.Tax
 				 ),'0'),	
 			
                 -- Months Remaining For Structure Value
-				(datediff(DAY,
+				(datediff(MONTH,
 				(select top 1 todate from SalaryProcMaster sl join SalaryProcChild sc
 			     on sc.SlrProcMstSystemID=sl.SystemID
 			     where EmpInfoSystemID='" + EmpId + @"'  
 			     and sl.FromDate>=@StartDate and sl.ToDate<=@EndDate
-			     order by todate desc),@EndDate)/28) As Rem_Months,
+			     order by todate desc),@EndDate)) As Rem_Months,
 				 Structure.DefineAmount
 			
 			    from TaxEarningMasterChild tem 

@@ -2,18 +2,23 @@
 VisitorListReportController.$inject = ['$window', '$timeout', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function VisitorListReportController($window, $timeout, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Visitor List Report';
-
-
     $scope.path = 'Administration/VisitorListReport/';
 
     $scope.selectedValues = {
-        WkDate: null,
-       
+        FromDate: null,
+        ToDate: null,
+        InDone: false,
+        OutDone:false
     };
 
  
     $scope.clearFliters = function () {
-        $scope.selectedValues.WkDate = null;      
+        $scope.selectedValues = {
+            FromDate: null,
+            ToDate: null,
+            InDone: false,
+            OutDone: false
+        };
     }
 
  
@@ -27,22 +32,27 @@ function VisitorListReportController($window, $timeout, cboService, commonMessag
         if ($scope.General.$valid) {
 
             var ColumnList = [
-                { field: 'EmployeeCode', width: 150, headerText: "EmployeeCode", type: "string" },
-                { field: 'EmployeeName', width: 150, headerText: "Employee Name", type: "string" },
-                { field: 'Department', width: 150, headerText: "Department", type: "string" },
-                { field: 'Section', width: 150, headerText: "Section", type: "string" },
-                { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
-                { field: 'Unit', width: 150, headerText: "Unit", type: "string" },
-                { field: 'LegalDesignation', width: 150, headerText: "Designation", type: "string" },
-                { field: 'WorkDate', width: 150, headerText: "Date", type: "string" },
-                { field: 'InTime', width: 150, headerText: "InTime", type: "string" },             
-                { field: 'OutTime', width: 150, headerText: "OutTime", type: "string" },
+                { field: 'Id', width: 150, headerText: "Id", type: "string",visible:false },
+                { field: 'VisitorName', width: 150, headerText: "Visitor Name", type: "string" },
+                { field: 'VisitorType', width: 120, headerText: "Visitor Type", type: "string" },
+                { field: 'VisitorCategory', width: 130, headerText: "Visitor Category", type: "string" },
+                { field: 'VisitorLocation', width: 150, headerText: "Visitor Location", type: "string" },
+                { field: 'ToMeet', width: 150, headerText: "To Meet", type: "string" },
+                { field: 'Purpose', width: 150, headerText: "Purpose", type: "string" },
+                { field: 'InDate', width: 120, headerText: "InDate", type: "string" },
+                { field: 'InTime', width: 120, headerText: "InTime", type: "string" },             
+                { field: 'OutDate', width: 120, headerText: "OutDate", type: "string" },
+                { field: 'OutTime', width: 120, headerText: "OutTime", type: "string" },
                 { field: 'AddedBy', width: 150, headerText: "AddedBy", type: "string" }
             ];
            
             $http({
-                method: 'GET',
-                url: $scope.path + 'GetData?WkDate=' + $scope.selectedValues.WkDate,
+                method: 'POST',
+                url: $scope.path + 'GetData',
+                data: {
+                    In: $scope.selectedValues.InDone, Out: $scope.selectedValues.OutDone,
+                    FromDate: $scope.selectedValues.FromDate, ToDate: $scope.selectedValues.ToDate
+                },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -96,13 +106,10 @@ function VisitorListReportController($window, $timeout, cboService, commonMessag
         }
 
         var parameters = [];
-        parameters.push({ "Key": "EmpId", "Value": getString(filteredRecords, "EmpSystemID") });
+        parameters.push({ "Key": "Id", "Value": getString(filteredRecords, "Id") });
         applyFilters(parameters);
-
-       
-    }
-
- 
+              
+    } 
 
     function applyFilters(parameters) {
 
@@ -110,7 +117,9 @@ function VisitorListReportController($window, $timeout, cboService, commonMessag
             method: 'POST',
             url: $scope.path + 'GetPrintReport',
             data: {
-                WkDate: $scope.selectedValues.WkDate, EmpId: parameters[0].Value
+                In: $scope.selectedValues.InDone, Out: $scope.selectedValues.OutDone,
+                FromDate: $scope.selectedValues.FromDate, ToDate: $scope.selectedValues.ToDate
+                , Id: parameters[0].Value
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

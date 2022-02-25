@@ -18,6 +18,7 @@ namespace Library.HumanResource.Employee
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
+        
         #region API's 
         public string SaveEmployeeVisit(IEnumerable<VisitorModel> DataToSave)
         {
@@ -210,6 +211,26 @@ namespace Library.HumanResource.Employee
         {
             try
             {
+                #region InDone OutDone Value Region
+               
+                if (InDone=="True")
+                {
+                    InDone = "1";
+                }
+                else
+                {
+                    InDone = "0";
+                }
+                if (OutDone == "True")
+                {
+                    OutDone = "1";
+                }
+                else
+                {
+                    OutDone = "0";
+                }
+                #endregion
+
                 TimeSpan ts = Convert.ToDateTime(ToDate).Subtract(Convert.ToDateTime(FromDate));
                 if (ts.Days >= 0)
                 {
@@ -221,7 +242,7 @@ namespace Library.HumanResource.Employee
                     v.AddedBy,v.VisitorLocation,
                     v.VehicleNo
                     from visitorservicedata v left join EmployeeInformation e on e.SystemId=v.ToMeet
-                    WHERE InDone='1' and OutDone='1'
+                    WHERE InDone='"+InDone+@"' and OutDone='"+OutDone+@"'
                     and InDate between '"+FromDate+"' and '"+ToDate+"'";
                     
                     return _sqlRepository.GetDataCollection(sql, null);
@@ -238,6 +259,49 @@ namespace Library.HumanResource.Employee
             }
         }
 
+        public DataTable GetReportData(string InDone, string OutDone, string FromDate, string ToDate,string Id)
+        {
+            try
+            {
+                #region InDone OutDone Value Region
+
+                if (InDone == "True")
+                {
+                    InDone = "1";
+                }
+                else
+                {
+                    InDone = "0";
+                }
+                if (OutDone == "True")
+                {
+                    OutDone = "1";
+                }
+                else
+                {
+                    OutDone = "0";
+                }
+                #endregion
+               
+                var sql = @"select v.Id,v.CardNo,v.VisitorCategory,
+                    v.VisitorType,v.VisitorName,v.NoOfPerson,v.MobileNo,
+                    e.EmployeeName as ToMeet,v.Purpose,format(v.InDate,'dd-MMM-yyyy')InDate,
+                    format(v.InTime,'hh:mm tt')InTime,
+                    format(v.OutDate,'dd-MMM-yyyy')OutDate,format(v.OutTime,'hh:mm tt')OutTime,
+                    v.AddedBy,v.VisitorLocation,
+                    v.VehicleNo
+                    from visitorservicedata v left join EmployeeInformation e on e.SystemId=v.ToMeet
+                    WHERE InDone='" + InDone + @"' and OutDone='" + OutDone + @"'
+                    and InDate between '" + FromDate + "' and '" + ToDate + "' and isnull(v.Id ,'') IN(" + Id + @") ";
+
+                    return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+     
         #endregion
     }
 
