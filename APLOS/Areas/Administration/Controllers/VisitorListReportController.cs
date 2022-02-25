@@ -8,6 +8,7 @@ using Syncfusion.XlsIO;
 using Library.Service.Helpers;
 using System.IO;
 using Library.HumanResource.Employee;
+using Library.Security.Core;
 
 namespace Aplos.Areas.Administration.Controllers
 {
@@ -130,7 +131,11 @@ namespace Aplos.Areas.Administration.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "OutTime", 15, ExcelHAlign.HAlignCenter);
             int ColOutTime = COL;
             COL++;
-           
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Hours", 13, ExcelHAlign.HAlignCenter);
+            int ColHours = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Vehicle No", 15, ExcelHAlign.HAlignCenter);
             int ColVehicle = COL;
             COL++;
@@ -162,7 +167,8 @@ namespace Aplos.Areas.Administration.Controllers
                 sheet[ROW, ColOutTime].Text = data.Rows[i]["OutTime"].ToString();
                 sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
                 sheet[ROW, ColVehicle].Text = data.Rows[i]["VehicleNo"].ToString();
-
+                sheet[ROW, ColHours].Number = clsStaticInfo.dbl(data.Rows[i]["Duration"].ToString());
+                
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 

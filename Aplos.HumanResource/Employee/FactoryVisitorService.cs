@@ -289,7 +289,10 @@ namespace Library.HumanResource.Employee
                     format(v.InTime,'hh:mm tt')InTime,
                     format(v.OutDate,'dd-MMM-yyyy')OutDate,format(v.OutTime,'hh:mm tt')OutTime,
                     v.AddedBy,v.VisitorLocation,
-                    v.VehicleNo
+                    v.VehicleNo,
+                    Duration=isnull(Case when (InDone='1' and OutDone='1') then
+					(select datediff(hour,Intime,Outtime))
+					end,'0')
                     from visitorservicedata v left join EmployeeInformation e on e.SystemId=v.ToMeet
                     WHERE InDone='" + InDone + @"' and OutDone='" + OutDone + @"'
                     and InDate between '" + FromDate + "' and '" + ToDate + "' and isnull(v.Id ,'') IN(" + Id + @") ";
