@@ -95,7 +95,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region Investment/Deduction Tab Functions
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult GetInvestDeductList(string PolicyHeaderId,string EmpId)
         {
             try

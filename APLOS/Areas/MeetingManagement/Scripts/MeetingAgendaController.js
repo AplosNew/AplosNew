@@ -217,9 +217,8 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
             $scope.filters = response.data;
             var columnList = [
                 { field: 'MeetingType', width: 20, headerText: "Meeting Type", type: "string" },
-                { field: 'From', width: 20, headerText: "From Date", type: "string" },
-                { field: 'To', width: 20, headerText: "To Date", type: "string" },
-                { field: 'Criticality', width: 20, headerText: "Criticality", type: "string" },
+                { field: 'IssueStatus', width: 20, headerText: "Issue Status", type: "string" },
+                { field: 'IssueCritically', width: 20, headerText: "Criticality", type: "string" },
                 { field: 'Department', width: 20, headerText: "Department", type: "string" },
                 { field: 'Attendee', width: 20, headerText: "Attendee", type: "string" },
 
@@ -254,9 +253,8 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
 
         var parameters = [];
         parameters.push({ "Key": "MeetingType", "Value": getString(fl, "MeetingType") });
-        parameters.push({ "Key": "From", "Value": getString(fl, "From") });
-        parameters.push({ "Key": "To", "Value": getString(fl, "To") });
-        parameters.push({ "Key": "Criticality", "Value": getString(fl, "Criticality") });
+        parameters.push({ "Key": "IssueStatus", "Value": getString(fl, "IssueStatus") });
+        parameters.push({ "Key": "IssueCritically", "Value": getString(fl, "Criticality") });
         parameters.push({ "Key": "Department", "Value": getString(fl, "Department") });
 
         parameters.push({ "Key": "Attendee", "Value": getString(fl, "Attendee") });

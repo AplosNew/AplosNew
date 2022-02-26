@@ -63,7 +63,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select MP.*,D.UserName Department,MT.UserName MeetingType,EI.EmployeeName ByWhomName
+            string sql = @"select top 100 * from (select MP.*,D.UserName Department,MT.UserName MeetingType,EI.EmployeeName ByWhomName,EI.EmployeeCode ByWhomCode
 			
 			from MeetingItemHeader MP
 			left join ORG.Department D on D.Id=MP.DepartmentId
@@ -114,7 +114,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        
+
         [HttpPost, Authorize]
         public ActionResult Delete(string id)
         {
@@ -259,7 +259,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 UploadDefault_data = UploadDefault_data.Replace("\\", "");
 
                 DataTable AdditionalData = CustomJsonResult.ToDataTable(UploadDefault_data);
-                
+
 
                 foreach (var file in UploadDefault)
                 {
@@ -345,7 +345,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         #endregion upload product picture
 
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult CreateTalkingPoint(Dictionary<string, object> data)
         {
             try
@@ -363,7 +363,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingTalkingPoint", out _Id);
 
                     data["Id"] = _Id;
-                
+
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -433,7 +433,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult CreateActionablePoints(Dictionary<string, object> data)
         {
             try
@@ -667,7 +667,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult DeleteTalkingPointData(string id)
         {
             try
@@ -688,7 +688,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult DeleteSuggestionsRecommendationData(string id)
         {
             try
@@ -730,7 +730,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult DeleteMeetingDecisionData(string id)
         {
             try

@@ -537,6 +537,75 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
+    //#endregion
+
+    // #region Delete Earning Head Functions
+
+    $scope.ConfirmDeleteEarningHead = function (obj) {
+        $scope.EarningMasterModel.Id = obj.data.Id;
+        $scope.DeleteEarnMaster();
+    };
+
+    $scope.DeleteEarnMaster = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteEarnMaster",
+                data: { ID: $scope.EarningMasterModel.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetEarningMasterList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    //#endregion
+
+
+    // #region Delete Saving Item Functions
+
+    $scope.ConfirmDeleteSavingItem = function (obj) {
+        $scope.InvestDeductModelChild.Id = obj.data.Id;
+        $scope.DeleteSavingItem();
+    };
+
+    $scope.DeleteSavingItem = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteSavingItem",
+                data: { ID: $scope.InvestDeductModelChild.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getIncomeChildData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    //#endregion
+
     // #region Double Click Formula Grid 
 
     $scope.GeneralFormula = function (obj) {

@@ -134,7 +134,9 @@ namespace Library.OrderManagement.Costing
   SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
  CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
  BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
-
+,SONumber=STUFF((select distinct ','+XSO.Id 
+                                         from   trn.SalesOrder XSO 	                                    
+							             where XSO.Id=boq.SalesOrderId     	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
@@ -1570,8 +1572,6 @@ namespace Library.OrderManagement.Costing
 
                 Library.General.Conversions.UOMConversion conversion = new Library.General.Conversions.UOMConversion();
 
-
-
                 ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager();
                 ConManager.getDataSet("select * from BOQ where CostingBOQMasterId='" + Id + "'", out DataSet dsMaster);
                 for (int i = 0; i < MaterialAttachmentData.Count; i++)
@@ -1604,7 +1604,6 @@ namespace Library.OrderManagement.Costing
                         dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = clsStaticInfo.nullrecorder(QuantityData[i]["SKUDesc"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["OwnReferenceNo"] = clsStaticInfo.nullrecorder(QuantityData[i]["OwnReferenceNo"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["Remark"] = QuantityData[i]["Remark"];
-
 
 
                         string BaseUOM = conversion.GetMaterialUOMByCategory(dsMaster.Tables[0].DefaultView[0]["MaterialMasterId"].ToString(), General.Conversions.UOMConversion.UOMCategory.BaseUOMId);
