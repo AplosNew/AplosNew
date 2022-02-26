@@ -25,11 +25,12 @@
                 <div class="form-group" ng-show="issueTransactionNew.IssueType=='Standard'">
                     <label class="col-sm-4 control-label">Issue Standard<sup>*</sup></label>
                     <div class="col-sm-8">
-                        <div class="select-style">
+                        @*<div class="select-style">
                             <select class="form-control" ng-model="issueTransactionNew.IssueStandardId" ng-change="ChangeIssueStandard(issueTransactionNew.IssueStandardId)" name="IssueStandardId" ng-options="item.Value as item.Text for item in issueStandardList" tabindex="2">
                                 <option value=""></option>
                             </select>
-                        </div>
+                        </div>*@
+                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="issueStandardList" e-value="issueTransactionNew.IssueStandardId" e-fields-value="Value" e-fields-text="Text" e-change="ChangeIssueStandard" e-width="100%" />
                     </div>
                 </div>
             </div>

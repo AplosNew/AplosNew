@@ -3195,7 +3195,7 @@ namespace Library.MaterialManagement.Inventory
 							var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 							//var list =
 
-							var list = _inventoryReceiveService.GetTaxCategoryList1(identity.CompanyGroupId, PoId, identity.PlantId, itemDetail.HSNCodeId);
+							var list = _inventoryReceiveService.GetTaxCategoryList1(identity.CompanyGroupId, entity.Id, identity.PlantId, itemDetail.HSNCodeId);
 
 							if (list.IsNotNull())
 							{

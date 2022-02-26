@@ -5,7 +5,6 @@ using System.Data;
 using Library.Data.Sql;
 using OTSBD;
 using bplib;
-using Library.HumanResource.NewAttendanceProcess;
 
 namespace Library.HumanResource.Employee
 {
@@ -19,19 +18,35 @@ namespace Library.HumanResource.Employee
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
+        
+        #region API's 
         public string SaveEmployeeVisit(IEnumerable<VisitorModel> DataToSave)
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster,dsCard;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<VisitorModel> items = DataToSave.ToList();
 
-                //  select distinct CardNo from visitorservicedata where InDone='1'
-              //  and OutDone = '0'
+                string checkCard = clsWebLib.RetValidLen(items[0].CardNo).ToString();
+
+                if (checkCard != "")
+                {
+                    con.OpenDataSetThroughAdapter("select distinct CardNo from visitorservicedata where InDone = '1'  and OutDone = '0'", out dsCard, false, "1");
+                    if (dsCard.Tables[0].Rows.Count > 0)
+                    {
+                        for (int j = 0; j < dsCard.Tables[0].Rows.Count; j++)
+                        {
+                            if ((dsCard.Tables[0].Rows[j][@"CardNo"]).ToString() == checkCard)
+                            {
+                                return " Please Enter Valid CardNo.Already in Use ...";
+                            }
+                        }
+                    }
+                }
 
                 con.OpenDataSetThroughAdapter("select * from dbo.VisitorServiceData where 1=2", out dsMaster, false, "1");
 
@@ -52,7 +67,6 @@ namespace Library.HumanResource.Employee
                         dr["Purpose"] = item.Purpose;
                         dr["Remarks"] = item.Remarks;
                         dr["OutDone"] = false;
-                        dr["CardNo"] = item.CardNo;
                         dr["NoOfPerson"] = item.NoOfPerson;
                         dr["MobileNo"] = item.MobileNo;
                         dr["AddedBy"] = item.AddedBy;
@@ -60,6 +74,7 @@ namespace Library.HumanResource.Employee
                         dr["AddedFromIP"] = item.AddedFromIP;
                         if(item.param=="In")
                         {
+                            dr["CardNo"] = item.CardNo;
                             dr["VehicleNo"] = item.VehicleNo;
                             dr["VisitorLocation"] = item.VisitorLocation;
                             dr["InDate"] = DateTime.Now.ToString("dd-MMM-yyyy");
@@ -147,7 +162,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster, dsCard;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 if (DataToSave.Count() == 0)
@@ -155,6 +170,23 @@ namespace Library.HumanResource.Employee
                     return "No Data Found";
                 }
                 var items = DataToSave.ToList();
+
+                string checkCard = clsWebLib.RetValidLen(items[0].CardNo).ToString();
+
+                if (checkCard != "")
+                {
+                    con.OpenDataSetThroughAdapter("select distinct CardNo from visitorservicedata where InDone = '1'  and OutDone = '0'", out dsCard, false, "1");
+                    if (dsCard.Tables[0].Rows.Count > 0)
+                    {
+                        for (int j = 0; j < dsCard.Tables[0].Rows.Count; j++)
+                        {
+                            if ((dsCard.Tables[0].Rows[j][@"CardNo"]).ToString() == checkCard)
+                            {
+                                return " Please Enter Valid CardNo.Already in Use ...";
+                            }
+                        }
+                    }
+                }
                 con.OpenDataSetThroughAdapter("select * from dbo.VisitorServiceData where Id='"+items[0].Id+"'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
@@ -203,6 +235,108 @@ namespace Library.HumanResource.Employee
             }
         }
 
+        #endregion
+
+        #region Report Functions
+        public IEnumerable<object> GetVisitorList(string InDone,string OutDone,string FromDate,string ToDate )
+        {
+            try
+            {
+                #region InDone OutDone Value Region
+               
+                if (InDone=="True")
+                {
+                    InDone = "1";
+                }
+                else
+                {
+                    InDone = "0";
+                }
+                if (OutDone == "True")
+                {
+                    OutDone = "1";
+                }
+                else
+                {
+                    OutDone = "0";
+                }
+                #endregion
+
+                TimeSpan ts = Convert.ToDateTime(ToDate).Subtract(Convert.ToDateTime(FromDate));
+                if (ts.Days >= 0)
+                {
+                    var sql = @"select v.Id,v.CardNo,v.VisitorCategory,
+                    v.VisitorType,v.VisitorName,v.NoOfPerson,v.MobileNo,
+                    e.EmployeeName as ToMeet,v.Purpose,format(v.InDate,'dd-MMM-yyyy')InDate,
+                    format(v.InTime,'hh:mm tt')InTime,
+                    format(v.OutDate,'dd-MMM-yyyy')OutDate,format(v.OutTime,'hh:mm tt')OutTime,
+                    v.AddedBy,v.VisitorLocation,
+                    v.VehicleNo
+                    from visitorservicedata v left join EmployeeInformation e on e.SystemId=v.ToMeet
+                    WHERE InDone='"+InDone+@"' and OutDone='"+OutDone+@"'
+                    and InDate between '"+FromDate+"' and '"+ToDate+"'";
+                    
+                    return _sqlRepository.GetDataCollection(sql, null);
+                
+                }
+                else
+                {
+                    throw new Exception("Please choose a valid Date !!");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetReportData(string InDone, string OutDone, string FromDate, string ToDate,string Id)
+        {
+            try
+            {
+                #region InDone OutDone Value Region
+
+                if (InDone == "True")
+                {
+                    InDone = "1";
+                }
+                else
+                {
+                    InDone = "0";
+                }
+                if (OutDone == "True")
+                {
+                    OutDone = "1";
+                }
+                else
+                {
+                    OutDone = "0";
+                }
+                #endregion
+               
+                var sql = @"select v.Id,v.CardNo,v.VisitorCategory,
+                    v.VisitorType,v.VisitorName,v.NoOfPerson,v.MobileNo,
+                    e.EmployeeName as ToMeet,v.Purpose,format(v.InDate,'dd-MMM-yyyy')InDate,
+                    format(v.InTime,'hh:mm tt')InTime,
+                    format(v.OutDate,'dd-MMM-yyyy')OutDate,format(v.OutTime,'hh:mm tt')OutTime,
+                    v.AddedBy,v.VisitorLocation,
+                    v.VehicleNo,
+                    Duration=isnull(Case when (InDone='1' and OutDone='1') then
+					(select datediff(hour,Intime,Outtime))
+					end,'0')
+                    from visitorservicedata v left join EmployeeInformation e on e.SystemId=v.ToMeet
+                    WHERE InDone='" + InDone + @"' and OutDone='" + OutDone + @"'
+                    and InDate between '" + FromDate + "' and '" + ToDate + "' and isnull(v.Id ,'') IN(" + Id + @") ";
+
+                    return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+     
+        #endregion
     }
 
     public class VisitorModel

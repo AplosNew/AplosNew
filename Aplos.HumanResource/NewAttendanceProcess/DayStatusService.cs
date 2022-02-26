@@ -461,10 +461,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                         dr["AvailedValue"] = clsStaticInfo.dbl(Leave[i]["AvailedValue"].ToString());
                         dr["LeaveTypeId"] = Leave[i]["LTId"].ToString();
                         dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedDate"] = DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
                         dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
                         dsMaster1.Tables[0].Rows.Add(dr);
                     }

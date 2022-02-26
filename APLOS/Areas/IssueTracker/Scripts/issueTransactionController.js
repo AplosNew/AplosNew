@@ -389,10 +389,10 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
     };
 
 
-    $scope.ChangeIssueStandard = function (id) {
+    $scope.ChangeIssueStandard = function () {
         $http({
             method: "get",
-            url: "IssueTracker/IssueStandard/GetById?issueStandardId=" + id
+            url: "IssueTracker/IssueStandard/GetById?issueStandardId=" + $scope.issueTransactionNew.IssueStandardId
         }).then(function successCallback(response) {
             $scope.issueStandards = response.data;
             $scope.issueTransactionNew.IssueCategoryId = $scope.issueStandards[0].IssueCategoryId;
@@ -794,6 +794,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
                     }).then(function successCallback(response) {
                         if (response.data.Error == true) {
                             ShowResult(response.data.Message, 'failure');
+                            $scope.savebtndisable = false;
                         }
                         else {
                             $scope.colorOfReleseButton = 'green';
@@ -818,6 +819,7 @@ function issueTransactionController(cboService, commonMessage, $window, $scope, 
         }
         else {
             ShowResult('Save first before release.', 'failure');
+            $scope.savebtndisable = false;
         }
     }
 
