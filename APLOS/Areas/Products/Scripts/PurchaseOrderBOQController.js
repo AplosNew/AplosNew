@@ -35,6 +35,42 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.SubmitPartyName = null;
     $scope.SubmitPartyId = null;
 
+    $scope.Griddata = [];
+    $scope.POTypeStatus = 'Pending';
+    $scope.getalldata = function () {
+        $scope.Griddata = [];
+        if ($scope.POTypeStatus === 'Pending') {
+            $scope.POTypeStatus = 'Pending'
+        }
+
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: 'Products/PurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus,
+        }).then(function successCallback(response) {
+
+            for (var i = 0; i < $scope.Griddata.length; i++) {
+                response.data[i].PODate1 = new Date($scope.Griddata[i].PODate1);
+            }
+            $scope.Griddata = response.data;
+        });
+    };
+    $scope.getalldata();
+
+    $scope.POTypeStatus = '';
+    $scope.tab1 = 1;
+    $scope.setTabIndex = function (newTab) {
+
+        $scope.POTypeStatus = 'Pending';
+        $scope.getalldata();
+        $scope.tab1 = newTab;
+
+    };
+    $scope.isSetIndex = function (tabNum) {
+        return $scope.tab1 === tabNum;
+    };
+
 
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
@@ -58,11 +94,11 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     };
 
     $scope.showBOQPartyPopUpNew = function () {
-       
+
         if ($scope.partyType === 'Vendor') {
             $scope.partyUrl = 'Products/PurchaseOrder/GetCompanyBOQPartyDataListNew?partyType=' + $scope.partyType;
         }
-        
+
         $http({
             method: 'POST',
             url: $scope.partyUrl,
@@ -414,7 +450,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
                     else {
 
-                        
+
 
 
                         var getRow = $filter("filter")($scope.poBoqItemListNew, {
@@ -520,7 +556,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             ShowResult('Please select Vendor', 'failure');
             return true;
         }
-        
+
         return false;
     }
 
@@ -531,7 +567,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-
+  
     $scope.GetCurrencyExchangeRateList = function () {
 
         //if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
@@ -671,6 +707,33 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
             $scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
         }
+    };
+    function getTaxCategoryList(hsnCodeId, HSNCode) {
+        $scope.taxCategoryList = [];
+        $http({
+            method: 'GET'
+            , url: $scope.path + 'GetTaxCategoryList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.productNew.PODate
+        }).then(function (response) {
+            $scope.taxCategoryList = response.data;
+            for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.taxCategoryList[i].hsnCodeId)) {
+                    $scope.taxCategoryList[i].HSNCode = HSNCode;
+                    $scope.taxCategoryList[i].HSNCodeId = hsnCodeId;
+                    //$scope.HSNCode = HSNCode;
+                }
+            }
+        });
+    }
+    $scope.manualValidationAddRemove = function (divId, modelName, fieldName, message) {
+        var msg = fieldName + ' is required.';
+        msg = baseService.isUndefinedOrNull(message) ? msg : message;
+        var str = fieldName;
+        if (baseService.isUndefinedOrNull($scope[modelName][str.replace(/\s/g, '')]))
+            throw manualValidation(divId, true, msg);
+        else if (isNaN($scope[modelName][str.replace(/\s/g, '')]))
+            throw manualValidation(divId, true, msg);
+        else
+            return manualValidation(divId, false);
     };
 
     $scope.serviceSave = function () {
@@ -846,7 +909,154 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         };
 
     };
-    // #endregion Service
+    $scope.GetTerms = function (id) {
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/GetTerms?id=' + id
+        }).then(function successCallback(response) {
+            $scope.paymentTermList1 = response.data;
+            $scope.productNew.DeliveryInstruction = $scope.paymentTermList1[0].DeliveryInstruction;
+            $scope.productNew.SpecialInstruction = $scope.paymentTermList1[0].SpecialInstruction;
+            //$scope.productNew.CheckedBy = $scope.paymentTermList1[0].CheckedBy;
+        });
+    }
+    function getPartyPlantEditList(invoicingPartyPlantId, invoAddress, deliveryplant, deliAddress, deliState, deliGSTIN) {
+        $scope.plantList = [];
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId).then(function (response) {
+            angular.forEach(response.data, function (item) {
+                $scope.plantList.push(item);
+                if (item.Value == invoicingPartyPlantId) {
+                    //$scope.partyPlantId = item.Value;
+                    $scope.productNew.InvoicingPartyPlantId = item.Value;
+                    $scope.productNew.DeliveryPartyPlantId = deliveryplant;
+                    $scope.productNew.InvoicingByAddress = invoAddress;
+                    $scope.productNew.DeliveryByAddress = deliAddress;
+                    $scope.productNew.InvoicingState = item.StateName;
+                    $scope.productNew.InvoicingGSTIN = item.GSTIN;
+                    $scope.productNew.DeliveryState = deliState;
+                    $scope.productNew.DeliveryGSTIN = deliGSTIN;
+                }
+            });
+        });
+    }
 
+    function getInventoryMaterialList(inveReveiveId) {
+        $scope.masterId = inveReveiveId;
+
+        $scope.poBoqItemListNew = [];
+        $http.get($scope.path + 'GetInventoryMaterialList?inveReveiveId=' + inveReveiveId)
+            .then(function (response) {
+
+                $scope.poBoqItemListNew = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName desc"));//response.data.Rows;
+                //var dataManagerObj = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName ASC"));
+                $scope.DetailId = $scope.poBoqItemListNew[0].InventoryReceiveDetailId;
+                $scope.InvoicingPartyPlantId = $scope.poBoqItemListNew[0].InvoicingPartyPlantId;
+                $scope.productNew.InvoicingPartyPlantId = $scope.poBoqItemListNew[0].InvoicingPartyPlantId;
+                $scope.productNew.InvoicingStateId = $scope.poBoqItemListNew[0].InvoicingStateId;
+                $scope.productNew.PlantStateId = $scope.poBoqItemListNew[0].PlantStateId;
+                checkSameValueInColumnList($scope.poBoqItemListNew, 'TransactionUoM');
+                getGrossAmount($scope.poBoqItemListNew, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
+                $scope.GetSalesTaxData();
+            });
+
+    }
+
+    $scope.GetSalesTaxData = function (salesId) {
+        $scope.TaxList = [];
+        $http({
+            method: "GET",
+            url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + $scope.masterId
+        }).then(function (response) {
+            $scope.TaxList = response.data;
+
+            for (var i = 0; i < $scope.poBoqItemListNew.length; i++) {
+                var linepk = $scope.poBoqItemListNew[i].InventoryReceiveDetailId;
+                var list = gettaxlist(linepk);
+                $scope.poBoqItemListNew[i].TaxList = list;
+            }
+        });
+    };
+    function gettaxlist(linepk) {
+        var result = [];
+        for (var i = 0; i < $scope.TaxList.length; i++) {
+            if ($scope.TaxList[i].PODetailId === linepk) {
+                result.push($scope.TaxList[i]);
+            }
+        }
+        return result;
+    }
+
+    $scope.ContractWiseData = function (Id) {
+
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/PurchaseOrder/ContractWiseData?ContractId=' + Id
+        }).then(function successCallback(response) { //datagatefun
+            $scope.productNew.ContractNo = response.data[0].ContractNo;
+            $scope.productNew.LCRef = response.data[0].LCRef;
+        });
+    };
+    $scope.GetCheckedByAndApprovedBy1 = function () {
+        if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
+            $http({
+                method: 'GET',
+                url: 'Products/PurchaseOrder/GetCheckedByAndApprovedBY?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.checkedByList = response.data;
+            });
+
+        }
+        else {
+
+        }
+
+    }
+    // #endregion Service
+    $scope.recorddoubleclick = function ($event) {
+
+        var x = $event;
+        var Id = x.data.Id;
+        $scope.Currency = $("#currency option:selected").text();
+        $scope.productNew = x.data;
+        $scope.Id = $scope.productNew.Id;
+        $scope.productNew.PODate = x.data.PODate1;
+        $scope.GetTerms($scope.productNew.Id);
+        getPartyPlantEditList($scope.productNew.InvoicingPartyPlantId, $scope.productNew.InvoicingByAddress, $scope.productNew.DeliveryPartyPlantId, $scope.productNew.DeliveryByAddress, $scope.productNew.DeliveryState, $scope.productNew.DeliveryGSTIN);
+        getInventoryMaterialList($scope.productNew.Id);
+        getServiceChargeList($scope.productNew.Id);
+        $scope.productNew.OrderSpecific = 'Yes';
+        $scope.isSubmitted='Yes'
+        $scope.BOQItemDisabled = 'GridClick';
+        if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+            $scope.CheckedByStatusForNoti = false;
+            $scope.ApprovedByStatusForNoti = true;
+            $scope.productNew.CheckedBy = x.data.ApprovedById;
+        }
+        else if (!baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+            $scope.CheckedByStatusForNoti = true;
+            $scope.ApprovedByStatusForNoti = true;
+            $scope.productNew.CheckedBy = x.data.CheckedById;
+        }
+        $scope.ContractWiseData(x.data.ContractId);
+       // $scope.ImagedataLoad($scope.productNew.Id);
+        $scope.GetCheckedByAndApprovedBy1();
+        if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+            $scope.GetCheckedByAndApprovedBy1();
+            $scope.productNew.CheckedBy = x.data.ApprovedById;
+            $scope.productNew.labelCheckAndApproved = 'To be approved by';
+        }
+        else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+            $scope.GetCheckedByAndApprovedBy1();
+            $scope.productNew.CheckedBy = x.data.CheckedById;
+            $scope.productNew.labelCheckAndApproved = 'To be checked by';
+        }
+        $scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id)
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) $rootScope.toggle();
+
+
+    };
 }//End Of main
 
