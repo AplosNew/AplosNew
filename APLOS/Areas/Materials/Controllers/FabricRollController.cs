@@ -690,8 +690,23 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                             sheet1[xlsRow, 2].Text = item["Id"].ToString();
 
                             grnId = item["Id"].ToString();
+
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxText = "Only positive numbers are allowed for Rate";
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxTitle = "Number Error";
+
+
                             xlsRow++;
+
+
+                           
+
                         }
+
                     }
                     else
                     {
@@ -703,18 +718,20 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                             sheet1[xlsRow, 2].Text = item["Id"].ToString();
 
                             grnId = item["Id"].ToString();
+
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxText = "Only positive numbers are allowed for Rate";
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxTitle = "Number Error";
+
                             xlsRow++;
                         }
 
                     }
 
-                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.IsEmptyCellAllowed = true;
-                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.AllowType = ExcelDataType.Decimal;
-                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.FirstFormula = "0";
-                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxText = "Only positive numbers are allowed for Rate";
-                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxTitle = "Number Error";
 
                 }
 
@@ -743,6 +760,10 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 #endregion
 
                 #region UsedRange Alignment
+
+                //sheet1.Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD, ExcelSheetProtection.Filtering | ExcelSheetProtection.All);
+                //workbook.Worksheets[1].Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD);
+                //workbook.Protect(false, true, bplib.clsWebLib.REPORT_LOCK_PASSWORD);
 
                 sheet1.UsedRange.WrapText = true;
                 sheet1.UsedRange.CellStyle.Font.Size = 10;
