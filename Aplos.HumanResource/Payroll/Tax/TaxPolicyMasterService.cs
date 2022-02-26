@@ -760,7 +760,8 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
-        
+
+        #region Delete Functions
         public void DeleteSavingItem(string ID)
         {
             try
@@ -777,6 +778,28 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
+
+        public void DeleteSavingGroup(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");                
+               
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from IncomeTaxItemChild where IncomeTaxItemMasterId='" + ID + "'");
+                con.executeQuery("delete from IncomeTaxItemMaster  where SystemId='" + ID + "'");
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
 
         #endregion
 

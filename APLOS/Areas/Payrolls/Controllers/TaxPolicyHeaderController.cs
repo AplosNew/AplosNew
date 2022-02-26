@@ -414,6 +414,20 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+       
+        [HttpPost, Authorize]
+        public JsonResult DeleteSavingGroup(string ID)
+        {
+            try
+            {
+                ds.DeleteSavingGroup(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
         #endregion

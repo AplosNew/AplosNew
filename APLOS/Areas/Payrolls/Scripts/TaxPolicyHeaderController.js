@@ -572,7 +572,6 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
-
     // #region Delete Saving Item Functions
 
     $scope.ConfirmDeleteSavingItem = function (obj) {
@@ -605,6 +604,41 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     };
 
     //#endregion
+
+    // #region Delete Saving Group Functions
+
+    $scope.ConfirmDeleteSavingGroup = function (obj) {
+        $scope.InvestDeductModel.SystemId = obj.data.SystemId;
+        $scope.DeleteSavingGroup();
+    };
+
+    $scope.DeleteSavingGroup = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteSavingGroup",
+                data: { ID: $scope.InvestDeductModel.SystemId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getInvestDeductMaster();
+                    $scope.getIncomeChildData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    //#endregion
+
 
     // #region Double Click Formula Grid 
 
