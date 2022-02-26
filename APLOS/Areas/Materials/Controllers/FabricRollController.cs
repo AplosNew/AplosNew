@@ -626,33 +626,41 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
                 #region ------------------Column Header------------------
 
+                int colSeq = 0; int colGRNRowId = 0; int colLotNo = 0; int colShade = 0; int colMarkarCode = 0; int colFabricGroup = 0; int colLength = 0;
+                int colWeight = 0; int colShrinkage = 0; int colQty = 0; int colQtyUoM = 0; int colActualQty = 0; int colInvoiceQty = 0;
+                int colSupplierRollNo = 0; int colOwnRollNo = 0; int colBuyerRollNo = 0; int colGrouping = 0; int colRemarks = 0;
+
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence");
-                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@"; xlsCol += 1;
+                colSeq = xlsCol;
+                //sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
+                xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");
-                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
+                colGRNRowId = xlsCol;
+                //sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LotNo");
-                sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
+                colLotNo = xlsCol;
+                //sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MarkarCode"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricGroup"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Length"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Weight"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shrinkage"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Qty"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QtyUoM"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActualQty"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "InvoiceQty"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierRollNo"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnRollNo"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BuyerRollNo"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Grouping"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks");
-               
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol;  xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MarkarCode"); colMarkarCode = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricGroup"); colFabricGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Length"); colLength = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Weight"); colWeight = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shrinkage"); colShrinkage = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Qty"); colQty = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QtyUoM"); colQtyUoM = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActualQty"); colActualQty = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "InvoiceQty"); colInvoiceQty = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierRollNo"); colSupplierRollNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnRollNo"); colOwnRollNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BuyerRollNo"); colBuyerRollNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Grouping"); colGrouping = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); colRemarks = xlsCol; 
+
 
                 endXlsCol = xlsCol;
 
@@ -700,11 +708,37 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
                     }
 
+                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.IsEmptyCellAllowed = true;
+                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.AllowType = ExcelDataType.Decimal;
+                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.FirstFormula = "0";
+                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxText = "Only positive numbers are allowed for Rate";
+                    sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxTitle = "Number Error";
 
                 }
 
 
                 xlsRow++;
+
+                #region Validations
+                //sheet1.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.IsEmptyCellAllowed = true;
+                //sheet1.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.AllowType = ExcelDataType.Decimal;
+                //sheet1.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                //sheet1.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.FirstFormula = "0";
+                //sheet1.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                //sheet1.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.ErrorBoxText = "Only positive numbers are allowed for Quantity";
+                //sheet1.Range[StartRow, colRequiredQtyInPOUOM, ROW - 1, colRequiredQtyInPOUOM].DataValidation.ErrorBoxTitle = "Number Error";
+
+
+                //sheet1.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.IsEmptyCellAllowed = true;
+                //sheet1.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.AllowType = ExcelDataType.Decimal;
+                //sheet1.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                //sheet1.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.FirstFormula = "0";
+                //sheet1.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                //sheet1.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.ErrorBoxText = "Only positive numbers are allowed for Rate";
+                //sheet1.Range[StartRow, colRate, ROW - 1, colRate].DataValidation.ErrorBoxTitle = "Number Error";
+                #endregion Validations
 
                 #endregion
 
