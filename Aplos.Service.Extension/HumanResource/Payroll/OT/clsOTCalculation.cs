@@ -176,7 +176,7 @@ namespace Library.Service.Payrolls.OT
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @" 
+                strSQL = @" SELECT DISTINCT * FROM (
 SELECT  OLD.*,d.EntryAmount Amount,d.DefineAmount,d.SalaryHeadID,d.EntryCurrencyID,h.SalaryHead,h.HeadCategory,h.HeadType 
                             ,LD.UserName OldLegalDesignation, LG.Code OldGradeCode  FROM (
 
@@ -216,8 +216,8 @@ LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.Fro
                             
 LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId and LGD.PlantId='" + sPlantID + @"'
 
-where OLD.OLDRANK=1 AND h.HeadCategory='" + HeadCategory+@"' 
-ORDER BY old.EmpInfoSystemID";
+where OLD.OLDRANK=1 AND h.HeadCategory='" + HeadCategory+@"' ) as xx
+ORDER BY xx.EmpInfoSystemID";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");

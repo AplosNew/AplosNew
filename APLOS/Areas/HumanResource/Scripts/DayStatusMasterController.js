@@ -441,7 +441,6 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         NonPayDay: 0,
         PresentValuePD: 0,
         LeaveValueLP: 0,
-        LeaveValueLWP: 0,
         AbsentValueAB: 0,
         WeeklyOffWO: 0,
         HolidayH: 0,
@@ -458,18 +457,12 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         AttendanceReProcessApplicable: false,
         OTLimitLockApplicable: false,
         OTCalculation: 0, 
-        CasualLeaveValueCV: 0,
-        MedicalLeaveValueMV: 0,
-        PriviledgeLeavePL: 0,
-        MaternityLeaveValueMLV: 0,
         LateValueLV: 0,
         WeekOffHoliDayWOH: 0,
         CompAssignLv: 0,
         ManualStatusAllowed: false,
         DayStatusChange: false,
         AutoLock: false,
-        EarnedPL: 0,
-        EarnedCL: 0,
         IsCreditLimitAllowed: 0,
         DayLimit :0,
         Week1Limit: 0,
@@ -577,7 +570,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         }
 
         if ((parseFloat($scope.DayChild.PresentValuePD) + parseFloat($scope.DayChild.LeaveValueLP) +
-            parseFloat($scope.DayChild.LeaveValueLWP) + parseFloat($scope.DayChild.AbsentValueAB) + parseFloat($scope.DayChild.WeeklyOffWO)
+            parseFloat($scope.DayChild.AbsentValueAB) + parseFloat($scope.DayChild.WeeklyOffWO)
             + parseFloat($scope.DayChild.HolidayH) + parseFloat($scope.DayChild.Other) + parseFloat($scope.DayChild.LateValueLV)+
         parseFloat($scope.DayChild.WeekOffHoliDayWOH)+
         parseFloat($scope.DayChild. CompAssignLv)) > 1) {
@@ -585,7 +578,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             throw ("Error");
         }
         if ((parseFloat($scope.DayChild.PresentValuePD) + parseFloat($scope.DayChild.LeaveValueLP) +
-            parseFloat($scope.DayChild.LeaveValueLWP) + parseFloat($scope.DayChild.AbsentValueAB) + parseFloat($scope.DayChild.WeeklyOffWO)
+            parseFloat($scope.DayChild.AbsentValueAB) + parseFloat($scope.DayChild.WeeklyOffWO)
             + parseFloat($scope.DayChild.HolidayH) + parseFloat($scope.DayChild.Other) + parseFloat($scope.DayChild.LateValueLV) +
             parseFloat($scope.DayChild.WeekOffHoliDayWOH) +
             parseFloat($scope.DayChild.CompAssignLv)) != 1) {
@@ -626,7 +619,6 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             NonPayDay: 0,
             PresentValuePD: 0,
             LeaveValueLP: 0,
-            LeaveValueLWP: 0,
             AbsentValueAB: 0,
             WeeklyOffWO: 0,
             HolidayH: 0,
@@ -643,18 +635,12 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             AttendanceReProcessApplicable: false,
             OTLimitLockApplicable: false,
             OTCalculation: 0,
-            CasualLeaveValueCV: 0,
-            MedicalLeaveValueMV: 0,
-            PriviledgeLeavePL: 0,
-            MaternityLeaveValueMLV: 0,
             LateValueLV: 0,
             WeekOffHoliDayWOH: 0,
             CompAssignLv: 0,
             ManualStatusAllowed: false,
             DayStatusChange: false,
             AutoLock: false,
-            EarnedPL: 0,
-            EarnedCL: 0,
             IsCreditLimitAllowed: 0,
             DayLimit: 0,
             Week1Limit: 0,
