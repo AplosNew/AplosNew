@@ -760,7 +760,8 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
-        
+
+        #region Delete Functions
         public void DeleteSavingItem(string ID)
         {
             try
@@ -777,6 +778,28 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
+
+        public void DeleteSavingGroup(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");                
+               
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from IncomeTaxItemChild where IncomeTaxItemMasterId='" + ID + "'");
+                con.executeQuery("delete from IncomeTaxItemMaster  where SystemId='" + ID + "'");
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
 
         #endregion
 
@@ -1212,7 +1235,11 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
                     it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
-                    itc.DocumentApplicable,(select '0') as ActualValue,(select '0') as UserValue,
+                    itc.DocumentApplicable,	
+                    ActualValue=case when itc.isuserdefined=1 then (select itc.Limit)
+					else (select '0') end,
+					UserValue=case when itc.isuserdefined=1 then (select itc.Limit)
+					else (select '0') end,
                     itc.Id as IncomeTaxItemChildId
                     from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
                     it.SystemId=itc.IncomeTaxItemMasterId
