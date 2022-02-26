@@ -255,8 +255,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         {
             try
             {
-                var sql = @"SELECT * FROM (select MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically,D.Id DeptId,D.UserName Department,EI.EmployeeName Attendee
-												--,FORMAT(MIH.AddedDate,'dd-MMM-yyyy') TDate
+                var sql = @"SELECT * FROM (select MT.Id MeetingTypeId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically,D.Id DepartmentId,D.UserName Department,EI.SystemId AttendeeId,EI.EmployeeName Attendee
 			                                    
                                                 from MeetingItemHeader MIH
                                                 left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
@@ -264,6 +263,47 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                                                 left join MeetingType MT on MT.Id=MIH.MeetingTypeId) AS KK	";
                
                 //return _sqlRepository.GetDataCollection(sql);
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetMeetingInformation(Dictionary<string, string> parameters, string toDate, string fromDate)
+        {
+            try
+            {
+                    string sql = @"Select cast(0 as bit) Active,MIH.*,D.UserName Department,MT.UserName MeetingType,EI.EmployeeName Attendee 
+                                from MeetingItemHeader MIH
+                                left join MeetingType MT on MT.Id=MIH.MeetingTypeId
+                                left join ORG.Department D on D.Id=MIH.DepartmentId
+                                left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
+
+                                where MeetingTypeId in (" + parameters["MeetingTypeId"] + @") and IssueStatus in (" + parameters["IssueStatus"] + @") 
+                                and IssueCritically in (" + parameters["IssueCritically"] + @") and MIH.DepartmentId in (" + parameters["DepartmentId"] + @") 
+                                and ByWhomId in (" + parameters["AttendeeId"] + @") and MIH.AddedDate between '" + fromDate + "' and '" + toDate + "'";
+
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        
+        [HttpGet, Authorize]
+        public ActionResult GetDateInformation()
+        {
+            try
+            {
+                var sql = @"Select FORMAT(MIN(AddedDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(AddedDate),'dd-MMM-yyyy') ToDate
+                            from dbo.MeetingItemHeader";
+
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
