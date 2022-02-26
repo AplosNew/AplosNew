@@ -908,7 +908,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         IsEarning: false,
         IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId,
         Sequence: 0,
-        DocumentApplicable: false
+        DocumentApplicable: false,
+        IsUserDefined: false
     };
 
     // #endregion
@@ -941,6 +942,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             IsDeduction: false,
             IsEarning: false,
             DocumentApplicable: false,
+            IsUserDefined: false,
             IncomeTaxItemMasterId: $scope.InvestDeductModel.SystemId
         };
         $scope.GetSequenceItemChild();
