@@ -322,6 +322,40 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
 
+        public void DeleteEarnMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+
+                ConnectionManager.DAL.ConManager conx = new ConnectionManager.DAL.ConManager("1");
+
+                conx.OpenDataSetThroughAdapter("select * from TaxExemptionApplicableChild where TaxEarningMasterChildId = '"+ID+"'", out DataSet dsMaster, false, "1");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    string ExemptionId = "''";
+                    for (int x = 0; x < dsMaster.Tables[0].Rows.Count; x++)
+                    {                    
+                        ExemptionId += ",'" + clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[x][@"Id"]).ToString() + "'";
+                    }    
+                    con.executeQuery("delete from taxformuladetail where ExemptionApplicableChildId IN("+ ExemptionId + ")");
+                    con.executeQuery("delete from TaxExemptionApplicableChild  where TaxEarningMasterChildId='" + ID + "'");
+
+                }
+                con.executeQuery("delete from taxearningmasterchild where Id='" + ID + "'");
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         #endregion
 
         #region Formula Rules Functions
@@ -727,10 +761,50 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
+        #region Delete Functions
+        public void DeleteSavingItem(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");                
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();              
+                con.executeQuery("delete from IncomeTaxItemChild where Id='" + ID + "'");
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void DeleteSavingGroup(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");                
+               
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from IncomeTaxItemChild where IncomeTaxItemMasterId='" + ID + "'");
+                con.executeQuery("delete from IncomeTaxItemMaster  where SystemId='" + ID + "'");
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region TaxYear Tagging Functions
-     
+
         public IEnumerable<object> GetTaxYearMasterList(string Id)
         {
             try
@@ -1161,7 +1235,11 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
                     it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
-                    itc.DocumentApplicable,(select '0') as ActualValue,(select '0') as UserValue,
+                    itc.DocumentApplicable,	
+                    ActualValue=case when itc.isuserdefined=1 then (select itc.Limit)
+					else (select '0') end,
+					UserValue=case when itc.isuserdefined=1 then (select itc.Limit)
+					else (select '0') end,
                     itc.Id as IncomeTaxItemChildId
                     from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
                     it.SystemId=itc.IncomeTaxItemMasterId

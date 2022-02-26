@@ -289,8 +289,18 @@
                                             <div e-column e-field="SalaryHead" e-headertext="SalaryHead" e-width="120"></div>
                                             <div e-column e-field="ExemptionApplicable" e-headertext="Exemption Applicable" e-width="80"></div>
                                             <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="50"></div>
+                                            <div e-column e-headertext="Delete" e-template="#DeleteEarning" e-width="50"></div>
                                         </div>
                                     </div>
+                                  
+                                    <script type="text/ng-template" id="DeleteEarning">
+                                        <div class="common-btn">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Delete" class="btn">
+                                                <i class="glyphicon glyphicon-trash" ng-click="$parent.ConfirmDeleteEarningHead(this);"></i>
+                                            </button>
+                                        </div>
+                                    </script>
+                                    
                                     <script type="text/ng-template" id="ShowButtons">
                                         <div class="common-btn">
                                             <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
@@ -378,8 +388,17 @@
                                             <div e-column e-field="TaxType" e-headertext="TaxType" e-width="80"></div>
                                             <div e-column e-field="TaxSavingGroup" e-headertext="Tax Saving Group" e-width="100"></div>
                                             <div e-column e-field="MaxLimit" e-headertext="MaxLimit" e-width="50"></div>
+                                            <div e-column e-headertext="Actions" e-template="#DeleteSavingGroup" e-width="50"></div>
                                         </div>
                                     </div>
+                                    
+                                    <script type="text/ng-template" id="DeleteSavingGroup">
+                                        <div class="common-btn">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Delete" class="btn">
+                                                <i class="glyphicon glyphicon-trash" ng-click="$parent.ConfirmDeleteSavingGroup(this);"></i>
+                                            </button>
+                                        </div>
+                                    </script>
                                 </div>
                             </div>
 
@@ -411,9 +430,19 @@
                                                     <div e-column e-field="IsDeduction" e-headertext="Is Deduction" e-width="50"></div>
                                                     <div e-column e-field="DocumentApplicable" e-headertext="Document Applicable" e-width="50"></div>
                                                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
+                                                    <div e-column e-headertext="Actions" e-template="#DeleteSavingItem" e-width="50"></div>
                                                 </div>
                                             </div>
+
+                                            <script type="text/ng-template" id="DeleteSavingItem">
+                                                <div class="common-btn">
+                                                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Delete" class="btn">
+                                                        <i class="glyphicon glyphicon-trash" ng-click="$parent.ConfirmDeleteSavingItem(this);"></i>
+                                                    </button>
+                                                </div>
+                                            </script>
                                         </div>
+
                                     </div>
                                 </fieldset>
                             </div>
@@ -954,6 +983,18 @@
                                     <div class="checkbox-site" style="margin-top:7px;">
                                         <label>
                                             <input type="checkbox" ng-model="InvestDeductModelChild.DocumentApplicable">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">By Default</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site" style="margin-top:7px;">
+                                        <label>
+                                            <input type="checkbox" ng-model="InvestDeductModelChild.IsUserDefined">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>

@@ -2,7 +2,9 @@
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.Inventory;
 using Library.Model.Parties;
+using Library.Model.Taxations;
 using Library.Service.Enums;
 using Library.Service.Logs;
 using System;
@@ -75,6 +77,49 @@ namespace Aplos.MaterialManagement.MaterialQuery
                 throw new CustomException(ex.Message, ex,
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+        public IEnumerable<PurchaseOrderTax> GetPOBOQTaxCategoryList(string companyGroupId, string partyPlantId, string plantId, string hsnCodeId)
+        {
+            try
+            {
+                var sql = @"DECLARE @partyPlantId varchar(10)='" + partyPlantId + @"'
+                                  , @partyState varchar(30)
+                                  , @partyCountry varchar(10)
+                                  , @plantState varchar(30)
+                                  , @plantCountry varchar(10)
+                                  , @plantId varchar(30)='" + plantId + @"'
+                                  , @hsnCodeId varchar(30)='" + hsnCodeId + @"'
+                    SET @partyCountry =(SELECT AM.CountryId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
+                                                    WHERE PP.Id=@partyPlantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @partyState =(SELECT AM.StateId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
+                                    WHERE PP.Id=@partyPlantId)-- AND AD.Active=1 AND AD.Archive=0)
+
+                    SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SELECT TVD.Id, TVD.TaxCategoryId, HP.HSNCodeId, HN.Code AS HSNCode, TC.UserName, ISNULL(HP.[Percentage], 0) AS [Percentage], NULL TotalAmount
+                    FROM [MST].[TaxVariantDetail] AS TVD
+                    JOIN [MST].[TaxVariant] AS TV ON TVD.TaxVariantId=TV.Id
+                    JOIN [MST].[TaxCategory] AS TC ON TVD.TaxCategoryId=TC.Id
+                    --LEFT JOIN (SELECT * FROM [MST].[HSNTaxPercentage] WHERE HSNCodeId=@hsnCodeId) AS HP ON HP.TaxCategoryId=TC.Id
+					LEFT JOIN (SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY TaxCategoryId, HSNCodeId ORDER BY EffectiveDate DESC) AS RN
+								FROM [MST].[HSNTaxPercentage] WHERE CountryId=@plantCountry AND HSNCodeId=@hsnCodeId) AS TBL WHERE RN=1) AS HP ON HP.TaxCategoryId=TC.Id
+
+                    LEFT JOIN [HKP].[HSNCode] AS HN ON HP.HSNCodeId=HN.Id
+                    WHERE TV.CompanyGroupId='" + companyGroupId + @"' AND TV.CountryId=@plantCountry --AND HP.HSNCodeId=@hsnCodeId
+                    AND TV.TaxFor=CASE WHEN @partyCountry=@plantCountry THEN '" + TaxFor.DomesticPurchase + @"'
+				                        WHEN @partyCountry<>@plantCountry THEN '" + TaxFor.OverseasPurchase + @"' END
+                    AND (TV.Different=CASE WHEN @partyCountry=@plantCountry AND @partyState=@plantState AND TV.DifferentIn='State' THEN 'Same'
+					                       WHEN @partyCountry=@plantCountry AND @partyState<>@plantState AND TV.DifferentIn='State' THEN 'Different' END
+	                    OR TV.Different IS NULL)
+                    ORDER BY TC.[Sequence]";
+                return _sqlRepository.GetModelCollection<PurchaseOrderTax>(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
 

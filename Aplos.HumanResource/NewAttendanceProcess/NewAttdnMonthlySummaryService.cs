@@ -1305,9 +1305,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                REPLACE(CONVERT(VARCHAR(11), MAX(p.WorkDate), 113), ' ', '-') ToDate,
                 COUNT(p.WorkDate) TotalProcDate,
                 isnull(SUM(P.PresentValue),'0')TotalPresent,isnull(SUM(p.LateValue),'0')TotalLate,isnull(SUM(p.AbsentValue),'0')TotalAbsent
-                ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.MLvValue),'0')TotalMlv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
+                ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
                 isnull(SUM(p.WeekOffValue),'0')TotalWeekOff,isnull(SUM(p.HoliDayValue),'0')TotalHoliDay,isnull(SUM(p.WeekOffHoliDayValue),'0')TotalWeekOffHoliDay
-               ,isnull(SUM(p.LWPValue),'0')TotalLWP,isnull(SUM(p.PayDayValue),'0')TotalPayDay,isnull(SUM(p.ActualWorkingDayValue),'0')TotalActualDays
+               ,isnull(SUM(p.PayDayValue),'0')TotalPayDay,isnull(SUM(p.ActualWorkingDayValue),'0')TotalActualDays
 			            from AttdnProcessData p
                         where isnull(p.DayStatus,'')!='' and WorkDate between '" + objm.FDate+@"'
 						 and '"+objm.TDate+ @"' group BY EmpSystemID) as dd
@@ -2584,9 +2584,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                REPLACE(CONVERT(VARCHAR(11), MAX(p.WorkDate), 113), ' ', '-') ToDate,
                 COUNT(p.WorkDate) TotalProcDate,
                 isnull(SUM(P.PresentValue),'0')TotalPresent,isnull(SUM(p.LateValue),'0')TotalLate,isnull(SUM(p.AbsentValue),'0')TotalAbsent
-                ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.MLvValue),'0')TotalMlv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
+                ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
                 isnull(SUM(p.WeekOffValue),'0')TotalWeekOff,isnull(SUM(p.HoliDayValue),'0')TotalHoliDay,isnull(SUM(p.WeekOffHoliDayValue),'0')TotalWeekOffHoliDay
-               ,isnull(SUM(p.LWPValue),'0')TotalLWP,isnull(SUM(p.PayDayValue),'0')TotalPayDay,isnull(SUM(p.ActualWorkingDayValue),'0')TotalActualDays
+               ,isnull(SUM(p.PayDayValue),'0')TotalPayDay,isnull(SUM(p.ActualWorkingDayValue),'0')TotalActualDays
 			            from AttdnProcessData p
                         where isnull(p.DayStatus,'')!='' and WorkDate between '" + objm.FDate + @"'
 						 and '" + objm.TDate + @"' group BY EmpSystemID) as dd

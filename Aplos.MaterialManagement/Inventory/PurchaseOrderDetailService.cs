@@ -1,4 +1,5 @@
-﻿using Library.Core;
+﻿using Aplos.MaterialManagement.MaterialQuery;
+using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
@@ -16,6 +17,7 @@ using Library.ViewModel.Materials;
 using Library.ViewModel.OrderManagements;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -46,6 +48,8 @@ namespace Library.MaterialManagement.Inventory
 		private readonly IMaterialRequsitionDetailsServiceService _materialRequsitionDetailsServiceService;
 		private readonly IRepositoryAsync<MaterialRequsitionDetails> _reqDetailRepository;
 		private readonly IRepositoryAsync<ServicePOTax> _ServicePOTax;
+		private readonly IRepositoryAsync<TermsAndConditionsPOChild> _termsAndConditionsPOChildRepository;
+		private readonly IRepositoryAsync<TermsAndConditionsPODetails> _termsAndConditionsPODetailRepository;
 		public PurchaseOrderDetailService(
 			 IRepositoryAsync<PurchaseOrderDetail> receiveDetailRepository
 			, IRepositoryAsync<PoRequisitionDetail> poRequisitionDetailRepository
@@ -63,6 +67,8 @@ namespace Library.MaterialManagement.Inventory
 			, IRepositoryAsync<MaterialRequsitionDetails> reqDetailRepository
 			, IRepositoryAsync<ServicePOTax> ServicePOTax
 			, IRepositoryAsync<POBOQMap> POBOQMapRepository
+			, IRepositoryAsync<TermsAndConditionsPOChild> termsAndConditionsPOChildRepository
+			, IRepositoryAsync<TermsAndConditionsPODetails> termsAndConditionsPODetailRepository
 			) : base(receiveDetailRepository, unitOfWork, pkGeneratorService)
 		{
 			_receiveDetailRepository = receiveDetailRepository;
@@ -81,6 +87,8 @@ namespace Library.MaterialManagement.Inventory
 			_ServicePODetail = ServicePODetail;
 			_ServicePOTax = ServicePOTax;
 			_POBOQMapRepository = POBOQMapRepository;
+			_termsAndConditionsPOChildRepository = termsAndConditionsPOChildRepository;
+			_termsAndConditionsPODetailRepository = termsAndConditionsPODetailRepository;
 		}
 
 		#endregion Constructor
@@ -3048,6 +3056,11 @@ namespace Library.MaterialManagement.Inventory
 		#endregion
 
 		#region POBoqInsertUpdate
+
+		private string GetTermsAndConditionsPOChildPK()
+		{
+			return _pkGeneratorService.GetAutoNumber(nameof(TermsAndConditionsPOChild), PKGeneratorEnum.Yearly, null, DateTime.Now);
+		}
 		public void POBoqInsertUpdate(PurchaseOrder entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<InventoryMaterialViewModel> boqmapList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
 		{
 			//Sk
@@ -3192,10 +3205,9 @@ namespace Library.MaterialManagement.Inventory
 							InsertGraph(receiveDetail);
 
 							// insert in receive tax
-							var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 							//var list =
-
-							var list = _inventoryReceiveService.GetTaxCategoryList1(identity.CompanyGroupId, PoId, identity.PlantId, itemDetail.HSNCodeId);
+							PurchaseOrderBOQQueryService purchaseOrderBOQQueryService =new PurchaseOrderBOQQueryService(_sqlRepository);
+							var list = purchaseOrderBOQQueryService.GetPOBOQTaxCategoryList(entity.CompanyGroupId, entity.InvoicingPartyPlantId, entity.PlantId, itemDetail.HSNCodeId);
 
 							if (list.IsNotNull())
 							{
@@ -3260,11 +3272,36 @@ namespace Library.MaterialManagement.Inventory
 
 
 				}
-				_unitOfWork.SaveChanges();
+
+                if (entity.TermsAndConditionsId != null)
+                {
+                    string NewSoId = string.Empty;
+                    DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM  TermsAndConditionsChild WHERE TermsAndConditionsMasterId='" + entity.TermsAndConditionsId + "'");
+                    DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TermsAndConditionsDetails Where TermsAndConditionsChildId IN(Select Id from TermsAndConditionsChild Where TermsAndConditionsMasterId='" + entity.TermsAndConditionsId + "')");
+                    int SCount = 0;
+                    for (int m = 0; m < dtFromMaster.Rows.Count; m++)
+                    {
+                        TermsAndConditionsPOChild termsAndConditionsPOChild = new TermsAndConditionsPOChild();
+                        TermsAndConditionsPODetails termsAndConditionsPODetails = new TermsAndConditionsPODetails();
+                        SCount++;
+                        termsAndConditionsPOChild.Id = entity.TermsAndConditionsId + GetTermsAndConditionsPOChildPK() + SCount;
+                        NewSoId = termsAndConditionsPOChild.Id;
+                        termsAndConditionsPOChild.POId = entity.Id;
+                        _termsAndConditionsPOChildRepository.Insert(termsAndConditionsPOChild);
+
+                        for (int i = 0; i < dtFromFirstCharacteristics.DefaultView.Count; i++)
+                        {
+
+                            termsAndConditionsPODetails.Id = NewSoId + (i + 1);
+                            termsAndConditionsPODetails.TermsAndConditionsPOChildId = NewSoId;
+                            _termsAndConditionsPODetailRepository.Insert(termsAndConditionsPODetails);
+                        }
+                    }
+
+                }
+                _unitOfWork.SaveChanges();
 				flag = false;
 				_unitOfWork.Commit();
-				_inventoryReceiveService.SaveTermsData(entity.TermsAndConditionsId, entity.Id);
-
 			}
 
 			catch (Exception ex)

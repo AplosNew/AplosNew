@@ -76,7 +76,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
 						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
 						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
-                        ,Round(Round(ISNULL(b.RequiredQtyPO,0),4),4) TransactionQty,0 Tolerance
+                        ,Round(Round(ISNULL(b.RequiredQtyPO,0),4),4) TransactionQty
+                        ,ISNULL(POBoqMap.MapQty,0) MapQty, BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
+                        ,0 Tolerance
 						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
 						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
         					  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
@@ -112,13 +114,14 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
                         left outer join mst.Destination DE ON DE.Id=so.DestinationId
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
-						
-								LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
-							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
-							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
-							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
-							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
-                            LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
+						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+						LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+						LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+						LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+						LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+                        LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
+                        LEFT JOIN (SELECT SUM(ISNULL(TransactionQty,0)) MapQty,BOQDetailId FROM TRN.POBOQMAP GROUP BY BOQDetailId) 
+									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
 						where b.Id in (
 						select B.ID from boq B
 						join CostingBOQSalesOrder BSO on b.CostingBOQMasterId=Bso.CostingBOQMasterId

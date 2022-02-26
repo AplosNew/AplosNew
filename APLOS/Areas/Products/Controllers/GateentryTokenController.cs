@@ -1012,7 +1012,7 @@ namespace Aplos.Areas.Products.Controllers
                           LEFT JOIN Employeeinformation EI5 on EI5.SystemId= GPM.CheckedBy
                           LEFT JOIN Employeeinformation EI6 on EI6.SystemId= GPM.ApprovedBy
                           Where GPM.CheckedByStatus='Checked' AND ApprovedByStatus='Approved'
-						  AND SenderSecurityApprovedStatus='Approved'and GateOutStatus=1 AND GPM.GateRegisterType='" + GateRegisterType + @"'
+						  AND SenderSecurityApprovedStatus='GateOut' and GateOutStatus=1 AND GPM.GateRegisterType='" + GateRegisterType + @"'
 						  Order By GPM.[Id] DESC";
 
 				}

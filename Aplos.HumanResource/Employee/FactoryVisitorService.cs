@@ -24,15 +24,29 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster,dsCard;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<VisitorModel> items = DataToSave.ToList();
 
-                //  select distinct CardNo from visitorservicedata where InDone='1'
-              //  and OutDone = '0'
+                string checkCard = clsWebLib.RetValidLen(items[0].CardNo).ToString();
+
+                if (checkCard != "")
+                {
+                    con.OpenDataSetThroughAdapter("select distinct CardNo from visitorservicedata where InDone = '1'  and OutDone = '0'", out dsCard, false, "1");
+                    if (dsCard.Tables[0].Rows.Count > 0)
+                    {
+                        for (int j = 0; j < dsCard.Tables[0].Rows.Count; j++)
+                        {
+                            if ((dsCard.Tables[0].Rows[j][@"CardNo"]).ToString() == checkCard)
+                            {
+                                return " Please Enter Valid CardNo.Already in Use ...";
+                            }
+                        }
+                    }
+                }
 
                 con.OpenDataSetThroughAdapter("select * from dbo.VisitorServiceData where 1=2", out dsMaster, false, "1");
 
@@ -53,7 +67,6 @@ namespace Library.HumanResource.Employee
                         dr["Purpose"] = item.Purpose;
                         dr["Remarks"] = item.Remarks;
                         dr["OutDone"] = false;
-                        dr["CardNo"] = item.CardNo;
                         dr["NoOfPerson"] = item.NoOfPerson;
                         dr["MobileNo"] = item.MobileNo;
                         dr["AddedBy"] = item.AddedBy;
@@ -61,6 +74,7 @@ namespace Library.HumanResource.Employee
                         dr["AddedFromIP"] = item.AddedFromIP;
                         if(item.param=="In")
                         {
+                            dr["CardNo"] = item.CardNo;
                             dr["VehicleNo"] = item.VehicleNo;
                             dr["VisitorLocation"] = item.VisitorLocation;
                             dr["InDate"] = DateTime.Now.ToString("dd-MMM-yyyy");
@@ -148,7 +162,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster, dsCard;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 if (DataToSave.Count() == 0)
@@ -156,6 +170,23 @@ namespace Library.HumanResource.Employee
                     return "No Data Found";
                 }
                 var items = DataToSave.ToList();
+
+                string checkCard = clsWebLib.RetValidLen(items[0].CardNo).ToString();
+
+                if (checkCard != "")
+                {
+                    con.OpenDataSetThroughAdapter("select distinct CardNo from visitorservicedata where InDone = '1'  and OutDone = '0'", out dsCard, false, "1");
+                    if (dsCard.Tables[0].Rows.Count > 0)
+                    {
+                        for (int j = 0; j < dsCard.Tables[0].Rows.Count; j++)
+                        {
+                            if ((dsCard.Tables[0].Rows[j][@"CardNo"]).ToString() == checkCard)
+                            {
+                                return " Please Enter Valid CardNo.Already in Use ...";
+                            }
+                        }
+                    }
+                }
                 con.OpenDataSetThroughAdapter("select * from dbo.VisitorServiceData where Id='"+items[0].Id+"'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
