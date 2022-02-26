@@ -1235,7 +1235,11 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     sql = @"select itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
                     it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
-                    itc.DocumentApplicable,(select '0') as ActualValue,(select '0') as UserValue,
+                    itc.DocumentApplicable,	
+                    ActualValue=case when itc.isuserdefined=1 then (select itc.Limit)
+					else (select '0') end,
+					UserValue=case when itc.isuserdefined=1 then (select itc.Limit)
+					else (select '0') end,
                     itc.Id as IncomeTaxItemChildId
                     from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
                     it.SystemId=itc.IncomeTaxItemMasterId
