@@ -3138,10 +3138,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select distinct p.EmpSystemID,Result=dt.DayType, dt.AutoLock,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
                 dt.SandwichStatusFlag,dt.OTApplicable,dt.GoodWorkApplicable,p.RowId,				
 				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
-				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
+				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
                 isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
-				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
-				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
+				isnull(dt.TotalWorkingDay,'0')WorkingDay,
 				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
@@ -3643,15 +3642,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string TotalLate = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"LateValue"]).ToString();
                             string TotalAbsent = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"AbsentValue"]).ToString();
                             string TotalLv = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"LvValue"]).ToString();
-                            string TotalMlv = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"MlvValue"]).ToString();
                             string TotalCompAssignLv = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"CompAssignLvValue"]).ToString();
                             string TotalWeekOff = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"WeekOffValue"]).ToString();
                             string TotalHoliDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"HoliDayValue"]).ToString();
                             string TotalWeekOffHoliDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"WeekOffHoliDayValue"]).ToString();
-                            string TotalLWP = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalLWP"]).ToString();
-                            string TotalCasualLeave = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
-                            string TotalPriviledgeLeave = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"PriviledgeLeaveValue"]).ToString();
-                            string TotalMedicalLeave = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"MedicalLeaveValue"]).ToString();
                             string TotalPayDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
                             string TotalNonPayDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
                             string TotalWorkingDay = clsWebLib.RetValidLen(PrevPayrollDayStat.Tables[0].Rows[i][@"WorkingDay"]).ToString();
@@ -3672,15 +3666,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["LateValue"] = DBNull.Value;
                                 dr["AbsentValue"] = DBNull.Value;
                                 dr["LvValue"] = DBNull.Value;
-                                dr["MLvValue"] = DBNull.Value;
                                 dr["CompAssignLvValue"] = DBNull.Value;
                                 dr["WeekOffValue"] = DBNull.Value;
                                 dr["HoliDayValue"] = DBNull.Value;
                                 dr["WeekOffHoliDayValue"] = DBNull.Value;
-                                dr["LWPValue"] = DBNull.Value;
-                                dr["CasualLeaveValue"] = DBNull.Value;
-                                dr["MedicalLeaveValue"] = DBNull.Value;
-                                dr["PriviledgeLeaveValue"] = DBNull.Value;
                                 dr["PayDayValue"] = DBNull.Value;
                                 dr["NonPayDayValue"] = DBNull.Value;
                                 dr["WorkingDayValue"] = DBNull.Value;
@@ -3701,15 +3690,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["LateValue"] = TotalLate;
                                 dr["AbsentValue"] = TotalAbsent;
                                 dr["LvValue"] = TotalLv;
-                                dr["MLvValue"] = TotalMlv;
                                 dr["CompAssignLvValue"] = TotalCompAssignLv;
                                 dr["WeekOffValue"] = TotalWeekOff;
                                 dr["HoliDayValue"] = TotalHoliDay;
                                 dr["WeekOffHoliDayValue"] = TotalWeekOffHoliDay;
-                                dr["LWPValue"] = TotalLWP;
-                                dr["CasualLeaveValue"] = TotalCasualLeave;
-                                dr["MedicalLeaveValue"] = TotalMedicalLeave;
-                                dr["PriviledgeLeaveValue"] = TotalPriviledgeLeave;
                                 dr["PayDayValue"] = TotalPayDay;
                                 dr["NonPayDayValue"] = TotalNonPayDay;
                                 dr["WorkingDayValue"] = TotalWorkingDay;
@@ -4425,10 +4409,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 dt.OTApplicable,dt.AutoLock,dt.GoodWorkApplicable,
 				format(p.WorkDate,'yyyy-MMM-dd')WorkDate,p.RowId,
 				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
-				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
+				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
                 isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
-				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
-				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
+				isnull(dt.TotalWorkingDay,'0')WorkingDay,
 				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                
 	            from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
@@ -4906,15 +4889,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string TotalLate = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"LateValue"]).ToString();
                         string TotalAbsent = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"AbsentValue"]).ToString();
                         string TotalLv = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"LvValue"]).ToString();
-                        string TotalMlv = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"MlvValue"]).ToString();
                         string TotalCompAssignLv = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"CompAssignLvValue"]).ToString();
                         string TotalWeekOff = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"WeekOffValue"]).ToString();
                         string TotalHoliDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"HoliDayValue"]).ToString();
                         string TotalWeekOffHoliDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"WeekOffHoliDayValue"]).ToString();
-                        string TotalLWP = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"TotalLWP"]).ToString();
-                        string TotalCasualLeave = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
-                        string TotalPriviledgeLeave = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"PriviledgeLeaveValue"]).ToString();
-                        string TotalMedicalLeave = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"MedicalLeaveValue"]).ToString();
                         string TotalPayDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
                         string TotalNonPayDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
                         string TotalWorkingDay = clsWebLib.RetValidLen(ManualPayrollDayStat.Tables[0].Rows[i][@"WorkingDay"]).ToString();
@@ -4937,15 +4915,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dr["LateValue"] = DBNull.Value;
                             dr["AbsentValue"] = DBNull.Value;
                             dr["LvValue"] = DBNull.Value;
-                            dr["MLvValue"] = DBNull.Value;
                             dr["CompAssignLvValue"] = DBNull.Value;
                             dr["WeekOffValue"] = DBNull.Value;
                             dr["HoliDayValue"] = DBNull.Value;
                             dr["WeekOffHoliDayValue"] = DBNull.Value;
-                            dr["LWPValue"] = DBNull.Value;
-                            dr["CasualLeaveValue"] = DBNull.Value;
-                            dr["MedicalLeaveValue"] = DBNull.Value;
-                            dr["PriviledgeLeaveValue"] = DBNull.Value;
                             dr["PayDayValue"] = DBNull.Value;
                             dr["NonPayDayValue"] = DBNull.Value;
                             dr["WorkingDayValue"] = DBNull.Value;
@@ -4967,15 +4940,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dr["LateValue"] = TotalLate;
                             dr["AbsentValue"] = TotalAbsent;
                             dr["LvValue"] = TotalLv;
-                            dr["MLvValue"] = TotalMlv;
                             dr["CompAssignLvValue"] = TotalCompAssignLv;
                             dr["WeekOffValue"] = TotalWeekOff;
                             dr["HoliDayValue"] = TotalHoliDay;
                             dr["WeekOffHoliDayValue"] = TotalWeekOffHoliDay;
-                            dr["LWPValue"] = TotalLWP;
-                            dr["CasualLeaveValue"] = TotalCasualLeave;
-                            dr["MedicalLeaveValue"] = TotalMedicalLeave;
-                            dr["PriviledgeLeaveValue"] = TotalPriviledgeLeave;
                             dr["PayDayValue"] = TotalPayDay;
                             dr["NonPayDayValue"] = TotalNonPayDay;
                             dr["WorkingDayValue"] = TotalWorkingDay;
