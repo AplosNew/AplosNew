@@ -704,9 +704,11 @@
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
     <Compile Include="Areas\Productions\Controllers\FGInventoryStockReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\FinalPackDefinitionController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
+    <Compile Include="Areas\Productions\Controllers\PrePackDefinitionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionGeneralReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinishedStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAdjustmentController.cs" />
@@ -2031,10 +2033,12 @@
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
     <Content Include="Areas\Productions\Scripts\FGInventoryStockReportController.js" />
+    <Content Include="Areas\Productions\Scripts\FinalPackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataMasterController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
+    <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
@@ -4008,6 +4012,8 @@
     <Content Include="Areas\Administration\Views\ServicesApprovingAuthority\Aplos.cshtml" />
     <Content Include="Areas\Parties\Views\Party\_BOQVendorPopUpNew.cshtml" />
     <Content Include="Areas\Administration\Views\VisitorListReport\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\PrePackDefinition\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\FinalPackDefinition\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -72,22 +72,15 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> MeetingData)
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMeeting, dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-
-
                 con.OpenDataSetThroughAdapter("select * from MeetingAgenda where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
                 string _Id = "";
-
-
-
-
+                string MasterId = string.Empty;
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
@@ -95,20 +88,67 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingAgenda", out _Id);
 
                     data["Id"] = _Id;
+                    MasterId = data["Id"].ToString();
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
+                    MasterId = _Id;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update
 
+                string id = "";
+                for (int i = 0; i < MeetingData.Count; i++)
+                {
+                    if (id == "")
+                    {
+                        id = "'" + MeetingData[i]["Id"] + "'";
+                    }
+                    else
+                    {
+                        id += ",'" + MeetingData[i]["Id"] + "'";
+                    }
+                }
+
+                con.OpenDataSetThroughAdapter("select * from MeetingAgendaItem where Id in (" + id + ")", out dsMeeting, false, "1");
+
+                string MeetingId = "";
+                for (int i = 0; i < MeetingData.Count; i++)
+                {
+
+                    dsMeeting.Tables[0].DefaultView.RowFilter = "Id='" + MeetingData[i]["Id"] + @"'";
+                    if (dsMeeting.Tables[0].DefaultView.Count > 0)
+                    {
+                        //edit
+                        DataRow dr = dsMeeting.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["MeetingAgendaId"] = MasterId;
+                        dr["MeetingItemHeaderId"] = MeetingData[i]["Id"];
+                        dr.EndEdit();
+                    }
+                    else
+                    {
+                        //addnew
+                        if (MeetingData[i]["Id"].ToString() == null)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID("MeetingAgendaItem", out MeetingId);
+                        }
+                        DataRow dr = dsMeeting.Tables[0].NewRow();
+
+                        dr["Id"] = "M-" + MeetingId + "-" + (i + 1);
+                        dr["MeetingAgendaId"] = MasterId;
+                        dr["MeetingItemHeaderId"] = MeetingData[i]["Id"];
+
+                        dsMeeting.Tables[0].Rows.Add(dr);
+
+                    }
+                }
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-
+                _info.SaveDataSets(dsMaster, dsMeeting);
                 return Json(new { Error = false, Message = AplosMessage.Updated, Id= _Id });
 
             }
