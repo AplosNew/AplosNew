@@ -268,8 +268,8 @@
             <tfoot ng-show="advanceChargesList.length">
                 <tr>
                     <td><b>Sub Total</b></td>
-                    <td class="text-right"><b>{{ advanceChargesList | sumByKey : 'Amount' }}</b></td>
-                    <td class="text-right"><b>{{ advanceChargesList | sumByKey : 'CompanyCurrencyAmount'  }}</b></td>
+                    <td class="text-right"><b>{{ advanceChargesList | sumByKey : 'Amount' | number:2}}</b></td>
+                    <td class="text-right"><b>{{ advanceChargesList | sumByKey : 'CompanyCurrencyAmount' | number:2 }}</b></td>
                     <td></td>
                 </tr>
             </tfoot>
