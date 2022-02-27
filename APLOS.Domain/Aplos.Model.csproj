@@ -298,6 +298,8 @@
     <Compile Include="Configurations\Inventory\PurchaseDocAcceptanceDetailConfiguration.cs" />
     <Compile Include="Configurations\Inventory\PurchaseDocAcceptanceConfiguration.cs" />
     <Compile Include="Configurations\Inventory\EntitySFGInventoryConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\TermsAndConditionsPODetailsConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\TermsAndConditionsPOChildConfiguration.cs" />
     <Compile Include="Configurations\Inventory\SFGMovementConfiguration.cs" />
     <Compile Include="Configurations\Inventory\SFGInventoryConfiguration.cs" />
     <Compile Include="Configurations\Inventory\FGInventoryReceiveConfiguration.cs" />
@@ -693,6 +695,8 @@
     <Compile Include="Inventory\ServiceAcknowledgementDetail.cs" />
     <Compile Include="Inventory\PurchaseReturn.cs" />
     <Compile Include="Inventory\PurchaseReturnDetail.cs" />
+    <Compile Include="Inventory\TermsAndConditionsPODetails.cs" />
+    <Compile Include="Inventory\TermsAndConditionsPOChild.cs" />
     <Compile Include="Inventory\ServicePOTax.cs" />
     <Compile Include="Inventory\ServicePODetail.cs" />
     <Compile Include="Inventory\ServicePOMaster.cs" />
