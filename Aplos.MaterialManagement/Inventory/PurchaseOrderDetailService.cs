@@ -3159,7 +3159,7 @@ namespace Library.MaterialManagement.Inventory
 								BaseUoMFactor = Convert.ToDecimal(itemDetail.BaseUoMFactor),
 								TransactionRate = Math.Round(Convert.ToDecimal(itemDetail.TransactionRate), 4),
 								TransactionAmount = Math.Round(TransactionQtyGroupSum * Math.Round(Convert.ToDecimal(itemDetail.TransactionRate), 4), 2),//Convert.ToDecimal(itemDetail.TransactionAmount),
-								BaseAmount = Math.Round(TransactionQtyGroupSum * Math.Round(Convert.ToDecimal(itemDetail.TransactionRate), 4), 2),//Convert.ToDecimal(itemDetail.BaseAmount),
+								BaseAmount = Math.Round(Convert.ToDecimal(itemDetail.BaseQty), 2) * Math.Round(Convert.ToDecimal(itemDetail.TransactionRate), 2),//Convert.ToDecimal(itemDetail.BaseAmount),
 								TotalTaxAmount = Math.Round(Convert.ToDecimal(itemDetail.TotalTaxAmount), 2),
 								IssueQty = null,
 								GRNRcvQty = 0,
@@ -3287,6 +3287,10 @@ namespace Library.MaterialManagement.Inventory
                         termsAndConditionsPOChild.Id = entity.TermsAndConditionsId + GetTermsAndConditionsPOChildPK() + SCount;
                         NewSoId = termsAndConditionsPOChild.Id;
                         termsAndConditionsPOChild.POId = entity.Id;
+                        termsAndConditionsPOChild.Title = dtFromMaster.Rows[m]["Title"].ToString();
+                        termsAndConditionsPOChild.AddedBy = entity.AddedBy;
+                        termsAndConditionsPOChild.AddedDate = entity.AddedDate;
+                        termsAndConditionsPOChild.AddedFromIP = entity.AddedFromIP;
                         _termsAndConditionsPOChildRepository.Insert(termsAndConditionsPOChild);
 
                         for (int i = 0; i < dtFromFirstCharacteristics.DefaultView.Count; i++)
@@ -3294,7 +3298,12 @@ namespace Library.MaterialManagement.Inventory
 
                             termsAndConditionsPODetails.Id = NewSoId + (i + 1);
                             termsAndConditionsPODetails.TermsAndConditionsPOChildId = NewSoId;
-                            _termsAndConditionsPODetailRepository.Insert(termsAndConditionsPODetails);
+                            termsAndConditionsPODetails.HeaderCaption = dtFromFirstCharacteristics.DefaultView[i].Row["HeaderCaption"].ToString();
+                            termsAndConditionsPODetails.Description = dtFromFirstCharacteristics.DefaultView[i].Row["Description"].ToString();
+							termsAndConditionsPODetails.AddedBy = entity.AddedBy;
+							termsAndConditionsPODetails.AddedDate = entity.AddedDate;
+							termsAndConditionsPODetails.AddedFromIP = entity.AddedFromIP;
+							_termsAndConditionsPODetailRepository.Insert(termsAndConditionsPODetails);
                         }
                     }
 

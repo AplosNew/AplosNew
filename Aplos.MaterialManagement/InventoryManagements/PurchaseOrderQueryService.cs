@@ -76,8 +76,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
 						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
 						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
-                        ,Round(Round(ISNULL(b.RequiredQtyPO,0),4),4) TransactionQty
-                        ,ISNULL(POBoqMap.MapQty,0) MapQty, BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
+                        ,ISNULL(POBoqMap.MapQty,0) OtherMapQty
+                        , TransactionQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
+                        , BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         ,0 Tolerance
 						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
 						 CASE WHEN isnull(moi.Consignment,0)=1 THEN

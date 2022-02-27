@@ -5166,7 +5166,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 				entity.CheckedByStatus = "Pending";
 				entity.AuthorizedBy = null;
 				entity.AuthorizedByStatus = null;
-				entity.POType = "PO";
+				entity.POType = "POBOQ";
 				entity.IsApproved = false;
 
 			entity.IsClosed = false;
