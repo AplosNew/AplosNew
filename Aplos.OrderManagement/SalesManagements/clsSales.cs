@@ -90,10 +90,10 @@ namespace Library.OrderManagement.Sales
 					LEFT JOIN [TRN].[FirstCharacteristics] AS FCH ON FCH.SalesOrderId=SO.Id
                       LEFT  JOIN [HKP].[Characteristics] AS CH ON FCH.CharacteristicsId=CH.Id
                         LEFT JOIN [HKP].[CharacteristicsValue] AS CHV ON FCH.CharacteristicsValueId=CHV.Id
-						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
+					LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
 
-						LEFT JOIN [TRN].[SecondCharacteristics] AS SCH ON    SO.Id=SCH.SalesOrderId 
-						AND FCH.Id=SCH.FirstCharacteristicsId AND SCH.Qty >0
+						LEFT JOIN [TRN].[SecondCharacteristics] AS SCH ON SO.Id=SCH.SalesOrderId 
+						AND FCH.Id=SCH.FirstCharacteristicsId AND ISNULL(SCH.Qty,0) >0
                         LEFT JOIN [HKP].[Characteristics] AS CH2 ON SCH.CharacteristicsId=CH2.Id
                        LEFT JOIN [HKP].[CharacteristicsValue] AS CHV2 ON SCH.CharacteristicsValueId=CHV2.Id
 
@@ -103,8 +103,8 @@ namespace Library.OrderManagement.Sales
 
 					   LEFT JOIN TRN.ProductDefinition AS PD ON PD.MaterialMasterId=MOI.MaterialMasterId
 					   LEFT JOIN MST.ProductMaster AS PM ON PM.Id=PD.ProductMasterId
-                       LEFT JOIN (SELECT SUM(TransactionQty) TransactionQty,SalesOrderId FROM TRN.SalesMaterial GROUP BY  SalesOrderId) SM ON SM.SalesOrderId=SO.Id
-
+                     LEFT JOIN (SELECT SUM(TransactionQty) TransactionQty,SalesOrderId,FirstCharacteristicsValueId,SecondCharacteristicsValueId FROM TRN.SalesMaterial GROUP BY  SalesOrderId,FirstCharacteristicsValueId,SecondCharacteristicsValueId) SM ON SM.SalesOrderId=SO.Id
+					 AND SM.FirstCharacteristicsValueId=FCH.CharacteristicsValueId AND SM.SecondCharacteristicsValueId=SCH.CharacteristicsValueId
                     WHERE MOI.Id " + masterOrderId + " ORDER BY SO.DeliveryDate";
                 return _sqlRepository.GetDataCollection(sql);
             }

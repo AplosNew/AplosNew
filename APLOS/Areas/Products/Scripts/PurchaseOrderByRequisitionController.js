@@ -2172,11 +2172,11 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 				data.BaseTaxAmount = '0.00';
 			}
 			data.BaseAmount = parseFloat(parseFloat(data.TrnAmount) + parseFloat(data.BaseTaxAmount)).toFixed(2);
-			$scope.detailPopUpEdit();
+			//$scope.detailPopUpEdit();
 		}
 		else {
 			data.BaseAmount = parseFloat(data.TrnAmount).toFixed(2);
-			$scope.detailPopUpEdit();
+			//$scope.detailPopUpEdit();
 		}
 
 
