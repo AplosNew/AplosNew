@@ -1007,6 +1007,8 @@ upanelApp.controller("FinishedStockReportController", FinishedStockReportControl
 upanelApp.controller("FGInventoryStockReportController", FGInventoryStockReportController);
 upanelApp.controller("MeetingAgendaController", MeetingAgendaController);
 upanelApp.controller("StocksAdjustmentController", StocksAdjustmentController);
+upanelApp.controller("FinalPackDefinitionController", FinalPackDefinitionController);
+upanelApp.controller("PrePackDefinitionController", PrePackDefinitionController);
 
 
 
