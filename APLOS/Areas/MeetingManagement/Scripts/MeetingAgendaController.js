@@ -31,6 +31,12 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelAgenda);
 
+    $scope.ModelMeetItem = {
+        Id: null,
+        MeetingAgendaId: null,
+        MeetingItemHeaderId: null,
+    };
+    $scope.ModelMeetingItem = Object.assign({}, $scope.ModelMeetItem);
     
 
     $scope.getData = function () {
@@ -57,8 +63,14 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.Save = function () {
-        
         try {
+            var tempItem = [];
+
+            for (var i = 0; i < $scope.MeetingList.length; i++) {
+                if ($scope.MeetingList[i].Active) {
+                    tempItem.push($scope.MeetingList[i]);
+                }
+            }
             angular.copy($scope.ModelNew, $scope.ModelAgenda);
             $scope.$broadcast('show-errors-check-validity');
 
@@ -67,7 +79,7 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
                     $http({
                         method: 'POST',
                         url: $scope.saveUrl,
-                        data: { 'data': $scope.ModelNew },
+                        data: { 'data': $scope.ModelNew, 'MeetingData': tempItem },
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
@@ -130,16 +142,10 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
     };
     
 
-    $scope.departmentList = [];
-    cboService.getCboDepartmentByCompanyGroup(null, function (result) {
-        $scope.departmentList = result;
-    });
-
-
-    $scope.meetingTypeList = [];
-    cboService.getCbomeetingType(function (result) {
-        $scope.meetingTypeList = result;
-    });
+    //$scope.meetingTypeList = [];
+    //cboService.getCbomeetingType(function (result) {
+    //    $scope.meetingTypeList = result;
+    //});
 
     $scope.employeeParameters = {
         limit: 10,
@@ -325,28 +331,29 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.MeetingListNew = [];
-    $scope.ok = function () {
 
-        try {
-            for (var i = 0; i < $scope.ModelList.length; i++) {
-                if ($scope.ModelList[i].CheckBoxSelect == true) {
-                    if (checkDoubleMeeting($scope.MeetingListNew, $scope.ModelList[i].SystemId) === false) {
-                        $scope.MeetingListNew.push($scope.ModelList[i]);
-                    }
-                }
-            }
-            var eDialog = $("#MeetingInfoGrid").data("ejDialog");
-            eDialog.close();
+    //$scope.ok = function () {
 
-            //if ($rootScope.isCollapsed) {
-            //    $rootScope.toggle();
-            //}
+    //    try {
+    //        for (var i = 0; i < $scope.ModelList.length; i++) {
+    //            if ($scope.ModelList[i].Active == true) {
+    //                if (checkDoubleMeeting($scope.MeetingListNew, $scope.ModelList[i].SystemId) === false) {
+    //                    $scope.MeetingListNew.push($scope.ModelList[i]);
+    //                }
+    //            }
+    //        }
+    //        var eDialog = $("#MeetingInfoGrid").data("ejDialog");
+    //        eDialog.close();
 
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
+    //        //if ($rootScope.isCollapsed) {
+    //        //    $rootScope.toggle();
+    //        //}
 
-    };
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+
+    //};
 
     function checkDoubleMeeting(list, Id) {
         for (var i = 0; i < list.length; i++) {
@@ -367,22 +374,22 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
-        var filtered = $("#empInfoGrid").data("ejGrid").getFilteredRecords();
+        var filtered = $("#meetingInfoGrid").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.ModelList.length; i++) {
-                $scope.ModelList[i].CheckBoxSelect = ChkOrUnchk;
+            for (var i = 0; i < $scope.MeetingList.length; i++) {
+                $scope.MeetingList[i].Active = ChkOrUnchk;
             }
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].Active = ChkOrUnchk;
             }
         }
-        var gridObj = $("#empInfoGrid").data("ejGrid");
+        var gridObj = $("#meetingInfoGrid").data("ejGrid");
         gridObj.refreshContent();
     };
 
-    function checkChangeemployee(e) {
+    function checkChangeMeeting(e) {
 
         var val = e.model.value;
         //item level check
@@ -402,17 +409,17 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
             // var gridObj = $("#Gridmeeting").data("ejGrid");
             var filtered = $("#Gridmeeting").data("ejGrid").getFilteredRecords();
             if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-                for (var i = 0; i < $scope.ModelList.length; i++) {
+                for (var i = 0; i < $scope.MeetingList.length; i++) {
 
-                    $scope.ModelList[i].CheckBoxSelect = true;
+                    $scope.MeetingList[i].Active = true;
                 }
             }
             else {
-                for (var i = 0; i < $scope.ModelList.length; i++) {
+                for (var i = 0; i < $scope.MeetingList.length; i++) {
                     for (var j = 0; j < filtered.length; j++) {
-                        if ($scope.ModelList[i].Id == filtered[j].Id)
+                        if ($scope.MeetingList[i].Id == filtered[j].Id)
                             // $scope.ModelList[i].isSelect = true;
-                            $scope.ModelList[i].isToBeSelect = true;
+                            $scope.MeetingList[i].isToBeSelect = true;
                     }
 
                 }
@@ -422,21 +429,21 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
             for (var i = 0; i < checkbox.length; i++) {
                 $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": null });
                 $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "checked": true });
-                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": checkChangeemployee });
+                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": checkChangeMeeting });
             }
         }
         else {
             var filtered = $("#Gridmeeting").data("ejGrid").getFilteredRecords();
             if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-                for (var i = 0; i < $scope.ModelList.length; i++) {
-                    $scope.ModelList[i].isToBeSelect = false;
+                for (var i = 0; i < $scope.MeetingList.length; i++) {
+                    $scope.MeetingList[i].isToBeSelect = false;
                 }
             }
             else {
-                for (var i = 0; i < $scope.ModelList.length; i++) {
+                for (var i = 0; i < $scope.MeetingList.length; i++) {
                     for (var j = 0; j < filtered.length; j++) {
-                        if ($scope.ModelList[i].Id == filtered[j].Id)
-                            $scope.ModelList[i].isToBeSelect = false;
+                        if ($scope.MeetingList[i].Id == filtered[j].Id)
+                            $scope.MeetingList[i].isToBeSelect = false;
                     }
 
                 }
@@ -445,15 +452,34 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
             for (var i = 0; i < checkbox.length; i++) {
                 $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": null });
                 $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "checked": false });
-                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": checkChangeemployee });
+                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": checkChangeMeeting });
             }
         }
         //header level check
     }
 
     $scope.dataBoundemployee = function (args) {
-        $("#Gridmeeting .rowCheckbox").ejCheckBox({ "change": checkChangeemployee });
+        $("#Gridmeeting .rowCheckbox").ejCheckBox({ "change": checkChangeMeeting });
         $("#headchk").ejCheckBox({ "change": headCheckChangeMeeting });
 
+    };
+
+    //$scope.MeetingItem = function () {
+       
+    //    var tempItem = [];
+    //    for (var i = 1; i <= $scope.MeetingList.length; i++) {
+    //        if ($scope.MeetingList[i].Active) {
+    //            tempItem.push($scope.MeetingList[i]);
+    //        }
+    //    }
+    //}
+
+    $scope.ClearItem = function () {
+        $scope.ModelNew = {
+            Id: null,
+            MeetingAgendaId: null,
+            MeetingItemHeaderId: null,
+        };
+        $scope.Action = 'Save';
     };
 }
