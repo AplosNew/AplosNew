@@ -18,6 +18,7 @@ using Library.Service.Helpers;
 using Library.Model.Enums;
 using Library.Security.Core;
 using System.IO;
+using Library.General.Setups;
 
 namespace Aplos.Areas.Attendances.Controllers
 {
@@ -38,6 +39,8 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunShiftProcess(string Date)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
             if (Convert.ToDateTime(Date) > DateTime.Now)
             {
                 throw new Exception("Future Date Cannot be selected!!");
@@ -72,7 +75,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        rep.ShiftProcess(Date, PlantValue);
+                        rep.ShiftProcess(Date, PlantValue,identity.Name);
                     }
                     catch (Exception ex)
                     {
@@ -86,6 +89,11 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunTBS_LA_Process(string Date)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ProcessLock _lock = new ProcessLock(identity.Name, ProcessLockId.AttendanceProcess, "", 60);
+            _lock.LockProcess();
+
             if (Convert.ToDateTime(Date) > DateTime.Now)
             {
                 throw new Exception("Future Date Cannot be selected!!");
@@ -128,6 +136,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                 }
             }
+            _lock.UnlockProcess();
             return Json(new { Error = false, Message = "TBS LA Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
         }
 
@@ -136,6 +145,8 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunAttnd(string Date)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
             if (Convert.ToDateTime(Date) > DateTime.Now)
             {
                 throw new Exception("Future Date Cannot be selected!!");
@@ -169,7 +180,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        rep.AttndProcess(Date, PlantValue);
+                        rep.AttndProcess(Date, PlantValue,identity.Name);
                     }
                     catch (Exception ex)
                     {
@@ -184,6 +195,8 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunDayStatus(string Date)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
             if (Convert.ToDateTime(Date) > DateTime.Now)
             {
                 throw new Exception("Future Date Cannot be selected!!");
@@ -217,7 +230,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        rep.DayStatus(Date, PlantValue);
+                        rep.DayStatus(Date, PlantValue,identity.Name);
                     }
                     catch (Exception ex)
                     {
@@ -233,6 +246,8 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunDOJProcess(string Date)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
             if (Convert.ToDateTime(Date) > DateTime.Now)
             {
                 throw new Exception("Future Date Cannot be selected!!");
@@ -266,7 +281,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        rep.PastDOJProcess(Date, PlantValue);
+                        rep.PastDOJProcess(Date, PlantValue,identity.Name);
                     }
                     catch (Exception ex)
                     {
@@ -328,6 +343,8 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunRoster(string Date)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;           
+
             if (Convert.ToDateTime(Date) > DateTime.Now)
             {
                 throw new Exception("Future Date Cannot be selected!!");
@@ -361,7 +378,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString(); 
                         CatchPlant = PlantValue;                        
-                        rep.RosterProcess(PlantValue , Date);
+                        rep.RosterProcess(PlantValue , Date,identity.Name);
                     }
                     catch (Exception ex)
                     {
@@ -370,8 +387,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
             }
             return Json(new { Error = false, Message = "Roster Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
-
-
+            
         }
     }
 }
