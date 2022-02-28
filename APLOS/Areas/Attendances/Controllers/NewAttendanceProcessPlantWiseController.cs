@@ -1,23 +1,9 @@
 ﻿using Aplos.Controllers;
-using Library.Model.OrderManagements;
-using Aplos.Properties;
-using Library.Service.OrderManagements;
-using Library.Core;
 using System;
-using System.Collections.Generic;
 using System.Web.Mvc;
 using Library.Crosscutting.Security;
 using System.Threading;
-using System.Web.Script.Serialization;
-using Library.Data.UnitOfWorks;
-using Library.Data.Sql;
-using System.Data;
-using Syncfusion.XlsIO;
 using Library.HumanResource.NewAttendanceProcess;
-using Library.Service.Helpers;
-using Library.Model.Enums;
-using Library.Security.Core;
-using System.IO;
 
 namespace Aplos.Areas.Attendances.Controllers
 {
@@ -48,12 +34,12 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 CatchPlant = identity.PlantId;
-                rep.ShiftProcess(Date, CatchPlant);
+                rep.ShiftProcess(Date, CatchPlant,identity.Name);
             }
             catch (Exception ex)
             {
                 rep.CommonLogFunction(ex, CatchPlant, "ShiftProcess");
-                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
 
             }
             return Json(new { Error = false, Message = "Shift Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
@@ -72,12 +58,12 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 CatchPlant = identity.PlantId;
-                 rep.AttndProcess(Date, CatchPlant);
+                 rep.AttndProcess(Date, CatchPlant,identity.Name);
             }
             catch (Exception ex)
             {
                  rep.CommonLogFunction(ex, CatchPlant, "AttdnProcess");
-                 return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+                 return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
             }
             return Json(new { Error = false, Message = "Attendance Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
         }
@@ -94,12 +80,12 @@ namespace Aplos.Areas.Attendances.Controllers
                     throw new Exception("Future Date Cannot be selected!!");
                 }
                 CatchPlant = identity.PlantId; 
-                rep.DayStatus(Date, CatchPlant);
+                rep.DayStatus(Date, CatchPlant,identity.Name);
             }
             catch (Exception ex)
             {                     
                 rep.CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
-                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
             }
 
             return Json(new { Error = false, Message = "DayStatus Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
@@ -118,12 +104,12 @@ namespace Aplos.Areas.Attendances.Controllers
                     throw new Exception("Future Date Cannot be selected!!");
                 }
                 CatchPlant = identity.PlantId;
-                rep.PastDOJProcess(Date, CatchPlant);
+                rep.PastDOJProcess(Date, CatchPlant,identity.Name);
             }
             catch (Exception ex)
             {
                 rep.CommonLogFunction(ex, CatchPlant, "DOJProcess");
-                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
             }
 
             return Json(new { Error = false, Message = "DOJ Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
@@ -163,12 +149,12 @@ namespace Aplos.Areas.Attendances.Controllers
                     throw new Exception("Future Date Cannot be selected!!");
                 }
                 CatchPlant = identity.PlantId;
-                rep.RosterProcess(CatchPlant, Date);
+                rep.RosterProcess(CatchPlant, Date,identity.Name);
             }
             catch (Exception ex)
             {
                 rep.CommonLogFunction(ex, CatchPlant, "RosterProcess");
-                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
 
             }
             return Json(new { Error = false, Message = "Roster Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
