@@ -567,5 +567,51 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
+        #region Tax Surcharge Functions
+
+        [HttpGet, Authorize]
+        public ActionResult GetSurchargeInfo(string PolicyId)
+        {
+            try
+            {
+                return Json(ds.GetSurchargeInfo(PolicyId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveSurchargeInfo(List<Dictionary<string, object>> SurchargeData, string PolicyId)
+        {
+            try
+            {
+                var x = ds.SaveTaxSurchargeInfo(SurchargeData, PolicyId);
+                return Json(new { Error = false, Data = x, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteSurchargeInfo(string Id)
+        {
+            try
+            {
+                ds.DeleteSurchargeData(Id);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion
+
     }
 }

@@ -992,7 +992,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-
         public IEnumerable<object> GetRebateInfo(string PolicyId)
         {
             try
@@ -1007,7 +1006,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
-
         public List<Dictionary<string, object>> SaveTaxRebateInfo(List<Dictionary<string, object>> RebateData, string PolicyId)
         {
             try
@@ -1082,65 +1080,110 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region Tax Surcharge Functions   
-        public void SaveTaxSurcharge(TaxRebate Slab, string masterID, List<Dictionary<string, object>> TaxSurchargeList)
+      
+        public void DeleteSurchargeData(string Id)
         {
             try
             {
-                DataSet dsUpdateMaster;
-                DataSet dsDetails;
-                DataSet dsValidation;
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string TaxSurchargeMasterId = string.Empty;
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TaxSurChargeConfiguration where TaxPolicyId='" + Id + "'");
 
-               // GetTexSurchargeMaster(masterID, out dsUpdateMaster);
+                con.CommitTransaction();
 
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from TaxSurchargeMaster where Description='" + Slab.Description + "' AND  Id<>'" + Slab.Id + "' ", out dsValidation, false, "1");
-                if (dsValidation.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Description already exists!!!");
-
-              //  _UpdateMasterTaxSurcharge(ref dsUpdateMaster, Slab, masterID, ref TaxSurchargeMasterId);
-
-                ConnectionManager.DAL.ConManager objCon;
-                string DetailsId = string.Empty;
-                string sql = "select * From TaxSurchargeDetail where TaxSurchargeMasterId='" + TaxSurchargeMasterId + "' ";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsDetails, false, "1");
-
-                while (dsDetails.Tables[0].DefaultView.Count > 0)
-                {
-                    dsDetails.Tables[0].DefaultView[0].Delete();
-                }
-
-                for (int i = 0; i < TaxSurchargeList.Count; i++)
-                {
-                    DataRow dr = dsDetails.Tables[0].NewRow();
-                    string sID = string.Empty;
-                    bplib.clsGenID objGenID = new bplib.clsGenID();
-                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[TaxSurChargeDetails]", out sID);
-                    DetailsId = "TSD" + sID;
-                    dr["Id"] = DetailsId;
-                    dr["TaxSurchargeMasterId"] = TaxSurchargeMasterId;
-                    dr["Minimum"] = clsStaticInfo.dbl(TaxSurchargeList[i]["Minimum"]);
-                    dr["Maximum"] = clsStaticInfo.dbl(TaxSurchargeList[i]["Maximum"]);
-                    dr["TaxRate"] = clsStaticInfo.dbl(TaxSurchargeList[i]["TaxRate"]);
-
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now;
-                    dr["AddedFromIP"] = identity.IPAddress;
-
-                    dsDetails.Tables[0].Rows.Add(dr);
-
-                }
-
-                clsStaticInfo _info = new clsStaticInfo();
-                //_info.SaveDataSets(dsUpdateMaster, dsDetails);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+        public IEnumerable<object> GetSurchargeInfo(string PolicyId)
+        {
+            try
+            {
+                string strSQL = @"select si.* from TaxSurChargeConfiguration si 
+                left join TaxPolicyHeader th on th.Id=si.TaxPolicyId
+                where th.Id='" + PolicyId + "'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public List<Dictionary<string, object>> SaveTaxSurchargeInfo(List<Dictionary<string, object>> SurchargeData, string PolicyId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                string sql = "SELECT * FROM [dbo].[TaxSurChargeConfiguration] WHERE TaxPolicyId='" + PolicyId + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
+
+                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                {
+                    dsMaster.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < SurchargeData.Count; i++)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    clsGenID genid = new clsGenID();
+                    genid.GenID("SurchargeConfiguration", out string _Id);
+
+                    #region Validations 
+
+                    if (clsWebLib.RetValidLen(SurchargeData[i]["Value"]).ToString() == "")
+                    {
+                        throw new Exception("Value can't be Null ...");
+                    }
+
+                    if (clsWebLib.RetValidLen(SurchargeData[i]["Minimum"]).ToString() == "")
+                    {
+                        throw new Exception("Min Amount can't be Null ...");
+                    }
+                    if (clsWebLib.RetValidLen(SurchargeData[i]["Maximum"]).ToString() == "")
+                    {
+                        throw new Exception("Max Amount can't be Null ...");
+                    }
+
+                    #endregion
+
+                    string PValue = clsWebLib.GetBoolData(SurchargeData[i]["IsPercentage"]).ToString();
+                    string FValue = clsWebLib.GetBoolData(SurchargeData[i]["IsFix"]).ToString();
+
+                    if (PValue == FValue)
+                    {
+                        throw new Exception("You can either choose Fix or Percentage ...");
+                    }
+
+                    dr["Id"] = "TS" + _Id;
+                    dr["TaxPolicyId"] = PolicyId;
+                    dr["Minimum"] = clsStaticInfo.dbl(SurchargeData[i]["Minimum"].ToString());
+                    dr["Maximum"] = clsStaticInfo.dbl(SurchargeData[i]["Maximum"].ToString());
+                    dr["Value"] = clsStaticInfo.dbl(SurchargeData[i]["Value"].ToString());
+                    dr["IsFix"] = FValue;
+                    dr["IsPercentage"] = PValue;
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                return SurchargeData;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
     }
