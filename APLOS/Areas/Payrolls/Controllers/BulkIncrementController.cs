@@ -254,7 +254,9 @@ namespace Aplos.Areas.Payrolls.Controllers
 							
 		
 							LEFT OUTER JOIN SalaryIncrementNextDueDate ND ON nd.EmpSystemId=sidm.EmpInfoSystemID	AND ND.EffectiveDate = sidm.EffectiveDate	
-                            LEFT JOIN HKP.EmployeeCategory AS EC ON EI.EmployeeCategorySystemID = EC.Id
+                            LEFT JOIN mst.DesignationMasterLegalDesignation AS dmld ON dmld.LegalDesignationId=ei.LegalDesignationId
+							LEFT JOIN mst.DesignationMaster AS dmmm ON dmmm.Id=dmld.DesignationMasterId
+                            LEFT JOIN HKP.EmployeeCategory AS EC ON dmmm.EmployeeCategoryId = EC.Id
                             LEFT JOIN ORG.Unit U ON Ei.UnitID = U.Id
                             LEFT JOIN ORG.Division Dv ON Ei.DivisionID = Dv.Id
                             LEFT JOIN ORG.Department Dp ON Ei.DepartmentID = Dp.Id
