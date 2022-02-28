@@ -294,7 +294,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult CreateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
         {
             _masterOrderService.InsertOrUpdateSOGraph(masterItemId, salesOrderMaster);
@@ -329,7 +329,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(new { Message = AplosMessage.Updated+ " Please reduce SKU Qty." });
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult UpdateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList)
         {
             _masterOrderService.UpdateSOGraph(masterItemId, salesOrderMaster, taxCategoryList);
