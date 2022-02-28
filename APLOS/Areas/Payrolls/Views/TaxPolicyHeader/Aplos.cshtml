@@ -641,6 +641,74 @@
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
 
+                    <div class="row" ng-form name="TaxRebateForm">
+                        <div class="form-elements form-horizontal">
+
+                            <fieldset class="scheduler-border">
+
+                                <div class="row" style="margin-top:15px;">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Header Id</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="TaxRebateDefine.TaxPolicyId" class="form-control" maxlength="100" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin:15px;">
+                                    <div class="col-sm-12 table-responsive modal-table">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Criterion</th>
+                                                    <th>From (Minimum)</th>
+                                                    <th>To (Maximum)</th>
+                                                    <th>Percentage</th>
+                                                    <th>  Fix  </th>
+                                                    <th>Value</th>
+                                                    <th>Add/Remove</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                <tr ng-repeat="item in RebateDataList">
+                                                    <th>{{$index>0?'Above':''}}</th>
+                                                    <td><input type="number" min="0" ng-model="item.Minimum" class="form-control" ng-disabled="RebateDataList.length>1" /></td>
+                                                    <td><input type="number" min="0" ng-model="item.Maximum" class="form-control" ng-disabled="$index<RebateDataList.length-1" /></td>
+                                                    
+                                                    <td>
+                                                        <input type="radio" name="selectone" ng-model="item.IsPercentage" class="form-control" />                                               
+                                                    </td>
+                                                    <td>
+                                                        <input type="radio" name="selectone" ng-model="item.IsFix" class="form-control" />
+                                                    </td>
+                                                   
+                                                    <td><input type="number" min="0" ng-model="item.Value" class="form-control" /></td>
+                                                    <td class="text-right" ng-hide="$index<RebateDataList.length-1">
+                                                        <ul class="list-inline">
+                                                            <li><button ng-click="SubmitRebateH(item);" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
+                                                            <li><button ng-hide="RebateDataList.length<2" ng-click="RemoveRebateH($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="common-btn" style="margin-right:30px;">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SaveRebateInfo();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                                        <li> <button ng-click="DeleteRebate();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>
+                                    </ul>
+                                </div>
+                            </fieldset>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
