@@ -526,5 +526,23 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
+        #region Tax Rebate Define
+
+        [HttpGet, Authorize]
+        public ActionResult GetRebateInfo(string PolicyId)
+        {
+            try
+            {
+                return Json(ds.GetRebateInfo(PolicyId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+      
+        #endregion
+
     }
 }

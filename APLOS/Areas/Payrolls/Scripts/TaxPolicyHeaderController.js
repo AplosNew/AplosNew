@@ -67,6 +67,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
         $scope.TaxYearModel.HeaderId = e.data.Id;
         $scope.TaxSlabDefine.PolicyId = e.data.Id;
+        $scope.TaxRebateDefine.TaxPolicyId = e.data.Id;
         $scope.GetEarningMasterList();
         $scope.getInvestDeductMaster();
         $scope.GetSlabInfo();
@@ -1335,6 +1336,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     };
     //#endregion
 
+    // #region Delete Slab
+     
     $scope.DeleteSlab = function (obj) {
         $scope.DeleteIncomeSlab = $scope.TaxSlabDefine.PolicyId;
         if (!baseService.isUndefinedOrNull($scope.DeleteIncomeSlab))
@@ -1366,6 +1369,152 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             ShowResult(e, "failure");
         }
     };
+
+    // #endregion
+
+
+    // #endregion
+
+    // #region Tax Rebate Functions
+
+    $scope.TaxRebateDefine = {
+        Id: null,
+        TaxPolicyId: null,
+        Minimum: null,
+        Maximum: null,
+        IsPercentage: 0,
+        IsFix:0,
+        Value: null,
+    }
+
+    $scope.RebateDataList = [];
+    $scope.GetRebateInfo = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetRebateInfo?PolicyId=" + $scope.Header.Id,
+        }).then(function successCallback(response) {
+            if (response.data.length == 0) {
+                $scope.RebateDataList = [];
+                $scope.RebateDataList.push(Object.assign({}, $scope.TaxRebateDefine));
+            }
+            else {
+                $scope.RebateDataList = response.data;
+            }
+        });
+    }
+
+    $scope.TaxRebateDefines = Object.assign({}, $scope.TaxRebateDefine);
+    $scope.RebateDataList.push(Object.assign({}, $scope.TaxRebateDefines));
+
+    $scope.RemoveRebateH = function (index) {
+        var removed = $scope.RebateDataList.splice(index, 1);
+        $scope.Detailx = removed;
+        if ($scope.RebateDataList.length == 0) {
+            $scope.RebateDataList.push(Object.assign({}, $scope.TaxRebateDefine));
+        }
+    }
+
+    /*
+    $scope.SubmitRebateH = function (data) {
+
+        try {
+            if (data.Minimum < 0)
+                throw 'Minimum value cannot be negative';
+            if (data.Minimum == null) {
+                throw 'Enter Minimum Value';
+            }
+
+            if (data.Maximum < 0)
+                throw 'Maximum value cannot be negative';
+
+
+            if (data.Minimum >= data.Maximum)
+                throw 'Maximum value should be greater than minimum value';
+
+
+
+            var newObj = Object.assign({}, $scope.TaxSlabDefine);
+            if (data != null) {
+                newObj = {
+                    Id: null,
+                    TaxRate: null,
+                    Minimum: data.Maximum,
+                    Maximum: 0,
+                    PolicyId: $scope.TaxSlabDefine.PolicyId,
+                }
+            }
+
+            $scope.DataList.push(newObj);
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+
+    //#region Save Income Slab
+    $scope.SaveSlabInfo = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.TaxSlabDefine.PolicyId)) {
+                ShowResult("Tax PolicyId cann't be blank...");
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + "SaveSlabInfo",
+                data: { 'IncomeSlab': $scope.DataList, PolicyId: $scope.TaxSlabDefine.PolicyId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSlabInfo();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    //#endregion
+
+    // #region Delete Slab
+
+    $scope.DeleteSlab = function (obj) {
+        $scope.DeleteIncomeSlab = $scope.TaxSlabDefine.PolicyId;
+        if (!baseService.isUndefinedOrNull($scope.DeleteIncomeSlab))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmProcessIncomeSlab')).modal('show');
+    }
+
+    $scope.DeleteSlabsInfo = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteIncomeSlab",
+                data: { Id: $scope.DeleteIncomeSlab },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSlabInfo();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    */
+
+    // #endregion
 
 
     // #endregion

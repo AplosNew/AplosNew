@@ -972,6 +972,25 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
+        #region Tax Rebate Functions
+
+        public IEnumerable<object> GetRebateInfo(string PolicyId)
+        {
+            try
+            {
+                string strSQL = @"select si.* from TaxRebateConfiguration si 
+                left join TaxPolicyHeader th on th.Id=si.TaxPolicyId
+                where th.Id='" + PolicyId + "'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
         #region Tax Surcharge Functions   
         public void SaveTaxSurcharge(TaxRebate Slab, string masterID, List<Dictionary<string, object>> TaxSurchargeList)
         {

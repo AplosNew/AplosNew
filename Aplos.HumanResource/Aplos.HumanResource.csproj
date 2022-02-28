@@ -310,6 +310,10 @@
       <Project>{7F2FCB85-B5BD-457E-AE20-8793D0C72F20}</Project>
       <Name>Aplos.Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Aplos.General\Aplos.General.csproj">
+      <Project>{2F6215E5-C24C-4435-9AD1-25E1A1F469BA}</Project>
+      <Name>Aplos.General</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Aplos.Service.Extension\Aplos.Service.Extension.csproj">
       <Project>{20086D6A-E384-4DE1-8486-6EB0FDCA39F9}</Project>
       <Name>Aplos.Service.Extension</Name>
