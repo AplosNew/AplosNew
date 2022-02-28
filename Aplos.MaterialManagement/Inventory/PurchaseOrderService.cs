@@ -574,7 +574,7 @@ namespace Library.MaterialManagement.Inventory
 
             }
         }
-        public IEnumerable<object> GetPOTypeList(string plantId, string POTypeStatus)
+        public IEnumerable<object> GetPOTypeList(string plantId, string POTypeStatus,string poType)
         {
             if (POTypeStatus == "")
             {
@@ -654,7 +654,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN (SELECT PS.InventoryReceiveId,SUM(ISNULL(PS.Amount,0)) Amount FROM TRN.POService PS GROUP BY PS.InventoryReceiveId) PS ON PS.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-						WHERE  IR.PlantId='" + identity.PlantId + @"' AND IR.POType='PO'  --IR.AddedBy='" + identity.Name + @"' And
+						WHERE  IR.PlantId='" + identity.PlantId + @"' AND IR.POType='"+ poType + @"'  --IR.AddedBy='" + identity.Name + @"' And
                         AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
@@ -727,7 +727,7 @@ namespace Library.MaterialManagement.Inventory
 						Where IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
-						 And IR.PlantId='" + identity.PlantId + @"' AND IR.POType='PO'--AND IR.AddedBy='" + identity.Name + @"'
+						 And IR.PlantId='" + identity.PlantId + @"' AND IR.POType='" + poType + @"'--AND IR.AddedBy='" + identity.Name + @"'
 
                         AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
@@ -796,7 +796,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						Where IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
-						And IR.PlantId='" + identity.PlantId + @"' AND IR.POType='PO'	--AND IR.AddedBy='" + identity.Name + @"'	
+						And IR.PlantId='" + identity.PlantId + @"' AND IR.POType='" + poType + @"'	--AND IR.AddedBy='" + identity.Name + @"'	
                         AND isnull(IR.IsClosed,0)=0 
 						) x
 						Order by x.AddedDate DESC";
@@ -863,7 +863,7 @@ namespace Library.MaterialManagement.Inventory
 		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-                        WHERE  IR.PlantId='" + identity.PlantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.POType='PO' AND IR.PlantId='" + plantId + "'   AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' And
+                        WHERE  IR.PlantId='" + identity.PlantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.POType='" + poType + @"' AND IR.PlantId='" + plantId + "'   AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' And
 
                 }
                 else if (POTypeStatus == "Checked")
@@ -933,7 +933,7 @@ namespace Library.MaterialManagement.Inventory
                          AND IR.AuthorizedBy IS NOt NULL  
                          AND IR.CheckedByStatus='Checked' 
                          AND IR.AuthorizedByStatus='For Approval'  
-                         AND IR.POType='PO'  		
+                         AND IR.POType='" + poType + @"' 		
                          AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' " +
 
 
