@@ -1,24 +1,10 @@
 ﻿using Aplos.Controllers;
-using Library.Model.OrderManagements;
-using Aplos.Properties;
-using Library.Service.OrderManagements;
-using Library.Core;
 using System;
-using System.Collections.Generic;
 using System.Web.Mvc;
 using Library.Crosscutting.Security;
 using System.Threading;
-using System.Web.Script.Serialization;
-using Library.Data.UnitOfWorks;
-using Library.Data.Sql;
 using System.Data;
-using Syncfusion.XlsIO;
 using Library.HumanResource.NewAttendanceProcess;
-using Library.Service.Helpers;
-using Library.Model.Enums;
-using Library.Security.Core;
-using System.IO;
-using Library.General.Setups;
 
 namespace Aplos.Areas.Attendances.Controllers
 {
@@ -89,11 +75,6 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunTBS_LA_Process(string Date)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            ProcessLock _lock = new ProcessLock(identity.Name, ProcessLockId.AttendanceProcess, "", 60);
-            _lock.LockProcess();
-
             if (Convert.ToDateTime(Date) > DateTime.Now)
             {
                 throw new Exception("Future Date Cannot be selected!!");
@@ -136,11 +117,8 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                 }
             }
-            _lock.UnlockProcess();
             return Json(new { Error = false, Message = "TBS LA Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
         }
-
-
 
         [HttpGet, Authorize]
         public ActionResult RunAttnd(string Date)
@@ -293,8 +271,6 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(new { Error = false, Message = "DOJ Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
 
         }
-
-
 
         [HttpGet, Authorize]
         public ActionResult ManualScheduler()
