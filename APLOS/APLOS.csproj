@@ -351,6 +351,7 @@
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\FiscalYearCloseController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
     <Compile Include="Areas\Accounts\Controllers\VoucherParkController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GeneralAccountDeterminateController.cs" />
@@ -4014,6 +4015,7 @@
     <Content Include="Areas\Administration\Views\VisitorListReport\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\PrePackDefinition\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\FinalPackDefinition\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\FiscalYearClose.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
