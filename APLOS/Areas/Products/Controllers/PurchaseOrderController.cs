@@ -722,11 +722,11 @@ namespace Aplos.Areas.Products.Controllers
 
 		#region PO Index UI all Function
 		[Authorize, HttpGet]
-		public JsonResult GetPOTypeList(string POTypeStatus)
+		public JsonResult GetPOTypeList(string POTypeStatus,string poType)
 		{
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_purchaseOrderService.GetPOTypeList(identity.PlantId, POTypeStatus), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetPOTypeList(identity.PlantId, POTypeStatus, poType), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]

@@ -155,7 +155,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'Products/PurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus,
+            url: 'Products/PurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus +'&poType='+'PO',
         }).then(function successCallback(response) {
           
             for (var i = 0; i < $scope.Griddata.length; i++) {

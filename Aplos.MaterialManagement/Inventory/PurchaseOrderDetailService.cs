@@ -3096,7 +3096,7 @@ namespace Library.MaterialManagement.Inventory
 						
 							TransactionQtyGroupSum = itemDetail.TransactionQty;
 
-						if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId
+						if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && entity.CurrencyId != entity.BaseCurrencyId
 							 && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
 						{
 							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
@@ -3105,7 +3105,7 @@ namespace Library.MaterialManagement.Inventory
 							itemDetail.BaseAmount = itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
 
 						}
-						else if (itemDetail.BaseUOMId == itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
+						else if (itemDetail.BaseUOMId == itemDetail.TransactionUoMId && entity.CurrencyId != entity.BaseCurrencyId)
 						{
 							double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
 							itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);
@@ -3113,7 +3113,7 @@ namespace Library.MaterialManagement.Inventory
 							itemDetail.BaseAmount = itemDetail.TransactionAmount;
 
 						}
-						else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId == itemDetail.BaseCurrencyId && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
+						else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && entity.CurrencyId == entity.BaseCurrencyId && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
 						{
 							double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
 							itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);

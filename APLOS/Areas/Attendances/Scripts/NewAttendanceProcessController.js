@@ -18,6 +18,9 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
                 if (response.data.Error == false) {                    
                     ShowResult(response.data.Message, 'success');
                 }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
             });
         }
     }
@@ -36,6 +39,8 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
                     ShowResult(response.data.Message, 'success');
+                } else {
+                    ShowResult(response.data.Message, 'failure');
                 }
             });
         }
@@ -51,6 +56,8 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
                     ShowResult(response.data.Message, 'success');
+                } else {
+                    ShowResult(response.data.Message, 'failure');
                 }
             });
         }
@@ -67,6 +74,8 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
                     ShowResult(response.data.Message, 'success');
+                } else {
+                    ShowResult(response.data.Message, 'failure');
                 }
             });
         }
@@ -98,6 +107,8 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
                     ShowResult(response.data.Message, 'success');
+                } else {
+                    ShowResult(response.data.Message, 'failure');
                 }
             });
        
@@ -113,6 +124,8 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
                     ShowResult(response.data.Message, 'success');
+                } else {
+                    ShowResult(response.data.Message, 'failure');
                 }
             });
         }
