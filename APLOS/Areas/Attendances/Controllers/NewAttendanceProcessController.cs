@@ -65,7 +65,9 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     catch (Exception ex)
                     {
-                        rep.CommonLogFunction(ex, CatchPlant, "ShiftProcess");                       
+                        rep.CommonLogFunction(ex, CatchPlant, "ShiftProcess");
+                        return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
+
                     }
                 }
             }
@@ -163,6 +165,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     catch (Exception ex)
                     {
                         rep.CommonLogFunction(ex, CatchPlant, "AttdnProcess");
+                        return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
                     }
                 }
             }
@@ -213,6 +216,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     catch (Exception ex)
                     {
                         rep.CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
+                        return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
 
                     }
                 }
@@ -359,6 +363,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     catch (Exception ex)
                     {
                         rep.CommonLogFunction(ex, CatchPlant, "RosterProcess");
+                        return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
                     }
                 }
             }
