@@ -1,8 +1,10 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Calendars;
 using Library.Service.Calendars;
 using System.Threading;
@@ -13,14 +15,15 @@ namespace Aplos.Areas.Accounts.Controllers
     public class FiscalYearCloseController : BaseController
     {
         private readonly IFiscalYearService _fiscalYearService;
-        
+        private readonly ISqlRepository _sqlRepository;
 
         public FiscalYearCloseController(
             IFiscalYearService fiscalYearService
+            , ISqlRepository sqlRepository
             )
         {
             _fiscalYearService = fiscalYearService;
-            
+            _sqlRepository = sqlRepository;
         }
 
         [HttpGet]
@@ -51,20 +54,17 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(FiscalYear fiscalYear)
+        public JsonResult CreateFiscalYearClose(FiscalYearClose fiscalYearCloseVM)
         {
+            FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            fiscalYear.CompanyGroupId = identity.CompanyGroupId;
-            _fiscalYearService.Insert(fiscalYear);
-            return Json(new { FiscalYear = fiscalYear, Message = AplosMessage.Insert });
+            fiscalYearCloseVM.CompanyGroupId = identity.CompanyGroupId;
+            _fiscalYearCloseService.InsertFiscalYearClose(fiscalYearCloseVM);
+
+            return Json(new { Message = AplosMessage.Insert });
         }
 
-        [HttpPost]
-        public JsonResult Edit(FiscalYear fiscalYear)
-        {
-            _fiscalYearService.Update(fiscalYear);
-            return Json(new { Message = AplosMessage.Success });
-        }
+       
 
         //[HttpPost]
         //public ActionResult Delete(string id)
