@@ -160,7 +160,7 @@ function GatePassController(accountService, addressService, $location, $window, 
 		if (from === 'Vendor') {
 			//$scope.productNew.ResponsiblePersonName = '';
 			$scope.TypeLabel = 'Vendor';
-			$scope.productNew.BuyerId = '';
+			$scope.productNew.ToBuyerId = '';
 			$scope.productNew.OtherPlantId = '';
 			$scope.GetPlantList.OtherPlantId = '';
 			$scope.productNew.OtherCompanyName = '';
@@ -176,8 +176,8 @@ function GatePassController(accountService, addressService, $location, $window, 
 		if (from === 'Buyer') {
 			$scope.TypeLabel = 'Buyer';
 			$scope.productNew.PartyName = '';
-			$scope.productNew.PartyCode = '';
-			$scope.productNew.BuyerId = '';
+			$scope.productNew.ToPartyCode = '';
+		/*	$scope.productNew.ToBuyerId = '';*/
 			$scope.productNew.OtherPlantId = '';
 			$scope.GetPlantList.OtherPlantId = '';
 			$scope.GetPlantList.OtherPlantId = '';
@@ -197,8 +197,8 @@ function GatePassController(accountService, addressService, $location, $window, 
 		if (from === 'OtherPlant') {
 			$scope.TypeLabel = 'OtherPlant';
 			$scope.productNew.PartyName = '';
-			$scope.productNew.PartyCode = '';
-			$scope.productNew.BuyerId = '';
+			$scope.productNew.ToPartyCode = '';
+			$scope.productNew.ToBuyerId = '';
 			$scope.productNew.OtherPlantId = '';
 			$scope.GetPlantList.OtherPlantId = '';
 			$scope.productNew.OtherCompanyName = '';
@@ -216,8 +216,8 @@ function GatePassController(accountService, addressService, $location, $window, 
 		if (from === 'OtherCompany') {
 			$scope.TypeLabel = 'OtherCompany';
 			$scope.productNew.PartyName = '';
-			$scope.productNew.PartyCode = '';
-			$scope.productNew.BuyerId = '';
+			$scope.productNew.ToPartyCode = '';
+			$scope.productNew.ToBuyerId = '';
 			$scope.GetPlantList.OtherPlantId = '';
 			$scope.productNew.OtherPlantId = '';
 			$scope.productNew.OtherCompanyName = '';
@@ -519,7 +519,7 @@ function GatePassController(accountService, addressService, $location, $window, 
 		//getting corresponding record 
 		var data = gridObj.getSelectedRecords()[0];
 		$scope.productNew.BuyerName = data.Text;
-		$scope.productNew.BuyerId = data.Value;
+		$scope.productNew.ToBuyerId = data.Value;
 
 		$scope.closeDetaiPopUpBuyer();
 	}
@@ -2219,6 +2219,7 @@ function GatePassController(accountService, addressService, $location, $window, 
 			, GatePassEntryDate: $filter("dateFiltering")(Date.now())
 			, GatePassType: 'Send'
 			, GatePassStatus1: 'NonReturnable'
+			, GateRegisterType: 'Out'
 		};
 
 		$scope.inventoryMaterialList = [];

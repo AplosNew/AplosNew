@@ -3104,9 +3104,18 @@ namespace Library.MaterialManagement.InventoryManagements
                         document.Replace(item.ToString(), "", false, false);
 
                 }
+
+                //document.Save("tarek.docx",FormatType.Docx, System.Web.HttpContext.Current.Response,HttpContentDisposition.InBrowser);
+
                 DocToPDFConverter converter = new DocToPDFConverter();
                 //Converts Word document into PDF document
                 //Syncfusion.Pdf.PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                DocToPDFConverterSettings settings = new DocToPDFConverterSettings();
+                settings.AutoDetectComplexScript = true;
+                settings.UpdateDocumentFields = true;
+                converter.Settings = settings;
+
+
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
                 pdfDocument.PageSettings.Width = 1200;
                 pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
@@ -3246,29 +3255,12 @@ namespace Library.MaterialManagement.InventoryManagements
         {
             string replaceString = "{materialItems}";
             ReportUtility ru = new ReportUtility();
-            DataTable dsTax;
-            //clsDataContext data = new clsDataContext();
-
-
-            //dsTax = loadMaterialTax(purchaseOrderId);
 
             int LasColumnIndex = 11;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
-            //DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
-
-            //if (dv.Count > 0)
-            //{
-            //    for (int i = 0; i < dv.Count; i++)
-            //    {
-            //        LasColumnIndex++;
-            //        dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
-            //        LasColumnIndex++;
-            //    }
-            //}
-
-
             WTable wTable = new WTable(document);
             wTable.TableFormat.Borders.LineWidth = 1;
+            wTable.TableFormat.IsBreakAcrossPages = true;
             wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
             int ROW = 0; int COL = 0;
             wTable.ResetCells(1, LasColumnIndex + 1);
@@ -3281,26 +3273,8 @@ namespace Library.MaterialManagement.InventoryManagements
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
 
-
-
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SL");
             int colRo = COL; COL++;
-            //wTable.Rows[ROW].Cells[colRo].Width = 25;
-
-            //wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("RowId");
-            //int colRowId = COL; COL++;
-            //wTable.Rows[ROW].Cells[colRowId].Width = 50;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials Type");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colMaterialType = COL; COL++;
-            //wTable.Rows[ROW].Cells[colMaterialType].Width = 85;
-
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials Group");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colMaterialGroup = COL; COL++;
-            //wTable.Rows[ROW].Cells[colMaterialGroup].Width = 85;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material");
             range.ApplyCharacterFormat(FontBold);
@@ -3326,29 +3300,11 @@ namespace Library.MaterialManagement.InventoryManagements
             range.ApplyCharacterFormat(FontBold);
             int colChar3 = COL; COL++;
             wTable.Rows[ROW].Cells[colChar3].Width = 60;
- 
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material Detail");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colMaterialDetail = COL; COL++;
-            //wTable.Rows[ROW].Cells[colMaterialDetail].Width = 80;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Is Returnable");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colIsReturnable = COL; COL++;
-            //wTable.Rows[ROW].Cells[colIsReturnable].Width = 60;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Returnable Date");
             range.ApplyCharacterFormat(FontBold);
             int colReturnableDate = COL; COL++;
             wTable.Rows[ROW].Cells[colReturnableDate].Width = 70;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("IsMutilated");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colIsMutilated = COL; COL++;
-            //wTable.Rows[ROW].Cells[colIsMutilated].Width = 60;
-
-
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
@@ -3375,97 +3331,6 @@ namespace Library.MaterialManagement.InventoryManagements
             int colRemarks = COL; COL++;
             wTable.Rows[ROW].Cells[colRemarks].Width = 100;
 
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsMaterialItems.Rows[0]["CurrencyName"].ToString() + ")");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colRate = COL++;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colUOM = COL; COL++;
-            //wTable.Rows[ROW].Cells[colUOM].Width = 25;
-
-
-
-
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colTotalTaxableAmount = COL; COL++;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Normal/Over Budget/New");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colNormal = COL; COL++;
-            //wTable.Rows[ROW].Cells[colNormal].Width = 58;
-            ////range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Normal/OverBudget/New");
-            ////range.ApplyCharacterFormat(FontBold);
-            ////int colOB = COL; COL++;
-
-            ////range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Normal/OverBudget/New");
-            ////range.ApplyCharacterFormat(FontBold);
-            ////int colNew = COL; COL++;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Own Stock");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colOnStock = COL; COL++;
-            //wTable.Rows[ROW].Cells[colUOM].Width = 40;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Other Stock");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colOtherStock = COL; COL++;
-            //wTable.Rows[ROW].Cells[colOtherStock].Width = 40;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Reason");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colReason = COL; COL++;
-
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Remarks");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colRemarks = COL;
-
-
-
-            //if (dv.Count > 0)
-            //{
-            //    COL++;
-            //    colTotalTaxableAmount = COL;
-            //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount");
-            //    range.ApplyCharacterFormat(FontBold);
-            //    //COL++;
-            //    for (int i = 0; i < dv.Count; i++)
-            //    {
-            //        //two columns required for tax
-            //        COL++;
-            //        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText(dv[i]["TaxCode"].ToString());
-            //        range.ApplyCharacterFormat(FontBold);
-            //        COL++;
-            //        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
-            //        range.ApplyCharacterFormat(FontBold);
-
-            //    }
-            //}
-            //else
-            //{
-
-
-            //}
-
-
-            //wTable.Rows.Add(TemplateRow);
-            //ROW++;
-
-            //if (dv.Count > 0)
-            //{
-            //    for (int i = 0; i < dv.Count; i++)
-            //    {
-
-            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate");
-            //        range.ApplyCharacterFormat(FontBold);
-            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
-            //        range.ApplyCharacterFormat(FontBold);
-
-            //    }
-            //}
             #endregion column headers
             var NormalOverBudgetNew = "";
             var normalBudgetType = "";
@@ -3497,19 +3362,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         item.Text = "";
                     }
                 }
-                //if (dsMaterialItems.Rows[i]["BudgetType"].ToString().ToUpper() == "NORMAL")
-                //{
-                //    NormalOverBudgetNew = "Normal";
-                //}
-                //if (dsMaterialItems.Rows[i]["BudgetType"].ToString().ToUpper() == "OVER BUDGET")
-                //{
-                //    NormalOverBudgetNew = "Over budget";
-                //}
-                //if (dsMaterialItems.Rows[i]["BudgetType"].ToString().ToUpper() != "NORMAL" && dsMaterialItems.Rows[i]["BudgetType"].ToString().ToUpper() != "OVER BUDGET")
-                //{
-                //    NormalOverBudgetNew = "New";
-                //}
-
+           
                 TROW.Cells[colRo].AddParagraph().AppendText(sl.ToString());
 
                 
@@ -3518,8 +3371,7 @@ namespace Library.MaterialManagement.InventoryManagements
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsMaterialItems.Rows[i]["FirstCharacteristicsValue"].ToString());
                 TROW.Cells[colChar2].AddParagraph().AppendText(dsMaterialItems.Rows[i]["SecondCharacteristicsValue"].ToString());
                 TROW.Cells[colChar3].AddParagraph().AppendText(dsMaterialItems.Rows[i]["ThirdCharacteristicsValue"].ToString());
-                //TROW.Cells[colMaterialDetail].AddParagraph().AppendText(dsMaterialItems.Rows[i]["MaterialDetail"].ToString());
-                //TROW.Cells[colIsReturnable].AddParagraph().AppendText(dsMaterialItems.Rows[i]["IsReturnable"].ToString());
+             
                 TROW.Cells[colReturnableDate].AddParagraph().AppendText(dsMaterialItems.Rows[i]["ReturnableDate"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsMaterialItems.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsMaterialItems.Rows[i]["TransactionUoM"].ToString());
@@ -3528,10 +3380,6 @@ namespace Library.MaterialManagement.InventoryManagements
                 
                 TROW.Cells[colRemarks].AddParagraph().AppendText(dsMaterialItems.Rows[i]["Remarks"].ToString());
               
-
-                
-
-                //ROW++;
             }
 
             #region Total
@@ -3593,19 +3441,6 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
             ROW++;
-
-            //for (int R = 1; R < wTable.Rows.Count; R++)
-            //{
-            //    WTableRow TROW = wTable.Rows[R];
-
-
-
-            //    foreach (WParagraph item in TROW.Cells[colQty].Paragraphs)
-            //    {
-            //        item.ApplyStyle("MyStyleRightAlign");
-            //    }
-
-            //}
             #region paragrpath formats
             //Adds a new paragraph style named "MyStyle"
             IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
@@ -3617,10 +3452,7 @@ namespace Library.MaterialManagement.InventoryManagements
             for (int R = 0; R < wTable.Rows.Count; R++)
             {
                 WTableRow TROW = wTable.Rows[R];
-                //TROW.Cells[0].Width = 20;
-                //if (dv.Count < 3)
-                //    TROW.Cells[0].Width = 120 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
-
+             
                 for (int CE = 0; CE < TROW.Cells.Count; CE++)
                 {
                     foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
@@ -3632,24 +3464,12 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
             #endregion paragrpath formats
-
-
             #region merging section
 
-
-            //tax codes merging (horizontal)
             ROW = 0;
-            //for (int i = 0; i < dv.Count; i++)
-            //    wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
-
-            //primary cells merging (veritcal)
+       
             ROW++;
-            //for (int i = 0; i <= colTotalTaxableAmount; i++)
-            //    wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
-
-
-
-
+         
             IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
             style.CharacterFormat.Bold = true;
             style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
@@ -3664,568 +3484,7 @@ namespace Library.MaterialManagement.InventoryManagements
         }
 
 
-        
-
-        //class clsStdLib
-        //{
-        //    public static string passWord = "prodDisplay";
-        //    public clsStdLib()
-        //    {
-
-        //    }
-        //    public enum mType
-        //    {
-        //        Error,
-        //        Success,
-        //        Information
-        //    }
-        //    public static bool passwordGet = true;
-        //    public static string[] sMonth = new string[] { "<Unselect>", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-
-        //    public static string DataRankNames(int dayNo)
-        //    {
-
-        //        if (dayNo <= 0)
-        //            return "";
-
-        //        if (dayNo.ToString().Length > 1)
-        //        {
-        //            string Right = dayNo.ToString().Substring(dayNo.ToString().Length - 2, 2);
-        //            if (clsStdLib.dbl(Right) >= 10 && clsStdLib.dbl(Right) <= 20)
-        //                return dayNo + "th";
-        //        }
-
-        //        string RightString = dayNo.ToString().Substring(dayNo.ToString().Length - 1, 1);
-        //        switch (RightString)
-        //        {
-        //            case "1":
-        //                return dayNo + "st";
-        //            case "2":
-        //                return dayNo + "nd";
-        //            case "3":
-        //                return dayNo + "rd";
-        //            default:
-        //                return dayNo + "th";
-
-        //        }
-
-
-
-
-        //    }
-
-        //    #region date related
-        //    public static readonly string dateFormat = "dd-MMM-yyyy";
-        //    public static readonly string sqliteDateFormat = "yyyy-MM-dd";
-        //    public static readonly string AppToDBdateFormat = "yyyy-MM-dd hh:mm:ss";
-        //    public static bool IsDateOK(string strdate)
-        //    {
-        //        try
-        //        {
-        //            if (strdate.Length != 11)
-        //            {
-        //                return false;
-        //            }
-        //            if (strdate.Substring(2, 1) != "-" && strdate.Substring(6, 1) != "-")
-        //            {
-        //                return false;
-        //            }
-        //            System.DateTime myDt = System.Convert.ToDateTime(strdate);
-        //            return true;
-        //        }
-        //        catch (System.Exception ex)
-        //        {
-        //            return false;
-        //        }
-        //        finally
-        //        {
-        //            //
-        //        }
-        //    }// end function
-        //    private static bool DateOkCheck(string strdate)
-        //    {
-        //        try
-        //        {
-        //            System.DateTime myDt = System.Convert.ToDateTime(strdate);
-        //            return true;
-        //        }
-        //        catch (System.Exception ex)
-        //        {
-        //            return false;
-        //        }
-        //        finally
-        //        {
-        //            //
-        //        }
-        //    }// end function
-        //    public static object chk_NullDateData(object dateValue)
-        //    {
-        //        if (DateOkCheck("" + dateValue.ToString()) == false)
-        //        {
-        //            dateValue = "";
-        //        }
-
-        //        if (("" + dateValue.ToString()) == "")
-        //        {
-        //            System.DateTime dt = new System.DateTime(1901, 1, 1);
-        //            dateValue = (object)dt;
-        //        }
-        //        return (object)dateValue;
-        //    }
-        //    public static System.DateTime AppDateConvert(object dateValue, string input_date_format, string output_date_format)
-        //    {
-        //        string strDate = null;
-        //        dateValue = chk_NullDateData(dateValue);
-        //        strDate = dateValue.ToString();
-        //        if (strDate != "")
-        //        {
-        //            if (input_date_format.Trim() != "")
-        //            {
-        //                if (output_date_format.Trim() != "")
-        //                {
-        //                    System.Globalization.DateTimeFormatInfo InputFormat = new System.Globalization.DateTimeFormatInfo();
-        //                    InputFormat.ShortDatePattern = input_date_format;
-        //                    System.DateTime myDt = System.Convert.ToDateTime(strDate, InputFormat);
-        //                    strDate = myDt.ToString(output_date_format);
-        //                }
-        //            }
-        //        }
-        //        return System.Convert.ToDateTime(strDate);
-        //    }// End of function
-        //    public static Object DateData_AppToDB(object dateValue, string DB_Level_date_format)
-        //    {
-        //        if (string.IsNullOrEmpty((string)dateValue))
-        //            return DBNull.Value;
-
-        //        string strDate = null;
-        //        strDate = dateValue.ToString();
-        //        if (DB_Level_date_format != "")
-        //        {
-        //            // Collecting the user terminal set format 
-        //            System.Globalization.DateTimeFormatInfo USER_TERMINAL_DATE_FORMAT = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat;
-        //            strDate = AppDateConvert(strDate, USER_TERMINAL_DATE_FORMAT.ShortDatePattern.ToString(), DB_Level_date_format).ToString();
-        //        }
-
-        //        string m = System.Convert.ToDateTime(strDate).ToString(AppToDBdateFormat);
-        //        return System.Convert.ToDateTime(strDate).ToString(AppToDBdateFormat);
-
-
-        //    }// End of function
-        //    public static System.DateTime DateData_DBToApp(object dateValue)
-        //    {
-        //        string strDate = null;
-        //        strDate = dateValue.ToString();
-
-        //        System.Globalization.DateTimeFormatInfo myDBDateFormat = new System.Globalization.CultureInfo("en-US", false).DateTimeFormat;
-        //        strDate = DateData_DBToApp(dateValue, myDBDateFormat.ShortDatePattern.ToString()).ToString();
-        //        return System.Convert.ToDateTime(strDate);
-        //    }// End function
-        //    public static System.DateTime DateData_DBToApp(object dateValue, string DB_Level_date_format)
-        //    {
-        //        string strDate = null;
-        //        strDate = dateValue.ToString();
-        //        if (DB_Level_date_format != "")
-        //        {
-        //            // Collecting the user terminal set format 
-        //            System.Globalization.DateTimeFormatInfo USER_TERMINAL_DATE_FORMAT = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat;
-        //            strDate = AppDateConvert(strDate, DB_Level_date_format, USER_TERMINAL_DATE_FORMAT.ShortDatePattern.ToString()).ToString();
-        //        }
-        //        return System.Convert.ToDateTime(strDate);
-        //    }// End of function
-        //    public static String makeBaseBlank(object dateValue)
-        //    {
-        //        System.DateTime dt;
-        //        dt = System.Convert.ToDateTime(dateValue.ToString());
-        //        if (dt.Year == 1901)
-        //        {
-        //            return "";
-        //        }
-        //        else
-        //        {
-        //            return dateValue.ToString();
-        //        }
-        //    }// End of function
-        //    ///<summary>
-        //    ///return day difference in integer. 
-        //    ///    Example 1: firstDate[Less Than]lastDate returns positive value
-        //    ///    Example 2: firstDate>lastDate returns negative value
-        //    ///    Example 3: firstDate=lastDate returns 0 [zero]**/
-        //    /// </summary>
-        //    public static int dateDiff(string firstDate, string lastDate)
-        //    {
-
-        //        int difference = 0;
-        //        try
-        //        {
-        //            firstDate = Convert.ToDateTime(firstDate).ToString("dd-MMM-yyyy");
-        //            lastDate = Convert.ToDateTime(lastDate).ToString("dd-MMM-yyyy");
-
-        //            if (IsDateOK(firstDate) == false)
-        //            {
-        //                Exception ex = new Exception("Invalid [First Date]");
-        //                throw (ex);
-        //            }
-        //            if (IsDateOK(lastDate) == false)
-        //            {
-        //                Exception ex = new Exception("Invalid [Last Date]");
-        //                throw (ex);
-        //            }
-        //            DateTime dateFirstDate = Convert.ToDateTime(firstDate);
-        //            DateTime dateLastDate = Convert.ToDateTime(lastDate);
-        //            TimeSpan TimeSpan = dateLastDate.Subtract(dateFirstDate);
-
-
-        //            difference = TimeSpan.Days;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            throw (ex);
-        //        }
-
-        //        return difference;
-        //    }
-
-
-
-        //    public static string getSqliteDate(string standardDate)
-        //    {
-        //        return (Convert.ToDateTime(standardDate).ToString(sqliteDateFormat));
-        //    }
-        //    public static string getStandardDateFromSqliteDate(string SqliteDate)
-        //    {
-        //        if (SqliteDate.Length != 10)
-        //            return "";
-        //        if (SqliteDate.Split('-').Length != 3)
-        //            return "";
-        //        //many things to validate 
-        //        //but i have less time :)
-        //        string month = ValidLength(sMonth[Convert.ToInt32(SqliteDate.Split('-')[1])], 3).ToString();
-
-
-        //        return SqliteDate.Split('-')[2] + "-" + month + "-" + SqliteDate.Split('-')[0];
-        //    }
-        //    #endregion date related
-
-        //    #region numeric
-        //    public static bool IsNumeric(string strNumber)
-        //    {
-        //        Double d;
-        //        System.Globalization.NumberFormatInfo n = new System.Globalization.NumberFormatInfo();
-        //        if (strNumber.Length == 0)
-        //        {
-        //            return false;
-        //        }
-        //        return Double.TryParse(strNumber, System.Globalization.NumberStyles.Float, n, out d);
-        //    } // End Function
-        //    public static string GetNumericData(string strNumber)
-        //    {
-        //        double d;
-        //        strNumber = strNumber.Replace(",", "");
-        //        System.Globalization.NumberFormatInfo n = new System.Globalization.NumberFormatInfo();
-        //        if (strNumber.Trim() == "")
-        //        { return "0"; }
-        //        else if (System.Double.TryParse(strNumber, System.Globalization.NumberStyles.Float, n, out d) == true)
-        //        {
-        //            return strNumber;
-        //        }
-        //        else
-        //        {
-        //            return "0";
-        //        }
-        //    }// end function
-        //    public static string GetNumericDataInDecimalFormat(string strNumber, int precision)
-        //    {
-        //        if (precision < 1)
-        //            return strNumber;
-
-        //        string s_precision = new String('0', precision);
-
-        //        double d;
-        //        System.Globalization.NumberFormatInfo n = new System.Globalization.NumberFormatInfo();
-        //        if (strNumber.Trim() == "")
-        //        { return "0." + s_precision; }
-        //        else if (System.Double.TryParse(strNumber, System.Globalization.NumberStyles.Float, n, out d) == true)
-        //        {
-        //            return string.Format("{0:0." + s_precision + "}", d);
-        //        }
-        //        else
-        //        {
-        //            return "0." + s_precision;
-        //        }
-        //    }// end function
-        //    public static double dbl(string d)
-        //    {
-        //        return Convert.ToDouble(GetNumericData(d));
-
-        //    }
-        //    public static int Percentage(int total, double percentage)
-        //    {
-        //        return (int)(total * (percentage / 100));
-
-        //    }
-        //    //validation
-        //    public static void numericValidation(string value, bool isMandatory, bool isInteger, bool negativeAllowed, string fieldName)
-        //    {
-
-        //        try
-        //        {
-
-
-
-        //            if (isMandatory == true)
-        //            {
-        //                if (value.Trim() == "")
-        //                {
-        //                    Exception ex = new Exception("please insert [" + fieldName + "]");
-        //                    throw (ex);
-        //                }
-        //                if (Convert.ToDouble(GetNumericData(value.Trim())) == 0)
-        //                {
-        //                    Exception ex = new Exception("please insert [" + fieldName + "]");
-        //                    throw (ex);
-        //                }
-
-        //                if (value.Trim() != "")
-        //                {
-        //                    if (IsNumeric(value.Trim()) == false)
-        //                    {
-        //                        Exception ex = new Exception("Invalid numeric value [" + value + "] for the field [" + fieldName + "]");
-        //                        throw (ex);
-        //                    }
-        //                }
-        //            }
-
-        //            if (value.Trim() != "")
-        //            {
-        //                if (IsNumeric(value.Trim()) == false)
-        //                {
-        //                    Exception ex = new Exception("Invalid numeric value [" + value + "] for the field [" + fieldName + "]");
-        //                    throw (ex);
-        //                }
-        //                if (isInteger == true)
-        //                {
-
-        //                    if (isInt(value.Trim()) == false)
-        //                    {
-        //                        Exception ex = new Exception("Number must be integer for the field [" + fieldName + "]");
-        //                        throw (ex);
-        //                    }
-
-        //                }
-        //                if (negativeAllowed == false)
-        //                {
-        //                    if (Convert.ToDouble(GetNumericData(value.Trim())) < 0)
-        //                    {
-        //                        Exception ex = new Exception("Negative values are not allowed for the field [" + fieldName + "]");
-        //                        throw (ex);
-        //                    }
-        //                }
-        //            }
-
-
-
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            throw (ex);
-        //        }
-        //        finally
-        //        {
-
-        //        }
-
-
-        //    }
-
-        //    ///<summary>
-        //    ///check whether a value is integer or not returns true if integer, 
-        //    ///false if floating or string containing alpahnumeric
-        //    ///</summary>
-        //    public static bool isInt(string num)
-        //    {
-
-        //        bool isInt;
-        //        int number;
-        //        try
-        //        {
-        //            isInt = System.Int32.TryParse(num, out number);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            throw (ex);
-        //        }
-        //        finally
-        //        {
-
-        //        }
-        //        return isInt;
-        //    }
-
-
-        //    #endregion numeric
-
-        //    #region string
-
-        //    public static readonly string excelNegativePOsitiveSign = @"+#,##0.00;-#,##0.00;* ??;@";
-        //    public static readonly string NegativePOsitiveSign = @"+#,##0.00;-#,##0.00;0";
-        //    public static readonly string NumberFormatString = "#,##0.000;(#,##0.000);* ??;@";
-        //    public static readonly string NumberFormatStringFourDecimal = "#,##0.0000;(#,##0.0000);* ??;@";
-        //    public static readonly string NumberFormatStringFiveDecimal = "#,##0.00000;(#,##0.00000);* ??;@";
-        //    public static readonly string NumberFormatStringTwoDecimal = "#,##0.00;(#,##0.00);* ??;@";
-        //    public static readonly string NumberFormatStringTwoDecimalWithZero = "#,##0.00;(#,##0.00)";
-        //    public static readonly string NumberFormatStringInteger = "#,##0;(#,##0);* ??;@";
-        //    public static readonly string NumberFormatStringIntegerWithZero = "#,##0;(#,##0)";
-        //    public static readonly string NumberFormatStringText = "@"; //format cell data as text
-
-
-        //    public static object ValidLength(string str)
-        //    {
-
-        //        string removechar = "";
-        //        if (str.Trim() == "")
-        //        {
-        //            return (object)Convert.DBNull;
-        //        }
-        //        removechar = str.Trim();
-        //        removechar = removechar.Replace("'", " ");
-
-        //        return (object)removechar.Trim();
-
-        //    }
-        //    public static object ValidLength(string str, int length)
-        //    {
-
-        //        string removechar = "";
-        //        if (str.Trim() == "")
-        //        {
-        //            return (object)Convert.DBNull;
-        //        }
-        //        removechar = str.Trim();
-        //        removechar = removechar.Replace("'", " ");
-
-
-        //        int strLen = removechar.Length;
-        //        if (strLen > length)
-        //            removechar = removechar.Substring(0, length);
-
-        //        return (object)removechar.Trim();
-
-        //    }
-        //    public static string FileNameLegalChar(string fileName)
-        //    {
-        //        string illegalChar = @"~`!@#$%^&*=/\|>,<";
-        //        foreach (char c in illegalChar)
-        //        {
-        //            fileName = fileName.Replace(c.ToString(), " ");
-        //        }
-
-        //        return fileName;
-        //    }
-        //    private StringCollection getTableColumns(ref DataSet dsLocal)
-        //    {
-        //        StringCollection strcol = new StringCollection();
-        //        for (int COL = 0; COL < dsLocal.Tables[0].Columns.Count; COL++)
-        //        {
-        //            strcol.Add(dsLocal.Tables[0].Columns[COL].ColumnName.ToUpper());
-        //        }
-
-        //        return strcol;
-
-        //    }
-        //    public static string emptyString(string str)
-        //    {
-        //        //this function returns an empty string(not a null) from null or empty or '&nbsp;' from the page
-        //        if (str == "&nbsp;")
-        //            str = "";
-        //        if (string.IsNullOrEmpty(str) == true)
-        //            str = "";
-
-
-        //        return str;
-        //    }//this function returns an empty string(not a null) from null or empty '&nbsp;' from the page
-        //    #endregion string
-
-
-        //    #region others
-        //    //public void copyDataset(DataSet source, ref DataSet destination)
-        //    //{
-        //    //    //StringCollection strColDestinationColumns = getTableColumns(ref destination);//upper case
-        //    //    DataRow drLocal = null;
-        //    //    for (int ROW = 0; ROW < source.Tables[0].Rows.Count; ROW++)
-        //    //    {
-        //    //        drLocal = destination.Tables[0].NewRow();
-        //    //        for (int COL = 0; COL < source.Tables[0].Columns.Count; COL++)
-        //    //        {
-        //    //            if (strColDestinationColumns.Contains(source.Tables[0].Columns[COL].ToString().ToUpper()))
-        //    //            {
-        //    //                drLocal[source.Tables[0].Columns[COL].ToString()] = ValidLength(source.Tables[0].Rows[ROW][source.Tables[0].Columns[COL].ToString()].ToString());
-        //    //            }
-        //    //        }
-        //    //        destination.Tables[0].Rows.Add(drLocal);
-        //    //    }
-
-
-        //    //}
-        //    public static string GetxlsCol(int intCol)
-        //    {
-        //        //returns excel columns based on column number. tested 1 to 256 column numbers
-        //        try
-        //        {
-        //            if (intCol < 1 || intCol > 256)
-        //            {
-        //                System.Exception ex = new Exception("Invalid Column Value");
-        //                throw (ex);
-        //            }
-        //            intCol = intCol - 1;
-        //            int intFirstLetter = ((intCol) / 512) + 64;
-        //            int intSecondLetter = ((intCol % 512) / 26) + 64;
-        //            int intThirdLetter = (intCol % 26) + 65;
-        //            char FirstLetter;
-        //            char SecondLetter;
-        //            if (intFirstLetter > 64)
-        //                FirstLetter = (char)intFirstLetter;
-        //            else
-        //                FirstLetter = ' ';
-
-        //            if (intSecondLetter > 64)
-        //                SecondLetter = (char)intSecondLetter;
-        //            else
-        //                SecondLetter = ' ';
-
-        //            char ThirdLetter = (char)intThirdLetter;
-        //            return string.Concat(FirstLetter, SecondLetter, ThirdLetter).Trim();
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            throw (ex);
-        //        }
-        //        finally
-        //        {
-
-        //        }
-        //    }//returns excel columns based on column number. tested 1 to 256 column numbers
-        //    #endregion others
-
-        //    public static object RetValidLen(string Data)
-        //    {
-        //        if (string.IsNullOrEmpty(Data))
-        //            return DBNull.Value;
-
-        //        return Data;
-        //    }
-        //    public static double sum(string columnName, DataTable dtLocal, string criteria)
-        //    {
-        //        double total = 0;
-        //        DataRow[] dr = dtLocal.Select(criteria);
-        //        foreach (DataRow d in dr)
-        //        {
-        //            total += dbl(d[columnName].ToString());
-        //        }
-
-
-        //        return total;
-        //    }
-        //}
+    
         #endregion
 
     }

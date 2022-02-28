@@ -494,10 +494,10 @@ function bankJournalController(bankService, accountService, cboService, commonMe
     };
 
     $scope.rateChangeBankCharge = function (rate) {
-        $scope.advanceCharge.CompanyCurrencyAmount = $scope.advanceCharge.Amount * rate;
+        $scope.advanceCharge.CompanyCurrencyAmount = ($scope.advanceCharge.Amount * rate).toFixed(2);
         if ($scope.advanceChargesList.length !== null) {
             for (var i = 0; i < $scope.advanceChargesList.length; i++) {
-                $scope.advanceChargesList[i].CompanyCurrencyAmount = $scope.advanceChargesList[i].Amount * rate;
+                $scope.advanceChargesList[i].CompanyCurrencyAmount = ($scope.advanceChargesList[i].Amount * rate).toFixed(2);
             }
         }
     };

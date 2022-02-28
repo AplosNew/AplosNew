@@ -2892,7 +2892,11 @@ namespace Aplos.Areas.Costings.Controllers
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
                                         WHERE  EMP.EmployeeStatus='Active' 
                                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
-                return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
+
+                var json =  Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+               
             }
             catch (Exception ex)
             {

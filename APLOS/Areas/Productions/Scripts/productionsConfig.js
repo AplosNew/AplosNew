@@ -248,5 +248,13 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/StocksAdjustment/Aplos',
             controller: 'StocksAdjustmentController'
         })
+        .when('/pre-pack-definition', {
+            templateUrl: 'Productions/PrePackDefinition/Aplos',
+            controller: 'PrePackDefinitionController'
+        })
+        .when('/final-pack-definition', {
+            templateUrl: 'Productions/FinalPackDefinition/Aplos',
+            controller: 'FinalPackDefinitionController'
+        })
         ;
 }

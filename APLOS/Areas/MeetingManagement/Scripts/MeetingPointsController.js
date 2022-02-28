@@ -919,33 +919,7 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
         //angular.element(document.querySelector('#meetingDecisionPopUp')).modal('hide');
     };
 
-    //$scope.ConfirmExpectedPerson = function () {
-    //    if (!baseService.isUndefinedOrNull($scope.ModelExpectedPerson.Id))
-    //        $scope.message_confirmation = 'Are you sure want to delete ?';
-    //    angular.element(document.querySelector('#confirmExpectedPerson')).modal('show');
-    //}
-
-    //$scope.DeleteExpectedPerson = function () {
-
-    //    $http({
-    //        method: 'POST',
-    //        url: 'MeetingManagement/MeetingPoints/DeleteExpectedPersonData',
-    //        data: { id: $scope.ModelExpectedPerson.Id },
-    //        dataType: 'JSON'
-    //    }).then(function (response) {
-    //        if (response.data.Error === true)
-    //            ShowResult(response.data.Message, 'failure');
-    //        else {
-    //            ShowResult(response.data.Message, 'success');
-    //            $scope.getExpectedPersonData();
-    //            $scope.ExpectedPersonClear();
-    //        }
-    //        function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //    });
-    //};
-
+    
     $scope.message_confirmation = null;
     $scope.removeExpectedPerson = function (obj) {
 

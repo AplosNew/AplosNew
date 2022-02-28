@@ -722,11 +722,11 @@ namespace Aplos.Areas.Products.Controllers
 
 		#region PO Index UI all Function
 		[Authorize, HttpGet]
-		public JsonResult GetPOTypeList(string POTypeStatus)
+		public JsonResult GetPOTypeList(string POTypeStatus,string poType)
 		{
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_purchaseOrderService.GetPOTypeList(identity.PlantId, POTypeStatus), JsonRequestBehavior.AllowGet);
+			return Json(_purchaseOrderService.GetPOTypeList(identity.PlantId, POTypeStatus, poType), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
@@ -5166,7 +5166,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 				entity.CheckedByStatus = "Pending";
 				entity.AuthorizedBy = null;
 				entity.AuthorizedByStatus = null;
-				entity.POType = "PO";
+				entity.POType = "POBOQ";
 				entity.IsApproved = false;
 
 			entity.IsClosed = false;

@@ -143,12 +143,7 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
         gridObj.clearFiltering();
     }
 
-  
-
-
-
-
-    $scope.refreshPage = function (e) {
+      $scope.refreshPage = function (e) {
         if (e.requestType == "paging") {
             var gridObj = $("#slabGrid").data("ejGrid");
        gridObj.refreshContent(true);
