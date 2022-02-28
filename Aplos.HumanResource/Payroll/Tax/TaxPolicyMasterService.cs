@@ -974,6 +974,25 @@ namespace Library.HumanResource.Payroll.Tax
 
         #region Tax Rebate Functions
 
+        public void DeleteRebateData(string Id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TaxRebateConfiguration where TaxPolicyId='" + Id + "'");
+
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetRebateInfo(string PolicyId)
         {
             try
@@ -986,6 +1005,77 @@ namespace Library.HumanResource.Payroll.Tax
             catch (Exception ex)
             {
                 throw (ex);
+            }
+        }
+
+        public List<Dictionary<string, object>> SaveTaxRebateInfo(List<Dictionary<string, object>> RebateData, string PolicyId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                string sql = "SELECT * FROM [dbo].[TaxRebateConfiguration] WHERE TaxPolicyId='" + PolicyId + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
+
+                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                {
+                    dsMaster.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < RebateData.Count; i++)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    clsGenID genid = new clsGenID();
+                    genid.GenID("RebateConfiguration", out string _Id);
+
+                    #region Validations 
+
+                    if (clsWebLib.RetValidLen(RebateData[i]["Value"]).ToString() == "")
+                    {
+                        throw new Exception("Value can't be Null ...");
+                    }
+
+                    if (clsWebLib.RetValidLen(RebateData[i]["Minimum"]).ToString() == "")
+                    {
+                        throw new Exception("Min Amount can't be Null ...");
+                    }
+                    if (clsWebLib.RetValidLen(RebateData[i]["Maximum"]).ToString() == "")
+                    {
+                        throw new Exception("Max Amount can't be Null ...");
+                    }
+
+                    #endregion
+
+                    string PValue = clsWebLib.GetBoolData(RebateData[i]["IsPercentage"]).ToString();
+                    string FValue = clsWebLib.GetBoolData(RebateData[i]["IsFix"]).ToString();
+
+                    if (PValue == FValue)
+                    {
+                        throw new Exception("You can either choose Fix or Percentage ...");
+                    }
+
+                    dr["Id"] = "TR" + _Id;
+                    dr["TaxPolicyId"] = PolicyId;
+                    dr["Minimum"] = clsStaticInfo.dbl(RebateData[i]["Minimum"].ToString());
+                    dr["Maximum"] = clsStaticInfo.dbl(RebateData[i]["Maximum"].ToString());
+                    dr["Value"] = clsStaticInfo.dbl(RebateData[i]["Value"].ToString());
+                    dr["IsFix"] = FValue;
+                    dr["IsPercentage"]= PValue;
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                return RebateData;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

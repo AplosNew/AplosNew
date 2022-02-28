@@ -71,6 +71,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.GetEarningMasterList();
         $scope.getInvestDeductMaster();
         $scope.GetSlabInfo();
+        $scope.GetRebateInfo();
         updateChild();
         updateTaxDataChild();
         showTabs();
@@ -1382,8 +1383,8 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         TaxPolicyId: null,
         Minimum: null,
         Maximum: null,
-        IsPercentage: 0,
-        IsFix:0,
+        IsPercentage: false,
+        IsFix: false,
         Value: null,
     }
 
@@ -1414,7 +1415,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         }
     }
 
-    /*
+    
     $scope.SubmitRebateH = function (data) {
 
         try {
@@ -1432,35 +1433,36 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 throw 'Maximum value should be greater than minimum value';
 
 
-
-            var newObj = Object.assign({}, $scope.TaxSlabDefine);
+            var newObj = Object.assign({}, $scope.TaxRebateDefine);
             if (data != null) {
                 newObj = {
                     Id: null,
-                    TaxRate: null,
+                    Value: null,
                     Minimum: data.Maximum,
+                    IsFix: false,
+                    IsPercentage: false,
                     Maximum: 0,
-                    PolicyId: $scope.TaxSlabDefine.PolicyId,
+                    TaxPolicyId: null
                 }
             }
 
-            $scope.DataList.push(newObj);
+            $scope.RebateDataList.push(newObj);
         } catch (e) {
             ShowResult(e, 'failure');
         }
 
     };
 
-    //#region Save Income Slab
-    $scope.SaveSlabInfo = function () {
+    //#region Save Rebate Info Slab
+    $scope.SaveRebateInfo = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.TaxSlabDefine.PolicyId)) {
+            if (baseService.isUndefinedOrNull($scope.TaxRebateDefine.TaxPolicyId)) {
                 ShowResult("Tax PolicyId cann't be blank...");
             }
             $http({
                 method: 'POST',
-                url: $scope.path + "SaveSlabInfo",
-                data: { 'IncomeSlab': $scope.DataList, PolicyId: $scope.TaxSlabDefine.PolicyId },
+                url: $scope.path + "SaveRebateInfo",
+                data: { 'RebateData': $scope.RebateDataList, PolicyId: $scope.Header.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1468,7 +1470,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetSlabInfo();
+                    $scope.GetRebateInfo();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1479,22 +1481,24 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
     };
     //#endregion
 
-    // #region Delete Slab
+   
+    // #region Delete Rebate Slab
 
-    $scope.DeleteSlab = function (obj) {
-        $scope.DeleteIncomeSlab = $scope.TaxSlabDefine.PolicyId;
-        if (!baseService.isUndefinedOrNull($scope.DeleteIncomeSlab))
+    $scope.DeleteRebate = function (obj) {
+        $scope.DeleteRebateSlab = $scope.TaxRebateDefine.TaxPolicyId;
+        if (!baseService.isUndefinedOrNull($scope.DeleteRebateSlab))
             $scope.message_confirmation = 'Are you sure want to delete permanently ?';
-        angular.element(document.querySelector('#confirmProcessIncomeSlab')).modal('show');
+        angular.element(document.querySelector('#confirmProcessRebateInfo')).modal('show');
     }
 
-    $scope.DeleteSlabsInfo = function () {
+    
+    $scope.DeleteRebateInfo = function () {
         try {
             $scope.$broadcast('show-errors-check-validity');
             $http({
                 method: 'POST',
-                url: $scope.path + "DeleteIncomeSlab",
-                data: { Id: $scope.DeleteIncomeSlab },
+                url: $scope.path + "DeleteRebateInfo",
+                data: { Id: $scope.DeleteRebateSlab },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1502,7 +1506,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetSlabInfo();
+                    $scope.GetRebateInfo();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1511,8 +1515,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         } catch (e) {
             ShowResult(e, "failure");
         }
-    };
-    */
+    };    
 
     // #endregion
 
