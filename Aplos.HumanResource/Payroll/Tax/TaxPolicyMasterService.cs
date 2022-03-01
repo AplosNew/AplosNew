@@ -2046,7 +2046,7 @@ namespace Library.HumanResource.Payroll.Tax
                 }
                 #endregion
 
-                ProcessTaxableAmt(EmpId, PolicyId, YearId);
+                ProcessTaxableAmt(EmpId, PolicyId, YearId, EmployeeIncomeTaxId);
             }catch(Exception ex)
             {
                 throw ex;
@@ -2090,29 +2090,15 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
-        public void ProcessTaxableAmt(string EmpId, string PolicyId, string YearId)
+        public void ProcessTaxableAmt(string EmpId, string PolicyId, string YearId,string EmployeeIncomeTaxId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataTable TaxableIncome, TaxSlabRates;
                 DataSet dsRef;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                #region Get Employee IncomeTaxId
-
-                var sqlz = @"select * from EmployeeIncomeTaxMaster where
-                EmpSystemId='" + EmpId + @"'
-                and TaxYearId='" + YearId + "' and TaxPolicyHeaderId='" + PolicyId + "'";
-                con.OpenDataSetThroughAdapter(sqlz, out DataSet dsEmp, false, "1");
-
-                string EmployeeIncomeTaxId = "";
-                if (dsEmp.Tables[0].Rows.Count > 0)
-                {
-                    EmployeeIncomeTaxId = clsWebLib.RetValidLen(dsEmp.Tables[0].Rows[0][@"Id"]).ToString();
-                }
-                #endregion
-                               
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");              
+                              
                 #region Saving Region
 
                 TaxableIncome = TaxableGridData(EmpId, PolicyId, YearId);
@@ -2166,12 +2152,15 @@ namespace Library.HumanResource.Payroll.Tax
                     {
                         clsStaticInfo _info = new clsStaticInfo();
                         _info.SaveDataSets(dsRef);
+
+                        ProcessRebateAmt(EmployeeIncomeTaxId,PolicyId);
                     }
                 }
 
                 #endregion
 
-            }catch(Exception ex)
+            }
+            catch(Exception ex)
             {
                 throw ex;
             }
@@ -2194,6 +2183,53 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
+        #endregion
+
+        #region Tax After Rebate
+
+        public void ProcessRebateAmt(string IncomeTaxId,string PolicyId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataTable TaxRebateMaster, TaxableIncomeDt,EstimatedTaxDt;
+                DataSet dsRef;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                #region Data Generation Region
+
+                var sql = @"select em.EmpSystemId,em.TaxYearId,
+                em.TaxPolicyHeaderId,SUM(TaxAmt) as EstimatedTax 
+                from EmployeeNetTax t 
+                left join EmployeeIncomeTaxMaster em on em.Id=t.EmployeeIncomeTaxId
+                where t.EmployeeIncomeTaxId='"+IncomeTaxId+"' and em.TaxPolicyHeaderId='"+PolicyId+@"'
+                    group by em.EmpSystemId,em.TaxYearId,em.TaxPolicyHeaderId";
+                EstimatedTaxDt=  _sqlRepository.GetDataTable(sql);
+
+                var sqlx = @"select em.EmpsystemId,em.TaxYearId,
+                em.TaxPolicyHeaderId,TaxableIncome
+                from taxableincome t left join EmployeeIncomeTaxMaster em on
+                em.Id=t.EmployeeIncomeTaxId
+                where t.EmployeeIncomeTaxId='"+IncomeTaxId+"' and em.TaxPolicyHeaderId='"+PolicyId+"'";
+                TaxableIncomeDt = _sqlRepository.GetDataTable(sqlx);
+
+                var sqly = @"select * from TaxRebateConfiguration where TaxPolicyId='" + PolicyId + "'";
+                TaxRebateMaster = _sqlRepository.GetDataTable(sqly);
+
+                #endregion
+
+                #region Saving Region
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         #endregion
     }
     public class StringToFormula

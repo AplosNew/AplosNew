@@ -127,9 +127,7 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
-                //var leastDate = base.Query(t => t.Id != entity.Id && t.PlantId == entity.PlantId).Select(t => t.GRNDate).OrderByDescending(t => t.Year).ThenByDescending(t => t.Month).ThenByDescending(t => t.Date).FirstOrDefault();
-                ////if (Convert.ToDateTime(entity.GRNDate) < leastDate) throw new CustomException("GRN date can't less then " + leastDate.ToString("dd/MMM/yyyy"));
-                //ResetCurrencyRate(entity);
+                
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var plantId = _materialRequsitionRepository.SqlQuery<string>($"SELECT FilePrefix from org.plant WHERE Id ='{identity.PlantId}'").FirstOrDefault();
                 if (plantId == null)
@@ -137,8 +135,8 @@ namespace Library.MaterialManagement.Inventory
                     throw new CustomException("No Prefix Available for this Plant");
                 }
                 
-                var year1 = DateTime.Now.ToShortDateString().ToString();
-                var yr = year1.Substring(7);
+                var year1 = DateTime.Now.Year.ToString();
+                var yr = year1.Substring(2);
                 var id = GetPK();
                 var resId = id.Substring(2);
                 entity.Id = plantId + yr + resId;

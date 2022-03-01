@@ -382,21 +382,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region Slab Functions
-
-        [HttpPost, Authorize]
-        public ActionResult ProcessSlabData(string EmpId, string PolicyId, string YearId)
-        {
-            try
-            {
-                eit.ProcessTaxableAmt(EmpId, PolicyId, YearId);
-                return Json(new { Error = false, Message = AplosMessage.Success });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
+        #region Slab Functions       
 
         [HttpPost, Authorize]
         public ActionResult GetTaxAmtGridData(string EmpId, string PolicyId, string YearId)
