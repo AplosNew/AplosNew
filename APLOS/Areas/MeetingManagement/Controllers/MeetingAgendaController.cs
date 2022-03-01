@@ -60,10 +60,9 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select top 100 * from (select MA.* ,FORMAT(MA.Date,'dd-MMM-yyyy') TDate,EI.EmployeeName MeetingOrganizedBy,EI.EmployeeCode MeetingOrganizedByCode
-			                                    ,MT.UserName MeetingType,EID.EmployeeName ChairedBy,EID.EmployeeCode ChairedByCode
+			                                   ,EID.EmployeeName ChairedBy,EID.EmployeeCode ChairedByCode
                                                 from MeetingAgenda MA
                                                 left join EmployeeInformation EI on EI.SystemId=MA.MeetingOrganizedById
-                                                left join MeetingType MT on MT.Id=MA.MeetingTypeId
                                                 left join EmployeeInformation EID on EID.SystemId=MA.ChairedById) AS TEMP WHERE " + strkey;
 
 
@@ -131,11 +130,10 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                     else
                     {
                         //addnew
-                        if (MeetingData[i]["Id"].ToString() == null)
-                        {
+                        
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID("MeetingAgendaItem", out MeetingId);
-                        }
+                        
                         DataRow dr = dsMeeting.Tables[0].NewRow();
 
                         dr["Id"] = "M-" + MeetingId + "-" + (i + 1);

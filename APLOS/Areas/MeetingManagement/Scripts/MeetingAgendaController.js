@@ -27,6 +27,7 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
         ChairedBy: null,
         Date: null,
         Location: null,
+        MeetingTypeId: null,
         MeetingName: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelAgenda);
@@ -136,6 +137,7 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
             ChairedBy: null,
             Date: null,
             Location: null,
+            MeetingTypeId: null,
             MeetingName: null
         };
         $scope.Action = 'Save';

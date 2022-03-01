@@ -382,15 +382,15 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region Slab Functions
+        #region Slab Functions       
 
         [HttpPost, Authorize]
-        public ActionResult ProcessSlabData(string EmpId, string PolicyId, string YearId)
+        public ActionResult GetTaxAmtGridData(string EmpId, string PolicyId, string YearId)
         {
             try
             {
-                eit.ProcessTaxableAmt(EmpId, PolicyId, YearId);
-                return Json(new { Error = false, Message = AplosMessage.Success });
+                return Json(eit.GetTaxAmtGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {
@@ -399,11 +399,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetTaxAmtGridData(string EmpId, string PolicyId, string YearId)
+        public ActionResult GetRebateGridData(string EmpId, string PolicyId, string YearId)
         {
             try
             {
-                return Json(eit.GetTaxAmtGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
+                return Json(eit.GetTaxRebateGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)

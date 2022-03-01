@@ -29,9 +29,11 @@
                              e-detailstemplate="detailTemp"
                              e-detailsdatabound="detailgrid">
                             <div e-columns>
-                                <div e-column e-headertext="Actions" e-width="60">
+                                <div e-column e-headertext="Actions" e-width="70">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PO('Grid');" style="margin: -6px;"></i></button>
                                 </div>
+                      
                                 <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                                 <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
                                 <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
@@ -385,55 +387,15 @@
                      e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
                      e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
                     <div e-columns>
-
-                        @*<div e-column e-type="string" e-field="CostingItemId" e-headertext="Costing Item Id" e-width="80px"></div>
-                        <div e-column e-type="string" e-field="CostingItem" e-headertext="Costing Item" e-width="120px"></div>
-                        <div e-column e-type="string" e-field="ItemRefNo" e-headertext="Item Ref." e-width="120px"></div>
+                        <div e-column e-template="#CheckBoxTemp" e-headertemplateid="#headerTemplate11" @*e-headertext="Chk"*@ e-width="40" textAlign='center'></div>
+                       
+                        <div e-column e-type="string" e-field="CostingItemId" e-headertext="Costing Item Id" e-width="80px"></div>
+                        <div e-column e-field="CostingItemName" e-headertext="Costing Item" e-width="100"></div>
+                        <div e-column e-field="BOQItemRefNo" e-headertext="Item Ref." e-width="100"></div>
                         <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQ Criteria" e-width="80px"></div>
                         <div e-column e-type="string" e-field="CriteriaDetail" e-headertext="Criteria Detail" e-width="120px"></div>
-                        <div e-column e-type="string" e-field="Id" e-headertext="BOQ System Id" e-width="120px"></div>
-                        <div e-column e-template="#ItemDesc" e-headertext="Item Desc" e-width="120px"></div>
-                        <div e-column e-template="#VendorItem" e-headertext="Vendor Ref." e-width="120px"></div>
-                        <div e-column e-template="#BuyerRef" e-headertext="Customer Ref." e-width="120px"></div>
-                        <div e-column e-template="#OwnRef" e-headertext="Own Ref." e-width="120px"></div>
-                        <div e-column e-type="string" e-field="UOM" e-headertext="UoM" e-width="50px"></div>
-                        <div e-column e-template="#EnterSKUTemplate" e-headertext="Required Qty" e-width="120px"></div>
-
-                        <div e-column e-type="number" e-field="BOMQty" e-headertext="Plan Qty" e-width="60px"></div>
-                        <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="120px"></div>
-                        <div e-column e-type="number" e-field="BOMAmount" e-headertext="Required Amount" e-width="60px"></div>
-                        <div e-column e-type="number" e-field="PlanAmount" e-headertext="Plan Amount" e-width="60px"></div>
-                        <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="120px"></div>
-                        <div e-column e-type="string" e-field="MaterialCode" e-headertext="Material Code" e-width="120px"></div>
-                        <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120px"></div>
-                        <div e-column e-type="string" e-field="ArticleCode" e-headertext="Article Code" e-width="120px"></div>
-                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120px"></div>
-                        <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="50px"></div>
-                        <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="50px"></div>
-                        <div e-column e-template="#RMSKU" e-headertext="SKU Desc." e-width="120px"></div>
-                        <div e-column e-type="string" e-field="SONumber" e-headertext="SO Id" e-width="80px"></div>
-                        <div e-column e-type="string" e-field="Destination" e-headertext="Destination" e-width="100px"></div>
-                        <div e-column e-type="number" e-field="BOMQty" e-headertext="BOM Qty" e-width="60px"></div>
-                        <div e-column e-type="number" e-field="BalanceToPurchase" e-headertext="Reuse From Inventory" e-format="{0:N2}" e-width="100px"></div>
-                        <div e-column e-type="string" e-field="Destination" e-headertext="PO Criteria" e-width="100px"></div>
-                        <div e-column e-template="#TemplateRemark" e-headertext="Remark" e-width="100px"></div>
-                        <div e-column e-template="#TemplateFileName" e-headertext="File Name" e-width="100px"></div>
-                        <div e-column e-template="#TemplateAttachment" e-headertext="Attachment" e-width="60px"></div>*@
-
-
-                        //////////Old
-                        <div e-column e-template="#CheckBoxTemp" e-headertemplateid="#headerTemplate11" @*e-headertext="Chk"*@ e-width="40" textAlign='center'></div>
-                        <div e-column e-field="BOQItemRefNo" e-headertext="BOQ Item RefNo" e-width="100"></div>
-                        <div e-column e-field="CostingItemName" e-headertext="Costing Item " e-width="100"></div>
-                        <div e-column e-field="POCriteria" e-headertext="PO Criteria" e-width="100"></div>
-                        <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="100"></div>
-                        <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="100"></div>
-                        <div e-column e-field="UserName" e-headertext="Material" e-width="120"></div>
-                        <div e-column e-field="StandardName" e-headertext="Article" e-width="120"></div>
-                        <div e-column e-field="BOMQty" e-headertext="BOQ" e-width="100" textAlign='Right'></div>
+                        <div e-column e-field="BOQId" e-headertext="BOQ System Id" e-width="100"></div>
                         <div e-column e-field="BOQUOM" e-headertext="BOQUOM" e-width="80" textAlign='Right'></div>
-                        <div e-column e-field="RequiredQty" e-headertext="Booking Qty" e-width="100" textAlign='Right'></div>
-                        <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
                         <div e-column e-field="RequiredQtyPO" e-headertext="BOQ Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-field="OtherMapQty" e-headertext="OtherBOQ Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-field="BalanceQty" e-headertext="Balance Qty" e-width="100" textAlign='Right'></div>
@@ -441,23 +403,47 @@
                         @*<div e-column e-field="TransactionRate" e-textalign="right" e-headertext="BOQRate" e-width="100"></div>*@
                         <div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-decimalplaces="4" e-headertext="Rate" e-width="100"></div>
                         <div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
+                        <div e-column e-field="RMDescription" e-headertext="Item Desc" e-width="100"></div>
+                        <div e-column e-field="RMVendorSpec" e-headertext="Vendor Ref." e-width="100"></div>
+                        <div e-column e-field="RMCustomerSpec" e-headertext="Customer Ref." e-width="100"></div>
+                        <div e-column e-field="BOQOwnReferenceNo" e-headertext="Own Ref." e-width="100"></div>
+
+                        <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
+
+                        <div e-column e-field="RequiredQty" e-headertext="Required Qty" e-width="100" textAlign='Right'></div>
+                        <div e-column e-type="number" e-field="BOMQty" e-headertext="Plan Qty" e-width="100" textAlign='Right'></div>
+                        @*<div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="120px"></div>*@
+                        <div e-column e-type="number" e-field="BOMAmount" e-headertext="Required Amount" e-width="60px"></div>
+                        <div e-column e-type="number" e-field="PlanAmount" e-headertext="Plan Amount" e-width="60px"></div>]
+                        <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
+                        <div e-column e-type="string" e-field="MaterialCode" e-headertext="Material Code" e-width="120px"></div>
+                        <div e-column e-field="UserName" e-headertext="Material" e-width="120"></div>
+                        <div e-column e-type="string" e-field="ArticleCode" e-headertext="Article Code" e-width="120px"></div>
+                        <div e-column e-field="StandardName" e-headertext="Article" e-width="120"></div>
+                        <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="50px"></div>
+                        <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="50px"></div>
+                        <div e-column e-type="string" e-field="SKUDescConcat" e-headertext="SKU Desc." e-width="50px"></div>
+                        <div e-column e-field="SalesOrderId" e-headertext="SO Id" e-width="80"></div>
+                        <div e-column e-field="Destination" e-headertext="Destination" e-width="80"></div>
+                        <div e-column e-type="number" e-field="BOMQty" e-headertext="BOM Qty" e-width="60px"></div>
+                        <div e-column e-type="number" e-field="BalanceToPurchase" e-headertext="Reuse From Inventory" e-format="{0:N2}" e-width="100px"></div>
+                        <div e-column e-field="POCriteria" e-headertext="PO Criteria" e-width="100"></div>
+                        <div e-column e-field="Remark" e-headertext="Remark" e-width="100"></div>
+                        <div e-column e-field="FileName" e-headertext="File Name" e-width="100"></div>
+
+
+                        //////////Old
+                        <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="100"></div>
+                        <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="100"></div>
 
                         <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
                         <div e-column e-field="IncompleteMaterial" e-headertext="Incomplete" e-width="120"></div>
-                        <div e-column e-field="RMDescription" e-headertext="RM Description" e-width="100"></div>
-                        <div e-column e-field="RMVendorSpec" e-headertext="Vendor Specification" e-width="100"></div>
-                        <div e-column e-field="RMCustomerSpec" e-headertext="Customer Specification" e-width="100"></div>
 
-                        <div e-column e-field="Destination" e-headertext="Destination" e-width="80"></div>
-                        <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
-                        <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="80"></div>
-                        <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="80"></div>
                         <div e-column e-field="DeliveryDate" e-headertext="DeliveryDate" e-width="100"></div>
                         <div e-column e-field="PONumber" e-headertext="PONumber" e-width="100"></div>
-                        <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
+
                         <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
                         <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
-                        <div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
                     </div>
 
 
