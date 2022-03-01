@@ -1523,11 +1523,14 @@ namespace Library.HumanResource.Payroll.Tax
 
                     #region Already Existing Data Clearing Portion
 
-                    var sqlx = @"delete from TaxableIncome where EmployeeIncomeTaxId='" + MasterId + "'";
+                    var sqlx = @"delete from TaxAfterRebate where EmployeeIncomeTaxId='" + MasterId + "'";
+
+                    sqlx+= Environment.NewLine + @"delete from TaxableIncome where EmployeeIncomeTaxId='" + MasterId + "'";
 
                     sqlx += Environment.NewLine + @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + MasterId + "'";
 
                     sqlx += Environment.NewLine + @"delete from EmployeeInvestmentDeduction where EmployeeIncomeTaxId='" + MasterId + "'";
+                                      
                     UpdateStatus(sqlx);
 
                     #endregion
@@ -2216,9 +2219,68 @@ namespace Library.HumanResource.Payroll.Tax
                 var sqly = @"select * from TaxRebateConfiguration where TaxPolicyId='" + PolicyId + "'";
                 TaxRebateMaster = _sqlRepository.GetDataTable(sqly);
 
+                double TaxableIncome = 0,EstimatedTax=0;
+                if (TaxableIncomeDt.Rows.Count > 0)
+                {
+                    TaxableIncome = clsStaticInfo.dbl(TaxableIncomeDt.Rows[0][@"TaxableIncome"].ToString());
+                }
+
+                if (EstimatedTaxDt.Rows.Count > 0)
+                {
+                    EstimatedTax = clsStaticInfo.dbl(EstimatedTaxDt.Rows[0][@"EstimatedTax"].ToString());
+                }
+
+                var sqlz = @"select * from TaxAfterRebate where 1=2";
+                con.OpenDataSetThroughAdapter(sqlz, out dsRef, false, "1");
+
                 #endregion
 
-                #region Saving Region
+                #region Processing Region
+
+                if (TaxRebateMaster.Rows.Count > 0)
+                {
+                    double RebateAmt = 0;
+                    for (int j = 0; j < TaxRebateMaster.Rows.Count; j++)
+                    {
+                        double Minimum = clsStaticInfo.dbl(TaxRebateMaster.Rows[j]["Minimum"].ToString());
+                        double Maximum = clsStaticInfo.dbl(TaxRebateMaster.Rows[j]["Maximum"].ToString());
+                        double Value = clsStaticInfo.dbl(TaxRebateMaster.Rows[j]["Value"].ToString());
+                        string IsFix = clsWebLib.GetBoolData(TaxRebateMaster.Rows[j]["IsFix"]).ToString();
+                        string IsPercent = clsWebLib.GetBoolData(TaxRebateMaster.Rows[j]["IsPercentage"]).ToString();
+
+                        if(Minimum<=TaxableIncome && Maximum >=TaxableIncome)
+                        {
+                            if(IsFix=="True")
+                            {
+                                RebateAmt = EstimatedTax;
+                            }
+                            else if(IsPercent=="True")
+                            {
+                                RebateAmt = (EstimatedTax * Value) / 100;
+                            }
+                            break;
+                        }
+                    }
+
+                    double NetTax = EstimatedTax - RebateAmt;
+
+                    DataRow drF = dsRef.Tables[0].NewRow();
+                    clsGenID genid = new clsGenID();
+                    genid.GenID("TaxAfterRebate", out string _Id);
+                    drF["Id"] = "TR" + _Id;
+                    drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                    drF["EstimatedTax"] = EstimatedTax;
+                    drF["TaxRebate"] = RebateAmt;
+                    drF["TaxAfterRebate"] = NetTax;
+                    drF["AddedBy"] = identity.UserId;
+                    drF["AddedFromIp"] = identity.IPAddress;
+                    drF["AddedDate"] = DateTime.Now.ToString();
+                    dsRef.Tables[0].Rows.Add(drF);
+                   
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsRef);
+
+                }
 
                 #endregion
 
