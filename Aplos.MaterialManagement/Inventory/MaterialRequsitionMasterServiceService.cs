@@ -106,24 +106,8 @@ namespace Library.MaterialManagement.Inventory
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(MaterialRequsitionMaster), out sID);
             return sID;
         }
-        public override void Insert(MaterialRequsitionMaster entity)
-        {
-            try
-            {
-                //var leastDate = base.Query(t => t.Id != entity.Id && t.PlantId == entity.PlantId).Select(t => t.GRNDate).OrderByDescending(t => t.Year).ThenByDescending(t => t.Month).ThenByDescending(t => t.Date).FirstOrDefault();
-                ////if (Convert.ToDateTime(entity.GRNDate) < leastDate) throw new CustomException("GRN date can't less then " + leastDate.ToString("dd/MMM/yyyy"));
-                //ResetCurrencyRate(entity);
-                entity.Id = GetPK();
-                base.Insert(entity);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-            }
-        }
-        public void Insert1(MaterialRequsitionMaster entity)
+        
+        public void InsertRequsition(MaterialRequsitionMaster entity)
         {
             try
             {
@@ -171,9 +155,7 @@ namespace Library.MaterialManagement.Inventory
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //var leastDate = base.Query(t => t.Id != entity.Id && t.PlantId == entity.PlantId).Select(t => t.GRNDate).OrderByDescending(t => t.Year).ThenByDescending(t => t.Month).ThenByDescending(t => t.Date).FirstOrDefault();
-                //if (Convert.ToDateTime(entity.GRNDate) < leastDate) throw new CustomException("GRN date can't less then " + leastDate.ToString("dd/MMM/yyyy"));
-                //ResetCurrencyRate(entity);
+                
                 entity.CompanyGroupId = identity.CompanyGroupId;
                 base.Update(entity);
                 DailySendMailRequisitionCheck(entity.CheckedBy, entity.AddedFromIP, "", entity.Id, entity.RequirmentType, entity.RequisitionType, entity.ReqEmpId);
@@ -361,46 +343,6 @@ namespace Library.MaterialManagement.Inventory
 
         public IEnumerable<object> GetListForHold1(string plantId)
         {
-            //      try
-            //      {
-            //          var Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-            //                   SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-            //                     , CP.UserName AS PartyAccountGroupName
-            //                           , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-            //                           --, IR.GateEntryNo
-            //                              --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
-            //                              , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-            //                           , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-            //                           , IR.FixedAssetOrInventory, IR.PODepended
-            //                              --, IR.AlongwithInvoice
-            //                              --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-            //                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-            //                           , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-            //                              , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-            //			, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-            //                              ,pgl.CtnId
-            //                              ,IR.AddedBy
-            //                  FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-            //                  LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-            //                     ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-            //                  JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-            //                  JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-            //                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-            //                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-            //                  LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-            //                  LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-            //                  LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-            //                  LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-            //                  LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
-            //                  LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
-            //LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-            //                  LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-            //                        JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-            //                  LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
-            //                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-            //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-            //                  LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-            //                  WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting'  AND IR.EmployeeId IS NULL AND IR.IsApproved=1  AND IR.IsClosed=0 AND pgl.CtnId is not null Order by IR.PODate DESC, IR.ID DESC";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
@@ -461,47 +403,7 @@ namespace Library.MaterialManagement.Inventory
 
         public IEnumerable<object> GetListForPOApproval1UnApproved(string plantId)
         {
-            //      try
-            //      {
-            //          var Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-            //                   SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-            //                     , CP.UserName AS PartyAccountGroupName
-            //                           , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-            //                           --, IR.GateEntryNo
-            //                              --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
-            //                              , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-            //                           , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-            //                           , IR.FixedAssetOrInventory, IR.PODepended
-            //                              --, IR.AlongwithInvoice
-            //                              --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-            //                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-            //                           , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-            //                              , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-            //			, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-            //                              ,pgl.CtnId
-            //                              ,IR.AddedBy
-            //                  FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-            //                  LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-            //                     ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-            //                  JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-            //                  JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-            //                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-            //                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-            //                  LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-            //                  LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-            //                  LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-            //                  LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-            //                  LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
-            //                  LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
-            //LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-            //                  LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-            //                        JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-            //                  LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
-            //                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-            //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-            //                  LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-            //                  WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting'  AND IR.EmployeeId IS NULL AND IR.IsApproved=1  AND IR.IsClosed=0 AND pgl.CtnId is not null Order by IR.PODate DESC, IR.ID DESC";
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
             {
@@ -567,47 +469,7 @@ namespace Library.MaterialManagement.Inventory
 
         public IEnumerable<object> GetListForPOApproval1Auth(string plantId)
         {
-            //      try
-            //      {
-            //          var Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-            //                   SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-            //                     , CP.UserName AS PartyAccountGroupName
-            //                           , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-            //                           --, IR.GateEntryNo
-            //                              --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
-            //                              , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-            //                           , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-            //                           , IR.FixedAssetOrInventory, IR.PODepended
-            //                              --, IR.AlongwithInvoice
-            //                              --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-            //                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-            //                           , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-            //                              , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-            //			, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-            //                              ,pgl.CtnId
-            //                              ,IR.AddedBy
-            //                  FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-            //                  LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-            //                     ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-            //                  JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-            //                  JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-            //                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-            //                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-            //                  LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-            //                  LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-            //                  LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-            //                  LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-            //                  LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
-            //                  LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
-            //LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-            //                  LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-            //                        JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-            //                  LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
-            //                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-            //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-            //                  LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-            //                  WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting'  AND IR.EmployeeId IS NULL AND IR.IsApproved=1  AND IR.IsClosed=0 AND pgl.CtnId is not null Order by IR.PODate DESC, IR.ID DESC";
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
             {
@@ -1100,86 +962,10 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        //public void GRNApproved(IEnumerable<PurchaseOrder> entities)
-        //{
-        //    //var flag = false;
-        //    //try
-        //    //{
-        //    //    if (entities.IsNull()) throw new CustomException("Select GRN");
-        //    //    var ids = entities.Select(t => t.Id).ToArray();
-        //    //    var dbList = base.Query(t => ids.Contains(t.Id)).Select().ToList();
-        //    //    _unitOfWork.BeginTransaction();
-        //    //    flag = true;
-        //    //    foreach (var entity in entities)
-        //    //    {
-        //    //        foreach (var item in dbList)
-        //    //        {
-        //    //            if (entity.Id == item.Id)
-        //    //            {
-        //    //                item.IsApproved = entity.IsApproved;
-        //    //                base.UpdateGraph(item);
-        //    //            }
-        //    //        }
-        //    //    }
-
-        //    //    _unitOfWork.SaveChanges();
-        //    //    flag = false;
-        //    //    _unitOfWork.Commit();
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    throw new CustomException(ex.Message, ex,
-        //    //        Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-        //    //        ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-        //    //}
-        //    //finally
-        //    //{
-        //    //    if (flag)
-        //    //    {
-        //    //        _unitOfWork.Rollback();
-        //    //    }
-        //    //}
-        //}
-
+        
         public void PaymentHold(IEnumerable<PurchaseOrder> entities)
         {
-            //var flag = false;
-            //try
-            //{
-            //    if (entities.IsNull()) throw new CustomException("Select GRN");
-            //    var ids = entities.Select(t => t.Id).ToArray();
-            //    var dbList = base.Query(t => ids.Contains(t.Id)).Select().ToList();
-            //    _unitOfWork.BeginTransaction();
-            //    flag = true;
-            //    foreach (var entity in entities)
-            //    {
-            //        foreach (var item in dbList)
-            //        {
-            //            if (entity.Id == item.Id)
-            //            {
-            //                item.IsPaymentHold = entity.IsPaymentHold;
-            //                base.UpdateGraph(item);
-            //            }
-            //        }
-            //    }
-
-            //    _unitOfWork.SaveChanges();
-            //    flag = false;
-            //    _unitOfWork.Commit();
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw new CustomException(ex.Message, ex,
-            //        Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-            //        ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-            //}
-            //finally
-            //{
-            //    if (flag)
-            //    {
-            //        _unitOfWork.Rollback();
-            //    }
-            //}
+            
         }
 
         public IEnumerable<object> GetListByParty(string CompanyId, string AccountType)
@@ -1307,14 +1093,7 @@ namespace Library.MaterialManagement.Inventory
                 document.Replace("{AddedBy}", dsOrderMaster.Rows[0]["AddedBy"].ToString(), false, false);
                 document.Replace("{CheckedByName}", dsOrderMaster.Rows[0]["CheckedByName"].ToString(), false, false);
                 document.Replace("{AuthorizedByName}", dsOrderMaster.Rows[0]["AuthorizedByName"].ToString(), false, false);
-                //document.Replace("{EmployeeName}", dsTotalEmpWise.Rows[0]["EmployeeName"].ToString(), false, false);
-                //document.Replace("{RequisitionId}", dsTotalEmpWise.Rows[0]["RequisitionId"].ToString(), false, false);
-                //document.Replace("{ReqTotalAmount}", dsTotalEmpWise.Rows[0]["ReqTotalAmount"].ToString(), false, false);
-                //document.Replace("{POTotalAmount}", dsTotalEmpWise.Rows[0]["POTotalAmount"].ToString(), false, false);
-                //sheet1[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsMaterialItems.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
-
+                
 
                 foreach (DataColumn item in dsOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
@@ -1326,13 +1105,7 @@ namespace Library.MaterialManagement.Inventory
                 var materialTotal1 = makeRequisitionTotalTable(document, dsTotalEmpWise, RequisitionId);//Material Details 
                 var RequisitionForMonth = makeMonthlyRequisitionTable(document, dsRequisitionForMonth, RequisitionId);//Material Details 
 
-                //var serviceTotal = 0.00;
-                //if (dsServiceItems.Rows.Count > 0)
-                //{
-                //    //{ServiceItems}
-                //    serviceTotal = makeServiceDetailsTable(document, dsServiceItems, RequisitionId);//Service Details 
-                //    document.Replace("{ServiceDetails}", "Service Details", true, true);
-                //}
+              
                 document.Replace("{GrandTotal}", (materialTotal).ToString("#,##0.00") + " " + dsMaterialItems.Rows[0]["CurrencyName"].ToString(), true, true);
                 document.Replace("{TotalInWords}", ru.InWord((materialTotal), dsMaterialItems.Rows[0]["CurrencyId"].ToString()), true, true);
 
@@ -1374,17 +1147,7 @@ namespace Library.MaterialManagement.Inventory
 
                 }
 
-                //document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-
-                //document.Close();
-
-
-
-                //Region that is for Worddocument
-                //document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-                //document.Close();
-                ////Region end
-
+                
                 //Region that is for Pdf.Document
                 DocToPDFConverter converter = new DocToPDFConverter();
 
@@ -1412,17 +1175,7 @@ namespace Library.MaterialManagement.Inventory
 
             }
             document.Close();
-
-
-            //Closes the instance of document objects
-
-
-
-
-
-            //document.Save("file.docx", Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-            //document.Close();
-
+             
         }
 
 		private object AppendText(double v)
@@ -1633,17 +1386,7 @@ namespace Library.MaterialManagement.Inventory
 
             int LasColumnIndex = 17;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
-            //DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
-
-            //if (dv.Count > 0)
-            //{
-            //    for (int i = 0; i < dv.Count; i++)
-            //    {
-            //        LasColumnIndex++;
-            //        dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
-            //        LasColumnIndex++;
-            //    }
-            //}
+           
 
 
             WTable wTable = new WTable(document);
@@ -2393,14 +2136,8 @@ namespace Library.MaterialManagement.Inventory
                     }
                 }
                 IParagraphItem p = TROW.Cells[colServiceName].AddParagraph().AppendText(dsServiceItems.Rows[i]["Service"].ToString());
-                //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(dsServiceItems.Rows[i]["Amount"].ToString());
-                //TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Tables[0].Rows[i]["FirstCharacteristicsValue"].ToString());
-                //TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Tables[0].Rows[i]["SecondCharacteristicsValue"].ToString());
-                //TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Tables[0].Rows[i]["ThirdCharacteristicsValue"].ToString());
+               
                 TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsServiceItems.Rows[i]["Amount"].ToString()).ToString("#,##0.00"));
-
-                //TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Tables[0].Rows[i]["TransactionRate"].ToString()).ToString("F2"));
-                //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Tables[0].Rows[i]["TrnAmount"].ToString()).ToString("F2"));
 
                 totalValue += clsStdLib.dbl(dsServiceItems.Rows[i]["Amount"].ToString());
 
@@ -3715,20 +3452,7 @@ WHERE IM.MaterialReqqusitionMasterId=inventoryReceiveId ";
 
                 PoValue = "0";
                 var Id = GetPK();
-                //if (CheckedStataus == "Checked")
-                //{
-                //    if (AuthorizedBy == null || AuthorizedBy == "")
-                //    {
-                //        throw new CustomException("Select Approved By");
-                //    }
-                //    AuthorizedById = AuthorizedBy;
-
-                //}
-                //else
-                //{
-                //    AuthorizedById = null;
-
-                //}
+               
                 var Status = "UnApproved";
                 var UpdatedBy = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3870,14 +3594,7 @@ WHERE IM.MaterialReqqusitionMasterId=inventoryReceiveId ";
                 var CompanyGroupId = identity.CompanyGroupId;
                 var CompanyId = identity.CompanyId;
                 var PlantId = identity.PlantId;
-                // var res =_inventoryReceiveRepository.SqlQuery<Int32>($"select distinct statusflag=Case when B.POId is not null then 1 else 0 end	from trn.PurchaseOrder A	Left JOIN trn.InventoryReceiveDetail B on B.POID=A.Id where A.Id='"+PoId+"'").First();               
-
-                //if(Convert.ToBoolean(res))
-                // {
-                //     throw new CustomException("You can not un Approved the PO? GRN already Received");
-                // }
-                // else
-                // {
+              
                 string _sql = "Update TRN.PurchaseOrder set IsApproved='0' where id='" + PoId + "'";
                 _sqlRepository.ExecuteSqlCommand(_sql);
                 string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
@@ -3936,14 +3653,7 @@ WHERE IM.MaterialReqqusitionMasterId=inventoryReceiveId ";
                 var CompanyGroupId = identity.CompanyGroupId;
                 var CompanyId = identity.CompanyId;
                 var PlantId = identity.PlantId;
-                // var res =_inventoryReceiveRepository.SqlQuery<Int32>($"select distinct statusflag=Case when B.POId is not null then 1 else 0 end	from trn.PurchaseOrder A	Left JOIN trn.InventoryReceiveDetail B on B.POID=A.Id where A.Id='"+PoId+"'").First();               
-
-                //if(Convert.ToBoolean(res))
-                // {
-                //     throw new CustomException("You can not un Approved the PO? GRN already Received");
-                // }
-                // else
-                // {
+               
                 string _sql = "Update TRN.PurchaseOrder set IsApproved='0' where id='" + PoId + "'";
                 _sqlRepository.ExecuteSqlCommand(_sql);
                 string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
@@ -4659,49 +4369,7 @@ ORDER BY IR.ID DESC";
         {
             try
             {
-                //          var sql = @"SELECT MOI.Id, MOI.MasterOrderId, MOI.InquiryItemId, MOI.SampleItemId, MOI.TestingStandardId
-                //                    , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
-                //                    , MOI.ArticleId, ART.StandardName AS ArticleName
-                //                    , MOI.Code, MOI.BuyerReferenceNo, MOI.OwnReferenceNo, MOI.TotalQty
-                //                    , MOI.OrderWastagePercentage, MOI.ExtraOrderPercentage, MM.HSNCodeId
-                //	 , ISNULL(HART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
-                //                       , ISNULL((select sum(SO.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as SOQty,MOI.Type
-                //                  FROM TRN.MasterOrderItem AS MOI
-                //                  JOIN MST.MaterialMaster AS MM ON MOI.MaterialMasterId=MM.Id
-                //                  LEFT JOIN MST.MaterialMasterArticle AS ART ON MOI.ArticleId=ART.Id
-                //LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0THEN COUNT(MaterialMasterId) ELSE 0 END
-                //                                          , HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
-                //                                      FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS HART ON HART.MaterialMasterId=MM.Id
-                //                  WHERE MOI.MasterOrderId='" + masterOrderId + "'";
-                //var sql = @"SELECT MOI.Id
-                //            , MOI.MasterOrderId
-                //            , MOI.InquiryItemId
-                //            , MOI.SampleItemId
-                //            , MOI.TestingStandardId
-                //            , MGM.UserName AS MaterialGroupMasterName
-                //            , MOI.MaterialMasterId
-                //            , MM.UserName AS UserName	
-
-                //            , MOI.ArticleId
-                //            , ART.StandardName 
-                //            --, MOI.Code
-                //            , MOI.BuyerReferenceNo
-                //            , MOI.OwnReferenceNo
-                //            , MOI.TotalQty AS TransactionQty
-                //            , MOI.OrderWastagePercentage
-                //            , MOI.ExtraOrderPercentage
-                //            , MM.HSNCodeId
-                //            , ISNULL(HART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
-                //            , ISNULL((select sum(SO.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as SOQty,MOI.Type
-                //            FROM TRN.MasterOrderItem AS MOI
-                //            JOIN MST.MaterialMaster AS MM ON MOI.MaterialMasterId=MM.Id
-                //            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-                //            LEFT JOIN MST.MaterialMasterArticle AS ART ON MOI.ArticleId=ART.Id
-                //            LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0THEN COUNT(MaterialMasterId) ELSE 0 END
-                //             , HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
-                //            FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS HART ON HART.MaterialMasterId=MM.Id
-                //WHERE MOI.MasterOrderId='" + masterOrderId + "'";
-
+               
                 var sql = @"SELECT    MOI.Id
                                     , MOI.MasterOrderId
                                     , MOI.InquiryItemId
@@ -4776,25 +4444,6 @@ ORDER BY IR.ID DESC";
         #region new Function by taufik
 
 
-
-        //public IEnumerable<object> GetSupervisorCbo()
-        //{
-        //    try
-        //    {
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.SupervisorSetUp A 
-        //                  Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-        //                  where A.PlantId='" + identity.PlantId+ "' AND A.ActionStatus='CheckedBy'";
-        //        return _sqlRepository.GetDataCollection(sql);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new CustomException(ex.Message, ex,
-        //            Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-        //            ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-        //    }
-        //}
 
         public IEnumerable<object> GetSupervisorCbo()
         {
@@ -4913,37 +4562,6 @@ ORDER BY IR.ID DESC";
                 var sql = "";
                 if (ReqStatus == "ForChecked")
                 {
-                    //           sql = @"Select 
-                    //                MRM.Id
-                    //                ,REPLACE(CONVERT(CHAR(11), MRM.RequisitionDate, 106),' ','-') AS RequisitionDate 
-                    //                ,MRM.RequisitionType
-                    //                ,MRM.RequirmentType
-                    //                ,E.UserName EntityName
-                    //                   ,MRM.ReasonWhyItIsNotPlanEarlier Reason
-                    //                --,A.UserName ActivityName
-                    //                --,MM.UserName MaterialName
-                    //                ,SUM(MRD.TransactionQty) TransactionQty
-                    //                ,SUM(MRD.EstimatedRate) EstimatedRate
-                    //                ,SUM(MRD.TotalAmount) TotalAmount
-                    //                   ,ei.EmployeeName AS CheckedBy
-                    //                   ,MRM.CheckedByStatus
-                    //                ,ei1.EmployeeName AS AuthorizedBy,MRM.OrderRefNo ,MRM.AuthorizedByStatus
-                    //             --,ei2.EmployeeName As AddedBy
-                    //               FROM [TRN].[MaterialRequsitionMaster] MRM 
-                    //               Left Join  [TRN].[MaterialRequsitionDetails] MRD  On MRM.Id=MRD.MaterialReqqusitionMasterId
-                    //               Left Join org.Entity E on E.Id=MRM.EntityId
-                    //               --Left JOin HKp.Activity A On A.Id=MRD.ActivityId
-                    //               --Left Join MST.MaterialMaster MM on MM.Id=MRD.MaterialMasterId 
-                    //               LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=mrm.CheckedBy
-                    //               LEFT JOIN EmployeeInformation AS ei1 ON ei1.SystemId=mrm.AuthorizedBy
-                    //--LEFT JOIN EmployeeInformation AS ei2 ON ei2.SystemId=mrm.AddedBy
-                    //               Where MRM.Id Not IN(Select RequisitionId from trn.purchaseOrderDetail where RequisitionId is not null) 
-                    //               AND MRM.CheckedByStatus IS NULL OR MRM.CheckedByStatus='For Checking' 
-                    //               AND MRM.AuthorizedByStatus IS NULL OR MRM.AuthorizedBy='For Approval'                         
-                    //               AND MRM.ReqEmpId='" + identity.EmployeeId + "' " +
-                    //               "group by MRM.Id,MRM.RequisitionDate,MRM.RequisitionType,MRM.RequirmentType" +
-                    //               ",E.UserName,MRM.ReasonWhyItIsNotPlanEarlier ,ei.EmployeeName," +
-                    //               "ei1.EmployeeName,MRM.CheckedByStatus,MRM.OrderRefNo ,MRM.AuthorizedByStatus Order By MRM.RequisitionDate DESC";
                     sql = @"select x.Id
 	                                ,REPLACE(CONVERT(CHAR(11), x.RequisitionDate, 106),' ','-') AS RequisitionDate ,REPLACE(CONVERT(CHAR(11), x.RequisitionDate, 106),' ','-') AS RequisitionDate1 
 	                                ,x.RequisitionType
@@ -5338,49 +4956,7 @@ ORDER BY IR.ID DESC";
                 }
                 else
                 {
-                    //             sql = @"Select 
-                    //                  MRM.Id
-                    //                  ,REPLACE(CONVERT(CHAR(11), MRM.RequisitionDate, 106),' ','-') AS RequisitionDate 
-                    //                  ,MRM.RequisitionType
-                    //                  ,MRM.RequirmentType
-                    //                  ,E.UserName EntityName,MRM.ReasonWhyItIsNotPlanEarlier Reason
-                    //                  --,A.UserName ActivityName
-                    //                  --,MM.UserName MaterialName
-                    //                  ,SUM(MRD.TransactionQty) TransactionQty
-                    //                  ,SUM(MRD.EstimatedRate) EstimatedRate
-                    //                  ,SUM(MRD.TotalAmount) TotalAmount
-                    //                     ,SUM(pod.TransactionQty) POQty
-                    //                  ,SUM(ird.TransactionQty) GRNQty
-                    //                  ,SUM(ga.qty) allowcationQty
-                    //                     ,ei.EmployeeName AS CheckedBy
-                    //                     ,ei1.EmployeeName AS AuthorizedBy
-                    //,MRM.CheckedByStatus
-                    //,MRM.AuthorizedByStatus
-                    //,AuthorizedBy=CASE WHEN MRM.AuthorizedByStatus='Hold' THEN '' 
-                    //	  WHEN MRM.AuthorizedByStatus='Reject' THEN ''
-                    //	  ELSE ei1.EmployeeName END,MRM.OrderRefNo
-                    //                 FROM [TRN].[MaterialRequsitionMaster] MRM 
-                    //                 Left Join  [TRN].[MaterialRequsitionDetails] MRD  On MRM.Id=MRD.MaterialReqqusitionMasterId
-                    //                 LEFT JOIN trn.PurchaseOrderDetail AS pod ON pod.RequisitionDetailId=mrd.Id AND pod.RequisitionId=Mrm.Id
-                    //                 LEFT JOIN trn.InventoryReceiveDetail AS ird ON ird.RequisitionId=mrm.id AND ird.RequisitionDetailId=mrd.Id AND ird.POId=pod.Id
-                    //                 LEFT JOIN trn.GRNPORequisitionAllocation AS ga ON ga.GRNID=ird.InventoryReceiveId AND ga.POReqDetailsID=pod.Id
-                    //                 Left Join org.Entity E on E.Id=MRM.EntityId
-                    //                 --Left JOin HKp.Activity A On A.Id=MRD.ActivityId
-                    //                 --Left Join MST.MaterialMaster MM on MM.Id=MRD.MaterialMasterId 
-                    //                  LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=mrm.CheckedBy
-                    //                 LEFT JOIN EmployeeInformation AS ei1 ON ei1.SystemId=mrm.AuthorizedBy
-                    //                 Where MRM.CheckedByStatus='Checked' And MRM.AuthorizedByStatus='Approval' AND MRM.ReqEmpId='" + identity.EmployeeId + @"'
-                    //                 group by MRM.Id
-                    //                  ,MRM.RequisitionDate
-                    //                  ,MRM.RequisitionType
-                    //                  ,MRM.RequirmentType
-                    //                     ,MRM.CheckedByStatus
-                    //                  ,E.UserName ,MRM.ReasonWhyItIsNotPlanEarlier
-                    //                  --,A.UserName ActivityName
-                    //                  --,MM.UserName
-                    //                      ,ei.EmployeeName
-                    //                  ,ei1.EmployeeName,MRM.AuthorizedByStatus,MRM.OrderRefNo
-                    //                 Order By MRM.Id Desc";
+                    
                     sql = @"select x.Id
 	                                ,REPLACE(CONVERT(CHAR(11), x.RequisitionDate, 106),' ','-') AS RequisitionDate ,REPLACE(CONVERT(CHAR(11), x.RequisitionDate, 106),' ','-') AS RequisitionDate1 
 	                                ,x.RequisitionType
@@ -5736,22 +5312,7 @@ ORDER BY IR.ID DESC";
         {
             try
             {
-                //int currentId = 0;
-                //foreach (var item1 in inventoryMaterialList)
-                //{
-                //    if (string.IsNullOrEmpty(item1.Id))
-                //    {
-                //        currentId++;
-                //        item1.Id = MakePK(item1.Id, currentId, 2);                       
-                //        AuditService.AddedLog(item1);
-                //        _receiveTaxRepository.Insert(item1);
-                //    }
-                //    else
-                //    {
-                //        AuditService.UpdatedLog(item1);
-                //        _receiveTaxRepository.Update(item1);
-                //    }
-                //}
+                
 
                 if (entity.IsNotNull())
                 {
@@ -5763,67 +5324,12 @@ ORDER BY IR.ID DESC";
                         var updatedDate = Convert.ToDateTime(DateTime.Now).ToString();
                         var UpdatedBy = identity.Name;
                         var ReqDetailId = item1.Id;
-                        //if (item1.BaseTaxAmount == null)
-                        //{
-                        //    item1.BaseTaxAmount = "0.00";
-                        //}
-                        //string _sql = "Update TRN.purchaseOrderDetail set TransactionQty='" + item1.TransactionQty + "', BaseQty='" + item1.TransactionQty + "',BaseUOMFactor='" + item1.TransactionQty + "', TransactionRate='" + item1.TransactionRate + "', TransactionAmount='" + item1.TrnAmount + "',TotalTaxAmount='" + item1.BaseTaxAmount + "' ,BaseAmount='" + item1.TrnAmount + "',Description ='" + item1.Description + "',UpdatedBy='" + UpdatedBy + "',UpdatedDate='" + updatedDate + "',UpdatedFromIP='" + ip + "'  where id='" + ReqDetailId + "'";
-                        //var _sql = @"UPDATE [TRN].[MaterialRequsitionDetails]
-                        //       SET 
-
-                        //          //[ActivityId] = '" + item1.ActivityId + "'" +
-                        //         //",[MaterialMasterId] = '" + item1.MaterialMasterId + "'" +
-                        //         //",[ArticleId] = '" + item1.ArticleId + "'" +
-                        //         //",[FirstCharacteristicsId] = '" + item1.FirstCharacteristicsId + "'" +
-                        //         //",[FirstCharacteristicsValueId] = '" + item1.FirstCharacteristicsValueId + "'" +
-                        //         //",[SecondCharacteristicsId] = '" + item1.SecondCharacteristicsId + "'" +
-                        //         //",[SecondCharacteristicsValueId] = '" + item1.SecondCharacteristicsValueId + "'" +
-                        //         //",[ThirdCharacteristicsId] = '" + item1.ThirdCharacteristicsId + "'" +
-                        //         //",[ThirdCharacteristicsValueId] = '" + item1.ThirdCharacteristicsValueId + "'" +
-                        //         //",[MaterialDetail] = '" + item1.MaterialDetail + "'" +
-                        //         //",[TransactionUoMId] = '" + item1.TransactionUoMId + "'" +
-                        //         //",[CurrencyId] = '" + item1.CurrencyId + "'" +
-                        //         "[TransactionQty] = '" + item1.TransactionQty + "'" +
-                        //         ",[EstimatedRate] = '" + item1.EstimatedRate + "'" +
-                        //         ",[TotalAmount] = '" + item1.TotalAmount + "'" +
-                        //         //",[BudgetType] = '"+item1.BudgetType + "'" +
-                        //         //",[Reason] = '"+item1.Reason + "'" +
-                        //         //",[Remarks] = '"+item1.Remarks + "'--" +
-                        //         //",[QualityApprovalResponsiblePersonId] = '"+item1.QualityApprovalResponsiblePersonId + "'" +
-                        //         //",[NeedSpecialAppId] = '"+item1.NeedSpecialAppId + "'" +
-                        //         //",[FutureReqApp] = '"+item1.FutureReqApp + "'" +
-                        //         //",[DeliveryDate] = '"+item1.DeliveryDate + "'" +
-                        //         ",[UpdatedBy] = '" + identity.UserId + "'" +
-                        //         ",[UpdatedDate] = '" + DateTime.Now + "'" +
-                        //         ",[UpdatedFromIP] = '" + identity.IPAddress + "'" +
-                        //         ",[BudgetMasterId] = '" + item1.BudgetMasterId + "'" +
-                        //         ",[GLGeneralInfoId] = '" + item1.GLGeneralInfoId + "'" +
-                        //         " where id = '" + ReqDetailId + "'";
+                        
                         var _sql = "UPDATE [TRN].[MaterialRequsitionDetails]   SET [MaterialDetail] = '" + item1.MaterialDetail + "',[TransactionQty] =  '" + Convert.ToDecimal(item1.TransactionQty) + "',[EstimatedRate] = '" + Convert.ToDecimal(item1.EstimatedRate) + "',[TotalAmount] = '" + Convert.ToDecimal(item1.TotalAmount) + "',[UpdatedBy] = '" + identity.UserId + "',[UpdatedDate] = '" + Convert.ToDateTime(DateTime.Now) + "',[UpdatedFromIP] = '" + identity.IPAddress + "' where id = '" + ReqDetailId + "'";
                         _sqlRepository.ExecuteSqlCommand(_sql);
                     }
                 }
-                //if (receiveTaxList.IsNotNull())
-                //{
-                //    // var currentId = _receiveTaxRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId='{entity.InventoryReceiveDetailId}'").First();
-                //    foreach (var item in receiveTaxList)
-                //    {
-                //        // currentId++;
-                //        //item.Id = MakePK(entity.InventoryReceiveDetailId, currentId, 2);
-                //        //item.InventoryReceiveId = entity.InventoryReceiveId;
-                //        //item.InventoryReceiveDetailId = entity.InventoryReceiveDetailId;
-                //        //item.InventoryServiceId = null;
-
-                //        //AuditService.AddedLog(item);
-                //        //_receiveTaxRepository.Insert(item);
-
-                //        var TaxAutoId = item.Id;
-                //        string _sql1 = "Update TRN.PurchaseOrderTax set TaxAmount='" + item.TaxAmount + "' where id='" + TaxAutoId + "' ";
-                //        _sqlRepository.ExecuteSqlCommand(_sql1);
-                //        //AuditService.UpdatedLog(item);
-                //        //_receiveTaxRepository.Update(item);
-                //    }
-                //}
+                
             }
             catch (Exception ex)
             {
@@ -5838,17 +5344,12 @@ ORDER BY IR.ID DESC";
         {
             try
             {
-                //var detail = Convert.ToBoolean(_inventoryReceiveRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT Id FROM TRN.MaterialRequsitionDetails WHERE Id='" + id + @"') AS A )SELECT 1 ELSE SELECT 0 RETURN").First());
-                ////var service = Convert.ToBoolean(_inventoryReceiveRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT Id FROM TRN.InventoryService WHERE InventoryReceiveId='" + id + @"') AS A )SELECT 1 ELSE SELECT 0 RETURN").First());
-                //if (!detail)
-                //{
-
+               
                 var data = _materialRequsitionDetailsRepository.Find(id);
                 if (data.IsNull()) throw new CustomException(ServiceResources.RecordNoLonger);
                 _materialRequsitionDetailsRepository.Delete(data.Id);
                 _unitOfWork.SaveChanges();
-                //}
-                //else throw new CustomException("Please delete first line item.");
+                
             }
             catch (Exception ex)
             {
@@ -5862,7 +5363,6 @@ ORDER BY IR.ID DESC";
             try
             {
                 var detail = Convert.ToBoolean(_materialRequsitionDetailsRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT Id FROM TRN.MaterialRequsitionDetails WHERE MaterialReqqusitionMasterId='" + id + @"') AS A )SELECT 1 ELSE SELECT 0 RETURN").First());
-                //var service = Convert.ToBoolean(_inventoryReceiveRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT Id FROM TRN.InventoryService WHERE InventoryReceiveId='" + id + @"') AS A )SELECT 1 ELSE SELECT 0 RETURN").First());
                 if (!detail)
                 {
                     var data = base.Find(id);
