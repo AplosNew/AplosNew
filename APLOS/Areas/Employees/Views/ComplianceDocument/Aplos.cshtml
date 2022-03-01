@@ -473,47 +473,45 @@
                 Position Informations
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="positionParameters.searchBy">
-                                            <option ng-repeat="option in positionSearchList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="positionParameters.search" ng-enter="getPositionData()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getPositionData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                </div>
+            <div class="modal-body">                
+                <div class="table-responsive modal-table">
+                    @*<table class="table table-striped" ng-show="positionDataList.length">
+            <thead>
+                <tr>
+                    <th ng-repeat="x in positionSearchList">{{x.Text}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in positionDataList|itemsPerPage:positionParameters.pageSize" total-items="positionParameters.total_count" pagination-id="metaData.name + 'positionDataList'" ng-dblclick="selectPositionPopUp(x)">
+                    <td ng-repeat="y in positionSearchList">{{x[y.Value]}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10"
+                                 pagination-id="metaData.name + 'positionDataList'"
+                                 direction-links="true"
+                                 boundary-links="true"
+                                 on-page-change="getPositionData(newPageNumber)">
+        </dir-pagination-controls>*@
+                    
+                    <div class="table-responsive ">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="positionDataList" e-recorddoubleclick="selectPositionPopUp"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="4" e-isprimarykey="true"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="Division" e-headertext="Division" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="Subsection" e-headertext="Subsection" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="Designation" e-headertext="Designation" e-width="6" e-isprimarykey="true"></div>
+                                <div e-column e-field="DirectManpowerCost" e-headertext="Direct Manpower Cost" e-width="6" e-isprimarykey="true"></div>
                             </div>
                         </div>
+
                     </div>
-                </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped" ng-show="positionDataList.length">
-                        <thead>
-                            <tr>
-                                <th ng-repeat="x in positionSearchList">{{x.Text}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in positionDataList|itemsPerPage:positionParameters.pageSize" total-items="positionParameters.total_count" pagination-id="metaData.name + 'positionDataList'" ng-dblclick="selectPositionPopUp(x)">
-                                <td ng-repeat="y in positionSearchList">{{x[y.Value]}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <dir-pagination-controls max-size="10"
-                                             pagination-id="metaData.name + 'positionDataList'"
-                                             direction-links="true"
-                                             boundary-links="true"
-                                             on-page-change="getPositionData(newPageNumber)">
-                    </dir-pagination-controls>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
