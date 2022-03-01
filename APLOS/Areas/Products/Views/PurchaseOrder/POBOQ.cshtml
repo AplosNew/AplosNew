@@ -29,9 +29,11 @@
                              e-detailstemplate="detailTemp"
                              e-detailsdatabound="detailgrid">
                             <div e-columns>
-                                <div e-column e-headertext="Actions" e-width="60">
+                                <div e-column e-headertext="Actions" e-width="70">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PO('Grid');" style="margin: -6px;"></i></button>
                                 </div>
+                      
                                 <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                                 <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
                                 <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
@@ -386,7 +388,7 @@
                      e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
                     <div e-columns>
                         <div e-column e-template="#CheckBoxTemp" e-headertemplateid="#headerTemplate11" @*e-headertext="Chk"*@ e-width="40" textAlign='center'></div>
-
+                       
                         <div e-column e-type="string" e-field="CostingItemId" e-headertext="Costing Item Id" e-width="80px"></div>
                         <div e-column e-field="CostingItemName" e-headertext="Costing Item" e-width="100"></div>
                         <div e-column e-field="BOQItemRefNo" e-headertext="Item Ref." e-width="100"></div>
