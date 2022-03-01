@@ -12521,6 +12521,8 @@ ORDER BY IR.ID DESC";
                                     TransactionUoMId = itemDetail.TransactionUoMId
                                 };
                                 AuditService.AddedLog(receiveDetail);
+                                //InsertGraph(receiveDetail);
+                                //UpdateInventoryDetail(receiveDetail, ratio, Convert.ToDecimal(entity.ToCurrencyRate), entity.IsNonCreditable);
                                 _ServiceAcknowledgementDetail.Insert(receiveDetail);
                                 var receiveDetail1 = new ServivePOAcknowledgementMap
                                 {
