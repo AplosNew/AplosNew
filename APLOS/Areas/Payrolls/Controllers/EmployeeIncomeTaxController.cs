@@ -398,6 +398,20 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetRebateGridData(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                return Json(eit.GetTaxRebateGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         #endregion
 
     }

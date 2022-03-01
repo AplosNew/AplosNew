@@ -272,6 +272,24 @@
                         </div>
                     </div>
                 </div>
+
+                <label style="margin-left:30px; margin-top:20px;"><strong>Tax After Rebate</strong></label>
+
+                <div class="row" style="margin:20px;">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" ej-grid e-datasource="RebatePopUp"
+                             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                             e-allowselection="true" e-filtersettings-filterType="excel"
+                             e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true"
+                             e-allowtextwrap="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="EstimatedTax" e-headertext="Estimated Tax" e-width="2"></div>
+                                <div e-column e-field="TaxRebate" e-headertext="Rebate Amount" e-width="2"></div>
+                                <div e-column e-field="TaxAfterRebate" e-headertext="Total Tax" e-width="2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
