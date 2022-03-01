@@ -1,13 +1,9 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
-using bplib;
-using Library.Crosscutting.Security;
 using Library.HumanResource.Payroll.Tax;
-using Library.Security.Core;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Threading;
 using System.Web.Mvc;
 
 namespace Aplos.Areas.Payrolls.Controllers
@@ -31,7 +27,6 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         #endregion -- Pages
-
      
         #region PlantChild Actions
 
@@ -540,8 +535,82 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
       
+        [HttpPost, Authorize]
+        public JsonResult SaveRebateInfo(List<Dictionary<string, object>> RebateData, string PolicyId)
+        {
+            try
+            {
+                var x = ds.SaveTaxRebateInfo(RebateData, PolicyId);
+                return Json(new { Error = false, Data = x, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteRebateInfo(string Id)
+        {
+            try
+            {
+                ds.DeleteRebateData(Id);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion
+
+        #region Tax Surcharge Functions
+
+        [HttpGet, Authorize]
+        public ActionResult GetSurchargeInfo(string PolicyId)
+        {
+            try
+            {
+                return Json(ds.GetSurchargeInfo(PolicyId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveSurchargeInfo(List<Dictionary<string, object>> SurchargeData, string PolicyId)
+        {
+            try
+            {
+                var x = ds.SaveTaxSurchargeInfo(SurchargeData, PolicyId);
+                return Json(new { Error = false, Data = x, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteSurchargeInfo(string Id)
+        {
+            try
+            {
+                ds.DeleteSurchargeData(Id);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         #endregion
 
     }
