@@ -55,7 +55,7 @@ namespace Library.MaterialManagement.Inventory
 
         void DailySendMailRequisitionCreator(string addedBy, string ip, string appVersion, string RequisitionType, string RequirmentType, string CheckedBy, string ApprovedBy, string PoId, string PreparedBY, string PreparedBYId);
 
-        void Insert1(MaterialRequsitionMaster entity);
+        void InsertRequsition(MaterialRequsitionMaster entity);
 
 
         GridModel GetEmployeePurchaseList(GridParameter parameters, string plantId);

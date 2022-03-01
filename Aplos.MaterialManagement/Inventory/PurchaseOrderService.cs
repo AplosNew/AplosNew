@@ -100,14 +100,14 @@ namespace Library.MaterialManagement.Inventory
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(PurchaseOrder), out sID);
             return sID;
         }
-        private string GetPK1()
+        private string GetPKServiveAck()
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(ServivePOAcknowledgementMap), out sID);
             return sID;
         }
-        private string GetPK2()
+        private string GetPKSerAckMap()
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
@@ -12486,12 +12486,10 @@ ORDER BY IR.ID DESC";
                 }
                 if (string.IsNullOrEmpty(entity.Id))
                 {
-                    var year1 = DateTime.Now.ToShortDateString().ToString();
-                    var yr = year1.Substring(7);
-                    var id = GetPK1();
-                    var resId = id.Substring(2);
-                    entity.Id = plantId + yr + resId;
-                    //entity.Id = GetPK1();
+                    var year1 = DateTime.Now.Year.ToString();
+                    var yr = year1.Substring(2);
+                    var id = GetPKServiveAck();
+                    entity.Id = plantId + yr + id;
                     AuditService.AddedLog(entity);
                     entity.ModelState = ModelState.Added;
                     _ServiceAcknowledgementMaster.Insert(entity);
@@ -12529,7 +12527,7 @@ ORDER BY IR.ID DESC";
                                 var receiveDetail1 = new ServivePOAcknowledgementMap
                                 {
 
-                                    Id = GetPK2(),
+                                    Id = GetPKSerAckMap(),
                                     CompanyGroupId = identity.CompanyGroupId,
                                     CompanyId = identity.CompanyId,
                                     PlantId = identity.PlantId,
