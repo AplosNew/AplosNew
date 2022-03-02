@@ -980,7 +980,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
             $http({
                 method: 'POST',
                 url: $scope.savePFSalaryHeadUrl,
-                data: { 'entities': $scope.PFSalaryHeadSaveList },
+                data: { 'entities': $scope.PFSalaryHeadSaveList, 'SalaryRuleMasterSystemID': $scope.salaryRuleNew.SystemID},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

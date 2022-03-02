@@ -1059,11 +1059,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreatePFSalaryHead(IEnumerable<SalaryRulePF> entities)
+        public JsonResult CreatePFSalaryHead(IEnumerable<SalaryRulePF> entities, string SalaryRuleMasterSystemID)
         {
             try
             {
-                SavePFSalaryHeadData(entities);
+                SavePFSalaryHeadData(entities, SalaryRuleMasterSystemID);
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1073,15 +1073,16 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-        private void SavePFSalaryHeadData(IEnumerable<SalaryRulePF> data)
+        private void SavePFSalaryHeadData(IEnumerable<SalaryRulePF> data, string SalaryRuleMasterSystemID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
                 if (data != null)
                 {
                     int Seqcount = 0;
-                    ConnectionManager.DAL.ConManager objCon;
+                   
                     DataSet dsMaster;
                     foreach (var item in data)
                     {
@@ -1124,6 +1125,19 @@ namespace Aplos.Areas.Payrolls.Controllers
                         obj.SaveDataSets(dsMaster);
                     }
                 }
+                else
+                {
+                    string sql = "SELECT * FROM [dbo].[SalaryRulePF] WHERE SalaryRuleMasterSystemID='" + SalaryRuleMasterSystemID + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out DataSet dsPF , false, "1");
+
+                    while (dsPF.Tables[0].DefaultView.Count>0)
+                    {
+                        dsPF.Tables[0].DefaultView[0].Delete();
+                    }
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsPF);
+                }  
             }
             catch (Exception ex)
             {
