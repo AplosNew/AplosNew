@@ -698,6 +698,7 @@
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
+    <Compile Include="Areas\MeetingManagement\Controllers\MeetingReports.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingAgendaController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
@@ -1687,6 +1688,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
     <Content Include="Areas\Administration\Scripts\VisitorListReportController.js" />
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
@@ -2026,6 +2028,7 @@
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\Administration\Scripts\AdministrationConfig.js" />
+    <Content Include="Areas\MeetingManagement\Scripts\MeetingReportsController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingAgendaController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingPointsController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
@@ -4016,6 +4019,7 @@
     <Content Include="Areas\Productions\Views\PrePackDefinition\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\FinalPackDefinition\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\FiscalYearClose.cshtml" />
+    <Content Include="Areas\MeetingManagement\Views\MeetingReports\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

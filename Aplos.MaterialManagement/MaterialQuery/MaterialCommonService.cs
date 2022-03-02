@@ -1,0 +1,49 @@
+﻿using Library.Core;
+using Library.Crosscutting.Security;
+using Library.Data;
+using Library.Data.Sql;
+using Library.Model.Inventory;
+using Library.Model.Parties;
+using Library.Model.Taxations;
+using Library.Service.Enums;
+using Library.Service.Logs;
+using Library.ViewModel.Materials;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
+
+namespace Aplos.MaterialManagement.MaterialQuery
+{
+    public class MaterialCommonService
+    {
+        private readonly ISqlRepository _sqlRepository;
+        public MaterialCommonService(ISqlRepository sqlRepository
+            )
+        {
+            _sqlRepository = sqlRepository;
+        }
+
+        public IEnumerable<POMaterial> GetInventoryMaterialByUpToSku(InventoryMaterialViewModel entity)
+        {
+            string materialmaster = "";
+            string articleId = "";
+            string firstCharacteristicsId = "";
+            string firstCharacteristicsValueId = "";
+            string secondCharacteristicsId = "";
+            string secondCharacteristicsValueId = "";
+            string thirdCharacteristicsId = entity.ThirdCharacteristicsId;
+            string ThirdCharacteristicsValueId = entity.ThirdCharacteristicsValueId;
+
+            if (string.IsNullOrEmpty(articleId)) { articleId = "AND  ArticleId=NULL"; } else { articleId = "AND  ArticleId = '" + entity.ArticleId + @"'"; }
+            if (string.IsNullOrEmpty(firstCharacteristicsId)) { firstCharacteristicsId = "AND  FirstCharacteristicsId=NULL"; } else { firstCharacteristicsId = "AND  FirstCharacteristicsId = '" + entity.ArticleId + @"'"; }
+            if (string.IsNullOrEmpty(firstCharacteristicsValueId)) { firstCharacteristicsValueId = "AND  FirstCharacteristicsValueId=NULL"; } else { firstCharacteristicsValueId = "AND  FirstCharacteristicsValueId = '" + entity.FirstCharacteristicsValueId + @"'"; }
+
+            var sql = @"SELECT Top(1) * FROM TRN.InventoryMaterial WHERE MaterialMasterId='" + entity.MaterialMasterId + @"' "+ articleId + " "+ firstCharacteristicsId + " "+ firstCharacteristicsValueId + @"
+                                AND  SecondCharacteristicsId = '" + entity.SecondCharacteristicsId + @"' AND  SecondCharacteristicsValueId ='" + entity.SecondCharacteristicsValueId + @"'
+                                AND  ThirdCharacteristicsId = '" + entity.ThirdCharacteristicsId + @"' AND  ThirdCharacteristicsValueId = '" + entity.ThirdCharacteristicsValueId + @"'
+                                AND  CompanyId = '" + entity.CompanyId + @"' AND  PlantId ='" + entity.PlantId + @"'";
+            return _sqlRepository.GetModelCollection<POMaterial>(sql);
+        }
+    }
+}

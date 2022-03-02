@@ -102,13 +102,14 @@ namespace Library.MaterialManagement.Inventory
 			{
 				//if (CheckItemExist(entity))
 				//    throw new CustomException(entity.MaterialMasterName + " already received");
-
+				MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
 				ResetCurrencyRate(entity);
 				_unitOfWork.BeginTransaction();
 				flag = true;
 				if (entity.IsNotNull())
 				{
 					var materialData = _inventoryMaterialMasterService.GetInventoryMaterialByUpToSku(entity);
+					//var materialData = materialCommonService.GetInventoryMaterialByUpToSku(entity).FirstOrDefault();
 					if (materialData.IsNotNull()) entity.InventoryMaterialId = materialData.Id;
 					///TODO : Get total qyt and amount by country and issue qty
 					entity.TotalQty = Query(t => t.InventoryMaterialId == entity.InventoryMaterialId && t.Id != entity.Id).Select(t => t.BaseQty).Sum();
@@ -167,7 +168,7 @@ namespace Library.MaterialManagement.Inventory
 							Id = NewId + currentId,
 							MaterialStorageId = entity.MaterialStorageId,
 							InventoryReceiveId = entity.InventoryReceiveId,
-							InventoryMaterialId = entity.MaterialMasterId,
+							InventoryMaterialId = entity.MaterialMasterId,//InventoryMaterial is MaterialMasterId
 							TransactionQty = entity.TransactionQty,
 							TransactionUoMId = entity.TransactionUoMId,
 							BaseQty = Convert.ToDecimal(entity.BaseQty),
