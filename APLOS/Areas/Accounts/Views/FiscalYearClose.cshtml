@@ -1,0 +1,94 @@
+﻿<togglable name="Fiscal Year Close"></togglable>
+<div ng-form name="FiscalYearCloseForm">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select name="Company" ng-model="FiscalYearClose.CompanyId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in companyList" required ng-change="getPlantList()" tabindex="1"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Plant" ng-model="FiscalYearClose.PlantId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in plantList" required ng-change="getListData()" tabindex="2"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-elements form-horizontal" ng-form name="FiscalYearCloseForm">
+    <div class="clearfix"></div>
+    <input type="hidden" ng-model="FiscalYearClose.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Fiscal Year<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select name="VoucherType" ng-model="FiscalYearClose.FiscalYearId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in fiscalYearList" required tabindex="3"></select>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+   
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn" tabindex="7"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Clear();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Voucher Type</th>
+                <th>Period</th>
+                <th>Prefix</th>
+                <th>PadLeft Length</th>
+                <th>Sample</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in FiscalYearCloseList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get( $index);">
+                <td>{{x.VoucherTypeName}}</td>
+                <td>{{x.Period}}</td>
+                <td>{{x.Prefix}}</td>
+                <td>{{x.PadLeftWidth}}</td>
+                <td>{{x.Prefix}}-{{x.Period}}-{{x.PadLeftWidth}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

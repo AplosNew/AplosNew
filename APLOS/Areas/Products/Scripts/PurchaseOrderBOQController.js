@@ -47,7 +47,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'Products/PurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus,
+            url: 'Products/PurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus+'&poType='+'POBOQ',
         }).then(function successCallback(response) {
 
             for (var i = 0; i < $scope.Griddata.length; i++) {
@@ -274,6 +274,13 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     };
     $scope.productNew = Object.assign({}, $scope.product);
 
+    $http({
+        method: 'GET',
+        url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
+    }).then(function successCallback(response) {
+        $scope.baseCurrencyId = response.data[0].Value;
+        $scope.productNew.BaseCurrencyId = response.data[0].Value;
+    });
 
     $scope.TermsAndConditions = {
         Id: null
@@ -380,6 +387,52 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         date.setDate(date.getDate() + days);
         $scope.productNew.MatureDate = $filter('date')(date, 'dd-MMM-yyyy');
     };
+
+    $scope.NotificationSettingStatus = function () {
+
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/NotificationSetting',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.NotificationSetting = response.data;
+            $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
+            $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
+            if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
+                $scope.productNew.labelCheckAndApproved = 'To be checked by';
+                $scope.GetCheckedByAndApprovedBy1();
+            }
+            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
+                $scope.productNew.labelCheckAndApproved = 'To be approved by';
+                $scope.GetCheckedByAndApprovedBy1();
+            }
+            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
+                $scope.productNew.labelCheckAndApproved = 'To be checked by';
+                $scope.GetCheckedByAndApprovedBy1();
+            }
+            //else {
+            //    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
+            //}
+
+        });
+    };
+    $scope.NotificationSettingStatus();
+    $scope.GetCheckedByAndApprovedBy1 = function () {
+        if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
+            $http({
+                method: 'GET',
+                url: 'Products/PurchaseOrder/GetCheckedByAndApprovedBY?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.checkedByList = response.data;
+            });
+
+        }
+        else {
+
+        }
+
+    }
 
     $scope.submit = function () {
         $scope.productNew.PartyCode = $scope.SubmitPartyCode;
@@ -1071,6 +1124,12 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         if (!$rootScope.isCollapsed) $rootScope.toggle();
 
 
+    };
+    $scope.PO = function (z) {
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
     };
 }//End Of main
 

@@ -73,6 +73,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/taxyearperiod/aplos",
             controller: "taxYearPeriodController"
         })
+        .when("/fiscal-year-close", {
+            templateUrl: "Accounts/fiscalYearClose/FiscalYearClose",
+            controller: "fiscalYearCloseController"
+        })
         .when("/voucher-type", {
             templateUrl: "Accounts/voucherType/VoucherType",
             controller: "voucherTypeController"

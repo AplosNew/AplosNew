@@ -1,5 +1,6 @@
 ﻿using bplib;
 using Library.Data.Sql;
+using Library.General.Setups;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -21,8 +22,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
 
         #region Shift Process
-        public void ShiftProcess(string Date, string PlantValue)
+        public void ShiftProcess(string Date, string PlantValue,string UserId=null)
         {
+            ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.AttendanceProcess, "", 60);
+            _lock.LockProcess();
             try
             {
 
@@ -913,9 +916,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                 }
+                _lock.UnlockProcess();
             }
             catch (Exception ex)
             {
+                _lock.UnlockProcess();
                 throw ex;
             }
         }
@@ -1378,8 +1383,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region Attendance Process
-        public void AttndProcess(string Date, string PlantValue)
+        public void AttndProcess(string Date, string PlantValue,string UserId=null)
         {
+
+            ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.AttendanceProcess, "", 60);
+            _lock.LockProcess();
             try
             {
                 Date = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
@@ -2178,9 +2186,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     }
                 }
+                _lock.UnlockProcess();
             }
             catch (Exception ex)
             {
+                _lock.UnlockProcess();
                 throw ex;
             }
 
@@ -3259,8 +3269,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region DayStatus Process
-        public void DayStatus(string Date, string PlantValue)
+        public void DayStatus(string Date, string PlantValue,string UserId=null)
         {
+
+            ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.AttendanceProcess, "", 60);
+            _lock.LockProcess();
             try
             {
 
@@ -4012,9 +4025,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                 }
+                _lock.UnlockProcess();
             }
             catch (Exception ex)
             {
+                _lock.UnlockProcess();
                 throw ex;
             }
 
@@ -5162,10 +5177,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 SaveLog("Set Manual Flag to 0 Ran Successfully ...", PlantValue, false);
 
-
             }
             catch (Exception ex)
-            {
+            {                
                 throw ex;
             }
         }
@@ -5173,8 +5187,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         #region Roster Process
 
-        public void RosterProcess(string PlantId, string Date)
+        public void RosterProcess(string PlantId, string Date, string UserId = null)
         {
+
+            ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.RosterProcess, "", 60);
+            _lock.LockProcess();
             try
             {
                 DataSet PlantLock;
@@ -5184,9 +5201,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 }
                 else
-                {
-
-                    
+                {                    
 
                     var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + PlantId + "'";
                     DataTable RosterTable = new DataTable();
@@ -5301,10 +5316,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     SaveDataSets(ds);
                 }
+                _lock.UnlockProcess();
 
             }
             catch (Exception e)
             {
+                _lock.UnlockProcess();
                 throw e;
             }
         }
@@ -5532,8 +5549,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region PastDOJ Row Creation Process
-        public void PastDOJProcess(string Date, string PlantValue)
+        public void PastDOJProcess(string Date, string PlantValue,string UserId=null)
         {
+
+            ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.DOJProcess, "", 60);
+            _lock.LockProcess();
             try
             {
 
@@ -5805,12 +5825,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
                 }
+                _lock.UnlockProcess();
             }
             catch(Exception ex)
             {
+                _lock.UnlockProcess();
                 throw ex;
             }
-
         }
 
         #endregion
@@ -6390,7 +6411,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        ShiftProcess(Date, PlantValue);
+                        ShiftProcess(Date, PlantValue,"Scheduler");
                     }
                     catch (Exception ex)
                     {
@@ -6415,7 +6436,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        AttndProcess(Date, PlantValue);
+                        AttndProcess(Date, PlantValue,"Scheduler");
                     }
                     catch (Exception ex)
                     {
@@ -6440,7 +6461,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     try
                     {
                         CatchPlant = PlantValue;
-                        DayStatus(Date, PlantValue);
+                        DayStatus(Date, PlantValue,"Scheduler");
                     }
                     catch (Exception ex)
                     {
@@ -6478,7 +6499,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
-                        PastDOJProcess(Date, PlantValue);
+                        PastDOJProcess(Date, PlantValue,"Scheduler");
                     }
                     catch (Exception ex)
                     {
@@ -6504,7 +6525,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString(); 
                         CatchPlant = PlantValue;
-                        RosterProcess(PlantValue, Date);
+                        RosterProcess(PlantValue, Date,"Scheduler");
                     }
                     catch (Exception ex)
                     {

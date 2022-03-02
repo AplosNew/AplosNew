@@ -767,6 +767,9 @@ namespace Library.MaterialManagement.Inventory
                                 && t.CompanyId == entity.CompanyId && t.PlantId == entity.PlantId).Select().FirstOrDefault();
         }
 
+       
+
+
         public IEnumerable<POMaterial> GetInventoryMaterialListByUpToSku(IEnumerable<InventoryMaterialViewModel> entities, string companyId, string plantId)
         {
             var materialIds = entities.Select(t => t.MaterialMasterId);

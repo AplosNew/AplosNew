@@ -70,7 +70,7 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             controller: 'complianceDocumentSubCategoryController'
         })
         .when('/compliance-Document', {
-            templateUrl: 'employees/complianceDocument/',
+            templateUrl: 'employees/complianceDocument/Aplos',
             controller: 'complianceDocumentController'
         })
         .when('/documentConfiguration-DesignationGroup', {

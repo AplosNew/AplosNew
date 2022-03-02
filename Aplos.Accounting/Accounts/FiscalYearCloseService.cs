@@ -1,0 +1,152 @@
+﻿using Library.Core;
+using Library.Crosscutting.Security;
+using Library.Data;
+using Library.Data.Repositories;
+using Library.Data.Sql;
+using Library.Model.Calendars;
+using Library.Model.Currencies;
+using Library.Model.Employees;
+using Library.Model.FixedAssets;
+using Library.Model.Invoices;
+using Library.Model.Organizations;
+using Library.Model.Vouchers;
+using Library.Service.Core;
+using Library.Service.Enums;
+using Library.Service.Logs;
+using Library.Service.Properties;
+using Library.Service.Systems;
+using Library.ViewModel.Vouchers;
+using OTSBD;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading;
+
+namespace Library.Accounting.Accounts
+{
+    public class FiscalYearCloseService
+    {
+        private readonly ISqlRepository _sqlRepository;
+        public FiscalYearCloseService(ISqlRepository sqlRepository
+            )
+        {
+            _sqlRepository = sqlRepository;
+        }
+        
+        public void InsertFiscalYearClose(FiscalYearClose fiscalYearCloseVM)
+        {
+            try
+            {
+                var fiscalYearClose = new FiscalYearClose
+                {
+                   
+                    CompanyGroupId = fiscalYearCloseVM.CompanyGroupId,
+                    CompanyId = fiscalYearCloseVM.CompanyId,
+                    PlantId = fiscalYearCloseVM.PlantId,
+                    FiscalYearId = fiscalYearCloseVM.FiscalYearId
+                   
+                };
+                InsertFiscalYearCloseData(fiscalYearClose, out DataSet _fiscalYearCloseData);
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_fiscalYearCloseData);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public FiscalYearClose InsertFiscalYearCloseData(FiscalYearClose fiscalYearClose, out DataSet dsData)
+        {
+            AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+            
+           
+            if (!string.IsNullOrEmpty(fiscalYearClose.FiscalYearId))
+            {
+                DataTable Qry = _sqlRepository.GetDataTable("select * from [SCS].[FiscalYearClose] where FiscalYearId='" + fiscalYearClose.FiscalYearId + "' AND CompanyId='" + fiscalYearClose.CompanyId + "' AND PlantId='" + fiscalYearClose.PlantId + "' AND Id<>''");
+                if (Qry.Rows.Count > 0)
+                    throw new Exception("Data already exists!!!");
+
+            }
+            fiscalYearClose.Id = _accountsCommonService.GetAutoNumber(nameof(FiscalYearClose), PKGeneratorEnum.Yearly, null, DateTime.Now);
+          
+            if (string.IsNullOrEmpty(fiscalYearClose.AddedBy))
+                AuditService.AddedLog(fiscalYearClose);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from [SCS].[FiscalYearClose] where 1=2", out dsData);
+
+            AddNewRow<FiscalYearClose>(dsData.Tables[0], fiscalYearClose);
+
+            return fiscalYearClose;
+        }
+        private void AddNewRow<T>(DataTable dt, T Data)
+        {
+            Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow<T>(DataRow dr, T Data)
+        {
+            Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            dr.BeginEdit();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    if (item.ToUpper() == "ID")
+                        continue;
+
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+
+        }
+        private void EditRow(DataSet ds)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                DataRow dr = ds.Tables[0].DefaultView[0].Row;
+
+                dr.BeginEdit();
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now.ToString();
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dr.EndEdit();
+            }
+            clsStaticInfo obj = new clsStaticInfo();
+            obj.SaveDataSets(ds);
+
+        }
+    }
+}

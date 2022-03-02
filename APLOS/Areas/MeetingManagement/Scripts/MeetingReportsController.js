@@ -1,10 +1,10 @@
 ﻿'use strict';
-MeetingAgendaController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Meeting Agenda';
+MeetingReportsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function MeetingReportsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Meeting Reports';
     $scope.Action = 'Save'; 
     $scope.ModelList = [];
-    $scope.path = 'MeetingManagement/MeetingAgenda/';
+    $scope.path = 'MeetingManagement/MeetingReports/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -12,25 +12,25 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
     $scope.Action = 'Save';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    //$scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
     $scope.year = new Date().getFullYear().toString();
 
-    $scope.ModelAgenda = {
-        Id: null,
-        MeetingTypeId: null,
-        MeetingOrganizedById: null,
-        MeetingOrganizedByCode: null,
-        MeetingOrganizedBy: null,
-        ChairedById: null,
-        ChairedByCode: null,
-        ChairedBy: null,
-        Date: null,
-        Location: null,
-        MeetingTypeId: null,
-        MeetingName: null
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelAgenda);
+    //$scope.ModelAgenda = {
+    //    Id: null,
+    //    MeetingTypeId: null,
+    //    MeetingOrganizedById: null,
+    //    MeetingOrganizedByCode: null,
+    //    MeetingOrganizedBy: null,
+    //    ChairedById: null,
+    //    ChairedByCode: null,
+    //    ChairedBy: null,
+    //    Date: null,
+    //    Location: null,
+    //    MeetingTypeId: null,
+    //    MeetingName: null
+    //};
+    //$scope.ModelNew = Object.assign({}, $scope.ModelAgenda);
 
     $scope.ModelMeetItem = {
         Id: null,
@@ -224,11 +224,18 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
         }).then(function successCallback(response) {
             $scope.filters = response.data;
             var columnList = [
-                { field: 'MeetingType', width: 20, headerText: "Meeting Type", type: "string" },
-                { field: 'IssueStatus', width: 20, headerText: "Issue Status", type: "string" },
-                { field: 'IssueCritically', width: 20, headerText: "Criticality", type: "string" },
                 { field: 'Department', width: 20, headerText: "Department", type: "string" },
-                { field: 'Attendee', width: 20, headerText: "Attendee", type: "string" },
+                { field: 'ByWhom', width: 20, headerText: "ByWhom", type: "string" },
+                { field: 'MeetingType', width: 20, headerText: "Meeting Type", type: "string" },
+                { field: 'ItemType', width: 20, headerText: "Item Type", type: "string" },
+                { field: 'Importancce', width: 20, headerText: "Importancce", type: "string" },
+                { field: 'ActionApplicable', width: 20, headerText: "Action Applicable", type: "string" },
+                { field: 'DecisionApplicable', width: 20, headerText: "Decision Applicable", type: "string" },
+                { field: 'Status', width: 20, headerText: "Status", type: "string" },
+                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+                { field: 'TargetFromDate', width: 20, headerText: "Target From Date", type: "string" }, 
+                { field: 'TargetToDate', width: 20, headerText: "Target To Date", type: "string" },
+                { field: 'UserName', width: 20, headerText: "User Name", type: "string" },
 
             ];
             $("#filters").ejGrid({
@@ -260,11 +267,18 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
 
 
         var parameters = [];
-        parameters.push({ "Key": "MeetingTypeId", "Value": getString(fl, "MeetingTypeId") });
-        parameters.push({ "Key": "IssueStatus", "Value": getString(fl, "IssueStatus") });
-        parameters.push({ "Key": "IssueCritically", "Value": getString(fl, "IssueCritically") });
-        parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
-        parameters.push({ "Key": "AttendeeId", "Value": getString(fl, "AttendeeId") });
+        parameters.push({ "Key": "Department", "Value": getString(fl, "Department") });
+        parameters.push({ "Key": "ByWhom", "Value": getString(fl, "ByWhom") });
+        parameters.push({ "Key": "MeetingType", "Value": getString(fl, "MeetingType") });
+        parameters.push({ "Key": "ItemType", "Value": getString(fl, "ItemType") });
+        parameters.push({ "Key": "Importancce", "Value": getString(fl, "Importancce") });
+        parameters.push({ "Key": "ActionApplicable", "Value": getString(fl, "ActionApplicable") });
+        parameters.push({ "Key": "DecisionApplicable", "Value": getString(fl, "DecisionApplicable") });
+        parameters.push({ "Key": "Status", "Value": getString(fl, "Status") });
+        parameters.push({ "Key": "ResponsiblePerson", "Value": getString(fl, "ResponsiblePerson") });
+        parameters.push({ "Key": "TargetFromDate", "Value": getString(fl, "TargetFromDate") });
+        parameters.push({ "Key": "TargetToDate", "Value": getString(fl, "TargetToDate") });
+        parameters.push({ "Key": "UserName", "Value": getString(fl, "UserName") });
       
         $scope.parameters = parameters;
 

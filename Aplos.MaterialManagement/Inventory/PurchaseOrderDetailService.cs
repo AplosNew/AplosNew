@@ -102,13 +102,14 @@ namespace Library.MaterialManagement.Inventory
 			{
 				//if (CheckItemExist(entity))
 				//    throw new CustomException(entity.MaterialMasterName + " already received");
-
+				MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
 				ResetCurrencyRate(entity);
 				_unitOfWork.BeginTransaction();
 				flag = true;
 				if (entity.IsNotNull())
 				{
 					var materialData = _inventoryMaterialMasterService.GetInventoryMaterialByUpToSku(entity);
+					//var materialData = materialCommonService.GetInventoryMaterialByUpToSku(entity).FirstOrDefault();
 					if (materialData.IsNotNull()) entity.InventoryMaterialId = materialData.Id;
 					///TODO : Get total qyt and amount by country and issue qty
 					entity.TotalQty = Query(t => t.InventoryMaterialId == entity.InventoryMaterialId && t.Id != entity.Id).Select(t => t.BaseQty).Sum();
@@ -167,7 +168,7 @@ namespace Library.MaterialManagement.Inventory
 							Id = NewId + currentId,
 							MaterialStorageId = entity.MaterialStorageId,
 							InventoryReceiveId = entity.InventoryReceiveId,
-							InventoryMaterialId = entity.MaterialMasterId,
+							InventoryMaterialId = entity.MaterialMasterId,//InventoryMaterial is MaterialMasterId
 							TransactionQty = entity.TransactionQty,
 							TransactionUoMId = entity.TransactionUoMId,
 							BaseQty = Convert.ToDecimal(entity.BaseQty),
@@ -3096,7 +3097,7 @@ namespace Library.MaterialManagement.Inventory
 						
 							TransactionQtyGroupSum = itemDetail.TransactionQty;
 
-						if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId
+						if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && entity.CurrencyId != entity.BaseCurrencyId
 							 && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
 						{
 							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
@@ -3105,7 +3106,7 @@ namespace Library.MaterialManagement.Inventory
 							itemDetail.BaseAmount = itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
 
 						}
-						else if (itemDetail.BaseUOMId == itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
+						else if (itemDetail.BaseUOMId == itemDetail.TransactionUoMId && entity.CurrencyId != entity.BaseCurrencyId)
 						{
 							double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
 							itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);
@@ -3113,7 +3114,7 @@ namespace Library.MaterialManagement.Inventory
 							itemDetail.BaseAmount = itemDetail.TransactionAmount;
 
 						}
-						else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId == itemDetail.BaseCurrencyId && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
+						else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && entity.CurrencyId == entity.BaseCurrencyId && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
 						{
 							double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
 							itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);

@@ -25,13 +25,13 @@ using System.Web.Mvc;
 
 namespace Aplos.Areas.MeetingManagement.Controllers
 {
-    public class MeetingAgendaController : BaseController
+    public class MeetingReportsController : BaseController
     {
 
 
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
-        public MeetingAgendaController(ISqlRepository R)
+        public MeetingReportsController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
