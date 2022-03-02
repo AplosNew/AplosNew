@@ -96,13 +96,24 @@
                 </div>
             </div>
             <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Remarks</label>
-                    <div class="col-sm-10">
-                        <textarea class="form-control" rows="3" ng-model="fabricRollMaster.Remarks" tabindex="7" maxlength="250"></textarea>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Remarks</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="3" ng-model="fabricRollMaster.Remarks" tabindex="7" maxlength="250"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Comment</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="3" ng-model="fabricRollMaster.Comment" tabindex="7" maxlength="250"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
+          
             <div class="col-xs-12" ng-show="MaterialGridList.length>0">
                 <div style="color:black;" id="MaterialGrid" ej-grid e-datasource="MaterialGridList"
                      e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
@@ -124,7 +135,7 @@
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                 </script>
-               
+
                 <script type="text/template" id="rollsNo">
                     <input type="text" only-numbers ng-model="data.RollNo" style="color:black;" class="form-control" />
                 </script>

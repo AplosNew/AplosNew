@@ -947,12 +947,12 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         var data = obj.data;
         if ($scope.name == 'Preparedby') {
             $scope.fabricRollMaster.PreparedbyCode = data.EmployeeCode;
-            $scope.fabricRollMaster.PreparedbyID = data.SystemID;
+            $scope.fabricRollMaster.PreparedbyId = data.SystemID;
             $scope.fabricRollMaster.PreparedbyName = data.EmployeeName;
         }
         else {
             $scope.fabricRollMaster.CheckedbyCode = data.EmployeeCode;
-            $scope.fabricRollMaster.CheckedbyID = data.SystemID;
+            $scope.fabricRollMaster.CheckedbyId = data.SystemID;
             $scope.fabricRollMaster.CheckedbyName = data.EmployeeName;
         }
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
@@ -963,12 +963,12 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         $scope.name = name;
         if ($scope.name == 'Preparedby') {
             $scope.fabricRollMaster.PreparedbyCode = null;
-            $scope.fabricRollMaster.PreparedbyID = null;
+            $scope.fabricRollMaster.PreparedbyId = null;
             $scope.fabricRollMaster.PreparedbyName = null;
         }
         else {
             $scope.fabricRollMaster.CheckedbyCode = null;
-            $scope.fabricRollMaster.CheckedbyID = null;
+            $scope.fabricRollMaster.CheckedbyId = null;
             $scope.fabricRollMaster.CheckedbyName = null;
         }
     };

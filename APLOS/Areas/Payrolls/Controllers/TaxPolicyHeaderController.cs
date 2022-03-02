@@ -631,9 +631,30 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetAddtnTaxMasterList(string Id)
+        public ActionResult GetAdditionalTaxMasterList(string Id)
         {
-            return Json(ds.GetAddnTaxMasterList(Id), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(ds.GetAddnTaxMasterList(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteAddtnTaxMaster(string ID)
+        {
+            try
+            {
+                ds.DeleteAddtnTaxMaster(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         #endregion

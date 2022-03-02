@@ -74,6 +74,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.getInvestDeductMaster();
         $scope.GetSlabInfo();
         $scope.GetRebateInfo();
+        $scope.GetAdditionalTaxMasterList();
         $scope.GetSurchargeInfo();
         updateChild();
         updateTaxDataChild();
@@ -1720,12 +1721,12 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetEarningMasterList();
+                    $scope.GetAdditionalTaxMasterList();
                 }
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
-             }
+                }
         }
     }
 
@@ -1742,7 +1743,38 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         });
     }
 
+    $scope.ConfirmDeleteAdditionalTax = function (obj) {
+        $scope.AdditionalTaxModel.Id = obj.data.Id;
+        $scope.DeleteTaxAddtnMaster();
+    };
 
+    $scope.DeleteTaxAddtnMaster = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteAddtnTaxMaster",
+                data: { ID: $scope.AdditionalTaxModel.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetAdditionalTaxMasterList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.AdditionalTaxMasterChildDetails = function (e) {
+        $scope.AdditionalTaxModel = e.data; // Model which is used as ng-model will come here
+    }
 
     //#endregion
 }

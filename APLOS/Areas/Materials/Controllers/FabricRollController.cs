@@ -731,6 +731,22 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                             sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for InvoiceQty";
                             sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorBoxTitle = "Number Error";
 
+                            sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShade, xlsRow, colShade].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colMarkarCode, xlsRow, colMarkarCode].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFabricGroup, xlsRow, colFabricGroup].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShrinkage, xlsRow, colShrinkage].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colQtyUoM, xlsRow, colQtyUoM].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colOwnRollNo, xlsRow, colOwnRollNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colBuyerRollNo, xlsRow, colBuyerRollNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colGrouping, xlsRow, colGrouping].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colRemarks, xlsRow, colRemarks].CellStyle.Locked = false;
 
                             xlsRow++;
 
@@ -791,6 +807,23 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                             sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for InvoiceQty";
                             sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorBoxTitle = "Number Error";
 
+                            sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShade, xlsRow, colShade].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colMarkarCode, xlsRow, colMarkarCode].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFabricGroup, xlsRow, colFabricGroup].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShrinkage, xlsRow, colShrinkage].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colQtyUoM, xlsRow, colQtyUoM].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colOwnRollNo, xlsRow, colOwnRollNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colBuyerRollNo, xlsRow, colBuyerRollNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colGrouping, xlsRow, colGrouping].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colRemarks, xlsRow, colRemarks].CellStyle.Locked = false;
+
                             xlsRow++;
                         }
 
@@ -806,9 +839,9 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
                 #region UsedRange Alignment
 
-                //sheet1.Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD, ExcelSheetProtection.Filtering | ExcelSheetProtection.All);
-                //workbook.Worksheets[1].Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD);
-                //workbook.Protect(false, true, bplib.clsWebLib.REPORT_LOCK_PASSWORD);
+                sheet1.Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD, ExcelSheetProtection.Filtering | ExcelSheetProtection.All);
+                workbook.Worksheets[1].Protect(bplib.clsWebLib.REPORT_LOCK_PASSWORD);
+                workbook.Protect(false, true, bplib.clsWebLib.REPORT_LOCK_PASSWORD);
 
                 sheet1.UsedRange.WrapText = true;
                 sheet1.UsedRange.CellStyle.Font.Size = 10;

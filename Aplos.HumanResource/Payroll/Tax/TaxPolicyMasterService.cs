@@ -1186,12 +1186,16 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
-        #region 
+        #region Additional Tax Functions
 
         public Dictionary<string, object> SaveAdditionalTaxMaster(Dictionary<string, object> Header)
         {
             try
             {
+                if (Header["IsPercentage"].ToString() == Header["IsFix"].ToString())
+                {
+                    throw new Exception("Please Either Choose Percentage or Fixed ...");
+                }
                 string TableName = "dbo.AdditionalTaxMaster";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -1213,6 +1217,7 @@ namespace Library.HumanResource.Payroll.Tax
                 string _Id = "";
 
                 #region data update
+             
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     clsGenID genid = new clsGenID();
@@ -1239,14 +1244,18 @@ namespace Library.HumanResource.Payroll.Tax
                 throw e;
             }
         }
+     
         public IEnumerable<object> GetAddnTaxMasterList(string Id)
         {
             try
             {
-                var str = @"Select am.* from AdditionalTaxMaster AM LEFT 
-                JOIN taxpolicyheader th 
-                on th.Id=AM.taxpolicyId
-                where am.TaxPolicyId ='"+Id+"'";
+                var str = @"Select am.Id,am.TaxPolicyId,am.UserName,am.StandardName,am.IsFix,
+                am.IsPercentage,am.Value,
+                Criterion=Case when (IsFix=1)THEN(select 'Fix') else (Select 'Percentage')end
+                from AdditionalTaxMaster AM LEFT 
+                                JOIN taxpolicyheader th 
+                                on th.Id=AM.taxpolicyId
+                                where am.TaxPolicyId ='"+Id+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -1254,7 +1263,24 @@ namespace Library.HumanResource.Payroll.Tax
                 throw e;
             }
         }
+      
+        public void DeleteAddtnTaxMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
 
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from AdditionalTaxMaster where Id='" + ID + "'");
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #endregion
 

@@ -676,7 +676,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr["PercentageMinLimitSalaryHeadId"] = data.PercentageMinLimitSalaryHeadId;
 
                         dr["IsPolicyDerived"] = data.IsPolicyDerived;
-                        //dr["IsSlabBased"] = data.IsSlabBased;
+                        dr["IsGNRNetPayEffect"] = data.IsGNRNetPayEffect;
+                        dr["IsGNRTagAndUnTag"] = data.IsGNRTagAndUnTag;
+                        dr["IsDisbusted"] = data.IsDisbusted;
+                        dr["IsBankPayment"] = data.IsBankPayment;
+                        dr["IsCashPayment"] = data.IsCashPayment;
+                        dr["IsCTCComponent"] = data.IsCTCComponent;
+                        dr["IsGrossComponent"] = data.IsGrossComponent;
                         dr["AddedBy"] = identity.Name;
                         dr["AddedFromIP"] = identity.IPAddress;
                         dr["DateAdded"] = DateTime.Now;
@@ -754,7 +760,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr["PercentageMinLimitSalaryHeadId"] = data.PercentageMinLimitSalaryHeadId;
 
                         dr["IsPolicyDerived"] = data.IsPolicyDerived;
-                        //dr["IsSlabBased"] = data.IsSlabBased;
+                        dr["IsGNRNetPayEffect"] = data.IsGNRNetPayEffect;
+                        dr["IsGNRTagAndUnTag"] = data.IsGNRTagAndUnTag;
+                        dr["IsDisbusted"] = data.IsDisbusted;
+                        dr["IsBankPayment"] = data.IsBankPayment;
+                        dr["IsCashPayment"] = data.IsCashPayment;
+                        dr["IsCTCComponent"] = data.IsCTCComponent;
+                        dr["IsGrossComponent"] = data.IsGrossComponent;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedFromIP"] = identity.IPAddress;
                         dr["DateUpdated"] = DateTime.Now.ToString();
@@ -854,7 +866,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr["PercentageMinLimitSalaryHeadId"] = item.PercentageMinLimitSalaryHeadId;
 
                             dr["IsPolicyDerived"] = item.IsPolicyDerived;
-
+                            //dr["IsGNRNetPayEffect"] = data.IsGNRNetPayEffect;
+                            //dr["IsGNRTagAndUnTag"] = data.IsGNRTagAndUnTag;
+                            //dr["IsDisbusted"] = data.IsDisbusted;
+                            //dr["IsBankPayment"] = data.IsBankPayment;
+                            //dr["IsCashPayment"] = data.IsCashPayment;
+                            //dr["IsCTCComponent"] = data.IsCTCComponent;
+                            //dr["IsGrossComponent"] = data.IsGrossComponent;
                             dr["AddedBy"] = identity.Name;
                             dr["AddedFromIP"] = identity.IPAddress;
                             dr["DateAdded"] = DateTime.Now;
@@ -922,7 +940,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr["PercentageMinLimitSalaryHeadId"] = item.PercentageMinLimitSalaryHeadId;
 
                             dr["IsPolicyDerived"] = item.IsPolicyDerived;
-
+                            //dr["IsGNRNetPayEffect"] = data.IsGNRNetPayEffect;
+                            //dr["IsGNRTagAndUnTag"] = data.IsGNRTagAndUnTag;
+                            //dr["IsDisbusted"] = data.IsDisbusted;
+                            //dr["IsBankPayment"] = data.IsBankPayment;
+                            //dr["IsCashPayment"] = data.IsCashPayment;
+                            //dr["IsCTCComponent"] = data.IsCTCComponent;
+                            //dr["IsGrossComponent"] = data.IsGrossComponent;
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedFromIP"] = identity.IPAddress;
                             dr["DateUpdated"] = DateTime.Now.ToString();
@@ -2015,6 +2039,13 @@ namespace Aplos.Areas.Payrolls.Controllers
         public bool IsSlabBased { get; set; }
         public bool IsPayOnWeekoffForFixedMonthDay { get; set; }
         public bool IsPayOnHolidayForFixedMonthDay { get; set; }
+        public bool IsGNRNetPayEffect { get; set; }
+        public bool IsGNRTagAndUnTag { get; set; }
+        public bool IsBankPayment { get; set; }
+        public bool IsCashPayment { get; set; }
+        public bool IsCTCComponent { get; set; }
+        public bool IsGrossComponent { get; set; }
+
 
     }
 }
