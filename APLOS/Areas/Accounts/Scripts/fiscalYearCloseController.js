@@ -54,25 +54,18 @@ function FiscalYearCloseController(cboService, commonMessage, $scope, $rootScope
 
     $scope.searchByList = [
         {
-            'name': 'Voucher Type',
-            'value': 'VoucherTypeName'
-        },
-        {
-            'name': 'Period',
-            'value': 'Period'
-        },
-        {
-            'name': 'Prefix',
-            'value': 'Prefix'
-        },
-        {
-            'name': 'PadLeft Length',
-            'value': 'PadLeftWidth'
+            'name': 'Fiscal Year',
+            'value': 'FiscalYearName'
         }
+        //,
+        //{
+        //    'name': 'Period',
+        //    'value': 'Period'
+        //}
     ];
 
     $scope.getListData = function () {
-        baseService.init('accounts/FiscalYearClose/GetFiscalYearCloseList?companyId=' + $scope.FiscalYearClose.CompanyId + '&plantId=' + $scope.FiscalYearClose.PlantId, null, null, null, 'VoucherTypeName', 'VoucherTypeName');
+        baseService.init('accounts/FiscalYearClose/GetFiscalYearCloseList?companyId=' + $scope.FiscalYearClose.CompanyId + '&plantId=' + $scope.FiscalYearClose.PlantId, null, null, null, null, null);
         $scope.getData = function (pageno) {
             baseService.pagination(pageno)
                 .then(function (result) {
@@ -92,7 +85,7 @@ function FiscalYearCloseController(cboService, commonMessage, $scope, $rootScope
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'FiscalYearClosee': $scope.FiscalYearClose },
+                    data: { 'fiscalYearCloseVM': $scope.FiscalYearClose },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {

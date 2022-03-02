@@ -330,6 +330,13 @@ namespace Library.Accounting.Accounts
                     throw new Exception("Same voucher no. already exists!!!");
 
             }
+            if (voucher.PostingDate != null)
+            {
+                DataTable QryFiscalYearClose = _sqlRepository.GetDataTable("select * from [SCS].[FiscalYearClose] where  CompanyId='" + voucher.CompanyId + "' AND PlantId='" + voucher.PlantId + "' AND FiscalYearId in(select Id from [SCS].[FiscalYear] where '" + voucher.PostingDate.Date + "' between StartDate and EndDate) ");
+                if (QryFiscalYearClose.Rows.Count > 0)
+                    throw new Exception("Fiscal Year already closed!!!");
+
+            }
             voucher.Id = GetAutoNumber(nameof(Voucher), PKGeneratorEnum.Yearly, null, DateTime.Now);
             if (string.IsNullOrEmpty(voucher.VoucherNo))
             {
