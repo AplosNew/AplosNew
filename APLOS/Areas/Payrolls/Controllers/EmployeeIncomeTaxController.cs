@@ -382,7 +382,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
-        #region Slab Functions       
+        #region Display GridData Functions       
 
         [HttpPost, Authorize]
         public ActionResult GetTaxAmtGridData(string EmpId, string PolicyId, string YearId)
@@ -404,6 +404,20 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 return Json(eit.GetTaxRebateGridData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult AfterAdditonalChargesData(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                return Json(eit.AfterAdditonalChargesData(EmpId, PolicyId, YearId), JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
