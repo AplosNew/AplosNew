@@ -385,13 +385,13 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     $scope.CalculateBalance = function (data) {
         // $scope.indx = indx;
         data.TaxAmount = 0;
-        data.Balance = data.TransactionQty - (data.ExistSalesQty + data.SalesQty);
+        data.Balance = data.TransactionQty.toFixed(2) - (data.ExistSalesQty + data.SalesQty);
         if (data.Balance >= 0) {
             if (!baseService.isUndefinedOrNull(data.Id)) {
-                data.Balance = data.TransactionQty - (data.ExistSalesQty + data.SalesQty);
+                data.Balance = data.TransactionQty.toFixed(2) - (data.ExistSalesQty + data.SalesQty);
                 data.TransactionAmount = parseFloat(data.Rate * data.SalesQty).toFixed(2);
             } else {
-                data.Balance = data.TransactionQty - (data.ExistSalesQty + data.SalesQty);
+                data.Balance = data.TransactionQty.toFixed(2) - (data.ExistSalesQty + data.SalesQty);
                 data.TransactionAmount = parseFloat(data.Rate * data.SalesQty).toFixed(2);
             }
 
@@ -667,7 +667,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             }
             if (baseService.arrayLength($scope.selectedMasterOrderItemList) > 0) {
                 for (var i = 0; i < $scope.selectedMasterOrderItemList.length; i++) {
-                    if ($scope.selectedMasterOrderItemList[i].TransactionQty < ($scope.selectedMasterOrderItemList[i].SalesQty + $scope.selectedMasterOrderItemList[i].ExistSalesQty + $scope.selectedMasterOrderItemList[i].Balance)) {
+                    if ($scope.selectedMasterOrderItemList[i].TransactionQty.toFixed(2) < ($scope.selectedMasterOrderItemList[i].SalesQty + $scope.selectedMasterOrderItemList[i].ExistSalesQty + $scope.selectedMasterOrderItemList[i].Balance)) {
                         throw "Sales Qty can not be greater than Base Qty.";
                     }
                 }
@@ -676,7 +676,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             if (baseService.arrayLength($scope.selectedMasterOrderItemList) > 0) {
                 for (var j = 0; j < $scope.selectedMasterOrderItemList.length; j++) {
 
-                    $scope.selectedMasterOrderItemList[j].Balance = $scope.selectedMasterOrderItemList[j].TransactionQty - ($scope.selectedMasterOrderItemList[j].ExistSalesQty + $scope.selectedMasterOrderItemList[j].SalesQty);
+                    $scope.selectedMasterOrderItemList[j].Balance = $scope.selectedMasterOrderItemList[j].TransactionQty.toFixed(2) - ($scope.selectedMasterOrderItemList[j].ExistSalesQty + $scope.selectedMasterOrderItemList[j].SalesQty);
 
                     if ($scope.selectedMasterOrderItemList[j].Balance < 0) {
                         throw "Balance cann't less than 0.";

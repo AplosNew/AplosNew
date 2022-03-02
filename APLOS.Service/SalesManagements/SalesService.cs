@@ -921,12 +921,27 @@ namespace Library.Service.SalesManagements
 
         public void DeleteSalesMaterial(string Id)
         {
-            string strPSQL, strBSQL, strOSQL;
+            string strPSQL, strBSQL, strOSQL, updatasc=null;
+            DataSet dsMaster, dsSC;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                //if (CheckUsing(id))
-                //    throw new CustomException("First delete Operation!");
+                //string sql = "SELECT * FROM TRN.SalesMaterial WHERE Id='" + Id + "'";
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+              var smdata= _salesMaterialRepository.Find(Id);
+                var secondCharacteristicsData = _secondCharacteristicsRepository.Query(t => t.SalesOrderId == smdata.SalesOrderId && t.Id == smdata.SecondCharacteristicsId).Select(t => t.SalesQty).FirstOrDefault();
+                //string scsql = "SELECT * FROM TRN.SecondCharacteristics WHERE SalesOrderId='" + dsMaster.Tables[0].Rows[0]["SalesOrderId"].ToString() + "' AND Id='"+ dsMaster.Tables[0].Rows[0]["SecondCharacteristicsId"].ToString() + "'";
+                //objCon.OpenDataSetThroughAdapter(scsql, out dsSC, false, "1");
+
+                if (secondCharacteristicsData!=0)
+                {
+                    updatasc = "Update TRN.SecondCharacteristics set SalesQty=" + secondCharacteristicsData + "-"+ smdata.BaseQty + " WHERE SalesOrderId='" + smdata.SalesOrderId + "' AND Id='" + smdata.SecondCharacteristicsId + "'";
+                }
+
+                
 
                 strOSQL = "DELETE FROM TRN.SalesTax WHERE SalesMaterialId='" + Id + "'";
                 strBSQL = "DELETE FROM TRN.SalesMaterial WHERE Id='" + Id + "'";
@@ -936,6 +951,7 @@ namespace Library.Service.SalesManagements
                 objCon.BeginTransaction();
                 objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(updatasc, true, "1");
                 objCon.CommitTransaction();
             }
             catch (Exception ex)
