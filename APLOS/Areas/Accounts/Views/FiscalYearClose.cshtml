@@ -72,20 +72,18 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Voucher Type</th>
-                <th>Period</th>
-                <th>Prefix</th>
-                <th>PadLeft Length</th>
-                <th>Sample</th>
+                <th>Fiscal Year</th>
+                <th>Company</th>
+                <th>Plant</th>
+                
             </tr>
         </thead>
         <tbody>
             <tr dir-paginate="x in FiscalYearCloseList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get( $index);">
-                <td>{{x.VoucherTypeName}}</td>
-                <td>{{x.Period}}</td>
-                <td>{{x.Prefix}}</td>
-                <td>{{x.PadLeftWidth}}</td>
-                <td>{{x.Prefix}}-{{x.Period}}-{{x.PadLeftWidth}}</td>
+                <td>{{x.FiscalYearName}}</td>
+                <td>{{x.CompanyName}}</td>
+                <td>{{x.PlantName}}</td>
+                
             </tr>
         </tbody>
     </table>

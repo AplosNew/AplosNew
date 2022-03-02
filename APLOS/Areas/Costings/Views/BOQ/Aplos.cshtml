@@ -91,7 +91,7 @@
                                 <div class="common-btn">
                                     <ul class="list-inline small">
                                         <li>
-                                            <button ng-click="$parent.showPartyPopUp(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                            <button ng-click="$parent.showPartyPopUpNew(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                                                 <i class="glyphicon glyphicon-search"></i>
                                             </button>
                                         </li>
@@ -140,8 +140,8 @@
                                     <div e-column e-type="number" e-field="BOMQty" e-headertext="BOM Qty" e-width="60px"></div>
 
                                     @*WithSKU	SalesOrderId	Destination	SKU1	SKU2	IncompleteMaterial	PreparedBy	CostingDate	Id	Sequence
-                ItemDesc	Material	Article	ItemRefNo	Vendor	MaterialCode
-                ArticleCode	ResponsiblePerson	BOMQty	RequiredQty	UOM	BOMAmount	BOQCriteria	Currency*@
+                                        ItemDesc	Material	Article	ItemRefNo	Vendor	MaterialCode
+                                        ArticleCode	ResponsiblePerson	BOMQty	RequiredQty	UOM	BOMAmount	BOQCriteria	Currency*@
 
                                     <div e-column e-type="number" e-field="BalanceToPurchase" e-headertext="Reuse From Inventory" e-format="{0:N2}" e-width="100px"></div>
                                     <div e-column e-type="string" e-field="POCriteria" e-headertext="PO Criteria" e-width="100px"></div>
@@ -303,7 +303,7 @@
     </div>
 </div>
 
-
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
