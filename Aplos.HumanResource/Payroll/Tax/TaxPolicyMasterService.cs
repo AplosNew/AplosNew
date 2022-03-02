@@ -1186,6 +1186,104 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
+        #region Additional Tax Functions
+
+        public Dictionary<string, object> SaveAdditionalTaxMaster(Dictionary<string, object> Header)
+        {
+            try
+            {
+                if (Header["IsPercentage"].ToString() == Header["IsFix"].ToString())
+                {
+                    throw new Exception("Please Either Choose Percentage or Fixed ...");
+                }
+                string TableName = "dbo.AdditionalTaxMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where TaxPolicyId='" + Header["TaxPolicyId"] + "' and UserName='" + Header["UserName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same UserName is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where TaxPolicyId='" + Header["TaxPolicyId"] + "' and StandardName='" + Header["StandardName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same StandardName is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Header["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+             
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    Header["Id"] = "ATM" + _Id;
+                    AddNewRow(dsMaster.Tables[0], Header);
+                }
+                else
+                {
+                    _Id = Header["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], Header);
+                }
+
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Header;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+     
+        public IEnumerable<object> GetAddnTaxMasterList(string Id)
+        {
+            try
+            {
+                var str = @"Select am.Id,am.TaxPolicyId,am.UserName,am.StandardName,am.IsFix,
+                am.IsPercentage,am.Value,
+                Criterion=Case when (IsFix=1)THEN(select 'Fix') else (Select 'Percentage')end
+                from AdditionalTaxMaster AM LEFT 
+                                JOIN taxpolicyheader th 
+                                on th.Id=AM.taxpolicyId
+                                where am.TaxPolicyId ='"+Id+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+      
+        public void DeleteAddtnTaxMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from AdditionalTaxMaster where Id='" + ID + "'");
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
     }
     public class TaxExemptionFormula
     {
