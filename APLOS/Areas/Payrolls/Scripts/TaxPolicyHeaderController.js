@@ -1761,6 +1761,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.ClearAdditionalTaxMaster();
                     $scope.GetAdditionalTaxMasterList();
                 }
             }), function errorCallBack(response) {

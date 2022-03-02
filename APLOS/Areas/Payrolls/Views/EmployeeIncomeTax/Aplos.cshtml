@@ -290,6 +290,24 @@
                         </div>
                     </div>
                 </div>
+
+                <label style="margin-left:30px; margin-top:20px;"><strong>Tax After Additional Charges</strong></label>
+
+                <div class="row" style="margin:20px;">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" ej-grid e-datasource="AdditionalChargesPopUp"
+                             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                             e-allowselection="true" e-filtersettings-filterType="excel"
+                             e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true"
+                             e-allowtextwrap="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="TaxAfterRebate" e-headertext="Tax After Rebate" e-width="2"></div>
+                                <div e-column e-field="AdditionalTax" e-headertext="Additonal Tax Amount" e-width="2"></div>
+                                <div e-column e-field="NetTax" e-headertext="Net Tax" e-width="2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>

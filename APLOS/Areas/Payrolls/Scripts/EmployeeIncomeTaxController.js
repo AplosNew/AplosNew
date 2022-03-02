@@ -152,6 +152,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             $scope.getTaxableIncomeGridData();
             $scope.GetTaxAmtGridData();
             $scope.GetRebateAmtGridData();
+            $scope.AfterAdditonalChargesData();
         });
     }
 
@@ -266,6 +267,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                     $scope.getTaxableIncomeGridData();
                     $scope.GetTaxAmtGridData();
                     $scope.GetRebateAmtGridData();
+                    $scope.AfterAdditonalChargesData();
                 }
             })
         }
@@ -612,7 +614,33 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         });
     }
 
+    $scope.AdditionalChargesPopUp = [];
+    $scope.AfterAdditonalChargesData = function () {
 
+        if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Invalid Request!!');
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "AfterAdditonalChargesData",
+            data: {
+                'PolicyId': $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId,
+                'EmpId': $scope.EmployeeIncomeTaxModel.EmpSystemId,
+                'YearId': $scope.EmployeeIncomeTaxModel.TaxYearId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+                throw ('Invalid Request!');
+            }
+            $scope.AdditionalChargesPopUp = [];
+            $scope.AdditionalChargesPopUp = response.data;
+
+        });
+    }
 
     // #endregion
 };
