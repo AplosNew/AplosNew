@@ -34,9 +34,9 @@ namespace Library.MaterialManagement.InventoryManagements
         public IEnumerable<object> GetPOBOQItems(string ContractId, string VendorId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            
-                    var sql = "";
-                    sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
+
+            var sql = "";
+            sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
                         ,GroupId=CASE WHEN isnull(b.POCriteria,'CostingItem')='CostingItem' THEN b.CostingItemId ELSE b.Id END
                         ,b.Sequence Sequence1
 						,b.MasterOrderItemId
@@ -94,7 +94,10 @@ namespace Library.MaterialManagement.InventoryManagements
 						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId,ISNULL(b.ItemRefNo,'') BOQItemRefNo
 						   ,ISNULL(CI.UserName,'') CostingItemName,ISNULL(b.SKUDesc,'')SKUDesc,ISNULL(b.RMDescription,'')RMDescription
 						   ,ISNULL(b.RMVendorSpec,'')RMVendorSpec,ISNULL(b.RMCustomerSpec,'')RMCustomerSpec
-
+                   ,b.BOQCriteria  , CriteriaDetail= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',de.UserName,' ',v1.UserName,' ',v2.UserName)),b.OwnReferenceNo BOQOwnReferenceNo
+,b.Rate*b.BOMQty AS BOMAmount ,b.Rate*b.RequiredQty AS PlanAmount ,  mm.Code AS MaterialCode,mma.Code AS ArticleCode,V1.UserName SKU1,v2.UserName SKU2
+, SKUDescConcat= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',DE.UserName,' ',v1.UserName,' ',v2.UserName))
+   ,b.RequiredQty,b.BOMQty-b.RequiredQty AS BalanceToPurchase,b.CostingItemId,b.Remark,b.[FileName]
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
                         LEFT OUTER JOIN MST.MaterialGroupMaster AS MGA ON MGA.Id=mm.MaterialGroupMasterId
@@ -130,34 +133,34 @@ namespace Library.MaterialManagement.InventoryManagements
 						join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
 						where MOI.ContractId='" + ContractId + @"'
 						)
-						AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='"+ VendorId + @"')
+						AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='" + VendorId + @"')
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
-                    var Data = _sqlRepository.GetDataCollection(sql);
-                    StringCollection strCol = new StringCollection();
-                    string MaterialMasterList = "''";
-                    for (int i = 0; i < Data.Count; i++)
-                    {
-                        if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
-                            continue;
-                        strCol.Add(Data[i]["MaterialMasterId"].ToString());
-                        MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+            var Data = _sqlRepository.GetDataCollection(sql);
+            StringCollection strCol = new StringCollection();
+            string MaterialMasterList = "''";
+            for (int i = 0; i < Data.Count; i++)
+            {
+                if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+                    continue;
+                strCol.Add(Data[i]["MaterialMasterId"].ToString());
+                MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
 
-                    }
+            }
 
-                    var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+            var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
 																	union
 																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
 																	) AS M
 																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
 																	 where m.Id in (" + MaterialMasterList + @")");
 
-                    for (int i = 0; i < Data.Count; i++)
-                    {
-                        var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
-                        Data[i]["uoMList"] = temp;
-                    }
+            for (int i = 0; i < Data.Count; i++)
+            {
+                var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+                Data[i]["uoMList"] = temp;
+            }
 
-                    return Data;
+            return Data;
 
         }
 
@@ -3518,7 +3521,7 @@ namespace Library.MaterialManagement.InventoryManagements
                 report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["LCANo"].ToString()); col++;
                 report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["LCRef"].ToString()); col++;
                 report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["ContractId"].ToString()); col++;
-                report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString()); 
+                report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
 
             }
             _rowL++;

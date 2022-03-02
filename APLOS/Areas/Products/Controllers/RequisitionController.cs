@@ -332,50 +332,7 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost, Authorize]
-        //public JsonResult Create(MaterialRequsitionMaster entity)
-        //{
-
-        //	try
-        //	{
-
-
-        //		var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //		entity.CompanyGroupId = identity.CompanyGroupId;
-        //		//entity.CompanyId = identity.CompanyId;
-        //		//entity.PlantId = identity.PlantId;
-        //		entity.CheckedBy = entity.CheckedBy;
-        //		entity.CheckedByStatus = "For Checking";
-        //		entity.AuthorizedBy = null;
-        //		entity.AuthorizedByStatus = null;
-        //		entity.RequisitionStatus = null;
-        //		entity.ReqEmpId = identity.EmployeeId; 
-
-        //		if (entity != null)
-        //		{
-        //			if (entity.RequirmentType == "Critical")
-        //			{
-        //				if (entity.ReasonWhyItIsNotPlanEarlier == null || entity.ReasonWhyItIsNotPlanEarlier == "")
-        //				{
-        //					throw new CustomException("Input Reason Why It Is Not Plan Earlier!");
-        //				}
-        //			}
-        //			else if (entity.RequirmentType == "Urgent")
-        //			{
-        //				if (entity.ReasonWhyItIsNotPlanEarlier == null || entity.ReasonWhyItIsNotPlanEarlier == "")
-        //				{
-        //					throw new CustomException("Input Reason Why It Is Not Plan Earlier!");
-        //				}
-        //			}
-        //		}
-        //		_materialRequsitionMasterServiceService.Insert1(entity);
-        //	}
-        //	catch (Exception ex)
-        //	{
-        //		throw new CustomException("I am Bug!" + ex);
-        //	}
-        //	return Json(new { entity, Message = AplosMessage.Success + " Requisition No <b>" + entity.Id + "</b>" });
-        //}
-
+       
 
         public JsonResult Create(MaterialRequsitionMaster entity,string CheckedByStatusForNoti,string ApprovedByStatusForNoti)
         {
@@ -458,7 +415,7 @@ namespace Aplos.Areas.Products.Controllers
 							}
 						}
 					}
-					_materialRequsitionMasterServiceService.Insert1(entity);
+					_materialRequsitionMasterServiceService.InsertRequsition(entity);
 
 				}
                     

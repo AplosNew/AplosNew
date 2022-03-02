@@ -1009,6 +1009,7 @@ upanelApp.controller("MeetingAgendaController", MeetingAgendaController);
 upanelApp.controller("StocksAdjustmentController", StocksAdjustmentController);
 upanelApp.controller("FinalPackDefinitionController", FinalPackDefinitionController);
 upanelApp.controller("PrePackDefinitionController", PrePackDefinitionController);
+upanelApp.controller("MeetingReportsController", MeetingReportsController);
 
 
 
