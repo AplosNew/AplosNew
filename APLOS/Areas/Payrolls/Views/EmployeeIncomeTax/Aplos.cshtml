@@ -253,7 +253,7 @@
                     </div>
                 </div>
             </div>
-          
+
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
 
                 <div class="row" style="margin:10px;">
@@ -304,8 +304,17 @@
                                 <div e-column e-field="TaxAfterRebate" e-headertext="Tax After Rebate" e-width="2"></div>
                                 <div e-column e-field="AdditionalTax" e-headertext="Additonal Tax Amount" e-width="2"></div>
                                 <div e-column e-field="NetTax" e-headertext="Net Tax" e-width="2"></div>
+                                <div e-column e-headertext="View Policy" e-template="#ShowButtons" e-width="1"></div>
                             </div>
                         </div>
+
+                        <script type="text/ng-template" id="ShowButtons">
+                            <div class="common-btn">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                                    <i class="glyphicon glyphicon-list" ng-click="$parent.View_AdditionalTaxes_Popup(this);"></i>
+                                </button>
+                            </div>
+                        </script>
                     </div>
                 </div>
             </div>
@@ -325,6 +334,35 @@
     }
 
 </script>
+
+
+<div class="modal fade site-modal in" id="AdditionalTaxPopup">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Additional Taxes :- <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" id="AdditionalTaxGrid" ej-grid e-datasource="AddtnTaxMasterList"
+                             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                             e-allowselection="true" e-filtersettings-filterType="excel"
+                             e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="TaxPolicyId" e-headertext="PolicyId" e-width="50"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
+                                <div e-column e-field="Criterion" e-headertext="Criterion" e-width="100"></div>
+                                <div e-column e-field="Value" e-headertext="Value" e-width="80"></div>
+                            </div>
+                        </div>                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 <div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
@@ -361,8 +399,8 @@
 <script type="text/template" id="Files">
     <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||  data.FileName == ''">
         <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false"
-         e-height="30" e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" e-error="errorUpload"/>
- 
+             e-height="30" e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" e-error="errorUpload" />
+
     </div>
 
     <div class="col-md-8" ng-hide="data.FileName==null ">

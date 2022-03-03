@@ -996,9 +996,12 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string strSQL = @"select si.* from TaxRebateConfiguration si 
+                string strSQL = @"select si.Id,si.TaxPolicyId,si.Minimum,
+				si.Maximum,si.IsPercentage,si.IsFix,si.Value,
+				Criterion=Case when (si.IsFix=1)THEN(select 'Fix') else (Select 'Percentage')end                
+				from TaxRebateConfiguration si 
                 left join TaxPolicyHeader th on th.Id=si.TaxPolicyId
-                where th.Id='" + PolicyId + "'";
+                where th.Id='"+PolicyId+"'";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)

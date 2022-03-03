@@ -5,6 +5,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Payrolls/EmployeeIncomeTax/';
+    $scope.Headerpath = 'Payrolls/TaxPolicyHeader/';
     $scope.employee = [];
 
     //#region Tab
@@ -641,6 +642,39 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
         });
     }
+
+    // #endregion
+
+    // #region Open Popups
+
+    $scope.AddtnTaxMasterList = [];
+    $scope.GetAdditionalTaxMasterList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.Headerpath+ 'GetAdditionalTaxMasterList',
+            data: { 'Id': $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AddtnTaxMasterList = [];
+            $scope.AddtnTaxMasterList = response.data;
+        });
+    }
+
+
+    $scope.View_AdditionalTaxes_Popup = function () {
+        try {
+            if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId))
+            {
+                ShowResult("Please First Configure the Policy !", 'failure');               
+            }
+            $scope.GetAdditionalTaxMasterList();
+            angular.element(document.querySelector('#AdditionalTaxPopup')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+
+    };
 
     // #endregion
 };
