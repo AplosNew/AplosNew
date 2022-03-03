@@ -286,8 +286,17 @@
                                 <div e-column e-field="EstimatedTax" e-headertext="Estimated Tax" e-width="2"></div>
                                 <div e-column e-field="TaxRebate" e-headertext="Rebate Amount" e-width="2"></div>
                                 <div e-column e-field="TaxAfterRebate" e-headertext="Total Tax" e-width="2"></div>
+                                <div e-column e-headertext="View Policy" e-template="#ShowPopup" e-width="1"></div>
                             </div>
                         </div>
+                        
+                        <script type="text/ng-template" id="ShowPopup">
+                            <div class="common-btn">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                                    <i class="glyphicon glyphicon-list" ng-click="$parent.View_RebatePolicy_Popup(this);"></i>
+                                </button>
+                            </div>
+                        </script>
                     </div>
                 </div>
 
@@ -355,7 +364,7 @@
                                 <div e-column e-field="Criterion" e-headertext="Criterion" e-width="100"></div>
                                 <div e-column e-field="Value" e-headertext="Value" e-width="80"></div>
                             </div>
-                        </div>                      
+                        </div>
                     </div>
                 </div>
             </div>
@@ -363,6 +372,32 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="RebatePolicyPopup">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Rebate Policy :- <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div style="color:black;" id="RebateTaxPolicyGrid" ej-grid e-datasource="RebateDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                             e-allowselection="true" e-filtersettings-filterType="excel"
+                             e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="TaxPolicyId" e-headertext="PolicyId" e-width="50"></div>
+                                <div e-column e-field="Minimum" e-headertext="Minimum" e-width="120"></div>
+                                <div e-column e-field="Maximum" e-headertext="Maximum" e-width="120"></div>
+                                <div e-column e-field="Criterion" e-headertext="Criterion" e-width="100"></div>
+                                <div e-column e-field="Value" e-headertext="Value" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">

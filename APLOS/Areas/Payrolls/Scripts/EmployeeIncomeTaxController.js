@@ -676,6 +676,34 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
     };
 
+    $scope.RebateDataList = [];
+    $scope.GetRebateInfo = function () {
+        $http({
+            method: 'GET',
+            url: $scope.Headerpath + "GetRebateInfo?PolicyId=" + $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId,
+        }).then(function successCallback(response) {
+
+        $scope.RebateDataList = [];
+        $scope.RebateDataList = response.data;
+            
+        });
+    }
+
+    $scope.View_RebatePolicy_Popup = function () {
+        try {
+            if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+                ShowResult("Please First Configure the Policy !", 'failure');
+            }
+            $scope.GetRebateInfo();
+            angular.element(document.querySelector('#RebatePolicyPopup')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+
+    };
+
+
     // #endregion
 };
 
