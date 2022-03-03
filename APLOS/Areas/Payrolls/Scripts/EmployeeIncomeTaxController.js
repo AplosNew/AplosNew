@@ -154,6 +154,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
             $scope.GetTaxAmtGridData();
             $scope.GetRebateAmtGridData();
             $scope.AfterAdditonalChargesData();
+            $scope.AfterSurchargeData();
         });
     }
 
@@ -269,6 +270,7 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
                     $scope.GetTaxAmtGridData();
                     $scope.GetRebateAmtGridData();
                     $scope.AfterAdditonalChargesData();
+                    $scope.AfterSurchargeData();
                 }
             })
         }
@@ -643,6 +645,34 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
         });
     }
 
+    $scope.SurchargePopUp = [];
+    $scope.AfterSurchargeData = function () {
+
+        if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Invalid Request!!');
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "AfterSurchargesData",
+            data: {
+                'PolicyId': $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId,
+                'EmpId': $scope.EmployeeIncomeTaxModel.EmpSystemId,
+                'YearId': $scope.EmployeeIncomeTaxModel.TaxYearId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+                throw ('Invalid Request!');
+            }
+            $scope.SurchargePopUp = [];
+            $scope.SurchargePopUp = response.data;
+
+        });
+    }
+
     // #endregion
 
     // #region Open Popups
@@ -703,6 +733,33 @@ function EmployeeIncomeTaxController(cboService, commonMessage, $scope, $rootSco
 
     };
 
+
+    $scope.View_SurchargePolicy_Popup = function () {
+        try {
+            if (angular.isUndefinedOrNull($scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId)) {
+                ShowResult("Please First Configure the Policy !", 'failure');
+            }
+            $scope.GetSurchargeInfo();
+            angular.element(document.querySelector('#SurchargePolicyPopup')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+
+    };
+
+    $scope.SurchargeDataList = [];
+    $scope.GetSurchargeInfo = function () {
+        $http({
+            method: 'GET',
+            url: $scope.Headerpath + "GetSurchargeInfo?PolicyId=" + $scope.EmployeeIncomeTaxModel.TaxPolicyHeaderId,
+        }).then(function successCallback(response) {
+
+            $scope.SurchargeDataList = [];
+            $scope.SurchargeDataList = response.data;
+
+        });
+    }
 
     // #endregion
 };

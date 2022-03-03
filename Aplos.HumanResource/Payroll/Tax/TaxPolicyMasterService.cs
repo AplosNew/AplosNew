@@ -1106,7 +1106,10 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string strSQL = @"select si.* from TaxSurChargeConfiguration si 
+                string strSQL = @"select si.Id,si.TaxPolicyId,si.Minimum,
+				si.Maximum,si.IsPercentage,si.IsFix,si.Value,
+				Criterion=Case when (si.IsFix=1)THEN(select 'Fix') else (Select 'Percentage')end                
+				from TaxSurChargeConfiguration si 
                 left join TaxPolicyHeader th on th.Id=si.TaxPolicyId
                 where th.Id='" + PolicyId + "'";
                 return _sqlRepository.GetDataCollection(strSQL);
@@ -2531,8 +2534,7 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
-        #region
-
+        #region Tax After Surcharge
         public void ProcessSurcharge(string IncomeTaxId, string PolicyId)
         {
             try
@@ -2636,6 +2638,23 @@ namespace Library.HumanResource.Payroll.Tax
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        public IEnumerable<object> GetTaxAfterSurcharge(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                string sql = @"select ei.EmpSystemId,ei.TaxPolicyHeaderId,ei.TaxYearId,S.EstimatedTax,
+                S.TaxSurcharge,S.NetTax               
+                from TaxAfterSurcharge S left join EmployeeIncomeTaxMaster ei
+                on S.EmployeeIncomeTaxId=ei.Id
+                where ei.EmpSystemId='"+EmpId+"' and ei.TaxYearId='"+YearId+@"'
+                and ei.TaxPolicyHeaderId='"+PolicyId+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
 
