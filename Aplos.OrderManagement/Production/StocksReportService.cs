@@ -371,7 +371,7 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
                             , Sum(Case When purp.UserName = 'ISSUE' then Sc.NetWeight else 0 end) as Issue
                             , Sum(Case When Sc.IsDespatch = 1 then Sc.NetWeight else 0 end) as Dispatch
                             , Sum(Case When purp.UserName = 'RETURN' then Sc.NetWeight else 0 end) as Retrn
-							, sa.Adj as Adj
+							, isnull(sa.Adj,0) as Adj
                             from dbo.ItemScanChild sc
                             left join ItemScan s on s.Id = sc.MasterId
                             left join hkp.MaterialMovementPurpose purp on purp.Id = s.PurposeId

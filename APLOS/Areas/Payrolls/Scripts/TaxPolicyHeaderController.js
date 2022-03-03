@@ -69,10 +69,12 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.TaxSlabDefine.PolicyId = e.data.Id;
         $scope.TaxRebateDefine.TaxPolicyId = e.data.Id;
         $scope.TaxSurchargeDefine.TaxPolicyId = e.data.Id;
+        $scope.AdditionalTaxModel.TaxPolicyId = e.data.Id;
         $scope.GetEarningMasterList();
         $scope.getInvestDeductMaster();
         $scope.GetSlabInfo();
         $scope.GetRebateInfo();
+        $scope.GetAdditionalTaxMasterList();
         $scope.GetSurchargeInfo();
         updateChild();
         updateTaxDataChild();
@@ -678,8 +680,6 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         });
 
     };
-
-    //#endregion
 
     //#endregion
 
@@ -1672,4 +1672,110 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     // #endregion
 
+    //#region Additional Tax Functions
+
+    $scope.AdditionalTaxModel = {
+        Id: null,
+        TaxPolicyId: null,
+        StandardName: null,
+        UserName: null,
+        IsPercentage: false,
+        IsFix: false,
+        Value: null,
+    };
+
+    $scope.ClearAdditionalTaxMaster = function () {
+        $scope.AdditionalTaxModel = {
+            Id: null,
+            TaxPolicyId: null,
+            StandardName: null,
+            UserName: null,
+            IsPercentage: false,
+            IsFix: false,
+            Value: null,
+        };
+        $scope.AdditionalTaxModel.TaxPolicyId = $scope.Header.Id;
+
+    }
+
+    $scope.SaveAdditionalTaxMaster = function () {
+               
+        if (baseService.isUndefinedOrNull($scope.AdditionalTaxModel.StandardName)) {
+            ShowResult("StandardName cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.AdditionalTaxModel.UserName)) {
+            ShowResult("UserName cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.AdditionalTaxModel.Value)) {
+            ShowResult("Value cann't be empty...");
+        }
+        else
+        {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveAdditionalTaxMaster',
+                data: { 'AdditionalTaxMaster': $scope.AdditionalTaxModel }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetAdditionalTaxMasterList();
+                }
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+    }
+
+    $scope.AddtnTaxMasterList = [];
+    $scope.GetAdditionalTaxMasterList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetAdditionalTaxMasterList",
+            data: { 'Id': $scope.Header.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AddtnTaxMasterList = [];
+            $scope.AddtnTaxMasterList = response.data;
+        });
+    }
+
+    $scope.ConfirmDeleteAdditionalTax = function (obj) {
+        $scope.AdditionalTaxModel.Id = obj.data.Id;
+        $scope.DeleteTaxAddtnMaster();
+    };
+
+    $scope.DeleteTaxAddtnMaster = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteAddtnTaxMaster",
+                data: { ID: $scope.AdditionalTaxModel.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearAdditionalTaxMaster();
+                    $scope.GetAdditionalTaxMasterList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.AdditionalTaxMasterChildDetails = function (e) {
+        $scope.AdditionalTaxModel = e.data; // Model which is used as ng-model will come here
+    }
+
+    //#endregion
 }

@@ -613,5 +613,50 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
+        #region Additional Tax Functions
+
+        [HttpPost]
+        public ActionResult SaveAdditionalTaxMaster(Dictionary<string, object> AdditionalTaxMaster)
+        {
+            try
+            {
+                var id = ds.SaveAdditionalTaxMaster(AdditionalTaxMaster);
+                return Json(new { Error = false, Data = id, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetAdditionalTaxMasterList(string Id)
+        {
+            try
+            {
+                return Json(ds.GetAddnTaxMasterList(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteAddtnTaxMaster(string ID)
+        {
+            try
+            {
+                ds.DeleteAddtnTaxMaster(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion
     }
 }

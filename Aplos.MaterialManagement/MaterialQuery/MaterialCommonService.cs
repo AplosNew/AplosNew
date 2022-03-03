@@ -30,18 +30,18 @@ namespace Aplos.MaterialManagement.MaterialQuery
             string articleId = "";
             string firstCharacteristicsId = "";
             string firstCharacteristicsValueId = "";
-            string secondCharacteristicsId = "";
-            string secondCharacteristicsValueId = "";
-            string thirdCharacteristicsId = entity.ThirdCharacteristicsId;
-            string ThirdCharacteristicsValueId = entity.ThirdCharacteristicsValueId;
+            //string secondCharacteristicsId = "";
+            //string secondCharacteristicsValueId = "";
+            //string thirdCharacteristicsId = entity.ThirdCharacteristicsId;
+            //string ThirdCharacteristicsValueId = entity.ThirdCharacteristicsValueId;
 
             if (string.IsNullOrEmpty(articleId)) { articleId = "AND  ArticleId=NULL"; } else { articleId = "AND  ArticleId = '" + entity.ArticleId + @"'"; }
             if (string.IsNullOrEmpty(firstCharacteristicsId)) { firstCharacteristicsId = "AND  FirstCharacteristicsId=NULL"; } else { firstCharacteristicsId = "AND  FirstCharacteristicsId = '" + entity.ArticleId + @"'"; }
             if (string.IsNullOrEmpty(firstCharacteristicsValueId)) { firstCharacteristicsValueId = "AND  FirstCharacteristicsValueId=NULL"; } else { firstCharacteristicsValueId = "AND  FirstCharacteristicsValueId = '" + entity.FirstCharacteristicsValueId + @"'"; }
 
             var sql = @"SELECT Top(1) * FROM TRN.InventoryMaterial WHERE MaterialMasterId='" + entity.MaterialMasterId + @"' "+ articleId + " "+ firstCharacteristicsId + " "+ firstCharacteristicsValueId + @"
-                                AND  SecondCharacteristicsId = '" + entity.SecondCharacteristicsId + @"' AND  SecondCharacteristicsValueId ='" + entity.SecondCharacteristicsValueId + @"'
-                                AND  ThirdCharacteristicsId = '" + entity.ThirdCharacteristicsId + @"' AND  ThirdCharacteristicsValueId = '" + entity.ThirdCharacteristicsValueId + @"'
+                                AND  SecondCharacteristicsId =ISNULL( '" + entity.SecondCharacteristicsId + @"',NULL) AND  SecondCharacteristicsValueId =ISNULL( '" + entity.SecondCharacteristicsValueId + @"',NULL)
+                                AND  ThirdCharacteristicsId =ISNULL( '" + entity.ThirdCharacteristicsId + @"',NULL) AND  ThirdCharacteristicsValueId =ISNULL( '" + entity.ThirdCharacteristicsValueId + @"',NULL)
                                 AND  CompanyId = '" + entity.CompanyId + @"' AND  PlantId ='" + entity.PlantId + @"'";
             return _sqlRepository.GetModelCollection<POMaterial>(sql);
         }
