@@ -207,24 +207,15 @@ function ComplianceDocumentController(commonMessage, $scope, $rootScope, baseSer
     };
 
     $scope.positionPopUp = function () {
-        $scope.getPositionData = function (pageno) {
-            baseService.paginationBase($scope.positionUrl, pageno, $scope.positionParameters)
-                .then(function (response) {
-                    $scope.positionDataList = response.Rows;
-                    $scope.positionParameters.total_count = response.Total;
-                    if (baseService.arrayLength($scope.positionSearchList) === 0) {
-                        $scope.positionSearchList.push(
-                            {
-                                'Text': 'Id',
-                                'Value': 'Id'
-                            });
-                        baseService.getDDLSearchColumn($scope.positionDataList, $scope.positionSearchList);
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
+
+        $scope.getPositionData = function () {
+            $http({
+                method: 'GET',
+                url: 'Organizations/Position/GetList?TPId=' + $scope.positionParameters,
+            }).then(function succ(response) {
+                $scope.positionDataList = response.data.Rows;
+            });
+        }
         angular.element(document.querySelector('#positionPopUp')).modal('show');
         $scope.getPositionData();
     };
@@ -235,12 +226,12 @@ function ComplianceDocumentController(commonMessage, $scope, $rootScope, baseSer
         angular.element(document.querySelector('#positionPopUp')).modal('hide');
     };
 
-    $scope.selectPositionPopUp = function (data) {
-        $scope.selectedPositionId = data.Id;
+    $scope.selectPositionPopUp = function (obj) {
+        $scope.selectedPositionId = obj.data.Id;
         $scope.complianceDocumentPositonCode.PositionId = $scope.selectedPositionId;
-        $scope.complianceDocumentPositonCode.PositionName = data.UserName;
-        data.PositionId = data.Id;
-        $scope.addPositionForSave(data);
+        $scope.complianceDocumentPositonCode.PositionName = obj.data.UserName;
+        obj.data.PositionId = obj.data.Id;
+        $scope.addPositionForSave(obj.data);
         angular.element(document.querySelector('#positionPopUp')).modal('hide');
     };
     $scope.positionList = [];

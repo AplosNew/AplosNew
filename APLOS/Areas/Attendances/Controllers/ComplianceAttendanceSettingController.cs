@@ -445,13 +445,13 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
                                 LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LG.Id and LSGD.PlantId='" + plantId + @"'
                                 LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId
-                                left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId
-                                AND AR.WorkDate = ES.WorkDate
+                                --left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId
+                                --AND AR.WorkDate = ES.WorkDate
                                 left join(
                                 SELECT  m.ShiftDefinationID, c.ShiftDate, m.InTime, m.SystemID,m.OutTime  FROM[ShiftTimeChgMaster] m
                                 left join[ShiftTimeChgChild] c on m.SystemID = c.STCMasterSystemID
-                                         ) CS on cs.ShiftDefinationID = es.ShiftSystemID and cs.ShiftDate = ar.WorkDate
-                                left join[ShiftDefination] sd on sd.SystemID = es.ShiftSystemID
+                                         ) CS on cs.ShiftDefinationID = AR.ShiftSystemID and cs.ShiftDate = ar.WorkDate
+                                left join[ShiftDefination] sd on sd.SystemID = AR.ShiftSystemID
                                 LEFT JOIN HKP.Designation D ON E.GivenDesignationId = D.Id
                                 LEFT JOIN FinalOT OT ON E.SystemId = OT.EmpSystemID and ot.WorkDate=ar.WorkDate
                                 LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId

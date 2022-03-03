@@ -1125,5 +1125,11 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
 
     };
+    $scope.PO = function (z) {
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+    };
 }//End Of main
 

@@ -996,9 +996,12 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string strSQL = @"select si.* from TaxRebateConfiguration si 
+                string strSQL = @"select si.Id,si.TaxPolicyId,si.Minimum,
+				si.Maximum,si.IsPercentage,si.IsFix,si.Value,
+				Criterion=Case when (si.IsFix=1)THEN(select 'Fix') else (Select 'Percentage')end                
+				from TaxRebateConfiguration si 
                 left join TaxPolicyHeader th on th.Id=si.TaxPolicyId
-                where th.Id='" + PolicyId + "'";
+                where th.Id='"+PolicyId+"'";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -1103,7 +1106,10 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string strSQL = @"select si.* from TaxSurChargeConfiguration si 
+                string strSQL = @"select si.Id,si.TaxPolicyId,si.Minimum,
+				si.Maximum,si.IsPercentage,si.IsFix,si.Value,
+				Criterion=Case when (si.IsFix=1)THEN(select 'Fix') else (Select 'Percentage')end                
+				from TaxSurChargeConfiguration si 
                 left join TaxPolicyHeader th on th.Id=si.TaxPolicyId
                 where th.Id='" + PolicyId + "'";
                 return _sqlRepository.GetDataCollection(strSQL);
@@ -1177,6 +1183,104 @@ namespace Library.HumanResource.Payroll.Tax
 
                 return SurchargeData;
 
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region Additional Tax Functions
+
+        public Dictionary<string, object> SaveAdditionalTaxMaster(Dictionary<string, object> Header)
+        {
+            try
+            {
+                if (Header["IsPercentage"].ToString() == Header["IsFix"].ToString())
+                {
+                    throw new Exception("Please Either Choose Percentage or Fixed ...");
+                }
+                string TableName = "dbo.AdditionalTaxMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where TaxPolicyId='" + Header["TaxPolicyId"] + "' and UserName='" + Header["UserName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same UserName is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where TaxPolicyId='" + Header["TaxPolicyId"] + "' and StandardName='" + Header["StandardName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same StandardName is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Header["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+             
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    Header["Id"] = "ATM" + _Id;
+                    AddNewRow(dsMaster.Tables[0], Header);
+                }
+                else
+                {
+                    _Id = Header["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], Header);
+                }
+
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Header;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+     
+        public IEnumerable<object> GetAddnTaxMasterList(string Id)
+        {
+            try
+            {
+                var str = @"Select am.Id,am.TaxPolicyId,am.UserName,am.StandardName,am.IsFix,
+                am.IsPercentage,am.Value,
+                Criterion=Case when (IsFix=1)THEN(select 'Fix') else (Select 'Percentage')end
+                from AdditionalTaxMaster AM LEFT 
+                                JOIN taxpolicyheader th 
+                                on th.Id=AM.taxpolicyId
+                                where am.TaxPolicyId ='"+Id+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+      
+        public void DeleteAddtnTaxMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from AdditionalTaxMaster where Id='" + ID + "'");
+                con.CommitTransaction();
             }
             catch (Exception ex)
             {
@@ -1328,6 +1432,155 @@ namespace Library.HumanResource.Payroll.Tax
         #endregion
 
         #region Investment/Deduction Tab Functions 
+        public void SaveInvestDeduction(Dictionary<string, object> dataMaster, IEnumerable<InvestDeductModelClass> data)
+        {
+            try
+            {
+
+                #region Master Saving
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string TableName = "dbo.EmployeeIncomeTaxMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                string sql = @"select * from " + TableName + " where" +
+                    " EmpSystemId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='" + dataMaster["TaxPolicyHeaderId"] + "' " +
+                    "AND TaxTypeId='" + dataMaster["TaxTypeId"] + "' AND TaxYearId='" + dataMaster["TaxYearId"] + "'";
+
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                string _Id = "";
+
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    dataMaster["Id"] = "EIT" + _Id;
+                    _tax.AddNewRow(dsMaster.Tables[0], dataMaster);
+                }
+                else
+                {
+                    _Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0]["Id"]).ToString();
+                    dataMaster["Id"] = _Id;
+                    _tax.EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #endregion
+
+                #region Child Saving
+
+                if (data != null)
+                {
+                    #region Validation Check
+
+                    Dictionary<string, List<InvestDeductModelClass>> CalculatedDict =
+                    new Dictionary<string, List<InvestDeductModelClass>>();
+
+                    foreach (var item in data)
+                    {
+                        if (CalculatedDict.ContainsKey(item.TaxSavingGroupId))
+                        {
+                            CalculatedDict[item.TaxSavingGroupId].Add(new InvestDeductModelClass
+                            {
+                                SavingGpLimit = item.SavingGpLimit,
+                                UserValue = item.UserValue,
+                                ActualValue = item.ActualValue,
+                                TaxSavingGroup = item.TaxSavingGroup
+                            });
+                        }
+                        else
+                        {
+                            var datax = new List<InvestDeductModelClass>();
+                            datax.Add(new InvestDeductModelClass
+                            {
+                                SavingGpLimit = item.SavingGpLimit,
+                                UserValue = item.UserValue,
+                                ActualValue = item.ActualValue,
+                                TaxSavingGroup = item.TaxSavingGroup
+                            });
+                            CalculatedDict.Add(item.TaxSavingGroupId, datax);
+                        }
+
+                    }
+
+                    foreach (var item in CalculatedDict)
+                    {
+                        List<InvestDeductModelClass> caldata = item.Value;
+                        if (caldata == null)
+                        {
+                            continue;
+                        }
+                        decimal Amt = 0;
+                        Amt = caldata.Sum(x => x.UserValue);
+                        decimal Limit = caldata[0].SavingGpLimit;
+                        string Group = caldata[0].TaxSavingGroup;
+
+                        if (Amt > Limit)
+                        {
+                            throw new Exception(" Sum of Individual Items in " + Group + " is more than Group Limit !! Please adjust Values !!");
+                        }
+
+                    }
+
+                    #endregion
+
+                    #region Already Existing Data Clearing Portion
+
+                    var sqlx = @"delete from TaxAfterRebate where EmployeeIncomeTaxId='" + MasterId + "'";
+
+                    sqlx += Environment.NewLine + @"delete from TaxAfterSurcharge where EmployeeIncomeTaxId='" + MasterId + "'";
+
+                    sqlx += Environment.NewLine + @"delete from TaxAfterAdditionalCharges where EmployeeIncomeTaxId='" + MasterId + "'";
+
+                    sqlx += Environment.NewLine + @"delete from TaxableIncome where EmployeeIncomeTaxId='" + MasterId + "'";
+
+                    sqlx += Environment.NewLine + @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + MasterId + "'";
+
+                    sqlx += Environment.NewLine + @"delete from EmployeeInvestmentDeduction where EmployeeIncomeTaxId='" + MasterId + "'";
+
+                    UpdateStatus(sqlx);
+
+                    #endregion
+
+                    #region Saving Part
+
+                    GetInvDetailsForSaving(out DataSet dsChild);
+                    foreach (var item in data)
+                    {
+                        DataRow drF = dsChild.Tables[0].NewRow();
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("EmployeeInvestmentDeduction", out string _pk);
+
+                        drF["Id"] = "EID" + _pk;
+                        drF["EmployeeIncomeTaxId"] = MasterId;
+                        drF["ActualValue"] = item.ActualValue;
+                        drF["UserValue"] = item.UserValue;
+                        drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
+                        drF["AddedBy"] = identity.Name;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+
+                        dsChild.Tables[0].Rows.Add(drF);
+                    }
+                    _info.SaveDataSets(dsChild);
+
+                    #endregion
+                }
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void GetInvDetailsForSaving(out DataSet dsRef)
         {
             string strSQL;
@@ -1422,152 +1675,7 @@ namespace Library.HumanResource.Payroll.Tax
 
         #endregion
 
-        #region Saving Functions
-        public void SaveInvestDeduction(Dictionary<string, object> dataMaster, IEnumerable<InvestDeductModelClass> data)
-        {
-            try
-            {
-
-                #region Master Saving
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-                string TableName = "dbo.EmployeeIncomeTaxMaster";
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                string sql = @"select * from " + TableName + " where" +
-                    " EmpSystemId='" + dataMaster["EmpSystemId"] + "' AND TaxPolicyHeaderId='" + dataMaster["TaxPolicyHeaderId"] + "' " +
-                    "AND TaxTypeId='" + dataMaster["TaxTypeId"] + "' AND TaxYearId='" + dataMaster["TaxYearId"] + "'";
-
-                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                string _Id = "";
-               
-               
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    clsGenID genid = new clsGenID();
-                    genid.GenID(TableName, out _Id);
-                    dataMaster["Id"] = "EIT" + _Id;
-                    _tax.AddNewRow(dsMaster.Tables[0], dataMaster);
-                }
-                else
-                {
-                    _Id = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[0]["Id"]).ToString();
-                    dataMaster["Id"] = _Id;
-                    _tax.EditRow(dsMaster.Tables[0].Rows[0], dataMaster);
-                }
-               
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-                #endregion
-
-                #region Child Saving
-
-                if (data != null)
-                {
-                    #region Validation Check
-
-                    Dictionary<string, List<InvestDeductModelClass>> CalculatedDict =
-                    new Dictionary<string, List<InvestDeductModelClass>>();
-
-                    foreach (var item in data)
-                    {
-                        if (CalculatedDict.ContainsKey(item.TaxSavingGroupId))
-                        {
-                            CalculatedDict[item.TaxSavingGroupId].Add(new InvestDeductModelClass
-                            {                                
-                                SavingGpLimit = item.SavingGpLimit,
-                                UserValue = item.UserValue,
-                                ActualValue = item.ActualValue,
-                                TaxSavingGroup = item.TaxSavingGroup
-                            });
-                        }
-                        else
-                        {
-                            var datax = new List<InvestDeductModelClass>();
-                            datax.Add(new InvestDeductModelClass
-                            {
-                                SavingGpLimit = item.SavingGpLimit,
-                                UserValue = item.UserValue,
-                                ActualValue = item.ActualValue,
-                                TaxSavingGroup = item.TaxSavingGroup
-                            });
-                            CalculatedDict.Add(item.TaxSavingGroupId, datax);
-                        }
-
-                    }
-
-                    foreach (var item in CalculatedDict)
-                    {
-                        List<InvestDeductModelClass> caldata = item.Value;
-                        if (caldata == null)
-                        {
-                            continue;
-                        }
-                        decimal Amt = 0;                            
-                        Amt = caldata.Sum(x => x.UserValue);
-                        decimal Limit = caldata[0].SavingGpLimit;
-                        string Group = caldata[0].TaxSavingGroup;
-
-                        if (Amt>Limit)
-                        {   
-                            throw new Exception(" Sum of Individual Items in "+ Group+ " is more than Group Limit !! Please adjust Values !!");
-                        }
-
-                    }
-
-                    #endregion
-
-                    #region Already Existing Data Clearing Portion
-
-                    var sqlx = @"delete from TaxAfterRebate where EmployeeIncomeTaxId='" + MasterId + "'";
-
-                    sqlx+= Environment.NewLine + @"delete from TaxableIncome where EmployeeIncomeTaxId='" + MasterId + "'";
-
-                    sqlx += Environment.NewLine + @"delete from EmployeeNetTax where EmployeeIncomeTaxId='" + MasterId + "'";
-
-                    sqlx += Environment.NewLine + @"delete from EmployeeInvestmentDeduction where EmployeeIncomeTaxId='" + MasterId + "'";
-                                      
-                    UpdateStatus(sqlx);
-
-                    #endregion
-
-                    #region Saving Part
-
-                    GetInvDetailsForSaving(out DataSet dsChild);
-                    foreach (var item in data)
-                    {                      
-                        DataRow drF = dsChild.Tables[0].NewRow();
-                        clsGenID genid = new clsGenID();
-                        genid.GenID("EmployeeInvestmentDeduction", out string _pk);
-
-                        drF["Id"] = "EID" + _pk;
-                        drF["EmployeeIncomeTaxId"] = MasterId;
-                        drF["ActualValue"] = item.ActualValue;
-                        drF["UserValue"] = item.UserValue;
-                        drF["IncomeTaxItemChildId"] = item.IncomeTaxItemChildId;
-                        drF["AddedBy"] = identity.Name;
-                        drF["AddedFromIp"] = identity.IPAddress;
-                        drF["AddedDate"] = DateTime.Now.ToString();
-
-                        dsChild.Tables[0].Rows.Add(drF);                       
-                    }
-                    _info.SaveDataSets(dsChild);
-
-                    #endregion
-                }
-
-                #endregion
-            
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        #region Earning Tab Functions
         public void SaveEarningData(Dictionary<string, object> dataMaster, IEnumerable<EarningModelClass> data)
         {
             try
@@ -1664,10 +1772,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-
-        #endregion
-
-        #region Earning Tab Functions
         public IEnumerable<object> EarningGridData(string PolicyId, string EmpId, string StartDate, string ToDate, string YearId)
         {
             try
@@ -2283,9 +2387,11 @@ namespace Library.HumanResource.Payroll.Tax
                  dsRef.Tables[0].Rows.Add(drF);
                    
                  clsStaticInfo _info = new clsStaticInfo();
-                 _info.SaveDataSets(dsRef);                
+                 _info.SaveDataSets(dsRef);
 
                 #endregion
+
+                ProcessAdditionalCharges(IncomeTaxId, PolicyId);
 
             }
             catch (Exception ex)
@@ -2313,6 +2419,247 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
+
+        #region Additional Taxes
+        public IEnumerable<object> AfterAdditonalChargesData(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                string sql = @"select ei.EmpSystemId,A.TaxAfterRebate,A.AdditionalTax,A.NetTax,
+                ei.TaxYearId,ei.TaxPolicyHeaderId
+                from TaxAfterAdditionalCharges A left join EmployeeIncomeTaxMaster ei
+                on A.EmployeeIncomeTaxId=ei.Id
+                where ei.EmpSystemId='"+EmpId+"' and ei.TaxYearId='"+YearId+@"'
+                and ei.TaxPolicyHeaderId='"+PolicyId+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ProcessAdditionalCharges(string IncomeTaxId, string PolicyId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataTable AdditionalTaxDt, NetTaxDt;
+                DataSet dsRef;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                #region Data Generation Region
+
+                var sql = @"select ei.EmpSystemId,ei.TaxYearId,ei.TaxPolicyHeaderId,t.TaxAfterRebate
+				from TaxAfterRebate t left join 
+				EmployeeIncomeTaxMaster ei on ei.Id=t.EmployeeIncomeTaxId
+				where t.EmployeeIncomeTaxId='"+IncomeTaxId+"' and ei.TaxPolicyHeaderId='"+PolicyId+"'";
+                NetTaxDt = _sqlRepository.GetDataTable(sql);
+
+                var sqlx = @"Select am.Id,am.TaxPolicyId,am.UserName,am.StandardName,
+                am.IsFix,am.IsPercentage,am.Value
+                from AdditionalTaxMaster AM LEFT 
+                JOIN taxpolicyheader th 
+                on th.Id=AM.taxpolicyId
+                where am.TaxPolicyId ='"+PolicyId+"'";
+                AdditionalTaxDt = _sqlRepository.GetDataTable(sqlx);
+
+            
+                double TaxAfterRebate = 0;
+                if (NetTaxDt.Rows.Count > 0)
+                {
+                    TaxAfterRebate = clsStaticInfo.dbl(NetTaxDt.Rows[0][@"TaxAfterRebate"].ToString());
+                }
+              
+                var sqlz = @"select * from TaxAfterAdditionalCharges where 1=2";
+                con.OpenDataSetThroughAdapter(sqlz, out dsRef, false, "1");
+
+                #endregion
+
+                #region Processing Region
+
+                double AdditionalTaxAmt = 0;
+                if (AdditionalTaxDt.Rows.Count > 0)
+                {
+                    for (int j = 0; j < AdditionalTaxDt.Rows.Count; j++)
+                    {
+                        double Value = clsStaticInfo.dbl(AdditionalTaxDt.Rows[j]["Value"].ToString());
+                        string IsFix = clsWebLib.GetBoolData(AdditionalTaxDt.Rows[j]["IsFix"]).ToString();
+                        string IsPercent = clsWebLib.GetBoolData(AdditionalTaxDt.Rows[j]["IsPercentage"]).ToString();
+
+                        if (TaxAfterRebate>0)
+                        {
+                            if (IsFix == "True")
+                            {
+                                AdditionalTaxAmt = AdditionalTaxAmt+Value;
+                            }
+                            else if (IsPercent == "True")
+                            {
+                                AdditionalTaxAmt = AdditionalTaxAmt+(TaxAfterRebate * Value) / 100;
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+
+                #region Saving Section
+
+                double NetTax = TaxAfterRebate + AdditionalTaxAmt;
+
+                DataRow drF = dsRef.Tables[0].NewRow();
+                clsGenID genid = new clsGenID();
+                genid.GenID("TaxAfterAdditionalCharges", out string _Id);
+                drF["Id"] = "AC" + _Id;
+                drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                drF["TaxAfterRebate"] = TaxAfterRebate;
+                drF["AdditionalTax"] = AdditionalTaxAmt;
+                drF["NetTax"] = NetTax;
+                drF["AddedBy"] = identity.Name;
+                drF["AddedFromIp"] = identity.IPAddress;
+                drF["AddedDate"] = DateTime.Now.ToString();
+                dsRef.Tables[0].Rows.Add(drF);
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRef);
+
+                #endregion
+
+                ProcessSurcharge(IncomeTaxId, PolicyId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region Tax After Surcharge
+        public void ProcessSurcharge(string IncomeTaxId, string PolicyId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataTable TaxableIncomeDt, EstimatedTaxDt,SurchargeDt;
+                DataSet dsRef;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                #region Data Generation Region
+
+                var sqlx = @"select em.EmpsystemId,em.TaxYearId,
+                em.TaxPolicyHeaderId,TaxableIncome
+                from taxableincome t left join EmployeeIncomeTaxMaster em on
+                em.Id=t.EmployeeIncomeTaxId
+                where t.EmployeeIncomeTaxId='" + IncomeTaxId + "' and em.TaxPolicyHeaderId='" + PolicyId + "'";
+                TaxableIncomeDt = _sqlRepository.GetDataTable(sqlx);
+
+
+                var sql = @"select ei.EmpSystemId,ei.TaxYearId,ei.TaxPolicyHeaderId,t.NetTax
+				from TaxAfterAdditionalCharges t left join 
+				EmployeeIncomeTaxMaster ei on ei.Id=t.EmployeeIncomeTaxId
+				where t.EmployeeIncomeTaxId='"+IncomeTaxId+@"' 
+				and ei.TaxPolicyHeaderId='"+PolicyId+"'";
+                EstimatedTaxDt = _sqlRepository.GetDataTable(sql);
+
+                var sqly = @"select * from TaxSurChargeConfiguration where TaxPolicyId='"+ PolicyId + "'";
+                SurchargeDt = _sqlRepository.GetDataTable(sqly);
+
+
+                double TaxableIncome = 0, EstimatedTax = 0;
+                if (TaxableIncomeDt.Rows.Count > 0)
+                {
+                    TaxableIncome = clsStaticInfo.dbl(TaxableIncomeDt.Rows[0][@"TaxableIncome"].ToString());
+                }
+
+                if (EstimatedTaxDt.Rows.Count > 0)
+                {
+                    EstimatedTax = clsStaticInfo.dbl(EstimatedTaxDt.Rows[0][@"NetTax"].ToString());
+                }
+
+                var sqlz = @"select * from TaxAfterSurcharge where 1=2";
+                con.OpenDataSetThroughAdapter(sqlz, out dsRef, false, "1");
+
+                #endregion
+
+                #region Processing Region
+
+                double SurchargeAmt = 0;
+                if (SurchargeDt.Rows.Count > 0)
+                {
+                    for (int j = 0; j < SurchargeDt.Rows.Count; j++)
+                    {
+                        double Minimum = clsStaticInfo.dbl(SurchargeDt.Rows[j]["Minimum"].ToString());
+                        double Maximum = clsStaticInfo.dbl(SurchargeDt.Rows[j]["Maximum"].ToString());
+                        double Value = clsStaticInfo.dbl(SurchargeDt.Rows[j]["Value"].ToString());
+                        string IsFix = clsWebLib.GetBoolData(SurchargeDt.Rows[j]["IsFix"]).ToString();
+                        string IsPercent = clsWebLib.GetBoolData(SurchargeDt.Rows[j]["IsPercentage"]).ToString();
+
+                        if (Minimum <= TaxableIncome && Maximum >= TaxableIncome)
+                        {
+                            if (IsFix == "True")
+                            {
+                                SurchargeAmt = Value;
+                            }
+                            else if (IsPercent == "True")
+                            {
+                                SurchargeAmt = (EstimatedTax * Value) / 100;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+
+                #endregion
+
+                #region Saving Section
+
+                double NetTax = EstimatedTax + SurchargeAmt;
+
+                DataRow drF = dsRef.Tables[0].NewRow();
+                clsGenID genid = new clsGenID();
+                genid.GenID("TaxAfterSurcharge", out string _Id);
+                drF["Id"] = "TS" + _Id;
+                drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                drF["EstimatedTax"] = EstimatedTax;
+                drF["TaxSurcharge"] = SurchargeAmt;
+                drF["NetTax"] = NetTax;
+                drF["AddedBy"] = identity.Name;
+                drF["AddedFromIp"] = identity.IPAddress;
+                drF["AddedDate"] = DateTime.Now.ToString();
+                dsRef.Tables[0].Rows.Add(drF);
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRef);
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetTaxAfterSurcharge(string EmpId, string PolicyId, string YearId)
+        {
+            try
+            {
+                string sql = @"select ei.EmpSystemId,ei.TaxPolicyHeaderId,ei.TaxYearId,S.EstimatedTax,
+                S.TaxSurcharge,S.NetTax               
+                from TaxAfterSurcharge S left join EmployeeIncomeTaxMaster ei
+                on S.EmployeeIncomeTaxId=ei.Id
+                where ei.EmpSystemId='"+EmpId+"' and ei.TaxYearId='"+YearId+@"'
+                and ei.TaxPolicyHeaderId='"+PolicyId+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
     }
     public class StringToFormula
     {
