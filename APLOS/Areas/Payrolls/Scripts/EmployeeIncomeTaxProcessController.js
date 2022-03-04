@@ -3,28 +3,112 @@ EmployeeIncomeTaxProcessController.$inject = ['$window', '$timeout', 'cboService
 function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Income Tax Process';
     $scope.path = 'Payrolls/EmployeeIncomeTaxProcess/';
+    $scope.Diffpath = 'Payrolls/EmployeeIncomeTax/';
+
+    // #region Page Load Function Call
+
+    $scope.YearList = [];
+    $scope.PlantList = [];
+    $scope.TaxTypeList = [];
+    $scope.getData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.Diffpath+ 'GetTaxYear',
+        }).then(function successCallback(response) {
+            $scope.YearList = response.data;
+        });
+
+        $http({
+            method: 'GET',
+            url: $scope.Diffpath +'GetTaxType',
+        }).then(function successCallback(response) {
+            $scope.TaxTypeList = response.data;
+        });
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetPlants',
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+        });
+
+    }
+    $scope.getData();
+
+    // #endregion
+
+    // #region Modals
 
     $scope.selectedValues = {
-        FromDate: null,
-        ToDate: null,
-        InDone: false,
-        OutDone:false
+        TaxYearId: null,
+        TaxTypeId: null,
+        CityOfResidence: null,
+        EarningAmount: null,
+        PolicyId: null,
+        PlantId: null,
+        Gender: null
     };
-
- 
+     
     $scope.clearFliters = function () {
         $scope.selectedValues = {
-            FromDate: null,
-            ToDate: null,
-            InDone: false,
-            OutDone: false
+            TaxYearId: null,
+            TaxTypeId: null,
+            CityOfResidence: null,
+            EarningAmount: null,
+            PolicyId: null,
+            PlantId: null,
+            Gender: null
         };
     }
 
+    // #endregion
+
+    // Policy Finding
+    $scope.TaxPolicyList = [];
+    $scope.GetTaxPolicyList = function () {
+
+        if (angular.isUndefinedOrNull($scope.selectedValues.Gender)
+            || angular.isUndefinedOrNull($scope.selectedValues.CityOfResidence)
+            || angular.isUndefinedOrNull($scope.selectedValues.TaxYearId)
+            || angular.isUndefinedOrNull($scope.selectedValues.PlantId)
+            || angular.isUndefinedOrNull($scope.selectedValues.EarningAmount))
+        {
+            ShowResult("Please select Required Fields !", 'failure');
+            throw ('Please select Required Fields !!');
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.Diffpath + "GetTaxPolicy",
+            data: {
+                'Residence': $scope.selectedValues.CityOfResidence,
+                'YearId': $scope.selectedValues.TaxYearId,
+                'Gender': $scope.selectedValues.Gender
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.TaxPolicyList = [];
+            $scope.TaxPolicyList = response.data;
+            if ($scope.TaxPolicyList.length>0)
+            {
+                //$scope.TaxPolicyName = response.data[0].PolicyHeaderName;
+                $scope.selectedValues.PolicyId = response.data[0].PolicyHeaderId;
+                // $scope.EmployeeIncomeTaxModel.StartDate = response.data[0].StartDate;
+                //$scope.EmployeeIncomeTaxModel.EndDate = response.data[0].EndDate;
+                $scope.loadGrid();
+            }
+        });
+    }
  
     /// --- Grid Show
     $scope.MainData = [];
     $scope.loadGrid = function () {
+
+        if (angular.isUndefinedOrNull($scope.selectedValues.PolicyId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Please First Configure the Policy !!');
+        }   
+
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.MainData.length != 0) {
             $scope.destroy();
@@ -32,26 +116,21 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
         if ($scope.General.$valid) {
 
             var ColumnList = [
-                { field: 'Id', width: 150, headerText: "Id", type: "string",visible:false },
-                { field: 'VisitorName', width: 150, headerText: "Visitor Name", type: "string" },
-                { field: 'VisitorType', width: 120, headerText: "Visitor Type", type: "string" },
-                { field: 'VisitorCategory', width: 130, headerText: "Visitor Category", type: "string" },
-                { field: 'VisitorLocation', width: 150, headerText: "Visitor Location", type: "string" },
-                { field: 'ToMeet', width: 150, headerText: "To Meet", type: "string" },
-                { field: 'Purpose', width: 150, headerText: "Purpose", type: "string" },
-                { field: 'InDate', width: 120, headerText: "InDate", type: "string" },
-                { field: 'InTime', width: 120, headerText: "InTime", type: "string" },             
-                { field: 'OutDate', width: 120, headerText: "OutDate", type: "string" },
-                { field: 'OutTime', width: 120, headerText: "OutTime", type: "string" },
-                { field: 'AddedBy', width: 150, headerText: "AddedBy", type: "string" }
+                { field: 'EmpInfoSystemID', width: 120, headerText: "EmployeeId", type: "string" },
+                { field: 'EmployeeName', width: 150, headerText: "Employee Name", type: "string" },
+                { field: 'Dept', width: 150, headerText: "Department", type: "string" },
+                { field: 'Section', width: 150, headerText: "Section", type: "string" },
+                { field: 'Unit', width: 150, headerText: "Unit", type: "string" },
+                { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
+                { field: 'StructureEarning', width: 150, headerText: "Structure Salary", type: "string" }
             ];
            
             $http({
                 method: 'POST',
                 url: $scope.path + 'GetData',
                 data: {
-                    In: $scope.selectedValues.InDone, Out: $scope.selectedValues.OutDone,
-                    FromDate: $scope.selectedValues.FromDate, ToDate: $scope.selectedValues.ToDate
+                    PolicyId: $scope.selectedValues.PolicyId, PlantId: $scope.selectedValues.PlantId,
+                    Earning: $scope.selectedValues.EarningAmount
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -88,7 +167,6 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
 
     }
 
-
     //Grid Destroy
     $scope.destroy = function () {
         var grid = $("#GridData").data("ejGrid");
@@ -98,6 +176,11 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
 
     $scope.filteringData = function () {
 
+        if (angular.isUndefinedOrNull($scope.selectedValues.PolicyId)) {
+            ShowResult("Please First Configure the Policy !", 'failure');
+            throw ('Please First Configure the Policy !!');
+        }
+
         var gridobj = $("#GridData").data("ejGrid");
         var filteredRecords = gridobj.getFilteredRecords();
 
@@ -106,7 +189,7 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
         }
 
         var parameters = [];
-        parameters.push({ "Key": "Id", "Value": getString(filteredRecords, "Id") });
+        parameters.push({ "Key": "EmpInfoSystemID", "Value": getString(filteredRecords, "EmpInfoSystemID") });
         applyFilters(parameters);
               
     } 
@@ -115,11 +198,11 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
 
         $http({
             method: 'POST',
-            url: $scope.path + 'GetPrintReport',
+            url: $scope.path + 'ProcessFunction',
             data: {
-                In: $scope.selectedValues.InDone, Out: $scope.selectedValues.OutDone,
-                FromDate: $scope.selectedValues.FromDate, ToDate: $scope.selectedValues.ToDate
-                , Id: parameters[0].Value
+                PolicyId: $scope.selectedValues.PolicyId, PlantId: $scope.selectedValues.PlantId,
+                YearId: $scope.selectedValues.TaxYearId,
+                EmpId: parameters[0].Value
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -127,7 +210,7 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
@@ -135,9 +218,6 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
         
     }
 
-
-    $scope.downloadgriddataUrl = 'GridReports/Download';
-   
     var getString = function (data, column) {
         var kk = "";
         var collection = [];

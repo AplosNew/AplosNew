@@ -1,48 +1,82 @@
 ﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
 
-<div class="form-elements form-horizontal" ng-form name="VisitorVerificationForm">
+<div class="form-elements form-horizontal" ng-form name="IncomeTaxProcessForm">
     <div class="row" ng-form name="General">
 
         <div class="col-xs-12 col-sm-6 col-md-6">
 
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="FromDate" ng-model="selectedValues.FromDate" datepicker class="form-control" required>
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.PlantId" name="Plant"
+                                ng-options="item.Value as item.Text for item in PlantList" >
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-sm-4 control-label">In Done</label>
-                <div class="col-sm-8">
-                    <div class="checkbox-site" style="margin-top:7px;">
-                        <label>
-                            <input type="checkbox" ng-model="selectedValues.InDone">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
+                <label class="col-sm-4 control-label">Tax Type <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.TaxTypeId" ng-change="">
+                            <option value=""></option>
+                            <option ng-repeat="option in TaxTypeList" value="{{option.Id}}">{{option.Username}}</option>
+                        </select>
                     </div>
                 </div>
             </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">City Of Residence <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.CityOfResidence" required>
+                            <option value=""></option>
+                            <option value="Metro">Metro</option>
+                            <option value="Non-Metro">Non-Metro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
 
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Tax Year <sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="ToDate" ng-model="selectedValues.ToDate" datepicker class="form-control" required>
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.TaxYearId" name="TaxYear"
+                                ng-options="item.Value as item.Text for item in YearList" required>
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Out Done</label>
-                <div class="col-sm-8">
-                    <div class="checkbox-site" style="margin-top:7px;">
-                        <label>
-                            <input type="checkbox" ng-model="selectedValues.OutDone">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Gender <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="selectedValues.Gender" required>
+                            <option value=""></option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
                     </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Structure Earning >=  <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" onkeypress="return isNumber(event)" ng-model="selectedValues.EarningAmount" class="form-control" maxlength="100">
                 </div>
             </div>
 
@@ -52,7 +86,7 @@
 
         <div class="common-btn" style="padding-right:20px;">
             <ul class="list-inline text-right">
-                <li> <button ng-click="loadGrid()" class="btn" ><i class="glyphicon glyphicon-arrow-down"></i> View</button></li>
+                <li> <button ng-click="GetTaxPolicyList()" class="btn" ><i class="glyphicon glyphicon-arrow-down"></i> View</button></li>
                 <li> <button ng-click="clearFliters()" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
@@ -63,10 +97,20 @@
     <div id="GridData" style="margin-top:30px;"></div>
 
     <div class="common-btn" style="margin-top:20px;">
-        <ul class="list-inline text-left">
-            <li> <button id="but" ng-click="filteringData()" style="display:none;" class="btn" tabindex="6"><i class="glyphicon glyphicon-arrow-down"></i> Transfer to Excel</button></li>
+        <ul class="list-inline text-right">
+            <li> <button id="but" ng-click="filteringData()" style="display:none;" class="btn" ><i class="glyphicon glyphicon-arrow-down"></i> Process</button></li>
         </ul>
     </div>
 </div>
 
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+            return false;
+        }
+        return true;
+    }
 
+</script>
