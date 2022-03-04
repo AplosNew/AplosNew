@@ -63,6 +63,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             $rootScope.toggle();
         }
         $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
+        $scope.TDSMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
         $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
         $scope.TaxYearModel.HeaderId = e.data.Id;
@@ -71,6 +72,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         $scope.TaxSurchargeDefine.TaxPolicyId = e.data.Id;
         $scope.AdditionalTaxModel.TaxPolicyId = e.data.Id;
         $scope.GetEarningMasterList();
+        $scope.GetTDSMasterList();
         $scope.getInvestDeductMaster();
         $scope.GetSlabInfo();
         $scope.GetRebateInfo();
@@ -683,6 +685,51 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
+    // #region TDS Master Functions
+
+    $scope.TDSMasterModel = {
+        Id: null,
+        TaxPolicyHeaderId: null,
+        SalaryHeadId: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Remarks: null,
+        Active: false
+    };
+
+    $scope.ClearTDSMaster = function () {
+        $scope.TDSMasterModel = {
+            Id: null,
+            TaxPolicyHeaderId: null,
+            SalaryHeadId: null,
+            ShortName: null,
+            StandardName: null,
+            UserName: null,
+            Remarks: null,
+            Active: false
+        };
+
+        $scope.TDSMasterModel.TaxPolicyHeaderId = $scope.Header.Id;
+
+    }
+
+    $scope.TDSList = [];
+    $scope.GetTDSMasterList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetTDSMasterList",
+            data: { 'Id': $scope.Header.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.TDSList = [];
+            $scope.TDSList = response.data;
+        });
+    }
+
+
+    // #endregion
+
     // #region EarningMaster Functions
 
     $scope.EarningMasterModel = {
@@ -700,7 +747,6 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         ExemptionApplicable: false,
         IsUserDefined: false
     };
-
 
     $scope.SaveEarningMaster = function () {
 
