@@ -567,6 +567,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.ClearEarningMaster();
                     $scope.GetEarningMasterList();
                 }
             }), function errorCallBack(response) {
@@ -633,6 +634,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.ClearMasterFields();
                     $scope.getInvestDeductMaster();
                     $scope.getIncomeChildData();
                 }
@@ -727,6 +729,78 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         });
     }
 
+    $scope.getTDSChildDetails = function (e) {
+        $scope.TDSMasterModel = e.data; // Model which is used as ng-model will come here
+    }
+
+    $scope.SaveTDSMaster = function () {
+
+        if (baseService.isUndefinedOrNull($scope.TDSMasterModel.SalaryHeadId)) {
+            ShowResult("SalaryHead cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.TDSMasterModel.StandardName)) {
+            ShowResult("StandardName cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.TDSMasterModel.UserName)) {
+            ShowResult("UserName cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.TDSMasterModel.ShortName)) {
+            ShowResult("ShortName cann't be blank...");
+        }
+        else
+        {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveTDSMaster',
+                data: { 'TDSMasterData': $scope.TDSMasterModel }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetTDSMasterList();
+                }
+            })
+                , function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+         }
+    }
+
+    // #region Deletion Functions
+
+    $scope.ConfirmDeleteTDS = function (obj) {
+        $scope.TDSMasterModel.Id = obj.data.Id;
+        $scope.DeleteTDSMaster();
+    };
+
+    $scope.DeleteTDSMaster = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteTDSMaster",
+                data: { ID: $scope.TDSMasterModel.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearTDSMaster();
+                    $scope.GetTDSMasterList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    // #endregion
 
     // #endregion
 
