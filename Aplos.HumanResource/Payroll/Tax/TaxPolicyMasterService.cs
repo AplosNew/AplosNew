@@ -355,7 +355,6 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
 
-
         #endregion
 
         #region Formula Rules Functions
@@ -1280,6 +1279,94 @@ namespace Library.HumanResource.Payroll.Tax
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from AdditionalTaxMaster where Id='" + ID + "'");
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region TDS Functions
+        public IEnumerable<object> GetTDSMasterList(string Id)
+        {
+            try
+            {
+                var str = @"Select tc.*,sc.SalaryHead from dbo.TaxDeductionMaster TC LEFT JOIN salaryhead sc
+                on sc.SalaryHeadID=tc.SalaryHeadId
+                where TaxPolicyHeaderId ='" + Id + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Dictionary<string, object> SaveTDSMaster(Dictionary<string, object> Header)
+        {
+            try
+            {
+                string TableName = "dbo.TaxDeductionMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where TaxPolicyHeaderId='" + Header["TaxPolicyHeaderId"] + "' and UserName='" + Header["UserName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same UserName is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where TaxPolicyHeaderId='" + Header["TaxPolicyHeaderId"] + "' and StandardName='" + Header["StandardName"] + "' and Id<>'" + Header["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Same StandardName is Already Present");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Header["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    Header["Id"] = "TDS" + _Id;
+                    AddNewRow(dsMaster.Tables[0], Header);
+                }
+                else
+                {
+                    _Id = Header["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], Header);
+                }
+
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Header;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public void DeleteTDSMaster(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from TaxDeductionMaster where Id='" + ID + "'");
                 con.CommitTransaction();
             }
             catch (Exception ex)
