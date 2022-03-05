@@ -549,6 +549,7 @@ upanelApp.controller('goodsReceiveNoteController', goodsReceiveNoteController);
 upanelApp.controller('gratuityReportController', gratuityReportController);
 upanelApp.controller('gratuityPolicyController', gratuityPolicyController);
 upanelApp.controller('GRNByPOController', GRNByPOController);
+upanelApp.controller('GRNBOQPOController', GRNBOQPOController);
 upanelApp.controller('holidayAbsentismAssignmentController', holidayAbsentismAssignmentController);
 upanelApp.controller('hourlyOffDutyTagController', hourlyOffDutyTagController);
 upanelApp.controller('hourlyOTController', hourlyOTController);

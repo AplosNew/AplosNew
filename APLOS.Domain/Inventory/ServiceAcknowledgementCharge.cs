@@ -1,27 +1,20 @@
 ﻿using Library.Core;
-using Library.Model.OpeningBalances;
-using Library.Model.Vouchers;
 using System;
-using System.Xml.Serialization;
 
 namespace Library.Model.Inventory
 {
-    public class ServicePOAckTax : BaseModel
+    public class ServiceAcknowledgementCharge : BaseModel
     {
-
         #region Scalar Properties
 
         public string Id { get; set; }
-        public string ServiceAcknowledgementMasterId { get; set; }
-        public string ServiceAcknowledgementDetailId { get; set; } 
-        public string ServiceAcknowledgementChargeId { get; set; } 
-        public string TaxCategoryId { get; set; }
-        public string HSNCodeId { get; set; }
-        public decimal Percentage { get; set; }
-        public decimal TaxAmount { get; set; }
-        [XmlIgnore]
-        public string ServicePoDetailId { get; set; }  
-        
+        public decimal Amount { get; set; }
+        public decimal GRNServiceAmount { get; set; }
+        public bool AmountStatus { get; set; }
+
+        public decimal TotalTaxAmount { get; set; }
+        public string Description { get; set; }
+
 
 
 
@@ -65,6 +58,11 @@ namespace Library.Model.Inventory
 
         #endregion Audit Properties
 
-    
+        #region Navigation Properties
+
+        public string ServiceAcknowledgementMasterId { get; set; }
+        public string ServiceMasterId { get; set; }
+
+        #endregion Navigation Properties
     }
 }

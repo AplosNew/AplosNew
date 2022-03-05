@@ -185,8 +185,10 @@ function GateentryTokenController(accountService, addressService, $window, facto
     //#endregion
 
     //#region Save-Delete-Calcel
+    $scope.disabledbtn = false;
+
     $scope.Save = function () {
-        debugger;
+       
         var dt = $filter("dateFiltering")(Date.now());
         if ($scope.productNew.EntryDate < dt) {
             if ($scope.productNew.LocalImported === 'Imported' && ($scope.productNew.Description === null || $scope.productNew.Description === "" || $scope.productNew.Description === undefined)) {
@@ -210,7 +212,7 @@ function GateentryTokenController(accountService, addressService, $window, facto
             try {
                 $scope.$broadcast('show-errors-check-validity');
                 if ($scope.productNewForm.$valid) {
-
+                    $scope.disabledbtn = true;
                     // $scope.productNew.BaseCurrencyId = $scope.baseCurrencyId;
                     // $scope.productNew.PlantWiseGateId = $scope.productNew.PlantWiseGateId;
 
@@ -227,6 +229,7 @@ function GateentryTokenController(accountService, addressService, $window, facto
                         }).then(function (response) {
                             if (response.data.Error === true) {
                                 ShowResult(response.data.Message, 'failure');
+                                $scope.disabledbtn = false;
                             }
                             else {
                                 ShowResult(response.data.Message, 'success');
@@ -236,18 +239,21 @@ function GateentryTokenController(accountService, addressService, $window, facto
                                 $scope.Action = "Update";
                                 //$scope.getDataList();
                                 $scope.GetGateData();
+                                $scope.disabledbtn = false;
                             }
                         }), function (response) {
+                            $scope.disabledbtn = false;
                             ShowResult(response.data.Message, 'failure');
                         };
                     }
                     else if ($scope.Action === "Update") {
                         ShowResult('You Do not have permission to update', 'failure');
-
+                        $scope.disabledbtn = false;
                     }
                 }
             } catch (e) {
                 throw e;
+                $scope.disabledbtn = false;
             }
         }
 
@@ -340,6 +346,7 @@ function GateentryTokenController(accountService, addressService, $window, facto
         $scope.grossTotal = 0;
         baseService.removeErrorClasses();
         //$scope.getToCurrencyRate();
+        $scope.disabledbtn = false;
     }
 
 

@@ -685,6 +685,7 @@
     <Compile Include="Inventory\InventoryIssueReturn.cs" />
     <Compile Include="Inventory\POBOQMap.cs" />
     <Compile Include="Inventory\GRNDocumentMap.cs" />
+    <Compile Include="Inventory\ServiceAcknowledgementCharge.cs" />
     <Compile Include="Inventory\ServicePOAckTax.cs" />
     <Compile Include="Inventory\ServicePOAckDocumentMap.cs" />
     <Compile Include="Inventory\ServicePODocumentMap.cs" />

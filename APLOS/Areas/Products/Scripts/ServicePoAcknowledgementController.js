@@ -19,6 +19,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
     $scope.detailSaveUrl = $scope.path + 'detailcreate';
     $scope.detailDeleteUrl = $scope.path + 'DetailDelete?receiveDetailId=';
     $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
+    $scope.sreviceSaveUrl1 = $scope.path + 'ServiceChargesCreates';
     $scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
 
     $scope.updateUrlForSerPOAckTaxValue = $scope.path + 'UpdateServicePOAckTax';
@@ -1703,7 +1704,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
 
             $http({
                 method: 'POST',
-                url: $scope.sreviceSaveUrl,
+                url: $scope.sreviceSaveUrl1,
                 data: {
                     entity: $scope.serviceModel
                     , taxCategoryList: $scope.taxCategoryList
