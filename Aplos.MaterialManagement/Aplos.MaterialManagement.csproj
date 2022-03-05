@@ -113,6 +113,7 @@
     <Compile Include="InventoryManagements\InventorySalesService.cs" />
     <Compile Include="InventoryManagements\MaterialMovementPurposeService.cs" />
     <Compile Include="InventoryManagements\InventoryIssueService.cs" />
+    <Compile Include="InventoryManagements\POBOQReportService.cs" />
     <Compile Include="InventoryManagements\RequisitionService.cs" />
     <Compile Include="InventoryManagements\PurchaseOrderQueryService.cs" />
     <Compile Include="InventoryManagements\MaterialCommonService.cs" />

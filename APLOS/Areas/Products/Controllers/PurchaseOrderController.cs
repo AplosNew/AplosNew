@@ -5188,6 +5188,23 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			return Json(new { entity, Message = AplosMessage.Success + " PO no <b>" + entity.Id + "</b>" });
 		}
 		#endregion
+		#region POBOQ Excel Report
+		[HttpGet, Authorize]
+		public ActionResult POBOQReport(string POID)
+		 {
+			try
+			{
+				Library.MaterialManagement.InventoryManagements.POBOQReportService Report = new Library.MaterialManagement.InventoryManagements.POBOQReportService();
+				Report.POBOQReport(POID);
+				return null;
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+
+		}
+		#endregion
 	}
 }
 

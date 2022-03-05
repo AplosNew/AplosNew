@@ -3761,7 +3761,7 @@ namespace Library.MaterialManagement.Inventory
             int colRo = COL; COL++;
             wTable.Rows[ROW].Cells[colRo].Width = 30;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
             wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
