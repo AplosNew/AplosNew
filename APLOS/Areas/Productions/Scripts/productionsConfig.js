@@ -256,5 +256,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/FinalPackDefinition/Aplos',
             controller: 'FinalPackDefinitionController'
         })
+        .when('/employee-operations', {
+            templateUrl: 'Productions/EmployeeOperations/Aplos',
+            controller: 'EmployeeOperationsController'
+        })
         ;
 }
