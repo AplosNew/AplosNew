@@ -128,7 +128,7 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: {'Data':$scope.ViewGridPop},
+                data: {'Data':$scope.ViewGridPop , 'Date': $scope.FromDate},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
