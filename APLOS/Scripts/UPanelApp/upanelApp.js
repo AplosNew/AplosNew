@@ -813,6 +813,7 @@ upanelApp.controller("OSTransformationPOController", OSTransformationPOControlle
 upanelApp.controller("ProfessionalTaxOBController", ProfessionalTaxOBController);
 upanelApp.controller("TaxOBController", TaxOBController);
 upanelApp.controller("EmployeeIncomeTaxController", EmployeeIncomeTaxController);
+upanelApp.controller("EmployeeIncomeTaxProcessController", EmployeeIncomeTaxProcessController);
 upanelApp.controller("LateDeductionController", LateDeductionController);
 upanelApp.controller("EmployeeDayStatusReportController", EmployeeDayStatusReportController);
 upanelApp.controller("VoucherController", VoucherController);
@@ -1011,6 +1012,7 @@ upanelApp.controller("StocksAdjustmentController", StocksAdjustmentController);
 upanelApp.controller("FinalPackDefinitionController", FinalPackDefinitionController);
 upanelApp.controller("PrePackDefinitionController", PrePackDefinitionController);
 upanelApp.controller("MeetingReportsController", MeetingReportsController);
+upanelApp.controller("EmployeeOperationsController", EmployeeOperationsController);
 
 
 
