@@ -4,6 +4,8 @@ using Library.Data.Sql;
 using Library.Crosscutting.Security;
 using System.Threading;
 using System.Data;
+using System.Collections.Specialized;
+using Library.Service.Extension;
 
 namespace Library.HumanResource.Payroll.Tax
 {
@@ -69,15 +71,88 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
 
-        public void ProcessIncomeTax(string PolicyId, string YearId, string PlantId, string EmpId)
+        public void ProcessIncomeTax(string PolicyId, string YearId, string PlantId, string EmpId,string TaxTypeId,string StartDate,string EndDate)
         {
             try
             {
+
+                #region DataSet Generation Region
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                DataTable TaxableIncomeDt, EstimatedTaxDt, SurchargeDt;
-                DataSet dsRef;
+                DataTable GrossEarningDt;
+                DataSet dsRef, dsMaster;
+                StringCollection StrDistinctEmployee = new StringCollection();
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                              
+                string sql = @"select * from EmployeeIncomeTaxMaster where" +
+                    " EmpSystemId In ("+EmpId+") AND TaxPolicyHeaderId='" + PolicyId + "' " +
+                    " AND TaxYearId='" + YearId + "'";
+
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                var sqly = @"Select SystemId as EmployeeId,EmployeeName,
+                cast((DATEDIFF(m, DOB, GETDATE())/12) as varchar) + ' Year ' + 
+                       cast((DATEDIFF(m, DOB, GETDATE())%12) as varchar) + ' Month' as Age	   
+                from EmployeeInformation where SystemId in ("+EmpId+")";
+
+                con.OpenDataSetThroughAdapter(sqly, out DataSet dsEmpMaster, false, "1");
+
+                string sqlx = @"select * from EmployeeIncomeTaxMaster where 1=2";
+                con.OpenDataSetThroughAdapter(sqlx, out dsRef, false, "1");
+
+                #endregion
+
+                #region Adding in StringCollection 
+
+                for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
+                {
+                    string EmployeeId = dsMaster.Tables[0].Rows[i][@"EmpSystemId"].ToString();
+
+                    if (StrDistinctEmployee.Contains(EmployeeId))
+                    {
+                        continue;
+                    }
+                    StrDistinctEmployee.Add(EmployeeId);
+                }
+
+                #endregion
+
+                #region Saving in IncomeTaxMaster
+
+                for (int i = 0; i < dsEmpMaster.Tables[0].Rows.Count; i++)
+                {
+                    string EmployeeId = dsEmpMaster.Tables[0].Rows[i][@"EmployeeId"].ToString();
+                    string Age= dsEmpMaster.Tables[0].Rows[i][@"Age"].ToString();
+
+                    if (StrDistinctEmployee.Contains(EmployeeId))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        DataRow drF = dsRef.Tables[0].NewRow();
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.EmployeeIncomeTaxMaster", out string _Id);
+                       
+                        drF["Id"] = "EIT"+_Id;
+                        drF["EmpSystemId"] = EmployeeId;
+                        drF["TaxPolicyHeaderId"] = PolicyId;
+                        drF["TaxTypeId"] = TaxTypeId;
+                        drF["TaxYearId"] = YearId;
+                        drF["CurrentAge"] = Age;
+                        drF["AddedBy"] = identity.Name;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+                        dsRef.Tables[0].Rows.Add(drF);
+                    }
+                    
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRef);
+
+                #endregion
+
             }
             catch (Exception ex)
             {
