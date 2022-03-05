@@ -1,0 +1,25 @@
+﻿
+<togglable name="GRN BOQ"></togglable>
+<div class="col-xs-12 col-sm-5 col-md-5">
+    <div class="form-group">
+        <label class="col-sm-3 control-label">Vendor<sup>*</sup></label>
+        <div class="col-sm-7">
+            <div class="input-group">
+                <span class="input-group-addon"> {{SubmitPartyCode}}</span>
+                <input type="text" name="Vendor" id="Vendor" ng-model="SubmitPartyName" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button name="submit" ng-click="showBOQPartyPopUpNew()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="col-sm-2 show-message" style="padding-left:0px;">
+            <div class="common-btn">
+                <button ng-click="GetPOBoqItem();" class="btn"><i class="glyphicon glyphicon-circle-arrow-down"></i>Go</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")

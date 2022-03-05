@@ -2374,6 +2374,7 @@
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
     <Content Include="Areas\Products\Scripts\GatePassPotalController.js" />
     <Content Include="Areas\Products\Scripts\GatePassRegisterController.js" />
+    <Content Include="Areas\Products\Scripts\GRNBOQPOController.js" />
     <Content Include="Areas\Products\Scripts\GRNRequisitionSOAllocationController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassEntryController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassController.js" />
@@ -4020,6 +4021,7 @@
     <Content Include="Areas\Productions\Views\FinalPackDefinition\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\FiscalYearClose.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\MeetingReports\Aplos.cshtml" />
+    <Content Include="Areas\Products\Views\GoodsReceiveNote\GRNBOQPO.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

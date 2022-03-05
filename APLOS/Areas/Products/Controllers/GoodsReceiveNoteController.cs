@@ -157,6 +157,11 @@ namespace Aplos.Areas.Products.Controllers
             return View();
         }
 
+        public ActionResult GRNBOQPO()
+        {
+            return View();
+        }
+
         [Authorize]
 
         public ActionResult MaterialIssueSlip()
@@ -377,6 +382,205 @@ namespace Aplos.Areas.Products.Controllers
 
         [HttpPost]
         public ActionResult DeleteGRNBYPO(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                _inventoryReveiveService.Delete(id);
+                return Json(new { Message = AplosMessage.Success });
+            }
+            else
+                throw new CustomException(Resources.IdNotFound);
+        }
+
+        #endregion GRN-By-PO
+
+        #region GRN-BOQ-PO
+
+        [HttpPost, Authorize]
+        public JsonResult GetGRNBOQPartyListNew(string column, string value, string partyType)
+        {
+            InventoryReceiveQueryService purchaseOrderBOQQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = purchaseOrderBOQQueryService.GetGRNBOQPartyListNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+        [HttpPost]
+        public JsonResult CreateGRNBOQPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            //IEnumerable<InventoryMaterialViewModel>
+            List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
+
+                }
+            }
+            bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+            if (_returnRes == true)
+            {
+                throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+            }
+
+            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateGRNBOQPO(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat != null)
+            {
+                foreach (var item in entityMatAndImat)
+                {
+
+                    if (!item.check)
+                        throw new CustomException("Please Select Materials !");
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                        throw new CustomException("Please Select Materials !");
+
+                }
+            }
+            DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
+
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteGRNBOQPO(string id)
         {
             if (!string.IsNullOrEmpty(id))
             {
@@ -3458,88 +3662,7 @@ UNION ALL
                         paramter += " AND SO.Id in(" + parameters + ")";
                 }
 
-                //var sql = @"SELECT b.Id BOQId,b.Sequence Sequence1
-                //            ,b.MasterOrderItemId
-                //            ,moi.MasterOrderId
-                //            ,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
-                //            ,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
-                //            ,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
-                //            ,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
-                //            , b.VendorId
-                //            ,b.SalesOrderId
-                //            ,b.ProcessId
-                //            ,mm.Id MaterialMasterId,mma.Id ArticleId
-                //            ,IsNULL(mm.UserName,'') AS UserName
-                //            ,IsNULL(mma.StandardName,'') AS StandardName
-                //            ,IsNULL(p.UserName,'') AS Vendor
-                //            ,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
-                //            ,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
-                //            ,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
-                //            ,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
-                //            ,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-                //            ,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
-                //            ,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
-                //            ,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
-                //            ,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
-                //            b.BOMQty,C.Id
-                //            ,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-                //            ,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
-                //            ,ISNULL(cpo.PONumber,'') PONumber
-                //            ,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
-                //            ,uom1.UserName AlternateUOM
-                //            ,RequiredQty= CASE WHEN AUOM.BaseUOMFactor IS NULL THEN ROUND(isnull(b.RequiredQty,0),2) ELSE ROUND(isnull(b.BOMQty,0)/ISNULL(AUOM.BaseUOMFactor,0),2) END
-                //            ,uom.UserName BOQUOM
-                //            ,UOM=CASE WHEN AUOM.AlternativeUOMId IS NULL then uom.UserName else  uom1.UserName END
-                //            ,TransactionUoMId=CASE WHEN AUOM.AlternativeUOMId IS NULL THEN b.UoMId ELSE AUOM.AlternativeUOMId END
-                //            ,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '/' + ISNULL(mo.BuyerReferenceNo,'') +'/'+ ISNULL(moi.OwnReferenceNo,'')+'/'+ISNULL(moi.BuyerReferenceNo,'')
-                //            FROM BOQ AS b
-                //            LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
-                //            LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
-                //            LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
-                //            LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
-                //            LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
-                //            LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
-                //            LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-                //            left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
-                //            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
-                //            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
-                //            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
-                //            LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
-                //            LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
-                //            LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-                //            LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId						
-                //            LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
-                //            LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId						
-                //            where b.ProcessId in('"+ processId + @"') And " + paramter + @"
-                //            ORDER BY b.Sequence, b.SalesOrderId
-                //            ";
-
-                //var sql = @"SELECT Distinct              b.MaterialMasterId,MM.UserName MaterialName
-                //                        ,b.ArticleId, Article.StandardName ArticleName
-                //                        , BOQFGMAP.FirstCharacteristicsValueId 
-                //                        ,IsNULL(v1.UserName, '') AS FirstCharacteristicsValue
-                //                        , FC.Id FirstCharacteristicsId
-                //                        , IsNULL(v2.UserName, '') AS SecondCharacteristicsValue
-                //                        , BOQFGMAP.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-                //                        , IsNULL(v3.UserName, '') AS ThirdCharacteristicsValue
-                //                        , BOQFGMAP.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId,null Active
-                //			,b.SalesOrderId
-                //			,b.OrderQty							
-                //			,b.Consumption
-                //			,b.WastagePer
-                //			,b.PlanOrderQty
-                //                        FROM BOQ AS b
-                //                        LEFT  JOIN MST.MaterialMaster MM ON MM.Id=B.MaterialMasterId
-                //                        LEFT JOIN mst.MaterialMasterArticle Article ON Article.MaterialMasterId=mm.Id
-                //                        LEFT JOIN BOQFGMapping BOQFGMAP  ON BOQFGMAP.BOQDetailId = B.Id
-                //                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = BOQFGMAP.FirstCharacteristicsValueId
-                //                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = BOQFGMAP.SecondCharacteristicsValueId
-                //                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = BOQFGMAP.ThirdCharacteristicsValueId
-                //                        LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
-                //                        LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
-                //                        LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId
-                //                        where b.ProcessId in('" + processId + @"') And " + paramter + @"";
-
+               
                 var sql = @"SELECT Concat(SO.Id,'-',ISNULL(FCS.CharacteristicsValueId,''),'-',ISNULL(SCS.CharacteristicsValueId,''),'-',ISNULL(TCS.CharacteristicsValueId,'')) SOMATART
 					,MOI.MaterialMasterId
 					,MM.UserName MaterialName
