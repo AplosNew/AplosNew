@@ -847,7 +847,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
+                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
@@ -895,7 +895,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
 								LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId                                        
-								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
+								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') = 'LC'  and isnull(PLC.IsAccepptanceFirst,0)=0
@@ -944,7 +944,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq') 
+                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ') 
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
@@ -994,7 +994,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq') 
+								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ') 
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
@@ -1042,7 +1042,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
+                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
                                          AND IR.IsApproved=1 AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
@@ -1092,7 +1092,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-										WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
+										WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
                                          AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL

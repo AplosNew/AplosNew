@@ -812,6 +812,7 @@ upanelApp.controller("OSTransformationPOController", OSTransformationPOControlle
 upanelApp.controller("ProfessionalTaxOBController", ProfessionalTaxOBController);
 upanelApp.controller("TaxOBController", TaxOBController);
 upanelApp.controller("EmployeeIncomeTaxController", EmployeeIncomeTaxController);
+upanelApp.controller("EmployeeIncomeTaxProcessController", EmployeeIncomeTaxProcessController);
 upanelApp.controller("LateDeductionController", LateDeductionController);
 upanelApp.controller("EmployeeDayStatusReportController", EmployeeDayStatusReportController);
 upanelApp.controller("VoucherController", VoucherController);

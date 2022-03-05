@@ -57,11 +57,16 @@ function FiscalYearCloseController(cboService, commonMessage, $scope, $rootScope
             'name': 'Fiscal Year',
             'value': 'FiscalYearName'
         }
-        //,
-        //{
-        //    'name': 'Period',
-        //    'value': 'Period'
-        //}
+        ,
+        {
+            'name': 'Company',
+            'value': 'CompanyName'
+        }
+        ,
+        {
+            'name': 'Plant',
+            'value': 'PlantName'
+        }
     ];
 
     $scope.getListData = function () {
@@ -77,7 +82,7 @@ function FiscalYearCloseController(cboService, commonMessage, $scope, $rootScope
         };
         $scope.getData();
     };
-
+    $scope.getListData();
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.FiscalYearCloseForm.$valid) {

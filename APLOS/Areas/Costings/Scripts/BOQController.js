@@ -351,6 +351,9 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         else
             ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
+    $scope.closePartyPopUpNew = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    };
     //$scope.getFileList = function () {
     //    $http({
     //        method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
