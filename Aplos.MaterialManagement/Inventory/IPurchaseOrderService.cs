@@ -2,6 +2,7 @@
 using Library.Model.Inventory;
 using Library.Service.Core;
 using Library.ViewModel.Inventory;
+using Library.ViewModel.Materials;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,7 +13,7 @@ namespace Library.MaterialManagement.Inventory
 	{
 		IEnumerable<object> GetPOMasterById(string plantId, string id);
 		GridModel Query(GridParameter parameters, string plantId);
-
+		void InsertGraphCharge(InventoryMaterialViewModel entity, IEnumerable<ServicePOAckTax> taxCategoryList);
 		GridModel GetPostingList(GridParameter parameters, string plantId);
 
 		IEnumerable<object> GetListForHold(string plantId);
