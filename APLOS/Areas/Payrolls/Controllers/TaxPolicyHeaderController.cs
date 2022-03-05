@@ -131,7 +131,15 @@ namespace Aplos.Areas.Payrolls.Controllers
         [HttpPost, Authorize]
         public ActionResult GetEarningMasterList(string Id)
         {
-            return Json(ds.GetEarningMasterList(Id), JsonRequestBehavior.AllowGet);
+            try 
+            {
+                return Json(ds.GetEarningMasterList(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+            
         }
 
         [HttpGet, Authorize]
@@ -649,6 +657,52 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 ds.DeleteAddtnTaxMaster(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion
+
+        #region TDS Functions
+
+        [HttpPost, Authorize]
+        public ActionResult GetTDSMasterList(string Id)
+        {
+            try 
+            {
+                return Json(ds.GetTDSMasterList(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SaveTDSMaster(Dictionary<string, object> TDSMasterData)
+        {
+            try
+            {
+                var result = ds.SaveTDSMaster(TDSMasterData);
+                return Json(new { Error = false, Data = result, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteTDSMaster(string ID)
+        {
+            try
+            {
+                ds.DeleteTDSMaster(ID);
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
