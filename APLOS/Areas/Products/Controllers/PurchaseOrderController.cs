@@ -661,13 +661,14 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
 		public JsonResult ServiceChargesCreate(InventoryMaterialViewModel entity, IEnumerable<PurchaseOrderTax> taxCategoryList)
 		{
-			//if(entity != null)            {
-
-			//        if (entity.Amount == 0)
-			//            throw new CustomException("Enter Service Amount!");                  
-
-			//}
 			_inventoryService.InsertGraph(entity, taxCategoryList);
+			return Json(new { entity.Id, Message = AplosMessage.Success });
+		}
+
+		[Authorize, HttpPost]
+		public JsonResult ServiceChargesCreates(InventoryMaterialViewModel entity, IEnumerable<ServicePOAckTax> taxCategoryList)
+		{
+			_purchaseOrderService.InsertGraphCharge(entity, taxCategoryList);
 			return Json(new { entity.Id, Message = AplosMessage.Success });
 		}
 
