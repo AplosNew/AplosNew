@@ -1,0 +1,187 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> {{title}}</h3>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Process</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ProcessId" name="Process"
+                                ng-options="item.Value as item.Text for item in ProcessList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="From Date" ng-model="Date" datepicker class="form-control" tabindex="4">
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Period</label>
+                <div class="col-sm-8 ">
+                    <div class="select-style">
+                        <select id="Period" class="form-control" ng-model="periodId" name="Period" tabindex="1">
+                            <option value="">-Select-</option>
+                            <option Value="p1">Period 1</option>
+                            <option Value="p2">Period 2</option>
+                            <option Value="p3">Period 3</option>
+                            <option Value="p4">Period 4</option>
+                            <option Value="p5">Period 5</option>
+                            <option Value="p6">Period 6</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Shift</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="shiftId" name="WorkCenter"
+                                ng-options="item.Value as item.Text for item in ShiftList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Work Center</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="workCenterId" ng-change="getPo()" name="WorkCenter"
+                                ng-options="item.Value as item.Text for item in workCenterList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">PO</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="POId" name="PO"
+                                ng-options="item.Id as item.Id for item in POList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="getAllData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> View </button></li>
+                <li> <button ng-click="saveData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Save </button></li>
+                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+            </ul>
+      </div>
+
+</div>
+
+<div class="row">
+    <div class="table-responsive ">
+        <div id="GridEdit" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage" 
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
+                <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
+                <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="80"></div>
+
+                <div e-column e-headertext="Period 1" e-template="#p1" e-textalign="center" e-width="80"></div>
+                <div e-column e-headertext="Period 2" e-template="#p2" e-textalign="center" e-width="80"></div>
+                <div e-column e-headertext="Period 3" e-template="#p3" e-textalign="center" e-width="80"></div>
+                <div e-column e-headertext="Period 4" e-template="#p4" e-textalign="center" e-width="80"></div>
+                <div e-column e-headertext="Period 5" e-template="#p5" e-textalign="center" e-width="80"></div>
+                <div e-column e-headertext="Period 6" e-template="#p6" e-textalign="center" e-width="80"></div>
+                <div e-column e-headertext="Remarks" e-template="#rem" e-textalign="center" e-width="80"></div>
+
+                <div e-column e-template="#AddTile" e-headertext="Add" e-width="40"></div>
+                <div e-column e-template="#DeleteTile" e-headertext="Remove" e-width="40"></div>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="text/template" id="emp">
+        <input type="text" ng-model="data.EmployeeCode" ng-change="$parent.changeInData(data,'emp');" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="p1">
+        <input type="number" onkeypress="return isNumber(event)"  id="pp1" ng-model="data.Period1" ng-change="$parent.changeInData(data,'p1');" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="p2">
+        <input type="number" onkeypress="return isNumber(event)" id="pp2" ng-model="data.Period2" ng-change="$parent.changeInData(data,'p2');" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="p3">
+        <input type="number" id="pp3" ng-model="data.Period3" ng-change="$parent.changeInData(data,'p3');" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="p4">
+        <input type="number" id="pp4" ng-model="data.Period4" ng-change="$parent.changeInData(data,'p4');" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="p5">
+        <input type="number" id="pp5" ng-model="data.Period5" ng-change="$parent.changeInData(data,'p5');" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="p6">
+        <input type="number" id="pp6" ng-model="data.Period6" ng-change="$parent.changeInData(data,'p6');" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="rem">
+        <input type="text" ng-model="data.Remarks" ng-change="$parent.changeInData(data,'rem');" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="AddTile">
+        <div class="common-btn">
+            <ul class="list-inline text-center">
+                <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+            </ul>
+        </div>
+    </script>
+
+    <script type="text/template" id="DeleteTile">
+        <div class="common-btn">
+            <ul class="list-inline text-center">
+                <li><button ng-click="$parent.DeleteTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+            </ul>
+        </div>
+    </script>
+</div>
+<confirm-modal></confirm-modal>
+
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+@*<confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>*@
+
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+            return false;
+        }
+        return true;
+    }
+
+    //onkeypress = "return isNumber(event)"
+</script>

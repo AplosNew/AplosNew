@@ -1010,6 +1010,7 @@ upanelApp.controller("StocksAdjustmentController", StocksAdjustmentController);
 upanelApp.controller("FinalPackDefinitionController", FinalPackDefinitionController);
 upanelApp.controller("PrePackDefinitionController", PrePackDefinitionController);
 upanelApp.controller("MeetingReportsController", MeetingReportsController);
+upanelApp.controller("EmployeeOperationsController", EmployeeOperationsController);
 
 
 
