@@ -705,6 +705,7 @@
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxProcessController.cs" />
     <Compile Include="Areas\Productions\Controllers\EmployeeOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\FGInventoryStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinalPackDefinitionController.cs" />
@@ -2037,6 +2038,7 @@
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
+    <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxProcessController.js" />
     <Content Include="Areas\Productions\Scripts\EmployeeOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\FGInventoryStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\FinalPackDefinitionController.js" />
@@ -4022,6 +4024,7 @@
     <Content Include="Areas\Productions\Views\FinalPackDefinition\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\FiscalYearClose.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\MeetingReports\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\EmployeeIncomeTaxProcess\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\EmployeeOperations\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

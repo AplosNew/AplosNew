@@ -676,7 +676,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr["PercentageMinLimitSalaryHeadId"] = data.PercentageMinLimitSalaryHeadId;
 
                         dr["IsPolicyDerived"] = data.IsPolicyDerived;
-                        //dr["IsSlabBased"] = data.IsSlabBased;
+                        dr["IsGNRNetPayEffect"] = data.IsGNRNetPayEffect;
+                        dr["IsGNRTagAndUnTag"] = data.IsGNRTagAndUnTag;
+                        dr["IsDisbusted"] = data.IsDisbusted;
+                        dr["IsBankPayment"] = data.IsBankPayment;
+                        dr["IsCashPayment"] = data.IsCashPayment;
+                        dr["IsCTCComponent"] = data.IsCTCComponent;
+                        dr["IsGrossComponent"] = data.IsGrossComponent;
                         dr["AddedBy"] = identity.Name;
                         dr["AddedFromIP"] = identity.IPAddress;
                         dr["DateAdded"] = DateTime.Now;
@@ -754,7 +760,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr["PercentageMinLimitSalaryHeadId"] = data.PercentageMinLimitSalaryHeadId;
 
                         dr["IsPolicyDerived"] = data.IsPolicyDerived;
-                        //dr["IsSlabBased"] = data.IsSlabBased;
+                        dr["IsGNRNetPayEffect"] = data.IsGNRNetPayEffect;
+                        dr["IsGNRTagAndUnTag"] = data.IsGNRTagAndUnTag;
+                        dr["IsDisbusted"] = data.IsDisbusted;
+                        dr["IsBankPayment"] = data.IsBankPayment;
+                        dr["IsCashPayment"] = data.IsCashPayment;
+                        dr["IsCTCComponent"] = data.IsCTCComponent;
+                        dr["IsGrossComponent"] = data.IsGrossComponent;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedFromIP"] = identity.IPAddress;
                         dr["DateUpdated"] = DateTime.Now.ToString();
@@ -854,7 +866,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr["PercentageMinLimitSalaryHeadId"] = item.PercentageMinLimitSalaryHeadId;
 
                             dr["IsPolicyDerived"] = item.IsPolicyDerived;
-
+                            //dr["IsGNRNetPayEffect"] = data.IsGNRNetPayEffect;
+                            //dr["IsGNRTagAndUnTag"] = data.IsGNRTagAndUnTag;
+                            //dr["IsDisbusted"] = data.IsDisbusted;
+                            //dr["IsBankPayment"] = data.IsBankPayment;
+                            //dr["IsCashPayment"] = data.IsCashPayment;
+                            //dr["IsCTCComponent"] = data.IsCTCComponent;
+                            //dr["IsGrossComponent"] = data.IsGrossComponent;
                             dr["AddedBy"] = identity.Name;
                             dr["AddedFromIP"] = identity.IPAddress;
                             dr["DateAdded"] = DateTime.Now;
@@ -922,7 +940,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr["PercentageMinLimitSalaryHeadId"] = item.PercentageMinLimitSalaryHeadId;
 
                             dr["IsPolicyDerived"] = item.IsPolicyDerived;
-
+                            //dr["IsGNRNetPayEffect"] = data.IsGNRNetPayEffect;
+                            //dr["IsGNRTagAndUnTag"] = data.IsGNRTagAndUnTag;
+                            //dr["IsDisbusted"] = data.IsDisbusted;
+                            //dr["IsBankPayment"] = data.IsBankPayment;
+                            //dr["IsCashPayment"] = data.IsCashPayment;
+                            //dr["IsCTCComponent"] = data.IsCTCComponent;
+                            //dr["IsGrossComponent"] = data.IsGrossComponent;
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedFromIP"] = identity.IPAddress;
                             dr["DateUpdated"] = DateTime.Now.ToString();
@@ -1035,11 +1059,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreatePFSalaryHead(IEnumerable<SalaryRulePF> entities)
+        public JsonResult CreatePFSalaryHead(IEnumerable<SalaryRulePF> entities, string SalaryRuleMasterSystemID)
         {
             try
             {
-                SavePFSalaryHeadData(entities);
+                SavePFSalaryHeadData(entities, SalaryRuleMasterSystemID);
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1049,15 +1073,16 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-        private void SavePFSalaryHeadData(IEnumerable<SalaryRulePF> data)
+        private void SavePFSalaryHeadData(IEnumerable<SalaryRulePF> data, string SalaryRuleMasterSystemID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
                 if (data != null)
                 {
                     int Seqcount = 0;
-                    ConnectionManager.DAL.ConManager objCon;
+                   
                     DataSet dsMaster;
                     foreach (var item in data)
                     {
@@ -1100,6 +1125,19 @@ namespace Aplos.Areas.Payrolls.Controllers
                         obj.SaveDataSets(dsMaster);
                     }
                 }
+                else
+                {
+                    string sql = "SELECT * FROM [dbo].[SalaryRulePF] WHERE SalaryRuleMasterSystemID='" + SalaryRuleMasterSystemID + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out DataSet dsPF , false, "1");
+
+                    while (dsPF.Tables[0].DefaultView.Count>0)
+                    {
+                        dsPF.Tables[0].DefaultView[0].Delete();
+                    }
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsPF);
+                }  
             }
             catch (Exception ex)
             {
@@ -2015,6 +2053,13 @@ namespace Aplos.Areas.Payrolls.Controllers
         public bool IsSlabBased { get; set; }
         public bool IsPayOnWeekoffForFixedMonthDay { get; set; }
         public bool IsPayOnHolidayForFixedMonthDay { get; set; }
+        public bool IsGNRNetPayEffect { get; set; }
+        public bool IsGNRTagAndUnTag { get; set; }
+        public bool IsBankPayment { get; set; }
+        public bool IsCashPayment { get; set; }
+        public bool IsCTCComponent { get; set; }
+        public bool IsGrossComponent { get; set; }
+
 
     }
 }

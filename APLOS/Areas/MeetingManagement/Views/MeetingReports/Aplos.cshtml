@@ -30,178 +30,20 @@
                 <div id="filters">
                 </div>
 
-                <div class="col-md-5">
-                    <div class="common-btn">
-                        <ul class="list-inline text-left">
-                            <li><button type="button" class="btn single-btn" ng-click="GetMeetingGenerate()"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button></li>
-                            <li> <button type="button" class="btn single-btn" ng-click="clearFilters()"><i class="glyphicon glyphicon-repeat"></i> Clear Filters </button></li>
-                        </ul>
-                    </div>
+                <div class="col-md-2 text-right" style="margin-top:20px;">
+                    <button type="button" class="btn single-btn" ng-click="Report()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
                 </div>
 
-
-                <div class="row" style="margin:10px; margin-top:20px;">
-                    <div class="col-lg-12">
-                        <div class="col-lg-1" style="margin-top:20px;">
-
-                        </div>
-                        <div class="col-lg-4" style="margin-top:20px;">
-                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="From Date" ng-model="FromDate" datepicker class="form-control" required tabindex="5">
-                            </div>
-
-
-                        </div>
-                        <div class="col-lg-4" style="margin-top:20px;">
-                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control" required tabindex="6">
-                            </div>
-
-                        </div>
-
-                        <div class="col-md-2 text-right" style="margin-top:20px;">
-                            <button type="button" class="btn single-btn" ng-click="Report()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
-                        </div>
-                    </div>
-
-                </div>
-                @*<div class="col-md-3" style="padding-top:10px;">
-                Meeting Item
-            </div>*@
-
-                <!--<div class="row">
-
-            <div class="col-xs-12 col-sm-6 col-md-12">
-
-                <div id="meetingInfoGrid"-->
-                @*ng-init="chkinit()"*@ <!--ej-grid e-datasource="MeetingList" e-gridlines="vertical"--> @*e-templaterefresh="refreshTemplateemployee"*@
-                <!--e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel">
-                    <div e-columns>
-
-                        <div e-column e-headertext=""  e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                        <div e-column e-field="MeetingType" e-headertext="Meeting Type" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="IssueStatus" e-headertext="Issue Status" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="IssueCritically" e-headertext="Critically" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="Attendee" e-headertext="Attendee" e-allowediting="false" e-width="80"></div>
-                    </div>
-                </div>
-
-                <script type="text/template" id="checkboxTemplate">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
-                </script>
-
-            </div>
-        </div>-->
+                
+               
             </div>
         </div>
     </div>
 </div>
 
-@*<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-    <input type="hidden" ng-model="ModelNew.Id">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Meeting Organized By<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <span class="input-group-addon">{{ModelNew.MeetingOrganizedByCode}}</span>
-                    <input type="text" name="Meeting Organized By" ng-model="ModelNew.MeetingOrganizedBy" class="form-control" required readonly>
-                    <span class="input-group-btn">
-                        <button name="submit" ng-click="showEmployeeListPopUp('Main')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
 
 
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Date<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.Date" datepicker class="form-control" required>
-            </div>
-        </div>
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Meeting Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Meeting Name" ng-model="ModelNew.MeetingName" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Chaired By<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <span class="input-group-addon">{{ModelNew.ChairedByCode}}</span>
-                    <input type="text" name="Chaired By" ng-model="ModelNew.ChairedBy" class="form-control" required readonly>
-                    <span class="input-group-btn">
-                        <button name="submit" ng-click="showEmployeeListPopUp('Chaired')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Location<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Location" ng-model="ModelNew.Location" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
-            </div>
-        </div>
-    </div>
-
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-        </ul>
-    </div>
-</div>*@
-
-@*<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
-                </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>*@
-@*<div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-        <div e-columns>
-            <div e-column e-field="MeetingOrganizedBy" e-headertext="Meeting Organized By" e-width="12"></div>
-            <div e-column e-field="ChairedBy" e-headertext="Chaired By" e-width="13"></div>
-            <div e-column e-field="TDate" e-headertext="Date" e-width="13"></div>
-            <div e-column e-field="Location" e-headertext="Location" e-width="13"></div>
-            <div e-column e-field="MeetingName" e-headertext="Meeting Name" e-width="15"></div>
-        </div>
-    </div>
-</div>*@
-
-
-<div class="modal fade site-modal in" id="employeePopUps" role="dialog" data-backdrop="static">
+@*<div class="modal fade site-modal in" id="employeePopUps" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -277,7 +119,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
 
 <confirm-modal></confirm-modal>

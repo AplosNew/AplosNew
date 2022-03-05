@@ -148,5 +148,24 @@ namespace Library.Accounting.Accounts
             obj.SaveDataSets(ds);
 
         }
+
+        public GridModel GetFiscalYearCloseList(GridParameter parameters)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT FYC.Id,FY.Id Sequence,FY.FiscalYearName,C.UserName CompanyName,P.UserName PlantName
+                                FROM [SCS].[FiscalYearClose] As FYC
+                                LEFT JOIN [SCS].[FiscalYear] AS FY  ON FY.Id=FYC.FiscalYearId
+                                LEFT JOIN  [ORG].[Company] AS C  ON C.Id=FYC.CompanyId
+                                LEFT JOIN [ORG].[Plant] AS P  ON P.Id=FYC.PlantId";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
     }
 }

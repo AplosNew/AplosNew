@@ -63,16 +63,20 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
             $rootScope.toggle();
         }
         $scope.EarningMasterModel.TaxPolicyHeaderId = e.data.Id;
+        $scope.TDSMasterModel.TaxPolicyHeaderId = e.data.Id;
         $scope.Child.HeaderId = e.data.Id;
         $scope.InvestDeductModel.TaxPolicyHeaderId = e.data.Id;
         $scope.TaxYearModel.HeaderId = e.data.Id;
         $scope.TaxSlabDefine.PolicyId = e.data.Id;
         $scope.TaxRebateDefine.TaxPolicyId = e.data.Id;
         $scope.TaxSurchargeDefine.TaxPolicyId = e.data.Id;
+        $scope.AdditionalTaxModel.TaxPolicyId = e.data.Id;
         $scope.GetEarningMasterList();
+        $scope.GetTDSMasterList();
         $scope.getInvestDeductMaster();
         $scope.GetSlabInfo();
         $scope.GetRebateInfo();
+        $scope.GetAdditionalTaxMasterList();
         $scope.GetSurchargeInfo();
         updateChild();
         updateTaxDataChild();
@@ -563,6 +567,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.ClearEarningMaster();
                     $scope.GetEarningMasterList();
                 }
             }), function errorCallBack(response) {
@@ -629,6 +634,7 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.ClearMasterFields();
                     $scope.getInvestDeductMaster();
                     $scope.getIncomeChildData();
                 }
@@ -681,7 +687,122 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     //#endregion
 
-    //#endregion
+    // #region TDS Master Functions
+
+    $scope.TDSMasterModel = {
+        Id: null,
+        TaxPolicyHeaderId: null,
+        SalaryHeadId: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Remarks: null,
+        Active: false
+    };
+
+    $scope.ClearTDSMaster = function () {
+        $scope.TDSMasterModel = {
+            Id: null,
+            TaxPolicyHeaderId: null,
+            SalaryHeadId: null,
+            ShortName: null,
+            StandardName: null,
+            UserName: null,
+            Remarks: null,
+            Active: false
+        };
+
+        $scope.TDSMasterModel.TaxPolicyHeaderId = $scope.Header.Id;
+
+    }
+
+    $scope.TDSList = [];
+    $scope.GetTDSMasterList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetTDSMasterList",
+            data: { 'Id': $scope.Header.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.TDSList = [];
+            $scope.TDSList = response.data;
+        });
+    }
+
+    $scope.getTDSChildDetails = function (e) {
+        $scope.TDSMasterModel = e.data; // Model which is used as ng-model will come here
+    }
+
+    $scope.SaveTDSMaster = function () {
+
+        if (baseService.isUndefinedOrNull($scope.TDSMasterModel.SalaryHeadId)) {
+            ShowResult("SalaryHead cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.TDSMasterModel.StandardName)) {
+            ShowResult("StandardName cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.TDSMasterModel.UserName)) {
+            ShowResult("UserName cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.TDSMasterModel.ShortName)) {
+            ShowResult("ShortName cann't be blank...");
+        }
+        else
+        {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveTDSMaster',
+                data: { 'TDSMasterData': $scope.TDSMasterModel }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetTDSMasterList();
+                }
+            })
+                , function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+         }
+    }
+
+    // #region Deletion Functions
+
+    $scope.ConfirmDeleteTDS = function (obj) {
+        $scope.TDSMasterModel.Id = obj.data.Id;
+        $scope.DeleteTDSMaster();
+    };
+
+    $scope.DeleteTDSMaster = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteTDSMaster",
+                data: { ID: $scope.TDSMasterModel.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearTDSMaster();
+                    $scope.GetTDSMasterList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    // #endregion
+
+    // #endregion
 
     // #region EarningMaster Functions
 
@@ -700,7 +821,6 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
         ExemptionApplicable: false,
         IsUserDefined: false
     };
-
 
     $scope.SaveEarningMaster = function () {
 
@@ -1672,4 +1792,110 @@ function TaxPolicyHeaderController(commonMessage, $scope, $rootScope, baseServic
 
     // #endregion
 
+    //#region Additional Tax Functions
+
+    $scope.AdditionalTaxModel = {
+        Id: null,
+        TaxPolicyId: null,
+        StandardName: null,
+        UserName: null,
+        IsPercentage: false,
+        IsFix: false,
+        Value: null,
+    };
+
+    $scope.ClearAdditionalTaxMaster = function () {
+        $scope.AdditionalTaxModel = {
+            Id: null,
+            TaxPolicyId: null,
+            StandardName: null,
+            UserName: null,
+            IsPercentage: false,
+            IsFix: false,
+            Value: null,
+        };
+        $scope.AdditionalTaxModel.TaxPolicyId = $scope.Header.Id;
+
+    }
+
+    $scope.SaveAdditionalTaxMaster = function () {
+               
+        if (baseService.isUndefinedOrNull($scope.AdditionalTaxModel.StandardName)) {
+            ShowResult("StandardName cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.AdditionalTaxModel.UserName)) {
+            ShowResult("UserName cann't be blank...");
+        }
+        else if (baseService.isUndefinedOrNull($scope.AdditionalTaxModel.Value)) {
+            ShowResult("Value cann't be empty...");
+        }
+        else
+        {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveAdditionalTaxMaster',
+                data: { 'AdditionalTaxMaster': $scope.AdditionalTaxModel }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetAdditionalTaxMasterList();
+                }
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+    }
+
+    $scope.AddtnTaxMasterList = [];
+    $scope.GetAdditionalTaxMasterList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetAdditionalTaxMasterList",
+            data: { 'Id': $scope.Header.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AddtnTaxMasterList = [];
+            $scope.AddtnTaxMasterList = response.data;
+        });
+    }
+
+    $scope.ConfirmDeleteAdditionalTax = function (obj) {
+        $scope.AdditionalTaxModel.Id = obj.data.Id;
+        $scope.DeleteTaxAddtnMaster();
+    };
+
+    $scope.DeleteTaxAddtnMaster = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteAddtnTaxMaster",
+                data: { ID: $scope.AdditionalTaxModel.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearAdditionalTaxMaster();
+                    $scope.GetAdditionalTaxMasterList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.AdditionalTaxMasterChildDetails = function (e) {
+        $scope.AdditionalTaxModel = e.data; // Model which is used as ng-model will come here
+    }
+
+    //#endregion
 }
