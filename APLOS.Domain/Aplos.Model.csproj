@@ -284,6 +284,7 @@
     <Compile Include="Configurations\Inventory\ServicePODetailConfiguration.cs" />
     <Compile Include="Configurations\Inventory\PurchaseReturnConfiguration.cs" />
     <Compile Include="Configurations\Inventory\ServicePOAckTaxConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\ServiceAcknowledgementChargeConfiguration.cs" />
     <Compile Include="Configurations\Inventory\ServivePOAcknowledgementMapConfiguration.cs" />
     <Compile Include="Configurations\Inventory\ServiceAcknowledgementMasterConfiguration.cs" />
     <Compile Include="Configurations\Inventory\ServicePOTaxConfiguration.cs" />

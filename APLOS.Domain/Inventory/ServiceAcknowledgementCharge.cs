@@ -8,12 +8,8 @@ namespace Library.Model.Inventory
         #region Scalar Properties
 
         public string Id { get; set; }
-        public decimal Amount { get; set; }
-        public decimal GRNServiceAmount { get; set; }
-        public bool AmountStatus { get; set; }
-
+        public decimal Amount { get; set; }        
         public decimal TotalTaxAmount { get; set; }
-        public string Description { get; set; }
 
 
 

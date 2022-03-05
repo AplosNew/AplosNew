@@ -12661,9 +12661,9 @@ ORDER BY IR.ID DESC";
         }
         public void InsertGraphCharge(InventoryMaterialViewModel entity, IEnumerable<ServicePOAckTax> taxCategoryList)
         {
-            //if (Convert.ToBoolean(_ChargeServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM TRN.ServiceAcknowledgementCharge WHERE ServiceAcknowledgementMasterId='" + entity.ServiceAcknowledgementMasterId + "' AND ServiceMasterId='" + entity.ServiceMasterId + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
-            //    throw new CustomException("This service already taken."); ;
-            int currentId=0;
+            if (Convert.ToBoolean(_ChargeServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM TRN.ServiceAcknowledgementCharge WHERE ServiceAcknowledgementMasterId='" + entity.ServiceAcknowledgementMasterId + "' AND ServiceMasterId='" + entity.ServiceMasterId + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
+                throw new CustomException("This service already taken."); ;
+            //int currentId=0;
             var flag = false;
             try
             {
@@ -12673,12 +12673,12 @@ ORDER BY IR.ID DESC";
                 if (entity.IsNotNull())
                 {
                     entity.ToCurrencyRate = entity.ToCurrencyRate == 0 ? 1 : entity.ToCurrencyRate;
-                    //var currentId = _ChargeServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[ServiceAcknowledgementCharge] WHERE ServiceAcknowledgementMasterId='{entity.ServiceAcknowledgementMasterId}'").First();
+                    var currentId = _ChargeServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[ServiceAcknowledgementCharge] WHERE ServiceAcknowledgementMasterId='{entity.ServiceAcknowledgementMasterId}'").First();
                     currentId++;
                     var service = new ServiceAcknowledgementCharge
                     {
                         Id = MakePK(entity.InventoryReceiveId + 2, currentId, 2),
-                        //ServiceAcknowledgementMasterId = entity.ServiceAcknowledgementMasterId,
+                        ServiceAcknowledgementMasterId = entity.ServiceAcknowledgementMasterId,
                         ServiceMasterId = entity.ServiceMasterId,
                         Amount = Convert.ToDecimal(entity.TransactionAmount),
                         TotalTaxAmount = Convert.ToDecimal(entity.TotalTaxAmount)
@@ -12692,7 +12692,7 @@ ORDER BY IR.ID DESC";
                         {
                             crrId++;
                             item.Id = MakePK(service.Id, crrId, 2);
-                            //item.ServiceAcknowledgementMasterId = entity.ServiceAcknowledgementMasterId;
+                            item.ServiceAcknowledgementMasterId = entity.ServiceAcknowledgementMasterId;
                             item.ServiceAcknowledgementDetailId = null;
                             item.ServiceAcknowledgementChargeId = service.Id;
                             AuditService.AddedLog(item);

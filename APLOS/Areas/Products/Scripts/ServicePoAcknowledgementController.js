@@ -1701,7 +1701,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         try {
             $scope.manualValidationAddRemove('div_svc', 'serviceModel', 'ServiceMasterId');
             $scope.manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');
-
+            $scope.serviceModel.ServiceAcknowledgementMasterId = $scope.serviceModel.InventoryReceiveId;
             $http({
                 method: 'POST',
                 url: $scope.sreviceSaveUrl1,
