@@ -12526,7 +12526,7 @@ ORDER BY IR.ID DESC";
                                 var receiveDetail1 = new ServivePOAcknowledgementMap
                                 {
 
-                                    Id = GetPKSerAckMap(),
+                                    Id = plantId + GetPKSerAckMap(),
                                     CompanyGroupId = identity.CompanyGroupId,
                                     CompanyId = identity.CompanyId,
                                     PlantId = identity.PlantId,
