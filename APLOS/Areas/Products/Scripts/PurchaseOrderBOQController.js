@@ -1131,5 +1131,16 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         var data = gridObj.getSelectedRecords()[0];
         location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
     };
+    $scope.POBOQReportXl = function (data) {
+
+        try {
+
+            var file_src = 'Products/PurchaseOrder/POBOQReport?POID=' + data.Id;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 }//End Of main
 

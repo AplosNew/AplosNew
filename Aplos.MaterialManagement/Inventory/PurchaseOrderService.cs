@@ -13,6 +13,7 @@ using Library.Service.Logs;
 using Library.Service.Properties;
 using Library.Service.Systems;
 using Library.ViewModel.Inventory;
+using Library.ViewModel.Materials;
 using Library.ViewModel.Setup;
 using OTSBD;
 using Syncfusion.DocIO;
@@ -51,6 +52,8 @@ namespace Library.MaterialManagement.Inventory
         private readonly IRepositoryAsync<ServiceAcknowledgementMaster> _ServiceAcknowledgementMasterRepository;
         private readonly IRepositoryAsync<PODocumentMap> _PODocumentMapRepository;
         private readonly IRepositoryAsync<ServicePOAckTax> _servicePOAckTaxRepository;
+        private readonly IRepositoryAsync<ServiceAcknowledgementCharge> _ChargeServiceRepository;
+
 
 
         private readonly IUnitOfWork _unitOfWork;
@@ -72,6 +75,7 @@ namespace Library.MaterialManagement.Inventory
             , IRepositoryAsync<ServiceAcknowledgementMaster> ServiceAcknowledgementMasterRepository
             , IRepositoryAsync<PODocumentMap> PODocumentMapRepository
             , IRepositoryAsync<ServicePOAckTax> servicePOAckTaxRepository
+            , IRepositoryAsync<ServiceAcknowledgementCharge> ChargeServiceRepository
             ) : base(inventoryReceiveRepository, unitOfWork, pkGeneratorService)
         {
             _inventoryReceiveRepository = inventoryReceiveRepository;
@@ -79,6 +83,7 @@ namespace Library.MaterialManagement.Inventory
             _sqlRepository = sqlRepository;
             _ServicePOMaster = ServicePOMaster;
             _ServicePODetail = ServicePODetail;
+            _ChargeServiceRepository = ChargeServiceRepository;
             _ServicePOTax = ServicePOTax;
             _unitOfWork = unitOfWork;
             _ServiceAcknowledgementMaster = ServiceAcknowledgementMaster;
@@ -3761,7 +3766,7 @@ namespace Library.MaterialManagement.Inventory
             int colRo = COL; COL++;
             wTable.Rows[ROW].Cells[colRo].Width = 30;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
             wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
@@ -12654,7 +12659,74 @@ ORDER BY IR.ID DESC";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+        public void InsertGraphCharge(InventoryMaterialViewModel entity, IEnumerable<ServicePOAckTax> taxCategoryList)
+        {
+            if (Convert.ToBoolean(_ChargeServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM TRN.ServiceAcknowledgementCharge WHERE ServiceAcknowledgementMasterId='" + entity.ServiceAcknowledgementMasterId + "' AND ServiceMasterId='" + entity.ServiceMasterId + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
+                throw new CustomException("This service already taken."); ;
+            //int currentId=0;
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
 
+                if (entity.IsNotNull())
+                {
+                    entity.ToCurrencyRate = entity.ToCurrencyRate == 0 ? 1 : entity.ToCurrencyRate;
+                    var currentId = _ChargeServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[ServiceAcknowledgementCharge] WHERE ServiceAcknowledgementMasterId='{entity.ServiceAcknowledgementMasterId}'").First();
+                    currentId++;
+                    var service = new ServiceAcknowledgementCharge
+                    {
+                        Id = MakePK(entity.InventoryReceiveId + 2, currentId, 2),
+                        ServiceAcknowledgementMasterId = entity.ServiceAcknowledgementMasterId,
+                        ServiceMasterId = entity.ServiceMasterId,
+                        Amount = Convert.ToDecimal(entity.TransactionAmount),
+                        TotalTaxAmount = Convert.ToDecimal(entity.TotalTaxAmount)
+                    };
+                    AuditService.AddedLog(service);
+                    _ChargeServiceRepository.Insert(service);
+                    if (taxCategoryList.IsNotNull())
+                    {
+                        var crrId = _ChargeServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[ServicePOAckTax] WHERE ServiceAcknowledgementChargeId='{service.Id}'").First();
+                        foreach (var item in taxCategoryList)
+                        {
+                            crrId++;
+                            item.Id = MakePK(service.Id, crrId, 2);
+                            item.ServiceAcknowledgementMasterId = entity.ServiceAcknowledgementMasterId;
+                            item.ServiceAcknowledgementDetailId = null;
+                            item.ServiceAcknowledgementChargeId = service.Id;
+                            AuditService.AddedLog(item);
+                            _servicePOAckTaxRepository.Insert(item);
+                        }
+                    }
+                    //if (entity.CurrencyId != entity.BaseCurrencyId)
+                    //    UpdateInventoryDetail(service, ratioServiceTax, ratio, Convert.ToDecimal(entity.ToCurrencyRate), entity.IsNonCreditable);
+                    //else if (entity.CurrencyId == entity.BaseCurrencyId)
+                    //    UpdateInventoryDetail(service, ratioServiceTax, ratio, 1, entity.IsNonCreditable);
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
         public void DeleteServiceAck(string id)
         {
             try
