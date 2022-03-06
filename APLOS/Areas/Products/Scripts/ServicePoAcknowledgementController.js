@@ -769,7 +769,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         //        else
         //            $scope.IsBaseOnDueDateEnable = false;
         //}
-
+        getServiceChargeListForCharge($scope.productNew.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
 
@@ -781,7 +781,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         //debugger;
         $http.get($scope.path + 'GetServiceLisrByAckid?Id=' + inveReveiveId)
             .then(function (response) {
-                $scope.chargesList = [];
+                //$scope.chargesList = [];
                 $scope.chargesListPO = response.data;
                 // $scope.getServiceTaxList();
                 $scope.GetAdvanceTaxInfo($scope.productId);
@@ -1619,6 +1619,20 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
             }
         }
     }
+    $scope.serviceModel = {
+        Id: null
+        , ServiceMasterId: null
+        , InventoryReceiveId: $scope.productNew.Id
+        , CurrencyName: angular.element("#currency :selected").text()
+        , CurrencyId: $scope.productNew.CurrencyId
+        , BaseCurrencyId: $scope.baseCurrencyId
+        , DocDate: $scope.productNew.DocDate
+        , TransactionAmount: 0
+        , BaseAmount: 0
+        , TotalTaxAmount: 0
+        , ToCurrencyRate: $scope.productNew.ToCurrencyRate
+        , IsNonCreditable: $scope.productNew.IsNonCreditable
+    };
     $scope.serviceChargePopUp = function () {
         $scope.productNew.TaxOptionService = 'Yes';
         $scope.taxCategoryList = null;
@@ -1642,7 +1656,6 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
     $http.get('Setups/CompanyServiceMaster/GetCboList')
         .then(function (response) {
             $scope.serviceList = response.data;
-            console.log('serviceList', $scope.serviceList);
         });
     $scope.closeServiceChargePopUp = function () {
         $scope.serviceModel = {};
@@ -1701,7 +1714,9 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         try {
             $scope.manualValidationAddRemove('div_svc', 'serviceModel', 'ServiceMasterId');
             $scope.manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');
+            if (!baseService.isUndefinedOrNull($scope.serviceModel.InventoryReceiveId)) {
             $scope.serviceModel.ServiceAcknowledgementMasterId = $scope.serviceModel.InventoryReceiveId;
+            }
             $http({
                 method: 'POST',
                 url: $scope.sreviceSaveUrl1,
@@ -1732,6 +1747,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
                     $scope.taxCategoryList = [];
                     getServiceChargeList($scope.productNew.Id);
                     getInventoryMaterialList($scope.productNew.Id);
+                    getServiceChargeListForCharge($scope.productNew.Id);
                     $scope.getDataList();
                 }
             }), function errorCallBack(response) {
@@ -1741,4 +1757,30 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
             ShowResult(e, 'info');
         }
     };
+    $scope.chargesList = [];
+    function getServiceChargeListForCharge(MasterId) {
+        $http.get($scope.path + 'GetServiceChargeListForCharge?MasterId=' + MasterId)
+            .then(function (response) {
+                $scope.chargesList = response.data;
+            });
+    }
+    $scope.getServiceTaxList1 = function (data, flag) {
+        //debugger;
+        $scope.productNew.TaxOptionService = 'Yes';
+        $scope.taxAbleAmnt = data.Amount;// + data.TotalTaxAmount;
+        $scope.percentageColumn = flag;
+        $scope.LoadTaxButtonClick();
+        $scope.serviceModel = data;
+        $scope.serviceModel.TransactionAmount = data.Amount;
+        $scope.serviceModel.ServiceAcknowledgementMasterId = data.ServiceAcknowledgementMasterId;
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetServiceTaxListForTaxDetail?serviceId=' + data.Id
+        }).then(function (response) {
+            $scope.taxCategoryList = response.data;
+            angular.element(document.querySelector('#serviceChargePopUp')).modal('show');
+            //$scope.HSNCode = $scope.receiveTaxList[0].HSNCode;
+        });
+
+    }
 }

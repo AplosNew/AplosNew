@@ -370,7 +370,31 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-
+        public IEnumerable<object> QueryForCharges(string MasterId)
+        {
+            try
+            {
+                //var sql = @"SELECT A.Id, A.InventoryReceiveId, A.ServiceMasterId, B.UserName AS ServiceMasterName, A.Amount, A.TotalTaxAmount
+                //            FROM [TRN].[InventoryService] AS A JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id WHERE A.InventoryReceiveId='" + receiveId + "'";
+                var sql = @"SELECT A.Id
+                        , A.ServiceAcknowledgementMasterId
+                        , A.ServiceMasterId
+                        , B.UserName AS ServiceMasterName
+                         ,A.Amount
+						,IRT.TaxAmount TotalTaxAmount
+                        FROM [TRN].ServiceAcknowledgementCharge AS A 
+                        JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
+                        left join ( Select ServiceAcknowledgementChargeId, sum(TaxAmount) TaxAmount from  trn.ServicePOAckTax group by ServiceAcknowledgementChargeId) IRT On IRT.ServiceAcknowledgementChargeId=A.Id
+                        WHERE A.ServiceAcknowledgementMasterId='"+ MasterId + @"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
         public GridModel GetPostingList(GridParameter parameters, string plantId)
         {
             try
@@ -3363,6 +3387,24 @@ namespace Library.MaterialManagement.Inventory
                             FROM [TRN].[PurchaseOrderTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
                             WHERE A.InventoryReceiveId='" + serviceId + "' AND A.InventoryReceiveDetailId IS NULL ORDER BY TC.[Sequence]";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetServiceTaxListForTax(string serviceId)
+        {
+            try
+            {
+                var sql = @"SELECT A.Id,A.ServiceAcknowledgementChargeId, A.TaxCategoryId, TC.UserName, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
+                            FROM [TRN].ServicePOAckTax AS A 
+                            JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
+                            LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
+                            WHERE A.ServiceAcknowledgementChargeId='"+ serviceId + @"' AND A.ServiceAcknowledgementDetailId IS NULL ORDER BY TC.[Sequence]";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
