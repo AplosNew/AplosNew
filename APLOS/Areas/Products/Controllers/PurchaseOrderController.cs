@@ -627,6 +627,11 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			return Json(_purchaseOrderService.GetServiceTaxList(serviceId), JsonRequestBehavior.AllowGet);
 		}
+		[Authorize, HttpGet]
+		public JsonResult GetServiceTaxListForTaxDetail(string serviceId)
+		{
+			return Json(_purchaseOrderService.GetServiceTaxListForTax(serviceId), JsonRequestBehavior.AllowGet);
+		}
 
 		#endregion Inventory Receive Tax
 
@@ -661,16 +666,21 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
 		public JsonResult ServiceChargesCreate(InventoryMaterialViewModel entity, IEnumerable<PurchaseOrderTax> taxCategoryList)
 		{
-			//if(entity != null)            {
-
-			//        if (entity.Amount == 0)
-			//            throw new CustomException("Enter Service Amount!");                  
-
-			//}
 			_inventoryService.InsertGraph(entity, taxCategoryList);
 			return Json(new { entity.Id, Message = AplosMessage.Success });
 		}
 
+		[Authorize, HttpPost]
+		public JsonResult ServiceChargesCreates(InventoryMaterialViewModel entity, IEnumerable<ServicePOAckTax> taxCategoryList)
+		{
+			_purchaseOrderService.InsertGraphCharge(entity, taxCategoryList);
+			return Json(new { entity.ServiceAcknowledgementMasterId, Message = AplosMessage.Success });
+		}
+		[Authorize, HttpGet]
+		public JsonResult GetServiceChargeListForCharge(string MasterId)
+		{
+			return Json(_purchaseOrderService.QueryForCharges(MasterId), JsonRequestBehavior.AllowGet);
+		}
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
 		public JsonResult ServiceChargesDelete(string serviceId)
 		{
@@ -5186,6 +5196,23 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 				_purchseOrderDetailService.POBoqInsertUpdate(entity, groupListDetailVM, boqmapListVM, taxCategoryList, PoId);
 			}
 			return Json(new { entity, Message = AplosMessage.Success + " PO no <b>" + entity.Id + "</b>" });
+		}
+		#endregion
+		#region POBOQ Excel Report
+		[HttpGet, Authorize]
+		public ActionResult POBOQReport(string POID)
+		 {
+			try
+			{
+				Library.MaterialManagement.InventoryManagements.POBOQReportService Report = new Library.MaterialManagement.InventoryManagements.POBOQReportService();
+				Report.POBOQReport(POID);
+				return null;
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+
 		}
 		#endregion
 	}

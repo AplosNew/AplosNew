@@ -108,7 +108,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.partyList = response.data;
         });
         //}
-        angular.element(document.querySelector('#boqpartyPopUp')).modal('show');
+        angular.element(document.querySelector('#partyPopUp')).modal('show');
     };
 
     $scope.closeBOQPartyPopUp = function (x) {
@@ -122,12 +122,12 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.hideBOQPartyPopUp();
     };
     $scope.hideBOQPartyPopUp = function () {
-        angular.element(document.querySelector('#boqpartyPopUp')).modal('hide');
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
         $scope.partyIndex = -1;
         $scope.partySelected = null;
     };
     $scope.closeBOQPartyPopUpNew = function () {
-        angular.element(document.querySelector('#boqpartyPopUp')).modal('hide');
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
     }
     function getPartyPlantList() {
         $scope.plantList = [];
@@ -1131,5 +1131,16 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         var data = gridObj.getSelectedRecords()[0];
         location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
     };
+    $scope.POBOQReportXl = function (data) {
+
+        try {
+
+            var file_src = 'Products/PurchaseOrder/POBOQReport?POID=' + data.Id;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 }//End Of main
 

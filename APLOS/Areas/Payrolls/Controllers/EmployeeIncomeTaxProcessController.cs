@@ -26,6 +26,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
+        #region Processing Functions
+
         [HttpPost, Authorize]
         public JsonResult GetData(string PolicyId, string Earning, string PlantId)
         {
@@ -71,6 +73,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        #endregion
     }
 }
  
