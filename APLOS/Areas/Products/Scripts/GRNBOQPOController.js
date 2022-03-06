@@ -32,9 +32,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.inventoryMaterialListPOnew = [];
     $scope.chargesListPOnew = [];
 
-    $controller('partyBaseController', { $scope: $scope, $http: $http });
+    /*$controller('partyBaseController', { $scope: $scope, $http: $http });*/
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-    $scope.showBOQPartyPopUpNew = function () {
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+    $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+    $scope.showPartyPopUpNew = function () {
 
         if ($scope.partyType === 'Vendor') {
             $scope.partyUrl = 'Products/GoodsReceiveNote/GetGRNBOQPartyListNew?partyType=' + $scope.partyType;
@@ -49,9 +52,16 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             $scope.partyList = response.data;
         });
         //}
-        angular.element(document.querySelector('#boqpartyPopUp')).modal('show');
+        angular.element(document.querySelector('#partyPopUp')).modal('show');
     };
-
+    $scope.closePartyPopUpNew = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    };
+    $scope.hidePartyPopUp = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        $scope.partyIndex = -1;
+        $scope.partySelected = null;
+    };
     $scope.closeBOQPartyPopUp = function (x) {
         var party = x.data;
         $scope.SubmitPartyCode = party.Code;

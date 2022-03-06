@@ -3713,8 +3713,8 @@ namespace Aplos.MaterialManagement
                                     LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
                                     WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
                                     ) AS RGL ON RGL.CompanyPartyId=CP.Id
-                                    JOIN (SELECT DISTINCT VendorId FROM  BOQ )AS boq ON boq.VendorId=P.Id 
-                                    
+                                    JOIN (SELECT DISTINCT PartyId FROM TRN.GateEntry GE 
+									WHERE ISNULL(GE.Id,NULL) NOT IN (SELECT ISNULL(GateEntryNo,'') FROM TRN.InventoryReceive ) ) AS GE ON GE.PartyId=P.Id 
                                     WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + temp + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"'
                                     ) AS TEMP WHERE " + strkey + " order by Code ";
 				return _sqlRepository.GetDataCollection(sql);
