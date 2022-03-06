@@ -53,14 +53,19 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         {
             try
             {
-                var sql = @"SELECT * FROM (select MT.Id MeetingTypeId,MIH.Id MeetingId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically,D.Id DepartmentId,D.UserName Department
-							,EI.SystemId AttendeeId,EI.EmployeeName ByWhom,MIH.ItemTitle ItemType,EI.EmployeeName Importance,ActionApplicable=case when MIH.ActionApplicable=1 then 'Yes' else 'No' End 
-			                ,DecisionApplicable=case when MIH.DecisionApplicable=1 then 'Yes' else 'No' End,MIH.IssueStatus [Status],EI.EmployeeName ResponsiblePerson
-							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetFromDate,format((MIH.AddedDate),'dd-MMM-yyyy') TargetToDate,EI.EmployeeName UserName,EI.EmployeeName CharedBy
-							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetDate,format((MIH.AddedDate),'dd-MMM-yyyy') MeetingDate,MTP.Id TalkingPointId,MTP.TalkingPoint,MS.Id SuggestionId,MS.Suggestion
+                var sql = @"SELECT * FROM (select MT.Id MeetingTypeId,MIH.Id MeetingId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically Criticality,D.Id DepartmentId,D.UserName Department
+							,EI.SystemId CreatedById,EI.EmployeeName CreatedBy,MIH.ItemTitle,MIH.IssueCritically Critically,ActionApplicable=case when MIH.ActionApplicable=1 then 'Yes' else 'No' End 
+			                ,DecisionApplicable=case when MIH.DecisionApplicable=1 then 'Yes' else 'No' End,MIH.IssueStatus [Status],EI.SystemId ByWhomId,EI.EmployeeName ByWhom
+							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetFromDate,format((MIH.AddedDate),'dd-MMM-yyyy') TargetToDate
+							,MA.MeetingName,format((MA.Date),'dd-MMM-yyyy') MeetingDate,EINFO.EmployeeName ChairedBy,EINF.EmployeeName OrganizedBy
+							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetDate,MTP.Id TalkingPointId,MTP.TalkingPoint,MS.Id SuggestionId,MS.Suggestion
 							,MAP.Id ActionToBeTakenId,MAP.ActionToBeTaken ActionalPoint,MD.Id DecisionId,MD.Decision,MIH.Remarks
                             from MeetingItemHeader MIH
                             left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
+							left join MeetingAgendaItem MAI on MAI.MeetingItemHeaderId=MIH.Id
+							left join MeetingAgenda MA on MA.Id=MAI. MeetingAgendaId
+							left join EmployeeInformation EINF on EINF.SystemId=MA.MeetingOrganizedById
+							left join EmployeeInformation EINFO on EINFO.SystemId=MA.ChairedById
 							left join ORG.Department D on D.Id=MIH.DepartmentId
                             left join MeetingType MT on MT.Id=MIH.MeetingTypeId
 							left join MeetingTalkingPoint MTP on MTP.MeetingItemHeaderId=MIH.Id
@@ -116,25 +121,40 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 int ROW = 6; int COL = 1;
 
                 #region columns
+                sheet[ROW, COL].Text = "Meeting Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMeetingId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Meeting Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMeetingDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Meeting Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMeetingName = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Department";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColDepartment = COL;
                 COL++;
-                sheet[ROW, COL].Text = "By Whom";
+                sheet[ROW, COL].Text = "Created By";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColByWhom = COL;
+                int ColCreatedBy = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Meeting Type";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColMeetingType = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Item Type";
+                sheet[ROW, COL].Text = "Item Title";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColItemType = COL;
+                int ColItemTitle = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Importance";
+                sheet[ROW, COL].Text = "Critically";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColImportance = COL;
+                int ColCritically = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Action Applicable";
                 sheet[ROW, COL].ColumnWidth = 22;
@@ -148,25 +168,18 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColStatus = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Responsible person";
+                sheet[ROW, COL].Text = "By Whom";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColResponsiblePerson = COL;
+                int ColByWhom = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Target Date";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColTargetDate = COL;
                 COL++;
-                sheet[ROW, COL].Text = "MeetingId";
+                
+                sheet[ROW, COL].Text = "Chaired By";
                 sheet[ROW, COL].ColumnWidth = 12;
-                int ColMeetingId = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Meeting Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColMeetingDate = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Chared By";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColCharedBy = COL;
+                int ColChairedBy = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Actional Point";
                 sheet[ROW, COL].ColumnWidth = 12;
@@ -206,25 +219,25 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-                    sheet[ROW, ColByWhom].Text = data.Rows[i]["ByWhom"].ToString();
-                    sheet[ROW, ColMeetingType].Text = data.Rows[i]["MeetingType"].ToString();
-                    sheet[ROW, ColItemType].Text = data.Rows[i]["ItemType"].ToString();
-                    sheet[ROW, ColImportance].Text = data.Rows[i]["Importance"].ToString();
-                    sheet[ROW, ColActionApplicable].Text = data.Rows[i]["ActionApplicable"].ToString();
-
-                    sheet[ROW, ColDecisionApplicable].Text = data.Rows[i]["DecisionApplicable"].ToString();
-                    sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString();
-                    sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
-
-                    sheet[ROW, ColTargetDate].Text = clsStaticInfo.GetDate(data.Rows[i]["TargetDate"].ToString());
                     sheet[ROW, ColMeetingId].Text = data.Rows[i]["MeetingId"].ToString();
                     sheet[ROW, ColMeetingDate].Text = clsStaticInfo.GetDate(data.Rows[i]["MeetingDate"].ToString());
+                    sheet[ROW, ColMeetingName].Text = data.Rows[i]["MeetingName"].ToString();
+                    sheet[ROW, ColChairedBy].Text = data.Rows[i]["ChairedBy"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColCreatedBy].Text = data.Rows[i]["CreatedBy"].ToString();
+                    sheet[ROW, ColMeetingType].Text = data.Rows[i]["MeetingType"].ToString();
+                    sheet[ROW, ColItemTitle].Text = data.Rows[i]["ItemTitle"].ToString();
+                    sheet[ROW, ColCritically].Text = data.Rows[i]["Critically"].ToString();
+                    sheet[ROW, ColActionApplicable].Text = data.Rows[i]["ActionApplicable"].ToString();
+                    sheet[ROW, ColDecisionApplicable].Text = data.Rows[i]["DecisionApplicable"].ToString();
+                    sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString();
+                    sheet[ROW, ColByWhom].Text = data.Rows[i]["ByWhom"].ToString();
 
-                    sheet[ROW, ColCharedBy].Text = data.Rows[i]["CharedBy"].ToString();
+                    sheet[ROW, ColTargetDate].Text = clsStaticInfo.GetDate(data.Rows[i]["TargetDate"].ToString());
+
                     sheet[ROW, ColTalkingPoint].Text = data.Rows[i]["TalkingPoint"].ToString();
                     sheet[ROW, ColSuggestion].Text = data.Rows[i]["Suggestion"].ToString();
-                    sheet[ROW, ColActionalPoint].Text = data.Rows[i]["ActionalPoint"].ToString();
+                    sheet[ROW, ColActionalPoint].Text = data.Rows[i]["ActionToBeTaken"].ToString();
                     sheet[ROW, ColMeetingDecision].Text = data.Rows[i]["Decision"].ToString();
                     sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
 
@@ -290,37 +303,24 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             {
 
 
-                string strSQL = @"select MT.Id MeetingTypeId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically,D.Id DepartmentId,D.UserName Department
-							,EI.SystemId ByWhomId,EI.EmployeeName ByWhom,MIH.ItemTitle ItemType,EI.EmployeeName Importance,ActionApplicable=case when MIH.ActionApplicable=1 then 'Yes' else 'No' End 
-			                ,DecisionApplicable=case when MIH.DecisionApplicable=1 then 'Yes' else 'No' End,MIH.IssueStatus [Status],EI.EmployeeName ResponsiblePerson
-							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetDate,MIH.Id MeetingId,format((MIH.AddedDate),'dd-MMM-yyyy') MeetingDate
-							
-							,CharedBy=STUFF((select distinct ','+EMI.EmployeeName CharedBy
-							  from MeetingExpectedPerson XMOIC
-							  left join EmployeeInformation EMI on EMI.SystemId=XMOIC.ExpectedPersonId
-							 where XMOIC.MeetingItemHeaderId=MIH.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-							,TalkingPoint=STUFF((select distinct ','+XMOI.TalkingPoint 
-							  from MeetingTalkingPoint XMOI 	  
-							 where XMOI.MeetingItemHeaderId=MIH.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-							 ,Suggestion=STUFF((select distinct ','+XMOIS.Suggestion
-							  from MeetingSuggestion XMOIS 	  
-							 where XMOIS.MeetingItemHeaderId=MIH.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-							 ,ActionalPoint=STUFF((select distinct ','+XMOIA.ActionToBeTaken
-							  from MeetingActionablePoints XMOIA 	  
-							 where XMOIA.MeetingItemHeaderId=MIH.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-							 ,Decision=STUFF((select distinct ','+XMOIM.Decision
-							  from MeetingDecision XMOIM 	  
-							 where XMOIM.MeetingItemHeaderId=MIH.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                            ,MIH.Remarks
+                string strSQL = @"select MA.Id MeetingId,format((MA.Date),'dd-MMM-yyyy') MeetingDate,MA.MeetingName,EINFO.EmployeeName ChairedBy,MT.Id MeetingTypeId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically Critically
+							,D.Id DepartmentId,D.UserName Department
+							,EI.SystemId CreatedById,EI.EmployeeName CreatedBy,MIH.ItemTitle,ActionApplicable=case when MIH.ActionApplicable=1 then 'Yes' else 'No' End 
+			                ,DecisionApplicable=case when MIH.DecisionApplicable=1 then 'Yes' else 'No' End,MIH.IssueStatus [Status],EI.EmployeeName ByWhom
+							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetDate
+							,MTP.TalkingPoint,MS.Suggestion,MAP.ActionToBeTaken,MD.Decision,MIH.Remarks
 
                             from MeetingItemHeader MIH
                             left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
 							left join ORG.Department D on D.Id=MIH.DepartmentId
                             left join MeetingType MT on MT.Id=MIH.MeetingTypeId
+							left join MeetingAgendaItem MAI on MAI.MeetingItemHeaderId=MIH.Id
+							left join MeetingAgenda MA on MA.Id=MAI. MeetingAgendaId
+							left join EmployeeInformation EINFO on EINFO.SystemId=MA.ChairedById
+							left join MeetingTalkingPoint MTP on MTP.MeetingItemHeaderId=MIH.Id
+							left join MeetingSuggestion MS on MS.MeetingItemHeaderId=MIH.Id
+							left join MeetingActionablePoints MAP on MAP.MeetingItemHeaderId=MIH.Id
+							left join MeetingDecision MD on MD.MeetingItemHeaderId=MIH.Id
 										
                             where MIH.DepartmentId in(" + parameters["DepartmentId"] + @")
                             AND MIH.ByWhomId in(" + parameters["ByWhomId"] + @")

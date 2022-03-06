@@ -103,6 +103,14 @@
     <div class="col-xs-12 col-sm-6 col-md-6">
 
         <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">System Id<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+            <input type="text" name="System Id" ng-disabled="true" only-numbers ng-model="ModelNew.Id" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
+            </div>
+            
+        </div>
+
+        <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Meeting Organized By<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
@@ -123,12 +131,6 @@
             </div>
         </div>
 
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Meeting Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Meeting Name" ng-model="ModelNew.MeetingName" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
-            </div>
-        </div>
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -149,6 +151,13 @@
             <label class="col-sm-4 control-label">Location<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="Location" ng-model="ModelNew.Location" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Meeting Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Meeting Name" ng-model="ModelNew.MeetingName" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
             </div>
         </div>
     </div>
