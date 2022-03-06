@@ -17,7 +17,7 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
     $scope.year = new Date().getFullYear().toString();
 
     $scope.ModelAgenda = {
-        Id: null,
+        Id: 0,
         MeetingTypeId: null,
         MeetingOrganizedById: null,
         MeetingOrganizedByCode: null,

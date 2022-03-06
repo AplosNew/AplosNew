@@ -1005,6 +1005,7 @@ upanelApp.controller("NewEarnLeaveReportController", NewEarnLeaveReportControlle
 upanelApp.controller("NewSystemEarnLeaveReportController", NewSystemEarnLeaveReportController);
 upanelApp.controller("FinishedStockReportController", FinishedStockReportController);
 upanelApp.controller("FGInventoryStockReportController", FGInventoryStockReportController);
+upanelApp.controller("MeetingTypeController", MeetingTypeController);
 upanelApp.controller("MeetingAgendaController", MeetingAgendaController);
 upanelApp.controller("StocksAdjustmentController", StocksAdjustmentController);
 upanelApp.controller("FinalPackDefinitionController", FinalPackDefinitionController);
