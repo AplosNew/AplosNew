@@ -41,9 +41,10 @@ namespace Library.MaterialManagement.InventoryManagements
                 //    throw new Exception("Select entity");
 
                 string sql = POTemplateSql(POID);
-
+                string POBOQFromMappingSQL= POBOQMappingSql(POID);
                 //Instantiate the Excel application object
                 DataTable dtPOTemplateSql = _sqlRepository.GetDataTable(sql);
+                DataTable dtPOBOQSql = _sqlRepository.GetDataTable(POBOQFromMappingSQL);
                 if (dtPOTemplateSql.Rows.Count == 0)
                     throw new Exception("No data found");
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -155,7 +156,81 @@ namespace Library.MaterialManagement.InventoryManagements
                     ROW++;
 
                 }
+                ROW+=4;
 
+                int StartCol = 1;
+                COL = StartCol;
+                sheet[ROW, COL].Text = "PO ID";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colPOID = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BOQ ID";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colBOQID = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Item";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colItem = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Criteria Detail";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colCriteriaDetail = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Custoemr ref.";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colCustoemrRef = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Vendor ref";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colVendorref = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Own ref";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colOwnRef = COL;
+                COL++;
+                sheet[ROW, COL].Text = "UoM";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colUoM2 = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Quantity";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colQuantity = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Remark";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colRemark = COL;
+                endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
+
+                StartRow = ROW; //row 20
+                for (int i = 0; i < dtPOBOQSql.Rows.Count; i++)
+                {
+                    sheet[ROW, colPOID].Text = dtPOBOQSql.Rows[i]["POId"].ToString();
+                    sheet[ROW, colBOQID].Text = dtPOBOQSql.Rows[i]["BOQId"].ToString();
+                    sheet[ROW, colItem].Text = dtPOBOQSql.Rows[i]["Material"].ToString();
+                    sheet[ROW, colDescription].Text = dtPOBOQSql.Rows[i]["RMDescription"].ToString();
+                    sheet[ROW, colCriteriaDetail].Text = dtPOBOQSql.Rows[i]["CriteriaDetail"].ToString();
+                    sheet[ROW, colCustoemrRef].Text = dtPOBOQSql.Rows[i]["CustomerRefNo"].ToString();
+                    sheet[ROW, colVendorref].Text = dtPOBOQSql.Rows[i]["VendorRefNo"].ToString();
+                    sheet[ROW, colOwnRef].Text = dtPOBOQSql.Rows[i]["OwnReferenceNo"].ToString();
+                    sheet[ROW, colUoM2].Text = dtPOBOQSql.Rows[i]["UoM"].ToString();
+                    sheet[ROW, colQuantity].Number = clsStaticInfo.dbl(dtPOBOQSql.Rows[i]["POBOQQty"].ToString());
+                    sheet[ROW, colQuantity].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colRemark].Text = dtPOBOQSql.Rows[i]["Remark"].ToString();
+                 
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+
+                }
                 //sheet.Range[StartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
                 //sheet.Range[StartRow, colPOValue, ROW, colPOValue].NumberFormat = clsStaticInfo.NumberFormat(2);
                 //sheet.Range[StartRow, colAcceptanceValue, ROW, colAcceptanceValue].NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -166,17 +241,17 @@ namespace Library.MaterialManagement.InventoryManagements
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
 
-                sheet["A" + StartRow.ToString()].FreezePanes();
+              //  sheet["A" + StartRow.ToString()].FreezePanes();
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Bulletin Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "PO BOQ Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                string strFileName = "BulletinReport.xlsx";
+                string strFileName = "POBOQReport.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
             }
@@ -329,5 +404,29 @@ namespace Library.MaterialManagement.InventoryManagements
                     LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
                 WHERE PO.Id = '"+POID+@"' order by MM.UserName";
         }
+
+
+        private string POBOQMappingSql(string POID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT po.Id POId,BOQ.Id BOQId,BOQ.RMDescription,mm.UserName AS Material,
+CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+uom.UserName UoM,C.Code Currency,BOQ.Remark,BOQ.OrderQty,p.POBOQQty,BOQ.OwnReferenceNo,BOQ.ItemRefNo,BOQ.RMVendorSpec VendorRefNo
+,BOQ.RMCustomerSpec CustomerRefNo
+
+FROM trn.POBOQMAP AS p
+LEFT OUTER JOIN BOQ ON BOQ.Id =p.PODetailId
+LEFT OUTER JOIN trn.PurchaseOrderDetail pod ON pod.Id =p.PODetailId
+LEFT OUTER JOIN trn.PurchaseOrder po ON po.Id =pod.InventoryReceiveId
+LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
+LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=boq.UoMId
+LEFT OUTER JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
+LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=boq.SalesOrderId
+LEFT OUTER JOIN mst.Destination AS d ON d.Id=so.DestinationId
+LEFT OUTER JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
+LEFT OUTER JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
+WHERE po.Id='"+POID+@"'";
+        }
+
     }
 }
