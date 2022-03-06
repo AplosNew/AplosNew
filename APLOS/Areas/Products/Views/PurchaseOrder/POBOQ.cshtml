@@ -9,7 +9,7 @@
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSetIndex(1) }"><a ng-click="setTabIndex(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Po List</a></li>
+                <li role="presentation" ng-class="{ active: isSetIndex(1) }"><a ng-click="setTabIndex(1)" href="" aria-controls="general" role="tab" data-toggle="tab">PO List</a></li>
                 <li role="presentation" ng-class="{ active: isSetCHRIndex(3) }"><a ng-click="setTabCHRIndex(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked(Hold / Reject)</a></li>
                 <li role="presentation" ng-class="{ active: isSetCheckedIndex(4) }"><a ng-click="setTabCheckedIndex(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked</a></li>
                 <li role="presentation" ng-class="{ active: isSetAHRIndex(5) }"><a ng-click="setTabAHRIndex(5)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved(Hold / Reject)</a></li>
@@ -29,9 +29,10 @@
                              e-detailstemplate="detailTemp"
                              e-detailsdatabound="detailgrid">
                             <div e-columns>
-                                <div e-column e-headertext="Actions" e-width="70">
+                                <div e-column e-headertext="Actions" e-width="100">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PO('Grid');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report" ng-click="$parent.PO('Grid');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                                 </div>
                       
                                 <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>

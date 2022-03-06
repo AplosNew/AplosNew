@@ -42,7 +42,11 @@ function ProductConfig($routeProvider, $locationProvider) {
 			templateUrl: 'Products/GoodsReceiveNote/GRNByPO',
 			controller: 'GRNByPOController'
 		})
-        
+        .when('/GRN-boq-PO', {
+            templateUrl: 'Products/GoodsReceiveNote/GRNBOQPO',
+            controller: 'GRNBOQPOController'
+        })
+
         .when('/employee-purchase', {
             templateUrl: 'Products/inventoryReceive/employeepurchase',
             controller: 'employeePurchaseController'

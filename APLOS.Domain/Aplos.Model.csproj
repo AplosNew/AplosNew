@@ -284,6 +284,7 @@
     <Compile Include="Configurations\Inventory\ServicePODetailConfiguration.cs" />
     <Compile Include="Configurations\Inventory\PurchaseReturnConfiguration.cs" />
     <Compile Include="Configurations\Inventory\ServicePOAckTaxConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\ServiceAcknowledgementChargeConfiguration.cs" />
     <Compile Include="Configurations\Inventory\ServivePOAcknowledgementMapConfiguration.cs" />
     <Compile Include="Configurations\Inventory\ServiceAcknowledgementMasterConfiguration.cs" />
     <Compile Include="Configurations\Inventory\ServicePOTaxConfiguration.cs" />
@@ -685,6 +686,7 @@
     <Compile Include="Inventory\InventoryIssueReturn.cs" />
     <Compile Include="Inventory\POBOQMap.cs" />
     <Compile Include="Inventory\GRNDocumentMap.cs" />
+    <Compile Include="Inventory\ServiceAcknowledgementCharge.cs" />
     <Compile Include="Inventory\ServicePOAckTax.cs" />
     <Compile Include="Inventory\ServicePOAckDocumentMap.cs" />
     <Compile Include="Inventory\ServicePODocumentMap.cs" />

@@ -168,7 +168,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public List<Dictionary<string, object>> Create(List<Dictionary<string, object>> Data)
+        public List<Dictionary<string, object>> Create(List<Dictionary<string, object>> Data , string Date)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace Library.OrderManagement.Production
                         dr["Id"] = "WT"+DateTime.Now.Year.ToString()+ '-' + _Id;
                         dr["WasteMasterId"] = Data[i]["Id"].ToString();
                         dr["EntityId"] = Data[i]["EntityId"].ToString();
-                        dr["Date"] =DateTime.Now;
+                        dr["Date"] = Convert.ToDateTime(Date);
                         dr["Quantity"] = Data[i]["Quantity"].ToString();
                         dr["Remarks"] = Data[i]["Remarks"].ToString();
                         dr["AddedBy"] = identity.Name;
