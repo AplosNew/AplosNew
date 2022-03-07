@@ -96,8 +96,6 @@ namespace Library.HumanResource.Payroll.Tax
 
                 string sqlx = @"select * from EmployeeIncomeTaxMaster where 1=2";
                 con.OpenDataSetThroughAdapter(sqlx, out dsRef, false, "1");
-
-                GrossEarningDt = GrossEarningQuery(EmpId, PolicyId, YearId,StartDate,EndDate);
                
                 #endregion
 
@@ -152,7 +150,8 @@ namespace Library.HumanResource.Payroll.Tax
 
                 #endregion
 
-                #region Earning Saving
+                #region Gross Earning Saving
+                GrossEarningDt = GrossEarningQuery(EmpId, PolicyId, YearId, StartDate, EndDate, TaxTypeId);
 
                 string sqla = @"select * from EmployeeEarningData where 1=2";
                 con.OpenDataSetThroughAdapter(sqla, out dsRef, false, "1");
@@ -164,13 +163,14 @@ namespace Library.HumanResource.Payroll.Tax
                     for(int j=0;j< GrossEarningDt.Rows.Count;j++)
                     {
                         string EarningId= GrossEarningDt.Rows[j][@"EarningMasterId"].ToString();
+                        string IncomeTaxId = GrossEarningDt.Rows[j][@"IncomeTaxId"].ToString();
+                        string ActualValue = GrossEarningDt.Rows[j][@"ActualValue"].ToString();
+                        string OpeningValue = GrossEarningDt.Rows[j][@"OpeningValue"].ToString();
+                        string ArrearValue = GrossEarningDt.Rows[j][@"ArrearValue"].ToString();
+                        string StructureValue = GrossEarningDt.Rows[j][@"StructureValue"].ToString();
 
-
-                        //string IsLessOrMore = EarningDt.Rows[i][@"IsLessOrMore"].ToString();
-                        //string SalaryHeadId = EarningDt.Rows[i][@"SalaryHeadId"].ToString();
-                        //string ExemptedValue = EarningDt.Rows[i][@"ExemptedValue"].ToString();
-                        //string EarningDataId = EarningDt.Rows[i][@"EarningDataId"].ToString();
-
+                        double Gross = Convert.ToDouble(ActualValue) + Convert.ToDouble(OpeningValue) +
+                            Convert.ToDouble(ArrearValue) + Convert.ToDouble(StructureValue);
 
 
                         DataRow drF = dsRef.Tables[0].NewRow();
@@ -178,13 +178,13 @@ namespace Library.HumanResource.Payroll.Tax
                         genid.GenID("EmployeeEarningData", out string _pk);
 
                         drF["Id"] = "EE" + _pk;
-                     //   drF["EmployeeIncomeTaxId"] = MasterId;
+                        drF["EmployeeIncomeTaxId"] = IncomeTaxId;
                         drF["EarningMasterId"] = EarningId;
-                       // drF["ActualValue"] = item.ActualValue;
-                        //drF["OpeningValue"] = item.OpeningValue;
-                        //drF["ArrearValue"] = item.ArrearValue;
-                        //drF["StructureValue"] = item.StructureValue;
-                        //drF["GrossEarning"] = GrossEarnedValue;
+                        drF["ActualValue"] = ActualValue;
+                        drF["OpeningValue"] = OpeningValue;
+                        drF["ArrearValue"] = ArrearValue;
+                        drF["StructureValue"] = StructureValue;
+                        drF["GrossEarning"] = Gross;                            ;
                         drF["AddedBy"] = identity.Name;
                         drF["AddedFromIp"] = identity.IPAddress;
                         drF["AddedDate"] = DateTime.Now.ToString();
@@ -202,7 +202,7 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-        public DataTable GrossEarningQuery(string EmpId, string PolicyId, string YearId,string StartDate,string EndDate)
+        public DataTable GrossEarningQuery(string EmpId, string PolicyId, string YearId,string StartDate,string EndDate,string TaxTypeId)
         {
             try
             {
@@ -217,13 +217,11 @@ namespace Library.HumanResource.Payroll.Tax
 
                 string sql = @"";
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                {
-
-            
+                {            
                     sql = @"declare @StartDate as DATE ='" + StartDate + @"',
                             @EndDate as DATE='" + EndDate + @"';	
 
-                select dd.EmpInfoSystemID,dd.EarningMasterId,dd.SalaryHeadId,dd.SalaryHead,
+                select dd.EmpInfoSystemID,dd.IncomeTaxId,dd.EarningMasterId,dd.SalaryHeadId,dd.SalaryHead,
                 dd.LastCalculatedDate,
 				isnull(dd.OpeningValue,'0')OpeningValue,
                 dd.ActualValue,dd.ArrearValue,dd.Rem_Months,
@@ -232,7 +230,11 @@ namespace Library.HumanResource.Payroll.Tax
                 from (
                 select distinct tem.Id as EarningMasterId,tem.SalaryHeadID,
                 sh.SalaryHead,
-				
+                (SELECT Id from employeeincometaxmaster ei 
+                where ei.TaxTypeId='" + TaxTypeId+@"' 
+				AND EI.TaxYearId='"+YearId+@"'
+				AND EI.TaxPolicyHeaderId='"+PolicyId+@"' AND 
+				EmpSystemId=spc.EmpInfoSystemID)as IncomeTaxId,				
 				(select top 1 todate from SalaryProcMaster sl join SalaryProcChild sc
 			     on sc.SlrProcMstSystemID=sl.SystemID
 			     where EmpInfoSystemID=spc.EmpInfoSystemID 
@@ -307,7 +309,13 @@ namespace Library.HumanResource.Payroll.Tax
                 }
                 else
                 {
-                    sql = @"select sdm.EmpInfoSystemID,sd.DefineAmount,(sd.DefineAmount*12)StructureVal,
+                    sql = @"select sdm.EmpInfoSystemID,
+                    (SELECT Id from employeeincometaxmaster ei where 
+                    ei.TaxTypeId='"+TaxTypeId+@"' AND 
+                    EI.TaxYearId='"+YearId+@"'
+                    AND EI.TaxPolicyHeaderId='"+PolicyId+@"' AND 
+                    EmpSystemId=sdm.EmpInfoSystemID)as IncomeTaxId,
+                    sd.DefineAmount,(sd.DefineAmount*12)StructureVal,
 				sd.SalaryHeadID,tem.Id as EarningMasterId,sh.SalaryHead,(select '0')as OpeningValue,
 				(select '0') as ActualValue,(select '0') as ArrearValue,
 				(select '0') as ArrearValue
