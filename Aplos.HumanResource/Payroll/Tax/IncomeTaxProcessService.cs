@@ -77,7 +77,7 @@ namespace Library.HumanResource.Payroll.Tax
                 #region IncomeTaxMaster Data Generation
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                DataTable GrossEarningDt,DeductionDt;
+                DataTable GrossEarningDt,DeductionDt,TaxableIncomeDt;
                 DataSet dsRef, dsMaster;
                 StringCollection StrDistinctEmployee = new StringCollection();
 
@@ -332,9 +332,46 @@ namespace Library.HumanResource.Payroll.Tax
                     }
                     _info.SaveDataSets(dsRef);
                 }
-      
+
                 #endregion
 
+                #region Taxable Income Saving
+                
+                TaxableIncomeDt = TaxableIncomeQuery(PolicyId, EmpId,YearId);
+
+                string sqlc = @"select * from TaxableIncome where 1=2";
+                con.OpenDataSetThroughAdapter(sqlc, out dsRef, false, "1");
+
+                if (TaxableIncomeDt.Rows.Count > 0)
+                {
+                    for (int x = 0; x < TaxableIncomeDt.Rows.Count; x++)
+                    {
+                        string IncomeTaxId = TaxableIncomeDt.Rows[x][@"IncomeTaxId"].ToString();
+                        string NetEarning = TaxableIncomeDt.Rows[x][@"NetEarning"].ToString();
+                        string Investments = TaxableIncomeDt.Rows[x][@"Investments"].ToString();
+                        double TaxableIncome= clsStaticInfo.dbl(NetEarning)-clsStaticInfo.dbl(Investments);
+
+
+                        DataRow drF = dsRef.Tables[0].NewRow();
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("TaxableIncome", out string _Id);
+                      
+                        drF["Id"] = "NTI" + _Id;
+                        drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                        drF["NetEarning"] = NetEarning;
+                        drF["TaxableIncome"] = TaxableIncome;
+                        drF["Investments"] = Investments;
+                        drF["AddedBy"] = identity.Name;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+                        dsRef.Tables[0].Rows.Add(drF);
+
+                    }
+                    _info.SaveDataSets(dsRef);
+                }
+
+                #endregion
+            
             }
             catch (Exception ex)
             {
@@ -476,7 +513,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
-
         public DataTable DeductionQuery(string PolicyId,string EmpId)
         {
             try
@@ -510,7 +546,34 @@ namespace Library.HumanResource.Payroll.Tax
                 throw (ex);
             }
         }
+        public DataTable TaxableIncomeQuery(string PolicyId, string EmpId,string YearId)
+        {
+            try
+            {
+                string sql = @"select ei.EmpSystemId,ei.Id as IncomeTaxId,
+				SUM(case when 
+				(GrossEarning-isnull(ed.ExemptionAmt,'0')) < 0 THEN GrossEarning
+				else (GrossEarning-isnull(ed.ExemptionAmt,'0')) end)as NetEarning,Masterx.Investments
+                from EmployeeEarningData ed 
+                left join employeeincometaxmaster ei on ei.Id=ed.EmployeeIncomeTaxId
+				left join (
+				select edx.EmployeeIncomeTaxId,SUM(UserValue) as Investments from 
+				EmployeeInvestmentDeduction edx left join EmployeeIncomeTaxMaster
+				em on em.id=edx.EmployeeIncomeTaxId
+				where em.EmpSystemId in("+EmpId+@")
+				group by EmployeeIncomeTaxId
+				) as Masterx on Masterx.EmployeeIncomeTaxId=ei.Id
+                where ei.EmpSystemId in("+EmpId+@") and ei.TaxYearId='"+YearId+@"'
+                and ei.TaxPolicyHeaderId='"+PolicyId+@"'
+				GROUP BY ei.EmpSystemId,ei.Id,Masterx.Investments";
+                return _sqlRepository.GetDataTable(sql);
 
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void DeleteExistingData(string EmpId,string PolicyId,string YearId,string TypeId)
         {
             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
