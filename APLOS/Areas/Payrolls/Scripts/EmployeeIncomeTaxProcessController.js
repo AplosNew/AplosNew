@@ -203,7 +203,7 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
             method: 'POST',
             url: $scope.path + 'ProcessFunction',
             data: {
-                PolicyId: $scope.selectedValues.PolicyId, PlantId: $scope.selectedValues.PlantId,
+                PolicyId: $scope.selectedValues.PolicyId,
                 YearId: $scope.selectedValues.TaxYearId, TaxTypeId: $scope.selectedValues.TaxTypeId,
                 EmpId: parameters[0].Value, StartDate: $scope.selectedValues.StartDate,
                 EndDate: $scope.selectedValues.EndDate

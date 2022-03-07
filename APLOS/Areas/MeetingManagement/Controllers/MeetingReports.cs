@@ -41,13 +41,18 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         #endregion Constructor
 
 
-        [Authorize]
+        
         public ActionResult Aplos()
         {
             return View();
         }
 
-                    
+        [AllowAnonymous]
+        public ActionResult ReportView()
+        {
+            return View();
+        }
+
         [HttpGet, Authorize]
         public ActionResult getFilters()
         {
@@ -337,7 +342,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
         }
 
-        [HttpGet, Authorize]
+        [HttpGet, Authorize,AllowAnonymous]
         public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
         {
             try
