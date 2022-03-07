@@ -3726,5 +3726,26 @@ namespace Aplos.MaterialManagement
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
 			}
 		}
+		public List<Dictionary<string, object>> GetItemListByVendor( string plantId, string VendorId)
+		{
+			try
+			{
+				var sql = @" SELECT DISTINCT mm.UserName MaterialName,boq.MaterialMasterId,mma.StandardName ArticleName
+							,boq.ArticleId,boq.RMCustomerSpec CustomerRefNo,boq.RMVendorSpec VendorRefNo,boq.OwnReferenceNo ,0 Active
+							FROM BOQ  boq 
+							LEFT JOIN MST.MaterialMaster mm on mm.Id=boq.MaterialMasterId
+							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
+							LEFT JOIN TRN.MasterOrderItem moi on moi.Id=boq.MasterOrderItemId
+							LEFT JOIN TRN.MasterOrder mo on mo.Id=moi.MasterOrderId
+							WHERE boq.VendorId='"+ VendorId + "' --AND mo.PlantId='"+ plantId + "'";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+			}
+		}
 	}
 }
