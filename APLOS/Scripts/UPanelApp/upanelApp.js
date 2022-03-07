@@ -1016,7 +1016,6 @@ upanelApp.controller("MeetingReportsController", MeetingReportsController);
 upanelApp.controller("EmployeeOperationsController", EmployeeOperationsController);
 
 
-
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
 upanelApp.config(accountConfig);
