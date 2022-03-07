@@ -338,8 +338,9 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     ,(select SalaryHeadID from SalaryHead where HeadCategory='Advance') SalaryHeadID
                             from AdvanceReqSchedule s
                             left join TRN.EmployeeSalaryAdvance a on a.id=s.EmployeeSalaryAdvanceId
+                            inner join [TRN].[EmployeeAdvanceDeduction] ead on ead.AdvanceReqScheduleId=s.Id
                             where s.YearNo=Year( '" + sFromDate + @"') and s.MonthNo=MONTH( '" + sFromDate + @"') and a.plantid='" + sPlantID + @"'
-                            group by EmployeeId,s.MonthNo,s.YearNo ";
+                            group by a.EmployeeId,s.MonthNo,s.YearNo ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
