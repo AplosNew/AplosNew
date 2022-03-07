@@ -4028,6 +4028,7 @@
     <Content Include="Areas\Payrolls\Views\EmployeeIncomeTaxProcess\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\EmployeeOperations\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\GoodsReceiveNote\GRNBOQPO.cshtml" />
+    <Content Include="Areas\MeetingManagement\Views\MeetingReports\ReportView.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
