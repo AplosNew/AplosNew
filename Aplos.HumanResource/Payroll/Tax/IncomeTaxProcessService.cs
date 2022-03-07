@@ -6,6 +6,7 @@ using System.Threading;
 using System.Data;
 using System.Collections.Specialized;
 using Library.Service.Extension;
+using System.Linq;
 
 namespace Library.HumanResource.Payroll.Tax
 {
@@ -82,7 +83,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 string sql = @"select * from EmployeeIncomeTaxMaster where" +
-                    " EmpSystemId In ("+EmpId+") AND TaxPolicyHeaderId='" + PolicyId + "' " +
+                    " EmpSystemId In (" + EmpId + ") AND TaxPolicyHeaderId='" + PolicyId + "' " +
                     " AND TaxYearId='" + YearId + "'";
 
                 con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
@@ -90,13 +91,13 @@ namespace Library.HumanResource.Payroll.Tax
                 var sqly = @"Select SystemId as EmployeeId,EmployeeName,
                 cast((DATEDIFF(m, DOB, GETDATE())/12) as varchar) + ' Year ' + 
                        cast((DATEDIFF(m, DOB, GETDATE())%12) as varchar) + ' Month' as Age	   
-                from EmployeeInformation where SystemId in ("+EmpId+")";
+                from EmployeeInformation where SystemId in (" + EmpId + ")";
 
                 con.OpenDataSetThroughAdapter(sqly, out DataSet dsEmpMaster, false, "1");
 
                 string sqlx = @"select * from EmployeeIncomeTaxMaster where 1=2";
                 con.OpenDataSetThroughAdapter(sqlx, out dsRef, false, "1");
-               
+
                 #endregion
 
                 #region Adding in StringCollection 
@@ -119,7 +120,7 @@ namespace Library.HumanResource.Payroll.Tax
                 for (int i = 0; i < dsEmpMaster.Tables[0].Rows.Count; i++)
                 {
                     string EmployeeId = dsEmpMaster.Tables[0].Rows[i][@"EmployeeId"].ToString();
-                    string Age= dsEmpMaster.Tables[0].Rows[i][@"Age"].ToString();
+                    string Age = dsEmpMaster.Tables[0].Rows[i][@"Age"].ToString();
 
                     if (StrDistinctEmployee.Contains(EmployeeId))
                     {
@@ -130,8 +131,8 @@ namespace Library.HumanResource.Payroll.Tax
                         DataRow drF = dsRef.Tables[0].NewRow();
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("dbo.EmployeeIncomeTaxMaster", out string _Id);
-                       
-                        drF["Id"] = "EIT"+_Id;
+
+                        drF["Id"] = "EIT" + _Id;
                         drF["EmpSystemId"] = EmployeeId;
                         drF["TaxPolicyHeaderId"] = PolicyId;
                         drF["TaxTypeId"] = TaxTypeId;
@@ -142,7 +143,7 @@ namespace Library.HumanResource.Payroll.Tax
                         drF["AddedDate"] = DateTime.Now.ToString();
                         dsRef.Tables[0].Rows.Add(drF);
                     }
-                    
+
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
@@ -156,13 +157,13 @@ namespace Library.HumanResource.Payroll.Tax
                 string sqla = @"select * from EmployeeEarningData where 1=2";
                 con.OpenDataSetThroughAdapter(sqla, out dsRef, false, "1");
 
-                if (GrossEarningDt.Rows.Count>0)
+                if (GrossEarningDt.Rows.Count > 0)
                 {
-                    DeleteExistingEarningData(EmpId, PolicyId, YearId,TaxTypeId);
+                    DeleteExistingEarningData(EmpId, PolicyId, YearId, TaxTypeId);
 
-                    for(int j=0;j< GrossEarningDt.Rows.Count;j++)
+                    for (int j = 0; j < GrossEarningDt.Rows.Count; j++)
                     {
-                        string EarningId= GrossEarningDt.Rows[j][@"EarningMasterId"].ToString();
+                        string EarningId = GrossEarningDt.Rows[j][@"EarningMasterId"].ToString();
                         string IncomeTaxId = GrossEarningDt.Rows[j][@"IncomeTaxId"].ToString();
                         string ActualValue = GrossEarningDt.Rows[j][@"ActualValue"].ToString();
                         string OpeningValue = GrossEarningDt.Rows[j][@"OpeningValue"].ToString();
@@ -184,7 +185,7 @@ namespace Library.HumanResource.Payroll.Tax
                         drF["OpeningValue"] = OpeningValue;
                         drF["ArrearValue"] = ArrearValue;
                         drF["StructureValue"] = StructureValue;
-                        drF["GrossEarning"] = Gross;                            ;
+                        drF["GrossEarning"] = Gross; ;
                         drF["AddedBy"] = identity.Name;
                         drF["AddedFromIp"] = identity.IPAddress;
                         drF["AddedDate"] = DateTime.Now.ToString();
@@ -193,9 +194,111 @@ namespace Library.HumanResource.Payroll.Tax
                     }
                     _info.SaveDataSets(dsRef);
                 }
-                    
+
                 #endregion
 
+                #region NetEarning Saving
+             
+                Dictionary<string, List<ExemptionCalcualtionModel>> CalculatedDict =
+                 new Dictionary<string, List<ExemptionCalcualtionModel>>();
+
+                EmployeeIncomeTaxService eis = new EmployeeIncomeTaxService();
+                DataTable NetEarningDt = eis.EarningQuery(EmpId, PolicyId, YearId);
+                if (NetEarningDt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < NetEarningDt.Rows.Count; i++)
+                    {
+                        string IsLessOrMore = NetEarningDt.Rows[i][@"IsLessOrMore"].ToString();
+                        string SalaryHeadId = NetEarningDt.Rows[i][@"SalaryHeadId"].ToString();
+                        string ExemptedValue = NetEarningDt.Rows[i][@"ExemptedValue"].ToString();
+                        string EarningDataId = NetEarningDt.Rows[i][@"EarningDataId"].ToString();
+                        string IncomeTaxId = NetEarningDt.Rows[i][@"IncomeTaxId"].ToString();
+
+                        StringToFormula stf = new StringToFormula();
+                        double result = stf.Eval(ExemptedValue);
+                        double value = 0;
+                        if (result >= 0)
+                        {
+                            value = result;
+                            if (CalculatedDict.ContainsKey(IncomeTaxId+"/"+SalaryHeadId))
+                            {
+                                CalculatedDict[IncomeTaxId + "/" + SalaryHeadId].Add(new ExemptionCalcualtionModel
+                                {
+                                    ExemptAmt = value,
+                                    LessOrMore = IsLessOrMore,
+                                    EarningDataId = EarningDataId,
+                                    SalaryHeadId = SalaryHeadId
+                                });
+                            }
+                            else
+                            {
+                                var data = new List<ExemptionCalcualtionModel>();
+                                data.Add(new ExemptionCalcualtionModel
+                                {
+                                    ExemptAmt = value,
+                                    LessOrMore = IsLessOrMore,
+                                    EarningDataId = EarningDataId,
+                                    SalaryHeadId = SalaryHeadId
+                                });
+                                CalculatedDict.Add(IncomeTaxId + "/" + SalaryHeadId, data);
+                            }
+
+                        }
+
+                    }
+
+                    string strSql = string.Empty;
+                    foreach (var item in CalculatedDict)
+                    {
+                        List<ExemptionCalcualtionModel> data = item.Value;
+                        if (data == null)
+                        {
+                            continue;
+                        }
+
+                        double Amt = 0;                    
+                        string Parameter = data[0].LessOrMore;
+                        string TableId = data[0].EarningDataId;
+
+                        if (Parameter == "Which Ever Is Less")
+                        {
+                            Amt = data.Min(x => x.ExemptAmt);
+                            if (strSql.Length == 0)
+                            {
+                                strSql = @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='" + TableId + "'";
+                            }
+                            else
+                            {
+                                strSql += Environment.NewLine +
+                                    @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='" + TableId + "'";
+                            }
+                        }
+                        else if (Parameter == "Which Ever Is More")
+                        {
+                            Amt = data.Max(x => x.ExemptAmt);
+                            if (strSql.Length == 0)
+                            {
+                                strSql = @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='" + TableId + "'";
+                            }
+                            else
+                            {
+                                strSql += Environment.NewLine +
+                                       @"UPDATE EmployeeEarningData SET ExemptionAmt='" + Amt + @"'
+                                where id='" + TableId + "'";
+                            }
+                        }
+                    }
+                    if (strSql.Length > 0)
+                    {
+                        eis.UpdateStatus(strSql);
+                    }
+                }  
+                
+                #endregion
+                
             }
             catch (Exception ex)
             {

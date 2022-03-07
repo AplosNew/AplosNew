@@ -1971,7 +1971,7 @@ namespace Library.HumanResource.Payroll.Tax
             {                
                 var sql = @"select dd.* 
                 from (
-                select eit.EmpSystemId,sh.SalaryHead ,sh.SalaryHeadId,ed.Id as EarningDataId,
+                select eit.EmpSystemId,eit.Id as IncomeTaxId,sh.SalaryHead ,sh.SalaryHeadId,ed.Id as EarningDataId,
                 tac.Formula , tac.FormulaID,tem.IsLessOrMore,
                 (
                 select replace(tx.FormulaID,Masterx.SalaryHeadID,Masterx.GrossEarning)
@@ -2879,6 +2879,7 @@ namespace Library.HumanResource.Payroll.Tax
         public double ExemptAmt { get; set; }
         public string LessOrMore { get; set; }
         public string EarningDataId { get; set; }
+        public string SalaryHeadId { get; set; }
     }
    
 }
