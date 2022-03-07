@@ -342,7 +342,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
         }
 
-        [HttpGet, Authorize]
+        [HttpGet, Authorize,AllowAnonymous]
         public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
         {
             try
