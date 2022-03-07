@@ -549,6 +549,7 @@ upanelApp.controller('goodsReceiveNoteController', goodsReceiveNoteController);
 upanelApp.controller('gratuityReportController', gratuityReportController);
 upanelApp.controller('gratuityPolicyController', gratuityPolicyController);
 upanelApp.controller('GRNByPOController', GRNByPOController);
+upanelApp.controller('GRNBOQPOController', GRNBOQPOController);
 upanelApp.controller('holidayAbsentismAssignmentController', holidayAbsentismAssignmentController);
 upanelApp.controller('hourlyOffDutyTagController', hourlyOffDutyTagController);
 upanelApp.controller('hourlyOTController', hourlyOTController);
@@ -812,6 +813,7 @@ upanelApp.controller("OSTransformationPOController", OSTransformationPOControlle
 upanelApp.controller("ProfessionalTaxOBController", ProfessionalTaxOBController);
 upanelApp.controller("TaxOBController", TaxOBController);
 upanelApp.controller("EmployeeIncomeTaxController", EmployeeIncomeTaxController);
+upanelApp.controller("EmployeeIncomeTaxProcessController", EmployeeIncomeTaxProcessController);
 upanelApp.controller("LateDeductionController", LateDeductionController);
 upanelApp.controller("EmployeeDayStatusReportController", EmployeeDayStatusReportController);
 upanelApp.controller("VoucherController", VoucherController);
@@ -1005,11 +1007,13 @@ upanelApp.controller("NewEarnLeaveReportController", NewEarnLeaveReportControlle
 upanelApp.controller("NewSystemEarnLeaveReportController", NewSystemEarnLeaveReportController);
 upanelApp.controller("FinishedStockReportController", FinishedStockReportController);
 upanelApp.controller("FGInventoryStockReportController", FGInventoryStockReportController);
+upanelApp.controller("MeetingTypeController", MeetingTypeController);
 upanelApp.controller("MeetingAgendaController", MeetingAgendaController);
 upanelApp.controller("StocksAdjustmentController", StocksAdjustmentController);
 upanelApp.controller("FinalPackDefinitionController", FinalPackDefinitionController);
 upanelApp.controller("PrePackDefinitionController", PrePackDefinitionController);
 upanelApp.controller("MeetingReportsController", MeetingReportsController);
+upanelApp.controller("EmployeeOperationsController", EmployeeOperationsController);
 
 
 

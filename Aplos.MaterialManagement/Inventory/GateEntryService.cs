@@ -5001,7 +5001,7 @@ ORDER BY IR.ID DESC";
                       LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
                       --Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
                       Where G.FlagStatus!='Cancel' AND G.PlantId='" + identity.PlantId + @"' --and G.Id not in (select GateEntryNo from trn.InventoryReceive)
-                    Order By G.Id Desc";
+                    Order By G.AddedDate,G.Id Desc";
 				}
 				else
 				{
@@ -5042,7 +5042,7 @@ ORDER BY IR.ID DESC";
                       LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
                       Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
                       Where G.FlagStatus!='Cancel' AND G.PlantId='" + identity.PlantId + @"' AND UPG.UserId='" + UserId + @"'--and G.Id not in (select GateEntryNo from trn.InventoryReceive)
-                      Order By G.Id Desc";
+                      Order By G.AddedDate,G.Id Desc";
 
 				}
 

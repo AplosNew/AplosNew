@@ -6,12 +6,14 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.Enums;
 using Library.Model.Setups;
 using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.Service.Setups;
 using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -45,260 +47,31 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return View();
         }
 
-        [HttpGet, Authorize]
-        public JsonResult GetCbo()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM MeetingAgenda"), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select MA.* ,FORMAT(MA.Date,'dd-MMM-yyyy') TDate,EI.EmployeeName MeetingOrganizedBy,EI.EmployeeCode MeetingOrganizedByCode
-			                                   ,EID.EmployeeName ChairedBy,EID.EmployeeCode ChairedByCode
-                                                from MeetingAgenda MA
-                                                left join EmployeeInformation EI on EI.SystemId=MA.MeetingOrganizedById
-                                                left join EmployeeInformation EID on EID.SystemId=MA.ChairedById) AS TEMP WHERE " + strkey;
-
-
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> MeetingData)
-        {
-            try
-            {
-                DataSet dsMeeting, dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from MeetingAgenda where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                string _Id = "";
-                string MasterId = string.Empty;
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingAgenda", out _Id);
-
-                    data["Id"] = _Id;
-                    MasterId = data["Id"].ToString();
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    MasterId = _Id;
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                string id = "";
-                for (int i = 0; i < MeetingData.Count; i++)
-                {
-                    if (id == "")
-                    {
-                        id = "'" + MeetingData[i]["Id"] + "'";
-                    }
-                    else
-                    {
-                        id += ",'" + MeetingData[i]["Id"] + "'";
-                    }
-                }
-
-                con.OpenDataSetThroughAdapter("select * from MeetingAgendaItem where Id in (" + id + ")", out dsMeeting, false, "1");
-
-                string MeetingId = "";
-                for (int i = 0; i < MeetingData.Count; i++)
-                {
-
-                    dsMeeting.Tables[0].DefaultView.RowFilter = "Id='" + MeetingData[i]["Id"] + @"'";
-                    if (dsMeeting.Tables[0].DefaultView.Count > 0)
-                    {
-                        //edit
-                        DataRow dr = dsMeeting.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["MeetingAgendaId"] = MasterId;
-                        dr["MeetingItemHeaderId"] = MeetingData[i]["Id"];
-                        dr.EndEdit();
-                    }
-                    else
-                    {
-                        //addnew
-                        
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID("MeetingAgendaItem", out MeetingId);
-                        
-                        DataRow dr = dsMeeting.Tables[0].NewRow();
-
-                        dr["Id"] = "M-" + MeetingId + "-" + (i + 1);
-                        dr["MeetingAgendaId"] = MasterId;
-                        dr["MeetingItemHeaderId"] = MeetingData[i]["Id"];
-
-                        dsMeeting.Tables[0].Rows.Add(dr);
-
-                    }
-                }
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsMeeting);
-                return Json(new { Error = false, Message = AplosMessage.Updated, Id= _Id });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
-        public ActionResult Delete(string id)
-        {
-            string strUSQL;
-            ConnectionManager.DAL.ConManager objCon = null;
-            try
-            {
-                //talkingSQL = "delete from dbo.MeetingTalkingPoint Where MeetingItemHeaderId='" + id + "'";
-                //suggestionSQL = "delete from dbo.MeetingSuggestion Where MeetingItemHeaderId='" + id + "'";
-                //actionSQL = "delete from dbo.MeetingActionablePoints Where MeetingItemHeaderId='" + id + "'";
-                //meetingSQL = "delete from dbo.MeetingDecision Where MeetingItemHeaderId='" + id + "'";
-                strUSQL = "delete dbo.MeetingAgenda Where Id='" + id + "'";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                //objCon.ExecuteNonQueryWrapper(talkingSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(suggestionSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(actionSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(meetingSQL, true, "1");
-                objCon.ExecuteNonQueryWrapper(strUSQL, true, "1");
-                objCon.CommitTransaction();
-
-                return Json(new { Message = AplosMessage.Deleted });
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    objCon.RollBack();
-                    objCon.CloseConnection();
-                    throw (ex);
-                }
-                catch (Exception)
-                {
-                    throw ex;
-                }
-            }
-            finally
-            {
-
-                objCon = null;
-            }
-        }
-
-
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            //dr["UpdatedBy"] = identity.Name;
-            //dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            //dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dr.EndEdit();
-        }
-       
-
-        [Authorize, HttpGet]
-        public JsonResult GetEmployeeListByWhom(GridParameter parameters, string plantId, string partyAccountGroupId, string partyId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (string.IsNullOrEmpty(plantId))
-            {
-                plantId = identity.PlantId;
-            }
-            return Json(GetEmployeeListByWhom(parameters, identity.CompanyId, plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
-        }
-
-        public GridModel GetEmployeeListByWhom(GridParameter parameters, string companyId, string plantId, string partyAccountGroupId, string partyId)
-        {
-            try
-            {
-                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
-                                    , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [Designation], MB.EntityId
-                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType
-                            FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            WHERE EI.CompanyId='" + companyId + "' AND EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
-               
-                return _sqlRepository.GetGridData(parameters);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-            }
-        }
-
+                    
         [HttpGet, Authorize]
         public ActionResult getFilters()
         {
             try
             {
-                var sql = @"SELECT * FROM (select MT.Id MeetingTypeId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically,D.Id DepartmentId,D.UserName Department,EI.SystemId AttendeeId,EI.EmployeeName Attendee
-			                                    
-                                                from MeetingItemHeader MIH
-                                                left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
-												left join ORG.Department D on D.Id=MIH.DepartmentId
-                                                left join MeetingType MT on MT.Id=MIH.MeetingTypeId) AS KK	";
+                var sql = @"SELECT * FROM (select MT.Id MeetingTypeId,MIH.Id MeetingId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically Criticality,D.Id DepartmentId,D.UserName Department
+							,EI.SystemId CreatedById,EI.EmployeeName CreatedBy,MIH.ItemTitle,MIH.IssueCritically Critically,ActionApplicable=case when MIH.ActionApplicable=1 then 'Yes' else 'No' End 
+			                ,DecisionApplicable=case when MIH.DecisionApplicable=1 then 'Yes' else 'No' End,MIH.IssueStatus [Status],EI.SystemId ByWhomId,EI.EmployeeName ByWhom
+							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetFromDate,format((MIH.AddedDate),'dd-MMM-yyyy') TargetToDate
+							,MA.MeetingName,format((MA.Date),'dd-MMM-yyyy') MeetingDate,EINFO.EmployeeName ChairedBy,EINF.EmployeeName OrganizedBy
+							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetDate,MTP.Id TalkingPointId,MTP.TalkingPoint,MS.Id SuggestionId,MS.Suggestion
+							,MAP.Id ActionToBeTakenId,MAP.ActionToBeTaken ActionalPoint,MD.Id DecisionId,MD.Decision,MIH.Remarks
+                            from MeetingItemHeader MIH
+                            left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
+							left join MeetingAgendaItem MAI on MAI.MeetingItemHeaderId=MIH.Id
+							left join MeetingAgenda MA on MA.Id=MAI. MeetingAgendaId
+							left join EmployeeInformation EINF on EINF.SystemId=MA.MeetingOrganizedById
+							left join EmployeeInformation EINFO on EINFO.SystemId=MA.ChairedById
+							left join ORG.Department D on D.Id=MIH.DepartmentId
+                            left join MeetingType MT on MT.Id=MIH.MeetingTypeId
+							left join MeetingTalkingPoint MTP on MTP.MeetingItemHeaderId=MIH.Id
+							left join MeetingSuggestion MS on MS.MeetingItemHeaderId=MIH.Id
+							left join MeetingActionablePoints MAP on MAP.MeetingItemHeaderId=MIH.Id
+							left join MeetingDecision MD on MD.MeetingItemHeaderId=MIH.Id) AS KK	";
                
                 //return _sqlRepository.GetDataCollection(sql);
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -311,43 +84,286 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetMeetingInformation(Dictionary<string, string> parameters, string toDate, string fromDate)
+        public ActionResult GetMeetingReport(Dictionary<string, string> parameters)
         {
             try
             {
-                    string sql = @"Select cast(0 as bit) Active,MIH.*,D.UserName Department,MT.UserName MeetingType,EI.EmployeeName Attendee 
-                                from MeetingItemHeader MIH
-                                left join MeetingType MT on MT.Id=MIH.MeetingTypeId
-                                left join ORG.Department D on D.Id=MIH.DepartmentId
-                                left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
-
-                                where MeetingTypeId in (" + parameters["MeetingTypeId"] + @") and IssueStatus in (" + parameters["IssueStatus"] + @") 
-                                and IssueCritically in (" + parameters["IssueCritically"] + @") and MIH.DepartmentId in (" + parameters["DepartmentId"] + @") 
-                                and ByWhomId in (" + parameters["AttendeeId"] + @") and MIH.AddedDate between '" + fromDate + "' and '" + toDate + "'";
-
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-                }
-            catch (Exception e)
-            {
-                throw e;
+                string fileName = "";
+                fileName = MeetingReport(parameters, "MeetingReport");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
         
-        [HttpGet, Authorize]
-        public ActionResult GetDateInformation()
+        public string MeetingReport(Dictionary<string, string> parameters, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "MeetingReports";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                MeetingReportSQL(parameters, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Meeting Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMeetingId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Meeting Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMeetingDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Meeting Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMeetingName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDepartment = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Created By";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColCreatedBy = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Meeting Type";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMeetingType = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Item Title";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColItemTitle = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Critically";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColCritically = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Action Applicable";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int ColActionApplicable = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Decision Applicable";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDecisionApplicable = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Status";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColStatus = COL;
+                COL++;
+                sheet[ROW, COL].Text = "By Whom";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColByWhom = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Target Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColTargetDate = COL;
+                COL++;
+                
+                sheet[ROW, COL].Text = "Chaired By";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColChairedBy = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Actional Point";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColActionalPoint = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Talking Point";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColTalkingPoint = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Suggestion";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColSuggestion = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Meeting Decision";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColMeetingDecision = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColRemarks = COL;
+                
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColMeetingId].Text = data.Rows[i]["MeetingId"].ToString();
+                    sheet[ROW, ColMeetingDate].Text = clsStaticInfo.GetDate(data.Rows[i]["MeetingDate"].ToString());
+                    sheet[ROW, ColMeetingName].Text = data.Rows[i]["MeetingName"].ToString();
+                    sheet[ROW, ColChairedBy].Text = data.Rows[i]["ChairedBy"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColCreatedBy].Text = data.Rows[i]["CreatedBy"].ToString();
+                    sheet[ROW, ColMeetingType].Text = data.Rows[i]["MeetingType"].ToString();
+                    sheet[ROW, ColItemTitle].Text = data.Rows[i]["ItemTitle"].ToString();
+                    sheet[ROW, ColCritically].Text = data.Rows[i]["Critically"].ToString();
+                    sheet[ROW, ColActionApplicable].Text = data.Rows[i]["ActionApplicable"].ToString();
+                    sheet[ROW, ColDecisionApplicable].Text = data.Rows[i]["DecisionApplicable"].ToString();
+                    sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString();
+                    sheet[ROW, ColByWhom].Text = data.Rows[i]["ByWhom"].ToString();
+
+                    sheet[ROW, ColTargetDate].Text = clsStaticInfo.GetDate(data.Rows[i]["TargetDate"].ToString());
+
+                    sheet[ROW, ColTalkingPoint].Text = data.Rows[i]["TalkingPoint"].ToString();
+                    sheet[ROW, ColSuggestion].Text = data.Rows[i]["Suggestion"].ToString();
+                    sheet[ROW, ColActionalPoint].Text = data.Rows[i]["ActionToBeTaken"].ToString();
+                    sheet[ROW, ColMeetingDecision].Text = data.Rows[i]["Decision"].ToString();
+                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Meeting Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+               
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void MeetingReportSQL(Dictionary<string, string> parameters, out DataTable data)
         {
             try
             {
-                var sql = @"Select FORMAT(MIN(AddedDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(AddedDate),'dd-MMM-yyyy') ToDate
-                            from dbo.MeetingItemHeader";
 
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+                string strSQL = @"select MA.Id MeetingId,format((MA.Date),'dd-MMM-yyyy') MeetingDate,MA.MeetingName,EINFO.EmployeeName ChairedBy,MT.Id MeetingTypeId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically Critically
+							,D.Id DepartmentId,D.UserName Department
+							,EI.SystemId CreatedById,EI.EmployeeName CreatedBy,MIH.ItemTitle,ActionApplicable=case when MIH.ActionApplicable=1 then 'Yes' else 'No' End 
+			                ,DecisionApplicable=case when MIH.DecisionApplicable=1 then 'Yes' else 'No' End,MIH.IssueStatus [Status],EI.EmployeeName ByWhom
+							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetDate
+							,MTP.TalkingPoint,MS.Suggestion,MAP.ActionToBeTaken,MD.Decision,MIH.Remarks
+
+                            from MeetingItemHeader MIH
+                            left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
+							left join ORG.Department D on D.Id=MIH.DepartmentId
+                            left join MeetingType MT on MT.Id=MIH.MeetingTypeId
+							left join MeetingAgendaItem MAI on MAI.MeetingItemHeaderId=MIH.Id
+							left join MeetingAgenda MA on MA.Id=MAI. MeetingAgendaId
+							left join EmployeeInformation EINFO on EINFO.SystemId=MA.ChairedById
+							left join MeetingTalkingPoint MTP on MTP.MeetingItemHeaderId=MIH.Id
+							left join MeetingSuggestion MS on MS.MeetingItemHeaderId=MIH.Id
+							left join MeetingActionablePoints MAP on MAP.MeetingItemHeaderId=MIH.Id
+							left join MeetingDecision MD on MD.MeetingItemHeaderId=MIH.Id
+										
+                            where MIH.DepartmentId in(" + parameters["DepartmentId"] + @")
+                            AND MIH.ByWhomId in(" + parameters["ByWhomId"] + @")
+                            AND MIH.MeetingTypeId in(" + parameters["MeetingTypeId"] + @")
+                            AND MIH.IssueStatus in(" + parameters["Status"] + @")
+                            AND MIH.Id in(" + parameters["MeetingId"] + @")";
+                            
+                data = _sqlRepository.GetDataTable(strSQL);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw e;
+                throw (ex);
             }
+
         }
+
+        [HttpGet, Authorize]
+        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
+        {
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+                //string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(FullPath);
+                try
+                {
+                    System.IO.File.Delete(FullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
+        }
+
     }
 }
