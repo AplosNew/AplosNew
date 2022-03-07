@@ -406,6 +406,17 @@ namespace Aplos.Areas.Products.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+        [HttpPost, Authorize]
+        public JsonResult GetItemListByVendor(string vendorId)
+        {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = inventoryReceiveQueryService.GetItemListByVendor(identity.PlantId, vendorId);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpPost]
         public JsonResult CreateGRNBOQPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {

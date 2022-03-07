@@ -157,7 +157,19 @@
                             </div>
                         </div>
                     </div>
-                   
+                    @*<div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" title="Material Received From">Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Material Receive From" ng-model="" class="form-control" maxlength="20" tabindex="2" required>
+                            </div>
+
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Mobile No<sup>*</sup></label>
+                            <div class="col-sm-8 show-message ">
+                                <input type="text" name="Mobile No" ng-model="" class="form-control" tabindex="2" maxlength="30" required>
+                            </div>
+                        </div>*@
 
 
                 </fieldset>
@@ -174,7 +186,19 @@
                         </div>
                     </div>
                 </div>
-               
+                @*<div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Imported No<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="ImportedNo" ng-model="productNew.ImportedNo" class="form-control" maxlength="20" tabindex="4" ng-disabled="productNew.LocalImported!='Imported'">
+                        </div>
+                    </div>
+
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">VehicleNo<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="VehicleNo" ng-model="productNew.VehicleNo" class="form-control" maxlength="20" tabindex="4" ng-disabled="productNew.LocalImported!='Imported'">
+                        </div>
+                    </div>*@
 
             </div>
 
@@ -242,9 +266,9 @@
                     </div>
 
                 </div>
-                <div class="form-group" show-errors>
+                <div class="form-group">
                     <label class="col-sm-4 control-label">Description</label>
-                    <div class="col-sm-8 show-message">
+                    <div class="col-sm-8">
                         <textarea class="form-control" rows="4" ng-model="productNew.Description" maxlength="500" tabindex="14"></textarea>
                     </div>
                 </div>
@@ -275,7 +299,10 @@
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Material Receive From" ng-model="productNew.PersonName" class="form-control" maxlength="20" tabindex="10" required>
                         </div>
-                       
+                        @*<label class="col-sm-3 control-label">Mature Date</label>
+                            <div class="col-sm-4 show-message">
+                                <input type="text" name="DueDate" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.MatureDate" class="form-control" readonly>
+                            </div>*@
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Mobile No<sup>*</sup></label>
@@ -290,7 +317,12 @@
                         <textarea class="form-control" rows="3" ng-model="productNew.Remarks" maxlength="500" tabindex="16"></textarea>
                     </div>
                 </div>
-               
+                @*<div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Imported Doc No<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <input type="text" name="Mobile No" ng-model="productNew.ImportedDocNo" class="form-control" tabindex="2" maxlength="30" required>
+                        </div>
+                    </div>*@
             </div>
 
 
@@ -333,7 +365,7 @@
     </div>
     <div class="col-md-6 text-left" style="padding-top: 17px;">
         <ul class="common-btn list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" ng-disabled="disabledbtn" ng-hide="productNew.Id.length>0"><i class="glyphicon glyphicon-floppy-disk" ></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>
+            <li> <button ng-click="Save();" class="btn" ng-disabled="disabledbtn" ng-hide="productNew.Id.length>0"><i class="glyphicon glyphicon-floppy-disk"></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>
             @*<li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
             <li> <button ng-click="Cancel();" class="btn"><i class="glyphicon glyphicon-remove"></i> Cancel</button></li>
             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
@@ -349,7 +381,36 @@
             @*<li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Charges</a></li>*@
         </ul>
     </div>
-    
+    @*<div style="padding-left:700px;">
+            <table class="col-md-11 text-right" ng-show="inventoryMaterialList.length>0">
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td>Amount</td>
+                        <td>Tax</td>
+                        <td>Total</td>
+                    </tr>
+                    <tr>
+                        <td>Materials</td>
+                        <td>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</td>
+                        <td>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</td>
+                        <td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount' | setDecimal:currencyPrecision)|number}}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid;">
+                        <td>Service</td>
+                        <td>{{chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision | number}}</td>
+                        <td>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision | number}}</td>
+                        <td>{{(chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision)+(chargesList | sumByKey : 'TotalTaxAmount' | setDecimal:currencyPrecision)| number}}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Gross Amount</td>
+                        <td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision )+(inventoryMaterialList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision)| number}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>*@
 
 </div>
 @*End Master & Details Data Entry*@
@@ -540,11 +601,11 @@
                         </div>
 
 
-                        <div class="form-group" id="div_currency1" show-errors>
+                        <div class="form-group" id="div_currency1">
                             <label class="col-sm-4 control-label">Local/Imported<sup>*</sup></label>
                             <div class="col-sm-8 show-message pdr3">
                                 <div class="select-style">
-                                    <select class="form-control" id="LocalImported" name="Local/Imported" ng-model="detailModel.LocalImported" tabindex="15" required>
+                                    <select class="form-control" id="LocalImported" name="Local/Imported" ng-model="detailModel.LocalImported" tabindex="15">
                                         <option value=""></option>
                                         <option value="Local">Local</option>
                                         <option value="Imported">Imported</option>

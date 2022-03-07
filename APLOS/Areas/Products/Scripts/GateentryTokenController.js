@@ -36,7 +36,7 @@ function GateentryTokenController(accountService, addressService, $window, facto
         IsBudgetLevel: false,
         IsActivityLevel: false,
         IsDetailLevel: false,
-       
+
         //FromDate: $filter('dateFiltering')(Date.now()),
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now())
@@ -188,7 +188,7 @@ function GateentryTokenController(accountService, addressService, $window, facto
     $scope.disabledbtn = false;
 
     $scope.Save = function () {
-       
+        
         var dt = $filter("dateFiltering")(Date.now());
         if ($scope.productNew.EntryDate < dt) {
             if ($scope.productNew.LocalImported === 'Imported' && ($scope.productNew.Description === null || $scope.productNew.Description === "" || $scope.productNew.Description === undefined)) {
@@ -242,7 +242,6 @@ function GateentryTokenController(accountService, addressService, $window, facto
                                 $scope.disabledbtn = false;
                             }
                         }), function (response) {
-                            $scope.disabledbtn = false;
                             ShowResult(response.data.Message, 'failure');
                         };
                     }
@@ -253,7 +252,6 @@ function GateentryTokenController(accountService, addressService, $window, facto
                 }
             } catch (e) {
                 throw e;
-                $scope.disabledbtn = false;
             }
         }
 
@@ -346,7 +344,6 @@ function GateentryTokenController(accountService, addressService, $window, facto
         $scope.grossTotal = 0;
         baseService.removeErrorClasses();
         //$scope.getToCurrencyRate();
-        $scope.disabledbtn = false;
     }
 
 
