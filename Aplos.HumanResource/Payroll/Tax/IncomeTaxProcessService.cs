@@ -70,14 +70,14 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
 
-        public void ProcessIncomeTax(string PolicyId, string YearId, string PlantId, string EmpId,string TaxTypeId,string StartDate,string EndDate)
+        public void ProcessIncomeTax(string PolicyId, string YearId,string EmpId,string TaxTypeId,string StartDate,string EndDate)
         {
             try
             {
                 #region IncomeTaxMaster Data Generation
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                DataTable GrossEarningDt;
+                DataTable GrossEarningDt,DeductionDt;
                 DataSet dsRef, dsMaster;
                 StringCollection StrDistinctEmployee = new StringCollection();
 
@@ -159,7 +159,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                 if (GrossEarningDt.Rows.Count > 0)
                 {
-                    DeleteExistingEarningData(EmpId, PolicyId, YearId, TaxTypeId);
+                    DeleteExistingData(EmpId, PolicyId, YearId, TaxTypeId);
 
                     for (int j = 0; j < GrossEarningDt.Rows.Count; j++)
                     {
@@ -295,16 +295,53 @@ namespace Library.HumanResource.Payroll.Tax
                     {
                         eis.UpdateStatus(strSql);
                     }
-                }  
-                
+                }
+
                 #endregion
-                
+
+                #region Deductions Saving
+              
+                DeductionDt = DeductionQuery(PolicyId,EmpId);
+               
+                string sqlB = @"select * from employeeinvestmentdeduction where 1=2";
+                con.OpenDataSetThroughAdapter(sqlB, out dsRef, false, "1");
+                if (DeductionDt.Rows.Count > 0)
+                {
+                    for (int x = 0; x < DeductionDt.Rows.Count; x++)
+                    {
+                        string ActualValue = DeductionDt.Rows[x][@"ActualValue"].ToString();
+                        string UserValue = DeductionDt.Rows[x][@"UserValue"].ToString();
+                        string IncomeTaxItemChildId = DeductionDt.Rows[x][@"IncomeTaxItemChildId"].ToString();
+                        string IncomeTaxId = DeductionDt.Rows[x][@"IncomeTaxId"].ToString();
+
+                        DataRow drF = dsRef.Tables[0].NewRow();
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("EmployeeInvestmentDeduction", out string _pk);
+
+                        drF["Id"] = "EID" + _pk;
+                        drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                        drF["ActualValue"] = ActualValue;
+                        drF["UserValue"] = UserValue;
+                        drF["IncomeTaxItemChildId"] = IncomeTaxItemChildId;
+                        drF["AddedBy"] = identity.Name;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+
+                        dsRef.Tables[0].Rows.Add(drF);
+
+                    }
+                    _info.SaveDataSets(dsRef);
+                }
+      
+                #endregion
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+        
         public DataTable GrossEarningQuery(string EmpId, string PolicyId, string YearId,string StartDate,string EndDate,string TaxTypeId)
         {
             try
@@ -438,8 +475,43 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 throw (ex);
             }
-        }   
-        public void DeleteExistingEarningData(string EmpId,string PolicyId,string YearId,string TypeId)
+        }
+
+        public DataTable DeductionQuery(string PolicyId,string EmpId)
+        {
+            try
+            {
+                string sql = @"select Masterx.Id as IncomeTaxId,itc.Limit as TaxSavingItemLimit,ti.UserName as TaxSavingItem,itc.TaxSavingItemId,
+                    it.TaxSavingGroupId,tg.UserName as TaxSavingGroup,tg.MaxLimit as SavingGpLimit,
+                    itc.DocumentApplicable,	
+                    ActualValue=case when itc.isuserdefined=1 then (select itc.Limit)
+					else (select '0') end,
+					UserValue=case when itc.isuserdefined=1 then (select itc.Limit)
+					else (select '0') end,
+                    itc.Id as IncomeTaxItemChildId
+                    from IncomeTaxItemChild itc left join IncomeTaxItemMaster it on 
+                    it.SystemId=itc.IncomeTaxItemMasterId
+                    left join hkp.TaxSavingItem ti on ti.Id=itc.TaxSavingItemId
+                    left join hkp.TaxSavingGroup tg on tg.Id=it.TaxSavingGroupId	
+					left join (
+					select eit.Id,eit.TaxPolicyHeaderId
+					from EmployeeIncomeTaxMaster eit 
+					left join TaxPolicyHeader th on th.Id=
+					eit.TaxPolicyHeaderId 
+					where eit.EmpSystemId in("+EmpId+@")
+					) AS Masterx On Masterx.TaxPolicyHeaderId=it.TaxPolicyHeaderId
+                    where it.TaxPolicyHeaderId='"+PolicyId+@"'
+					order by Masterx.Id";               
+                    return _sqlRepository.GetDataTable(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void DeleteExistingData(string EmpId,string PolicyId,string YearId,string TypeId)
         {
             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
@@ -456,11 +528,32 @@ namespace Library.HumanResource.Payroll.Tax
             
             ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
             con.BeginTransaction();
-            var sqlx = @"delete from EmployeeEarningData where EmployeeIncomeTaxId in(" + IncomeTaxId + ")";
-            con.executeQuery(sqlx);
+            var sqlx = @"delete from EmployeeEarningData where EmployeeIncomeTaxId 
+            in(" + IncomeTaxId + ")";
+           
+            sqlx+= Environment.NewLine + @"delete from employeeinvestmentdeduction 
+            where 
+            EmployeeIncomeTaxId in(" + IncomeTaxId + ")";
+           
+            sqlx += Environment.NewLine + @"delete from TaxAfterRebate where 
+            EmployeeIncomeTaxId in(" + IncomeTaxId + ")";
+
+            sqlx += Environment.NewLine + @"delete from TaxAfterSurcharge where 
+            EmployeeIncomeTaxId in(" + IncomeTaxId + ")";
+
+            sqlx += Environment.NewLine + @"delete from TaxAfterAdditionalCharges
+            where EmployeeIncomeTaxId in(" + IncomeTaxId + ")";
+
+            sqlx += Environment.NewLine + @"delete from TaxableIncome where 
+            EmployeeIncomeTaxId in(" + IncomeTaxId + ")";
+
+            sqlx += Environment.NewLine + @"delete from EmployeeNetTax where 
+            EmployeeIncomeTaxId in(" + IncomeTaxId + ")";
+            con.executeQuery(sqlx); 
             con.CommitTransaction();
             
         }
+        
         #endregion
 
     }
