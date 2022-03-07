@@ -1968,7 +1968,7 @@ namespace Library.HumanResource.Payroll.Tax
         public DataTable EarningQuery(string EmpId, string PolicyId, string YearId)
         {
             try
-            {
+            {                
                 var sql = @"select dd.* 
                 from (
                 select eit.EmpSystemId,sh.SalaryHead ,sh.SalaryHeadId,ed.Id as EarningDataId,
@@ -1992,11 +1992,11 @@ namespace Library.HumanResource.Payroll.Tax
                 from EmployeeEarningData ed
                 left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
                 join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
-                where eit.EmpSystemId='" + EmpId + @"' and
+                where eit.EmpSystemId In(" + EmpId + @") and tem.ExemptionApplicable='1' and
                 eit.TaxPolicyHeaderId='" + PolicyId + @"' and eit.TaxYearId='" + YearId + @"'
                 )
                 as Masterx on Masterx.EmpSystemId=eit.EmpSystemId
-                where eit.EmpSystemId='" + EmpId + @"' and
+                where eit.EmpSystemId IN(" + EmpId + @") and
                 eit.TaxPolicyHeaderId='" + PolicyId + @"' and eit.TaxYearId='" + YearId + @"' and
                 tem.ExemptionApplicable='1'
                 ) as dd where dd.ExemptedValue NOT Like ('%SH%')
@@ -2016,7 +2016,10 @@ namespace Library.HumanResource.Payroll.Tax
                 Dictionary<string,List<ExemptionCalcualtionModel>> CalculatedDict =
                     new Dictionary<string, List<ExemptionCalcualtionModel>>();
 
-                DataTable EarningDt = EarningQuery(EmpId, PolicyId, YearId);
+                string EmpMaster = "''";
+                EmpMaster += ",'" + EmpId + "'";
+
+                DataTable EarningDt = EarningQuery(EmpMaster, PolicyId, YearId);
                 if (EarningDt.Rows.Count > 0)
                 {
                     for (int i = 0; i < EarningDt.Rows.Count; i++)
