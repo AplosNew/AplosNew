@@ -627,6 +627,11 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			return Json(_purchaseOrderService.GetServiceTaxList(serviceId), JsonRequestBehavior.AllowGet);
 		}
+		[Authorize, HttpGet]
+		public JsonResult GetServiceTaxListForTaxDetail(string serviceId)
+		{
+			return Json(_purchaseOrderService.GetServiceTaxListForTax(serviceId), JsonRequestBehavior.AllowGet);
+		}
 
 		#endregion Inventory Receive Tax
 
@@ -669,9 +674,13 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult ServiceChargesCreates(InventoryMaterialViewModel entity, IEnumerable<ServicePOAckTax> taxCategoryList)
 		{
 			_purchaseOrderService.InsertGraphCharge(entity, taxCategoryList);
-			return Json(new { entity.Id, Message = AplosMessage.Success });
+			return Json(new { entity.ServiceAcknowledgementMasterId, Message = AplosMessage.Success });
 		}
-
+		[Authorize, HttpGet]
+		public JsonResult GetServiceChargeListForCharge(string MasterId)
+		{
+			return Json(_purchaseOrderService.QueryForCharges(MasterId), JsonRequestBehavior.AllowGet);
+		}
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
 		public JsonResult ServiceChargesDelete(string serviceId)
 		{

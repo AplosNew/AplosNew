@@ -14666,10 +14666,14 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                             ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric
                             ";
                 }
-                objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
 
 
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {

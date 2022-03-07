@@ -25,12 +25,12 @@
                         <div style="color:black;" id="Grid" ej-grid e-datasource="Griddata"
                              e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection=//"true"
                              e-detailstemplate="detailTemp"
                              e-detailsdatabound="detailgrid">
                             <div e-columns>
-                                <div e-column e-headertext="Actions" e-width="100">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+                                <div e-column e-headertext="Actions" e-width="70">
+                                    @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>*@
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report" ng-click="$parent.PO('Grid');" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                                 </div>

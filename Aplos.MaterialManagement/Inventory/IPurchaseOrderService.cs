@@ -13,6 +13,7 @@ namespace Library.MaterialManagement.Inventory
 	{
 		IEnumerable<object> GetPOMasterById(string plantId, string id);
 		GridModel Query(GridParameter parameters, string plantId);
+		IEnumerable<object> QueryForCharges(string MasterId);
 		void InsertGraphCharge(InventoryMaterialViewModel entity, IEnumerable<ServicePOAckTax> taxCategoryList);
 		GridModel GetPostingList(GridParameter parameters, string plantId);
 
@@ -76,6 +77,7 @@ namespace Library.MaterialManagement.Inventory
 		IEnumerable<object> GetTotalReceiveTaxList(string receiveId);
 
 		IEnumerable<object> GetServiceTaxList(string serviceId);
+		IEnumerable<object> GetServiceTaxListForTax(string serviceId);
 
 		decimal GetToCurrencyRate(string currencyId, string baseCurrencyId, DateTime docDate, string companyId);
 
