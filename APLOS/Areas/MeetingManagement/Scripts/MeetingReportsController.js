@@ -4,7 +4,7 @@ function MeetingReportsController(cboService, commonMessage, $scope, $rootScope,
     $rootScope.title = 'Meeting Reports';
     $scope.ModelList = [];
     $scope.path = 'MeetingManagement/MeetingReports/';
-    $scope.downloadgriddataUrlPath = 'MeetingManagement/MeetingReports/DownloadUsingFullPath';
+    $rootScope.downloadgriddataUrlPath = 'MeetingManagement/MeetingReports/DownloadUsingFullPath';
     baseService.init($scope.getListUrl);
       
     //The Filters 
