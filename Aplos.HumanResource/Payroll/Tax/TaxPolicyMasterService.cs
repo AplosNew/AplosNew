@@ -2253,13 +2253,14 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string sql = @"select ei.EmpSystemId,net.Investments,
+                string sql = @"select ei.EmpSystemId,ei.Id as IncomeTaxId,
+                net.Investments,
                 net.taxableIncome,net.NetEarning,t.TaxYearName
                 from TaxableIncome net  
                 left join EmployeeIncomeTaxMaster ei on
                 ei.Id=net.EmployeeIncomeTaxId
 				left join scs.TaxYear t on t.Id=ei.TaxYearId
-                where ei.EmpSystemId='"+EmpId+@"' and ei.TaxYearId='"+YearId+@"'
+                where ei.EmpSystemId In("+EmpId+@") and ei.TaxYearId='"+YearId+@"'
                 and ei.TaxPolicyHeaderId='"+PolicyId+"'";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -2294,11 +2295,14 @@ namespace Library.HumanResource.Payroll.Tax
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataTable TaxableIncome, TaxSlabRates;
                 DataSet dsRef;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");              
-                              
-                #region Saving Region
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                TaxableIncome = TaxableGridData(EmpId, PolicyId, YearId);
+                #region Saving Region
+                
+                string EmpMaster = "''";
+                EmpMaster += ",'" + EmpId + "'";
+
+                TaxableIncome = TaxableGridData(EmpMaster, PolicyId, YearId);
                 TaxSlabRates = GetSlabInfo(PolicyId);
                 double Income = 0;
                 if (TaxableIncome.Rows.Count > 0)

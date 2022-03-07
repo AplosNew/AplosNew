@@ -371,7 +371,67 @@ namespace Library.HumanResource.Payroll.Tax
                 }
 
                 #endregion
-            
+
+                #region Tax Slab Saving
+                DataTable EmpTaxableIncomeDt, TaxSlabRatesDt;
+
+                var sqlquery = @"select * from EmployeeNetTax where 1=2";
+                con.OpenDataSetThroughAdapter(sqlquery, out dsRef, false, "1");
+
+                EmpTaxableIncomeDt = eis.TaxableGridData(EmpId, PolicyId, YearId);
+                TaxSlabRatesDt = GetSlabQuery(PolicyId,EmpId);
+                
+                if (TaxSlabRatesDt.Rows.Count > 0)
+                {
+                    for (int j = 0; j < TaxSlabRatesDt.Rows.Count; j++)
+                    {
+                        double Income = 0, Amt, TotalAmt = 0;
+                        
+                        string IncomeTaxId = TaxSlabRatesDt.Rows[j][@"IncomeTaxId"].ToString();
+                        double Range = clsStaticInfo.dbl(TaxSlabRatesDt.Rows[j]["Range"].ToString());
+                        int TaxPercent = Convert.ToInt32(TaxSlabRatesDt.Rows[j]["TaxRate"].ToString());
+                        string SlabId = clsWebLib.RetValidLen(TaxSlabRatesDt.Rows[j]["SlabId"].ToString()).ToString();
+
+                        var IncomeRow = EmpTaxableIncomeDt.Rows
+                              .Cast<DataRow>()
+                              .Where(x => x["IncomeTaxId"].ToString() == IncomeTaxId).ToList();
+
+                        Income = clsStaticInfo.dbl(IncomeRow[0][@"taxableIncome"].ToString());
+                        if ((Income - TotalAmt) >= Range)
+                        {
+                            Amt = Range;
+                            TotalAmt += Range;
+                        }
+                        else
+                        {
+                            Amt = Income - TotalAmt;
+                            TotalAmt += Amt;
+                        }
+                        if (Amt > 0)
+                        {
+                            DataRow drF = dsRef.Tables[0].NewRow();
+                            clsGenID genid = new clsGenID();
+                            genid.GenID("EmployeeNetTax", out string _Id);
+                            drF["Id"] = "ENT" + _Id;
+                            drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                            drF["SlabId"] = SlabId;
+                            drF["DistributedAmt"] = Amt;
+                            drF["TaxPercentage"] = TaxPercent;
+                            drF["TaxAmt"] = (Amt * TaxPercent) / 100;
+                            drF["AddedBy"] = identity.Name;
+                            drF["AddedFromIp"] = identity.IPAddress;
+                            drF["AddedDate"] = DateTime.Now.ToString();
+                            if (Income == TotalAmt)
+                            {
+                                dsRef.Tables[0].Rows.Add(drF);
+                            }
+                        }
+                    }                    
+                     _info.SaveDataSets(dsRef);                    
+                }                
+
+                #endregion
+
             }
             catch (Exception ex)
             {
@@ -616,7 +676,29 @@ namespace Library.HumanResource.Payroll.Tax
             con.CommitTransaction();
             
         }
-        
+        public DataTable GetSlabQuery(string PolicyId,string EmpId)
+        {
+            try
+            {
+                string strSQL = @"select si.Id AS SlabId,si.PolicyId,si.Minimum,si.Maximum,
+                si.TaxRate,si.DifferenceAmt as Range,Masterx.Id as IncomeTaxId
+				from TaxPolicySlabInfo si 
+                left join TaxPolicyHeader th on th.Id=si.PolicyId
+				left join (
+				select eit.Id,eit.TaxPolicyHeaderId from EmployeeIncomeTaxMaster eit left join
+				TaxPolicyHeader th on th.Id=eit.TaxPolicyHeaderId
+				where eit.EmpSystemId In("+EmpId+@")
+				)as masterx on masterx.TaxPolicyHeaderId=th.Id
+                where th.Id='"+PolicyId+@"'
+				order by Masterx.Id";
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         #endregion
 
     }
