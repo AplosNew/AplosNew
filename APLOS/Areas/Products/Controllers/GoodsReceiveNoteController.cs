@@ -406,6 +406,17 @@ namespace Aplos.Areas.Products.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+        [HttpPost, Authorize]
+        public JsonResult GetItemListByVendor(string vendorId)
+        {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = inventoryReceiveQueryService.GetItemListByVendor(identity.PlantId, vendorId);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpPost]
         public JsonResult CreateGRNBOQPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {
@@ -4591,6 +4602,148 @@ UNION ALL
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-    }//
+   
+    
+    #region GRN BOQ -- Saad
+        
+    [HttpPost, Authorize]
+    public JsonResult GetItemListDetailsByList(string MaterialIds,string ArticleIds,string VendorRefNos,string CustomerRefNos,string OwnReferenceNo)
+    {
+        try
+        {
+            var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,moi.ContractId,mo.Id MasterOrderId,boq.SalesOrderId
+							FROM BOQ  boq 
+							LEFT JOIN MST.MaterialMaster mm on mm.Id=boq.MaterialMasterId
+							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
+							LEFT JOIN TRN.MasterOrderItem moi on moi.Id=boq.MasterOrderItemId
+							LEFT JOIN TRN.MasterOrder mo on mo.Id=moi.MasterOrderId
+							LEFT JOIN TRN.POBOQMAP pomap on pomap.BOQDetailId=boq.Id
+							LEFT JOIN HKP.Party P ON P.Id=mo.PartyId
+							LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=pomap.PODetailId
+							WHERE boq.MaterialMasterId IN (" + MaterialIds + ") AND boq.ArticleId IN ("+ ArticleIds + @")
+                            AND ISNULL(boq.OwnReferenceNo,'null') in (" + OwnReferenceNo + ") AND ISNULL(boq.RMCustomerSpec,'null') IN (" + CustomerRefNos + @")
+							AND ISNULL(boq.RMVendorSpec,'null') IN (" + VendorRefNos + @")";
 
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+        [HttpPost, Authorize]
+    public JsonResult GetSelectedItemListDetailsByList(string POId, string ContractId)
+    {
+        try
+        {
+            var sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
+                        ,GroupId=CASE WHEN isnull(b.POCriteria,'CostingItem')='CostingItem' THEN b.CostingItemId ELSE b.Id END
+                        ,b.Sequence Sequence1
+						,b.MasterOrderItemId
+						,moi.MasterOrderId
+						,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
+						,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
+
+						,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
+						,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
+						, b.VendorId
+						,b.SalesOrderId
+						,mm.Id MaterialMasterId,mma.Id ArticleId
+                        ,IsNULL(MGA.UserName,'') AS MaterialGroupMasterName
+						,IsNULL(mm.UserName,'') AS UserName
+						,IsNULL(mma.StandardName,'') AS StandardName
+						,IsNULL(p.UserName,'') AS Vendor
+						,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
+						,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
+						,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
+
+						,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+						,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+						,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
+						,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
+						,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
+						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+						b.BOMQty,C.Id
+						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
+						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+						,ISNULL(cpo.PONumber,'') PONumber
+						,b.RequiredQty
+						,uom.UserName BOQUOM
+						,b.POUoMId FromPoUomId
+					    ,b.POUoMId
+						,b.RequiredQtyPO 
+						,b.RequiredQtyPO RequiredQtyPOOrginal
+						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
+						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
+						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
+                        ,ISNULL(POBoqMap.MapQty,0) OtherMapQty
+                        , TransactionQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
+                        , BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
+                        ,0 Tolerance
+						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
+						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
+        					  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          
+						ELSE
+							case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END
+           
+							 END AS PurchaseAuthority,
+						   case when isnull(MOI.JobWorkType,'')<>'' THEN 
+								CASE WHEN ISNULL(eout.Id,'')<>'' THEN CONCAT(POUT.UserName,'(',EOUT.UserName,')') ELSE TOUT.UserName END
+						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId,ISNULL(b.ItemRefNo,'') BOQItemRefNo
+						   ,ISNULL(CI.UserName,'') CostingItemName,ISNULL(b.SKUDesc,'')SKUDesc,ISNULL(b.RMDescription,'')RMDescription
+						   ,ISNULL(b.RMVendorSpec,'')RMVendorSpec,ISNULL(b.RMCustomerSpec,'')RMCustomerSpec
+                   ,b.BOQCriteria  , CriteriaDetail= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',de.UserName,' ',v1.UserName,' ',v2.UserName)),b.OwnReferenceNo BOQOwnReferenceNo
+                    ,b.Rate*b.BOMQty AS BOMAmount ,b.Rate*b.RequiredQty AS PlanAmount ,  mm.Code AS MaterialCode,mma.Code AS ArticleCode,V1.UserName SKU1,v2.UserName SKU2
+                    , SKUDescConcat= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',DE.UserName,' ',v1.UserName,' ',v2.UserName))
+                       ,b.RequiredQty,b.BOMQty-b.RequiredQty AS BalanceToPurchase,b.CostingItemId,b.Remark,b.[FileName]
+                    						FROM BOQ AS b
+						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                        LEFT OUTER JOIN MST.MaterialGroupMaster AS MGA ON MGA.Id=mm.MaterialGroupMasterId
+						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+						LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+						LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+						LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+						LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+						left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
+
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+
+						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
+						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
+						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
+                        left outer join mst.Destination DE ON DE.Id=so.DestinationId
+						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+						LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+						LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+						LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+						LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+                        LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
+                        LEFT JOIN (SELECT SUM(ISNULL(TransactionQty,0)) MapQty,BOQDetailId FROM TRN.POBOQMAP GROUP BY BOQDetailId) 
+									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
+						where b.Id in (
+						select B.ID from boq B
+						join CostingBOQSalesOrder BSO on b.CostingBOQMasterId=Bso.CostingBOQMasterId
+						join trn.SalesOrder SO ON SO.Id=bso.SalesOrderId
+						join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+						where MOI.ContractId in ("+ ContractId + @")
+						)
+						--AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='null')
+						ORDER BY b.Sequence, b.SalesOrderId";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    #endregion
+    
+    }//
 }

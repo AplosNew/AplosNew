@@ -254,8 +254,17 @@ namespace Aplos.Areas.Payrolls.Controllers
             //===================================
 
             string sql = @"SELECT* FROM [dbo].[SalaryHeadSetting] Where SalaryRuleId='" + strSalaryRuleID + "'";
-            return Json(new { data = _sqlRepository.GetDataCollection(sql)
-                , SalaryRuleESIC, SalaryRuleRetentionBonus, SalaryRuleAttdnBonus, SalaryRuleOT, SalaryRulePF, SalaryRuleAbsenteeism },
+            return Json(new
+            {
+                data = _sqlRepository.GetDataCollection(sql)
+                ,
+                SalaryRuleESIC,
+                SalaryRuleRetentionBonus,
+                SalaryRuleAttdnBonus,
+                SalaryRuleOT,
+                SalaryRulePF,
+                SalaryRuleAbsenteeism
+            },
                 JsonRequestBehavior.AllowGet);
         }
 
@@ -507,7 +516,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             DataSet dsMaster, dsSalRul;
             try
             {
-                string sqlv = "SELECT * FROM [dbo].[SalaryRuleMaster] WHERE PlantID='"+ identity.PlantId+"' AND SalaryRuleName='" + data.SalaryRuleName.ToString() + "' and SystemID <>'" + data.SystemID + "'";
+                string sqlv = "SELECT * FROM [dbo].[SalaryRuleMaster] WHERE PlantID='" + identity.PlantId + "' AND SalaryRuleName='" + data.SalaryRuleName.ToString() + "' and SystemID <>'" + data.SystemID + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlv, out dsSalRul, false, "1");
                 if (dsSalRul.Tables[0].Rows.Count > 0)
@@ -592,7 +601,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             Exception ex = new Exception("Enter Formula !!!");
                             throw (ex);
                         }
-                      
+
                     }
 
 
@@ -632,7 +641,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr["FormulaDes"] = null;
                             dr["FormulaDesID"] = null;
                         }
-                  
+
 
                         dr["IsFixedMonthDay"] = data.IsFixedMonthDay;
                         dr["FixedMonthDayValue"] = data.FixedMonthDayValue;
@@ -983,11 +992,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateESICSalaryHead(IEnumerable<SalaryRuleESIC> entities)
+        public JsonResult CreateESICSalaryHead(IEnumerable<SalaryRuleESIC> entities, string SalaryRuleMasterSystemID)
         {
             try
             {
-                SaveESICSalaryHeadData(entities);
+                SaveESICSalaryHeadData(entities, SalaryRuleMasterSystemID);
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1013,7 +1022,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateRetentionBonusSalaryHead(IEnumerable<SalaryRuleRetentionPmtMaster> entities, string SalaryHeadId,List<MinimumWagesSalaryHeadModel> MinimumWagesSalaryHeadLists)
+        public JsonResult CreateRetentionBonusSalaryHead(IEnumerable<SalaryRuleRetentionPmtMaster> entities, string SalaryHeadId, List<MinimumWagesSalaryHeadModel> MinimumWagesSalaryHeadLists)
         {
             try
             {
@@ -1028,7 +1037,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateAbsenteeismSalaryHead(SalaryRuleAbsenteeism entity)
+        public JsonResult CreateAbsenteeismSalaryHead(SalaryRuleAbsenteeism entity, string SalaryRuleMasterSystemID)
         {
             try
             {
@@ -1044,11 +1053,11 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
         [HttpPost, Authorize]
-        public JsonResult CreateOTSalaryHead(IEnumerable<SalaryRuleOT> entities)
+        public JsonResult CreateOTSalaryHead(IEnumerable<SalaryRuleOT> entities, string SalaryRuleMasterSystemID)
         {
             try
             {
-                SaveOTSalaryHeadData(entities);
+                SaveOTSalaryHeadData(entities, SalaryRuleMasterSystemID);
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1082,7 +1091,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 if (data != null)
                 {
                     int Seqcount = 0;
-                   
+
                     DataSet dsMaster;
                     foreach (var item in data)
                     {
@@ -1129,15 +1138,15 @@ namespace Aplos.Areas.Payrolls.Controllers
                 {
                     string sql = "SELECT * FROM [dbo].[SalaryRulePF] WHERE SalaryRuleMasterSystemID='" + SalaryRuleMasterSystemID + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
-                    objCon.OpenDataSetThroughAdapter(sql, out DataSet dsPF , false, "1");
+                    objCon.OpenDataSetThroughAdapter(sql, out DataSet dsPF, false, "1");
 
-                    while (dsPF.Tables[0].DefaultView.Count>0)
+                    while (dsPF.Tables[0].DefaultView.Count > 0)
                     {
                         dsPF.Tables[0].DefaultView[0].Delete();
                     }
                     clsStaticInfo obj = new clsStaticInfo();
                     obj.SaveDataSets(dsPF);
-                }  
+                }
             }
             catch (Exception ex)
             {
@@ -1145,15 +1154,15 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-        private void SaveOTSalaryHeadData(IEnumerable<SalaryRuleOT> data)
+        private void SaveOTSalaryHeadData(IEnumerable<SalaryRuleOT> data, string SalaryRuleMasterSystemID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
                 if (data != null)
                 {
                     int Seqcount = 0;
-                    ConnectionManager.DAL.ConManager objCon;
                     DataSet dsMaster;
                     foreach (var item in data)
                     {
@@ -1234,6 +1243,19 @@ namespace Aplos.Areas.Payrolls.Controllers
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsMaster);
                     }
+                }
+                else
+                {
+                    string sql = "SELECT * FROM [dbo].[SalaryRuleOT] WHERE SalaryRuleMasterSystemID='" + SalaryRuleMasterSystemID + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out DataSet dsPF, false, "1");
+
+                    while (dsPF.Tables[0].DefaultView.Count > 0)
+                    {
+                        dsPF.Tables[0].DefaultView[0].Delete();
+                    }
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsPF);
                 }
             }
             catch (Exception ex)
@@ -1319,15 +1341,15 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
-        private void SaveESICSalaryHeadData(IEnumerable<SalaryRuleESIC> data)
+        private void SaveESICSalaryHeadData(IEnumerable<SalaryRuleESIC> data, string SalaryRuleMasterSystemID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
                 if (data != null)
                 {
                     int Seqcount = 0;
-                    ConnectionManager.DAL.ConManager objCon;
                     DataSet dsMaster;
                     foreach (var item in data)
                     {
@@ -1368,6 +1390,19 @@ namespace Aplos.Areas.Payrolls.Controllers
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsMaster);
                     }
+                }
+                else
+                {
+                    string sql = "SELECT * FROM [dbo].[SalaryRuleESIC] WHERE SalaryRuleMasterSystemID='" + SalaryRuleMasterSystemID + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out DataSet dsPF, false, "1");
+
+                    while (dsPF.Tables[0].DefaultView.Count > 0)
+                    {
+                        dsPF.Tables[0].DefaultView[0].Delete();
+                    }
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsPF);
                 }
             }
             catch (Exception ex)
@@ -1444,7 +1479,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     int Seqcount = 0;
                     ConnectionManager.DAL.ConManager objCon;
                     DataSet dsMaster;
-                    
+
                     foreach (var item in data)
                     {
                         string sql = "SELECT * FROM [dbo].[SalaryRuleRetentionPmtMaster] WHERE SalaryRuleRetentionPmtSystemID='" + item.SalaryRuleRetentionPmtSystemID + "'";
@@ -1482,7 +1517,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr.EndEdit();
                         }
 
-                
+
 
 
                         try
@@ -1538,7 +1573,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                         dr["SalaryRuleMasterSystemID"] = item.SalaryRuleMasterSystemID;
                                         dr["SalaryHeadID"] = SalaryHeadId;
                                         dr["GovtSalaryHeadID"] = item1.MinimumWagesSalaryHeadId;
-                                       
+
                                         dr["SequenceNo"] = Seqcount1;
 
                                         dr["AddedBy"] = identity.Name;
@@ -1567,8 +1602,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                             }
                         }
-                       
-                        
+
+
                         obj.SaveDataSets(dsMaster);
                     }
                 }
@@ -1585,19 +1620,19 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 int seq = 0;
-                   DataSet dsSeq,dsSalaryHeadIdGross = null;
+                DataSet dsSeq, dsSalaryHeadIdGross = null;
                 if (data != null)
                 {
                     GetAutoSequence(data.SalaryRuleMasterSystemID, out dsSeq);
                     if (dsSeq.Tables[0].Rows.Count > 0)
                     {
-                         seq = Convert.ToInt32(dsSeq.Tables[0].Rows[0]["SequenceNo"].ToString());  
+                        seq = Convert.ToInt32(dsSeq.Tables[0].Rows[0]["SequenceNo"].ToString());
                     }
 
                     if (data.IsDeductionOnGross)
                     {
                         GetSalaryHeadID(out dsSalaryHeadIdGross);
-                        if (dsSalaryHeadIdGross.Tables[0].Rows.Count>0)
+                        if (dsSalaryHeadIdGross.Tables[0].Rows.Count > 0)
                         {
                             data.FormulaDesID_NewJoin = dsSalaryHeadIdGross.Tables[0].Rows[0]["SalaryHeadID"].ToString();
                         }
@@ -1996,13 +2031,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
     public class MinimumWagesSalaryHeadModel
 
-    { 
+    {
         public bool CheckBoxSelect { get; set; }
         public string SalaryHeadId { get; set; }
-      
+
         public string MinimumWagesSalaryHeadId { get; set; }
         public string MinimumWagesSalaryHead { get; set; }
-      
+
     }
 
     public class SalaryRuleGeneral : BaseModel
