@@ -146,7 +146,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.GetCurrencyExchangeRateList();
         $scope.hidePartyPopUp();
     };
-   
+
     function getPartyPlantList() {
         $scope.plantList = [];
         $http.get('Products/PurchaseOrder/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
@@ -220,7 +220,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         }
     };
     $scope.tab1 = 1;
- 
+
     $scope.setTabGRNBOQList = function (newTab12) {
         $scope.GriddataSelected = [];
         $scope.Clear();
@@ -239,6 +239,17 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             url: 'Products/GoodsReceiveNote/GetItemListByVendor?vendorId=' + $scope.productNew.PartyId,
         }).then(function successCallback(response) {
             $scope.itemList = response.data;
+            for (var i = 0; i < $scope.GriddataSelected.length; i++) {
+                for (var j = 0; j < $scope.itemList.length; j++) {
+                    if ($scope.GriddataSelected[i].MaterialMasterId == $scope.itemList[j].MaterialMasterId
+                        && $scope.GriddataSelected[i].ArticleId == $scope.itemList[j].ArticleId
+                        && $scope.GriddataSelected[i].VendorRefNo == $scope.itemList[j].VendorRefNo
+                        && $scope.GriddataSelected[i].CustomerRefNo == $scope.itemList[j].CustomerRefNo
+                        && $scope.GriddataSelected[i].OwnReferenceNo == $scope.itemList[j].OwnReferenceNo) {
+                        $scope.itemList[j].Active = true;
+                    }
+                }
+            }
         });
         angular.element(document.querySelector('#itemPopUp')).modal('show');
     };
@@ -247,32 +258,111 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         angular.element(document.querySelector('#itemPopUp')).modal('hide');
     };
 
-    //$scope.GriddataSelected = [];
-    //$scope.recorddoubleclick = function ($event) {
+    var getString = function (data, column) {
+        var kk = "";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) === false) {
+                if (kk === "") {
+                    kk += "'" + data[i][column] + "'";
+                }
+                else {
+                    kk += ",'" + data[i][column] + "'";
+                }
 
-    //    $scope.Griddatatemp = [];
-    //    $scope.Griddatatemp1 = [];
-    //    var partyId = null;
-    //    $scope.tempList = [];
-    //    for (var j = 0; j < $scope.Griddata.length; j++) {
-    //        if ($scope.Griddata[j].Active === true) {
-    //            $scope.tempList.push($scope.Griddata[j]);
-    //        }
-    //    }
+                collection.push(data[i][column]);
+            }
+        }
+        return kk;
+    };
 
-    //    if (flagTemp == false) {
+    $scope.MasterList = [];
+    $scope.DetailList = [];
+    $scope.GriddataSelected = [];
+    $scope.recorddoubleclick = function () {
+        try {
+            $scope.GriddataSelected = [];
+            for (var i = 0; i < $scope.itemList.length; i++) {
+                if ($scope.itemList[i].Active) {
+                    $scope.GriddataSelected.push($scope.itemList[i]);
+                }
+            }
+            if ($scope.GriddataSelected.length == 0) {
+                throw "Select atleast one item.."
+            }
+            $scope.GetDetails();
+            angular.element(document.querySelector('#itemPopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    }
+    $scope.GetDetails = function () {
+        try {
+            var parameters = [];
+            var gridObj = $("#GriddataSelected").data("ejGrid");
+            var filteredRecords = gridObj.getFilteredRecords();
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.GriddataSelected;
+            }
+            parameters.push({ "Key": "MaterialId", "Value": getString(filteredRecords, "MaterialMasterId") });
+            parameters.push({ "Key": "ArticleId", "Value": getString(filteredRecords, "ArticleId") });
+            parameters.push({ "Key": "VendorRefNo", "Value": getString(filteredRecords, "VendorRefNo") });
+            parameters.push({ "Key": "CustomerRefNo", "Value": getString(filteredRecords, "CustomerRefNo") });
+            parameters.push({ "Key": "OwnReferenceNo", "Value": getString(filteredRecords, "OwnReferenceNo") });
 
-    //        $scope.load();
-    //        for (var x = 0; x < $scope.tempList.length; x++) {
-    //            $scope.GriddataSelected.push($scope.tempList[x]);
-    //        }
+            var MaterialIds = parameters[0].Value;
+            var ArticleIds = parameters[1].Value;
+            var VendorRefNos = parameters[2].Value;
+            var CustomerRefNos = parameters[3].Value;
+            var OwnReferenceNo = parameters[4].Value;
 
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: 'Products/GoodsReceiveNote/GetItemListDetailsByList',
+                data: {
+                    'MaterialIds': MaterialIds,
+                    'ArticleIds': ArticleIds,
+                    'VendorRefNos': VendorRefNos,
+                    'CustomerRefNos': CustomerRefNos,
+                    'OwnReferenceNo': OwnReferenceNo,
+                }
+            }).then(function successCallback(response) {
+                $scope.DetailList = response.data;
+            });
 
-    //    }
+        } catch (e) {
+            ShowResult(e, 'info')
+        }
+    }
+    $scope.getDetailsData = function () {
+        try {
+            var parameters = [];
+            var filteredRecords = [];
+            for (var i = 0; i < $scope.DetailList.length; i++) {
+                if ($scope.DetailList[i].IsActives) {
+                    filteredRecords.push($scope.DetailList[i]);
+                }
+            }
+            parameters.push({ "Key": "POId", "Value": getString(filteredRecords, "POId") });
+            parameters.push({ "Key": "ContractId", "Value": getString(filteredRecords, "ContractId") });
 
-    //    angular.element(document.querySelector('#POPopUp')).modal('hide');
-    //    // }
+            var POId = parameters[0].Value;
+            var ContractId = parameters[1].Value;
 
-
-    //}
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: 'Products/GoodsReceiveNote/GetSelectedItemListDetailsByList',
+                data: {
+                    'POId': POId,
+                    'ContractId': ContractId,
+                }
+            }).then(function successCallback(response) {
+                $scope.MasterList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, 'info')
+        }
+    }
 }
