@@ -108,7 +108,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.partyList = response.data;
         });
         //}
-        angular.element(document.querySelector('#partyPopUp')).modal('show');
+        angular.element(document.querySelector('#boqpartyPopUp')).modal('show');
     };
 
     $scope.closeBOQPartyPopUp = function (x) {
