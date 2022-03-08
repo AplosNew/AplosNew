@@ -991,6 +991,7 @@ upanelApp.controller('ProformaInvoiceController', ProformaInvoiceController);
 upanelApp.controller('GeneralDataMasterController', GeneralDataMasterController);
 upanelApp.controller('GeneralDataOperationsController', GeneralDataOperationsController);
 upanelApp.controller('InvoiceTaggedWithLCController', InvoiceTaggedWithLCController);
+upanelApp.controller('invoiceToAcceptancePostController', invoiceToAcceptancePostController);
 upanelApp.controller('PIInvoiceController', PIInvoiceController);
 upanelApp.controller('PIPackingListController', PIPackingListController);
 upanelApp.controller('FOCController', FOCController);
