@@ -1,10 +1,10 @@
 ﻿'use strict';
-MeetingReportsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function MeetingReportsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+MeetingReportsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function MeetingReportsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Meeting Reports';
     $scope.ModelList = [];
     $scope.path = 'MeetingManagement/MeetingReports/';
-    $rootScope.downloadgriddataUrlPath = 'MeetingManagement/MeetingReports/DownloadUsingFullPath';
+    $scope.downloadgriddataUrlPath = 'MeetingManagement/MeetingReports/DownloadUsingFullPath';
     baseService.init($scope.getListUrl);
       
     //The Filters 
@@ -110,8 +110,8 @@ function MeetingReportsController(cboService, commonMessage, $scope, $rootScope,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
-                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-
+                   // $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                 }
                 else {
                     ShowResult(response.data.Message, 'failure');
