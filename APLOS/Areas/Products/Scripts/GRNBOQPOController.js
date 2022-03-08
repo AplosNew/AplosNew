@@ -36,6 +36,14 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.chargesListPOnew = [];
     $scope.partyList = [];
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.product = {
         Id: null
         , GRNDate: $filter("dateFiltering")(Date.now())
@@ -296,8 +304,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             ShowResult(e, 'info');
         }
     }
+    $scope.MaterialMasterId = null;
+    $scope.ArticleId = null;
     $scope.GetDetails = function () {
         try {
+            $scope.MaterialMasterId = null;
+            $scope.ArticleId = null;
             var parameters = [];
             var gridObj = $("#GriddataSelected").data("ejGrid");
             var filteredRecords = gridObj.getFilteredRecords();
@@ -311,7 +323,9 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             parameters.push({ "Key": "OwnReferenceNo", "Value": getString(filteredRecords, "OwnReferenceNo") });
 
             var MaterialIds = parameters[0].Value;
+            $scope.MaterialMasterId = MaterialIds;
             var ArticleIds = parameters[1].Value;
+            $scope.ArticleId = ArticleIds;
             var VendorRefNos = parameters[2].Value;
             var CustomerRefNos = parameters[3].Value;
             var OwnReferenceNo = parameters[4].Value;
@@ -346,9 +360,14 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
             parameters.push({ "Key": "POId", "Value": getString(filteredRecords, "POId") });
             parameters.push({ "Key": "ContractId", "Value": getString(filteredRecords, "ContractId") });
+            parameters.push({ "Key": "SalesOrderIds", "Value": getString(filteredRecords, "SalesOrderId") });
 
             var POId = parameters[0].Value;
             var ContractId = parameters[1].Value;
+            var SalesOrderId = parameters[2].Value;
+            var masterOrderitemId = parameters[2].Value;
+            
+            
 
             $http({
                 method: "POST",
@@ -357,6 +376,10 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 data: {
                     'POId': POId,
                     'ContractId': ContractId,
+                    'masterOrderitemId': masterOrderitemId,
+                    'SalesOrderId': SalesOrderId,
+                    'MaterialMasterId': $scope.MaterialMasterId,
+                    'ArticleId': $scope.ArticleId,
                 }
             }).then(function successCallback(response) {
                 $scope.MasterList = response.data;
