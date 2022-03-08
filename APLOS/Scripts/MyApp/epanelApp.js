@@ -46,6 +46,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("firstAuthEmpLeaveApprovalController", firstAuthEmpLeaveApprovalController)
     .controller("GatePassPotalController", GatePassPotalController)
     .controller("MeetingPointsController", MeetingPointsController)
+    .controller("MeetingReportsController", MeetingReportsController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -285,7 +286,12 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 templateUrl: 'Products/InventoryIssue/InventoryScrapApproved',
                 controller: 'inventoryScrapCheckApproveController'
             })
-       
+
+            .when('/meeting-reports', {
+                templateUrl: 'MeetingManagement/MeetingReports/ReportView',
+                controller: 'MeetingReportsController'
+            })
+
            //#endregion
 
             .when('/logout', {
@@ -320,7 +326,56 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
             $("#dialogMessage").ejDialog("setTitle", headerText);
             $("#dialogMessage").ejDialog("open");
         }
-        $rootScope.MyAppuserImage = virtualPath.EmployeePic;       
+        $rootScope.MyAppuserImage = virtualPath.EmployeePic;
+
+        $rootScope.report = function (file_src) {
+            $("#iframe_div_for_report").empty();
+            var frame = $('<iframe id="report">')
+                .attr('height', '0px')
+                .attr('visibility', 'hidden')
+                .attr('width', '0px');
+            frame.on('load', function () {
+
+                try {
+                    var text = angular.fromJson($('#report')[0].contentDocument.body.innerText);
+
+                    if (text.hasOwnProperty('Message')) {
+                        if (angular.isUndefinedOrNull(text.Message) === false) {
+                            $('<div id="message">').attr('height', '0px')
+                                .attr('visibility', 'hidden')
+                                .attr('width', '0px').appendTo('#iframe_div_for_report');
+                            $("#message").ejDialog({
+                                title: "Error"
+                            });
+                            $("#message").ejDialog("setContent", text.Message);
+
+                        }
+                    }
+                    else {
+                        var text1 = $('#report')[0].contentDocument.body.innerText;
+
+                        $('<div id="message">').attr('height', '0px')
+                            .attr('visibility', 'hidden')
+                            .attr('width', '0px').appendTo('#iframe_div_for_report');
+                        $("#message").ejDialog({
+                            title: "Error"
+                        });
+                        $("#message").ejDialog("setContent", text1);
+                    }
+
+                } catch (e) {
+
+
+                }
+
+            });
+
+
+            frame.attr('src', file_src);
+            frame.appendTo('#iframe_div_for_report');
+        };
+
+
     }])
     .filter('safecontent', safecontent)
     .filter('dateFiltering', dateFiltering)
