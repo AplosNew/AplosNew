@@ -303,8 +303,8 @@ namespace Library.HumanResource.Payroll.Tax
               
                 DeductionDt = DeductionQuery(PolicyId,EmpId);
                
-                string sqlB = @"select * from employeeinvestmentdeduction where 1=2";
-                con.OpenDataSetThroughAdapter(sqlB, out dsRef, false, "1");
+                sqlx = @"select * from employeeinvestmentdeduction where 1=2";
+                con.OpenDataSetThroughAdapter(sqlx, out dsRef, false, "1");
                 if (DeductionDt.Rows.Count > 0)
                 {
                     for (int x = 0; x < DeductionDt.Rows.Count; x++)
@@ -339,8 +339,8 @@ namespace Library.HumanResource.Payroll.Tax
                 
                 TaxableIncomeDt = TaxableIncomeQuery(PolicyId, EmpId,YearId);
 
-                string sqlc = @"select * from TaxableIncome where 1=2";
-                con.OpenDataSetThroughAdapter(sqlc, out dsRef, false, "1");
+                sqlx = @"select * from TaxableIncome where 1=2";
+                con.OpenDataSetThroughAdapter(sqlx, out dsRef, false, "1");
 
                 if (TaxableIncomeDt.Rows.Count > 0)
                 {
@@ -444,7 +444,136 @@ namespace Library.HumanResource.Payroll.Tax
                         }
                     }                    
                      _info.SaveDataSets(dsRef);                    
-                }                
+                }
+
+                #endregion
+
+                #region Tax After Rebate
+
+                DataTable TaxRebateMaster, EstimatedTaxDt;
+                StringCollection IncomeTaxIdCollection = new StringCollection();
+                StringCollection SavingChecker = new StringCollection();
+
+                sqlx = @"select em.EmpsystemId,em.Id as IncomeTaxId,em.TaxPolicyHeaderId,
+                TaxableIncome,SUM(TaxAmt) as EstimatedTax
+                from taxableincome t left join EmployeeIncomeTaxMaster em on
+                em.Id=t.EmployeeIncomeTaxId
+				left join EmployeeNetTax net on net.EmployeeIncomeTaxId=em.Id
+                where Em.empsystemid in ("+EmpId+@") 
+				and em.TaxPolicyHeaderId='"+PolicyId+@"'
+				GROUP BY em.EmpsystemId,em.Id,em.TaxPolicyHeaderId,TaxableIncome";
+                EstimatedTaxDt = _sqlRepository.GetDataTable(sqlx);
+
+                var sqlz = @"select * from TaxAfterRebate where 1=2";
+                con.OpenDataSetThroughAdapter(sqlz, out dsRef, false, "1");
+
+                sqly = @"select ei.EmpSystemId,ei.Id as IncomeTaxId,
+			   (select max(Maximum) from TaxRebateConfiguration where 
+                TaxPolicyId='"+PolicyId+@"')AS FinalMax,
+			    t.TaxPolicyId,t.Minimum,t.Maximum,t.IsFix,t.IsPercentage,t.Value
+                from TaxRebateConfiguration t left join TaxPolicyHeader th on
+                th.Id=t.TaxPolicyId
+                left join EmployeeIncomeTaxMaster ei on ei.TaxPolicyHeaderId=th.Id 
+                where TaxPolicyId='"+PolicyId+@"'
+                and ei.EmpSystemId in ("+EmpId+@")               
+				order by ei.EmpSystemId,ei.Id";
+                TaxRebateMaster = _sqlRepository.GetDataTable(sqly);
+
+                #region Processing Region
+
+                if (TaxRebateMaster.Rows.Count > 0)
+                {
+                    double TaxableIncome = 0, EstimatedTax=0, RebateAmt = 0;
+                    for (int j = 0; j < TaxRebateMaster.Rows.Count; j++)
+                    {
+                        double Minimum = clsStaticInfo.dbl(TaxRebateMaster.Rows[j]["Minimum"].ToString());
+                        double Maximum = clsStaticInfo.dbl(TaxRebateMaster.Rows[j]["Maximum"].ToString());
+                        double Value = clsStaticInfo.dbl(TaxRebateMaster.Rows[j]["Value"].ToString());
+                        string IsFix = clsWebLib.GetBoolData(TaxRebateMaster.Rows[j]["IsFix"]).ToString();
+                        string IsPercent = clsWebLib.GetBoolData(TaxRebateMaster.Rows[j]["IsPercentage"]).ToString();
+                        string IncomeTaxId = TaxRebateMaster.Rows[j][@"IncomeTaxId"].ToString();
+                        double FinalMax = clsStaticInfo.dbl(TaxRebateMaster.Rows[j]["FinalMax"].ToString());
+
+                        var EstimatedTaxRow = EstimatedTaxDt.Rows
+                            .Cast<DataRow>()
+                            .Where(x => x["IncomeTaxId"].ToString() == IncomeTaxId).ToList();
+
+                        #region For Distinct Employee Income
+
+                        if (IncomeTaxIdCollection.Contains(IncomeTaxId))
+                        {
+
+                        }
+                        else
+                        {
+                            IncomeTaxIdCollection.Add(IncomeTaxId);
+                            
+                            TaxableIncome = 0; EstimatedTax = 0; RebateAmt=0;
+                            TaxableIncome = clsStaticInfo.dbl(EstimatedTaxRow[0][@"taxableIncome"].ToString());
+                            EstimatedTax = clsStaticInfo.dbl(EstimatedTaxRow[0][@"EstimatedTax"].ToString());
+                        }
+
+                        #endregion
+
+                        if (Minimum <= TaxableIncome && Maximum >= TaxableIncome)
+                        {
+                            if (IsFix == "True")
+                            {
+                                RebateAmt = EstimatedTax;
+                            }
+                            else if (IsPercent == "True")
+                            {
+                                RebateAmt = (EstimatedTax * Value) / 100;
+                            }
+
+                            double NetTax = EstimatedTax - RebateAmt;
+
+                            DataRow drF = dsRef.Tables[0].NewRow();
+                            clsGenID genid = new clsGenID();
+                            genid.GenID("TaxAfterRebate", out string _Id);
+                            drF["Id"] = "TR" + _Id;
+                            drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                            drF["EstimatedTax"] = EstimatedTax;
+                            drF["TaxRebate"] = RebateAmt;
+                            drF["TaxAfterRebate"] = NetTax;
+                            drF["AddedBy"] = identity.Name;
+                            drF["AddedFromIp"] = identity.IPAddress;
+                            drF["AddedDate"] = DateTime.Now.ToString();
+                            dsRef.Tables[0].Rows.Add(drF);
+
+                        }
+                        else if(TaxableIncome>FinalMax)
+                        {
+                            if (SavingChecker.Contains(IncomeTaxId))
+                            {
+                                // Skip
+                            }
+                            else
+                            {
+                                SavingChecker.Add(IncomeTaxId);
+
+                                double NetTax = EstimatedTax - RebateAmt;
+                                DataRow drF = dsRef.Tables[0].NewRow();
+                                clsGenID genid = new clsGenID();
+                                genid.GenID("TaxAfterRebate", out string _Id);
+                                drF["Id"] = "TR" + _Id;
+                                drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                                drF["EstimatedTax"] = EstimatedTax;
+                                drF["TaxRebate"] = RebateAmt;
+                                drF["TaxAfterRebate"] = NetTax;
+                                drF["AddedBy"] = identity.Name;
+                                drF["AddedFromIp"] = identity.IPAddress;
+                                drF["AddedDate"] = DateTime.Now.ToString();
+                                dsRef.Tables[0].Rows.Add(drF);
+                            }
+
+                        }
+                    }
+                    _info.SaveDataSets(dsRef);
+                }
+
+                #endregion
+
 
                 #endregion
 
