@@ -86,6 +86,10 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/InvoiceTaggedWithLC/Aplos',
             controller: 'InvoiceTaggedWithLCController'
         })
+        .when('/invoice-to-acceptance-post', {
+            templateUrl: 'Commercial/InvoiceToAcceptancePost/InvoiceToAcceptancePost',
+            controller: 'invoiceToAcceptancePostController'
+        })
 
         .when('/pi-invoice', {
             templateUrl: 'Commercial/PIInvoice/Aplos',

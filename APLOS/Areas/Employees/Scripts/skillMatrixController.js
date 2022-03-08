@@ -17,7 +17,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.ShowLoader = true;
     $scope.loadstatus = false;
     $scope.Print = function () {
-        debugger;
+       
         // var gridObj = $("#DetailGrid").data("ejGrid");
         var gridObj = $("#DetailGrid").ejGrid("instance");
         var data = gridObj.model.dataSource;
@@ -37,7 +37,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
         });
     }
     $scope.PrintSum = function () {
-        debugger;
+       
         var gridObj = $("#Grid1").data("ejGrid");
         //var gridObj = $("#Grid1").ejGrid("instance");
         var data = $scope.SummaryList; //gridObj.model.dataSource;
@@ -57,7 +57,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
         });
     }
     $scope.ClearFilter = function () {
-        debugger;
+       
         var gridObj = $("#Grid2").ejGrid("instance");
         gridObj.refreshContent(); // Refreshes the grid contents only 
         gridObj.refreshContent(true); // Refreshes the
@@ -70,7 +70,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
     }
 
     $scope.LoadData = function GetEntity() {
-        debugger;
+       
         $scope.ShowLoader = true;
         $.ajax({
             type: "GET",
@@ -217,7 +217,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.ViewData = function () {
         $scope.ShowLoader = true;
         // $(".loaderr").show(2000);
-        // debugger;
+        //
         // $('#load').show();
         var obj = $("#Grid2").ejGrid("instance");
         var sd = obj.getFilteredRecords();
@@ -537,7 +537,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
                     //rowSelected: rowSelected,
                     recordDoubleClick: rowSelected,
                     actionComplete: function (args) {
-                        debugger;
+                       
                         if (args.requestType == "filtering") {
                             var obj = $("#DetailGrid").ejGrid("instance");
                             var sd1 = obj.getFilteredRecords();
@@ -757,7 +757,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
 
                 $("#present").show();
                 $("#onroll").show();
-                debugger;
+               
                 var gridObj = $("#Grid2").data("ejGrid");
                 //getting corresponding record             
                 var data = gridObj.getSelectedRecords()[0];
@@ -911,7 +911,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     sdchk = obj.model.dataSource;
-                    debugger;
+                   
                     $.ajax({
                         type: "POST",
                         //contentType: "application/json; charset=utf-8",
@@ -1078,7 +1078,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
         });
     }
     function rowSelected(args) {
-        debugger;
+       
 
         //clearTimeout(this.clickTimer);
         this.preventClick = true;
@@ -1217,7 +1217,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.SummaryList = [];
     $scope.SkillMatSummary = function () {
         // $(".loaderr").show(2000);
-        // debugger;
+        //
         // $('#load').show();
         var obj = $("#Grid2").ejGrid("instance");
         var sd = obj.getFilteredRecords();
@@ -1403,7 +1403,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.lst = [];
     $scope.Desigmnation = function () {
-        debugger;
+       
         $http({
             method: 'POST',
             url: 'Employees/SkillMatrix/Designation'
@@ -1420,7 +1420,7 @@ function skillMatrixController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.detailTemp = "#tabGridContents";
     //$scope.detailgrid = "detailGridData(e)";
     $scope.detailgrid1 = function detailGridData(e) {
-        debugger;
+       
         var filteredData = e.data["OperationCode"];
         var EntityIdfiltered = e.data["EntityId"];
         var data123 = []; //ej.DataManager(window.lst).executeLocal(ej.Query().where("OperationCode", "equal", parseInt(filteredData), true).take(10000));
