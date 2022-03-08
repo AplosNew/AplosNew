@@ -59,11 +59,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult ProcessFunction(string PolicyId, string YearId, string PlantId,string EmpId,string TaxTypeId,string StartDate,string EndDate)
+        public ActionResult ProcessFunction(string PolicyId, string YearId,string EmpId,string TaxTypeId,string StartDate,string EndDate)
         {
             try
             {
-                rep.ProcessIncomeTax(PolicyId, YearId,PlantId,EmpId,TaxTypeId,StartDate,EndDate);
+                rep.ProcessIncomeTax(PolicyId, YearId,EmpId,TaxTypeId,StartDate,EndDate);
                 return Json(new { Error = false, Message = AplosMessage.Success });
             }
             catch (Exception ex)

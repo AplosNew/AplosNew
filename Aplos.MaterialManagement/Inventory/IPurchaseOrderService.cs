@@ -15,6 +15,7 @@ namespace Library.MaterialManagement.Inventory
 		GridModel Query(GridParameter parameters, string plantId);
 		IEnumerable<object> QueryForCharges(string MasterId);
 		void InsertGraphCharge(InventoryMaterialViewModel entity, IEnumerable<ServicePOAckTax> taxCategoryList);
+		void UpdateGraphCharge(InventoryMaterialViewModel entity, List<ServicePOAckTax> taxCategoryList);
 		GridModel GetPostingList(GridParameter parameters, string plantId);
 
 		IEnumerable<object> GetListForHold(string plantId);

@@ -3,6 +3,7 @@ ServicePoAcknowledgementController.$inject = ['accountService', 'addressService'
 function ServicePoAcknowledgementController(accountService, addressService, $window, factoryService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
     $rootScope.title = "Service Acknowledgement";
     $scope.Action = 'Save';
+    $scope.ActionService = 'Save';
     $scope.index = -1;
     $scope.products = [];
     $scope.path = 'Products/PurchaseOrder/';
@@ -20,6 +21,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
     $scope.detailDeleteUrl = $scope.path + 'DetailDelete?receiveDetailId=';
     $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
     $scope.sreviceSaveUrl1 = $scope.path + 'ServiceChargesCreates';
+    $scope.sreviceUpdateUrl = $scope.path + 'ServiceChargesUpdate';
     $scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
 
     $scope.updateUrlForSerPOAckTaxValue = $scope.path + 'UpdateServicePOAckTax';
@@ -1712,47 +1714,88 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
     };
     $scope.serviceSave = function () {
         try {
-            $scope.manualValidationAddRemove('div_svc', 'serviceModel', 'ServiceMasterId');
-            $scope.manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');
-            if (!baseService.isUndefinedOrNull($scope.serviceModel.InventoryReceiveId)) {
-            $scope.serviceModel.ServiceAcknowledgementMasterId = $scope.serviceModel.InventoryReceiveId;
-            }
-            $http({
-                method: 'POST',
-                url: $scope.sreviceSaveUrl1,
-                data: {
-                    entity: $scope.serviceModel
-                    , taxCategoryList: $scope.taxCategoryList
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
-                else {
-                    ShowResult(response.data.Message, 'success', 'serviceChargePopUp');
-                    $scope.serviceModel = {
-                        Id: null
-                        , ServiceMasterId: null
-                        , InventoryReceiveId: $scope.productNew.Id
-                        , CurrencyName: angular.element("#currency :selected").text()
-                        , CurrencyId: $scope.productNew.CurrencyId
-                        , BaseCurrencyId: $scope.baseCurrencyId
-                        , DocDate: $scope.productNew.DocDate
-                        , TransactionAmount: 0
-                        , BaseAmount: 0
-                        , TotalTaxAmount: 0
-                        , ToCurrencyRate: $scope.productNew.ToCurrencyRate
-                        , IsNonCreditable: $scope.productNew.IsNonCreditable
-                    };
-                    $scope.taxCategoryList = [];
-                    getServiceChargeList($scope.productNew.Id);
-                    getInventoryMaterialList($scope.productNew.Id);
-                    getServiceChargeListForCharge($scope.productNew.Id);
-                    $scope.getDataList();
+            if ($scope.ActionService == 'Save') {
+
+                $scope.manualValidationAddRemove('div_svc', 'serviceModel', 'ServiceMasterId');
+                $scope.manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');
+                if (!baseService.isUndefinedOrNull($scope.serviceModel.InventoryReceiveId)) {
+                    $scope.serviceModel.ServiceAcknowledgementMasterId = $scope.serviceModel.InventoryReceiveId;
                 }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
-            };
+                $http({
+                    method: 'POST',
+                    url: $scope.sreviceSaveUrl1,
+                    data: {
+                        entity: $scope.serviceModel
+                        , taxCategoryList: $scope.taxCategoryList
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
+                    else {
+                        ShowResult(response.data.Message, 'success', 'serviceChargePopUp');
+                        $scope.serviceModel = {
+                            Id: null
+                            , ServiceMasterId: null
+                            , InventoryReceiveId: $scope.productNew.Id
+                            , CurrencyName: angular.element("#currency :selected").text()
+                            , CurrencyId: $scope.productNew.CurrencyId
+                            , BaseCurrencyId: $scope.baseCurrencyId
+                            , DocDate: $scope.productNew.DocDate
+                            , TransactionAmount: 0
+                            , BaseAmount: 0
+                            , TotalTaxAmount: 0
+                            , ToCurrencyRate: $scope.productNew.ToCurrencyRate
+                            , IsNonCreditable: $scope.productNew.IsNonCreditable
+                        };
+                        $scope.taxCategoryList = [];
+                        getServiceChargeList($scope.productNew.Id);
+                        //getInventoryMaterialList($scope.productNew.Id);
+                        getServiceChargeListForCharge($scope.productNew.Id);
+                        //$scope.getDataList();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
+                };
+            }
+            else {
+                $http({
+                    method: 'POST',
+                    url: $scope.sreviceUpdateUrl,
+                    data: {
+                        entity: $scope.serviceModel
+                        , taxCategoryList: $scope.taxCategoryList
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
+                    else {
+                        ShowResult(response.data.Message, 'success', 'serviceChargePopUp');
+                        $scope.serviceModel = {
+                            Id: null
+                            , ServiceMasterId: null
+                            , InventoryReceiveId: $scope.productNew.Id
+                            , CurrencyName: angular.element("#currency :selected").text()
+                            , CurrencyId: $scope.productNew.CurrencyId
+                            , BaseCurrencyId: $scope.baseCurrencyId
+                            , DocDate: $scope.productNew.DocDate
+                            , TransactionAmount: 0
+                            , BaseAmount: 0
+                            , TotalTaxAmount: 0
+                            , ToCurrencyRate: $scope.productNew.ToCurrencyRate
+                            , IsNonCreditable: $scope.productNew.IsNonCreditable
+                        };
+                        $scope.taxCategoryList = [];
+                        getServiceChargeList($scope.productNew.Id);
+                        //getInventoryMaterialList($scope.productNew.Id);
+                        getServiceChargeListForCharge($scope.productNew.Id);
+                        //$scope.getDataList();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
+                };
+            }
         } catch (e) {
             ShowResult(e, 'info');
         }
@@ -1766,6 +1809,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
     }
     $scope.getServiceTaxList1 = function (data, flag) {
         //debugger;
+        $scope.ActionService = 'Update';
         $scope.productNew.TaxOptionService = 'Yes';
         $scope.taxAbleAmnt = data.Amount;// + data.TotalTaxAmount;
         $scope.percentageColumn = flag;

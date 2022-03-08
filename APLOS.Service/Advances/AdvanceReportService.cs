@@ -807,7 +807,7 @@ namespace Library.Service.Advances
                 }
                 if (sourceType == SourceType.VendorAdvance)
                 {
-                    reportUtility.CompanyPlantHeader(ref sheet, colLast, "Voucher Advance", companyId, plantId, plantName, null);
+                    reportUtility.CompanyPlantHeader(ref sheet, colLast, "Vendor Advance", companyId, plantId, plantName, null);
                 }
 
 
@@ -828,7 +828,7 @@ namespace Library.Service.Advances
                 }
                 if (sourceType == SourceType.VendorAdvance)
                 {
-                    reportUtility.CompanyPlantHeader(ref sheet, colLast, "Voucher Advance", companyId, plantId, plantName, null);
+                    reportUtility.CompanyPlantHeader(ref sheet, colLast, "Vendor Advance", companyId, plantId, plantName, null);
                 }
 
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);

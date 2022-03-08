@@ -1968,10 +1968,10 @@ namespace Library.HumanResource.Payroll.Tax
         public DataTable EarningQuery(string EmpId, string PolicyId, string YearId)
         {
             try
-            {
+            {                
                 var sql = @"select dd.* 
                 from (
-                select eit.EmpSystemId,sh.SalaryHead ,sh.SalaryHeadId,ed.Id as EarningDataId,
+                select eit.EmpSystemId,eit.Id as IncomeTaxId,sh.SalaryHead ,sh.SalaryHeadId,ed.Id as EarningDataId,
                 tac.Formula , tac.FormulaID,tem.IsLessOrMore,
                 (
                 select replace(tx.FormulaID,Masterx.SalaryHeadID,Masterx.GrossEarning)
@@ -1992,11 +1992,11 @@ namespace Library.HumanResource.Payroll.Tax
                 from EmployeeEarningData ed
                 left join EmployeeIncomeTaxMaster eit on eit.Id=ed.EmployeeIncomeTaxId
                 join TaxEarningMasterChild tem on tem.Id=ed.EarningMasterId
-                where eit.EmpSystemId='" + EmpId + @"' and
+                where eit.EmpSystemId In(" + EmpId + @") and tem.ExemptionApplicable='1' and
                 eit.TaxPolicyHeaderId='" + PolicyId + @"' and eit.TaxYearId='" + YearId + @"'
                 )
                 as Masterx on Masterx.EmpSystemId=eit.EmpSystemId
-                where eit.EmpSystemId='" + EmpId + @"' and
+                where eit.EmpSystemId IN(" + EmpId + @") and
                 eit.TaxPolicyHeaderId='" + PolicyId + @"' and eit.TaxYearId='" + YearId + @"' and
                 tem.ExemptionApplicable='1'
                 ) as dd where dd.ExemptedValue NOT Like ('%SH%')
@@ -2016,7 +2016,10 @@ namespace Library.HumanResource.Payroll.Tax
                 Dictionary<string,List<ExemptionCalcualtionModel>> CalculatedDict =
                     new Dictionary<string, List<ExemptionCalcualtionModel>>();
 
-                DataTable EarningDt = EarningQuery(EmpId, PolicyId, YearId);
+                string EmpMaster = "''";
+                EmpMaster += ",'" + EmpId + "'";
+
+                DataTable EarningDt = EarningQuery(EmpMaster, PolicyId, YearId);
                 if (EarningDt.Rows.Count > 0)
                 {
                     for (int i = 0; i < EarningDt.Rows.Count; i++)
@@ -2250,13 +2253,14 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                string sql = @"select ei.EmpSystemId,net.Investments,
+                string sql = @"select ei.EmpSystemId,ei.Id as IncomeTaxId,
+                net.Investments,
                 net.taxableIncome,net.NetEarning,t.TaxYearName
                 from TaxableIncome net  
                 left join EmployeeIncomeTaxMaster ei on
                 ei.Id=net.EmployeeIncomeTaxId
 				left join scs.TaxYear t on t.Id=ei.TaxYearId
-                where ei.EmpSystemId='"+EmpId+@"' and ei.TaxYearId='"+YearId+@"'
+                where ei.EmpSystemId In("+EmpId+@") and ei.TaxYearId='"+YearId+@"'
                 and ei.TaxPolicyHeaderId='"+PolicyId+"'";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -2291,11 +2295,14 @@ namespace Library.HumanResource.Payroll.Tax
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataTable TaxableIncome, TaxSlabRates;
                 DataSet dsRef;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");              
-                              
-                #region Saving Region
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                TaxableIncome = TaxableGridData(EmpId, PolicyId, YearId);
+                #region Saving Region
+                
+                string EmpMaster = "''";
+                EmpMaster += ",'" + EmpId + "'";
+
+                TaxableIncome = TaxableGridData(EmpMaster, PolicyId, YearId);
                 TaxSlabRates = GetSlabInfo(PolicyId);
                 double Income = 0;
                 if (TaxableIncome.Rows.Count > 0)
@@ -2876,6 +2883,7 @@ namespace Library.HumanResource.Payroll.Tax
         public double ExemptAmt { get; set; }
         public string LessOrMore { get; set; }
         public string EarningDataId { get; set; }
+        public string SalaryHeadId { get; set; }
     }
    
 }

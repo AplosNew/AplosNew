@@ -676,6 +676,12 @@ namespace Aplos.Areas.Products.Controllers
 			_purchaseOrderService.InsertGraphCharge(entity, taxCategoryList);
 			return Json(new { entity.ServiceAcknowledgementMasterId, Message = AplosMessage.Success });
 		}
+		[Authorize, HttpPost]
+		public JsonResult ServiceChargesUpdate(InventoryMaterialViewModel entity, List<ServicePOAckTax> taxCategoryList)
+		{
+			_purchaseOrderService.UpdateGraphCharge(entity, taxCategoryList);
+			return Json(new { entity.ServiceAcknowledgementMasterId, Message = AplosMessage.Success });
+		}
 		[Authorize, HttpGet]
 		public JsonResult GetServiceChargeListForCharge(string MasterId)
 		{

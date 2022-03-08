@@ -122,12 +122,12 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.hideBOQPartyPopUp();
     };
     $scope.hideBOQPartyPopUp = function () {
-        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        angular.element(document.querySelector('#boqpartyPopUp')).modal('hide');
         $scope.partyIndex = -1;
         $scope.partySelected = null;
     };
     $scope.closeBOQPartyPopUpNew = function () {
-        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        angular.element(document.querySelector('#boqpartyPopUp')).modal('hide');
     }
     function getPartyPlantList() {
         $scope.plantList = [];
