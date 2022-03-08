@@ -353,6 +353,7 @@
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
     <Compile Include="Areas\Accounts\Controllers\FiscalYearCloseController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\GroupBalanceReportController.cs" />
     <Compile Include="Areas\Accounts\Controllers\VoucherParkController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GeneralAccountDeterminateController.cs" />
     <Compile Include="Areas\Accounts\Controllers\InvoicePostController.cs" />
@@ -1623,6 +1624,7 @@
     <Content Include="Areas\Accounts\Scripts\employeeTotalAdvanceWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\entityWiseExpenseAndEarningController.js" />
     <Content Include="Areas\Accounts\Scripts\AssetWIPStatusController.js" />
+    <Content Include="Areas\Accounts\Scripts\GroupBalanceReportController.js" />
     <Content Include="Areas\Accounts\Scripts\inventorySalesReturnPost.js" />
     <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
@@ -4029,6 +4031,7 @@
     <Content Include="Areas\Productions\Views\EmployeeOperations\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\GoodsReceiveNote\GRNBOQPO.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\MeetingReports\ReportView.cshtml" />
+    <Content Include="Areas\Accounts\Views\GroupBalanceReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
