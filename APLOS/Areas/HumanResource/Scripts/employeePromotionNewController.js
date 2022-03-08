@@ -1675,6 +1675,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             DesignationGroupName: null
         };
         $scope.budgetCodeChangeNew = Object.assign({}, $scope.budgetCodeChange);
+        $scope.EmpSalaryInfo.SalaryRuleMasterSystemID=null;
         $scope.imageSrc = null;
         $scope.obj = {};
         $scope.Calculated = false;
@@ -1737,22 +1738,24 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
     };
 
     $scope.Get = function (data) {
-        //$scope.ClearData();
+        $scope.ClearData();
 
         //Confirmation
         if ($scope.qempid !== null && $scope.qstatus === 'Confirmation') {
             $scope.divFreshEntry = false;
 
-            $scope.budgetCodeChange = $scope.employees;
-            $scope.budgetCodeChangeOld = $scope.employees;
+            //$scope.budgetCodeChange = $scope.employees;
+            //$scope.budgetCodeChangeOld = $scope.employees;
+            //$scope.budgetCodeChangeNew = $scope.budgetCodeChange;
 
+            $scope.budgetCodeChange = Object.assign({}, $scope.employees);
+            $scope.budgetCodeChangeOld = Object.assign({}, $scope.employees);
+            $scope.budgetCodeChangeNew = Object.assign({}, $scope.budgetCodeChange);
 
-            $scope.budgetCodeChangeNew = $scope.budgetCodeChange;
             $scope.budgetCodeChangeNew.Code = $scope.budgetCodeChange.Code;
             $scope.budgetCodeChangeNew.GivenDesignationId = $scope.budgetCodeChange.GivenDesignationId;
 
             $scope.imageSrc = virtualPath.EmployeePic + $scope.budgetCodeChangeOld.EmpPicPath;
-
 
             $scope.Action = 'Update';
             $scope.EntryShow();
@@ -1763,7 +1766,8 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             //$scope.budgetCodeChange = $scope.employees[$scope.index];
             //$scope.budgetCodeChangeOld = $scope.employees[$scope.index];
             // $scope.obj = $filter("filter")($scope.employees, { SystemId: data.data.SystemId });
-            $scope.obj = data.data;
+            //$scope.obj = data.data;
+            $scope.obj = Object.assign({}, data.data);
 
             //$scope.budgetCodeChange = $scope.obj[0];         
             //$scope.budgetCodeChangeOld = $scope.obj[0];
