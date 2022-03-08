@@ -374,6 +374,8 @@ namespace Library.HumanResource.Payroll.Tax
 
                 #region Tax Slab Saving
                 DataTable EmpTaxableIncomeDt, TaxSlabRatesDt;
+               
+                StringCollection StrDistinctIncomeTaxId = new StringCollection();
 
                 var sqlquery = @"select * from EmployeeNetTax where 1=2";
                 con.OpenDataSetThroughAdapter(sqlquery, out dsRef, false, "1");
@@ -383,9 +385,9 @@ namespace Library.HumanResource.Payroll.Tax
                 
                 if (TaxSlabRatesDt.Rows.Count > 0)
                 {
+                    double Income = 0, Amt, TotalAmt = 0;
                     for (int j = 0; j < TaxSlabRatesDt.Rows.Count; j++)
                     {
-                        double Income = 0, Amt, TotalAmt = 0;
                         
                         string IncomeTaxId = TaxSlabRatesDt.Rows[j][@"IncomeTaxId"].ToString();
                         double Range = clsStaticInfo.dbl(TaxSlabRatesDt.Rows[j]["Range"].ToString());
@@ -396,7 +398,21 @@ namespace Library.HumanResource.Payroll.Tax
                               .Cast<DataRow>()
                               .Where(x => x["IncomeTaxId"].ToString() == IncomeTaxId).ToList();
 
-                        Income = clsStaticInfo.dbl(IncomeRow[0][@"taxableIncome"].ToString());
+                        #region For Distinct Employee Income
+                      
+                        if (StrDistinctIncomeTaxId.Contains(IncomeTaxId))
+                        {
+
+                        }
+                        else
+                        {
+                            StrDistinctIncomeTaxId.Add(IncomeTaxId);
+                            Income = 0; Amt = 0; TotalAmt = 0;
+                            Income = clsStaticInfo.dbl(IncomeRow[0][@"taxableIncome"].ToString());
+                        }
+
+                        #endregion
+
                         if ((Income - TotalAmt) >= Range)
                         {
                             Amt = Range;
@@ -412,6 +428,7 @@ namespace Library.HumanResource.Payroll.Tax
                             DataRow drF = dsRef.Tables[0].NewRow();
                             clsGenID genid = new clsGenID();
                             genid.GenID("EmployeeNetTax", out string _Id);
+                           
                             drF["Id"] = "ENT" + _Id;
                             drF["EmployeeIncomeTaxId"] = IncomeTaxId;
                             drF["SlabId"] = SlabId;
@@ -421,10 +438,9 @@ namespace Library.HumanResource.Payroll.Tax
                             drF["AddedBy"] = identity.Name;
                             drF["AddedFromIp"] = identity.IPAddress;
                             drF["AddedDate"] = DateTime.Now.ToString();
-                            if (Income == TotalAmt)
-                            {
-                                dsRef.Tables[0].Rows.Add(drF);
-                            }
+                            
+                            dsRef.Tables[0].Rows.Add(drF);
+                            
                         }
                     }                    
                      _info.SaveDataSets(dsRef);                    
@@ -689,8 +705,8 @@ namespace Library.HumanResource.Payroll.Tax
 				TaxPolicyHeader th on th.Id=eit.TaxPolicyHeaderId
 				where eit.EmpSystemId In("+EmpId+@")
 				)as masterx on masterx.TaxPolicyHeaderId=th.Id
-                where th.Id='"+PolicyId+@"'
-				order by Masterx.Id";
+                where th.Id='"+PolicyId+ @"'
+				order by Masterx.Id,SlabId";
                 return _sqlRepository.GetDataTable(strSQL);
             }
             catch (Exception ex)
