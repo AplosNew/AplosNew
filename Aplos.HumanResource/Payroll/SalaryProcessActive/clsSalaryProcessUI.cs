@@ -546,11 +546,6 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
                     strSQL += @"
                                AND E.PlantID = '" + sPlantID + @"'";
                 }
-                //if (Status != "")
-                //{
-                //    strSQL += @"
-                //               AND E.EmployeeStatus = '" + Status + @"'";
-                //}
 
                 strSQL += @"
                             ORDER BY E.EmployeeCode desc --F.UserName,dgs.UserName,";
@@ -665,7 +660,6 @@ and isnull(locka.EmpSystemId,'')=''
 										                )--not in
                                                     and e.systemid not in 
                                                     (
-                                                   -- select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
                                                           SELECT apd.EmpSystemID FROM AttdnProcessData AS apd WHERE apd.WorkDate BETWEEN '" + sFromDate + @"' AND 	'" + sToDate + @"'	GROUP BY apd.EmpSystemID HAVING SUM(ISNULL(apd.PresentValue,0)+ISNULL(apd.LateValue,0)+ISNULL(apd.LvValue,0))=0											                
 							                          )
                                                     and E.SystemId not in
@@ -732,11 +726,7 @@ and isnull(locka.EmpSystemId,'')=''
                     strSQL += @"
                                AND E.PlantID = '" + sPlantID + @"'";
                 }
-                //if (Status != "")
-                //{
-                //    strSQL += @"
-                //               AND E.EmployeeStatus = '" + Status + @"'";
-                //}
+                
 
                 strSQL += @"
                             ORDER BY E.EmployeeCode desc --F.UserName,dgs.UserName,";
@@ -1370,7 +1360,6 @@ and isnull(locka.EmpSystemId,'')=''
 	                            ---------------present zero--------------
                                 and e.systemid not in 
                                 (
-                               -- select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
                                  SELECT apd.EmpSystemID FROM AttdnProcessData AS apd WHERE apd.WorkDate BETWEEN '" + sFromDate + @"' AND 	'" + sToDate + @"'	GROUP BY apd.EmpSystemID HAVING SUM(ISNULL(apd.PresentValue,0)+ISNULL(apd.LateValue,0)+ISNULL(apd.LvValue,0))=0		                               
                                 )
                                             --Approved SP

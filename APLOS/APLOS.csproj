@@ -471,6 +471,7 @@
     <Compile Include="Areas\Biometric\BiometricAreaRegistration.cs" />
     <Compile Include="Areas\Biometric\Controllers\AttendanceDeviceZoneController.cs" />
     <Compile Include="Areas\Commercial\CommercialAreaRegistration.cs" />
+    <Compile Include="Areas\Commercial\Controllers\InvoiceToAcceptancePostController.cs" />
     <Compile Include="Areas\Commercial\Controllers\InvoiceTaggedWithLCController.cs" />
     <Compile Include="Areas\Commercial\Controllers\LcNavigationController.cs" />
     <Compile Include="Areas\Commercial\Controllers\LCReportsController.cs" />
@@ -1826,6 +1827,7 @@
     <Content Include="Areas\Commercial\Scripts\OverHeadTypeGLParachasController.js" />
     <Content Include="Areas\Commercial\Scripts\contractFundUtilizationController.js" />
     <Content Include="Areas\Commercial\Scripts\ProformaInvoiceController.js" />
+    <Content Include="Areas\Commercial\Scripts\invoiceToAcceptancePostController.js" />
     <Content Include="Areas\Costings\Scripts\BOQPurchaseOrderController.js" />
     <Content Include="Areas\Costings\Scripts\BOQController.js" />
     <Content Include="Areas\Costings\Scripts\ItemConsumptionController.js" />
@@ -4034,6 +4036,7 @@
     <Content Include="Areas\Products\Views\GoodsReceiveNote\GRNBOQPO.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\MeetingReports\ReportView.cshtml" />
     <Content Include="Areas\Accounts\Views\GroupBalanceReport\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\InvoiceTaggedWithLC\InvoiceToAcceptancePost.cshtml" />
     <Content Include="Areas\Productions\Views\WasteIssue\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

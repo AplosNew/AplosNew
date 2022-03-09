@@ -35,6 +35,15 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.inventoryMaterialListPOnew = [];
     $scope.chargesListPOnew = [];
     $scope.partyList = [];
+    $scope.storageList = [];
+    $scope.currencyList = [];
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     $scope.product = {
         Id: null
@@ -142,6 +151,16 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.productNew.PartyId = party.Id;
         $scope.productNew.PaymentTermId = party.PaymentTermId;
         $scope.productNew.CurrencyId = party.CurrencyId;
+        if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+
+            $scope.productNew.CheckedBy = x.data.ApprovedById;
+            $scope.productNew.labelCheckAndApproved = 'To be approved by';
+        }
+        else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+
+            $scope.productNew.CheckedBy = x.data.CheckedById;
+            $scope.productNew.labelCheckAndApproved = 'To be checked by';
+        }
         getPartyPlantList();
         $scope.GetCurrencyExchangeRateList();
         $scope.hidePartyPopUp();
@@ -281,6 +300,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.GriddataSelected = [];
     $scope.recorddoubleclick = function () {
         try {
+            //$scope.productNew;
             $scope.GriddataSelected = [];
             for (var i = 0; i < $scope.itemList.length; i++) {
                 if ($scope.itemList[i].Active) {
@@ -296,8 +316,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             ShowResult(e, 'info');
         }
     }
+    $scope.MaterialMasterId = null;
+    $scope.ArticleId = null;
     $scope.GetDetails = function () {
         try {
+            $scope.MaterialMasterId = null;
+            $scope.ArticleId = null;
             var parameters = [];
             var gridObj = $("#GriddataSelected").data("ejGrid");
             var filteredRecords = gridObj.getFilteredRecords();
@@ -311,7 +335,9 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             parameters.push({ "Key": "OwnReferenceNo", "Value": getString(filteredRecords, "OwnReferenceNo") });
 
             var MaterialIds = parameters[0].Value;
+            $scope.MaterialMasterId = MaterialIds;
             var ArticleIds = parameters[1].Value;
+            $scope.ArticleId = ArticleIds;
             var VendorRefNos = parameters[2].Value;
             var CustomerRefNos = parameters[3].Value;
             var OwnReferenceNo = parameters[4].Value;
@@ -326,6 +352,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                     'VendorRefNos': VendorRefNos,
                     'CustomerRefNos': CustomerRefNos,
                     'OwnReferenceNo': OwnReferenceNo,
+                    'PartyId': $scope.productNew.PartyId
                 }
             }).then(function successCallback(response) {
                 $scope.DetailList = response.data;
@@ -346,9 +373,14 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
             parameters.push({ "Key": "POId", "Value": getString(filteredRecords, "POId") });
             parameters.push({ "Key": "ContractId", "Value": getString(filteredRecords, "ContractId") });
+            parameters.push({ "Key": "SalesOrderIds", "Value": getString(filteredRecords, "SalesOrderId") });
 
             var POId = parameters[0].Value;
             var ContractId = parameters[1].Value;
+            var SalesOrderId = parameters[2].Value;
+            var masterOrderitemId = parameters[2].Value;
+            
+            
 
             $http({
                 method: "POST",
@@ -357,6 +389,10 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 data: {
                     'POId': POId,
                     'ContractId': ContractId,
+                    'masterOrderitemId': masterOrderitemId,
+                    'SalesOrderId': SalesOrderId,
+                    'MaterialMasterId': $scope.MaterialMasterId,
+                    'ArticleId': $scope.ArticleId,
                 }
             }).then(function successCallback(response) {
                 $scope.MasterList = response.data;
@@ -365,4 +401,38 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             ShowResult(e, 'info')
         }
     }
+    $http({
+        method: 'GET',
+        url: 'Materials/MaterialStorage/getcbo'
+    }).then(function (response) {
+        $scope.storageList = response.data;
+    });
+    cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        $scope.currencyList = result;
+    });
+    $scope.getToCurrencyRate = function () {
+        if (!baseService.isUndefinedOrNull(AcceptanceId)) {
+            if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
+                $scope.productNew.ToCurrencyRate = 1;
+                return;
+            }
+            $http.get($scope.path + 'GetToCurrencyRate?currencyId=' + $scope.productNew.CurrencyId + '&baseCurrencyId=' + $scope.productNew.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.productNew.DocDate))
+                .then(function (response) {
+                    if (parseFloat(response.data) === 0)
+                        $scope.productNew.ToCurrencyRate = 1;
+                    else
+                        $scope.productNew.ToCurrencyRate = response.data;
+                });
+        }
+    };
+    $scope.checkedByList = [];
+    $scope.GetSupervisorCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Products/InventoryReceive/GetSupervisorCbo'
+        }).then(function successCallback(response) {
+            $scope.checkedByList = response.data;
+        });
+    }
+    $scope.GetSupervisorCboList();
 }
