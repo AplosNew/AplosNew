@@ -77,7 +77,7 @@ namespace Library.HumanResource.Payroll.Tax
                 #region IncomeTaxMaster Data Generation
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                DataTable GrossEarningDt,DeductionDt,TaxableIncomeDt;
+                DataTable GrossEarningDt, DeductionDt, TaxableIncomeDt;
                 DataSet dsRef, dsMaster;
                 StringCollection StrDistinctEmployee = new StringCollection();
 
@@ -198,7 +198,7 @@ namespace Library.HumanResource.Payroll.Tax
                 #endregion
 
                 #region NetEarning Saving
-             
+
                 Dictionary<string, List<ExemptionCalcualtionModel>> CalculatedDict =
                  new Dictionary<string, List<ExemptionCalcualtionModel>>();
 
@@ -220,7 +220,7 @@ namespace Library.HumanResource.Payroll.Tax
                         if (result >= 0)
                         {
                             value = result;
-                            if (CalculatedDict.ContainsKey(IncomeTaxId+"/"+SalaryHeadId))
+                            if (CalculatedDict.ContainsKey(IncomeTaxId + "/" + SalaryHeadId))
                             {
                                 CalculatedDict[IncomeTaxId + "/" + SalaryHeadId].Add(new ExemptionCalcualtionModel
                                 {
@@ -256,7 +256,7 @@ namespace Library.HumanResource.Payroll.Tax
                             continue;
                         }
 
-                        double Amt = 0;                    
+                        double Amt = 0;
                         string Parameter = data[0].LessOrMore;
                         string TableId = data[0].EarningDataId;
 
@@ -300,9 +300,9 @@ namespace Library.HumanResource.Payroll.Tax
                 #endregion
 
                 #region Deductions Saving
-              
-                DeductionDt = DeductionQuery(PolicyId,EmpId);
-               
+
+                DeductionDt = DeductionQuery(PolicyId, EmpId);
+
                 sqlx = @"select * from employeeinvestmentdeduction where 1=2";
                 con.OpenDataSetThroughAdapter(sqlx, out dsRef, false, "1");
                 if (DeductionDt.Rows.Count > 0)
@@ -336,8 +336,8 @@ namespace Library.HumanResource.Payroll.Tax
                 #endregion
 
                 #region Taxable Income Saving
-                
-                TaxableIncomeDt = TaxableIncomeQuery(PolicyId, EmpId,YearId);
+
+                TaxableIncomeDt = TaxableIncomeQuery(PolicyId, EmpId, YearId);
 
                 sqlx = @"select * from TaxableIncome where 1=2";
                 con.OpenDataSetThroughAdapter(sqlx, out dsRef, false, "1");
@@ -349,13 +349,13 @@ namespace Library.HumanResource.Payroll.Tax
                         string IncomeTaxId = TaxableIncomeDt.Rows[x][@"IncomeTaxId"].ToString();
                         string NetEarning = TaxableIncomeDt.Rows[x][@"NetEarning"].ToString();
                         string Investments = TaxableIncomeDt.Rows[x][@"Investments"].ToString();
-                        double TaxableIncome= clsStaticInfo.dbl(NetEarning)-clsStaticInfo.dbl(Investments);
+                        double TaxableIncome = clsStaticInfo.dbl(NetEarning) - clsStaticInfo.dbl(Investments);
 
 
                         DataRow drF = dsRef.Tables[0].NewRow();
                         clsGenID genid = new clsGenID();
                         genid.GenID("TaxableIncome", out string _Id);
-                      
+
                         drF["Id"] = "NTI" + _Id;
                         drF["EmployeeIncomeTaxId"] = IncomeTaxId;
                         drF["NetEarning"] = NetEarning;
@@ -374,21 +374,21 @@ namespace Library.HumanResource.Payroll.Tax
 
                 #region Tax Slab Saving
                 DataTable EmpTaxableIncomeDt, TaxSlabRatesDt;
-               
+
                 StringCollection StrDistinctIncomeTaxId = new StringCollection();
 
                 var sqlquery = @"select * from EmployeeNetTax where 1=2";
                 con.OpenDataSetThroughAdapter(sqlquery, out dsRef, false, "1");
 
                 EmpTaxableIncomeDt = eis.TaxableGridData(EmpId, PolicyId, YearId);
-                TaxSlabRatesDt = GetSlabQuery(PolicyId,EmpId);
-                
+                TaxSlabRatesDt = GetSlabQuery(PolicyId, EmpId);
+
                 if (TaxSlabRatesDt.Rows.Count > 0)
                 {
                     double Income = 0, Amt, TotalAmt = 0;
                     for (int j = 0; j < TaxSlabRatesDt.Rows.Count; j++)
                     {
-                        
+
                         string IncomeTaxId = TaxSlabRatesDt.Rows[j][@"IncomeTaxId"].ToString();
                         double Range = clsStaticInfo.dbl(TaxSlabRatesDt.Rows[j]["Range"].ToString());
                         int TaxPercent = Convert.ToInt32(TaxSlabRatesDt.Rows[j]["TaxRate"].ToString());
@@ -399,7 +399,7 @@ namespace Library.HumanResource.Payroll.Tax
                               .Where(x => x["IncomeTaxId"].ToString() == IncomeTaxId).ToList();
 
                         #region For Distinct Employee Income
-                      
+
                         if (StrDistinctIncomeTaxId.Contains(IncomeTaxId))
                         {
 
@@ -428,7 +428,7 @@ namespace Library.HumanResource.Payroll.Tax
                             DataRow drF = dsRef.Tables[0].NewRow();
                             clsGenID genid = new clsGenID();
                             genid.GenID("EmployeeNetTax", out string _Id);
-                           
+
                             drF["Id"] = "ENT" + _Id;
                             drF["EmployeeIncomeTaxId"] = IncomeTaxId;
                             drF["SlabId"] = SlabId;
@@ -438,17 +438,19 @@ namespace Library.HumanResource.Payroll.Tax
                             drF["AddedBy"] = identity.Name;
                             drF["AddedFromIp"] = identity.IPAddress;
                             drF["AddedDate"] = DateTime.Now.ToString();
-                            
+
                             dsRef.Tables[0].Rows.Add(drF);
-                            
+
                         }
-                    }                    
-                     _info.SaveDataSets(dsRef);                    
+                    }
+                    _info.SaveDataSets(dsRef);
                 }
 
                 #endregion
 
                 #region Tax After Rebate
+
+                #region DataSet Region
 
                 DataTable TaxRebateMaster, EstimatedTaxDt;
                 StringCollection IncomeTaxIdCollection = new StringCollection();
@@ -459,8 +461,8 @@ namespace Library.HumanResource.Payroll.Tax
                 from taxableincome t left join EmployeeIncomeTaxMaster em on
                 em.Id=t.EmployeeIncomeTaxId
 				left join EmployeeNetTax net on net.EmployeeIncomeTaxId=em.Id
-                where Em.empsystemid in ("+EmpId+@") 
-				and em.TaxPolicyHeaderId='"+PolicyId+@"'
+                where Em.empsystemid in (" + EmpId + @") 
+				and em.TaxPolicyHeaderId='" + PolicyId + @"'
 				GROUP BY em.EmpsystemId,em.Id,em.TaxPolicyHeaderId,TaxableIncome";
                 EstimatedTaxDt = _sqlRepository.GetDataTable(sqlx);
 
@@ -469,21 +471,23 @@ namespace Library.HumanResource.Payroll.Tax
 
                 sqly = @"select ei.EmpSystemId,ei.Id as IncomeTaxId,
 			   (select max(Maximum) from TaxRebateConfiguration where 
-                TaxPolicyId='"+PolicyId+@"')AS FinalMax,
+                TaxPolicyId='" + PolicyId + @"')AS FinalMax,
 			    t.TaxPolicyId,t.Minimum,t.Maximum,t.IsFix,t.IsPercentage,t.Value
                 from TaxRebateConfiguration t left join TaxPolicyHeader th on
                 th.Id=t.TaxPolicyId
                 left join EmployeeIncomeTaxMaster ei on ei.TaxPolicyHeaderId=th.Id 
-                where TaxPolicyId='"+PolicyId+@"'
-                and ei.EmpSystemId in ("+EmpId+@")               
+                where TaxPolicyId='" + PolicyId + @"'
+                and ei.EmpSystemId in (" + EmpId + @")               
 				order by ei.EmpSystemId,ei.Id";
                 TaxRebateMaster = _sqlRepository.GetDataTable(sqly);
+
+                #endregion
 
                 #region Processing Region
 
                 if (TaxRebateMaster.Rows.Count > 0)
                 {
-                    double TaxableIncome = 0, EstimatedTax=0, RebateAmt = 0;
+                    double TaxableIncome = 0, EstimatedTax = 0, RebateAmt = 0;
                     for (int j = 0; j < TaxRebateMaster.Rows.Count; j++)
                     {
                         double Minimum = clsStaticInfo.dbl(TaxRebateMaster.Rows[j]["Minimum"].ToString());
@@ -507,8 +511,8 @@ namespace Library.HumanResource.Payroll.Tax
                         else
                         {
                             IncomeTaxIdCollection.Add(IncomeTaxId);
-                            
-                            TaxableIncome = 0; EstimatedTax = 0; RebateAmt=0;
+
+                            TaxableIncome = 0; EstimatedTax = 0; RebateAmt = 0;
                             TaxableIncome = clsStaticInfo.dbl(EstimatedTaxRow[0][@"taxableIncome"].ToString());
                             EstimatedTax = clsStaticInfo.dbl(EstimatedTaxRow[0][@"EstimatedTax"].ToString());
                         }
@@ -542,7 +546,7 @@ namespace Library.HumanResource.Payroll.Tax
                             dsRef.Tables[0].Rows.Add(drF);
 
                         }
-                        else if(TaxableIncome>FinalMax)
+                        else if (TaxableIncome > FinalMax)
                         {
                             if (SavingChecker.Contains(IncomeTaxId))
                             {
@@ -574,9 +578,240 @@ namespace Library.HumanResource.Payroll.Tax
 
                 #endregion
 
+                #endregion
+
+                #region Additional Charges
+
+                #region DataSet Region
+
+                StringCollection TaxRebateIdCollection = new StringCollection();
+                DataTable AdditionalTaxDt, TaxAfterRebateDt;
+
+                Dictionary<string, List<AdditionalTaxCalculationsList>> AddtnTaxDict =
+                  new Dictionary<string, List<AdditionalTaxCalculationsList>>();
+
+
+                sql = @"select ei.EmpSystemId,ei.Id as IncomeTaxId,ei.TaxYearId,ei.TaxPolicyHeaderId,t.TaxAfterRebate
+				from TaxAfterRebate t left join 
+				EmployeeIncomeTaxMaster ei on ei.Id=t.EmployeeIncomeTaxId
+				where ei.EmpSystemId in(" + EmpId + ") and ei.TaxPolicyHeaderId='" + PolicyId + "'";
+                TaxAfterRebateDt = _sqlRepository.GetDataTable(sql);
+
+                sqlx = @"Select ei.EmpSystemId,ei.Id as IncomeTaxId,am.TaxPolicyId,am.UserName,
+                am.IsFix,am.IsPercentage,am.Value
+                from AdditionalTaxMaster AM LEFT JOIN taxpolicyheader th 
+                on th.Id=AM.taxpolicyId
+				left join EmployeeIncomeTaxMaster ei on ei.TaxPolicyHeaderId=th.Id
+                where am.TaxPolicyId ='" + PolicyId + "' and ei.EmpSystemId in(" + EmpId + ")" +
+                "order by ei.EmpSystemId";
+                AdditionalTaxDt = _sqlRepository.GetDataTable(sqlx);
+
+                sqlz = @"select * from TaxAfterAdditionalCharges where 1=2";
+                con.OpenDataSetThroughAdapter(sqlz, out dsRef, false, "1");
 
                 #endregion
 
+                #region Processing Region
+
+                double AdditionalTaxAmt = 0, TaxAfterRebate = 0;
+                if (AdditionalTaxDt.Rows.Count > 0)
+                {
+                    for (int j = 0; j < AdditionalTaxDt.Rows.Count; j++)
+                    {
+                        double Value = clsStaticInfo.dbl(AdditionalTaxDt.Rows[j]["Value"].ToString());
+                        string IsFix = clsWebLib.GetBoolData(AdditionalTaxDt.Rows[j]["IsFix"]).ToString();
+                        string IsPercent = clsWebLib.GetBoolData(AdditionalTaxDt.Rows[j]["IsPercentage"]).ToString();
+                        string IncomeTaxId = clsWebLib.RetValidLen(AdditionalTaxDt.Rows[j]["IncomeTaxId"].ToString()).ToString();
+
+                        var TaxAfterRebateRow = TaxAfterRebateDt.Rows
+                        .Cast<DataRow>()
+                        .Where(x => x["IncomeTaxId"].ToString() == IncomeTaxId).ToList();
+
+                        #region For Distinct Employee Income
+
+                        if (TaxRebateIdCollection.Contains(IncomeTaxId))
+                        {
+
+                        }
+                        else
+                        {
+                            TaxRebateIdCollection.Add(IncomeTaxId);
+                            TaxAfterRebate = 0; AdditionalTaxAmt = 0;
+                            TaxAfterRebate = clsStaticInfo.dbl(TaxAfterRebateRow[0][@"TaxAfterRebate"].ToString());
+                        }
+
+                        #endregion
+
+                        if (TaxAfterRebate > 0)
+                        {
+                            AdditionalTaxAmt = 0;
+                            if (IsFix == "True")
+                            {
+                                AdditionalTaxAmt = AdditionalTaxAmt + Value;
+                            }
+                            else if (IsPercent == "True")
+                            {
+                                AdditionalTaxAmt = AdditionalTaxAmt + (TaxAfterRebate * Value) / 100;
+                            }
+                        }
+
+                        if (AddtnTaxDict.ContainsKey(IncomeTaxId))
+                        {
+                            AddtnTaxDict[IncomeTaxId].Add(new AdditionalTaxCalculationsList
+                            {
+                                TaxAfterRebate = TaxAfterRebate,
+                                AddtnTax = AdditionalTaxAmt,
+                                EmployeeIncomeTaxId = IncomeTaxId
+                            });
+                        }
+                        else
+                        {
+                            var datax = new List<AdditionalTaxCalculationsList>();
+                            datax.Add(new AdditionalTaxCalculationsList
+                            {
+                                TaxAfterRebate = TaxAfterRebate,
+                                AddtnTax = AdditionalTaxAmt,
+                                EmployeeIncomeTaxId = IncomeTaxId
+                            });
+                            AddtnTaxDict.Add(IncomeTaxId, datax);
+                        }
+
+                    }
+
+                    foreach (var item in AddtnTaxDict)
+                    {
+                        List<AdditionalTaxCalculationsList> data = item.Value;
+                        if (data == null)
+                        {
+                            continue;
+                        }
+                        string IncomeTaxId = data[0].EmployeeIncomeTaxId;
+                        double NetAdditionalAmt = 0, RebateTax = 0;
+                        NetAdditionalAmt = data.Sum(x => x.AddtnTax);
+                        RebateTax = data.Max(x => x.TaxAfterRebate);
+
+                        // Saving Part
+                        DataRow drF = dsRef.Tables[0].NewRow();
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("TaxAfterAdditionalCharges", out string _Id);
+                        drF["Id"] = "AC" + _Id;
+                        drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                        drF["TaxAfterRebate"] = RebateTax;
+                        drF["AdditionalTax"] = NetAdditionalAmt;
+                        drF["NetTax"] = RebateTax + NetAdditionalAmt;
+                        drF["AddedBy"] = identity.Name;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+                        dsRef.Tables[0].Rows.Add(drF);
+                    }
+
+                    _info.SaveDataSets(dsRef);
+
+                }
+
+                #endregion
+
+                #endregion
+
+                #region Tax After Surcharge
+
+                #region DataSet region
+
+                DataTable SurchargeDt;
+                StringCollection SurchargeIdCollection = new StringCollection();
+
+                sqlx = @"select em.EmpsystemId,em.Id as IncomeTaxId,em.TaxPolicyHeaderId,
+                TaxableIncome,NET.NetTax as EstimatedTax
+                from taxableincome t left join EmployeeIncomeTaxMaster em on
+                em.Id=t.EmployeeIncomeTaxId
+				left join TaxAfterAdditionalCharges net on net.EmployeeIncomeTaxId=em.Id
+                where Em.empsystemid in ("+EmpId+@") 
+				and em.TaxPolicyHeaderId='"+PolicyId+"'";
+                EstimatedTaxDt = _sqlRepository.GetDataTable(sqlx);
+
+                sqlz = @"select * from TaxAfterSurcharge where 1=2";
+                con.OpenDataSetThroughAdapter(sqlz, out dsRef, false, "1");
+
+                sqly = @"select ei.EmpSystemId,ei.Id as IncomeTaxId,
+			    t.TaxPolicyId,t.Minimum,t.Maximum,t.IsFix,t.IsPercentage,t.Value
+                from TaxSurChargeConfiguration t left join TaxPolicyHeader th on
+                th.Id=t.TaxPolicyId
+                left join EmployeeIncomeTaxMaster ei on ei.TaxPolicyHeaderId=th.Id 
+                where TaxPolicyId='" + PolicyId + @"'
+                and ei.EmpSystemId in (" + EmpId + @")               
+				order by ei.EmpSystemId,ei.Id,t.Id";
+                SurchargeDt = _sqlRepository.GetDataTable(sqly);
+
+                #endregion
+
+                #region Processing Part
+
+                if (SurchargeDt.Rows.Count > 0)
+                {
+                    double TaxableIncome = 0, EstimatedTax = 0, SurchargeAmt=0;
+                    for (int j = 0; j < SurchargeDt.Rows.Count; j++)
+                    {
+                        double Minimum = clsStaticInfo.dbl(SurchargeDt.Rows[j]["Minimum"].ToString());
+                        double Maximum = clsStaticInfo.dbl(SurchargeDt.Rows[j]["Maximum"].ToString());
+                        double Value = clsStaticInfo.dbl(SurchargeDt.Rows[j]["Value"].ToString());
+                        string IsFix = clsWebLib.GetBoolData(SurchargeDt.Rows[j]["IsFix"]).ToString();
+                        string IsPercent = clsWebLib.GetBoolData(SurchargeDt.Rows[j]["IsPercentage"]).ToString();
+                        string IncomeTaxId = SurchargeDt.Rows[j][@"IncomeTaxId"].ToString();
+
+                        var EstimatedSurchargeRow = EstimatedTaxDt.Rows
+                            .Cast<DataRow>()
+                            .Where(x => x["IncomeTaxId"].ToString() == IncomeTaxId).ToList();
+
+                        #region For Distinct Employee Income
+
+                        if (SurchargeIdCollection.Contains(IncomeTaxId))
+                        {
+
+                        }
+                        else
+                        {
+                            SurchargeIdCollection.Add(IncomeTaxId);
+
+                            TaxableIncome = 0; EstimatedTax = 0; SurchargeAmt=0;
+                            TaxableIncome = clsStaticInfo.dbl(EstimatedSurchargeRow[0][@"taxableIncome"].ToString());
+                            EstimatedTax = clsStaticInfo.dbl(EstimatedSurchargeRow[0][@"EstimatedTax"].ToString());
+                        }
+
+                        #endregion
+                      
+                        if (Minimum <= TaxableIncome && Maximum >= TaxableIncome)
+                        {
+                            if (IsFix == "True")
+                            {
+                                SurchargeAmt = Value;
+                            }
+                            else if (IsPercent == "True")
+                            {
+                                SurchargeAmt = (EstimatedTax * Value) / 100;
+                            }
+                        }
+
+                        double NetTax = EstimatedTax + SurchargeAmt;
+
+                        DataRow drF = dsRef.Tables[0].NewRow();
+                        clsGenID genid = new clsGenID();
+                        genid.GenID("TaxAfterSurcharge", out string _Id);
+                        drF["Id"] = "TS" + _Id;
+                        drF["EmployeeIncomeTaxId"] = IncomeTaxId;
+                        drF["EstimatedTax"] = EstimatedTax;
+                        drF["TaxSurcharge"] = SurchargeAmt;
+                        drF["NetTax"] = NetTax;
+                        drF["AddedBy"] = identity.Name;
+                        drF["AddedFromIp"] = identity.IPAddress;
+                        drF["AddedDate"] = DateTime.Now.ToString();
+                        dsRef.Tables[0].Rows.Add(drF);
+                    }
+                    _info.SaveDataSets(dsRef);
+                }
+
+                #endregion
+
+                #endregion
             }
             catch (Exception ex)
             {
@@ -845,6 +1080,14 @@ namespace Library.HumanResource.Payroll.Tax
         }
 
         #endregion
+
+    }
+
+    public class AdditionalTaxCalculationsList
+    {
+        public string EmployeeIncomeTaxId { get; set; }
+        public double TaxAfterRebate { get; set; }
+        public double AddtnTax { get; set; }
 
     }
 }

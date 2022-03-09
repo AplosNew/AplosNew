@@ -787,7 +787,7 @@ namespace Library.MaterialManagement.Inventory
                                         }
                                         var newgrn = new InventoryIssueHistory
                                         {
-                                            TotalAmount = Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate),
+                                            TotalAmount = (RemainingGRNQty == IssueTransactionQty)? Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - totalIssuedAmount): Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate),
                                             //TotalAmount = Convert.ToDecimal((item.TotalMaterialBooksCurrencyAmount - totalIssuedAmount) - (((item.BaseQty - (item.BaseIssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty + item.InventoryTransferQty) + item.IssueReturnQty) - IssueDeduactionQty) * (item.TotalMaterialBooksCurrencyAmount / item.BaseQty))),
                                             InventoryReceiveDetailId = item.InventoryReceiveDetailId
                                         };
@@ -866,11 +866,11 @@ namespace Library.MaterialManagement.Inventory
                                         Qty = Math.Round(totalReqQty, 4), //item.RequisitionQty,
                                                                           //Rate = Convert.ToDecimal(item.BaseRate),
                                         Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
-                                        TotalAmount = (item.StockQty == item.IssueQty) ? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - item.TotalIssueAmount), 2) : Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2),//Convert.ToDecimal(detailtrnAmount),
+                                        TotalAmount = (item.BaseQty == (item.IssueQty + item.RequisitionQty)) ? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - item.TotalIssueAmount), 2) : Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2),//Convert.ToDecimal(detailtrnAmount),
                                         IssueRequestDetailId = item.IssueRequest,
                                         IssueReturnQty = 0,
                                         BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
-                                        TotalMaterialBooksCurrencyAmount = (item.StockQty == item.IssueQty) ? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - item.TotalIssueAmount), 2) : Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2)//totalReqQty item.RequisitionQty
+                                        TotalMaterialBooksCurrencyAmount = (item.BaseQty == (item.IssueQty + item.RequisitionQty)) ? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - item.TotalIssueAmount), 2) : Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2)//totalReqQty item.RequisitionQty
                                     };
                                     //policyAmmount += history.Qty * history.Rate;
 

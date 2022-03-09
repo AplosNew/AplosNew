@@ -6364,7 +6364,7 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
                             left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
 							LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
 							LEFT OUTER JOIN hkp.Process AS Tp ON Tp.Id=pp.ToProcessId
-                            LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PO.EntityId
+                            LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
                             LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
                              left outer join (
                                                         select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
