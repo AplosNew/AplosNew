@@ -718,6 +718,7 @@
     <Compile Include="Areas\Productions\Controllers\FinishedStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAdjustmentController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAgeingReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\WasteIssueController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteTransactionReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteMasterController.cs" />
     <Compile Include="Areas\Outsourcing\Controllers\OSIssueRegisterController.cs" />
@@ -2052,6 +2053,7 @@
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
+    <Content Include="Areas\Productions\Scripts\WasteIssueController.js" />
     <Content Include="Areas\Productions\Scripts\WasteTransactionReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteMasterController.js" />
     <Content Include="Areas\Outsourcing\Scripts\OSissueRegisterController.js" />
@@ -4032,6 +4034,7 @@
     <Content Include="Areas\Products\Views\GoodsReceiveNote\GRNBOQPO.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\MeetingReports\ReportView.cshtml" />
     <Content Include="Areas\Accounts\Views\GroupBalanceReport\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\WasteIssue\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
