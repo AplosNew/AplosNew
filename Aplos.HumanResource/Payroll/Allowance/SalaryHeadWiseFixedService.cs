@@ -69,7 +69,6 @@ namespace Library.HumanResource.Payroll.Allowance
                             DataRow dr = dsMonthWiseExtraSalaryAmtMaster.Tables[0].NewRow();
                             MasterId = "DAM" + sID + "_" + count_master;
                             dr["SystemID"] = MasterId;
-                            // MasterId = "DAM" + sID;
                             dr["EmpInfoSystemID"] = dsSalaryHeadWiseAmountTransactionSummaryData.Tables[0].Rows[i]["EmpSystemId"].ToString();
                             dr["PlantID"] = identity.PlantId;
                             dr["IsDisbusted"] = false;
@@ -78,8 +77,6 @@ namespace Library.HumanResource.Payroll.Allowance
 
                             dr["AddedBy"] = identity.Name;
                             dr["DateAdded"] = System.DateTime.Now.ToString();
-                            //dr["UpdatedBy"] = identity.Name;
-                            //dr["DateUpdated"] = System.DateTime.Now.ToString();
                             dsMonthWiseExtraSalaryAmtMaster.Tables[0].Rows.Add(dr);
                         }
                         else
@@ -105,9 +102,6 @@ namespace Library.HumanResource.Payroll.Allowance
                         dvMonthWiseExtraSalaryAmtChild.RowFilter = "mwesamastersystemid='" + MasterId + "' AND SalaryHeadID='" + dsSalaryHeadWiseAmountTransactionSummaryData.Tables[0].Rows[i]["SalaryHeadId"].ToString() + "'";
                         if (dvMonthWiseExtraSalaryAmtChild.Count == 0)
                         {
-                            //string sID = string.Empty;
-                            //bplib.clsGenID objGenID = new bplib.clsGenID();
-                            //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "DAChild", out sID);
                             DataRow dr = dsMonthWiseExtraSalaryAmtChild.Tables[0].NewRow();
                             dr["SystemID"] = "DAC" + sIDc + "_" + count_master;
                             dr["MWESAMasterSystemID"] = MasterId;
@@ -131,8 +125,6 @@ namespace Library.HumanResource.Payroll.Allowance
                             dr["CurrencyRuleSystemID"] = GetCurrencyRuleIdBySalaryHead(dsCurrencyRule, dsSalaryHeadWiseAmountTransactionSummaryData.Tables[0].Rows[i]["SalaryHeadId"].ToString());
                             dr["AddedBy"] = identity.Name;
                             dr["DateAdded"] = System.DateTime.Now.ToString();
-                            //dr["UpdatedBy"] = identity.Name;
-                            //dr["DateUpdated"] = System.DateTime.Now.ToString();
                             dsMonthWiseExtraSalaryAmtChild.Tables[0].Rows.Add(dr);
                         }
                         else

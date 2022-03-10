@@ -482,7 +482,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             try
             {
-                //sendMessage("Starting salary process");
 
                 #region Declare Variable
 
@@ -693,7 +692,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 string sOutDefineAmt = string.Empty;
                 #endregion Declare Variable
 
-                #region Valid 190708
+                #region Valid 
 
                 //bool _final = true;
                 DataSet dsHrsetting = null;
@@ -720,7 +719,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 EmployeeSelect(para.dsGrid, para.ToDate);//validation count !=0//
 
-                //for Pratibha DOS/DOJ weekoff count
+                // DOS/DOJ weekoff count
                 DataSet dsWeekOffAll = null;
                 Dictionary<string, int> WeekOffList = null;
                 SendNotification("Generating Calendar");
@@ -766,7 +765,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 dsGrid = para.dsGrid;
                 int blockCount = 0;
-                //sendMessage("Total {" + dsGrid.Tables[0].Rows.Count.ToString() + "} employees are going to be processed");
+                
                 if (dsGrid.Tables[0].Rows.Count > 0)
                 {
                     for (int GrdEmp = 0; GrdEmp < dsGrid.Tables[0].Rows.Count; GrdEmp++)
@@ -818,7 +817,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             }
                             else
                             {
-                                grdRowMaxCnt = 100;//190915
+                                grdRowMaxCnt = 100;
                             }
 
                             SelectedEmpCnt++;
@@ -826,6 +825,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             bool _emp_is_saved = false;
                             if (SelectedEmpCnt == grdRowMaxCnt)
                             {
+                                // Once We get Desired No Then Process
+
                                 #region Start
                                 blockCount++;
                                 //sendMessage("Current block total employee: " + SelectedEmpCnt + " and block no" + blockCount);
@@ -863,7 +864,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 }
                                 catch (Exception ex)
                                 {
-                                    throw new Exception("Allowance issue: " + ex.Message);
+                                    throw new Exception("Advance issue: " + ex.Message);
                                 }
                                 #endregion
 
@@ -4237,9 +4238,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                 List<EmpSalaryHeadAmount> _List_BonusRetainHeadValue = null;
                                 List<EmpSalaryHeadAmount> _List_PFHeadValue = null;
-                                //List<EmpSalaryHeadAmount> _List_ESICHeadValue = null;
-
-
+                                
 
                                 try
                                 {
@@ -4280,8 +4279,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     PFpara.sEmpSystemID = sEmpSysIDColl;
                                     PFpara.LocalCurrencyID = para.lblLocalCurrencyID.Trim();
                                     PFpara.ForeignCurRate = para.txtForeignCurRate.Trim();
-                                    PFpara.FromDate = para.FromDate;//FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.FromDate)).ToString();
-                                    PFpara.ToDate = para.ToDate;// FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.ToDate)).ToString();
+                                    PFpara.FromDate = para.FromDate;
+                                    PFpara.ToDate = para.ToDate;
                                     PFpara.sUser = para.USER;
                                     PFpara.dsSalInfo = ds;
                                     PFpara.dicProcChild = dicProcChild;
@@ -4291,22 +4290,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     objPFGnt.CalculateEarnPF(PFpara, out _List_PFHeadValue);//CalculateEarnPF
                                                                                             //objPFGnt.GeneratorPFEligibleEmployee(PFpara);//CalculateEarnPF
                                     #endregion Generate PF
-                                    #region Generate ESIC commented
-                                    //ESICParaList ESICpara = new OTSBD.ESICParaList();
-                                    //ESICpara.GroupID = para.GroupId.ToString().Trim();
-                                    //ESICpara.PlantID = para.PlantId.ToString().Trim();
-                                    //ESICpara.sEmpSystemID = sEmpSysIDColl.Trim();
-                                    //ESICpara.LocalCurrencyID = para.lblLocalCurrencyID.Trim();
-                                    //ESICpara.ForeignCurRate = para.txtForeignCurRate.Trim();
-                                    //ESICpara.FromDate = para.FromDate;//FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.FromDate)).ToString();
-                                    //ESICpara.ToDate = para.ToDate;// FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.ToDate)).ToString();
-                                    //ESICpara.sUser = para.USER;
-                                    //ESICpara.dsSalInfo = ds;
-                                    //ESICpara.dicProcChild = dicProcChild;
-                                    //ESICpara.dtValue = dtValue;
-                                    //ESICpara.ShouldNotProcessUntaggedEmp = true;
-                                    //objESICGnt.CalculateEarnESIC(ESICpara, out _List_ESICHeadValue);
-                                    #endregion Generate ESIC
+                                    
                                 }
                                 catch (Exception ex)
                                 {
@@ -4330,11 +4314,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     if (dsPF.Tables[0].Rows.Count > 0)
                                         dicPF = dsPF.Tables[0].ToList<dicPF>();//
 
-                                    //List<dicESIC> dicESIC = new List<dicESIC>();
-                                    //objSlrProc.GetESICStructureData(sEmpSysIDColl, para.ToDate.Trim(), out dsESIC);
-                                    //if (dsESIC.Tables[0].Rows.Count > 0)
-                                    //    dicESIC = dsESIC.Tables[0].ToList<dicESIC>();///
-
+                                    
                                     if (dsSelectedEmp.Tables[0].Rows.Count > 0)
                                     {
                                         string _childPK_seed_fromDB = string.Empty;
@@ -5095,12 +5075,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 }
                 return para;
-                //displayMsgs("Processed Successfully Completed...!!!!", "Ok", "Save");
-                //Session["VERIFICATION_STATE"] = 1;
             }
             catch (Exception ex)
             {
-                //sendMessage(ex.Message);
+                
                 SendNotification(ex.ToString());
 
                 throw ex;
