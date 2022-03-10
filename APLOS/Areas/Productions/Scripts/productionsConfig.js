@@ -216,6 +216,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/WasteTransactionReport/Aplos',
             controller: 'WasteTransactionReportController'
         })
+        .when('/waste-issue', {
+            templateUrl: 'Productions/WasteIssue/Aplos',
+            controller: 'WasteIssueController'
+        })
         .when('/general-data-master' , {
             templateUrl: 'Productions/GeneralDataMaster/Aplos',
             controller: 'GeneralDataMasterController'

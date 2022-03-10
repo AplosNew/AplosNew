@@ -55,50 +55,12 @@ function GroupBalanceReportController($scope, $rootScope, $filter, accountServic
         }
         else {
             var url = "";
-            url = "Accounts/Voucher/GetGeneralLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&glId=" + $scope.report.GLGeneralInfoId + '&active=' + $scope.report.Active + '&IsGroupBy=' + $scope.report.IsGroupBy;
-            //if ($scope.report.Active) {
-
-            //}
-            //else {
-
-            //url = "Accounts/Voucher/GetGeneralLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&glId=" + $scope.report.GLGeneralInfoId;
-            //}
-            if (!baseService.isUndefinedOrNull($scope.report.BudgetMasterId)) {
-                url += "&budgetMasterId=" + $scope.report.BudgetMasterId;
-            }
-            if (!baseService.isUndefinedOrNull($scope.report.ActivityId)) {
-                url += "&activityId=" + $scope.report.ActivityId;
-            }
+            url = "Accounts/GroupBalanceReport/GetGroupBalanceReport?reportFormat=" + $scope.report.ReportFormat + "&glId=" + $scope.report.GLGeneralInfoId + '&budgetMasterId=' + $scope.report.BudgetMasterId + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate;
+         
             $window.open(url, "_blank");
         }
     };
-    //$scope.getReportWithDocRef = function () {
-    //    if (baseService.isUndefinedOrNull($scope.report.GLGeneralInfoId)) {
-    //        manualValidation("div_GL", true, "GL is required.");
-    //    }
-    //    else if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
-    //        manualValidation("div_FromDate", true, "From Date is required.");
-    //    }
-    //    else if (baseService.isUndefinedOrNull($scope.report.ToDate)) {
-    //        manualValidation("div_ToDate", true, "To Date is required.");
-    //    }
-    //    else if (new Date($scope.report.FromDate) > new Date($scope.report.ToDate)) {
-    //        manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
-    //    }
-    //    else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
-    //        manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
-    //    }
-    //    else {
-    //        var url = "Accounts/Voucher/GetGeneralLedgerReportWithDocRef?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&glId=" + $scope.report.GLGeneralInfoId  + '&active=' + $scope.report.Active;
-    //        if (!baseService.isUndefinedOrNull($scope.report.BudgetMasterId)) {
-    //            url += "&budgetMasterId=" + $scope.report.BudgetMasterId;
-    //        }
-    //        if (!baseService.isUndefinedOrNull($scope.report.ActivityId)) {
-    //            url += "&activityId=" + $scope.report.ActivityId;
-    //        }
-    //        $window.open(url, "_blank");
-    //    }
-    //};
+ 
 
 
     $scope.searchglByList = [

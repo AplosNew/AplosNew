@@ -763,15 +763,8 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
             $scope.productNew.CheckedBy = x.data.CheckedById;
             $scope.productNew.labelCheckAndApproved = 'To be checked by';
         }
-        //if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
-        //    var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
-        //    if (paymentTerm.BaseLineDate !== null)
-        //        if (paymentTerm.BaseLineDate === 'documentdate')
-        //            $scope.IsBaseOnDueDateEnable = true;
-        //        else
-        //            $scope.IsBaseOnDueDateEnable = false;
-        //}
-        getServiceChargeListForCharge($scope.productNew.Id);
+        
+        //getServiceChargeListForCharge($scope.productNew.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
 

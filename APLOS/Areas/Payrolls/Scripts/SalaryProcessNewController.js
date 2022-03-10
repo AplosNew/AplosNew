@@ -117,16 +117,7 @@ function SalaryProcessNewController(addressService, fileReader, cboService, comm
             Check($scope.Description, "Description");
             Check($scope.FromDate_sep, 'From Date');
             Check($scope.ToDate_sep, 'To Date');
-            //if ($scope.Description === 'indefined' || $scope.Description === null || $scope.Description === '') {
-            //    throw ("Description can not be blank...");
-            //}
-            //if (angular.isUndefinedOrNull($scope.FromDate_sep)) {
-            //    throw("Select From Date...");
-            //}
-            //if (angular.isUndefinedOrNull($scope.ToDate_sep)) {
-            //    throw("Select To Date...");
-            //}
-
+           
             var parameters = { 'Description': $scope.Description, 'FromDate': $scope.FromDate_sep, 'ToDate': $scope.ToDate_sep, };
             $http({
                 method: "POST",
@@ -134,8 +125,7 @@ function SalaryProcessNewController(addressService, fileReader, cboService, comm
                 url: 'payrolls/SalaryProcessNew/GetEmpList',
                 data: parameters
             }).then(function successCallback(response) {
-                //console.log('response',response.data);
-                //$scope.EmployeeList_active = response.data.Active; 
+
                 if (response.data.Error === true) {
 
                     ShowResult(response.data.Message, 'Information');
