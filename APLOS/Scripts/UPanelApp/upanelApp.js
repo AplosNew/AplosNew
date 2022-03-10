@@ -1016,6 +1016,7 @@ upanelApp.controller("PrePackDefinitionController", PrePackDefinitionController)
 upanelApp.controller("MeetingReportsController", MeetingReportsController);
 upanelApp.controller("EmployeeOperationsController", EmployeeOperationsController);
 upanelApp.controller("GroupBalanceReportController", GroupBalanceReportController);
+upanelApp.controller("WasteIssueController", WasteIssueController);
 
 
 upanelApp.config(AccessControllerConfig);

@@ -1,10 +1,20 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{FormTitle}}</h3>
 <div class="form-elements form-horizontal" ng-form name="buyerNewForm">
-    <div class="modal-body">
         <div class="row">
+            <div class="col-xs-12">
+
+            </div>
+
             <div class="form-elements form-horizontal">
 
                 <div class="col-xs-12 col-sm-4 col-md-4">
+
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label" id="fDate">From Date<sup>*</sup></label>
+                        <div class="col-sm-8  show-message">
+                            <input type="text" name="From Date" ng-model="FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="2">
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">GRN No :</span></label>
@@ -43,6 +53,12 @@
 
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label" id="tDate">To Date<sup>*</sup></label>
+                        <div class="col-sm-8  show-message">
+                            <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="3">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">GRN Date :</span></label>
                         <label class="col-sm-8 control-label">{{fabricRollMaster.GRNDate}}</label>
@@ -208,10 +224,10 @@
 
             </div>
         </div>
-    </div>
+    
 </div>
 
-<div class="table-responsive aplos-grid-toggle">
+@*<div class="table-responsive aplos-grid-toggle">
     <div style="color:black;" id="GridfabricRolls" ej-grid e-datasource="MasterList"
          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true" e-allowselection="false">
@@ -221,7 +237,7 @@
             <div e-column e-type="date" e-field="GD" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="100"></div>
         </div>
     </div>
-</div>
+</div>*@
 
 <div class="modal fade site-modal in" id="grnListPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
