@@ -4833,7 +4833,13 @@ UNION ALL
                             		isnull(b.SalesOrderId, 'null') IN (" + SalesOrderId + @")
                             		)
                             	AND (isnull(b.MaterialMasterId, 'null') IN (" + MaterialMasterId + @"))
-                            	AND (isnull(b.ArticleId, 'null') IN (" + ArticleId + @"))";
+                            	AND (isnull(b.ArticleId, 'null') IN (" + ArticleId + @"))
+                                    AND b.Id NOT IN (
+                            		
+                            	SELECT p.BOQDetailId
+                            	FROM trn.POBOQMAP AS p
+                            	JOIN trn.PurchaseOrderDetail AS pod ON pod.id =p.PODetailId
+                            	WHERE isnull(pod.InventoryReceiveId ,'null') IN (" + POId + @"))";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -4841,6 +4847,115 @@ UNION ALL
             {
                 throw ex;
             }
+        }
+        [HttpPost]
+        public JsonResult CreateGRNBOQPOSaad(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            //IEnumerable<InventoryMaterialViewModel>
+            List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
+
+                }
+            }
+            bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+            if (_returnRes == true)
+            {
+                throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+            }
+
+            DetailCreateSaad(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNewSaad(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+        public JsonResult DetailCreateSaad(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _inventoryDetailService.InsertOrUpdateGraphNewBOQ(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        public JsonResult ServiceChargesCreateNewSaad(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id, string AcceptanceId)
+        {
+            _inventoryService.InsertGraphNewBOQ(chargesListPO, POServiceTaxList, Id, AcceptanceId);
+            return Json(new { Message = AplosMessage.Success });
         }
         #endregion
 
