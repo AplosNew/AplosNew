@@ -864,7 +864,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 }
                                 catch (Exception ex)
                                 {
-                                    throw new Exception("Allowance issue: " + ex.Message);
+                                    throw new Exception("Advance issue: " + ex.Message);
                                 }
                                 #endregion
 
