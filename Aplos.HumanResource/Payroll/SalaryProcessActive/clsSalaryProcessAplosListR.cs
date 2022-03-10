@@ -482,7 +482,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             try
             {
-                //sendMessage("Starting salary process");
 
                 #region Declare Variable
 
@@ -693,7 +692,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 string sOutDefineAmt = string.Empty;
                 #endregion Declare Variable
 
-                #region Valid 190708
+                #region Valid 
 
                 //bool _final = true;
                 DataSet dsHrsetting = null;
@@ -720,7 +719,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 EmployeeSelect(para.dsGrid, para.ToDate);//validation count !=0//
 
-                //for Pratibha DOS/DOJ weekoff count
+                // DOS/DOJ weekoff count
                 DataSet dsWeekOffAll = null;
                 Dictionary<string, int> WeekOffList = null;
                 SendNotification("Generating Calendar");
@@ -766,7 +765,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 dsGrid = para.dsGrid;
                 int blockCount = 0;
-                //sendMessage("Total {" + dsGrid.Tables[0].Rows.Count.ToString() + "} employees are going to be processed");
+                
                 if (dsGrid.Tables[0].Rows.Count > 0)
                 {
                     for (int GrdEmp = 0; GrdEmp < dsGrid.Tables[0].Rows.Count; GrdEmp++)
@@ -818,7 +817,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             }
                             else
                             {
-                                grdRowMaxCnt = 100;//190915
+                                grdRowMaxCnt = 100;
                             }
 
                             SelectedEmpCnt++;
@@ -826,6 +825,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             bool _emp_is_saved = false;
                             if (SelectedEmpCnt == grdRowMaxCnt)
                             {
+                                // Once We get Desired No Then Process
+
                                 #region Start
                                 blockCount++;
                                 //sendMessage("Current block total employee: " + SelectedEmpCnt + " and block no" + blockCount);
@@ -863,7 +864,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 }
                                 catch (Exception ex)
                                 {
-                                    throw new Exception("Allowance issue: " + ex.Message);
+                                    throw new Exception("Advance issue: " + ex.Message);
                                 }
                                 #endregion
 
