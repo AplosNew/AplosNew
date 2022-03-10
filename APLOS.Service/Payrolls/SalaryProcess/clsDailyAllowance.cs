@@ -534,7 +534,6 @@ namespace OTSBD
                             DataRow dr = dsMonthWiseExtraSalaryAmtMaster.Tables[0].NewRow();
                             MasterId = "SALM-" + sID + "-" + count_master;
                             dr["SystemID"] = MasterId;
-                           // MasterId = "DAM" + sID;
                             dr["EmpInfoSystemID"] = dsDailyAllowanceSummary.Tables[0].Rows[i]["EmpSystemId"].ToString();
                             dr["PlantID"] = identity.PlantId;
                             dr["IsDisbusted"] = false;
@@ -542,11 +541,9 @@ namespace OTSBD
                             dr["YearNo"] = dsDailyAllowanceSummary.Tables[0].Rows[i]["YearNo"].ToString();
 
                             dr["AddedBy"] = identity.Name;
-                            dr["DateAdded"] = System.DateTime.Now.ToString();
+                            dr["DateAdded"] = DateTime.Now.ToString();
 
-                            //dr["UpdatedBy"] = identity.Name;
-                            //dr["DateUpdated"] = System.DateTime.Now.ToString();
-
+                           
                             dsMonthWiseExtraSalaryAmtMaster.Tables[0].Rows.Add(dr);
 
 
@@ -566,7 +563,7 @@ namespace OTSBD
 
 
                             dr["UpdatedBy"] = identity.Name;
-                            dr["DateUpdated"] = System.DateTime.Now.ToString();
+                            dr["DateUpdated"] = DateTime.Now.ToString();
                             dr.EndEdit();
 
                         }
@@ -580,9 +577,6 @@ namespace OTSBD
                         dvMonthWiseExtraSalaryAmtChild.RowFilter = "mwesamastersystemid='" + MasterId + "' AND SalaryHeadID='" + dsDailyAllowanceSummary.Tables[0].Rows[i]["SalaryHeadId"].ToString() + "'";
                         if (dvMonthWiseExtraSalaryAmtChild.Count == 0)
                         {
-                            //string sID = string.Empty;
-                            //bplib.clsGenID objGenID = new bplib.clsGenID();
-                            //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "DAChild", out sID);
                             DataRow dr = dsMonthWiseExtraSalaryAmtChild.Tables[0].NewRow();
                             dr["SystemID"] = "SALC-" + sIDc+"-"+count_master;
                             dr["MWESAMasterSystemID"] = MasterId;
@@ -609,11 +603,9 @@ namespace OTSBD
 
                             dr["CurrencyRuleSystemID"] = GetCurrencyRuleIdBySalaryHead(dsCurrencyRule, dsDailyAllowanceSummary.Tables[0].Rows[i]["SalaryHeadId"].ToString());
                             dr["AddedBy"] = identity.Name;
-                            dr["DateAdded"] = System.DateTime.Now.ToString();
+                            dr["DateAdded"] = DateTime.Now.ToString();
 
-                            //dr["UpdatedBy"] = identity.Name;
-                            //dr["DateUpdated"] = System.DateTime.Now.ToString();
-
+                            
                             dsMonthWiseExtraSalaryAmtChild.Tables[0].Rows.Add(dr);
 
 
@@ -645,7 +637,7 @@ namespace OTSBD
 
 
                             dr["UpdatedBy"] = identity.Name;
-                            dr["DateUpdated"] = System.DateTime.Now.ToString();
+                            dr["DateUpdated"] = DateTime.Now.ToString();
                             dr.EndEdit();
 
                         }

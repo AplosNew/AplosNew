@@ -365,6 +365,162 @@ namespace Library.MaterialManagement.Inventory
                     _unitOfWork.Rollback();
                 }
             }
+        } 
+        public void InsertGraphNewBOQ(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string id, string AcceptanceId)
+        {
+          
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var currentId = _inventoryServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryService] WHERE InventoryReceiveId='{id}'").First();
+                if (chargesListPO != null)
+                {
+                    foreach (var itemDetail in chargesListPO)
+                    {
+                        
+                        itemDetail.ToCurrencyRate = itemDetail.ToCurrencyRate == 0 ? 1 : itemDetail.ToCurrencyRate;
+
+                        currentId++;
+                        var service = new InventoryService
+                        {
+                            Id = MakePK(id, currentId, 3),//itemDetail.InventoryReceiveId + 2
+                            InventoryReceiveId = id,//itemDetail.InventoryReceiveId,
+                            ServiceMasterId = itemDetail.ServiceMasterId,
+                            //Amount = Convert.ToDecimal(itemDetail.TransactionAmount),
+                            Amount = Convert.ToDecimal(itemDetail.Amount),
+                            TotalTaxAmount = Convert.ToDecimal(itemDetail.TotalTaxAmount),
+                            POID = itemDetail.InventoryReceiveId,
+                            POServiceId = itemDetail.Id
+                        };
+
+                        AuditService.AddedLog(service);
+
+                        InsertGraph(service);
+                        if (string.IsNullOrWhiteSpace(AcceptanceId))
+                        {
+                            var poDetail = _POServiceRepository.Query(r => r.Id == itemDetail.Id).Select().FirstOrDefault();
+                            if (null == poDetail)
+                                throw new CustomException("PO Service not found!");
+
+                            poDetail.GRNServiceAmount += itemDetail.Amount;
+
+                            if (poDetail.Amount < poDetail.GRNServiceAmount)
+                                throw new CustomException("Received Amount can not cross balance Balance.");
+
+                            poDetail.AmountStatus = poDetail.Amount == poDetail.GRNServiceAmount;
+                            AuditService.UpdatedLog(poDetail);
+                            _POServiceRepository.Update(poDetail);
+                        }
+                        if (string.IsNullOrWhiteSpace(AcceptanceId))
+                        {
+                            if (POServiceTaxList.IsNotNull())
+                            {
+                                var crrId = 0;
+                                //var crrId = _inventoryServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryReceiveTax] WHERE InventoryServiceId='{service.Id}'").First();
+                                foreach (var item in POServiceTaxList.Where(r => r.InventoryServiceId == itemDetail.Id))
+                                {
+                                    crrId++;
+                                    var inventoryReceiveTax = new InventoryReceiveTax
+                                    {
+                                        Id = MakePK(service.Id, crrId, 3),
+                                        InventoryReceiveId = id,//itemDetail.InventoryReceiveId;
+                                        InventoryReceiveDetailId = null,
+                                        InventoryServiceId = service.Id,
+                                        TaxCategoryId = item.TaxCategoryId,
+                                        Percentage = item.Percentage,
+                                        TaxAmount = item.TaxAmount
+
+                                    };
+                                    AuditService.AddedLog(inventoryReceiveTax);
+                                    //item.ModelState = ModelState.Added;
+                                    _receiveTaxRepository.Insert(inventoryReceiveTax);
+                                }
+                            }
+                            var isNonCreditable = _inventoryReceiveService.Query(t => t.Id == id).Select(t => t.IsNonCreditable).FirstOrDefault();//service.InventoryReceiveId
+                            var ratio = _inventoryReceiveService.GetChargesRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.Amount + service.TotalTaxAmount) : service.Amount, isNonCreditable);
+                            if (itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
+                            {
+                                service.InventoryReceiveId = id;
+                                //UpdateInventoryDetail(service, ratio, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
+                            }
+                            else if (itemDetail.CurrencyId == itemDetail.BaseCurrencyId)
+                            {
+                                service.InventoryReceiveId = id;
+                                //UpdateInventoryDetail(service, ratio, 1, itemDetail.IsNonCreditable);
+                            }
+                        }
+                        else
+                        {
+                            //if (POServiceTaxList.IsNotNull())
+                            //{
+                                var crrId = 0;
+                            //PurchaseDocAcceptanceTaxRepository
+                            //var crrId = _inventoryServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryReceiveTax] WHERE InventoryServiceId='{service.Id}'").First();
+                            var AcceptanceServiceTaxList = _PurchaseDocAcceptanceTaxRepository.Query(r => r.PurchaseDocAcceptanceId == AcceptanceId && r.PurchaseDocAcceptanceDetailId == null && r.PurchaseDocAcceptanceServiceId== itemDetail.Id).Select().ToList();//($"SELECT * FROM TRN.PurchaseDocAcceptanceTax WHERE PurchaseDocAcceptanceDetailId IS NULL AND PurchaseDocAcceptanceId='{AcceptanceId}'").ToList();
+
+                            foreach (var item in AcceptanceServiceTaxList)
+                                {
+                                    crrId++;
+                                    var inventoryReceiveTax = new InventoryReceiveTax
+                                    {
+                                        Id = MakePK(service.Id, crrId, 3),
+                                        InventoryReceiveId = id,//itemDetail.InventoryReceiveId;
+                                        InventoryReceiveDetailId = null,
+                                        InventoryServiceId = service.Id,
+                                        TaxCategoryId = item.TaxCategoryId,
+                                        Percentage = item.Percentage,
+                                        TaxAmount = item.TaxAmount
+
+                                    };
+                                    AuditService.AddedLog(inventoryReceiveTax);
+                                    //item.ModelState = ModelState.Added;
+                                    _receiveTaxRepository.Insert(inventoryReceiveTax);
+                                }
+                            //}
+                            //var isNonCreditable = _inventoryReceiveService.Query(t => t.Id == id).Select(t => t.IsNonCreditable).FirstOrDefault();//service.InventoryReceiveId
+                            //var ratio = _inventoryReceiveService.GetChargesRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.Amount + service.TotalTaxAmount) : service.Amount, isNonCreditable);
+                            //if (itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
+                            //{
+                            //    service.InventoryReceiveId = id;
+                            //    //UpdateInventoryDetail(service, ratio, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
+                            //}
+                            //else if (itemDetail.CurrencyId == itemDetail.BaseCurrencyId)
+                            //{
+                            //    service.InventoryReceiveId = id;
+                            //    //UpdateInventoryDetail(service, ratio, 1, itemDetail.IsNonCreditable);
+                            //}
+
+                        }
+
+
+                        
+                        //}//end
+
+                    }
+                }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
         }
         public void InsertGraphNewEdit(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string id)
         {
