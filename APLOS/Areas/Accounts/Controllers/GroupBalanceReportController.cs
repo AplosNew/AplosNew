@@ -54,6 +54,9 @@ namespace Aplos.Areas.Accounts.Controllers
         private readonly ICompanyTaxYearService _companyTaxYearService;
         private readonly AccountVoucherReportService _accountVoucherReportService;
         private readonly IRepositoryAsync<EmployeeSalaryAdvance> _employeeSalaryAdvanceRepository;
+        private readonly GroupBalanceReportService _groupBalanceReportService;
+
+       
 
         public GroupBalanceReportController(
                IPKGeneratorService pkGeneratorService
@@ -68,7 +71,8 @@ namespace Aplos.Areas.Accounts.Controllers
              , ICompanyTaxYearService companyTaxYearService
              , ICompanyFiscalYearService companyFiscalYearService
              , IRepositoryAsync<EmployeeSalaryAdvance> employeeSalaryAdvanceRepository
-             , AccountVoucherReportService accountVoucherReportService)
+             , AccountVoucherReportService accountVoucherReportService
+            , GroupBalanceReportService groupBalanceReportService)
         {
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
@@ -83,6 +87,7 @@ namespace Aplos.Areas.Accounts.Controllers
             _companyFiscalYearService = companyFiscalYearService;
             _employeeSalaryAdvanceRepository = employeeSalaryAdvanceRepository;
             _accountVoucherReportService = accountVoucherReportService;
+            _groupBalanceReportService = groupBalanceReportService;
         }
 
         #region Journal
@@ -157,9 +162,9 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_voucharService.GetJournalVoucherDetailList(voucherId), JsonRequestBehavior.AllowGet);
         }
 
-       
+
         [HttpPost]
-        public ActionResult DeleteJV( string voucherId)
+        public ActionResult DeleteJV(string voucherId)
         {
             _voucharService.DeleteJV(voucherId);
             return Json(new { Message = AplosMessage.Deleted });
@@ -254,7 +259,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
 
-       
+
 
         [HttpPost]
         public JsonResult PostAdvanceJournal(string id)
@@ -525,8 +530,8 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpGet, Authorize]
         public JsonResult getvoucherlistforcheckprinting(GridParameter parameters)
-        
-        
+
+
         {
             AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
             return Json(accountsCommonService.Getvoucherlistforcheckprinting(parameters), JsonRequestBehavior.AllowGet);
@@ -578,97 +583,34 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-        public ActionResult GeneralLedgerReport()
-        {
-            return View("~/Areas/Accounts/Views/GeneralLedgerReport.cshtml");
-        }
-
         //General ledger report
         [HttpGet, Authorize]
-        public ActionResult GetGeneralLedgerReport(ReportFormat reportFormat, string glId, string budgetMasterId, string activityId, string fromDate, string toDate,bool active,bool IsGroupBy)
+        public ActionResult GetGroupBalanceReport(ReportFormat reportFormat, string glId, string budgetMasterId, string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = null;
+            //workbook = GroupBalanceReportService.GetGeneralLedgerReport(glId, budgetMasterId, fromDate, toDate);
+            //identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate
+            workbook = _groupBalanceReportService.GetGeneralLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate);
+           // workbook = _groupBalanceReportService.GetGeneralLedgerReport();
 
-
-            if (active)
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Group Ledger Report";
+            switch (reportFormat)
             {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
 
-                IWorkbook workbook = null;
-                if (IsGroupBy == true && activityId == null)
-                {
-                    workbook = _accountVoucherReportService.GetGeneralLedgerGroupByReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active, IsGroupBy);
-                }
-                else if (IsGroupBy == true && activityId != null)
-                {
-                    workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
-                }
-                else
-                {
-                    workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
-                }
-               // var workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate,active);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + " General Ledger";
-                switch (reportFormat)
-                {
-                    case ReportFormat.Pdf:
-                        return RenderReportAsPdf(workbook, reportFileName);
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
 
-                    case ReportFormat.Excel:
-                        return RenderReportAsExcel(workbook, reportFileName);
-
-                    default:
-                        return RenderReportAsExcel(workbook, reportFileName);
-                }
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
             }
-            else
-            {
-                IWorkbook workbook = null;
-                if (IsGroupBy==true && activityId == null)
-                {
-                    workbook = _accountVoucherReportService.GetGeneralLedgerGroupByReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active, IsGroupBy);
-                }
-                else if(IsGroupBy == true && activityId != null)
-                {
-                    workbook = _accountVoucherReportService.GetGeneralLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
-                }
-                else
-                {
-                    workbook = _accountVoucherReportService.GetGeneralLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
-                }
 
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + " General Ledger";
-                switch (reportFormat)
-                {
-                    case ReportFormat.Pdf:
-                        return RenderReportAsPdf(workbook, reportFileName);
 
-                    case ReportFormat.Excel:
-                        return RenderReportAsExcel(workbook, reportFileName);
-
-                    default:
-                        return RenderReportAsExcel(workbook, reportFileName);
-                }
-            }
-            
         }
 
-        //public ActionResult GetGeneralLedgerReportWithDocRef(ReportFormat reportFormat, string glId, string budgetMasterId, string activityId, string fromDate, string toDate)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    var workbook = _accountVoucherReportService.GetGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate);
-        //    var reportFileName = DateTime.Now.ToString("yyMMdd") + " General Ledger";
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
 
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-
-        //        default:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-        //    }
-        //}
 
         public ActionResult GeneralLedgerOpeningBalanceReport()
         {
@@ -721,7 +663,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet]
-        public ActionResult TrialBalanceReport(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel)
+        public ActionResult TrialBalanceReport(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = GetTrialBalanceReport(identity.CompanyId, identity.PlantId, identity.PlantName, date, isBudgetLevel, isActivityLevel, isDetailLevel);
@@ -739,7 +681,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-       
+
         public IWorkbook GetTrialBalanceReport(string companyId, string plantId, string plantName, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
         {
             var excelEngine = new ExcelEngine();
@@ -786,9 +728,9 @@ namespace Aplos.Areas.Accounts.Controllers
                     oRU.SetHeaderText(ref sheet, row, headreColIndex, "Activity Name", 32);
                     headreColIndex++;
 
-            
+
                 }
-                if(isDetailLevel)
+                if (isDetailLevel)
                 {
                     oRU.SetHeaderText(ref sheet, row, headreColIndex, "Budget Name", 32);
                     headreColIndex++;
@@ -841,7 +783,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         var BudgetMasterId = dtMainBody.Rows[n]["BudgetMasterId"].ToString();
                         var ActivityId = dtMainBody.Rows[n]["ActivityId"].ToString();
                         //var BankMasterId = dtMainBody.Rows[n]["BankMasterId"].ToString();
-                      
+
                         var Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
 
                         mainColIndex = 1;
@@ -861,7 +803,7 @@ namespace Aplos.Areas.Accounts.Controllers
                             {
                                 RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "'"
                             };
-                          var dtDrCr = dvDrCr.ToTable();
+                            var dtDrCr = dvDrCr.ToTable();
                             if (dtDrCr.Rows.Count != 0)
                             {
                                 var _drPC = Convert.ToDouble(dtDrCr.Rows[0]["DRcumulative"].ToString());
@@ -879,7 +821,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                 oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
                                 oRU.SetText(ref sheet, row, mainColIndex, _crPC);
                             }
-                        
+
                         }
                     }
 
@@ -926,7 +868,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         }
                     }
                 }
-                else if(isDetailLevel)
+                else if (isDetailLevel)
                 {
                     for (int n = 0; n < dtMainBody.Rows.Count; n++)
                     {
@@ -944,7 +886,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         var PartyId = dtMainBody.Rows[n]["PartyId"].ToString();
                         var PartyPlantId = dtMainBody.Rows[n]["PartyPlantId"].ToString();
                         var Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
-                        
+
                         mainColIndex = 1;
 
                         oRU.SetText(ref sheet, row, mainColIndex, AccountCodeId + " - " + dtMainBody.Rows[n]["GL"]); mainColIndex++;
@@ -1172,11 +1114,11 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [HttpGet, Authorize]
-        public ActionResult DateRangeWiseTrialBalanceReportCompanyLevel(ReportFormat reportFormat, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel)
+        public ActionResult DateRangeWiseTrialBalanceReportCompanyLevel(ReportFormat reportFormat, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
         {
             AccountsTrialBalanceService accountsTrialBalanceService = new AccountsTrialBalanceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = accountsTrialBalanceService.GetDateRangeWiseTrialBalanceReport(identity.CompanyId, fromDate, toDate, isBudgetLevel, isActivityLevel,isDetailLevel);
+            var workbook = accountsTrialBalanceService.GetDateRangeWiseTrialBalanceReport(identity.CompanyId, fromDate, toDate, isBudgetLevel, isActivityLevel, isDetailLevel);
             var reportFileName = DateTime.Now.ToString("yyMMdd") + " Trial Balance Sheet";
             switch (reportFormat)
             {
@@ -1191,11 +1133,11 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        public IWorkbook GetDateRangeWiseTrialBalanceReport(string companyId, string plantId, string plantName, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel)
+        public IWorkbook GetDateRangeWiseTrialBalanceReport(string companyId, string plantId, string plantName, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
         {
             var excelEngine = new ExcelEngine();
             var oRU = new ReportUtility();
-            var dsLocal = GetDateRangeWiseTrialBalanceInfo(companyId, plantId, fromDate, toDate, isBudgetLevel, isActivityLevel,isDetailLevel);
+            var dsLocal = GetDateRangeWiseTrialBalanceInfo(companyId, plantId, fromDate, toDate, isBudgetLevel, isActivityLevel, isDetailLevel);
             var workbook = oRU.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2013;
             var sheet = workbook.Worksheets[0];
@@ -1242,10 +1184,10 @@ namespace Aplos.Areas.Accounts.Controllers
                     headreColIndex++;
 
                     oRU.SetHeaderText(ref sheet, row, headreColIndex, "Activity Name", 35);
-                
+
                     headreColIndex++;
                 }
-                if(isDetailLevel)
+                if (isDetailLevel)
                 {
                     oRU.SetHeaderText(ref sheet, row, headreColIndex, "Budget Name", 32);
                     headreColIndex++;
@@ -1313,7 +1255,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         var AccountCodeId = dtMainBody.Rows[n]["GLGeneralInfoCode"].ToString();
                         var BudgetMasterId = dtMainBody.Rows[n]["BudgetMasterId"].ToString();
                         var ActivityId = dtMainBody.Rows[n]["ActivityId"].ToString();
-                       
+
                         var _Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
                         mainColIndex = 1;
 
@@ -1335,78 +1277,78 @@ namespace Aplos.Areas.Accounts.Controllers
                         for (int p = 0; p < dtParallelCurrency.Rows.Count; p++)
                         {
                             var ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
-                         
-                          
 
-                                var dvDrCr = new DataView(dsLocal.Tables[0])
-                                {
-                                    RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'" 
 
-                                    // RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'  AND PartyId = '" + PartyId + "' AND PartyPlantId = '" + PartyPlantId + "'"
-                                };
-                                var dtActDrCr = dvDrCr.ToTable();
-                                if (dtActDrCr.Rows.Count != 0)
+
+                            var dvDrCr = new DataView(dsLocal.Tables[0])
+                            {
+                                RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'"
+
+                                // RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "' AND ActivityId='" + ActivityId + "'  AND PartyId = '" + PartyId + "' AND PartyPlantId = '" + PartyPlantId + "'"
+                            };
+                            var dtActDrCr = dvDrCr.ToTable();
+                            if (dtActDrCr.Rows.Count != 0)
+                            {
+                                for (int acp = 0; acp < dtParallelCurrency.Rows.Count; acp++)
                                 {
-                                    for (int acp = 0; acp < dtParallelCurrency.Rows.Count; acp++)
+                                    var acpParallelCurrencyId = dtParallelCurrency.Rows[acp]["ParallelCurrencyId"].ToString();
+
+                                    //var dvActDrCr = new DataView(dsLocal.Tables[0])
+                                    //{
+                                    //    RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "'"
+                                    //};
+                                    //var dtActDrCr = dvActDrCr.ToTable();
+                                    if (dtActDrCr.Rows.Count != 0)
                                     {
-                                        var acpParallelCurrencyId = dtParallelCurrency.Rows[acp]["ParallelCurrencyId"].ToString();
-
-                                        //var dvActDrCr = new DataView(dsLocal.Tables[0])
-                                        //{
-                                        //    RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "'"
-                                        //};
-                                        //var dtActDrCr = dvActDrCr.ToTable();
-                                        if (dtActDrCr.Rows.Count != 0)
+                                        drcrCol++;
+                                        var _obDrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["OBDRcumulative"].ToString());
+                                        var _obCrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["OBCRcumulative"].ToString());
+                                        if (_obDrPC < 0)
                                         {
-                                            drcrCol++;
-                                            var _obDrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["OBDRcumulative"].ToString());
-                                            var _obCrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["OBCRcumulative"].ToString());
-                                            if (_obDrPC < 0)
-                                            {
-                                                _obCrPC += _obDrPC * -1;
-                                                _obDrPC = 0.00;
-                                            }
-                                            if (_obCrPC < 0)
-                                            {
-                                                _obDrPC += _obCrPC * -1;
-                                                _obCrPC = 0.00;
-                                            }
-                                            var _drPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["DRcumulative"].ToString());
-                                            var _crPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["CRcumulative"].ToString());
-                                            if (_drPC < 0)
-                                            {
-                                                _crPC += _drPC * -1;
-                                                _drPC = 0.00;
-                                            }
-                                            if (_crPC < 0)
-                                            {
-                                                _drPC += _crPC * -1;
-                                                _crPC = 0.00;
-                                            }
-                                            var _cbDrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["CBDRcumulative"].ToString());
-                                            var _cbCrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["CBCRcumulative"].ToString());
-                                            if (_cbDrPC < 0)
-                                            {
-                                                _cbCrPC = _cbDrPC * -1;
-                                                _cbDrPC = 0.00;
-                                            }
-                                            if (_cbCrPC < 0)
-                                            {
-                                                _cbDrPC = _cbCrPC * -1;
-                                                _cbCrPC = 0.00;
-                                            }
-                                            oRU.SetText(ref sheet, row, obDebit, _obDrPC);
-                                            oRU.SetText(ref sheet, row, obCredit, _obCrPC);
-                                            oRU.SetText(ref sheet, row, Debit, _drPC);
-                                            oRU.SetText(ref sheet, row, Credit, _crPC);
-                                            oRU.SetText(ref sheet, row, cbDebit, _cbDrPC);
-                                            oRU.SetText(ref sheet, row, cbCredit, _cbCrPC);
+                                            _obCrPC += _obDrPC * -1;
+                                            _obDrPC = 0.00;
                                         }
+                                        if (_obCrPC < 0)
+                                        {
+                                            _obDrPC += _obCrPC * -1;
+                                            _obCrPC = 0.00;
+                                        }
+                                        var _drPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["DRcumulative"].ToString());
+                                        var _crPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["CRcumulative"].ToString());
+                                        if (_drPC < 0)
+                                        {
+                                            _crPC += _drPC * -1;
+                                            _drPC = 0.00;
+                                        }
+                                        if (_crPC < 0)
+                                        {
+                                            _drPC += _crPC * -1;
+                                            _crPC = 0.00;
+                                        }
+                                        var _cbDrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["CBDRcumulative"].ToString());
+                                        var _cbCrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["CBCRcumulative"].ToString());
+                                        if (_cbDrPC < 0)
+                                        {
+                                            _cbCrPC = _cbDrPC * -1;
+                                            _cbDrPC = 0.00;
+                                        }
+                                        if (_cbCrPC < 0)
+                                        {
+                                            _cbDrPC = _cbCrPC * -1;
+                                            _cbCrPC = 0.00;
+                                        }
+                                        oRU.SetText(ref sheet, row, obDebit, _obDrPC);
+                                        oRU.SetText(ref sheet, row, obCredit, _obCrPC);
+                                        oRU.SetText(ref sheet, row, Debit, _drPC);
+                                        oRU.SetText(ref sheet, row, Credit, _crPC);
+                                        oRU.SetText(ref sheet, row, cbDebit, _cbDrPC);
+                                        oRU.SetText(ref sheet, row, cbCredit, _cbCrPC);
                                     }
-                                    //oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
-                                    //oRU.SetText(ref sheet, row, mainColIndex, _crPC);
                                 }
-                            
+                                //oRU.SetText(ref sheet, row, mainColIndex, _drPC); mainColIndex++;
+                                //oRU.SetText(ref sheet, row, mainColIndex, _crPC);
+                            }
+
                         }
                     }
                 }
@@ -1493,7 +1435,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         }
                     }
                 }
-                else if(isDetailLevel)
+                else if (isDetailLevel)
                 {
                     for (int n = 0; n < dtMainBody.Rows.Count; n++)
                     {
@@ -1845,7 +1787,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     }
 
                 }
-                
+
                 else
                 {
                     for (int n = 0; n < dtMainBody.Rows.Count; n++)
@@ -2006,7 +1948,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return workbook;
         }
 
-        private DataSet GetDateRangeWiseTrialBalanceInfo(string companyId, string plantId, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel)
+        private DataSet GetDateRangeWiseTrialBalanceInfo(string companyId, string plantId, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
         {
             GridParameter parameters = null;
             try
@@ -2239,7 +2181,7 @@ namespace Aplos.Areas.Accounts.Controllers
 											ISNULL(CBDRcumulative,0.00) <> 0.00 OR ISNULL(CBCRcumulative,0) <> 0.00";
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
-                else if(isDetailLevel)
+                else if (isDetailLevel)
                 {
 
                     parameters.CmdText = @"SELECT * FROM(SELECT  AccountCodeId,ParallelCurrencyId,CurrencyCode,
@@ -2650,7 +2592,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "Income Statement Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
-            var workbook = _voucharReportService.GetIncomeStatementReport(identity.CompanyId, identity.PlantId, identity.PlantName, date, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency),  isBudgetLevel,  isActivityLevel);
+            var workbook = _voucharReportService.GetIncomeStatementReport(identity.CompanyId, identity.PlantId, identity.PlantName, date, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency), isBudgetLevel, isActivityLevel);
             workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
             return null;
         }
@@ -2661,7 +2603,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "Income Statement Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
-            var workbook = _voucharReportService.GetIncomeStatementReportDateWise(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency),  isBudgetLevel, isActivityLevel);
+            var workbook = _voucharReportService.GetIncomeStatementReportDateWise(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency), isBudgetLevel, isActivityLevel);
             workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
             return null;
         }
@@ -2762,25 +2704,25 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 for (int i = 0; i < dtCr.Rows.Count; i++)
                 {
-                    
-                    
-                        row++;
-                        mainColIndex = 1;
-                        if (isACGroupLevel)
-                        {
-                            oRU.SetText(ref sheet, row, mainColIndex, dtCr.Rows[i]["Level"].ToString()); mainColIndex++;
-                        }
-                        oRU.SetText(ref sheet, row, mainColIndex, dtCr.Rows[i]["AccountCode"] + " - " + dtCr.Rows[i]["GL"]); mainColIndex++;
-                        if (isBudgetLevel)
-                        {
-                            oRU.SetText(ref sheet, row, mainColIndex, dtCr.Rows[i]["Budget"].ToString()); mainColIndex++;
-                        }
-                        if (isActivityLevel)
-                        {
-                            oRU.SetText(ref sheet, row, mainColIndex, dtCr.Rows[i]["Activity"].ToString()); mainColIndex++;
-                        }
-                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtCr.Rows[i]["DRcumulative"].ToString()));
-                    
+
+
+                    row++;
+                    mainColIndex = 1;
+                    if (isACGroupLevel)
+                    {
+                        oRU.SetText(ref sheet, row, mainColIndex, dtCr.Rows[i]["Level"].ToString()); mainColIndex++;
+                    }
+                    oRU.SetText(ref sheet, row, mainColIndex, dtCr.Rows[i]["AccountCode"] + " - " + dtCr.Rows[i]["GL"]); mainColIndex++;
+                    if (isBudgetLevel)
+                    {
+                        oRU.SetText(ref sheet, row, mainColIndex, dtCr.Rows[i]["Budget"].ToString()); mainColIndex++;
+                    }
+                    if (isActivityLevel)
+                    {
+                        oRU.SetText(ref sheet, row, mainColIndex, dtCr.Rows[i]["Activity"].ToString()); mainColIndex++;
+                    }
+                    oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtCr.Rows[i]["DRcumulative"].ToString()));
+
                 }
                 sumdrcrCol1 = mainColIndex;
                 Row_Total_End = row;
@@ -2803,25 +2745,25 @@ namespace Aplos.Areas.Accounts.Controllers
                 var Row_Total_End2 = 0;
                 var sumdrcrCol2 = 0;
                 for (int i = 0; i < dtDr.Rows.Count; i++)
-                {   
-                        row++;
-                        mainColIndex = 1;
-                        if (isACGroupLevel)
-                        {
-                            oRU.SetText(ref sheet, row, mainColIndex, dtDr.Rows[i]["Level"].ToString()); mainColIndex++;
-                        }
-                        oRU.SetText(ref sheet, row, mainColIndex, dtDr.Rows[i]["AccountCode"] + " - " + dtDr.Rows[i]["GL"]); mainColIndex++;
-                        if (isBudgetLevel)
-                        {
-                            oRU.SetText(ref sheet, row, mainColIndex, dtDr.Rows[i]["Budget"].ToString()); mainColIndex++;
-                        }
-                        if (isActivityLevel)
-                        {
-                            oRU.SetText(ref sheet, row, mainColIndex, dtDr.Rows[i]["Activity"].ToString()); mainColIndex++;
-                        }
+                {
+                    row++;
+                    mainColIndex = 1;
+                    if (isACGroupLevel)
+                    {
+                        oRU.SetText(ref sheet, row, mainColIndex, dtDr.Rows[i]["Level"].ToString()); mainColIndex++;
+                    }
+                    oRU.SetText(ref sheet, row, mainColIndex, dtDr.Rows[i]["AccountCode"] + " - " + dtDr.Rows[i]["GL"]); mainColIndex++;
+                    if (isBudgetLevel)
+                    {
+                        oRU.SetText(ref sheet, row, mainColIndex, dtDr.Rows[i]["Budget"].ToString()); mainColIndex++;
+                    }
+                    if (isActivityLevel)
+                    {
+                        oRU.SetText(ref sheet, row, mainColIndex, dtDr.Rows[i]["Activity"].ToString()); mainColIndex++;
+                    }
 
-                        oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtDr.Rows[i]["CRcumulative"].ToString()));
-                    
+                    oRU.SetText(ref sheet, row, mainColIndex, Convert.ToDouble(dtDr.Rows[i]["CRcumulative"].ToString()));
+
                 }
                 Row_Total_End2 = row;
                 sumdrcrCol2 = mainColIndex;
@@ -2901,7 +2843,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 sheet.Range[TotalEquityandLiabilitySumRow, sumdrcrCol2].BorderAround(ExcelLineStyle.Hair);
             }
         }
-    
+
         private DataTable GetBalanceSheetInfo(string companyGroupId, string companyId, string plantId, string date, bool isBudgetLevel, bool isActivityLevel, bool isACGroupLevel)
         {
             if (isActivityLevel)
@@ -3123,7 +3065,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
             DataTable dtLocal = GetBalanceSheetExtentInfo(companyGroupId, companyId, plantId, date/*, isBudgetLevel, isActivityLevel, isACGroupLevel*/);
             var dsLocalPL = GetBalanceSheetInfoExtentPL(companyGroupId, companyId, plantId, date/*, isBudgetLevel, isActivityLevel, isACGroupLevel*/);
 
-    
+
             DataView dvDr = new DataView(dtLocal)
             {
                 RowFilter = "MainHead='Equity' OR  MainHead='Liability'",
@@ -3378,7 +3320,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
 
         private DataTable GetBalanceSheetExtentInfo(string companyGroupId, string companyId, string plantId, string date/*, bool isBudgetLevel, bool isActivityLevel, bool isACGroupLevel*/)
         {
-            
+
             var cmdText = @"select * FROM (SELECT distinct GL.Id AS AccountCodeId, VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
 								sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id,  VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
                                 , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
@@ -3408,7 +3350,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 {
                     ExportType = "DATASET"
                 };
-              
+
                 parameters.CmdText = @"SELECT 	GL.Id AS AccountCodeId,
                                             Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
@@ -4256,10 +4198,10 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 headreColIndex++;
                 int colNotes = headreColIndex;
                 oRU.SetHeaderTextBL(ref sheet, row, colNotes, "NOTES", 15);
-                
+
                 headreColIndex++;
                 int colClosingBalance = headreColIndex;
-                oRU.SetHeaderTextBL(ref sheet, row, colClosingBalance, " "+ toDate + " ", 15);
+                oRU.SetHeaderTextBL(ref sheet, row, colClosingBalance, " " + toDate + " ", 15);
                 sheet[row, colClosingBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 headreColIndex++;
                 int colForThePeriod = headreColIndex;
@@ -4267,7 +4209,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 sheet[row, colForThePeriod].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 headreColIndex++;
                 int colOpeningBalance = headreColIndex;
-                oRU.SetHeaderTextBL(ref sheet, row, colOpeningBalance, ""+Convert.ToDateTime( fromDate).AddDays(-1).ToString("dd-MMM-yyyy")+"", 15);
+                oRU.SetHeaderTextBL(ref sheet, row, colOpeningBalance, "" + Convert.ToDateTime(fromDate).AddDays(-1).ToString("dd-MMM-yyyy") + "", 15);
                 sheet[row, colOpeningBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 //oRU.SetText(ref sheet, 5, colLast, ("From " + fromDate + " " + " To " + toDate + " "), ExcelHAlign.HAlignCenter);
@@ -4582,7 +4524,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 sheet.Name = "Sheet";
                 sheet.UsedRange.AutofitColumns();
                 sheet.UsedRange.CellStyle.Font.Size = 8;
-                oRU.CompanyPlantHeader(ref sheet, colLast, "Balance Sheet", companyId,plantId, plantName, null);
+                oRU.CompanyPlantHeader(ref sheet, colLast, "Balance Sheet", companyId, plantId, plantName, null);
                 oRU.SetText(ref sheet, 5, colLast, ("From " + fromDate + "" + " To " + toDate + " "), ExcelHAlign.HAlignCenter);
                 sheet.Range[oRU.GetColumnNameForXls(1) + 5 + ":" + oRU.GetColumnNameForXls(colLast) + 5].Merge();
                 oRU.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
@@ -4601,7 +4543,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
         }
         private DataTable GetBalanceSheetForThePeriodInfo(string companyGroupId, string companyId, string plantId, string fromDate /*, bool isBudgetLevel, bool isActivityLevel, bool isACGroupLevel*/)
         {
-          
+
             var cmdText = @"select * FROM (SELECT distinct GL.Id AS AccountCodeId, VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
 								sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id,  VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
                                 , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
@@ -4645,7 +4587,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
 
         private DataTable GetBalanceSheetCLForThePeriodInfo(string companyGroupId, string companyId, string plantId, string toDate/*, bool isBudgetLevel, bool isActivityLevel, bool isACGroupLevel*/)
         {
-           
+
             var cmdText = @"select * FROM (SELECT distinct GL.Id AS AccountCodeId, VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
 								sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id,  VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
                                 , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
@@ -4663,7 +4605,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                                 GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType, AG.UserName, ACT.Id
 ) AS K where k.DRcumulative<>0  OR 	k.CRcumulative<>0";
             return _sqlRepository.GetDataTable(cmdText);
-           
+
         }
 
         private DataSet GetBalanceSheetInfoDateForThePeriodPL(string companyGroupId, string companyId, string plantId, string fromDate, string toDate/*, bool isBudgetLevel, bool isActivityLevel, bool isACGroupLevel*/)
@@ -4675,7 +4617,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 {
                     ExportType = "DATASET"
                 };
-              
+
                 parameters.CmdText = @"select * FROM (SELECT 	GL.Id AS AccountCodeId,
                                             Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
@@ -4719,7 +4661,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 {
                     ExportType = "DATASET"
                 };
-               
+
                 parameters.CmdText = @"SELECT 	GL.Id AS AccountCodeId,
                                             Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
@@ -4764,7 +4706,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 {
                     ExportType = "DATASET"
                 };
-                
+
                 parameters.CmdText = @"SELECT 	GL.Id AS AccountCodeId,
                                             Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
@@ -6121,7 +6063,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
 
             try
             {
-             
+
 
                 string masterLCList = "";
 
@@ -6278,13 +6220,13 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+identity.CompanyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + identity.CompanyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-                AND IV.CompanyGroupId='"+identity.CompanyGroupId+"' AND IV.CompanyId='"+identity.CompanyId+"'  AND IV.PlantId='"+identity.PlantId+@"'
+                AND IV.CompanyGroupId='" + identity.CompanyGroupId + "' AND IV.CompanyId='" + identity.CompanyId + "'  AND IV.PlantId='" + identity.PlantId + @"'
                 --GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
-                 AND IV.PartyId in('"+partyId+ @"')
+                 AND IV.PartyId in('" + partyId + @"')
 
                 UNION ALL
                 SELECT ISNULL( IV.PartyId,'')PartyId
@@ -6343,13 +6285,13 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId= VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '"+identity.CompanyId+@"'
+                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + identity.CompanyId + @"'
                 ) AS CC ON CC.VoucherDetailId = VD.Id
 
                 WHERE IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0 AND IVD.IsBlock = 0 AND IV.SourceType in ('InventoryPayable')
                 AND IV.CompanyGroupId='" + identity.CompanyGroupId + "' AND IV.CompanyId='" + identity.CompanyId + "'  AND IV.PlantId='" + identity.PlantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
-                AND IV.PartyId in('"+partyId+ @"')
+                AND IV.PartyId in('" + partyId + @"')
                 UNION ALL
                 SELECT ISNULL( IV.PartyId,'')PartyId
 			, isnull( IV.PartyPlantId,'')PartyPlantId
@@ -6412,12 +6354,12 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN[SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId= VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '"+identity.CompanyId+@"'
+                WHERE CPC.ParallelCurrencyType= 'CompanyCurrency' AND CPC.CompanyId= '" + identity.CompanyId + @"'
                 ) AS CC ON CC.VoucherDetailId = VD.Id
 
                 WHERE IV.Archive = 0 AND IV.IsWrittenOff = 0 AND IVD.IsWrittenOff = 0 AND V.IsPark = 0  AND IV.SourceType in ('DebitNote','VendorPayment')
                 AND IV.CompanyGroupId='" + identity.CompanyGroupId + "' AND IV.CompanyId='" + identity.CompanyId + "'  AND IV.PlantId='" + identity.PlantId + @"'
-                AND IV.PartyId in('"+partyId+@"')
+                AND IV.PartyId in('" + partyId + @"')
                 order by isnull(  P.UserName,'') ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
