@@ -925,18 +925,18 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 #endregion
 
                                 #region Holiday as Payday count
-                                DataSet dsWHCount = null;
-                                GetWHCount(sEmpSysIDColl, para.FromDate, para.ToDate, para.PlantId, out dsWHCount);
-                                List<EmployeeWHCount> dicWHCount = new List<EmployeeWHCount>();
-                                if (dsWHCount.Tables[0].Rows.Count > 0)
-                                    dicWHCount = dsWHCount.Tables[0].ToList<EmployeeWHCount>();
+                                //DataSet dsWHCount = null;
+                                //GetWHCount(sEmpSysIDColl, para.FromDate, para.ToDate, para.PlantId, out dsWHCount);
+                                //List<EmployeeWHCount> dicWHCount = new List<EmployeeWHCount>();
+                                //if (dsWHCount.Tables[0].Rows.Count > 0)
+                                //    dicWHCount = dsWHCount.Tables[0].ToList<EmployeeWHCount>();
 
 
-                                DataSet dsHolidayAsPaydayPolicy = null;//999
-                                GetHolidayPaydaySalaryHeadPolicy(sEmpSysIDColl, out dsHolidayAsPaydayPolicy);
-                                List<HolidayPaydaySHead> dicHolidayAsPaydayPolicy = new List<HolidayPaydaySHead>();
-                                if (dsHolidayAsPaydayPolicy.Tables[0].Rows.Count > 0)
-                                    dicHolidayAsPaydayPolicy = dsHolidayAsPaydayPolicy.Tables[0].ToList<HolidayPaydaySHead>();
+                                //DataSet dsHolidayAsPaydayPolicy = null;//999
+                                //GetHolidayPaydaySalaryHeadPolicy(sEmpSysIDColl, out dsHolidayAsPaydayPolicy);
+                                //List<HolidayPaydaySHead> dicHolidayAsPaydayPolicy = new List<HolidayPaydaySHead>();
+                                //if (dsHolidayAsPaydayPolicy.Tables[0].Rows.Count > 0)
+                                //    dicHolidayAsPaydayPolicy = dsHolidayAsPaydayPolicy.Tables[0].ToList<HolidayPaydaySHead>();
                                 #endregion
 
                                 //////Get Employee Information For Save Loop
@@ -991,7 +991,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 {
                                     SendNotification("Getting Materninty Attendances", TotProcComp, TotSelectEmpForProc);
 
-                                    Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery obj = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
+                                    clsSalaryProcessQuery obj = new clsSalaryProcessQuery();
                                     string _wc;
                                     ///create emp with fd and to
                                     obj.Create_EmpDateRange_For_WC(dsGrid, para.FromDate, out _wc);

@@ -1152,15 +1152,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void DeleteSlrProcChild(int intMonthNo, int intYearNo, string sEmpInfo)
         {
             ConnectionManager.DAL.ConManager objCon = null;
-            //string strSql = "";
-
+            
             try
             {
-                //                strSql = @"SELECT * FROM SalaryProcChild WHERE MonthNo = " + intMonthNo + @" 
-                //                                AND YearNo = " + intYearNo + @" AND IsDisbursed = 0 AND (" + strEmp + @")";
-
-                //objCon = new ConnectionManager.DAL.ConManager("1");
-                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -1236,15 +1230,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void DeleteCarryForwardSalary(int intMonthNo, int intYearNo, string sEmpInfo)
         {
             ConnectionManager.DAL.ConManager objCon = null;
-            //string strSql = "";
-
+            
             try
             {
-                //                strSql = @"SELECT * FROM SalaryProcChild WHERE MonthNo = " + intMonthNo + @" 
-                //                                AND YearNo = " + intYearNo + @" AND IsDisbursed = 0 AND (" + strEmp + @")";
-
-                //objCon = new ConnectionManager.DAL.ConManager("1");
-                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
