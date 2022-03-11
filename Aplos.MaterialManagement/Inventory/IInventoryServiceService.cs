@@ -10,6 +10,7 @@ namespace Library.MaterialManagement.Inventory
         void InsertGraph(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList); 
         void InsertGraphUpdate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList); 
         void InsertGraphNew(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList,string id, string AcceptanceId);
+        void InsertGraphNewBOQ(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList,string id, string AcceptanceId);
         void InsertGraphNewEdit(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string id); 
         void Delete(string serviceId);
 
