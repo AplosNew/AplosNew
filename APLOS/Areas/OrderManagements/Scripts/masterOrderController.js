@@ -479,7 +479,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
         $scope.ExchangeDisplayExchangeRates($scope.fileNew.Id, $scope.fileNew.CurrencyId);//reloading currency exchange rates
         $scope.GetPaymentTermChangeable();
-        $scope.GetContractByMasterOrder();
+        //$scope.GetContractByMasterOrder();
     };
 
     $scope.GetPaymentTermChangeable = function () {
