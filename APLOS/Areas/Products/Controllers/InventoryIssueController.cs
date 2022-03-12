@@ -160,6 +160,10 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			return View();
 		}
+		public ActionResult inventoryIssueBOQ()
+		{
+			return View();
+		}
 		#endregion Aplos
 
 		#region Operations
