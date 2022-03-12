@@ -925,18 +925,18 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 #endregion
 
                                 #region Holiday as Payday count
-                                DataSet dsWHCount = null;
-                                GetWHCount(sEmpSysIDColl, para.FromDate, para.ToDate, para.PlantId, out dsWHCount);
-                                List<EmployeeWHCount> dicWHCount = new List<EmployeeWHCount>();
-                                if (dsWHCount.Tables[0].Rows.Count > 0)
-                                    dicWHCount = dsWHCount.Tables[0].ToList<EmployeeWHCount>();
+                                //DataSet dsWHCount = null;
+                                //GetWHCount(sEmpSysIDColl, para.FromDate, para.ToDate, para.PlantId, out dsWHCount);
+                                //List<EmployeeWHCount> dicWHCount = new List<EmployeeWHCount>();
+                                //if (dsWHCount.Tables[0].Rows.Count > 0)
+                                //    dicWHCount = dsWHCount.Tables[0].ToList<EmployeeWHCount>();
 
 
-                                DataSet dsHolidayAsPaydayPolicy = null;//999
-                                GetHolidayPaydaySalaryHeadPolicy(sEmpSysIDColl, out dsHolidayAsPaydayPolicy);
-                                List<HolidayPaydaySHead> dicHolidayAsPaydayPolicy = new List<HolidayPaydaySHead>();
-                                if (dsHolidayAsPaydayPolicy.Tables[0].Rows.Count > 0)
-                                    dicHolidayAsPaydayPolicy = dsHolidayAsPaydayPolicy.Tables[0].ToList<HolidayPaydaySHead>();
+                                //DataSet dsHolidayAsPaydayPolicy = null;//999
+                                //GetHolidayPaydaySalaryHeadPolicy(sEmpSysIDColl, out dsHolidayAsPaydayPolicy);
+                                //List<HolidayPaydaySHead> dicHolidayAsPaydayPolicy = new List<HolidayPaydaySHead>();
+                                //if (dsHolidayAsPaydayPolicy.Tables[0].Rows.Count > 0)
+                                //    dicHolidayAsPaydayPolicy = dsHolidayAsPaydayPolicy.Tables[0].ToList<HolidayPaydaySHead>();
                                 #endregion
 
                                 //////Get Employee Information For Save Loop
@@ -991,7 +991,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 {
                                     SendNotification("Getting Materninty Attendances", TotProcComp, TotSelectEmpForProc);
 
-                                    Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery obj = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
+                                    clsSalaryProcessQuery obj = new clsSalaryProcessQuery();
                                     string _wc;
                                     ///create emp with fd and to
                                     obj.Create_EmpDateRange_For_WC(dsGrid, para.FromDate, out _wc);
@@ -4238,9 +4238,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                 List<EmpSalaryHeadAmount> _List_BonusRetainHeadValue = null;
                                 List<EmpSalaryHeadAmount> _List_PFHeadValue = null;
-                                //List<EmpSalaryHeadAmount> _List_ESICHeadValue = null;
-
-
+                                
 
                                 try
                                 {
@@ -4281,8 +4279,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     PFpara.sEmpSystemID = sEmpSysIDColl;
                                     PFpara.LocalCurrencyID = para.lblLocalCurrencyID.Trim();
                                     PFpara.ForeignCurRate = para.txtForeignCurRate.Trim();
-                                    PFpara.FromDate = para.FromDate;//FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.FromDate)).ToString();
-                                    PFpara.ToDate = para.ToDate;// FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.ToDate)).ToString();
+                                    PFpara.FromDate = para.FromDate;
+                                    PFpara.ToDate = para.ToDate;
                                     PFpara.sUser = para.USER;
                                     PFpara.dsSalInfo = ds;
                                     PFpara.dicProcChild = dicProcChild;
@@ -4292,22 +4290,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     objPFGnt.CalculateEarnPF(PFpara, out _List_PFHeadValue);//CalculateEarnPF
                                                                                             //objPFGnt.GeneratorPFEligibleEmployee(PFpara);//CalculateEarnPF
                                     #endregion Generate PF
-                                    #region Generate ESIC commented
-                                    //ESICParaList ESICpara = new OTSBD.ESICParaList();
-                                    //ESICpara.GroupID = para.GroupId.ToString().Trim();
-                                    //ESICpara.PlantID = para.PlantId.ToString().Trim();
-                                    //ESICpara.sEmpSystemID = sEmpSysIDColl.Trim();
-                                    //ESICpara.LocalCurrencyID = para.lblLocalCurrencyID.Trim();
-                                    //ESICpara.ForeignCurRate = para.txtForeignCurRate.Trim();
-                                    //ESICpara.FromDate = para.FromDate;//FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.FromDate)).ToString();
-                                    //ESICpara.ToDate = para.ToDate;// FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.ToDate)).ToString();
-                                    //ESICpara.sUser = para.USER;
-                                    //ESICpara.dsSalInfo = ds;
-                                    //ESICpara.dicProcChild = dicProcChild;
-                                    //ESICpara.dtValue = dtValue;
-                                    //ESICpara.ShouldNotProcessUntaggedEmp = true;
-                                    //objESICGnt.CalculateEarnESIC(ESICpara, out _List_ESICHeadValue);
-                                    #endregion Generate ESIC
+                                    
                                 }
                                 catch (Exception ex)
                                 {
@@ -4331,11 +4314,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     if (dsPF.Tables[0].Rows.Count > 0)
                                         dicPF = dsPF.Tables[0].ToList<dicPF>();//
 
-                                    //List<dicESIC> dicESIC = new List<dicESIC>();
-                                    //objSlrProc.GetESICStructureData(sEmpSysIDColl, para.ToDate.Trim(), out dsESIC);
-                                    //if (dsESIC.Tables[0].Rows.Count > 0)
-                                    //    dicESIC = dsESIC.Tables[0].ToList<dicESIC>();///
-
+                                    
                                     if (dsSelectedEmp.Tables[0].Rows.Count > 0)
                                     {
                                         string _childPK_seed_fromDB = string.Empty;
@@ -5096,12 +5075,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 }
                 return para;
-                //displayMsgs("Processed Successfully Completed...!!!!", "Ok", "Save");
-                //Session["VERIFICATION_STATE"] = 1;
             }
             catch (Exception ex)
             {
-                //sendMessage(ex.Message);
+                
                 SendNotification(ex.ToString());
 
                 throw ex;

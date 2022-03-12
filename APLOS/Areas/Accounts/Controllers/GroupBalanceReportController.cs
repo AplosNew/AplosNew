@@ -591,7 +591,7 @@ namespace Aplos.Areas.Accounts.Controllers
             IWorkbook workbook = null;
             //workbook = GroupBalanceReportService.GetGeneralLedgerReport(glId, budgetMasterId, fromDate, toDate);
             //identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate
-            workbook = _groupBalanceReportService.GetGeneralLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate);
+            workbook = _groupBalanceReportService.GetGeneralLedgerReport2(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate);
            // workbook = _groupBalanceReportService.GetGeneralLedgerReport();
 
             var reportFileName = DateTime.Now.ToString("yyMMdd") + " Group Ledger Report";
@@ -604,7 +604,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
 
                 default:
-                    return RenderReportAsExcel(workbook, reportFileName);
+                    return RenderReportAsExcelx(workbook, reportFileName);
             }
 
 

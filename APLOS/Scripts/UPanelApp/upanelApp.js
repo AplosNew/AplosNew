@@ -1017,6 +1017,7 @@ upanelApp.controller("MeetingReportsController", MeetingReportsController);
 upanelApp.controller("EmployeeOperationsController", EmployeeOperationsController);
 upanelApp.controller("GroupBalanceReportController", GroupBalanceReportController);
 upanelApp.controller("WasteIssueController", WasteIssueController);
+upanelApp.controller("inventoryIssueBOQController", inventoryIssueBOQController);
 
 
 upanelApp.config(AccessControllerConfig);
