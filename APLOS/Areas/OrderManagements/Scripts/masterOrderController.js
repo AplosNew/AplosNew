@@ -3196,11 +3196,22 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     };
 
-    $scope.chvChange = function (characteristicsValueId, index) {
+    //$scope.chvChange = function (characteristicsValueId, index) {
+    //    for (var i = 1; i < baseService.arrayLength($scope.skuList); i++) {
+    //        $scope.skuList[i].childList[index].CharacteristicsValueId = characteristicsValueId;
+    //    }
+    //};
+
+    $scope.chvChange = function (args) {
+        if (!args.isInteraction)
+            return;
         for (var i = 1; i < baseService.arrayLength($scope.skuList); i++) {
-            $scope.skuList[i].childList[index].CharacteristicsValueId = characteristicsValueId;
+            //$scope.skuList[i].childList[index].CharacteristicsValueId = args.selectedValue;
+            $scope.skuList[i].childList[args.model.name].CharacteristicsValueId = args.selectedValue;
         }
+        $scope.verifySkuMatrix();
     };
+
 
     $scope.chvKeyChange = function (value, index) {
         for (var i = 0; i < baseService.arrayLength($scope.skuList); i++) {
