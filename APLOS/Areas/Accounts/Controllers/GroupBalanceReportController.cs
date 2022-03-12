@@ -591,6 +591,10 @@ namespace Aplos.Areas.Accounts.Controllers
             IWorkbook workbook = null;
             //workbook = GroupBalanceReportService.GetGeneralLedgerReport(glId, budgetMasterId, fromDate, toDate);
             //identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate
+            if(budgetMasterId=="")
+            {
+                budgetMasterId = "null";
+            }
             workbook = _groupBalanceReportService.GetGeneralLedgerReport2(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate);
            // workbook = _groupBalanceReportService.GetGeneralLedgerReport();
 

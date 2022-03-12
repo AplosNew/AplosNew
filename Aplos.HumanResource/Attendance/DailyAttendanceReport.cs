@@ -133,12 +133,12 @@ namespace Library.HumanResource.Attendance
                         , LG.UserName Designation
                          , kk.PrvDayStatus,kk.YesterDayDayCategory
 						,kk.YesterdayOTHr,ap.IsManualInTime,ap.IsManualOutTime,hr.OTConsiderOn
-
+                        ,ISNULL(L.UserName,'') Line
                         from EmployeeInformation e
 
                         left join AttdnProcessData ap on ap.EmpSystemID = e.SystemId
-left join DayType dt on dt.DayType = ap.DayStatus
-INNER JOIN (SELECT APD.*, FIOT.NormalOTHr, FIOT.WorkDate FIOTWorkDate,dt.Category ToDayDayCategory,Dt.Category
+                        left join DayType dt on dt.DayType = ap.DayStatus
+                        INNER JOIN (SELECT APD.*, FIOT.NormalOTHr, FIOT.WorkDate FIOTWorkDate,dt.Category ToDayDayCategory,Dt.Category
                                             ,SEQ=case when  LTSystemid in (select  id from leavetype where LeaveType='Maternity') then 1
 													 when isnull(MaternityStatus,'')<>''  then 1 else 0 end
 											--,DS=(select  code from leavetype where LeaveType='Maternity' and id=LTSystemid)
@@ -169,7 +169,7 @@ INNER JOIN (SELECT APD.*, FIOT.NormalOTHr, FIOT.WorkDate FIOTWorkDate,dt.Categor
                                                 left join DayType ydt on ydt.DayType = yap.DayStatus
                                                 where yap.WorkDate = '" + PrevWorkDate + @"') kk on kk.EmpSystemID = e.SystemId
 
-where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + ShiftIds_WC + " " + xxy + " ";
+                                            where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + ShiftIds_WC + " " + xxy + " ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -440,7 +440,7 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
             }
         }
 
-        public string GetDailyAttendanceEmpInformation(string companyGroupId, string companyId, string plantId, string SheetHeader, string SheetName, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string empCategoryList, string designationList, string lineList, string Dstatus, bool WithFatherName, string JobLocation)
+        public string GetDailyAttendanceEmpInformation(string companyGroupId, string companyId, string plantId, string SheetHeader, string SheetName, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string empCategoryList, string designationList, string lineList, string Dstatus, bool WithFatherName, string JobLocation, bool IsWithLine)
         {
             try
             {
@@ -464,14 +464,9 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                 var IsBudgetCodeApplicable = true;
 
                 #endregion Variable
-                //objRpt = new clsReport();
+
                 oRU = new ReportUtility();
-
                 Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
-
-
-
-
 
                 dayStatus = new StringCollection();
                 StringCollection myCol = new StringCollection();
@@ -537,7 +532,7 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                     var cEmployeeCode = 0; var cBudgetCode = 0; var cCurrentMonthAbsent = 0; var cName = 0; var cDOJ = 0; var cDOB = 0;
                     var cTotalAbsentORLate = 0; var cShiftInTime = 0; var cShiftOutTime = 0;
                     var cDesignation = 0; var cGivenDesignation = 0; var cLD = 0; var cLeaveType = 0;
-                    var cDayStatus = 0; var cEmpCatg = 0; var cEmpLocation = 0; var cDepertment = 0; var cEntity = 0; var cSl = 0;
+                    var cLine = 0; var cEmpCatg = 0; var cEmpLocation = 0; var cDepertment = 0; var cEntity = 0; var cSl = 0;
                     var endXlsCol = 0;
                     var colNum = 0;
                     var cYesterdayDaystatus = 0;
@@ -559,6 +554,10 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 17); cLD = xlsCol; xlsCol++;
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp. Category", 10); cEmpCatg = xlsCol; xlsCol++;
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp. Location", 13); cEmpLocation = xlsCol; xlsCol++;
+                    if ( IsWithLine)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Line", 13); cLine = xlsCol; xlsCol++;
+                    }
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift Name", 20); cDesignation = xlsCol; xlsCol++;
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "In Time", 12); cDOJ = xlsCol; xlsCol++;
 
@@ -615,21 +614,13 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                             {
                                 oRU.SetText(ref sheet1, xlsRow, cDOB, daylyAttdnEmpInfo.Rows[i]["FatherName"].ToString());
                             }
+                            if (IsWithLine)
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cLine, daylyAttdnEmpInfo.Rows[i]["Line"].ToString());
+                            }
                             oRU.SetText(ref sheet1, xlsRow, cDOJ, daylyAttdnEmpInfo.Rows[i]["Intime"].ToString());
                             oRU.SetText(ref sheet1, xlsRow, cEmpCatg, daylyAttdnEmpInfo.Rows[i]["empCategory"].ToString());
-                            //oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
-
-                            //if (dayStatus[dsi] == "Leave")
-                            //{
-                            //    oRU.SetText(ref sheet1, xlsRow, cLeaveType, daylyAttdnEmpInfo.Rows[i]["LeaveType"].ToString());
-                            //}
-                            //if (dayStatus[dsi] == "Work Off")
-                            //{
-                            //    if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString()))
-                            //    {
-                            //        oRU.SetText(ref sheet1, xlsRow, cDayStatus, daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString());
-                            //    }
-                            //}
+                            
 
                             oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["Location"].ToString());
                             oRU.SetText(ref sheet1, xlsRow, cDesignation, daylyAttdnEmpInfo.Rows[i]["ShiftName"].ToString());
@@ -709,16 +700,9 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                     ShiftIds_WC = " and sd.SystemID in (" + shift + ") ";
                 }
 
-                //if (xx == "'Other'")
-                //{
-                //    xxy += " AND  dt.Category in( 'Half Day','Holiday','Working Day')";
-                //}
-                //else
-                //{
                 xxy += " AND  DT.Category = " + xx + "";
                 XJobLocation += " And J.SystemID in (" + JobLocation + ")";
-                //}
-
+                
                 obs = new clsStaticInfo();
                 strSql = @" select e.SystemId
                                             from EmployeeInformation e
@@ -790,7 +774,7 @@ where  ap.WorkDate='" + WorkDate + @"' and e.SystemId in (" + strSql + ")  " + S
                         , LG.UserName Designation
                          , kk.PrvDayStatus
 						,kk.YesterdayOTHr,ap.IsManualInTime,ap.IsManualOutTime,hr.OTConsiderOn
-
+                        ,ISNULL(L.UserName,'') Line
                         from EmployeeInformation e
 
                         left join AttdnProcessData ap on ap.EmpSystemID = e.SystemId

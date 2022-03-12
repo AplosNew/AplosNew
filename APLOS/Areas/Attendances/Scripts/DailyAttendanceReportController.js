@@ -23,6 +23,7 @@ function DailyAttendanceReportController(commonMessage, $scope, $rootScope, base
     }
 
     $scope.WithFatherName = false;
+    $scope.IsWithLine = false;
     $scope.previousDay = null;
     $scope.GetList = [];
     $scope.getData = function () {
@@ -224,7 +225,7 @@ function DailyAttendanceReportController(commonMessage, $scope, $rootScope, base
                     , 'SSec': subSectionList, 'lineList': lineList
                     , 'dayStatus': dayStatus, 'shift': shiftList
                     , 'Ydate': $scope.previousDay, 'WithFatherName': $scope.WithFatherName
-                    , 'JobLocation': JobLocation
+                    , 'JobLocation': JobLocation, 'IsWithLine': $scope.IsWithLine
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -300,7 +301,7 @@ function DailyAttendanceReportController(commonMessage, $scope, $rootScope, base
                     , 'dayStatus': dayStatus, 'shift': sList
                     , 'PrevWorkDate': $scope.previousDay, 'Dep': DeptName
                     , 'Sec': Sec, 'WithFatherName': $scope.WithFatherName
-                    , 'JobLocation': JobLocation
+                    , 'JobLocation': JobLocation, 'IsWithLine': $scope.IsWithLine
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -363,7 +364,7 @@ function DailyAttendanceReportController(commonMessage, $scope, $rootScope, base
                     , 'SSec': subSectionList, 'lineList': lineList
                     , 'dayStatus': dayStatus, 'shift': shiftList
                     , 'Ydate': $scope.previousDay, 'WithFatherName': $scope.WithFatherName
-                    , 'JobLocation': JobLocation
+                    , 'JobLocation': JobLocation, 'IsWithLine': $scope.IsWithLine
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

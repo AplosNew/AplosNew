@@ -9,6 +9,18 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.showfromto = true;
+    $scope.showgrndiv = false;
+
+    $scope.clickGo = function () {
+        $scope.showfromto = false;
+        $scope.showgrndiv = true;
+    }
+
+    $scope.clickBack = function () {
+        $scope.showfromto = true;
+        $scope.showgrndiv = false;
+    }
 
     $scope.fabricRollMaster = {
         CompanyGroupId: $window.companyGroupId,

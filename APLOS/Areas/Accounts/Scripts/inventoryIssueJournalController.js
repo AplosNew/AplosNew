@@ -70,7 +70,8 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
             .then(function (result) {
                 $scope.dataList = result.Rows;
                 for (var i = 0; i < $scope.dataList.length; i++) {
-                    $scope.dataList[i].VoucherDate = new Date($scope.dataList[i].VoucherDate);                    $scope.dataList[i].IssueDate = new Date($scope.dataList[i].IssueDate);
+                    $scope.dataList[i].VoucherDate = new Date($scope.dataList[i].VoucherDate);
+                    $scope.dataList[i].IssueDate = new Date($scope.dataList[i].IssueDate);
                 }
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');
