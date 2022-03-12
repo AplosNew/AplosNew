@@ -1152,15 +1152,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void DeleteSlrProcChild(int intMonthNo, int intYearNo, string sEmpInfo)
         {
             ConnectionManager.DAL.ConManager objCon = null;
-            //string strSql = "";
-
+            
             try
             {
-                //                strSql = @"SELECT * FROM SalaryProcChild WHERE MonthNo = " + intMonthNo + @" 
-                //                                AND YearNo = " + intYearNo + @" AND IsDisbursed = 0 AND (" + strEmp + @")";
-
-                //objCon = new ConnectionManager.DAL.ConManager("1");
-                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -1236,15 +1230,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void DeleteCarryForwardSalary(int intMonthNo, int intYearNo, string sEmpInfo)
         {
             ConnectionManager.DAL.ConManager objCon = null;
-            //string strSql = "";
-
+            
             try
             {
-                //                strSql = @"SELECT * FROM SalaryProcChild WHERE MonthNo = " + intMonthNo + @" 
-                //                                AND YearNo = " + intYearNo + @" AND IsDisbursed = 0 AND (" + strEmp + @")";
-
-                //objCon = new ConnectionManager.DAL.ConManager("1");
-                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -2640,7 +2628,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             string strSql = "";
             try
             {
-                strSql = @" select						   
+                strSql = @" select distinct					   
 						   EmpSystemID, LTSystemID, ComAssignLvSystemID, OffDayMstSystemID, FromDate, ToDate, LeaveDays
 						   , IsPostApplied=case when m.AppliedDate>m.FromDate then convert(bit,1) else convert(bit,0) end
 						    from LeaveTransactionDetails d 

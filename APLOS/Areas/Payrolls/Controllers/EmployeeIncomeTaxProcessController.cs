@@ -26,6 +26,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #endregion
 
+        #region Processing Functions
+
         [HttpPost, Authorize]
         public JsonResult GetData(string PolicyId, string Earning, string PlantId)
         {
@@ -57,11 +59,11 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult ProcessFunction(string PolicyId, string YearId, string PlantId,string EmpId)
+        public ActionResult ProcessFunction(string PolicyId, string YearId,string EmpId,string TaxTypeId,string StartDate,string EndDate)
         {
             try
             {
-                rep.ProcessIncomeTax(PolicyId, YearId,PlantId,EmpId);
+                rep.ProcessIncomeTax(PolicyId, YearId,EmpId,TaxTypeId,StartDate,EndDate);
                 return Json(new { Error = false, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -71,6 +73,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
 
+        #endregion
     }
 }
  

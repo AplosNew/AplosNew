@@ -14,6 +14,7 @@ namespace Library.Model.Inventory
         public string Id { get; set; }
         public string ServiceAcknowledgementMasterId { get; set; }
         public string ServiceAcknowledgementDetailId { get; set; } 
+        public string ServiceAcknowledgementChargeId { get; set; } 
         public string TaxCategoryId { get; set; }
         public string HSNCodeId { get; set; }
         public decimal Percentage { get; set; }

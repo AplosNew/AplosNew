@@ -162,18 +162,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
     //Employee Load
     $scope.IsApprovedEmpList = false;
     $scope.employees = [];
-    //baseService.init($scope.getApprovedEmpListUrl, null, 10, null, 'EmployeeCode', 'EmployeeCode');
-    //$scope.getData = function (pageno) {
-    //    baseService.pagination(pageno)
-    //        .then(function (result) {
-    //            $scope.employees = result.data;
-    //            //$scope.empParameters = result.Rows.Total;
-    //        }, function () {
-    //            $scope.ShowResultCustom(commonMessage.NetworkError, 'failure');
-    //        }).finally(function () {
-    //        });
-    //};
-    //$scope.getData();
+
 
     $scope.searchsByList = [
         {
@@ -253,81 +242,6 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
 
     };
-
-
-    //-------increment
-    //$scope.EmpSalaryInfoDefine = {
-    //    SalaryRuleMasterSystemID: null,
-    //    CRCSystemID: null,
-    //    AmtEntryCurrency: null,
-    //    AmtDefinitionCurrency: null,
-    //    AmtDisbusmentCurrency: null,
-    //    AccumulateExchangeRate: null,
-    //    AccumulateExchangeSalaryHeadID: null,
-    //    egerInDisb: null,
-    //    DisbusmentCurrencyID: null,
-    //    DisbusmentCurrency: null,
-    //    RoundOption: null,
-    //    IsDecimalInDisb: null,
-    //    DecimalNo: null,
-    //    SalaryHdSequence: null,
-    //    IsCTCComponent: null,
-    //    IsGrossComponent: null,
-    //    SlrInfoDefSystemID: null,
-    //    CurrencyRuleChildSystemID: null,
-    //    SalaryHeadID: null,
-    //    SalaryHead: null,
-    //    HeadType: null,
-    //    FormulaDesID: null,
-    //    FixedValue: null,
-    //    IsOpen: null,
-    //    EntryCurrencyID: null,
-    //    EntryCurrency: null,
-    //    DefinitionCurrencyID: null,
-    //    DefinitionCurrency: null,
-    //    DefineAmount: null,
-    //    TagAndUnTag: null,
-    //    MonthPeriod: null,
-    //    IsNA: null,
-    //    HeadCategory: null,
-    //    SalaryCategory: null
-    //};
-    //$scope.EmpSalaryInfoDefineNew = {
-    //    SalaryRuleMasterSystemID: null,
-    //    CRCSystemID: null,
-    //    AmtEntryCurrency: null,
-    //    AmtDefinitionCurrency: null,
-    //    AmtDisbusmentCurrency: null,
-    //    AccumulateExchangeRate: null,
-    //    AccumulateExchangeSalaryHeadID: null,
-    //    egerInDisb: null,
-    //    DisbusmentCurrencyID: null,
-    //    DisbusmentCurrency: null,
-    //    RoundOption: null,
-    //    IsDecimalInDisb: null,
-    //    DecimalNo: null,
-    //    SalaryHdSequence: null,
-    //    IsCTCComponent: null,
-    //    IsGrossComponent: null,
-    //    SlrInfoDefSystemID: null,
-    //    CurrencyRuleChildSystemID: null,
-    //    SalaryHeadID: null,
-    //    SalaryHead: null,
-    //    HeadType: null,
-    //    FormulaDesID: null,
-    //    FixedValue: null,
-    //    IsOpen: null,
-    //    EntryCurrencyID: null,
-    //    EntryCurrency: null,
-    //    DefinitionCurrencyID: null,
-    //    DefinitionCurrency: null,
-    //    DefineAmount: null,
-    //    TagAndUnTag: null,
-    //    MonthPeriod: null,
-    //    IsNA: null,
-    //    HeadCategory: null,
-    //    SalaryCategory: null
-    //};
 
 
     $scope.EmpSalaryOpenHead = {
@@ -442,13 +356,13 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                         $scope.NewNetGross = null;
                         $scope.NewNetCTC = null;
                         //$scope.EmpSalaryInfoDefine = [];
-                        $scope.EmpSalaryOpenHeadCurrent = null;
+                        $scope.EmpSalaryOpenHeadCurrent = {};
                         $scope.EmpSalaryApprovedOpenHead = null;
                         $scope.EmpSalaryInfoDefine = null;
                         $scope.MinWage = null;
                         $scope.SalaryRole = null;
                         $scope.SelectedSalaryRole = null;
-                        $scope.EmpSalaryOpenHead = null;
+                        $scope.EmpSalaryOpenHead = {};
                         $scope.newFormula_Desc = null;
                         $scope.approvedFormula_Desc = null;
                         $scope.UnApprovedNextDueDate = null;
@@ -522,16 +436,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                         } else {
                             $scope.ApprovedEffectiveDate = response.data.ApprovedEffectiveDate;
                         }
-                        //if (baseService.isUndefinedOrNull(response.data.ResultGross)) {
-                        //    $scope.NetGross = null;
-                        //} else {
-                        //    $scope.NetGross = response.data.ResultGross;
-                        //}
-                        //if (baseService.isUndefinedOrNull(response.data.ResultNetCTC)) {
-                        //    $scope.NetCTC = null;
-                        //} else {
-                        //    $scope.NetCTC = response.data.ResultNetCTC;
-                        //}
+
                         for (var i = 0; i < $scope.EmpSalaryInfoDefine.length; i++) {
 
                             if ($scope.EmpSalaryInfoDefine[i].HeadCategory.toUpperCase() === 'CTC') {
@@ -604,13 +509,6 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                             }
                         }
 
-                        //$scope.PFSettingModel.IsPFMandatoryNew = response.data.IsPFMandatory;
-                        //$scope.PFSettingModel.IsVPFMandatoryNew = response.data.IsVPFMandatory;
-                        //$scope.PFSettingModel.IsVPFEntitle = response.data.IsVPFEntitle;
-                        //$scope.PFSettingModel.IsESICMandatoryNew = response.data.IsESICMandatory;
-                        //$scope.PFSettingModel.IsBonusMandatoryNew = response.data.IsBonusEntitle;
-
-
 
                         $scope.VPFPercentageModel = response.data.VPFPersentage;
                         $scope.VPFEffectiveDateModel = response.data.VPFEffectiveDate;
@@ -630,10 +528,6 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                         }
 
 
-
-
-
-
                         if (!baseService.isUndefinedOrNull(response.data.IsPFMandatory)) {
                             $scope.PFSettingModel.IsPFMandatoryNew = response.data.IsPFMandatory;
                         }
@@ -647,12 +541,6 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                             $scope.PFSettingModel.IsBonusMandatoryNew = response.data.IsBonusMandatory;
                         }
 
-
-
-
-
-
-
                         if (!baseService.isUndefinedOrNull(response.data.IsBonusPolicyDefined)) {
                             $scope.PFSettingModel.IsBonusPolicyDefined = response.data.IsBonusPolicyDefined;
                         }
@@ -662,10 +550,6 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                         if (!baseService.isUndefinedOrNull(response.data.IsPFPolicyDefined)) {
                             $scope.PFSettingModel.IsPFPolicyDefined = response.data.IsPFPolicyDefined;
                         }
-
-
-
-
 
                         $scope.LoadAdditionalPolicySettingData();
                         $scope.UpdateAdditionalPolicyModel();
@@ -1415,10 +1299,6 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
     };
 
-
-
-
-
     $scope.detailsPopUp = function () {
         // angular.element(document.querySelector('#detailsPopUpModal')).modal('show');
         var eDialog = $("#dialogAPI").data("ejDialog");
@@ -1432,25 +1312,6 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
         eDialog.open();
     };
 
-    //$scope.selectDoubleClick = function (data) {
-    //    $scope.budgetCodeChangeNew.BudgetCode = data.Id;
-    //    $scope.budgetCodeChangeNew.Code = data.Code;
-
-    //    $scope.NewbudgetCodeChange.EntityName = data.EntityName;
-    //    $scope.NewbudgetCodeChange.Designation = data.Designation;
-    //    $scope.NewbudgetCodeChange.PositionName = data.PositionName;
-    //    $scope.NewbudgetCodeChange.DesignationId = data.DesignationId;
-
-    //    // $scope.budgetCodeChangeNew.GivenDesignationId = null;
-
-    //    //cboService.getCboLowerGivenDesignation($scope.budgetCodeChange.DesignationId, function (result) {
-    //    //    $scope.givenDesignationList = result;
-    //    //    $scope.budgetCodeChangeNew.GivenDesignationId = $scope.budgetCodeChangeNew.DesignationId;
-    //    //    //preRecruitmentEmployeeNew.GivenDesignationId
-    //    //});
-
-    //    $scope.closePopUp();
-    //};
     $scope.name = null;
     $scope.selectDoubleClick = function (data) {
 
@@ -1521,11 +1382,8 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
         })
     };
 
-
     $scope.LegalDesignationList = [];
-    //cboService.getCboLegalDesignation(null, function (result) {
-    //    $scope.LegalDesignationList = result;
-    //});
+
     $scope.getLegalDesignation = function () {
         try {
 
@@ -1590,23 +1448,315 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
         }
     };
 
-    
+    $scope.ClearData = function () {
+        $scope.budgetCodeChangeOld = {
+            SystemId: null,
+            EmployeeId: null,
+            EmployeeCode: null,
+            GroupID: null,
+            CompanyId: null,
+            PlantId: null,
+            UnitId: null,
+            DivisionId: null,
+            DepartmentId: null,
+            SectionId: null,
+            SubSectionId: null,
+            SubdivisionID: null,
+            LineId: null,
+            DesignationGroupId: null,
+            DesignationSystemID: null,
+            BudgetCode: null,
+            PositionID: null,
+            IsDirect: null,
+            SalaryPercentage: null,
+            CardNumber: null,
+            Salutation: null,
+            FirstName: null,
+            MiddleName: null,
+            LastName: null,
+            EmployeeName: null,
+            NickName: null,
+            LocalEmployeeName: null,
+            EmpPicPath: null,
+            EmpType: null,
+            EmploymentType: null,
+            EmployeeGroupSystemID: null,
+            JobLocationID: null,
+            DOB: null,
+            DOJ: null,
+            DOCIsDay: null,
+            DOCDay: null,
+            DOCIsMonth: null,
+            DOCMonth: null,
+            DOC: null,
+            DOS: null,
+            IsConfirmed: null,
+            ReActiveDate: null,
+            EmployeeStatus: null,
+            NationalID: null,
+            TIN: null,
+            CitizenID: null,
+            FatherName: null,
+            MotherName: null,
+            ReligionID: null,
+            CivilStatusID: null,
+            employeeID: null,
+            GenderID: null,
+            SpouseName: null,
+            SpouseNationalID: null,
+            SpouseOccupation: null,
+            NoOfChildren: null,
+            PresentAddress1: null,
+            PresentAddress2: null,
+            ParmanentAddress1: null,
+            ParmanentAddress2: null,
+            PresThanaID: null,
+            ParmThanaID: null,
+            PresPostOfficeID: null,
+            ParmPostOfficeID: null,
+            PresZipCode: null,
+            ParmZipCode: null,
+            PresDistrictID: null,
+            ParmDistrictID: null,
+            PresCountryID: null,
+            ParmCountryID: null,
+            PresCityID: null,
+            ParmCityID: null,
+            PresAreaID: null,
+            ParmAreaID: null,
+            TelePhnNo: null,
+            CellPhnNo: null,
+            EmailId: null,
+            BudgetCategoryID: null,
+            EmployeeCategorySystemID: null,
+            LVPolicyMasterSystemID: null,
+            SalaryRuleMasterSystemID: null,
+            BankSystemID: null,
+            BankName: null,
+            BankAccNo: null,
+            BankAddedBy: null,
+            BankDateAdded: null,
+            BankUpdatedBy: null,
+            BankDateUpdated: null,
+            RegisterFP: null,
+            RegisterProximate: null,
+            SuperViser: null,
+            IsSlvDevReg: null,
+            IsAttdnProcBaseOnDeviceData: null,
+            SubSecStrucSystemID: null,
+            AddedBy: null,
+            DateAdded: null,
+            UpdatedBy: null,
+            DateUpdated: null,
+            EmrCntPer1Name: null,
+            EmrCntPer1CellNo: null,
+            EmrCntPer2Name: null,
+            EmrCntPer2CellNo: null,
+            GivenDesignationId: null,
+            LegalDesignationId: null,
+            AgreedDOJ: null,
+            TotalSalary: null,
+            SpecialReviewDuration: null,
+            SpecialReviewAmount: null,
+            Image: null,
+            DesignationGroupName: null
+        };
+
+        $scope.budgetCodeChange = {
+            SystemId: null,
+            EmployeeId: null,
+            EmployeeCode: null,
+            GroupID: null,
+            CompanyId: null,
+            PlantId: null,
+            UnitId: null,
+            DivisionId: null,
+            DepartmentId: null,
+            SectionId: null,
+            SubSectionId: null,
+            SubdivisionID: null,
+            LineId: null,
+            DesignationGroupId: null,
+            DesignationSystemID: null,
+            BudgetCode: null,
+            PositionID: null,
+            IsDirect: null,
+            SalaryPercentage: null,
+            CardNumber: null,
+            Salutation: null,
+            FirstName: null,
+            MiddleName: null,
+            LastName: null,
+            EmployeeName: null,
+            NickName: null,
+            LocalEmployeeName: null,
+            EmpPicPath: null,
+            EmpType: null,
+            EmploymentType: null,
+            EmployeeGroupSystemID: null,
+            JobLocationID: null,
+            DOB: null,
+            DOJ: null,
+            DOCIsDay: null,
+            DOCDay: null,
+            DOCIsMonth: null,
+            DOCMonth: null,
+            DOC: null,
+            DOS: null,
+            IsConfirmed: null,
+            ReActiveDate: null,
+            EmployeeStatus: null,
+            NationalID: null,
+            TIN: null,
+            CitizenID: null,
+            FatherName: null,
+            MotherName: null,
+            ReligionID: null,
+            CivilStatusID: null,
+            employeeID: null,
+            GenderID: null,
+            SpouseName: null,
+            SpouseNationalID: null,
+            SpouseOccupation: null,
+            NoOfChildren: null,
+            PresentAddress1: null,
+            PresentAddress2: null,
+            ParmanentAddress1: null,
+            ParmanentAddress2: null,
+            PresThanaID: null,
+            ParmThanaID: null,
+            PresPostOfficeID: null,
+            ParmPostOfficeID: null,
+            PresZipCode: null,
+            ParmZipCode: null,
+            PresDistrictID: null,
+            ParmDistrictID: null,
+            PresCountryID: null,
+            ParmCountryID: null,
+            PresCityID: null,
+            ParmCityID: null,
+            PresAreaID: null,
+            ParmAreaID: null,
+            TelePhnNo: null,
+            CellPhnNo: null,
+            EmailId: null,
+            BudgetCategoryID: null,
+            EmployeeCategorySystemID: null,
+            LVPolicyMasterSystemID: null,
+            SalaryRuleMasterSystemID: null,
+            BankSystemID: null,
+            BankName: null,
+            BankAccNo: null,
+            BankAddedBy: null,
+            BankDateAdded: null,
+            BankUpdatedBy: null,
+            BankDateUpdated: null,
+            RegisterFP: null,
+            RegisterProximate: null,
+            SuperViser: null,
+            IsSlvDevReg: null,
+            IsAttdnProcBaseOnDeviceData: null,
+            SubSecStrucSystemID: null,
+            AddedBy: null,
+            DateAdded: null,
+            UpdatedBy: null,
+            DateUpdated: null,
+            EmrCntPer1Name: null,
+            EmrCntPer1CellNo: null,
+            EmrCntPer2Name: null,
+            EmrCntPer2CellNo: null,
+            GivenDesignationId: null,
+            LegalDesignationId: null,
+            AgreedDOJ: null,
+            TotalSalary: null,
+            SpecialReviewDuration: null,
+            SpecialReviewAmount: null,
+            Image: null,
+            DesignationGroupName: null
+        };
+        $scope.budgetCodeChangeNew = Object.assign({}, $scope.budgetCodeChange);
+        $scope.EmpSalaryInfo.SalaryRuleMasterSystemID=null;
+        $scope.imageSrc = null;
+        $scope.obj = {};
+        $scope.Calculated = false;
+        $scope.NewNetGross = null;
+        $scope.NewNetCTC = null;
+        $scope.MinWage = null;
+        $scope.SalaryRole = null;
+        $scope.SelectedSalaryRole = null;
+        $scope.EmpSalaryOpenHead = null;
+        $scope.newFormula_Desc = null;
+        $scope.approvedFormula_Desc = null;
+        $scope.UnApprovedNextDueDate = null;
+        $scope.approvalStatusNew = null;
+        $scope.approvalStatusApproved = null;
+
+        $scope.NewNetTotalGross = null;
+        $scope.newFormula_Desc = null;
+        $scope.approvedFormula_Desc = null;
+        $scope.EmpSalaryInfo.SalaryID = null;
+        $scope.EmpSalaryInfo.SalaryApprovedStatus = null;
+        $scope.EmpSalaryInfo.EffectiveDate = null;
+        $scope.ApprovedNextDueDate = null;
+        $scope.EmpSalaryInfo.NextDueDate = null;
+        $scope.ApprovedEffectiveDate = null;
+        $scope.NetCTC = null;
+        $scope.NetGross = null;
+        $scope.NetTotalGross = null;
+        $scope.IsSalaryRuleEditableEmployee = false;
+        $scope.IncrementHistory.EmpSystemID = null;
+        $scope.IncrementHistory.FromEffectiveDate = null;
+        $scope.IncrementHistory.FromSalaryId = null;
+        $scope.IncrementHistory.EmpSystemID = null;
+        $scope.IncrementHistory.FromEffectiveDate = null;
+        $scope.IncrementHistory.FromSalaryId = null;
+        $scope.VPFPercentageModel = null;
+        $scope.VPFEffectiveDateModel = null;
+        $scope.PFSettingModel = {
+            IsPFEntitle: false,
+            IsVPFEntitle: false,
+            IsESICEntitle: false,
+            IsBonusEntitle: false,
+            IsPFOptionalNew: false,
+            IsPFMandatoryNew: false,
+            IsVPFMandatoryNew: false,
+            IsESICOptionalNew: false,
+            IsESICMandatoryNew: false,
+            IsBonusOptionalNew: false,
+            IsBonusMandatoryNew: false,
+
+            IsPFPolicyDefined: false,
+            IsESICPolicyDefined: false,
+            IsBonusPolicyDefined: false,
+            IsPFNotEntitleGetAllo: false,
+            PFEffectiveDate: null,
+            IsbuttonPFClicked: 'NO',
+            EmpSystemId: null
+        };
+        $scope.SalaryRole = { SalaryRuleMasterSystemID: null, SalaryRuleName: null, SalaryRuleDescription: null };
+
+    };
+
     $scope.Get = function (data) {
+        $scope.ClearData();
+
         //Confirmation
         if ($scope.qempid !== null && $scope.qstatus === 'Confirmation') {
             $scope.divFreshEntry = false;
 
-            $scope.budgetCodeChange = $scope.employees;
-            $scope.budgetCodeChangeOld = $scope.employees;
-           
+            //$scope.budgetCodeChange = $scope.employees;
+            //$scope.budgetCodeChangeOld = $scope.employees;
+            //$scope.budgetCodeChangeNew = $scope.budgetCodeChange;
 
-            $scope.budgetCodeChangeNew = $scope.budgetCodeChange;
+            $scope.budgetCodeChange = Object.assign({}, $scope.employees);
+            $scope.budgetCodeChangeOld = Object.assign({}, $scope.employees);
+            $scope.budgetCodeChangeNew = Object.assign({}, $scope.budgetCodeChange);
+
             $scope.budgetCodeChangeNew.Code = $scope.budgetCodeChange.Code;
             $scope.budgetCodeChangeNew.GivenDesignationId = $scope.budgetCodeChange.GivenDesignationId;
 
             $scope.imageSrc = virtualPath.EmployeePic + $scope.budgetCodeChangeOld.EmpPicPath;
 
-            
             $scope.Action = 'Update';
             $scope.EntryShow();
             $scope.getEmpSalaryInfoDefineData($scope.qempid);
@@ -1615,8 +1765,9 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             //$scope.index = index;
             //$scope.budgetCodeChange = $scope.employees[$scope.index];
             //$scope.budgetCodeChangeOld = $scope.employees[$scope.index];
-           // $scope.obj = $filter("filter")($scope.employees, { SystemId: data.data.SystemId });
-            $scope.obj = data.data;
+            // $scope.obj = $filter("filter")($scope.employees, { SystemId: data.data.SystemId });
+            //$scope.obj = data.data;
+            $scope.obj = Object.assign({}, data.data);
 
             //$scope.budgetCodeChange = $scope.obj[0];         
             //$scope.budgetCodeChangeOld = $scope.obj[0];
@@ -1667,12 +1818,11 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
         }
 
     };
+
     $scope.EntryShow = function () {
         //angular.element(document.querySelector('#EntryPopUp')).modal('show');
         var eDialog = $("#dialogAPIm").data("ejDialog");
         eDialog.open();
-
-
     };
 
 
@@ -2155,7 +2305,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
     };
 
     $scope.LoadAdditionalPolicySettingData = function () {
-        
+
         try {
             $http.get('humanresource/employeepromotionNew/GivenDesignationChange?GivenDesignationId=' + $scope.budgetCodeChangeNew.GivenDesignationId)
                 .then(function (response) {
@@ -2179,7 +2329,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                     });
 
                 });
-   
+
 
         } catch (e) {
             ShowResult(e.Message, "failure");
@@ -2428,33 +2578,6 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             $scope.ShowResultCustom(e, "failure", 'EntryDiv');
         }
     };
-
-    //$window.onresize = function (event) {
-
-    //    $scope.actionCompleteSelected();
-
-
-    //};
-    //$scope.actionCompleteSelected = function (args) {
-    //    try {
-    //        if (args.requestType === "refresh") {
-    //            var gridObj = $("#Grid").ejGrid("instance");
-    //            var scrollerwidth = $("#dialogPFSetting").width();//Obtain the width of the container
-
-    //            $("#Grid").children('.e-grid.e-headercell').css('height', '100px');
-
-    //            gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });//pass the obtainer width and height to gridmodel options
-    //            gridObj.windowonresize();
-    //        }
-    //    } catch (e) {
-    //        //$scope.ShowResult(e, 'failure');
-    //    }
-    //};
-
-
-
-
-
 
 
 }

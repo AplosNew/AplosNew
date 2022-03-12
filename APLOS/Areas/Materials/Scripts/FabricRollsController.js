@@ -9,6 +9,18 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.showfromto = true;
+    $scope.showgrndiv = false;
+
+    $scope.clickGo = function () {
+        $scope.showfromto = false;
+        $scope.showgrndiv = true;
+    }
+
+    $scope.clickBack = function () {
+        $scope.showfromto = true;
+        $scope.showgrndiv = false;
+    }
 
     $scope.fabricRollMaster = {
         CompanyGroupId: $window.companyGroupId,
@@ -156,11 +168,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.Get = function (args) {
 
         $scope.fabricRollMaster = Object.assign({}, args.data);
-        console.log($scope.fabricRollMaster);
-        //$scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
+       
         $scope.LoadMaterialSearchList();
         angular.element(document.querySelector('#grnListPopUp')).modal('hide');
     };
@@ -671,6 +679,17 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     ];
 
+    $scope.GetFromToDate = function () {
+        $http({
+            method: 'Get',
+            url: 'Materials/FabricRoll/GetFromToDate'
+        }).then(function (response) {
+            $scope.FromDate = response.data[0].FromDate;
+            $scope.ToDate = response.data[0].ToDate;
+        });
+    };
+    $scope.GetFromToDate();
+
     $scope.GRNGridList = [];
     $scope.LoadGRNSearchList = function () {
         $scope.GRNGridList = [];
@@ -679,7 +698,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             $http({
                 method: 'POST',
                 url: $scope.path + "GRNList",
-                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
+                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch, 'fromDate': $scope.FromDate, 'toDate': $scope.ToDate},
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {

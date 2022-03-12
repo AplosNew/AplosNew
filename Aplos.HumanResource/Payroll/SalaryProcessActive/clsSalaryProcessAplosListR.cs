@@ -482,7 +482,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             try
             {
-                //sendMessage("Starting salary process");
 
                 #region Declare Variable
 
@@ -693,7 +692,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 string sOutDefineAmt = string.Empty;
                 #endregion Declare Variable
 
-                #region Valid 190708
+                #region Valid 
 
                 //bool _final = true;
                 DataSet dsHrsetting = null;
@@ -720,7 +719,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 EmployeeSelect(para.dsGrid, para.ToDate);//validation count !=0//
 
-                //for Pratibha DOS/DOJ weekoff count
+                // DOS/DOJ weekoff count
                 DataSet dsWeekOffAll = null;
                 Dictionary<string, int> WeekOffList = null;
                 SendNotification("Generating Calendar");
@@ -766,7 +765,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 dsGrid = para.dsGrid;
                 int blockCount = 0;
-                //sendMessage("Total {" + dsGrid.Tables[0].Rows.Count.ToString() + "} employees are going to be processed");
+                
                 if (dsGrid.Tables[0].Rows.Count > 0)
                 {
                     for (int GrdEmp = 0; GrdEmp < dsGrid.Tables[0].Rows.Count; GrdEmp++)
@@ -818,7 +817,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             }
                             else
                             {
-                                grdRowMaxCnt = 100;//190915
+                                grdRowMaxCnt = 100;
                             }
 
                             SelectedEmpCnt++;
@@ -826,6 +825,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             bool _emp_is_saved = false;
                             if (SelectedEmpCnt == grdRowMaxCnt)
                             {
+                                // Once We get Desired No Then Process
+
                                 #region Start
                                 blockCount++;
                                 //sendMessage("Current block total employee: " + SelectedEmpCnt + " and block no" + blockCount);
@@ -863,7 +864,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 }
                                 catch (Exception ex)
                                 {
-                                    throw new Exception("Allowance issue: " + ex.Message);
+                                    throw new Exception("Advance issue: " + ex.Message);
                                 }
                                 #endregion
 
@@ -924,18 +925,18 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 #endregion
 
                                 #region Holiday as Payday count
-                                DataSet dsWHCount = null;
-                                GetWHCount(sEmpSysIDColl, para.FromDate, para.ToDate, para.PlantId, out dsWHCount);
-                                List<EmployeeWHCount> dicWHCount = new List<EmployeeWHCount>();
-                                if (dsWHCount.Tables[0].Rows.Count > 0)
-                                    dicWHCount = dsWHCount.Tables[0].ToList<EmployeeWHCount>();
+                                //DataSet dsWHCount = null;
+                                //GetWHCount(sEmpSysIDColl, para.FromDate, para.ToDate, para.PlantId, out dsWHCount);
+                                //List<EmployeeWHCount> dicWHCount = new List<EmployeeWHCount>();
+                                //if (dsWHCount.Tables[0].Rows.Count > 0)
+                                //    dicWHCount = dsWHCount.Tables[0].ToList<EmployeeWHCount>();
 
 
-                                DataSet dsHolidayAsPaydayPolicy = null;//999
-                                GetHolidayPaydaySalaryHeadPolicy(sEmpSysIDColl, out dsHolidayAsPaydayPolicy);
-                                List<HolidayPaydaySHead> dicHolidayAsPaydayPolicy = new List<HolidayPaydaySHead>();
-                                if (dsHolidayAsPaydayPolicy.Tables[0].Rows.Count > 0)
-                                    dicHolidayAsPaydayPolicy = dsHolidayAsPaydayPolicy.Tables[0].ToList<HolidayPaydaySHead>();
+                                //DataSet dsHolidayAsPaydayPolicy = null;//999
+                                //GetHolidayPaydaySalaryHeadPolicy(sEmpSysIDColl, out dsHolidayAsPaydayPolicy);
+                                //List<HolidayPaydaySHead> dicHolidayAsPaydayPolicy = new List<HolidayPaydaySHead>();
+                                //if (dsHolidayAsPaydayPolicy.Tables[0].Rows.Count > 0)
+                                //    dicHolidayAsPaydayPolicy = dsHolidayAsPaydayPolicy.Tables[0].ToList<HolidayPaydaySHead>();
                                 #endregion
 
                                 //////Get Employee Information For Save Loop
@@ -990,7 +991,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 {
                                     SendNotification("Getting Materninty Attendances", TotProcComp, TotSelectEmpForProc);
 
-                                    Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery obj = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
+                                    clsSalaryProcessQuery obj = new clsSalaryProcessQuery();
                                     string _wc;
                                     ///create emp with fd and to
                                     obj.Create_EmpDateRange_For_WC(dsGrid, para.FromDate, out _wc);
@@ -1572,9 +1573,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             TotalActualWorkingDays = dicMMDSSI_Sub.TotalActualWorkingDay;
                                             TotalWeekOffDays = dicMMDSSI_Sub.TotalWeekOff;
                                             TotalHolidays = dicMMDSSI_Sub.TotalHoliDay;
-                                            //OTHDay = dicMMDSSI_Sub.TotalOTHr;
-                                            //NorOTHDay = dicMMDSSI_Sub.TotalNormalOTHr;
-                                            //ExtOTHDay = dicMMDSSI_Sub.TotalExtraOTHr;
 
                                             ///new OT Hr calculation by monir
                                             OTHDay = 0;
@@ -2193,28 +2191,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
 
 
-                                                        //by monir 190915
-                                                        // if (IsBankPayment == true && IsCashPayment == true)
-                                                        // {
                                                         IsPayment = true;
-                                                        //}
-                                                        //else if (dsSelectedEmp.Tables[0].Rows[gd]["BankAccountStatus"].ToString().Trim().ToUpper() == "BANK")
-                                                        //else if (dsSelectedEmp.Tables[0].Rows[gd]["BankAccountStatus"].ToString().Trim() == "Bank Payment")
-                                                        //{
-                                                        //    if (IsBankPayment == true)
-                                                        //    { IsPayment = true; }
-                                                        //    else if (IsCashPayment == true)
-                                                        //    { IsPayment = false; }
-                                                        //}
-                                                        ////else if (dsSelectedEmp.Tables[0].Rows[gd]["BankAccountStatus"].ToString().Trim().ToUpper() == "CASH")
-                                                        //else if (dsSelectedEmp.Tables[0].Rows[gd]["BankAccountStatus"].ToString().Trim() == "Cash Payment")
-                                                        //{
-                                                        //    if (IsBankPayment == true)
-                                                        //    { IsPayment = false; }
-                                                        //    else if (IsCashPayment == true)
-                                                        //    { IsPayment = true; }
-                                                        //}
-
+                                                        
                                                         #endregion Check 'Bank Payment' Or 'Cash Payment' If Employee Have Bank Acc Or Not
 
                                                         if (IsPayment == true)
@@ -2469,453 +2447,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                     //}
                                                                     #endregion DayType Collection
                                                                     #region DayType Count Match With Employee DayStatus Count
-                                                                    //#region Present
-                                                                    //if (sDayType == "Present")
-                                                                    //{
-                                                                    //    if (sDayTypeOperator == "Between")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < PresDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Greater Than")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > PresDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Less Than")
-                                                                    //    {
-                                                                    //        if (PresDay < decDayTypeOperatorValue)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Is Equal")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue == PresDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //}
-                                                                    //#endregion Present
-                                                                    //#region Late
-                                                                    //else if (sDayType == "Late")
-                                                                    //{
-                                                                    //    if (sDayTypeOperator == "Between")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < LateDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Greater Than")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > LateDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Less Than")
-                                                                    //    {
-                                                                    //        if (LateDay < decDayTypeOperatorValue)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Is Equal")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue == LateDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //}
-                                                                    //#endregion Late
-                                                                    //#region Absent
-                                                                    //else if (sDayType == "Absent")
-                                                                    //{
-                                                                    //    if (sDayTypeOperator == "Between")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < AbsDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Greater Than")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > AbsDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Less Than")
-                                                                    //    {
-                                                                    //        if (AbsDay < decDayTypeOperatorValue)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Is Equal")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue == AbsDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //}
-                                                                    //#endregion Absent
+                                                                    
+                                                                    #endregion 
 
-
-
-                                                                    //#region LV
-                                                                    //else if (sDayType == "LV")
-                                                                    //{
-                                                                    //    if (sDayTypeOperator == "Between")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < LvDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Greater Than")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > LvDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Less Than")
-                                                                    //    {
-                                                                    //        if (LvDay < decDayTypeOperatorValue)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Is Equal")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue == LvDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-
-                                                                    //    if (IsAttdnBnsPamy == true)
-                                                                    //    {
-                                                                    //        var dicAttdnBnsLT_Sub = dicAttdnBnsLT.FindAll(x => x.AttdnBonusPmtPolicyDetailsID == sAttdnBonusPmtPolicyDetailsID.Trim());
-                                                                    //        if (dicAttdnBnsLT_Sub.Count > 0)
-                                                                    //        {
-                                                                    //            for (int lt = 0; lt < dicAttdnBnsLT_Sub.Count; lt++)
-                                                                    //            {
-                                                                    //                sLeaveTypeID = dicAttdnBnsLT_Sub[lt].LeaveTypeID;
-                                                                    //                sApprovalType = dicAttdnBnsLT_Sub[lt].ApprovalType;
-
-                                                                    //                IsLvPostApproved = false;
-                                                                    //                if (sApprovalType == "Post Approve")
-                                                                    //                {
-                                                                    //                    IsLvPostApproved = true;
-                                                                    //                }
-                                                                    //                else if (sApprovalType == "Pre Approve")
-                                                                    //                { IsLvPostApproved = false; }
-
-                                                                    //                var dicLvTrns_Sub = dicLvTrns.FindAll(x => x.EmpSystemID == dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim() && x.LTSystemID == sLeaveTypeID && x.IsPostApplied == IsLvPostApproved);
-                                                                    //                if (dicLvTrns_Sub.Count > 0)
-                                                                    //                { IsAttdnBnsPamy = false; break; }
-                                                                    //                else
-                                                                    //                { IsAttdnBnsPamy = true; }
-                                                                    //                //{ IsAttdnBnsPamy = true; }
-                                                                    //                //else
-                                                                    //                //{ IsAttdnBnsPamy = false; }
-
-                                                                    //                if (sApprovalType == "Not Applicable")
-                                                                    //                {
-                                                                    //                    dicLvTrns_Sub = dicLvTrns.FindAll(x => x.EmpSystemID == dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim() && x.LTSystemID == sLeaveTypeID);
-                                                                    //                    if (dicLvTrns_Sub.Count > 0)
-                                                                    //                    { IsAttdnBnsPamy = false; break; }
-                                                                    //                    else
-                                                                    //                    { IsAttdnBnsPamy = true; }
-                                                                    //                    //if (dicLvTrns_Sub.Count > 0)
-                                                                    //                    //{ IsAttdnBnsPamy = true; }
-                                                                    //                    //else
-                                                                    //                    //{ IsAttdnBnsPamy = false; }
-                                                                    //                }
-                                                                    //            }
-                                                                    //        }
-                                                                    //    }
-                                                                    //}
-                                                                    //#endregion LV
-
-                                                                    //#region LV test
-                                                                    //else if (sDayType == "LV")
-                                                                    //{
-                                                                    //    decimal _LvDay_Calculated = 0;
-                                                                    //    var dicAttdnBnsLT_Sub = dicAttdnBnsLT.FindAll(x => x.AttdnBonusPmtPolicyDetailsID == sAttdnBonusPmtPolicyDetailsID.Trim());
-                                                                    //    if (dicAttdnBnsLT_Sub.Count > 0)
-                                                                    //    {
-                                                                    //        _LvDay_Calculated = 0;//leave type applicable
-                                                                    //    }
-                                                                    //    else
-                                                                    //    {
-                                                                    //        _LvDay_Calculated = LvDay;//no leave type applicable
-                                                                    //    }
-
-                                                                    //    IsABEligible(sDayTypeOperator, decDayTypeOperatorValue, LvDay, ref IsAttdnBnsPamy);
-
-                                                                    //    #region Commented
-                                                                    //    //if (sDayTypeOperator == "Between")
-                                                                    //    //{
-                                                                    //    //    if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < LvDay)
-                                                                    //    //    {
-                                                                    //    //        IsAttdnBnsPamy = true;
-                                                                    //    //    }
-                                                                    //    //}
-                                                                    //    //else if (sDayTypeOperator == "Greater Than")
-                                                                    //    //{
-                                                                    //    //    if (decDayTypeOperatorValue > LvDay)
-                                                                    //    //    {
-                                                                    //    //        IsAttdnBnsPamy = true;
-                                                                    //    //    }
-                                                                    //    //}
-                                                                    //    //else if (sDayTypeOperator == "Less Than")
-                                                                    //    //{
-                                                                    //    //    if (LvDay < decDayTypeOperatorValue)
-                                                                    //    //    {
-                                                                    //    //        IsAttdnBnsPamy = true;
-                                                                    //    //    }
-                                                                    //    //}
-                                                                    //    //else if (sDayTypeOperator == "Is Equal")
-                                                                    //    //{
-                                                                    //    //    if (decDayTypeOperatorValue == LvDay)
-                                                                    //    //    {
-                                                                    //    //        IsAttdnBnsPamy = true;
-                                                                    //    //    }
-                                                                    //    //} 
-                                                                    //    #endregion
-
-                                                                    //    #region TBC
-                                                                    //    //999
-                                                                    //    //var dicAttdnBnsLT_Sub = dicAttdnBnsLT.FindAll(x => x.AttdnBonusPmtPolicyDetailsID == sAttdnBonusPmtPolicyDetailsID.Trim());
-                                                                    //    //if (dicAttdnBnsLT_Sub.Count > 0)
-                                                                    //    //{
-                                                                    //    //    for (int lt = 0; lt < dicAttdnBnsLT_Sub.Count; lt++)
-                                                                    //    //    {
-                                                                    //    //        sLeaveTypeID = dicAttdnBnsLT_Sub[lt].LeaveTypeID;
-                                                                    //    //        sApprovalType = dicAttdnBnsLT_Sub[lt].ApprovalType;
-
-                                                                    //    //        IsLvPostApproved = false;
-                                                                    //    //        if (sApprovalType == "Post Approve")
-                                                                    //    //        {
-                                                                    //    //            IsLvPostApproved = true;
-                                                                    //    //        }
-                                                                    //    //        else if (sApprovalType == "Pre Approve")
-                                                                    //    //        { IsLvPostApproved = false; }
-
-                                                                    //    //        var dicLvTrns_Sub = dicLvTrns.FindAll(x => x.EmpSystemID == dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim() && x.LTSystemID == sLeaveTypeID && x.IsPostApplied == IsLvPostApproved);
-                                                                    //    //        if (dicLvTrns_Sub.Count > 0)
-                                                                    //    //        { IsAttdnBnsPamy = false; break; }
-                                                                    //    //        else
-                                                                    //    //        { IsAttdnBnsPamy = true; }
-                                                                    //    //        //{ IsAttdnBnsPamy = true; }
-                                                                    //    //        //else
-                                                                    //    //        //{ IsAttdnBnsPamy = false; }
-
-                                                                    //    //        if (sApprovalType == "Not Applicable")
-                                                                    //    //        {
-                                                                    //    //            dicLvTrns_Sub = dicLvTrns.FindAll(x => x.EmpSystemID == dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim() && x.LTSystemID == sLeaveTypeID);
-                                                                    //    //            if (dicLvTrns_Sub.Count > 0)
-                                                                    //    //            { IsAttdnBnsPamy = false; break; }
-                                                                    //    //            else
-                                                                    //    //            { IsAttdnBnsPamy = true; }
-                                                                    //    //            //if (dicLvTrns_Sub.Count > 0)
-                                                                    //    //            //{ IsAttdnBnsPamy = true; }
-                                                                    //    //            //else
-                                                                    //    //            //{ IsAttdnBnsPamy = false; }
-                                                                    //    //        }
-                                                                    //    //    }
-                                                                    //    //}//obsolete  
-                                                                    //    #endregion
-                                                                    //}
-                                                                    //#endregion LV test
-
-                                                                    //#region MLv
-                                                                    //else if (sDayType == "MLv")
-                                                                    //{
-                                                                    //    if (sDayTypeOperator == "Between")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < MLvDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Greater Than")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > MLvDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Less Than")
-                                                                    //    {
-                                                                    //        if (MLvDay < decDayTypeOperatorValue)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Is Equal")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue == MLvDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //}
-                                                                    //#endregion MLv
-                                                                    //#region CALDay
-                                                                    //else if (sDayType == "CALDay")
-                                                                    //{
-                                                                    //    if (sDayTypeOperator == "Between")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < CALDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Greater Than")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > CALDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Less Than")
-                                                                    //    {
-                                                                    //        if (CALDay < decDayTypeOperatorValue)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Is Equal")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue == CALDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //}
-                                                                    //#endregion CALDay
-                                                                    //#region WeekOff
-                                                                    //else if (sDayType == "WeekOff")
-                                                                    //{
-                                                                    //    if (sDayTypeOperator == "Between")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < WkOFDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Greater Than")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > WkOFDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Less Than")
-                                                                    //    {
-                                                                    //        if (WkOFDay < decDayTypeOperatorValue)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Is Equal")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue == WkOFDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //}
-                                                                    //#endregion WeekOff
-                                                                    //#region HoliDay
-                                                                    //else if (sDayType == "HoliDay")
-                                                                    //{
-                                                                    //    if (sDayTypeOperator == "Between")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < HDDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Greater Than")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > HDDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Less Than")
-                                                                    //    {
-                                                                    //        if (HDDay < decDayTypeOperatorValue)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Is Equal")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue == HDDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //}
-                                                                    //#endregion HoliDay
-                                                                    //#region WeekOffHoliDay
-                                                                    //else if (sDayType == "WeekOffHoliDay")
-                                                                    //{
-                                                                    //    if (sDayTypeOperator == "Between")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > 0 && decDayTypeOperatorValue < WkOFHDDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Greater Than")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue > WkOFHDDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Less Than")
-                                                                    //    {
-                                                                    //        if (WkOFHDDay < decDayTypeOperatorValue)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //    else if (sDayTypeOperator == "Is Equal")
-                                                                    //    {
-                                                                    //        if (decDayTypeOperatorValue == WkOFHDDay)
-                                                                    //        {
-                                                                    //            IsAttdnBnsPamy = true;
-                                                                    //        }
-                                                                    //    }
-                                                                    //}
-                                                                    //#endregion WeekOffHoliDay
-                                                                    #endregion DayType Count Match With Employee DayStatus Count
-
-                                                                    ////if (IsAttdnBnsPamy)//check early out
-                                                                    ////{
-                                                                    ////    EarlyOutForAttendanceBonus(dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim(), dsEarlyOut, dicAttdnBnsDT_Sub[dt].IsEarlyOutApplicable, dicAttdnBnsDT_Sub[dt].MaxEarlyOutAllowed, ref IsAttdnBnsPamy);
-                                                                    ////}
-                                                                    //by monir
-                                                                    ////if (IsAttdnBnsPamy == false)
-                                                                    ////{
-                                                                    ////    break;
-                                                                    ////}
+                                                                    
                                                                 }//for
                                                             }//count
 
@@ -4237,9 +3772,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                 List<EmpSalaryHeadAmount> _List_BonusRetainHeadValue = null;
                                 List<EmpSalaryHeadAmount> _List_PFHeadValue = null;
-                                //List<EmpSalaryHeadAmount> _List_ESICHeadValue = null;
-
-
+                                
 
                                 try
                                 {
@@ -4280,8 +3813,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     PFpara.sEmpSystemID = sEmpSysIDColl;
                                     PFpara.LocalCurrencyID = para.lblLocalCurrencyID.Trim();
                                     PFpara.ForeignCurRate = para.txtForeignCurRate.Trim();
-                                    PFpara.FromDate = para.FromDate;//FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.FromDate)).ToString();
-                                    PFpara.ToDate = para.ToDate;// FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.ToDate)).ToString();
+                                    PFpara.FromDate = para.FromDate;
+                                    PFpara.ToDate = para.ToDate;
                                     PFpara.sUser = para.USER;
                                     PFpara.dsSalInfo = ds;
                                     PFpara.dicProcChild = dicProcChild;
@@ -4291,22 +3824,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     objPFGnt.CalculateEarnPF(PFpara, out _List_PFHeadValue);//CalculateEarnPF
                                                                                             //objPFGnt.GeneratorPFEligibleEmployee(PFpara);//CalculateEarnPF
                                     #endregion Generate PF
-                                    #region Generate ESIC commented
-                                    //ESICParaList ESICpara = new OTSBD.ESICParaList();
-                                    //ESICpara.GroupID = para.GroupId.ToString().Trim();
-                                    //ESICpara.PlantID = para.PlantId.ToString().Trim();
-                                    //ESICpara.sEmpSystemID = sEmpSysIDColl.Trim();
-                                    //ESICpara.LocalCurrencyID = para.lblLocalCurrencyID.Trim();
-                                    //ESICpara.ForeignCurRate = para.txtForeignCurRate.Trim();
-                                    //ESICpara.FromDate = para.FromDate;//FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.FromDate)).ToString();
-                                    //ESICpara.ToDate = para.ToDate;// FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.ToDate)).ToString();
-                                    //ESICpara.sUser = para.USER;
-                                    //ESICpara.dsSalInfo = ds;
-                                    //ESICpara.dicProcChild = dicProcChild;
-                                    //ESICpara.dtValue = dtValue;
-                                    //ESICpara.ShouldNotProcessUntaggedEmp = true;
-                                    //objESICGnt.CalculateEarnESIC(ESICpara, out _List_ESICHeadValue);
-                                    #endregion Generate ESIC
+                                    
                                 }
                                 catch (Exception ex)
                                 {
@@ -4330,11 +3848,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     if (dsPF.Tables[0].Rows.Count > 0)
                                         dicPF = dsPF.Tables[0].ToList<dicPF>();//
 
-                                    //List<dicESIC> dicESIC = new List<dicESIC>();
-                                    //objSlrProc.GetESICStructureData(sEmpSysIDColl, para.ToDate.Trim(), out dsESIC);
-                                    //if (dsESIC.Tables[0].Rows.Count > 0)
-                                    //    dicESIC = dsESIC.Tables[0].ToList<dicESIC>();///
-
+                                    
                                     if (dsSelectedEmp.Tables[0].Rows.Count > 0)
                                     {
                                         string _childPK_seed_fromDB = string.Empty;
@@ -5095,12 +4609,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                 }
                 return para;
-                //displayMsgs("Processed Successfully Completed...!!!!", "Ok", "Save");
-                //Session["VERIFICATION_STATE"] = 1;
             }
             catch (Exception ex)
             {
-                //sendMessage(ex.Message);
+                
                 SendNotification(ex.ToString());
 
                 throw ex;

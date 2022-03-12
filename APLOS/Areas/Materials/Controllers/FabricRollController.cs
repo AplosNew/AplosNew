@@ -60,6 +60,13 @@ namespace Aplos.Areas.Materials.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
+        public JsonResult GetFromToDate()
+        {
+           string sql = @"SELECT FORMAT(MIN(A.AddedDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(A.AddedDate),'dd-MMM-yyyy') ToDate FROM TRN.InventoryReceive A WHERE A.GRNType in('GRNBYPO','GRN' ,'EMPGRN')";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetList(GridParameter parameters, string paidHours)
         {
             CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -132,7 +139,7 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult GRNList(string column, string value)
+        public ActionResult GRNList(string column, string value, string fromDate, string toDate)
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false)
@@ -279,7 +286,7 @@ namespace Aplos.Areas.Materials.Controllers
 							LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
                         WHERE BP.BusinessProcessName='FabricRollManagement'
 						) D ON D.InventoryReceiveId=IR.Id and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')
-					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')) AS TEMP WHERE " + strkey;
+					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN') AND IR.AddedDate between '"+fromDate+@"' AND '"+toDate+@"') AS TEMP WHERE " + strkey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -555,7 +562,10 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRN Date"); xlsCol += 1;
-                sheet1[xlsRow, xlsCol].Text = fabricRollMaster["GRNDate"].ToString();
+                if (fabricRollMaster["GRNDate"]!=null)
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["GRNDate"].ToString(); 
+                }
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Amount"); xlsCol++;
@@ -574,7 +584,10 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO Date"); xlsCol++;
                 //sheet1[xlsRow, xlsCol].Text = clsStaticInfo.SetDate(fabricRollMaster["PODate"].ToString());
-                clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
+                if (fabricRollMaster["PODate"]!=null)
+                {
+                    clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy")); 
+                }
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Vendor Ref No"); xlsCol++;
@@ -594,7 +607,10 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC Date"); xlsCol++;
-                clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["LCDate"]).ToString("dd-MMM-yyyy"));
+                if (fabricRollMaster["LCDate"]!=null)
+                {
+                    clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["LCDate"]).ToString("dd-MMM-yyyy")); 
+                }
                
                 xlsCol += 1;
 

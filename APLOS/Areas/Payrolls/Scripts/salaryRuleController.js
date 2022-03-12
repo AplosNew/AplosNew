@@ -774,7 +774,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
             $http({
                 method: 'POST',
                 url: $scope.saveESICSalaryHeadUrl,
-                data: { 'entities': $scope.ESICSalaryHeadSaveList },
+                data: { 'entities': $scope.ESICSalaryHeadSaveList, 'SalaryRuleMasterSystemID': $scope.salaryRuleNew.SystemID },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -906,7 +906,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
             $http({
                 method: 'POST',
                 url: $scope.saveAbsenteeismSalaryHeadUrl,
-                data: { 'entity': $scope.salaryRuleAbsent },
+                data: { 'entity': $scope.salaryRuleAbsent, 'SalaryRuleMasterSystemID': $scope.salaryRuleNew.SystemID},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -943,7 +943,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
             $http({
                 method: 'POST',
                 url: $scope.saveOTSalaryHeadUrl,
-                data: { 'entities': $scope.OTSalaryHeadSaveList },
+                data: { 'entities': $scope.OTSalaryHeadSaveList, 'SalaryRuleMasterSystemID': $scope.salaryRuleNew.SystemID},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

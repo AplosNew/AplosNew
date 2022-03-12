@@ -1,6 +1,6 @@
 ﻿'use strict';
-MeetingReportsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function MeetingReportsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+MeetingReportsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function MeetingReportsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Meeting Reports';
     $scope.ModelList = [];
     $scope.path = 'MeetingManagement/MeetingReports/';
@@ -18,17 +18,20 @@ function MeetingReportsController(cboService, commonMessage, $scope, $rootScope,
             $scope.filters = response.data;
             var columnList = [
                 { field: 'Department', width: 20, headerText: "Department", type: "string" },
-                { field: 'ByWhom', width: 20, headerText: "ByWhom", type: "string" },
+                { field: 'CreatedBy', width: 20, headerText: "Created By", type: "string" },
                 { field: 'MeetingType', width: 20, headerText: "Meeting Type", type: "string" },
-                { field: 'ItemType', width: 20, headerText: "Item Type", type: "string" },
-                { field: 'Importance', width: 20, headerText: "Importance", type: "string" },
+                { field: 'ItemTitle', width: 20, headerText: "Item Title", type: "string" },
+                { field: 'Criticality', width: 20, headerText: "Criticality", type: "string" },
                 { field: 'ActionApplicable', width: 20, headerText: "Action Applicable", type: "string" },
                 { field: 'DecisionApplicable', width: 20, headerText: "Decision Applicable", type: "string" },
                 { field: 'Status', width: 20, headerText: "Status", type: "string" },
-                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+                { field: 'ByWhom', width: 20, headerText: "By Whom", type: "string" },
                 { field: 'TargetFromDate', width: 20, headerText: "Target From Date", type: "string" }, 
                 { field: 'TargetToDate', width: 20, headerText: "Target To Date", type: "string" },
-                { field: 'UserName', width: 20, headerText: "User Name", type: "string" },
+                { field: 'MeetingName', width: 20, headerText: "Meeting Name", type: "string" },
+                { field: 'MeetingDate', width: 20, headerText: "Meeting Date", type: "string" },
+                { field: 'ChairedBy', width: 20, headerText: "Chaired By", type: "string" },
+                { field: 'OrganizedBy', width: 20, headerText: "Organized By", type: "string" },
 
             ];
             $("#filters").ejGrid({
@@ -61,16 +64,16 @@ function MeetingReportsController(cboService, commonMessage, $scope, $rootScope,
 
         var parameters = [];
         parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
-        parameters.push({ "Key": "ByWhomId", "Value": getString(fl, "AttendeeId") });
+        parameters.push({ "Key": "ByWhomId", "Value": getString(fl, "ByWhomId") });
         parameters.push({ "Key": "MeetingTypeId", "Value": getString(fl, "MeetingTypeId") });
+        parameters.push({ "Key": "Status", "Value": getString(fl, "Status") });
+        parameters.push({ "Key": "MeetingId", "Value": getString(fl, "MeetingId") });
         //parameters.push({ "Key": "ItemType", "Value": getString(fl, "ItemType") });
         //parameters.push({ "Key": "Importance", "Value": getString(fl, "Importance") });
         //parameters.push({ "Key": "ActionApplicable", "Value": getString(fl, "ActionApplicable") });
         //parameters.push({ "Key": "DecisionApplicable", "Value": getString(fl, "DecisionApplicable") });
-        parameters.push({ "Key": "Status", "Value": getString(fl, "Status") });
         //parameters.push({ "Key": "ResponsiblePerson", "Value": getString(fl, "ResponsiblePerson") });
         //parameters.push({ "Key": "TargetDate", "Value": getString(fl, "TargetDate") });
-        parameters.push({ "Key": "MeetingId", "Value": getString(fl, "MeetingId") });
         //parameters.push({ "Key": "MeetingDate", "Value": getString(fl, "TargetDate") });
         //parameters.push({ "Key": "ExpectedPersonId", "Value": getString(fl, "AttendeeId") });
         //parameters.push({ "Key": "TalkingPointId", "Value": getString(fl, "TalkingPointId") });
@@ -107,8 +110,8 @@ function MeetingReportsController(cboService, commonMessage, $scope, $rootScope,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
-                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-
+                   // $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                 }
                 else {
                     ShowResult(response.data.Message, 'failure');
@@ -119,17 +122,6 @@ function MeetingReportsController(cboService, commonMessage, $scope, $rootScope,
         } catch (e) {
             ShowResult(e, 'failure');
         }
-    //}
-
-    //$scope.Report = function () {
-    //    var reportFormat = "Excel";
-    //    try {
-    //        var url = $scope.path + 'GetMeetingReport?reportFormat=' + reportFormat /*+ '&parameters=' + $scope.parameters*/;
-    //        data: { '&parameters='+ $scope.parameters };
-    //        $rootScope.report(url);
-    //    }
-    //    catch (e) {
-
-    //    }
+   
     }
 }

@@ -395,11 +395,18 @@ namespace Library.Service.Invoices
 
                             ,Activity=CASE WHEN VD.CashMasterId<>'' THEN  CM.UserName  WHEN VD.BankMasterId<>'' THEN BNM.AccountTitle Else ACT.UserName end 
                             ,CM.UserName AS CashMasterName
+                            ,[ParticularName]=CASE
+								WHEN BNM.AccountTitle<>'' THEN BNM.AccountTitle
+								WHEN I.DocRefNo<>'' THEN I.DocRefNo 
+								WHEN CM.UserName<>'' THEN CM.UserName
+                                WHEN PP.UserName<>'' THEN PP.UserName
+								ELSE ''	END
                             FROM [TRN].[VoucherDetailCurrency] AS VDC
                             JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=VDC.VoucherDetailId
                             JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                             LEFT JOIN [TRN].[InvoiceWriteOffDetail] AS IVD ON IVD.Id=VD.InvoiceWriteOffDetailId
                             LEFT JOIN [TRN].[InvoiceWriteOff] AS IV ON IV.Id=IVD.InvoiceWriteOffId
+                            LEFT JOIN [TRN].[Invoice] AS I ON I.Id=IVD.InvoiceId
                             LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                             LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                             LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=VD.GLGeneralInfoId
@@ -1318,13 +1325,11 @@ namespace Library.Service.Invoices
             int colinrCredit = 0;
             int colusdDebit = 0;
             int colusdCradit = 0;
+            int colParticulars = 0;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
             reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
-            //sheet[row, 1].ColumnWidth = 25;
-            //reportUtility.SetMasterHeaderText(ref sheet, row, middleColumnCaption, "");
-            //sheet[row, 3].ColumnWidth = 25;
-            //reportUtility.SetText(ref sheet, row, middleColumnCaption, header[""].ToString());
+            
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");
             reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());
@@ -1336,7 +1341,7 @@ namespace Library.Service.Invoices
             reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");
             reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
-            //sheet[row, 5].ColumnWidth = 15;
+            
             row++;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Customer:");
@@ -1361,32 +1366,34 @@ namespace Library.Service.Invoices
 
             row++;  //10
 
+            
             if (companyCurrencyId == transcationCurrency)
             {
-                reportUtility.SetHeaderText(ref sheet, row, 4, companyCurrencyCode, ExcelHAlign.HAlignCenter);
-                sheet[row, 4, row, 5].Merge();
+                reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                sheet[row, 6, row, 7].Merge();
+                sheet[row, 6, row, 7].BorderAround(ExcelLineStyle.Thin);
             }
             else
             {
-                reportUtility.SetHeaderText(ref sheet, row, 4, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
-                sheet[row, 4, row, 5].Merge();
-
-                reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                reportUtility.SetHeaderText(ref sheet, row, 6, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
                 sheet[row, 6, row, 7].Merge();
+
+                reportUtility.SetHeaderText(ref sheet, row, 7, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                sheet[row, 8, row, 9].Merge();
+                sheet[row, 8, row, 9].BorderAround(ExcelLineStyle.Thin);
             }
-            sheet[row, 6].ColumnWidth = 15;
-            sheet[row, 7].ColumnWidth = 15;
-            sheet.Range[row, 4, row, colLast].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[row, 4, row, colLast].BorderInside(ExcelLineStyle.Hair);
+            
             row++;
 
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL", 20, ExcelHAlign.HAlignLeft);
+            colGl = xlsCol; xlsCol++;
+            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge(); xlsCol++;
 
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); colGl = xlsCol; xlsCol++;
-            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
-            //sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Thin);
-            //sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Thin);
-            xlsCol++; xlsCol++;
-
+            xlsCol++;
+            xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Particulars", 5); colParticulars = xlsCol; xlsCol++;
+            sheet[reportUtility.GetColumnNameForXls(colParticulars - 1) + row + ":" + reportUtility.GetColumnNameForXls(colParticulars) + row].Merge();
+            sheet[row, colParticulars - 1].ColumnWidth = 20;
 
             if (companyCurrencyId != transcationCurrency)
             {
@@ -1434,6 +1441,9 @@ namespace Library.Service.Invoices
                     reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dsLocal.Rows[i]["Activity"]);
 
                     sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(colGl + 2) + row].Merge();
+
+                    reportUtility.SetText(ref sheet, row, colParticulars, dsLocal.Rows[i]["ParticularName"].ToString());
+                    sheet[reportUtility.GetColumnNameForXls(colParticulars - 1) + row + ":" + reportUtility.GetColumnNameForXls(colParticulars) + row].Merge();
 
                     if (companyCurrencyId != transcationCurrency)
                     {
@@ -1557,10 +1567,10 @@ namespace Library.Service.Invoices
                 reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
                 sheet[row, 3].ColumnWidth = 25;
 
-                sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 5, "Authorized By", true);
+                sheet.Range[row, 6].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                reportUtility.SetTextMiddle(ref sheet, row, 6, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
 
                 //    //else

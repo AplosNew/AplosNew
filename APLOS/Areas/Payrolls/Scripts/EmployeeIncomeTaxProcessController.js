@@ -46,7 +46,9 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
         EarningAmount: null,
         PolicyId: null,
         PlantId: null,
-        Gender: null
+        Gender: null,
+        StartDate: null,
+        EndDate: null
     };
      
     $scope.clearFliters = function () {
@@ -57,7 +59,9 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
             EarningAmount: null,
             PolicyId: null,
             PlantId: null,
-            Gender: null
+            Gender: null,
+            StartDate: null,
+            EndDate: null
         };
     }
 
@@ -91,10 +95,9 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
             $scope.TaxPolicyList = response.data;
             if ($scope.TaxPolicyList.length>0)
             {
-                //$scope.TaxPolicyName = response.data[0].PolicyHeaderName;
                 $scope.selectedValues.PolicyId = response.data[0].PolicyHeaderId;
-                // $scope.EmployeeIncomeTaxModel.StartDate = response.data[0].StartDate;
-                //$scope.EmployeeIncomeTaxModel.EndDate = response.data[0].EndDate;
+                $scope.selectedValues.StartDate = response.data[0].StartDate;
+                $scope.selectedValues.EndDate = response.data[0].EndDate;
                 $scope.loadGrid();
             }
         });
@@ -200,9 +203,10 @@ function EmployeeIncomeTaxProcessController($window, $timeout, cboService, commo
             method: 'POST',
             url: $scope.path + 'ProcessFunction',
             data: {
-                PolicyId: $scope.selectedValues.PolicyId, PlantId: $scope.selectedValues.PlantId,
-                YearId: $scope.selectedValues.TaxYearId,
-                EmpId: parameters[0].Value
+                PolicyId: $scope.selectedValues.PolicyId,
+                YearId: $scope.selectedValues.TaxYearId, TaxTypeId: $scope.selectedValues.TaxTypeId,
+                EmpId: parameters[0].Value, StartDate: $scope.selectedValues.StartDate,
+                EndDate: $scope.selectedValues.EndDate
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

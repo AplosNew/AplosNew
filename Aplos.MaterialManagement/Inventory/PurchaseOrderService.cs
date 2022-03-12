@@ -13,6 +13,7 @@ using Library.Service.Logs;
 using Library.Service.Properties;
 using Library.Service.Systems;
 using Library.ViewModel.Inventory;
+using Library.ViewModel.Materials;
 using Library.ViewModel.Setup;
 using OTSBD;
 using Syncfusion.DocIO;
@@ -51,6 +52,8 @@ namespace Library.MaterialManagement.Inventory
         private readonly IRepositoryAsync<ServiceAcknowledgementMaster> _ServiceAcknowledgementMasterRepository;
         private readonly IRepositoryAsync<PODocumentMap> _PODocumentMapRepository;
         private readonly IRepositoryAsync<ServicePOAckTax> _servicePOAckTaxRepository;
+        private readonly IRepositoryAsync<ServiceAcknowledgementCharge> _ChargeServiceRepository;
+
 
 
         private readonly IUnitOfWork _unitOfWork;
@@ -72,6 +75,7 @@ namespace Library.MaterialManagement.Inventory
             , IRepositoryAsync<ServiceAcknowledgementMaster> ServiceAcknowledgementMasterRepository
             , IRepositoryAsync<PODocumentMap> PODocumentMapRepository
             , IRepositoryAsync<ServicePOAckTax> servicePOAckTaxRepository
+            , IRepositoryAsync<ServiceAcknowledgementCharge> ChargeServiceRepository
             ) : base(inventoryReceiveRepository, unitOfWork, pkGeneratorService)
         {
             _inventoryReceiveRepository = inventoryReceiveRepository;
@@ -79,6 +83,7 @@ namespace Library.MaterialManagement.Inventory
             _sqlRepository = sqlRepository;
             _ServicePOMaster = ServicePOMaster;
             _ServicePODetail = ServicePODetail;
+            _ChargeServiceRepository = ChargeServiceRepository;
             _ServicePOTax = ServicePOTax;
             _unitOfWork = unitOfWork;
             _ServiceAcknowledgementMaster = ServiceAcknowledgementMaster;
@@ -162,7 +167,7 @@ namespace Library.MaterialManagement.Inventory
                 //    {
 
                 TnCDeleteDetail(POId);
-                      
+
                 //    }
                 //}
                 con.OpenDataSetThroughAdapter("SELECT * FROM TermsAndConditionsPOChild WHERE 1=2", out dsToSalesOrder, false, "1");
@@ -181,7 +186,7 @@ namespace Library.MaterialManagement.Inventory
                     CopyRow(dtFromMaster.Rows[m], ref drSalesOrder);
                     drSalesOrder["Id"] = TitleId + Convert.ToInt32(Id) + SCount;
                     NewSoId = drSalesOrder["Id"].ToString();
-                   // drSalesOrder["TermsAndConditionsMasterId"] = TitleId;
+                    // drSalesOrder["TermsAndConditionsMasterId"] = TitleId;
                     drSalesOrder["POId"] = POId;
                     dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
 
@@ -253,7 +258,7 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-        public  void InsertPOBOQMaster(PurchaseOrder entity)
+        public void InsertPOBOQMaster(PurchaseOrder entity)
         {
             try
             {
@@ -261,7 +266,7 @@ namespace Library.MaterialManagement.Inventory
                 entity.Id = GetPK();
                 base.Insert(entity);
                 //TODO:
-                
+
 
             }
             catch (Exception ex)
@@ -290,7 +295,7 @@ namespace Library.MaterialManagement.Inventory
 
                 ResetCurrencyRate(entity);
                 base.Update(entity);
-                 SaveTermsData(entity.TermsAndConditionsId, entity.Id);
+                SaveTermsData(entity.TermsAndConditionsId, entity.Id);
             }
             catch (Exception ex)
             {
@@ -365,7 +370,31 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-
+        public IEnumerable<object> QueryForCharges(string MasterId)
+        {
+            try
+            {
+                //var sql = @"SELECT A.Id, A.InventoryReceiveId, A.ServiceMasterId, B.UserName AS ServiceMasterName, A.Amount, A.TotalTaxAmount
+                //            FROM [TRN].[InventoryService] AS A JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id WHERE A.InventoryReceiveId='" + receiveId + "'";
+                var sql = @"SELECT A.Id
+                        , A.ServiceAcknowledgementMasterId
+                        , A.ServiceMasterId
+                        , B.UserName AS ServiceMasterName
+                         ,A.Amount
+						,IRT.TaxAmount TotalTaxAmount
+                        FROM [TRN].ServiceAcknowledgementCharge AS A 
+                        JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
+                        left join ( Select ServiceAcknowledgementChargeId, sum(TaxAmount) TaxAmount from  trn.ServicePOAckTax group by ServiceAcknowledgementChargeId) IRT On IRT.ServiceAcknowledgementChargeId=A.Id
+                        WHERE A.ServiceAcknowledgementMasterId='" + MasterId + @"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
         public GridModel GetPostingList(GridParameter parameters, string plantId)
         {
             try
@@ -574,7 +603,7 @@ namespace Library.MaterialManagement.Inventory
 
             }
         }
-        public IEnumerable<object> GetPOTypeList(string plantId, string POTypeStatus,string poType)
+        public IEnumerable<object> GetPOTypeList(string plantId, string POTypeStatus, string poType)
         {
             if (POTypeStatus == "")
             {
@@ -654,7 +683,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN (SELECT PS.InventoryReceiveId,SUM(ISNULL(PS.Amount,0)) Amount FROM TRN.POService PS GROUP BY PS.InventoryReceiveId) PS ON PS.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-						WHERE  IR.PlantId='" + identity.PlantId + @"' AND IR.POType='"+ poType + @"'  --IR.AddedBy='" + identity.Name + @"' And
+						WHERE  IR.PlantId='" + identity.PlantId + @"' AND IR.POType='" + poType + @"'  --IR.AddedBy='" + identity.Name + @"' And
                         AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
@@ -3367,6 +3396,24 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+        public IEnumerable<object> GetServiceTaxListForTax(string serviceId)
+        {
+            try
+            {
+                var sql = @"SELECT A.Id,A.ServiceAcknowledgementChargeId, A.TaxCategoryId, TC.UserName, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
+                            FROM [TRN].ServicePOAckTax AS A 
+                            JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
+                            LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
+                            WHERE A.ServiceAcknowledgementChargeId='" + serviceId + @"' AND A.ServiceAcknowledgementDetailId IS NULL ORDER BY TC.[Sequence]";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
         #endregion Tax
 
@@ -3761,7 +3808,7 @@ namespace Library.MaterialManagement.Inventory
             int colRo = COL; COL++;
             wTable.Rows[ROW].Cells[colRo].Width = 30;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
             wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
@@ -4168,11 +4215,11 @@ namespace Library.MaterialManagement.Inventory
                     range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
                     //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
                     //range.ApplyCharacterFormat(FontBold);
-                     colDescription = COL; COL++;
+                    colDescription = COL; COL++;
                     wTable.Rows[ROW].Cells[colDescription].Width = 700;
 
 
-                   // wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+                    // wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
                     sl = 0;
                 }
                 #endregion column headers
@@ -4190,9 +4237,9 @@ namespace Library.MaterialManagement.Inventory
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                IWTextRange A =TROW.Cells[colHeader].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString()+".");
+                IWTextRange A = TROW.Cells[colHeader].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["HeaderCaption"].ToString() + ".");
                 A.ApplyCharacterFormat(FontBold2);
-                TROW.Cells[colDescription].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["DESCRIPTION"].ToString()+".");
+                TROW.Cells[colDescription].AddParagraph().AppendText(sl + "." + dsTermsAndCondition.Rows[i]["DESCRIPTION"].ToString() + ".");
                 CmpTitile = dsTermsAndCondition.Rows[i]["TermsAndConditionPOChildId"].ToString();
             }
             ROW++;
@@ -4214,7 +4261,7 @@ namespace Library.MaterialManagement.Inventory
             myStyle.CharacterFormat.TextColor = Color.Black;
             myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
 
-           
+
             #endregion paragrpath formats
 
             #region merging section
@@ -4225,7 +4272,7 @@ namespace Library.MaterialManagement.Inventory
             #endregion merging section
 
 
-        wTable.TableFormat.Borders.BorderType = BorderStyle.None;
+            wTable.TableFormat.Borders.BorderType = BorderStyle.None;
 
             TextBodyPart textBodyPart = new TextBodyPart(document);
             textBodyPart.BodyItems.Add(wTable);
@@ -7046,7 +7093,7 @@ ORDER BY IR.ID DESC";
             {
 
 
-               
+
                 Sql = @"--DECLARE @plantId VARCHAR(10)='20171';
 				Select top(600) * from (
 				SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
@@ -8219,11 +8266,12 @@ ORDER BY IR.ID DESC";
 
             }
         }
-        public IEnumerable<object> GetLCContractList(bool isProcurementOnBom,string plantId)
+        public IEnumerable<object> GetLCContractList(bool isProcurementOnBom, string plantId)
         {
             try
             {
-                if (isProcurementOnBom) {
+                if (isProcurementOnBom)
+                {
 
                     var sql = @"SELECT C.Id ContractId
                             , c.CustomerId
@@ -8314,9 +8362,9 @@ ORDER BY IR.ID DESC";
                             )
 
                             ORDER BY C.CustomerId";
-                return _sqlRepository.GetDataCollection(sql);
+                    return _sqlRepository.GetDataCollection(sql);
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -12486,7 +12534,7 @@ ORDER BY IR.ID DESC";
                 }
                 if (string.IsNullOrEmpty(entity.Id))
                 {
-                    var year1 = DateTime.Now.Year.ToString();                    
+                    var year1 = DateTime.Now.Year.ToString();
                     var id = GetPKServiveAck();
                     entity.Id = plantId + id;
                     AuditService.AddedLog(entity);
@@ -12526,7 +12574,7 @@ ORDER BY IR.ID DESC";
                                 var receiveDetail1 = new ServivePOAcknowledgementMap
                                 {
 
-                                    Id = GetPKSerAckMap(),
+                                    Id = plantId + GetPKSerAckMap(),
                                     CompanyGroupId = identity.CompanyGroupId,
                                     CompanyId = identity.CompanyId,
                                     PlantId = identity.PlantId,
@@ -12654,7 +12702,121 @@ ORDER BY IR.ID DESC";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+        public void InsertGraphCharge(InventoryMaterialViewModel entity, IEnumerable<ServicePOAckTax> taxCategoryList)
+        {
+            if (Convert.ToBoolean(_ChargeServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM TRN.ServiceAcknowledgementCharge WHERE ServiceAcknowledgementMasterId='" + entity.ServiceAcknowledgementMasterId + "' AND ServiceMasterId='" + entity.ServiceMasterId + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
+                throw new CustomException("This service already taken."); ;
+            //int currentId=0;
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
 
+                if (entity.IsNotNull())
+                {
+                    entity.ToCurrencyRate = entity.ToCurrencyRate == 0 ? 1 : entity.ToCurrencyRate;
+                    var currentId = _ChargeServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[ServiceAcknowledgementCharge] WHERE ServiceAcknowledgementMasterId='{entity.ServiceAcknowledgementMasterId}'").First();
+                    currentId++;
+                    var service = new ServiceAcknowledgementCharge
+                    {
+                        Id = MakePK(entity.InventoryReceiveId + 2, currentId, 2),
+                        ServiceAcknowledgementMasterId = entity.ServiceAcknowledgementMasterId,
+                        ServiceMasterId = entity.ServiceMasterId,
+                        Amount = Convert.ToDecimal(entity.TransactionAmount),
+                        TotalTaxAmount = Convert.ToDecimal(entity.TotalTaxAmount)
+                    };
+                    AuditService.AddedLog(service);
+                    _ChargeServiceRepository.Insert(service);
+                    if (taxCategoryList.IsNotNull())
+                    {
+                        var crrId = _ChargeServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[ServicePOAckTax] WHERE ServiceAcknowledgementChargeId='{service.Id}'").First();
+                        foreach (var item in taxCategoryList)
+                        {
+                            crrId++;
+                            item.Id = MakePK(service.Id, crrId, 2);
+                            item.ServiceAcknowledgementMasterId = entity.ServiceAcknowledgementMasterId;
+                            item.ServiceAcknowledgementDetailId = null;
+                            item.ServiceAcknowledgementChargeId = service.Id;
+                            AuditService.AddedLog(item);
+                            _servicePOAckTaxRepository.Insert(item);
+                        }
+                    }
+                    //if (entity.CurrencyId != entity.BaseCurrencyId)
+                    //    UpdateInventoryDetail(service, ratioServiceTax, ratio, Convert.ToDecimal(entity.ToCurrencyRate), entity.IsNonCreditable);
+                    //else if (entity.CurrencyId == entity.BaseCurrencyId)
+                    //    UpdateInventoryDetail(service, ratioServiceTax, ratio, 1, entity.IsNonCreditable);
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
+        public void UpdateGraphCharge(InventoryMaterialViewModel entity, List<ServicePOAckTax> taxCategoryList)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster, dsChild;
+
+                string DetailsId = string.Empty; string Id = string.Empty;
+                string sql = "SELECT * FROM [TRN].[ServiceAcknowledgementCharge] WHERE ServiceAcknowledgementMasterId='" + entity.ServiceAcknowledgementMasterId + "' ";
+                string sql1 = "SELECT * FROM [TRN].[ServiceAcknowledgementCharge] WHERE ServiceAcknowledgementMasterId='" + entity.ServiceAcknowledgementMasterId + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter(sql1, out dsChild, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 1)
+                {
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                    dr.BeginEdit();
+                    Id = dr["Id"].ToString();
+
+                    dr["Amount"] = entity.TransactionAmount;
+                    dr["TotalTaxAmount"] = entity.TotalTaxAmount;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                    dr.EndEdit();
+                }
+
+                for (int i = 0; i < taxCategoryList.Count; i++)
+                {
+                    DataRow dr = dsChild.Tables[0].NewRow();
+
+                    dsChild.Tables[0].Rows.Add(dr);
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
         public void DeleteServiceAck(string id)
         {
             try

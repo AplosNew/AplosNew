@@ -1047,11 +1047,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 TotalMLv = 0,
 								TotalCompAssignLv = 0,                             
                                 TotalWeekOffHoliDay = 0,
-                                OTHr,LvValue,WeekOffValue,HoliDayValue,LWPValue
+                                OTHr,LvValue,WeekOffValue,HoliDayValue,
+                                LWPValue=Case When(DayStatus='LWP')
+								then 1 else 0 end
                                 FROM dbo.AttdnProcessData a
                                 left join daytype p on a.DayStatus=p.DayType
                                 left join employeeInformation ei on ei.SystemId =a.EmpSystemID
-                                WHERE  ei.SystemId in("+EmpIdLoop+@")
+                                WHERE  ei.SystemId in(" + EmpIdLoop+@")
                                 and WorkDate between '"+FromDate+@"' AND '"+ToDate+@"'
                                 ) A  ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1248,7 +1250,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
                                 LEFT JOIN DayType dt on dt.Daytype=AR.DayStatus
                             
-							inner join OTSlabDefineGeneral g on 
+							left join OTSlabDefineGeneral g on 
 							'" + ToDate + @"' between g.FromDate and g.ToDate 
 							and g.PlantID=ar.PlantID 
 							and g.DayType=dt.OriginalDayType

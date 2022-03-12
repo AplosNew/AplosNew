@@ -549,6 +549,7 @@ upanelApp.controller('goodsReceiveNoteController', goodsReceiveNoteController);
 upanelApp.controller('gratuityReportController', gratuityReportController);
 upanelApp.controller('gratuityPolicyController', gratuityPolicyController);
 upanelApp.controller('GRNByPOController', GRNByPOController);
+upanelApp.controller('GRNBOQPOController', GRNBOQPOController);
 upanelApp.controller('holidayAbsentismAssignmentController', holidayAbsentismAssignmentController);
 upanelApp.controller('hourlyOffDutyTagController', hourlyOffDutyTagController);
 upanelApp.controller('hourlyOTController', hourlyOTController);
@@ -990,6 +991,7 @@ upanelApp.controller('ProformaInvoiceController', ProformaInvoiceController);
 upanelApp.controller('GeneralDataMasterController', GeneralDataMasterController);
 upanelApp.controller('GeneralDataOperationsController', GeneralDataOperationsController);
 upanelApp.controller('InvoiceTaggedWithLCController', InvoiceTaggedWithLCController);
+upanelApp.controller('invoiceToAcceptancePostController', invoiceToAcceptancePostController);
 upanelApp.controller('PIInvoiceController', PIInvoiceController);
 upanelApp.controller('PIPackingListController', PIPackingListController);
 upanelApp.controller('FOCController', FOCController);
@@ -1006,13 +1008,16 @@ upanelApp.controller("NewEarnLeaveReportController", NewEarnLeaveReportControlle
 upanelApp.controller("NewSystemEarnLeaveReportController", NewSystemEarnLeaveReportController);
 upanelApp.controller("FinishedStockReportController", FinishedStockReportController);
 upanelApp.controller("FGInventoryStockReportController", FGInventoryStockReportController);
+upanelApp.controller("MeetingTypeController", MeetingTypeController);
 upanelApp.controller("MeetingAgendaController", MeetingAgendaController);
 upanelApp.controller("StocksAdjustmentController", StocksAdjustmentController);
 upanelApp.controller("FinalPackDefinitionController", FinalPackDefinitionController);
 upanelApp.controller("PrePackDefinitionController", PrePackDefinitionController);
 upanelApp.controller("MeetingReportsController", MeetingReportsController);
 upanelApp.controller("EmployeeOperationsController", EmployeeOperationsController);
-
+upanelApp.controller("GroupBalanceReportController", GroupBalanceReportController);
+upanelApp.controller("WasteIssueController", WasteIssueController);
+upanelApp.controller("inventoryIssueBOQController", inventoryIssueBOQController);
 
 
 upanelApp.config(AccessControllerConfig);

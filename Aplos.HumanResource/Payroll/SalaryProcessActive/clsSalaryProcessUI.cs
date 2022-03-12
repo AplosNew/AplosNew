@@ -546,11 +546,6 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
                     strSQL += @"
                                AND E.PlantID = '" + sPlantID + @"'";
                 }
-                //if (Status != "")
-                //{
-                //    strSQL += @"
-                //               AND E.EmployeeStatus = '" + Status + @"'";
-                //}
 
                 strSQL += @"
                             ORDER BY E.EmployeeCode desc --F.UserName,dgs.UserName,";
@@ -665,7 +660,6 @@ and isnull(locka.EmpSystemId,'')=''
 										                )--not in
                                                     and e.systemid not in 
                                                     (
-                                                   -- select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
                                                           SELECT apd.EmpSystemID FROM AttdnProcessData AS apd WHERE apd.WorkDate BETWEEN '" + sFromDate + @"' AND 	'" + sToDate + @"'	GROUP BY apd.EmpSystemID HAVING SUM(ISNULL(apd.PresentValue,0)+ISNULL(apd.LateValue,0)+ISNULL(apd.LvValue,0))=0											                
 							                          )
                                                     and E.SystemId not in
@@ -732,11 +726,7 @@ and isnull(locka.EmpSystemId,'')=''
                     strSQL += @"
                                AND E.PlantID = '" + sPlantID + @"'";
                 }
-                //if (Status != "")
-                //{
-                //    strSQL += @"
-                //               AND E.EmployeeStatus = '" + Status + @"'";
-                //}
+                
 
                 strSQL += @"
                             ORDER BY E.EmployeeCode desc --F.UserName,dgs.UserName,";
@@ -1058,7 +1048,6 @@ and isnull(locka.EmpSystemId,'')=''
                 ads.dtApprovedSalary = null;
                 ads.dtAttNotProcessed = null;
 
-                //objEmpBasic = new clsEmployeeLoad();
                 //newlyjoined
                 DataView dvNew = new DataView(dslocalAll.Tables[0]);
                 dvNew.RowFilter = "DOJs>='" + FromDate + "' and DOJs<='" + ToDate + "' and (DOSs is null or DOSs>'" + ToDate + "')";
@@ -1070,15 +1059,12 @@ and isnull(locka.EmpSystemId,'')=''
                 DataView dvSep = new DataView(dsSeparatedEmp.Tables[0]);
                 dvSep.RowFilter = "DOSs >= '" + FromDate + "' and DOSs <='" + ToDate + "'  ";
                 DataTable dtSep = dvSep.ToTable();
-
-                //DataView dvSep = new DataView(dslocalAll.Tables[0]);
-                //dvSep.RowFilter = "EmployeeStatus='" + bplib.clsWebLib.EmployeeStatus_Separated + "' and DOSs >= '" + FromDate + "' and DOSs <='" + ToDate + "'  ";
-                //DataTable dtSep = dvSep.ToTable();
                 GetList(ref ads, dtSep, ListEnum.Separated);
 
                 ///emp sstruc not defined
                 LoadNotDefinedSS(Status, PlantId, "ALL", FromDate, ToDate, out dsLocal);
                 GetList(ref ads, dsLocal.Tables[0], ListEnum.SalaryStructureNotDefined);
+               
                 LoadUnapprovedSStructure(Status, PlantId, "ALL", FromDate, ToDate, out dsLocal);
                 GetList(ref ads, dsLocal.Tables[0], ListEnum.SalaryStructureNotApproved);
                 ///salary processed and approved IsApproved
@@ -1370,7 +1356,6 @@ and isnull(locka.EmpSystemId,'')=''
 	                            ---------------present zero--------------
                                 and e.systemid not in 
                                 (
-                               -- select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
                                  SELECT apd.EmpSystemID FROM AttdnProcessData AS apd WHERE apd.WorkDate BETWEEN '" + sFromDate + @"' AND 	'" + sToDate + @"'	GROUP BY apd.EmpSystemID HAVING SUM(ISNULL(apd.PresentValue,0)+ISNULL(apd.LateValue,0)+ISNULL(apd.LvValue,0))=0		                               
                                 )
                                             --Approved SP
@@ -1712,8 +1697,7 @@ and isnull(locka.EmpSystemId,'')=''
             {
                 string dtFD = Convert.ToDateTime(sFromDate).AddDays(-1).ToString("dd-MMM-yyyy");
                 string dtFDPrevM = Convert.ToDateTime(sFromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
-                strSQL = @"SELECT --IsSelectSlrProc = Case WHEN S.SlrProcMstSystemID IS NULL THEN Convert(bit, 'False') ELSE Convert(bit, 'True') END,
-                                  Convert(bit, 'False') IsSelectSlrProc,
+                strSQL = @"SELECT Convert(bit, 'False') IsSelectSlrProc,
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
@@ -1770,8 +1754,7 @@ and isnull(locka.EmpSystemId,'')=''
 										                (	
    	                                                        SELECT apd.EmpSystemID FROM AttdnProcessData AS apd WHERE apd.WorkDate BETWEEN '" + sFromDate + @"' AND 	'" + sToDate + @"'	GROUP BY apd.EmpSystemID HAVING SUM(ISNULL(apd.PresentValue,0)+ISNULL(apd.LateValue,0)+ISNULL(apd.LvValue,0))=0											                
 							                         
-							                               -- select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
-										                )--not in
+							                            )--not in
                                    
                                                     --Exception emp
                                                         and e.systemid not in
@@ -1969,7 +1952,6 @@ and isnull(locka.EmpSystemId,'')=''
 							   	---------------present zero--------------
                                 and e.systemid not in 
                                 (
-                               -- select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
                                     SELECT apd.EmpSystemID FROM AttdnProcessData AS apd WHERE apd.WorkDate BETWEEN '" + sFromDate + @"' AND 	'" + sToDate + @"'	GROUP BY apd.EmpSystemID HAVING SUM(ISNULL(apd.PresentValue,0)+ISNULL(apd.LateValue,0)+ISNULL(apd.LvValue,0))=0		                               
                                                           
                                     )

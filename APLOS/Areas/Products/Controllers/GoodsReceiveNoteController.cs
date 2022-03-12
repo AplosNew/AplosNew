@@ -47,7 +47,7 @@ namespace Aplos.Areas.Products.Controllers
         private readonly IIssueRequestService _issueRequestService;
         private readonly IIssueRequestMasterService _issueRequestMasterService;
         private readonly ISqlRepository _sqlRepository;
-       // private readonly IRepositoryAsync<InventoryReceiveDetail> _receiveDetailRepository;
+        // private readonly IRepositoryAsync<InventoryReceiveDetail> _receiveDetailRepository;
         private readonly IRepositoryAsync<PurchaseReturnDetail> _PurchaseReturnDetailRepository;
 
         public GoodsReceiveNoteController(IInventoryReceiveService inventoryReveiveService
@@ -153,6 +153,11 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         public ActionResult GRNByPO()
+        {
+            return View();
+        }
+
+        public ActionResult GRNBOQPO()
         {
             return View();
         }
@@ -377,6 +382,216 @@ namespace Aplos.Areas.Products.Controllers
 
         [HttpPost]
         public ActionResult DeleteGRNBYPO(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                _inventoryReveiveService.Delete(id);
+                return Json(new { Message = AplosMessage.Success });
+            }
+            else
+                throw new CustomException(Resources.IdNotFound);
+        }
+
+        #endregion GRN-By-PO
+
+        #region GRN-BOQ-PO
+
+        [HttpPost, Authorize]
+        public JsonResult GetGRNBOQPartyListNew(string column, string value, string partyType)
+        {
+            InventoryReceiveQueryService purchaseOrderBOQQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = purchaseOrderBOQQueryService.GetGRNBOQPartyListNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+        [HttpPost, Authorize]
+        public JsonResult GetItemListByVendor(string vendorId)
+        {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = inventoryReceiveQueryService.GetItemListByVendor(identity.PlantId, vendorId);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost]
+        public JsonResult CreateGRNBOQPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            //IEnumerable<InventoryMaterialViewModel>
+            List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
+
+                }
+            }
+            bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+            if (_returnRes == true)
+            {
+                throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+            }
+
+            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateGRNBOQPO(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat != null)
+            {
+                foreach (var item in entityMatAndImat)
+                {
+
+                    if (!item.check)
+                        throw new CustomException("Please Select Materials !");
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                        throw new CustomException("Please Select Materials !");
+
+                }
+            }
+            DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
+
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteGRNBOQPO(string id)
         {
             if (!string.IsNullOrEmpty(id))
             {
@@ -3458,87 +3673,6 @@ UNION ALL
                         paramter += " AND SO.Id in(" + parameters + ")";
                 }
 
-                //var sql = @"SELECT b.Id BOQId,b.Sequence Sequence1
-                //            ,b.MasterOrderItemId
-                //            ,moi.MasterOrderId
-                //            ,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
-                //            ,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
-                //            ,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
-                //            ,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
-                //            , b.VendorId
-                //            ,b.SalesOrderId
-                //            ,b.ProcessId
-                //            ,mm.Id MaterialMasterId,mma.Id ArticleId
-                //            ,IsNULL(mm.UserName,'') AS UserName
-                //            ,IsNULL(mma.StandardName,'') AS StandardName
-                //            ,IsNULL(p.UserName,'') AS Vendor
-                //            ,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
-                //            ,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
-                //            ,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
-                //            ,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
-                //            ,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-                //            ,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
-                //            ,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
-                //            ,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
-                //            ,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
-                //            b.BOMQty,C.Id
-                //            ,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-                //            ,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
-                //            ,ISNULL(cpo.PONumber,'') PONumber
-                //            ,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
-                //            ,uom1.UserName AlternateUOM
-                //            ,RequiredQty= CASE WHEN AUOM.BaseUOMFactor IS NULL THEN ROUND(isnull(b.RequiredQty,0),2) ELSE ROUND(isnull(b.BOMQty,0)/ISNULL(AUOM.BaseUOMFactor,0),2) END
-                //            ,uom.UserName BOQUOM
-                //            ,UOM=CASE WHEN AUOM.AlternativeUOMId IS NULL then uom.UserName else  uom1.UserName END
-                //            ,TransactionUoMId=CASE WHEN AUOM.AlternativeUOMId IS NULL THEN b.UoMId ELSE AUOM.AlternativeUOMId END
-                //            ,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '/' + ISNULL(mo.BuyerReferenceNo,'') +'/'+ ISNULL(moi.OwnReferenceNo,'')+'/'+ISNULL(moi.BuyerReferenceNo,'')
-                //            FROM BOQ AS b
-                //            LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
-                //            LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
-                //            LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
-                //            LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
-                //            LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
-                //            LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
-                //            LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-                //            left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
-                //            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
-                //            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
-                //            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
-                //            LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
-                //            LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
-                //            LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-                //            LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId						
-                //            LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
-                //            LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId						
-                //            where b.ProcessId in('"+ processId + @"') And " + paramter + @"
-                //            ORDER BY b.Sequence, b.SalesOrderId
-                //            ";
-
-                //var sql = @"SELECT Distinct              b.MaterialMasterId,MM.UserName MaterialName
-                //                        ,b.ArticleId, Article.StandardName ArticleName
-                //                        , BOQFGMAP.FirstCharacteristicsValueId 
-                //                        ,IsNULL(v1.UserName, '') AS FirstCharacteristicsValue
-                //                        , FC.Id FirstCharacteristicsId
-                //                        , IsNULL(v2.UserName, '') AS SecondCharacteristicsValue
-                //                        , BOQFGMAP.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-                //                        , IsNULL(v3.UserName, '') AS ThirdCharacteristicsValue
-                //                        , BOQFGMAP.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId,null Active
-                //			,b.SalesOrderId
-                //			,b.OrderQty							
-                //			,b.Consumption
-                //			,b.WastagePer
-                //			,b.PlanOrderQty
-                //                        FROM BOQ AS b
-                //                        LEFT  JOIN MST.MaterialMaster MM ON MM.Id=B.MaterialMasterId
-                //                        LEFT JOIN mst.MaterialMasterArticle Article ON Article.MaterialMasterId=mm.Id
-                //                        LEFT JOIN BOQFGMapping BOQFGMAP  ON BOQFGMAP.BOQDetailId = B.Id
-                //                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = BOQFGMAP.FirstCharacteristicsValueId
-                //                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = BOQFGMAP.SecondCharacteristicsValueId
-                //                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = BOQFGMAP.ThirdCharacteristicsValueId
-                //                        LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
-                //                        LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
-                //                        LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId
-                //                        where b.ProcessId in('" + processId + @"') And " + paramter + @"";
 
                 var sql = @"SELECT Concat(SO.Id,'-',ISNULL(FCS.CharacteristicsValueId,''),'-',ISNULL(SCS.CharacteristicsValueId,''),'-',ISNULL(TCS.CharacteristicsValueId,'')) SOMATART
 					,MOI.MaterialMasterId
@@ -4468,6 +4602,362 @@ UNION ALL
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-    }//
 
+
+        #region GRN BOQ -- Saad
+
+        [HttpPost, Authorize]
+        public JsonResult GetItemListDetailsByList(string MaterialIds, string ArticleIds, string VendorRefNos, string CustomerRefNos, string OwnReferenceNo, string PartyId)
+        {
+            try
+            {
+                var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,moi.ContractId,mo.Id MasterOrderId,boq.SalesOrderId
+							FROM BOQ  boq 
+							LEFT JOIN MST.MaterialMaster mm on mm.Id=boq.MaterialMasterId
+							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
+							LEFT JOIN TRN.MasterOrderItem moi on moi.Id=boq.MasterOrderItemId
+							LEFT JOIN TRN.MasterOrder mo on mo.Id=moi.MasterOrderId
+							LEFT JOIN TRN.POBOQMAP pomap on pomap.BOQDetailId=boq.Id
+							LEFT JOIN HKP.Party P ON P.Id=mo.PartyId
+							LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=pomap.PODetailId
+							WHERE boq.MaterialMasterId IN (" + MaterialIds + ") AND boq.ArticleId IN (" + ArticleIds + @")
+                            AND ISNULL(boq.OwnReferenceNo,'null') in (" + OwnReferenceNo + ") AND ISNULL(boq.RMCustomerSpec,'null') IN (" + CustomerRefNos + @")
+							AND ISNULL(boq.RMVendorSpec,'null') IN (" + VendorRefNos + @") AND boq.VendorId='" + PartyId + @"'";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult GetSelectedItemListDetailsByList(string POId, string ContractId, string masterOrderitemId, string SalesOrderId, string MaterialMasterId, string ArticleId)
+        {
+            try
+            {
+                var sql = @"DECLARE @totalReceiveAmount DECIMAL(18, 4) = 0
+                            	,@totalServiceAmount DECIMAL(18, 4) = 0
+                            	,@totalSvcTaxAmount DECIMAL(18, 4) = 0
+                            
+                            -- SET @totalReceiveAmount=(SELECT ISNULL(SUM(ISNULL(TransactionAmount, 0)),1) FROM [TRN].[PurchaseOrderDetail] WHERE IRD.InventoryReceiveId in('','21180'))
+                            --SET @totalServiceAmount=(SELECT ISNULL(SUM(ISNULL(Amount - GRNServiceAmount, 0)),0) As Amount FROM [TRN].[POService] WHERE IRD.InventoryReceiveId in('','21180'))
+                            --SET @totalSvcTaxAmount=(SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[PurchaseOrderTax] WHERE IRD.InventoryReceiveId in('','21180') AND InventoryServiceId<>'')
+                            SELECT
+                            	--IM.Id
+                            	IR.Id AS POID
+                            	,IRD.Id AS PODetailsID
+                            	,IRD.Id AS InventoryReceiveDetailId
+                            	,MGM.UserName AS MaterialGroupMasterName
+                            	,MM.Id MaterialMasterId
+                            	,MM.UserName
+                            	,IRD.MaterialStorageId
+                            	,IRD.BaseUOMId
+                            	,IRD.ArticleId
+                            	,ART.StandardName
+                            	,IRD.FirstCharacteristicsId
+                            	,FC.UserName AS FirstCharacteristics
+                            	,IRD.FirstCharacteristicsValueId
+                            	,FCV.UserName AS FirstCharacteristicsValue
+                            	,IRD.SecondCharacteristicsId
+                            	,SC.UserName AS SecondCharacteristics
+                            	,IRD.SecondCharacteristicsValueId
+                            	,SCV.UserName AS SecondCharacteristicsValue
+                            	,IRD.ThirdCharacteristicsId
+                            	,TC.UserName AS ThirdCharacteristics
+                            	,IRD.ThirdCharacteristicsValueId
+                            	,TCV.UserName AS ThirdCharacteristicsValue
+                            	,IRD.TransactionQty AS POQty
+                            	--, ISNULL(IRD.GRNRcvQty,0) AS GRNRcvQty 
+                            	,ISNULL(aa.TransactionQty, 0) AS GRNRcvQty
+                            	--,(IRD.TransactionQty - ISNULL(IRD.GRNRcvQty,0)) AS TransactionQty
+                            	,'' AS TransactionQty
+                            	,(IRD.TransactionQty - ISNULL(aa.TransactionQty, 0)) AS Balance
+                            	,ISNULL(IRD.QtyStatus, 0) QtyStatus
+                            	,IRD.TransactionUoMId
+                            	,TUoM.UserName AS TransactionUoM
+                            	,IRD.TransactionRate
+                            	,CU.Code AS CurrencyName
+                            	,IR.ToCurrencyRate
+                            	,IRD.TransactionAmount
+                            	,0 AS TrnAmount
+                            	,0 AS BaseTaxAmount
+                            	,0 AS TaxAmount
+                            	,0 AS ChargesAmount
+                            	,0 AS ServiceCharge
+                            	,0 AS ServiceTax
+                            	,IRD.CountryId
+                            	,'True' enableid
+                            	,NULL POMaterialTaxList
+                            	,0 AS TotalMaterialTranAmount
+                            	,0 AS ToTalMaterialBooksCurrencyAmount
+                            	,IR.InvoicingByAddress
+                            	,IR.DeliveryByAddress
+                            	,IRD.RequisitionId
+                            	,IRD.RequisitionDetailId
+                            	,0 ShortageQty
+                            	,0 RejectionQty
+                            	--,MRD.MaterialDetail
+                            	,NULL AS [check]
+                            	,IRD.Description MaterialDetail
+                            	,'null' PurchaseDocAcceptanceDetailId
+                            	,0 POClosStatus
+                            	,C.UserName CountryName
+                            	,C.Id CountryId
+                            	,MM.IsAsset
+                            	,IRD.TotalTaxAmount
+                            	,0 GrossAmount
+                            	,0 DiscountAmount
+                            	,'' QualityStatus
+                            	,IRD.TransactionUoMId POUoMId
+                            	,IRD.Tolerance
+                            	,IRD.RefferenceNo
+                            FROM TRN.PurchaseOrderDetail AS IRD
+                            --LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.InventoryMaterialId=PM.Id
+                            LEFT JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId = MM.Id
+                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                            LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId = ART.Id
+                            LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
+                            LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
+                            LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId = FCV.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
+                            -- JOIN [TRN].[PurchaseOrderDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
+                            LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
+                            LEFT JOIN [TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId = IR.Id
+                            LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+                            LEFT JOIN [trn].MaterialRequsitionDetails MRD ON MRD.Id = IRD.RequisitionDetailId
+                            LEFT JOIN scs.country C ON C.Id = IRD.CountryId
+                            LEFT JOIN (
+                            	SELECT PODetailsId
+                            		,Sum(TransactionQty) TransactionQty
+                            	FROM trn.InventoryReceiveDetail
+                            	WHERE isnull(POId,'null') IN (" + POId + @")
+                            	GROUP BY PODetailsId
+                            	) aa ON aa.PODetailsId = IRD.Id
+                            WHERE IRD.QtyStatus = 0
+                            	AND IRD.InventoryMaterialId IS NOT NULL
+                            	AND isnull(IRD.InventoryReceiveId,'null') IN (" + POId + @")
+                            
+                            UNION ALL
+                            
+                            SELECT
+                            	--IM.Id
+                            	NULL POID
+                            	,NULL PODetailsID
+                            	,NULL InventoryReceiveDetailId
+                            	,MGA.UserName AS MaterialGroupMasterName
+                            	,b.MaterialMasterId
+                            	,MM.UserName
+                            	,NULL MaterialStorageId
+                            	,b.BaseUoMId
+                            	,b.ArticleId
+                            	,mma.StandardName
+                            	,V1.CharacteristicsId FirstCharacteristicsId
+                            	,FC.UserName AS FirstCharacteristics
+                            	,b.FirstCharacteristicsValueId
+                            	,V1.UserName AS FirstCharacteristicsValue
+                            	,V2.CharacteristicsId SecondCharacteristicsId
+                            	,SC.UserName AS SecondCharacteristics
+                            	,b.SecondCharacteristicsValueId
+                            	,V2.UserName AS SecondCharacteristicsValue
+                            	,V3.CharacteristicsId ThirdCharacteristicsId
+                            	,TC.UserName AS ThirdCharacteristics
+                            	,b.ThirdCharacteristicsValueId
+                            	,V3.UserName AS ThirdCharacteristicsValue
+                            	,b.RequiredQty AS POQty
+                            	,0 AS GRNRcvQty
+                            	--,(IRD.TransactionQty - ISNULL(IRD.GRNRcvQty,0)) AS TransactionQty
+                            	,'' AS TransactionQty
+                            	,(b.RequiredQty) AS Balance
+                            	,NULL QtyStatus
+                            	,b.UoMId TransactionUoMId
+                            	,TUoM.UserName AS TransactionUoM
+                            	,b.Rate
+                            	,NULL CurrencyName
+                            	,0 ToCurrencyRate
+                            	,b.RequiredQty * b.Rate TransactionAmount
+                            	,0 AS TrnAmount
+                            	,0 AS BaseTaxAmount
+                            	,0 AS TaxAmount
+                            	,0 AS ChargesAmount
+                            	,0 AS ServiceCharge
+                            	,0 AS ServiceTax
+                            	,NULL CountryId
+                            	,'True' enableid
+                            	,NULL POMaterialTaxList
+                            	,0 AS TotalMaterialTranAmount
+                            	,0 AS ToTalMaterialBooksCurrencyAmount
+                            	,NULL InvoicingByAddress
+                            	,NULL DeliveryByAddress
+                            	,NULL RequisitionId
+                            	,NULL RequisitionDetailId
+                            	,0 ShortageQty
+                            	,0 RejectionQty
+                            	--,MRD.MaterialDetail
+                            	,NULL AS [check]
+                            	,NULL MaterialDetail
+                            	,'null' PurchaseDocAcceptanceDetailId
+                            	,0 POClosStatus
+                            	,NULL CountryName
+                            	,NULL CountryId
+                            	,MM.IsAsset
+                            	,0 TotalTaxAmount
+                            	,0 GrossAmount
+                            	,0 DiscountAmount
+                            	,'' QualityStatus
+                            	,b.UoMId POUoMId
+                            	,0 Tolerance
+                            	,NULL RefferenceNo
+                            FROM BOQ AS b
+                            LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id = b.MaterialMasterId
+                            LEFT OUTER JOIN MST.MaterialGroupMaster AS MGA ON MGA.Id = mm.MaterialGroupMasterId
+                            LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id = b.ArticleId
+                            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id = b.FirstCharacteristicsValueId
+                            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id = b.SecondCharacteristicsValueId
+                            LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id = b.ThirdCharacteristicsValueId
+                            LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
+                            LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
+                            LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId
+                            -- JOIN [TRN].[PurchaseOrderDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
+                            LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON b.UoMId = TUoM.Id
+                            --LEFT JOIN [TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId=IR.Id
+                            --LEFT JOIN [SCS].[Currency] AS CU ON moi.CurrencyId=CU.Id
+                            --LEFT join [trn].MaterialRequsitionDetails MRD on MRD.Id=IRD.RequisitionDetailId
+                            --left join scs.country C On C.Id=IRD.CountryId	
+                            LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id = b.MasterOrderItemId
+                            WHERE (isnull(MOI.ContractId, 'null') IN (" + ContractId + @"))
+                            	--AND (isnull(b.masterOrderitemId,'null') in (" + masterOrderitemId + @"))
+                            	AND (
+                            		isnull(b.SalesOrderId, 'null') IN (" + SalesOrderId + @")
+                            		)
+                            	AND (isnull(b.MaterialMasterId, 'null') IN (" + MaterialMasterId + @"))
+                            	AND (isnull(b.ArticleId, 'null') IN (" + ArticleId + @"))
+                                    AND b.Id NOT IN (
+                            		
+                            	SELECT p.BOQDetailId
+                            	FROM trn.POBOQMAP AS p
+                            	JOIN trn.PurchaseOrderDetail AS pod ON pod.id =p.PODetailId
+                            	WHERE isnull(pod.InventoryReceiveId ,'null') IN (" + POId + @"))";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpPost]
+        public JsonResult CreateGRNBOQPOSaad(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            //IEnumerable<InventoryMaterialViewModel>
+            List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            if (entityMatAndImat1 != null)
+            {
+                foreach (var item in entityMatAndImat1)
+                {
+
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+
+                    }
+                    else if (item.TransactionQty.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input The Current Qty !");
+                    }
+
+                }
+            }
+            else
+            {
+                throw new CustomException("Please Select atlest one Materials !");
+            }
+            if (chargesListPO != null)
+            {
+                foreach (var item in chargesListPO)
+                {
+                    if (!item.check)
+                    {
+                        throw new CustomException("Please Select Materials !");
+                    }
+                    else if (item.Amount.ToString() == "0")
+                    {
+                        throw new CustomException("Please Input  Amount !");
+                    }
+
+                }
+            }
+            bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+            if (_returnRes == true)
+            {
+                throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+            }
+
+            DetailCreateSaad(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            ServiceChargesCreateNewSaad(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+        public JsonResult DetailCreateSaad(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _inventoryDetailService.InsertOrUpdateGraphNewBOQ(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        public JsonResult ServiceChargesCreateNewSaad(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id, string AcceptanceId)
+        {
+            _inventoryService.InsertGraphNewBOQ(chargesListPO, POServiceTaxList, Id, AcceptanceId);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        #endregion
+
+    }//
 }
