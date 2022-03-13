@@ -9,6 +9,18 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.showfromto = true;
+    $scope.showgrndiv = false;
+
+    $scope.clickGo = function () {
+        $scope.showfromto = false;
+        $scope.showgrndiv = true;
+    }
+
+    $scope.clickBack = function () {
+        $scope.showfromto = true;
+        $scope.showgrndiv = false;
+    }
 
     $scope.fabricRollMaster = {
         CompanyGroupId: $window.companyGroupId,
@@ -153,13 +165,52 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.GRNsearchBy = "GRNNo";
     $scope.GRNsearch = "";
 
-    $scope.Get = function (args) {
+    $scope.obj = {};
+    $scope.SelectOption = function (args) {
 
-        $scope.fabricRollMaster = Object.assign({}, args.data);
-       
-        $scope.LoadMaterialSearchList();
+        $("#CreateNewPopUp").data("ejDialog").open();
+
+        $scope.obj = Object.assign({}, args.data);
+        console.log($scope.obj);
         angular.element(document.querySelector('#grnListPopUp')).modal('hide');
     };
+
+    $scope.Go = function () {
+        $scope.fabricRollMaster = Object.assign({}, $scope.obj);
+        $scope.LoadMaterialSearchList();
+
+        $scope.getSaveMaster($scope.fabricRollMaster.GRNNo);
+    }
+
+
+    $scope.getSaveMaster = function (GRNNo) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetSavedList?GRNId=" + GRNNo,
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.fabricRollMaster = Object.assign({}, response.data[0]);
+            }
+        });
+    }
+
+
+    $scope.closePopup = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+        try {
+            $("#" + popupName).data("ejDialog").close();
+        } catch (e) {
+
+        }
+    }
+    $scope.openPopup = function (popupName) {
+
+        try {
+            $("#" + popupName).data("ejDialog").open();
+        } catch (e) {
+
+        }
+    }
 
     //#region Display Material by GRN ID
     $scope.closeGRNPopUp = function (args) {
@@ -686,7 +737,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             $http({
                 method: 'POST',
                 url: $scope.path + "GRNList",
-                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch, 'fromDate': $scope.FromDate, 'toDate': $scope.ToDate},
+                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch, 'fromDate': $scope.FromDate, 'toDate': $scope.ToDate },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -756,16 +807,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     };
 
-    $scope.MasterList = [];
-    $scope.getMaster = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetSavedList",
-        }).then(function successCallback(response) {
-            $scope.MasterList = response.data;
-        });
-    }
-    $scope.getMaster();
+
     //EndFile Upload
 
     //Import File

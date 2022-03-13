@@ -221,7 +221,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         , MaterialStorageId: null
         , CurrencyId: null
         , BaseCurrencyId: $scope.baseCurrencyId
-        , ToCurrencyRate: 0
+        , ToCurrencyRate: 1
         , PaymentTermId: null
         , BaseOnDueDate: null
         , BaseNoOfDays: null

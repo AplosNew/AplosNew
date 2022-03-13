@@ -190,9 +190,9 @@ namespace Aplos.Areas.Materials.Controllers
 						, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent 
 						,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount
 						FROM [TRN].[InventoryReceiveDetail] AS A
-		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='"+ identity .PlantId+ @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
                         LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		                            WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
 						Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
@@ -286,7 +286,7 @@ namespace Aplos.Areas.Materials.Controllers
 							LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
                         WHERE BP.BusinessProcessName='FabricRollManagement'
 						) D ON D.InventoryReceiveId=IR.Id and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')
-					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN') AND IR.AddedDate between '"+fromDate+@"' AND '"+toDate+@"') AS TEMP WHERE " + strkey;
+					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN') AND IR.AddedDate between '" + fromDate+@"' AND '"+toDate+@"') AS TEMP WHERE " + strkey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -907,12 +907,105 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
         #region MyRegion
         [HttpGet, Authorize]
-        public JsonResult GetSavedList()
+        public JsonResult GetSavedList(string GRNId)
         {
             CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select F.*,P.UserName Plant,FORMAT(F.GRNDate,'dd-MMM-yyyy')GD from [BPDT].[FabricRollManagementMaster] F
-                            LEFT JOIN ORG.Plant P ON P.Id=F.PlantId
-                            Where PlantId='" + identity.PlantId + "'";
+            string sql = @"Select F.Id,F.GRNId GRNNo,FORMAT(F.GRNDate,'dd-MMM-yyyy')GRNDate,F.PlantId,F.PreparedById,F.CheckedById,F.Remarks,F.Comment
+,PE.EmployeeCode PreparedbyCode,CE.EmployeeCode CheckedbyCode,PE.EmployeeName PreparedbyName,CE.EmployeeName CheckedbyName,IRD.TransactionAmount, CU.Code AS CurrencyCode
+  ,isnull(PO.POId,NULL) POId,PO.PODate
+									,isnull(PO.PurchaseLCId,NULL) PurchaseLCId
+									,isnull(PO.ContractId,NULL) ContractId
+                                    ,ISNull(po.ContractNo,NULL) ContractNo,isnull(PO.LCANo,NULL) LCANo,isnull(PO.LCDate,NULL) LCDate
+									,PO.VendorRefNo,PO.PINo,PO.PurchaseLCNo, P.Code AS PartyCode, P.UserName AS PartyName,ISNULL(MLC.OpeningBank,NULL) OpeningBank
+from [BPDT].[FabricRollManagementMaster] F 
+LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=F.GRNId
+JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount 
+						, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent 
+						,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount
+						FROM [TRN].[InventoryReceiveDetail] AS A
+		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+									LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+LEFT JOIN dbo.EmployeeInformation PE ON PE.SystemId=F.PreparedById
+LEFT JOIN dbo.EmployeeInformation CE ON PE.SystemId=F.CheckedById
+
+ LEFT JOIN(SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
+								,POId=STUFF((select distinct ','+xpo.Id from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,VendorRefNo=STUFF((select distinct ','+xpo.DocRefNo  from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,ContractId=STUFF((select distinct ','+xpo.ContractId from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,UDNo=STUFF((select distinct ','+C.UDNo from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,ContractNo=STUFF((select distinct ','+C.ContractNo from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+								,PurchaseLCId=STUFF((select distinct ','+PLC.Id from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,PurchaseLCNo=STUFF((select distinct ','+PLC.LCRef from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,LCANo=STUFF((select distinct ','+PLC.LCANo from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,PINo=STUFF((select distinct ','+PLC.PINo from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+								,LCDate=STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), PLC.LCDate, 106),' ','-') from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,PODate=STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), xpo.PODate, 106),' ','-') from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								from  trn.POGGRNMap PDAMAP 
+							  LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
+							  LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
+							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate,PODate
+							)PO ON PO.GRNId = IR.Id
+							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
+LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
+
+Where F.GRNId='"+ GRNId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
