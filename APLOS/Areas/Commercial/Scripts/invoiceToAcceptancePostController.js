@@ -20,7 +20,7 @@ function invoiceToAcceptancePostController(bankService, accountService, cboServi
     $controller("bankBaseController", { $scope: $scope, $http: $http });
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
 
-    baseService.init("Accounts/Invoice/GetVendorPaymentList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
+    baseService.init("Accounts/Invoice/GetInvoiceToAcceptancePostList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.url = "Accounts/Invoice";
     $scope.postUrl = $scope.url + "/PostVendorPayment";
     $scope.deleteUrl = $scope.url + "/DeleteWriteOff";
@@ -56,7 +56,7 @@ function invoiceToAcceptancePostController(bankService, accountService, cboServi
         BankAccountNumber: null,
         SourceFrom: null,
         SourceTo: null,
-        PaymentSource: "Bank",
+        PaymentSource: "GL",
 
         GLGeneralInfoId: null,
         GLGeneralInfoName: null,
@@ -507,7 +507,7 @@ function invoiceToAcceptancePostController(bankService, accountService, cboServi
 
     $scope.getPopupCustomerReceivableList = function () {
         $scope.getInvoiceData = function (pageno) {
-            $scope.customerReceivableGLUrl1 = "accounts/Invoice/GetVendorAvailableInvoiceList?partyId=" + $scope.voucher.PartyId;
+            $scope.customerReceivableGLUrl1 = "commercial/InvoiceToAcceptancePost/GetVendorAvailableInvoiceListForInvoiceToAcceptancePost?partyId=" + $scope.voucher.PartyId;
             baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.invoiceParameters)
                 .then(function (result) {
                     try {
@@ -1028,7 +1028,7 @@ function invoiceToAcceptancePostController(bankService, accountService, cboServi
         $scope.voucher.VoucherTypeId = null;
         $scope.voucher.Active = true;
         $scope.voucher.Amount = 0;
-        $scope.voucher.PaymentSource = "Bank";
+        $scope.voucher.PaymentSource = "GL";
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.getCboVoucherTypePaymentList();
         $scope.currencyExchangeRate = [];
@@ -1197,7 +1197,7 @@ function invoiceToAcceptancePostController(bankService, accountService, cboServi
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "accounts/Invoice/InsertVendorPayment",
+                    url: "accounts/Invoice/InsertInvoiceToAcceptancePost",
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.voucherDetailList,
@@ -1220,30 +1220,7 @@ function invoiceToAcceptancePostController(bankService, accountService, cboServi
                 });
                 return true;
             }
-            else if ($scope.Action === "Update") {
-                $http({
-                    method: "POST",
-                    url: "accounts/Invoice/UpdateCustomerAdvance",
-                    data: {
-                        "voucherVM": $scope.voucher,
-                        "bankChargeDetailVMList": $scope.voucherDetailCurrencyList
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        if ($scope.index > -1) {
-                            $scope.menuFrames[$scope.index] = $scope.menuFrame;
-                        }
-                        $scope.Clear();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, "failure");
-                });
-            }
+            
             return true;
         }
     };
@@ -1551,7 +1528,7 @@ function invoiceToAcceptancePostController(bankService, accountService, cboServi
         $scope.customerInvoiceGLList = [];
         baseService.setCurrentPage("cOAICodeList");
         $scope.GetCOAICodeListData = function (pageno) {
-            baseService.paginationBase("Accounts/GLItem/GetAllGLBudgetActivityPostingAutomaticOnly", pageno, $scope.glListParameters)
+            baseService.paginationBase("Accounts/GLItem/GetAllLiabilityGLBudgetActivity", pageno, $scope.glListParameters)
                 .then(function (result) {
                     $scope.cOAICodeList = result.Rows;
                     $scope.glListParameters.total_count = result.Total;
