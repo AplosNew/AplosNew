@@ -365,7 +365,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/BudgetMasterReport.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetBudgetMasterReport(ReportFormat reportFormat, string coaId, bool isActivityLevel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
