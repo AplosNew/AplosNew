@@ -756,7 +756,7 @@
                                 <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 <td>
                                     <div class="show-message">
-                                        <input type="text" class="form-control text-right" ng-model="x.Description" style="width:500px;">
+                                        <input type="text" class="form-control text-left" ng-model="x.Description" style="width:500px;">
                                     </div>
                                 </td>
                                 <td>
@@ -805,11 +805,11 @@
                     </table>
                 </div>
                 <div class="clearfix"></div>
-                <div class="common-btn">
+                @*<div class="common-btn">
                     <ul class="list-inline text-right">
                         <li><button ng-click="detailPopUpEdit();" class="btn" ng-show="poBoqItemListNew.length>0"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
                     </ul>
-                </div>
+                </div>*@
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
