@@ -616,6 +616,46 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList)) });
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetInvoiceToAcceptancePostList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_invoiceWriteOffService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorPayment), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult InsertInvoiceToAcceptancePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+           , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.SourceType = SourceType.VendorPayment.ToString();
+            voucherVM.IsPark = true;
+            if (voucherVM.CompanyCurrencyRate <= 0)
+                throw new CustomException("Please Input Rate.");
+            if ((voucherVM.PaymentSource == "Bank") && (voucherVM.BankMasterId == null))
+                throw new CustomException(Resources.SelectBank);
+            if ((voucherVM.PaymentSource == "Bank") && (voucherVM.BankAmount == 0))
+                throw new CustomException("Please input Bank Amount");
+            if ((voucherVM.PaymentSource == "Cash") && (voucherVM.CashMasterId == null))
+                throw new CustomException(Resources.SelectCash);
+            if ((voucherVM.PaymentSource == "Vendor") && (voucherVM.OtherPartyId == null))
+                throw new CustomException("Please select Vendor");
+            if ((voucherVM.PaymentSource == "Vendor") && (voucherVM.FinancingTypeId == null))
+                throw new CustomException("Please select transaction type");
+
+            foreach (var advanceDetailVM in voucherDetailVMList)
+            {
+                if (advanceDetailVM.Amount == 0 || advanceDetailVM.Amount.ToString() == null)
+                    throw new CustomException("Amount should more than 0");
+                if (voucherVM.CurrencyId != advanceDetailVM.CurrencyId)
+                    throw new CustomException("Transaction currency and Payable currency should be same.!!!");
+            }
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertInvoiceToAcceptancePost(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList)) });
+        }
+
         [HttpPost]
         public ActionResult UpdateVendorPayment()
         {
