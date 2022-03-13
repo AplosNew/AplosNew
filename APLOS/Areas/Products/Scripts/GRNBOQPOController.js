@@ -607,12 +607,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                 else {
                                     ShowResult(response.data.Message, 'success');
                                     $scope.SaveButtonDisable = true;
-                                    $scope.setTabGRNList(1);
+                                   /* $scope.setTabGRNList(1);*/
                                     $scope.getDataList();
-                                    $scope.GRNListDetails();
+                                   /* $scope.GRNListDetails();*/
 
-                                    $scope.productId = response.data.entity.Id;
-                                    $scope.productNew.Id = response.data.entity.Id;
+                                    $scope.productId = response.data.Id;
+                                    $scope.productNew.Id = response.data.Id;
                                     $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
                                 }
                             }), function (response) {
