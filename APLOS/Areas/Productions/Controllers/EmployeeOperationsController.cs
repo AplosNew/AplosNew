@@ -51,6 +51,12 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(eo.GetProcess(), JsonRequestBehavior.AllowGet);
         }
+        
+        [HttpGet, Authorize]
+        public ActionResult GetPeriod()
+        {
+            return Json(eo.GetPeriod(), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetShift()
@@ -65,17 +71,23 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetOperationsData(string PId )
+        public ActionResult GetOperationsData(string PId , string Period)
         {
-            return Json(eo.GetOperationsData(PId ) , JsonRequestBehavior.AllowGet);
+            return Json(eo.GetOperationsData(PId , Period) , JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult getReportView()
+        {
+            return Json( new {Data = eo.getReportView(out List<string> Cols) , Cols = Cols } , JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public JsonResult saveData(List<Dictionary<string, object>> data , string WorkCenter , string ProcessId ,  string ShiftId , string POId , string Date)
+        public JsonResult saveData(List<Dictionary<string, object>> data , string WorkCenter , string ProcessId ,  string ShiftId , string POId , string Date , string PeriodId)
         {
             try
             {
-                eo.saveData( data,  WorkCenter,  ProcessId,  ShiftId,  POId,  Date);
+                eo.saveData( data,  WorkCenter,  ProcessId,  ShiftId,  POId,  Date , PeriodId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
 
             }

@@ -2628,7 +2628,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             string strSql = "";
             try
             {
-                strSql = @" select						   
+                strSql = @" select distinct					   
 						   EmpSystemID, LTSystemID, ComAssignLvSystemID, OffDayMstSystemID, FromDate, ToDate, LeaveDays
 						   , IsPostApplied=case when m.AppliedDate>m.FromDate then convert(bit,1) else convert(bit,0) end
 						    from LeaveTransactionDetails d 

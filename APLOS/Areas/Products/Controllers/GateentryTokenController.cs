@@ -2210,8 +2210,8 @@ namespace Aplos.Areas.Products.Controllers
                           Where GPM.ApprovedBy='" + identity.EmployeeId + @"' AND GPM.GateRegisterType='Out'
                           AND GPM.CheckedBy Is NOT NULL 
                           And GPM.[CheckedByStatus]='Checked' 
-                          AND GPM.[ApprovedBy] IS NOT NULL 
-                          AND GPM.[ApprovedByStatus] Is NULL";
+                           AND GPM.[ApprovedBy] IS NOT NULL 
+                          AND GPM.[ApprovedByStatus] ='For Approval'";
 				}
 				else if (tabType == 5)// "HoldRejectApprovedList")
 				{
