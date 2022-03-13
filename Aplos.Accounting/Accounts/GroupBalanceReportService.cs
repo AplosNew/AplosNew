@@ -1996,15 +1996,32 @@ namespace Library.Accounting.Accounts
                 sheet[ROW, 1].Text = "Total :";
                 sheet[ROW, colOpenningCR].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colOpenningCR) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colOpenningCR) + (ROW-1)+")";
                 sheet.Range[ROW, colOpenningCR].CellStyle.Font.Bold = true;
-                sheet[ROW, colOpenningCR].NumberFormat = "#,##0.00;(#,##0.00)";
+                //sheet[ROW, colOpenningCR].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colOpenningCR].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+
 
                 sheet[ROW, colPeriodicDr].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colPeriodicDr) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colPeriodicDr) + (ROW-1)+")";
                 sheet.Range[ROW, colPeriodicDr].CellStyle.Font.Bold = true;
-                sheet[ROW, colPeriodicDr].NumberFormat = "#,##0.00;(#,##0.00)";
+                //sheet[ROW, colPeriodicDr].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colPeriodicDr].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+
 
                 sheet[ROW, colBalanceDrCr].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBalanceDrCr) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colBalanceDrCr) + (ROW-1)+")";
                 sheet.Range[ROW, colBalanceDrCr].CellStyle.Font.Bold = true;
-                sheet[ROW, colBalanceDrCr].NumberFormat = "#,##0.00;(#,##0.00)";
+                //sheet[ROW, colBalanceDrCr].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colBalanceDrCr].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+                sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
+                sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, colOpenningDRCR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
+                sheet[ROW, colOpenningDRCR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                sheet[ROW, colPeriodicCR].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colPeriodicCR) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colPeriodicCR) + (ROW - 1) + ")";
+                sheet.Range[ROW, colPeriodicCR].CellStyle.Font.Bold = true;
+                //sheet[ROW, colPeriodicCR].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colPeriodicCR].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+
 
 
                 //sheet.Range[StartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -2024,8 +2041,8 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetText(ref sheet, 5, 1, "From " + fromDate + " To " + toDate + "", ExcelHAlign.HAlignCenter);
                 //sheet.Range[ROW, COL, ROW, endCol].CellStyle.Font.Bold = true;
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
                 string strFileName = "Group Balance Report.xls";
                 //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
