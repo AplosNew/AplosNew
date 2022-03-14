@@ -625,23 +625,7 @@ namespace Library.MaterialManagement.Inventory
                                 receiveDetail.RejectClamPercent = (100 - receiveDetail.RejectRatePercent);
 
                                 AuditService.AddedLog(receiveDetail);
-                                //var ratio = _inventoryReceiveService.GetChargesRatio(receiveDetail.InventoryReceiveId, receiveDetail.Id, receiveDetail.MaterialTranAmount, null, 0, itemDetail.IsNonCreditable);
-
-                                ////receiveDetail.ChargesAmount = receiveDetail.TransactionAmount * ratio;
-                                //receiveDetail.ChargesTranAmount = receiveDetail.ChargesTranAmount;
-                                ////receiveDetail.WithInvoiceRate = itemDetail.IsNonCreditable ? (receiveDetail.TransactionAmount + receiveDetail.TotalTaxAmount + receiveDetail.ChargesAmount) / receiveDetail.TransactionQty
-                                ////                        : (receiveDetail.TransactionAmount + receiveDetail.ChargesAmount) / receiveDetail.TransactionQty;
-                                //receiveDetail.TrnCurrencyBaseRate = itemDetail.IsNonCreditable ? (receiveDetail.MaterialTranAmount + receiveDetail.TotalTaxAmount + receiveDetail.ChargesTranAmount + receiveDetail.ChargesTaxTranAmount) / receiveDetail.TransactionQty
-                                // : (receiveDetail.MaterialTranAmount + receiveDetail.ChargesTranAmount) / receiveDetail.TransactionQty;
-                                ////receiveDetail.AfterInvoiceRate = receiveDetail.WithInvoiceRate;
-                                //receiveDetail.BooksCurrencyBaseRate = receiveDetail.TrnCurrencyBaseRate;
-
-                                //receiveDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + receiveDetail.ChargesAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
-                                //     Convert.ToDecimal(receiveDetail.ChargesAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
-
-                                //itemDetail.TotalQty = Convert.ToDecimal(itemDetail.TotalQty + itemDetail.BaseQty);
-                                //itemDetail.AvgRate = Convert.ToDecimal((totalAmount + receiveDetail.TotalMaterialTranAmount) / itemDetail.TotalQty);
-                                //itemDetail.TotalQty = (Convert.ToDecimal(itemDetail.TotalQty + itemDetail.BaseQty)) - Convert.ToDecimal(itemDetail.IssueQty);
+                                
                                 itemDetail.TotalQty = ((Convert.ToDecimal(itemDetail.TotalQty + itemDetail.BaseQty + itemDetail.IssueReturnQty)) - (Convert.ToDecimal(itemDetail.IssueQty) + Convert.ToDecimal(itemDetail.PurchaseReturnQty) + Convert.ToDecimal(itemDetail.ReductionByAdjustmentQty) + Convert.ToDecimal(itemDetail.InventorySalesQty) + Convert.ToDecimal(itemDetail.InventoryScrapQty) + Convert.ToDecimal(itemDetail.InventoryTransferQty)));
                                 itemDetail.AvgRate = Convert.ToDecimal((totalAmount + receiveDetail.TotalMaterialTranAmount) / itemDetail.TotalQty);
                                 itemDetail.ShortageQty = Convert.ToDecimal(receiveDetail.ShortageQty + ShortageQty);
@@ -745,24 +729,7 @@ namespace Library.MaterialManagement.Inventory
                     }
                     else
                     {
-                        var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"select --a.Id GRNID
-											--,MGM.UserName AS MaterialGroupMasterName
-											--,MM.Id AS MaterialMasterId
-											--,MM.UserName
-											--,IM.ArticleId
-											--,ART.StandardName
-											--,IM.FirstCharacteristicsId
-											--,FC.UserName AS FirstCharacteristics
-											--,IM.FirstCharacteristicsValueId
-											--,FCV.UserName AS FirstCharacteristicsValue
-											--,IM.SecondCharacteristicsId
-											--,SC.UserName AS SecondCharacteristics
-											--,IM.SecondCharacteristicsValueId
-											--,SCV.UserName AS SecondCharacteristicsValue
-											--,IM.ThirdCharacteristicsId
-											--,TC.UserName AS ThirdCharacteristics
-											--,IM.ThirdCharacteristicsValueId
-											--,TCV.UserName AS ThirdCharacteristicsValue
+                        var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"select 
 											c.PODetailId
 											,C.BOQDetailId
 											,C.Id POBOQMAPID
@@ -775,28 +742,15 @@ namespace Library.MaterialManagement.Inventory
 											,d.BOMQty ReqQty
 											,0 allowQty
 											,b.TransactionQty POTransactionQty
-											--,a.TransactionQty GRNQty
-											--,a.RejectionQty  GRNRejectionQty
 											,0 TransactionQty
 											,0 RejectionQty
 											,null Active				
 											,d.SalesOrderId
 											,b.Id
 											,isnull(AllocatedSOQty.AllocatedSOQty,0) AllocatedSOQty
-											--From trn.InventoryReceiveDetail a
 											From trn.PurchaseOrderDetail b --on b.Id=a.PODetailsId
 											left join trn.POBOQMAP c on c.PODetailId=b.Id
 											left join boq d On d.Id=c.BOQDetailId
-											--left JOIN trn.InventoryMaterial IM ON IM.Id=a.InventoryMaterialId
-											--left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-											--LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-											--LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-											--LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-											--LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-											--LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-											--LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-											--LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-											--LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
 											left join scs.UnitOfMeasurement uom ON uom.Id=c.TransactionUoMId 
 											left JOIN(select POBOQMapId ,Sum(TransactionQty) AllocatedSOQty from trn.GRNPORequisitionAllocation  GROUP BY POBOQMapId)AllocatedSOQty ON AllocatedSOQty.POBOQMapId=c.Id
 											where b.Id='" + itemDetail.PODetailsID + @"'").ToList();
@@ -875,6 +829,7 @@ namespace Library.MaterialManagement.Inventory
                                     InventoryReceiveDetailId = grndId,
                                     POBOQMapId = issue.POBOQMapId,
                                     POReqDetailsID = issue.POReqDetailsID,
+                                    BOQDetailId = issue.BOQDetailId,
                                     TransactionQty = Convert.ToDecimal(itemDetail.TransactionQty),
                                     TransactionUoMId = itemDetail.TransactionUoMId,
                                     BaseQty = baseQqtynew,
@@ -960,10 +915,6 @@ namespace Library.MaterialManagement.Inventory
                     itemDetail.ToCurrencyRate = entity.ToCurrencyRate;
                     if (itemDetail.IsNotNull())
                     {
-                        //Added DAte 22-10-2019
-                        // var ratio = _inventoryReceiveService.GetChargesRatio(itemDetail.InventoryReceiveId, itemDetail.Id, Convert.ToDecimal(itemDetail.TrnAmount), null, 0, itemDetail.IsNonCreditable);
-                        // var ratioServiceTax = _inventoryReceiveService.GetChargesTaxRatio(itemDetail.InventoryReceiveId, itemDetail.Id, Convert.ToDecimal(itemDetail.TrnAmount), null, 0, itemDetail.IsNonCreditable);
-                        //End
                         if (itemDetail.PurchaseDocumentAcceptanceId != null)
                         {
                             itemDetail.ToCurrencyRate = entity.ToCurrencyRate;
@@ -1043,10 +994,6 @@ namespace Library.MaterialManagement.Inventory
                             itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
                                      Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
                             itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
-                            itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
-
-                            //entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
-                            //entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
                         }
                         else if (itemDetail.BaseUOMId == itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
                         {
@@ -1177,23 +1124,7 @@ namespace Library.MaterialManagement.Inventory
                                 receiveDetail.RejectClamPercent = (100 - receiveDetail.RejectRatePercent);
 
                                 AuditService.AddedLog(receiveDetail);
-                                //var ratio = _inventoryReceiveService.GetChargesRatio(receiveDetail.InventoryReceiveId, receiveDetail.Id, receiveDetail.MaterialTranAmount, null, 0, itemDetail.IsNonCreditable);
-
-                                ////receiveDetail.ChargesAmount = receiveDetail.TransactionAmount * ratio;
-                                //receiveDetail.ChargesTranAmount = receiveDetail.ChargesTranAmount;
-                                ////receiveDetail.WithInvoiceRate = itemDetail.IsNonCreditable ? (receiveDetail.TransactionAmount + receiveDetail.TotalTaxAmount + receiveDetail.ChargesAmount) / receiveDetail.TransactionQty
-                                ////                        : (receiveDetail.TransactionAmount + receiveDetail.ChargesAmount) / receiveDetail.TransactionQty;
-                                //receiveDetail.TrnCurrencyBaseRate = itemDetail.IsNonCreditable ? (receiveDetail.MaterialTranAmount + receiveDetail.TotalTaxAmount + receiveDetail.ChargesTranAmount + receiveDetail.ChargesTaxTranAmount) / receiveDetail.TransactionQty
-                                // : (receiveDetail.MaterialTranAmount + receiveDetail.ChargesTranAmount) / receiveDetail.TransactionQty;
-                                ////receiveDetail.AfterInvoiceRate = receiveDetail.WithInvoiceRate;
-                                //receiveDetail.BooksCurrencyBaseRate = receiveDetail.TrnCurrencyBaseRate;
-
-                                //receiveDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + receiveDetail.ChargesAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
-                                //     Convert.ToDecimal(receiveDetail.ChargesAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
-
-                                //itemDetail.TotalQty = Convert.ToDecimal(itemDetail.TotalQty + itemDetail.BaseQty);
-                                //itemDetail.AvgRate = Convert.ToDecimal((totalAmount + receiveDetail.TotalMaterialTranAmount) / itemDetail.TotalQty);
-                                //itemDetail.TotalQty = (Convert.ToDecimal(itemDetail.TotalQty + itemDetail.BaseQty)) - Convert.ToDecimal(itemDetail.IssueQty);
+                                
                                 itemDetail.TotalQty = ((Convert.ToDecimal(itemDetail.TotalQty + itemDetail.BaseQty + itemDetail.IssueReturnQty)) - (Convert.ToDecimal(itemDetail.IssueQty) + Convert.ToDecimal(itemDetail.PurchaseReturnQty) + Convert.ToDecimal(itemDetail.ReductionByAdjustmentQty) + Convert.ToDecimal(itemDetail.InventorySalesQty) + Convert.ToDecimal(itemDetail.InventoryScrapQty) + Convert.ToDecimal(itemDetail.InventoryTransferQty)));
                                 itemDetail.AvgRate = Convert.ToDecimal((totalAmount + receiveDetail.TotalMaterialTranAmount) / itemDetail.TotalQty);
                                 itemDetail.ShortageQty = Convert.ToDecimal(receiveDetail.ShortageQty + ShortageQty);
@@ -1297,24 +1228,7 @@ namespace Library.MaterialManagement.Inventory
                     }
                     else
                     {
-                        var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"select --a.Id GRNID
-											--,MGM.UserName AS MaterialGroupMasterName
-											--,MM.Id AS MaterialMasterId
-											--,MM.UserName
-											--,IM.ArticleId
-											--,ART.StandardName
-											--,IM.FirstCharacteristicsId
-											--,FC.UserName AS FirstCharacteristics
-											--,IM.FirstCharacteristicsValueId
-											--,FCV.UserName AS FirstCharacteristicsValue
-											--,IM.SecondCharacteristicsId
-											--,SC.UserName AS SecondCharacteristics
-											--,IM.SecondCharacteristicsValueId
-											--,SCV.UserName AS SecondCharacteristicsValue
-											--,IM.ThirdCharacteristicsId
-											--,TC.UserName AS ThirdCharacteristics
-											--,IM.ThirdCharacteristicsValueId
-											--,TCV.UserName AS ThirdCharacteristicsValue
+                        var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"select 
 											c.PODetailId
 											,C.BOQDetailId
 											,C.Id POBOQMAPID
@@ -1327,28 +1241,15 @@ namespace Library.MaterialManagement.Inventory
 											,d.BOMQty ReqQty
 											,0 allowQty
 											,b.TransactionQty POTransactionQty
-											--,a.TransactionQty GRNQty
-											--,a.RejectionQty  GRNRejectionQty
 											,0 TransactionQty
 											,0 RejectionQty
 											,null Active				
 											,d.SalesOrderId
 											,b.Id
 											,isnull(AllocatedSOQty.AllocatedSOQty,0) AllocatedSOQty
-											--From trn.InventoryReceiveDetail a
-											From trn.PurchaseOrderDetail b --on b.Id=a.PODetailsId
+											From trn.PurchaseOrderDetail b 
 											left join trn.POBOQMAP c on c.PODetailId=b.Id
 											left join boq d On d.Id=c.BOQDetailId
-											--left JOIN trn.InventoryMaterial IM ON IM.Id=a.InventoryMaterialId
-											--left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-											--LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-											--LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-											--LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-											--LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-											--LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-											--LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-											--LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-											--LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
 											left join scs.UnitOfMeasurement uom ON uom.Id=c.TransactionUoMId 
 											left JOIN(select POBOQMapId ,Sum(TransactionQty) AllocatedSOQty from trn.GRNPORequisitionAllocation  GROUP BY POBOQMapId)AllocatedSOQty ON AllocatedSOQty.POBOQMapId=c.Id
 											where b.Id='" + itemDetail.PODetailsID + @"'").ToList();
@@ -1427,6 +1328,7 @@ namespace Library.MaterialManagement.Inventory
                                     InventoryReceiveDetailId = grndId,
                                     POBOQMapId = issue.POBOQMapId,
                                     POReqDetailsID = issue.POReqDetailsID,
+                                    BOQDetailId = issue.BOQDetailId,
                                     TransactionQty = Convert.ToDecimal(itemDetail.TransactionQty),
                                     TransactionUoMId = itemDetail.TransactionUoMId,
                                     BaseQty = baseQqtynew,

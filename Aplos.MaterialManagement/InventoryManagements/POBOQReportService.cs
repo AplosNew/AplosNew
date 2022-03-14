@@ -415,7 +415,7 @@ uom.UserName UoM,C.Code Currency,BOQ.Remark,BOQ.OrderQty,p.POBOQQty,BOQ.OwnRefer
 ,BOQ.RMCustomerSpec CustomerRefNo
 
 FROM trn.POBOQMAP AS p
-LEFT OUTER JOIN BOQ ON BOQ.Id =p.PODetailId
+LEFT OUTER JOIN BOQ ON BOQ.Id =p.BOQDetailId
 LEFT OUTER JOIN trn.PurchaseOrderDetail pod ON pod.Id =p.PODetailId
 LEFT OUTER JOIN trn.PurchaseOrder po ON po.Id =pod.InventoryReceiveId
 LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
@@ -425,7 +425,7 @@ LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=boq.SalesOrderId
 LEFT OUTER JOIN mst.Destination AS d ON d.Id=so.DestinationId
 LEFT OUTER JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
 LEFT OUTER JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
-WHERE po.Id='"+POID+@"'";
+WHERE po.Id='" + POID+@"'";
         }
 
     }

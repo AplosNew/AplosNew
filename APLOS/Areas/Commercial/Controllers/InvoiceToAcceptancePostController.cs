@@ -50,7 +50,13 @@ namespace Aplos.Areas.Commercial.Controllers
 		#endregion
 
 		#region Operation
-
+		[HttpGet, Authorize]
+		public JsonResult GetVendorAvailableInvoiceListForInvoiceToAcceptancePost(GridParameter parameters, string partyId)
+		{
+			AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			return Json(_accountsInvoiceService.GetVendorAvailableInvoiceListForInvoiceToAcceptancePost(parameters, identity.CompanyGroupId, identity.CompanyId, partyId), JsonRequestBehavior.AllowGet);
+		}
 
 		#endregion
 

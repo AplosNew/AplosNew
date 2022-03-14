@@ -611,7 +611,6 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcelx(workbook, reportFileName);
             }
 
-
         }
 
 
