@@ -1733,13 +1733,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                 if (EmpCntForLoop == grdRowMaxCnt)
                                 {
-                                    //GetBonusPolicyMonthlyRetainEmpWiseCalculation(para, sEmpSystemID, out dsBnsMntEmpWiseCal);
-                                    //dtBnsMntEmpWiseCal = dsBnsMntEmpWiseCal.Tables[0];
-                                    //dvBnsMntEmpWiseCal = new DataView();
-
-                                    //GetBonusPolicyMonthlyRetainDistributionPmt(para, sEmpSystemID, out dsBnsMntDist);
-                                    //dtBnsMntDist = dsBnsMntDist.Tables[0];
-                                    //dvBnsMntDist = new DataView();
 
                                     //Get General Salary Amount Head Wise
                                     List<dicSalInfo> dicSalInfo = new List<dicSalInfo>();
@@ -1761,9 +1754,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     for (int iUnTgEmCnt = 0; iUnTgEmCnt < dsUnTagEmp.Tables[0].Rows.Count; iUnTgEmCnt++)
                                     {
                                         IsBonusRetainHolder = false;
-                                        //sBnsEligibleEmpID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["BnsEligibleEmpID"].ToString().Trim();//BnsEligibleEmpID
-                                        //sBnsEligibleEmpID = sBnsElgGentID.ToString() + "-" + (iUnTgEmCnt + 1).ToString();//BnsEligibleEmpID
-                                        //sBnsMntEmpCalID = sBnsDedGentID.ToString() + "-" + (iUnTgEmCnt + 1).ToString();
                                         sEmpSysID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim();
                                         sEmpLocationID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["EmployeeLocationId"].ToString().Trim();
                                         // string _eDate = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["EffectiveDate"].ToString().Trim();
@@ -1798,12 +1788,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             ///
                                             //}
                                         }
-                                        //else
-                                        //{
-                                        //    sSalaryRuleMasterSystemID = para.sSalaryRuleMasterSystemID;
-                                        //    sCurrencyRuleSystemID = para.sCurrencyRuleSystemID;
-                                        //    _sstructureid = para.SalaryID;
-                                        //}
+                                       
                                         if (bIsEligibleApp && IsBonusRetainHolder)
                                         {
 
@@ -2039,14 +2024,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                 TotProcComp += grdRowMaxCnt;
                                 TotSelectEmpForProc -= grdRowMaxCnt;
-                                //if (para.bStructure == true)
-                                //{
-                                //    SaveDataSets(dsBnsEligibleEmp, dsBnsMntEmpWiseCal, dsBnsMntDist, dsBnsMntEmpWiseCalSt, dsBnsMntDistSt);
-                                //}
-                                //else
-                                //{
-                                //SaveDataSets(/*dsBnsEligibleEmp*/ dsBnsMntEmpWiseCal, dsBnsMntDist);
-                                //}
+                              
                                 if ((dsUnTagEmp.Tables[0].Rows.Count - TotProcComp) < 30)
                                 {
                                     SelectedEmpCnt += (dsUnTagEmp.Tables[0].Rows.Count - TotProcComp);
