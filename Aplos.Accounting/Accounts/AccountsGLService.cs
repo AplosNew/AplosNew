@@ -665,5 +665,39 @@ namespace Library.Accounting.Accounts
             }
         }
 
+        public GridModel GetAllLiabilityGLBudgetActivity(GridParameter parameters, string companyGroupId, string companyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , B.BudgetMasterId, B.RefNo, B.BudgetCode, B.BudgetName, A.ActivityId, A.ActivityCode, A.ActivityName, GLTY.AccountType
+                                    FROM [HKP].[GLGeneralInfo] AS GLGI
+                                    LEFT JOIN [HKP].[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[GLAccountType] AS GLTY ON GLTY.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                                    LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                                    LEFT JOIN (SELECT BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, BM.GLGeneralInfoId, BM.RefNo
+	                                    FROM [HKP].[Budget] AS B
+                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.BudgetId=B.Id
+                                    ) AS B ON B.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BA.BudgetMasterId
+	                                    FROM [HKP].[Activity] AS A
+	                                    LEFT JOIN [MST].[BudgetMasterActivity] AS BA ON BA.ActivityId=A.Id
+                                    ) AS A ON A.BudgetMasterId=B.BudgetMasterId
+                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + @"' 
+                                    AND GLGI.Id NOT IN(SELECT BM.GLGeneralInfoId FROM [MST].[BankMaster] AS BM WHERE BM.GLGeneralInfoId <> '')
+                                    AND GLGI.Id NOT IN(SELECT CM.GLGeneralInfoId FROM [MST].[CashMaster] AS CM WHERE CM.GLGeneralInfoId <> '') AND GLGI.IsPostingAutomaticOnly = 0
+                                    AND GLGI.Id NOT IN(SELECT GLGeneralInfoId FROM [HKP].[GLAccountType] ) ";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
     }
 }

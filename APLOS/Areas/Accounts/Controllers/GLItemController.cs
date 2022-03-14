@@ -260,6 +260,13 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_glGeneralInfoService.GetAllGLBudgetActivityPostingAutomaticOnly(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public ActionResult GetAllLiabilityGLBudgetActivity(GridParameter parameters)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsGLService.GetAllLiabilityGLBudgetActivity(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public ActionResult GetInterTransactionGLBudgetActivity(GridParameter parameters)

@@ -35,6 +35,8 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.SubmitPartyName = null;
     $scope.SubmitPartyId = null;
 
+    $scope.GridApproved = [];
+    $scope.GridApprovedHR = [];
     $scope.Griddata = [];
     $scope.POTypeStatus = 'Pending';
     $scope.getalldata = function () {
@@ -92,7 +94,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.SubmitContractNo = null;
         $scope.SubmitCustomerName = null;
     };
-
+    $scope.newpartyList = [];
     $scope.showBOQPartyPopUpNew = function () {
 
         if ($scope.partyType === 'Vendor') {
@@ -105,7 +107,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             data: { column: $scope.searchByParty, value: $scope.searchParty },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.partyList = response.data;
+            $scope.newpartyList = response.data;
         });
         //}
         angular.element(document.querySelector('#boqpartyPopUp')).modal('show');

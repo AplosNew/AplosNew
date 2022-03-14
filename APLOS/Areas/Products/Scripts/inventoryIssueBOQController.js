@@ -2337,5 +2337,24 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
 	}
 
-	
+	$scope.ShowDiv = false;
+	$scope.SearchPopup = function () {
+		try {
+			$scope.ShowDiv = true;
+			var eDialog = $("#Base").data("ejDialog");
+			eDialog.open();
+			$scope.getBoqFilter();
+		} catch (e) {
+			ShowResult(e, "failure");
+		}
+	};
+	$scope.PopUpList = [];
+	$scope.getBoqFilter = function () {
+		$http({
+			method: 'GET',
+			url: $scope.path + "GETBoqFilter",
+		}).then(function successCallback(response) {
+			$scope.PopUpList = response.data;
+		});
+	}
 }
