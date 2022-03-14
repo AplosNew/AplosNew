@@ -1,4 +1,5 @@
 ﻿using APLOS;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.EmployeeServices;
 using Library.Service.EmployeeServices;
 using Newtonsoft.Json;
@@ -92,6 +93,21 @@ namespace Aplos.Controllers
             }
             catch (Exception ex)
             {                
+                return ex.ToString();
+            }
+        }
+
+        [HttpPost]
+        public string MachineScanData([FromBody] List<ServiceScanModel> DataToSave)
+        {
+            try
+            {
+                EmpServiceDataScanService _app = new EmpServiceDataScanService();
+                string Id = _app.SaveData(DataToSave); 
+                return Id;
+            }
+            catch (Exception ex)
+            {
                 return ex.ToString();
             }
         }

@@ -190,9 +190,22 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0) {
                 $scope.fabricRollMaster = Object.assign({}, response.data[0]);
+                $scope.getSaveChildData($scope.fabricRollMaster.Id);
             }
         });
     }
+
+    $scope.getSaveChildData = function (masterId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetFabricRollChildList?FabricRollManagementMasterId=" + masterId,
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.grnDetailList = response.data;
+            }
+        });
+    }
+
 
 
     $scope.closePopup = function (popupName) {
@@ -808,11 +821,6 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     };
 
 
-    //EndFile Upload
-
-    //Import File
-
-
     function GetShortList(list) {
         var list2 = [];
         for (var i = 0; i < list.length; i++) {
@@ -995,14 +1003,14 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.setEmpData = function (obj) {
         var data = obj.data;
         if ($scope.name == 'Preparedby') {
-            $scope.fabricRollMaster.PreparedbyCode = data.EmployeeCode;
-            $scope.fabricRollMaster.PreparedbyId = data.SystemID;
-            $scope.fabricRollMaster.PreparedbyName = data.EmployeeName;
+            $scope.fabricRollMaster.PreparedByCode = data.EmployeeCode;
+            $scope.fabricRollMaster.PreparedById = data.SystemID;
+            $scope.fabricRollMaster.PreparedByName = data.EmployeeName;
         }
         else {
-            $scope.fabricRollMaster.CheckedbyCode = data.EmployeeCode;
-            $scope.fabricRollMaster.CheckedbyId = data.SystemID;
-            $scope.fabricRollMaster.CheckedbyName = data.EmployeeName;
+            $scope.fabricRollMaster.CheckedByCode = data.EmployeeCode;
+            $scope.fabricRollMaster.CheckedById = data.SystemID;
+            $scope.fabricRollMaster.CheckedByName = data.EmployeeName;
         }
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
 
@@ -1011,14 +1019,14 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.ClearEmpdata = function (name) {
         $scope.name = name;
         if ($scope.name == 'Preparedby') {
-            $scope.fabricRollMaster.PreparedbyCode = null;
-            $scope.fabricRollMaster.PreparedbyId = null;
-            $scope.fabricRollMaster.PreparedbyName = null;
+            $scope.fabricRollMaster.PreparedByCode = null;
+            $scope.fabricRollMaster.PreparedById = null;
+            $scope.fabricRollMaster.PreparedByName = null;
         }
         else {
-            $scope.fabricRollMaster.CheckedbyCode = null;
-            $scope.fabricRollMaster.CheckedbyId = null;
-            $scope.fabricRollMaster.CheckedbyName = null;
+            $scope.fabricRollMaster.CheckedByCode = null;
+            $scope.fabricRollMaster.CheckedById = null;
+            $scope.fabricRollMaster.CheckedByName = null;
         }
     };
 
@@ -1033,11 +1041,17 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.Action = "Save";
     $scope.SaveRollData = function () {
         try {
-            if (baseService.arrayLength($scope.fabricRollMaster.GRNNo)) {
+            if (baseService.isUndefinedOrNull($scope.fabricRollMaster.GRNNo)) {
                 throw "Please select GRN No.";
             }
 
-            $scope.modeldata.GRNId = $scope.fabricRollMaster.GRNNo; $scope.modeldata.GRNDate = $scope.fabricRollMaster.GRNDate;
+            $scope.modeldata.GRNId = $scope.fabricRollMaster.GRNNo;
+            $scope.modeldata.GRNDate = $scope.fabricRollMaster.GRNDate;
+            $scope.modeldata.PreparedById = $scope.fabricRollMaster.PreparedById;
+            $scope.modeldata.CheckedById = $scope.fabricRollMaster.CheckedById;
+            $scope.modeldata.Remarks = $scope.fabricRollMaster.Remarks;
+            $scope.modeldata.Comment = $scope.fabricRollMaster.Comment;
+
             if (baseService.arrayLength($scope.grnDetailList) == 0) {
                 throw "Detail list is requird.";
             }
