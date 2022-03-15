@@ -9620,27 +9620,42 @@ namespace Aplos.Areas.Products.Controllers
                 sql = @"SELECT DISTINCT Convert(BIT, 'False') IsActives
                             	,ISNULL(POD.InventoryReceiveId, '') POId
                             	,ISNULL(P.UserName, '') CustomerName
-                            	,ISNULL(moi.ContractId, '') ContractId
+                            	,ISNULL(PO.ContractId, '') ContractId
                             	,ISNULL(mo.Id, '') MasterOrderId
                             	,ISNULL(boq.SalesOrderId, '') SalesOrderId
                             	,ISNULL(boq.RMCustomerSpec, '') CustomerRefNo
                             	,ISNULL(boq.RMVendorSpec, '') VendorRefNo
                             	,ISNULL(boq.OwnReferenceNo, '') OwnReferenceNo
                             	,ISNULL(mo.PartyId,'')PartyId
-                            	,NULL Style
+                            	,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo --Style
                             	,NULL ResponsiblePerson
-                            	,NULL [PR]
-                            	,NULL Item
-                            	,NULL Color
-                            	,NULL Size
-                            FROM BOQ boq
+                            	,PROD.ProductionOrderId PrO
+                            	,ISNULL(boq.ItemRefNo,'') BOQItemRefNo 
+								,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
+								,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
+
+								,IM.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+								,IM.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+                            	
+                            FROM TRN.InventoryReceiveDetail IRD
+							JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+							JOIN TRN.GRNPORequisitionAllocation GRA ON GRA.InventoryReceiveDetailId=IRD.Id
+							JOIN BOQ boq ON boq.Id=GRA.BOQDetailId
                             LEFT JOIN MST.MaterialMaster mm ON mm.Id = boq.MaterialMasterId
                             LEFT JOIN MST.MaterialMasterArticle mma ON mma.Id = boq.ArticleId
                             LEFT JOIN TRN.MasterOrderItem moi ON moi.Id = boq.MasterOrderItemId
                             LEFT JOIN TRN.MasterOrder mo ON mo.Id = moi.MasterOrderId
-                            LEFT JOIN TRN.POBOQMAP pomap ON pomap.BOQDetailId = boq.Id
+							LEFT JOIN TRN.SalesOrder SO ON SO.Id=boq.SalesOrderId
+							LEFT JOIN TRN.ProductionOrderDetail PROD ON PROD.SalesOrderId=SO.Id
+                            JOIN TRN.POBOQMAP pomap ON pomap.BOQDetailId = boq.Id
                             LEFT JOIN HKP.Party P ON P.Id = mo.PartyId
-                            LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id = pomap.PODetailId";
+                            LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id = pomap.PODetailId
+                            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = POD.InventoryReceiveId
+							LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=IM.FirstCharacteristicsValueId
+							LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=IM.SecondCharacteristicsValueId
+							LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
+							LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
+";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;

@@ -39,6 +39,7 @@ namespace Library.Service.Invoices
         string InsertReceived(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList);
 
         void Post(string invoiceWriteOffId);
+        void PostInvoiceToAcceptance(string invoiceWriteOffId);
         string InsertCustomerInvoiceReceipt(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
                , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList);
         string InsertCustomerInvoiceBanksReceipt(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
@@ -57,6 +58,7 @@ namespace Library.Service.Invoices
         string InsertCreditNoteSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList);
         string InsertCreditNoteInvoiceSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList);
         void DeleteWriteOff(string invoiceWriteOffId, string voucherId);
+        void DeleteInvoiceToAcceptance(string invoiceWriteOffId, string voucherId);
         void DeleteCustomerBanksReceipt(string invoiceWriteOffGroupNo, SourceType sourceType);
         GridModel GetNoteSetOff(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType);
         void PurchaseLCChargesPost(VoucherViewModel voucherVM, IEnumerable<PurchaseLCCharges> voucherRows
