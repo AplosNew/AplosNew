@@ -171,14 +171,6 @@ namespace Library.Service.Extension.Payroll.Tax
                         //-------------get yearly already paid tax
                         ProfessionalTaxEmployeeWiseMonthly _yearlyPaid = _getYearlyPaid(dicEmp_MonthlyTaxableIncome[i], dicYearlyPaid);
 
-                        if (dicEmp_MonthlyTaxableIncome[i].EmpInfoSystemID == "2010265")
-                        {
-
-                        }
-                        //get adjusting monthno
-                        //if Y check adjusting amount
-                        //if Y set this value else calculate value
-
 
                         //-------------max amount as per monthly slab
                         decimal _Amount_earned = _policyMonthlyEarned.getMonthlyTaxOnEarnedAmount(_monthno, _foundYearlySlab, _yearlyPaid);

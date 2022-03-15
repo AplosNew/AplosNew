@@ -535,16 +535,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             {
                                 strTemp = "0.00";
                             }
-                            // var dvSPChd_dic = dicProcChild.FindAll(x => x.EmpInfoSystemID == dicLocal_Sub[i].EmpInfoSystemID && x.SalaryHeadID == dicLocal_Sub[i].SalaryHeadID && x.SlrProcMstSystemID == para.lblSalaryProcSystemId.Trim());
-
-                            //dicsal
-                            //dvSlrHd = new DataView();
-                            //dvSlrHd.Table = dtSlrHd;
-                            //dvSlrHd.RowFilter = "SalaryHeadID = '" + strTemp.Trim() + "'";
-                            //if (dvSlrHd.Count == 1)
-                            //{
-                            //    strTemp = "0.00";
-                            //}
+                            
                         }
                     }
 
