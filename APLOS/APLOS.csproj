@@ -300,15 +300,14 @@
     <Folder Include="Areas\Farming\Views\Shared\" />
     <Folder Include="Areas\HumanResource\Controllers\Reports\" />
     <Folder Include="Areas\HumanResource\Views\GeneralDataOperation\" />
-    <Folder Include="Areas\HumanResource\Views\Shared\" />
     <Folder Include="Areas\IssueTracker\Views\IssueAudit\" />
     <Folder Include="Areas\Materials\Views\P\" />
     <Folder Include="Areas\MeetingManagement\Views\Shared\" />
     <Folder Include="Areas\Payrolls\Views\EmployeeServiceFixed\" />
     <Folder Include="Areas\PerformanceManagement\Views\Shared\" />
+    <Folder Include="Areas\Productions\Models\" />
     <Folder Include="Areas\Products\Views\GateEntry\" />
     <Folder Include="Areas\Products\Views\IssueSlip\" />
-    <Folder Include="Areas\QMS\Views\Shared\" />
     <Folder Include="DOC\" />
     <Folder Include="PDF\" />
     <Folder Include="POPResources\Attendance\ManualAttendanceFile\" />
@@ -710,6 +709,7 @@
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
+    <Compile Include="Areas\QMS\Controllers\IssueController.cs" />
     <Compile Include="Areas\Productions\Controllers\PrePackDefinitionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionGeneralReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinishedStockReportController.cs" />
@@ -1047,9 +1047,11 @@
     <Compile Include="Areas\QMS\Controllers\GradeMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\InquiryTypeController.cs" />
     <Compile Include="Areas\QMS\Controllers\InspectionTypeController.cs" />
+    <Compile Include="Areas\QMS\Controllers\IssueMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\ProcessParameterController.cs" />
     <Compile Include="Areas\QMS\Controllers\InspectionMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\EmployeeInfoController.cs" />
+    <Compile Include="Areas\QMS\Controllers\ProductiveAllowanceRateController.cs" />
     <Compile Include="Areas\QMS\Controllers\QMSDefectMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\QMSInspectionController.cs" />
     <Compile Include="Areas\QMS\Controllers\QMSMasterController.cs" />
@@ -1961,6 +1963,8 @@
     <Content Include="Areas\HumanResource\Scripts\ManualShiftNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\OutPunchConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\payRegisterBDReportContractorController.js" />
+    <Content Include="Areas\QMS\Scripts\_Layout1Controller.js" />
+    <Content Include="Areas\QMS\Scripts\ProductiveAllowanceRateController.js" />
     <Content Include="Areas\HumanResource\Scripts\professionalTaxReportsController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTPlanningController.js" />
     <Content Include="Areas\HumanResource\Scripts\DailyDayStatusReportController.js" />
@@ -2042,6 +2046,7 @@
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
+    <Content Include="Areas\QMS\Scripts\IssueController.js" />
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
@@ -2449,6 +2454,7 @@
     <Content Include="Areas\QMS\Scripts\GradeMasterController.js" />
     <Content Include="Areas\QMS\Scripts\InquiryTypeController.js" />
     <Content Include="Areas\QMS\Scripts\InspectionTypeController.js" />
+    <Content Include="Areas\QMS\Scripts\IssueMasterController.js" />
     <Content Include="Areas\QMS\Scripts\ProcessParameterController.js" />
     <Content Include="Areas\QMS\Scripts\InspectionMasterController.js" />
     <Content Include="Areas\QMS\Scripts\EmployeeInfoController.js" />
@@ -4020,6 +4026,11 @@
     <Content Include="Areas\Productions\Views\FinalPackDefinition\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\FiscalYearClose.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\MeetingReports\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\Productions\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\QMS\Views\Issue\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\Shared\_Layout1.cshtml" />
+    <Content Include="Areas\HumanResource\Views\Shared\_Layout2.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4073,6 +4084,12 @@
     <Content Include="Areas\Products\Views\POParameterChange\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\InventoryReceive\FOC.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\POBOQ.cshtml" />
+    <Content Include="Areas\QMS\Views\IssueMaster\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\ProductiveAllowanceRate\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\Shared\_Layout1.cshtml" />
+    <Content Include="Areas\QMS\Views\Shared\_Layout2.cshtml" />
+    <Content Include="Areas\QMS\Views\ProductiveAllowanceRate\_Layout1.cshtml" />
+    <Content Include="Areas\QMS\Views\ProductiveAllowanceRate\_Layout2.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
@@ -7128,7 +7145,9 @@
     <Content Include="Views\MyParents\Dashboard.cshtml" />
     <Content Include="Views\MyParents\PasswordChange.cshtml" />
     <Content Include="Views\MyParents\PLayout.cshtml" />
-    <Content Include="Web.Config" />
+    <Content Include="Web.Config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Web.Debug.Config">
       <DependentUpon>Web.Config</DependentUpon>
     </None>

@@ -493,7 +493,9 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('PerformancePeriodController', PerformancePeriodController)
     .controller('VehicleMovementLocationsController', VehicleMovementLocationsController)
     .controller('ServicesApprovingAuthorityController', ServicesApprovingAuthorityController)
-
+    .controller("IssueController", IssueController)
+    .controller("IssueMasterController", IssueMasterController)
+    .controller("ProductiveAllowanceRateController", ProductiveAllowanceRateController)
 
     .config(accountConfig)
     .config(AdministrationConfig)

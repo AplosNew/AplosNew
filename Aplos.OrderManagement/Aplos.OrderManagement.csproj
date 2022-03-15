@@ -100,8 +100,11 @@
     <Compile Include="Costing\CostingBOQ.cs" />
     <Compile Include="FabricRollManagement\FabricRollClass.cs" />
     <Compile Include="Production\GeneralWasteService.cs" />
+    <Compile Include="Production\IssueHKPService.cs" />
+    <Compile Include="Production\IssueMasterHKPService.cs" />
     <Compile Include="Production\PackingMasterService.cs" />
     <Compile Include="Production\ProductionGeneralReportService.cs" />
+    <Compile Include="Production\ProductiveAllowanceRateService.cs" />
     <Compile Include="Production\StocksReportService.cs" />
     <Compile Include="ProformaInvoice\ProformaInvoice.cs" />
     <Compile Include="OrderControl\clsBOQUpload.cs" />

@@ -243,6 +243,7 @@ function ProductionsConfig($routeProvider, $locationProvider) {
         .when('/fg-inventory-stocks-report', {
             templateUrl: 'Productions/FGInventoryStockReport/Aplos',
             controller: 'FGInventoryStockReportController'
+
         }) 
         .when('/stocks-adjustment', {
             templateUrl: 'Productions/StocksAdjustment/Aplos',
@@ -256,5 +257,5 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/FinalPackDefinition/Aplos',
             controller: 'FinalPackDefinitionController'
         })
-        ;
+        
 }
