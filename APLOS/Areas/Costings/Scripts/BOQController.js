@@ -68,7 +68,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
             $scope.MaterialQtyEditList = response.data.DATA;
         });
     }
-
+    $scope.GetItemList();
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
@@ -126,6 +126,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
                 $scope.MaterialAttachmentList[i].Material = $scope.SelectedMaterial.Material;
                 $scope.MaterialAttachmentList[i].ArticleId = $scope.SelectedMaterial.ArticleId;
                 $scope.MaterialAttachmentList[i].Article = $scope.SelectedMaterial.Article;
+                $scope.MaterialAttachmentList[i].Vendor = $scope.SelectedMaterial.Vendor;
                 break;
             }
         }
@@ -150,7 +151,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
 
     }
 
-    $controller('partyBaseController', { $scope: $scope, $http: $http });
+   // $controller('partyBaseController', { $scope: $scope, $http: $http });
     $scope.partyType = 'Vendor';
 
     //#region Customer info
@@ -192,23 +193,52 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         , serverPagination: true
     };
     $scope.partyList = [];
-    $scope.showPartyPopUp = function (data) {
+    //$scope.showPartyPopUp = function (data) {
+    //    $scope.SelectedMaterial = data;
+    //    $scope.partyList = [];
+    //    $scope.getPartyList = function (pageno) {
+
+    //        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList/' + 'GetCompanyPartyDataList?companyId=' + $window.companyId + '&PlantId=' + $window.plantId + '&partyType=' + $scope.partyType;
+    //        baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
+    //            .then(function (result) {
+    //                $scope.partyList = result.Rows;
+    //                $scope.partyParameters.total_count = result.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
+    //    $scope.getPartyList();
+    //};
+
+
+    $scope.showPartyPopUpNew = function (data) {
+       
         $scope.SelectedMaterial = data;
         $scope.partyList = [];
-        $scope.getPartyList = function (pageno) {
-
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList/' + 'GetCompanyPartyDataList?companyId=' + $window.companyId + '&PlantId=' + $window.plantId + '&partyType=' + $scope.partyType;
-            baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-                .then(function (result) {
-                    $scope.partyList = result.Rows;
-                    $scope.partyParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
+        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+        }
+        else if ($scope.partyType === 'Party') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        }
+        else if ($scope.partyType === 'Director') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        }
+        else if ($scope.partyType === 'Other') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        }
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        //}
         angular.element(document.querySelector('#partyPopUp')).modal('show');
-        $scope.getPartyList();
     };
 
     $scope.selectPartyPopUpRow = function (index, id) {
@@ -220,16 +250,15 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         $scope.partyIndex = index;
         $scope.selectedCustomer = id;
     };
-
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+            
 
             $scope.SelectedMaterial.Vendor = party.UserName;
             $scope.SelectedMaterial.VendorId = party.Id;
             angular.element(document.querySelector('#partyPopUp')).modal('hide');
             UpdateGrid($scope.SelectedMaterial);
-        }
+        
 
     };
 
@@ -322,6 +351,9 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         else
             ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
+    $scope.closePartyPopUpNew = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    };
     //$scope.getFileList = function () {
     //    $http({
     //        method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',

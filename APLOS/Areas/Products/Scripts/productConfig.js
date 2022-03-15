@@ -42,7 +42,11 @@ function ProductConfig($routeProvider, $locationProvider) {
 			templateUrl: 'Products/GoodsReceiveNote/GRNByPO',
 			controller: 'GRNByPOController'
 		})
-        
+        .when('/GRN-boq-PO', {
+            templateUrl: 'Products/GoodsReceiveNote/GRNBOQPO',
+            controller: 'GRNBOQPOController'
+        })
+
         .when('/employee-purchase', {
             templateUrl: 'Products/inventoryReceive/employeepurchase',
             controller: 'employeePurchaseController'
@@ -230,6 +234,7 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/inventoryIssue/Aplos',
             controller: 'inventoryIssueController'
         })
+        
         .when('/asset-inventory-issue', {
             templateUrl: 'Products/inventoryIssue/AssetIssue',
             controller: 'assetInventoryIssueController'
@@ -387,6 +392,11 @@ function ProductConfig($routeProvider, $locationProvider) {
         .when('/foc', {
             templateUrl: 'Products/InventoryReceive/FOC',
             controller: 'FOCController'
+        })
+
+        .when('/inventory-issue-boq', {
+            templateUrl: 'Products/inventoryIssue/inventoryIssueBOQ',
+            controller: 'inventoryIssueBOQController'
         })
         ;
 }

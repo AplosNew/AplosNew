@@ -165,7 +165,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         #region ---Attendance Daily Status Report---
         [HttpPost, Authorize]
-        public JsonResult DailyAttendanceStatusReport(string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string empCategoryList, string designationList, string lineList, string dayStatus, bool WithFatherName, string JobLocation)
+        public JsonResult DailyAttendanceStatusReport(string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string empCategoryList, string designationList, string lineList, string dayStatus, bool WithFatherName, string JobLocation,bool IsWithLine)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DailyAttendanceReport ep = new DailyAttendanceReport(mailReceiverDetailRepository);
-                fileName = ep.GetDailyAttendanceEmpInformation(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Attendance Daily Status", "", workDate, ShiftId, Entity, Dept, Ydate, Sec, SSec, empCategoryList, designationList, LineId, Dstatus, WithFatherName, JobLocation);
+                fileName = ep.GetDailyAttendanceEmpInformation(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Attendance Daily Status", "", workDate, ShiftId, Entity, Dept, Ydate, Sec, SSec, empCategoryList, designationList, LineId, Dstatus, WithFatherName, JobLocation,IsWithLine);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -207,7 +207,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         #region --- Daily Day Status Report---
         [HttpPost, Authorize]
-        public JsonResult DailyDayStatusReport(string workDate, string sDepID, string PrevWorkDate, string sSecID, string sSubSecID, string sLineID, string dayStatus, string Dep, string Sec, string employeeCategory, string shift, string entity, string designationList, bool WithFatherName, string JobLocation)
+        public JsonResult DailyDayStatusReport(string workDate, string sDepID, string PrevWorkDate, string sSecID, string sSubSecID, string sLineID, string dayStatus, string Dep, string Sec, string employeeCategory, string shift, string entity, string designationList, bool WithFatherName, string JobLocation, bool IsWithLine)
         {
             try
             {
@@ -233,7 +233,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var workbook = DailyDayStatus(identity.PlantId, PrevWorkDate, identity.CompanyId, workDate, sDepID, sSecID, sSubSecID, LineId, Dstatus, Dep, Sec, employeeCategory, ShiftId, entity, designationList, WithFatherName, JobLocation);
+                var workbook = DailyDayStatus(identity.PlantId, PrevWorkDate, identity.CompanyId, workDate, sDepID, sSecID, sSubSecID, LineId, Dstatus, Dep, Sec, employeeCategory, ShiftId, entity, designationList, WithFatherName, JobLocation,IsWithLine);
                 return Json(new { FileName = workbook, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -244,7 +244,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
-        public string DailyDayStatus(string PlantId, string PrevWorkDate, string companyId, string TextFromDate, string sDepID, string sSecID, string sSubSecID, string sLineID, string dayStatus, string Dep, string Sec, string employeeCategory, string shift, string entity, string designationList, bool WithFatherName, string JobLocation)
+        public string DailyDayStatus(string PlantId, string PrevWorkDate, string companyId, string TextFromDate, string sDepID, string sSecID, string sSubSecID, string sLineID, string dayStatus, string Dep, string Sec, string employeeCategory, string shift, string entity, string designationList, bool WithFatherName, string JobLocation, bool IsWithLine)
         {
             #region Variable
 
@@ -378,6 +378,16 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
+
+                    if (IsWithLine)
+                    {
+                        sheet1.Range[xlsRow, xlsCol].Text = "Line";
+                        sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                    }
+
                     sheet1.Range[xlsRow, xlsCol].Text = "Shift Name";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -488,6 +498,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             xlsCol += 1;
                         }
 
+
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Department"].ToString().ToUpper();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -498,6 +509,14 @@ namespace Aplos.Areas.Attendances.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
+                        if (IsWithLine)
+                        {
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Line"].ToString().ToUpper();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                        }
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftName"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -772,7 +791,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         #region ---Attendance Daily Day Status Count Report---
         [HttpPost, Authorize]
-        public JsonResult DailyStatusCount(string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string designationList, string empCategoryList, string lineList, string dayStatus, bool WithFatherName, string JobLocation)
+        public JsonResult DailyStatusCount(string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string designationList, string empCategoryList, string lineList, string dayStatus, bool WithFatherName, string JobLocation, bool IsWithLine)
         {
             try
             {
@@ -794,7 +813,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 string fileName = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                fileName = DailyStatusCountReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Daily Status Count", "", workDate, ShiftIds, Entity, Dept, Ydate, Sec, SSec, designationList, empCategoryList, LineId, Dstatus, WithFatherName, JobLocation);
+                fileName = DailyStatusCountReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Daily Status Count", "", workDate, ShiftIds, Entity, Dept, Ydate, Sec, SSec, designationList, empCategoryList, LineId, Dstatus, WithFatherName, JobLocation,IsWithLine);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -804,7 +823,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
 
-        public string DailyStatusCountReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string designationList, string empCategoryList, string LineId, string Dstatus, bool WithFatherName, string JobLocation)
+        public string DailyStatusCountReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string designationList, string empCategoryList, string LineId, string Dstatus, bool WithFatherName, string JobLocation, bool IsWithLine)
         {
             #region Variable
 
@@ -929,6 +948,16 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
+
+                    if (IsWithLine)
+                    {
+                        sheet1.Range[xlsRow, xlsCol].Text = "Line";
+                        sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                    }
+
                     sheet1.Range[xlsRow, xlsCol].Text = "Shift Name";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 17;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -1080,6 +1109,14 @@ namespace Aplos.Areas.Attendances.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
+                        if (IsWithLine)
+                        {
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Line"].ToString().ToUpper();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                        }
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftName"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -1521,7 +1558,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         , LG.UserName Designation
                          , kk.PrvDayStatus
 						,kk.YesterdayOTHr,ap.IsManualInTime,ap.IsManualOutTime,hr.OTConsiderOn
-
+                        ,ISNULL(L.UserName,'') Line
                         from EmployeeInformation e
                         left join AttdnProcessData ap on ap.EmpSystemID = e.SystemId
                         left join DayType dt on dt.DayType = ap.DayStatus

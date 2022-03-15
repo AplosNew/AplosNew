@@ -1,0 +1,206 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> {{title}}</h3>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Process</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ProcessId" name="Process"
+                                ng-options="item.Value as item.Text for item in ProcessList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="From Date" ng-model="Date" datepicker class="form-control" tabindex="4">
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Period</label>
+                <div class="col-sm-8 ">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="periodId" name="PeriodList"
+                                ng-options="item.Value as item.Text for item in PeriodList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Shift</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="shiftId" name="WorkCenter"
+                                ng-options="item.Value as item.Text for item in ShiftList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Work Center</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="workCenterId" ng-change="getPo()" name="WorkCenter"
+                                ng-options="item.Value as item.Text for item in workCenterList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">PO</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="POId" name="PO"
+                                ng-options="item.Id as item.Id for item in POList">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <!--<div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="getAllData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> View </button></li>
+            <li> <button ng-click="saveData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Save </button></li>-->
+            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+        <!--</ul>
+    </div>-->
+
+</div>
+
+<div class="clearfix"></div>
+<div class="tab-design" id="tab_show">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="DayTypeWithValues" role="tab" data-toggle="tab">Current Entry</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="DayStatus" role="tab" data-toggle="tab">Report</a></li>
+            @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Entry</a></li>*@
+            @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="LeaveDayType" role="tab" data-toggle="tab">Leave Day Type Entry</a></li>*@
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="row">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="getAllData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> View </button></li>
+                        <li> <button ng-click="saveData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Save </button></li>
+                        @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                    </ul>
+                </div>
+                <div class="table-responsive ">
+                    <div id="GridEdit" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
+                            <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
+                            <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="80"></div>
+
+                            <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
+
+                            <div e-column e-headertext="Remarks" e-template="#rem" e-textalign="center" e-width="80"></div>
+
+                            <div e-column e-template="#AddTile" e-headertext="Add" e-width="40"></div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <script type="text/template" id="emp">
+                    <input type="text" ng-model="data.EmployeeCode" ng-change="$parent.changeInData(data,'emp');" style="color:black; text-align:center" />
+                </script>
+
+                <script type="text/template" id="qty">
+                    <input type="number" onkeypress="return isNumber(event)" id="pp1" ng-model="data.Qty" ng-change="$parent.changeInData(data,'qty');" style="color:black; text-align:center" />
+                </script>
+
+                <script type="text/template" id="rem">
+                    <input type="text" ng-model="data.Remarks" ng-change="$parent.changeInData(data,'rem');" style="color:black; text-align:center" />
+                </script>
+
+                <script type="text/template" id="AddTile">
+                    <div class="common-btn">
+                        <ul class="list-inline text-center">
+                            <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+                        </ul>
+                    </div>
+                </script>
+
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="row">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="getReportView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> View </button></li>
+                        <li> <button ng-click="getReportDownload();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Report Download </button></li>
+                        @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                    </ul>
+                </div>
+                <div class="table-responsive ">
+                    @*<div id="GridEdit" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
+                            <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
+                            <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="80"></div>
+
+                            <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
+
+                            <div e-column e-headertext="Remarks" e-template="#rem" e-textalign="center" e-width="80"></div>
+
+                            <div e-column e-template="#AddTile" e-headertext="Add" e-width="40"></div>
+
+                        </div>
+                    </div>*@
+
+                    <div id="summaryGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            
+            <confirm-modal></confirm-modal>
+
+            <confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+            @*<confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>*@
+
+            <script>
+                function isNumber(evt) {
+                    evt = (evt) ? evt : window.event;
+                    var charCode = (evt.which) ? evt.which : evt.keyCode;
+                    if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                        return false;
+                    }
+                    return true;
+                }
+
+                //onkeypress = "return isNumber(event)"
+            </script>

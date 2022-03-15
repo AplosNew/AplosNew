@@ -35,6 +35,8 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.SubmitPartyName = null;
     $scope.SubmitPartyId = null;
 
+    $scope.GridApproved = [];
+    $scope.GridApprovedHR = [];
     $scope.Griddata = [];
     $scope.POTypeStatus = 'Pending';
     $scope.getalldata = function () {
@@ -92,7 +94,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.SubmitContractNo = null;
         $scope.SubmitCustomerName = null;
     };
-
+    $scope.newpartyList = [];
     $scope.showBOQPartyPopUpNew = function () {
 
         if ($scope.partyType === 'Vendor') {
@@ -105,7 +107,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             data: { column: $scope.searchByParty, value: $scope.searchParty },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.partyList = response.data;
+            $scope.newpartyList = response.data;
         });
         //}
         angular.element(document.querySelector('#boqpartyPopUp')).modal('show');
@@ -221,7 +223,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         , MaterialStorageId: null
         , CurrencyId: null
         , BaseCurrencyId: $scope.baseCurrencyId
-        , ToCurrencyRate: 0
+        , ToCurrencyRate: 1
         , PaymentTermId: null
         , BaseOnDueDate: null
         , BaseNoOfDays: null
@@ -1131,5 +1133,16 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         var data = gridObj.getSelectedRecords()[0];
         location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
     };
+    $scope.POBOQReportXl = function (data) {
+
+        try {
+
+            var file_src = 'Products/PurchaseOrder/POBOQReport?POID=' + data.Id;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 }//End Of main
 

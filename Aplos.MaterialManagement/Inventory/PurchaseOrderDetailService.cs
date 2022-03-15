@@ -3221,7 +3221,7 @@ namespace Library.MaterialManagement.Inventory
 									var potax = new PurchaseOrderTax();
 									currentIdTax++;
 									potax.Id = MakePK(itemDetail.InventoryReceiveDetailId, currentIdTax, 2);
-									potax.InventoryReceiveId = PoId;
+									potax.InventoryReceiveId = entity.Id;
 									potax.InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId;
 									potax.InventoryServiceId = null;
 									potax.HSNCodeId = itemDetail.HSNCodeId;

@@ -39,19 +39,18 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         #endregion Constructor
 
 
-        [Authorize]
         public ActionResult Aplos()
         {
             return View();
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public JsonResult GetCbo()
         {
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM MeetingAgenda"), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";

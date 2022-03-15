@@ -32,19 +32,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/FiscalYearClose.cshtml");
         }
 
-
         [Authorize, HttpGet]
-        public JsonResult GetCbo()
+        public JsonResult GetFiscalYearCloseList(GridParameter parameters)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new SelectList(_fiscalYearService.GetCboFiscalYearList(identity.CompanyGroupId), "Value", "Text"), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult GetList(GridParameter parameters)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_fiscalYearService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
+            return Json(_fiscalYearCloseService.GetFiscalYearCloseList(parameters), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

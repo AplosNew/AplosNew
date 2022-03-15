@@ -892,7 +892,7 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
                         LEFT JOIN [HKP].[CharacteristicsValue] AS CHV ON FCH.CharacteristicsValueId=CHV.Id
                         JOIN [TRN].[SalesOrder] AS SO ON FCH.SalesOrderId=SO.Id
                         JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                        WHERE MOI.Id='" + ItemId + @"' ORDER BY CHV.UserName";
+                        WHERE MOI.Id='" + ItemId + @"' AND ISNULL(FCH.CharacteristicsValueId,'')<>'' ORDER BY CHV.UserName";
             return _sqlRepository.GetDataCollection(sql);
         }
 
@@ -904,7 +904,7 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
 						LEFT JOIN [HKP].[CharacteristicsValue] AS CHV ON FCH.CharacteristicsValueId=CHV.Id
                         JOIN [TRN].[SalesOrder] AS SO ON FCH.SalesOrderId=SO.Id
                         JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
-                       WHERE MOI.Id='" + ItemId + "' ORDER BY CHV.UserName";
+                       WHERE MOI.Id='" + ItemId + "' AND ISNULL(FCH.CharacteristicsValueId,'')<>'' ORDER BY CHV.UserName";
             return _sqlRepository.GetDataCollection(sql);
         }
 

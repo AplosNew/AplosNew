@@ -54,25 +54,23 @@ function FiscalYearCloseController(cboService, commonMessage, $scope, $rootScope
 
     $scope.searchByList = [
         {
-            'name': 'Voucher Type',
-            'value': 'VoucherTypeName'
-        },
+            'name': 'Fiscal Year',
+            'value': 'FiscalYearName'
+        }
+        ,
         {
-            'name': 'Period',
-            'value': 'Period'
-        },
+            'name': 'Company',
+            'value': 'CompanyName'
+        }
+        ,
         {
-            'name': 'Prefix',
-            'value': 'Prefix'
-        },
-        {
-            'name': 'PadLeft Length',
-            'value': 'PadLeftWidth'
+            'name': 'Plant',
+            'value': 'PlantName'
         }
     ];
 
     $scope.getListData = function () {
-        baseService.init('accounts/FiscalYearClose/GetFiscalYearCloseList?companyId=' + $scope.FiscalYearClose.CompanyId + '&plantId=' + $scope.FiscalYearClose.PlantId, null, null, null, 'VoucherTypeName', 'VoucherTypeName');
+        baseService.init('accounts/FiscalYearClose/GetFiscalYearCloseList?companyId=' + $scope.FiscalYearClose.CompanyId + '&plantId=' + $scope.FiscalYearClose.PlantId, null, null, null, null, null);
         $scope.getData = function (pageno) {
             baseService.pagination(pageno)
                 .then(function (result) {
@@ -84,7 +82,7 @@ function FiscalYearCloseController(cboService, commonMessage, $scope, $rootScope
         };
         $scope.getData();
     };
-
+    $scope.getListData();
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.FiscalYearCloseForm.$valid) {
@@ -92,7 +90,7 @@ function FiscalYearCloseController(cboService, commonMessage, $scope, $rootScope
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'FiscalYearClosee': $scope.FiscalYearClose },
+                    data: { 'fiscalYearCloseVM': $scope.FiscalYearClose },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {

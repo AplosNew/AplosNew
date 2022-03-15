@@ -489,13 +489,11 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('WasteMasterController', WasteMasterController)
     .controller('CommercialAdditionalInfoController', CommercialAdditionalInfoController)
     .controller('PerformanceManagementMasterController', PerformanceManagementMasterController)
-    .controller('MeetingTypeController', MeetingTypeController)
     .controller('PerformancePeriodController', PerformancePeriodController)
     .controller('VehicleMovementLocationsController', VehicleMovementLocationsController)
     .controller('ServicesApprovingAuthorityController', ServicesApprovingAuthorityController)
-    .controller("IssueController", IssueController)
-    .controller("IssueMasterController", IssueMasterController)
-    .controller("ProductiveAllowanceRateController", ProductiveAllowanceRateController)
+    .controller('ProductiveAllowanceRateSetupController', ProductiveAllowanceRateSetupController)
+
 
     .config(accountConfig)
     .config(AdministrationConfig)

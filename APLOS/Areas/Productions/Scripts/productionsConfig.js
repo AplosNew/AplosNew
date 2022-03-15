@@ -216,6 +216,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/WasteTransactionReport/Aplos',
             controller: 'WasteTransactionReportController'
         })
+        .when('/waste-issue', {
+            templateUrl: 'Productions/WasteIssue/Aplos',
+            controller: 'WasteIssueController'
+        })
         .when('/general-data-master' , {
             templateUrl: 'Productions/GeneralDataMaster/Aplos',
             controller: 'GeneralDataMasterController'
@@ -243,7 +247,6 @@ function ProductionsConfig($routeProvider, $locationProvider) {
         .when('/fg-inventory-stocks-report', {
             templateUrl: 'Productions/FGInventoryStockReport/Aplos',
             controller: 'FGInventoryStockReportController'
-
         }) 
         .when('/stocks-adjustment', {
             templateUrl: 'Productions/StocksAdjustment/Aplos',
@@ -257,5 +260,14 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/FinalPackDefinition/Aplos',
             controller: 'FinalPackDefinitionController'
         })
-        
+        .when('/employee-operations', {
+            templateUrl: 'Productions/EmployeeOperations/Aplos',
+            controller: 'EmployeeOperationsController'
+        })
+
+        .when('/productive-allowance-rate-setup', {
+            templateUrl: 'Productions/ProductiveAllowanceRateSetup/Aplos',
+            controller: 'ProductiveAllowanceRateSetupController'
+        })
+        ;
 }
