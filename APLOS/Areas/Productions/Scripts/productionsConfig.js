@@ -264,5 +264,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/EmployeeOperations/Aplos',
             controller: 'EmployeeOperationsController'
         })
+
+        .when('/productive-allowance-rate-setup', {
+            templateUrl: 'Productions/ProductiveAllowanceRateSetup/Aplos',
+            controller: 'ProductiveAllowanceRateSetupController'
+        })
         ;
 }

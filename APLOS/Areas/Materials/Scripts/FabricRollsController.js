@@ -177,8 +177,8 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
     $scope.Go = function () {
         $scope.fabricRollMaster = Object.assign({}, $scope.obj);
-        $scope.LoadMaterialSearchList();
 
+        $scope.LoadMaterialSearchList();
         $scope.getSaveMaster($scope.fabricRollMaster.GRNNo);
     }
 
