@@ -68,7 +68,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 		, SlipAssetIssueTypeStatus: 'Asset'
 		, OrderRefNo:null
 		, RefferenceNo: null
-		, OrderSpecific: 'No'
+		, OrderSpecific: 'Yes'
 		, OrderSpecific1: 'No'
 		, ConsumptionBookingName: null
 		, ProductionOrderId: null
@@ -2339,11 +2339,15 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
 	$scope.ShowDiv = false;
 	$scope.SearchPopup = function () {
+
 		try {
-			$scope.ShowDiv = true;
-			var eDialog = $("#Base").data("ejDialog");
-			eDialog.open();
-			$scope.getBoqFilter();
+			$scope.$broadcast('show-errors-check-validity');
+			if ($scope.productNewForm.$valid) {
+				$scope.ShowDiv = true;
+				var eDialog = $("#Base").data("ejDialog");
+				eDialog.open();
+				$scope.getBoqFilter();
+			}
 		} catch (e) {
 			ShowResult(e, "failure");
 		}

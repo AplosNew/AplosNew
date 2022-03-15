@@ -5,25 +5,11 @@
 <togglable name="inventory Issue BOQ"></togglable>
 <div class="form-elements form-horizontal row" ng-form="productNewForm" id="MainDivId">
     <div class="col-xs-6 col-sm-6-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Search BOQ<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <input type="text" name="EmployeeName" ng-model="productNew.EmployeeName" class="form-control" readonly required>
-                    <span class="input-group-btn">
-                        <button ng-click="SearchPopup()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
+
         <div class="form-group">
             <label class="col-sm-4 control-label">Order Specific</label>
             <div class="col-sm-8">
                 <div class="radio">
-                    <label>
-                        <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="No" ng-click="ClearList('No');">@*hide();*@
-                        <span class="cr"><i class="cr-icon"></i></span>No
-                    </label>
                     <label>
                         <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="Yes" ng-click="ClearList('Yes');">@*show();*@
                         <span class="cr"><i class="cr-icon"></i></span>Yes
@@ -105,108 +91,109 @@
             </div>
         </div>
     </div>
-	<div class="col-xs-6 col-sm-6-md-6">
-		<div class="form-group" show-errors>
-			<label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-			<div class="col-sm-8 show-message">
-				<div class="select-style">
-					<select id="paymentTermId" ng-disabled="detailModel.CostCenterId!=null" class="form-control" name="Entity" ng-model="productNew.EntityId" tabindex="1" required ng-change="GetEntityWiseConsumptionList()">
-						<option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+    <div class="col-xs-6 col-sm-6-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="paymentTermId" ng-disabled="detailModel.CostCenterId!=null" class="form-control" name="Entity" ng-model="productNew.EntityId" tabindex="1" required ng-change="GetEntityWiseConsumptionList()">
+                        <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
 
-					</select>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-xs-6 col-sm-6-md-6">
-		<div class="form-group" show-errors>
-			<label class="col-sm-4 col-md-4 control-label">ConsumptionBooking<sup></sup></label>
-			<div class="col-sm-8 show-message">
-				<label class="col-sm-4 col-md-4 control-label">{{productNew.ConsumptionBookingName}}</label>
-			</div>
-		</div>
-	</div>
-	<div class="col-xs-6 col-sm-6-md-6">
-		<div class="form-group" show-errors>
-			<label class="col-sm-4 control-label">Issue Id</label>
-			<div class="col-sm-8 show-message">
-				<input type="text" ng-model="productNew.Id" disabled class="form-control text-left" />
-			</div>
-		</div>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6 col-sm-6-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 col-md-4 control-label">ConsumptionBooking<sup></sup></label>
+            <div class="col-sm-8 show-message">
+                <label class="col-sm-4 col-md-4 control-label">{{productNew.ConsumptionBookingName}}</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6 col-sm-6-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue Id</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-model="productNew.Id" disabled class="form-control text-left" />
+            </div>
+        </div>
 
-	</div>
-	<div class="col-xs-6 col-sm-6-md-6">
-		<div class="form-group" show-errors>
-			<label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
-			<div class="col-sm-8 show-message">
-				<input type="text" name="Issue Date" ng-model="productNew.IssueDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
-			</div>
-		</div>
-		<div class="form-group" show-errors>
-			<label class="col-sm-4 control-label">Employee<sup>*</sup></label>
-			<div class="col-sm-8 show-message">
-				<div class="input-group">
-					<input type="text" name="EmployeeName" ng-model="productNew.EmployeeName" class="form-control" readonly required>
-					<span class="input-group-btn">
-						<button ng-click="showEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-						<button ng-click="clearEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-					</span>
-				</div>
-			</div>
-		</div>
-	</div>
+    </div>
+    <div class="col-xs-6 col-sm-6-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Issue Date" ng-model="productNew.IssueDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="EmployeeName" ng-model="productNew.EmployeeName" class="form-control" readonly required>
+                    <span class="input-group-btn">
+                        <button ng-click="showEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <ul class="common-btn list-inline text-left">
+            <li><button ng-click="SearchPopup();" class="btn" ng-disabled="ispostDisable">Search BOQ</button></li>
+            <li><button ng-click="detailPopUp();" class="btn" ng-disabled="ispostDisable">Issue Material</button></li>
+        </ul>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <ul class="common-btn list-inline text-right">
+            <li><button ng-click="Save();" class="btn" ng-disabled="ispostDisable"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="clearfix"></div>
+    <div class="table-responsive modal-table col-md-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
 
-	<div class="clearfix"></div>
-	<div class="col-xs-12 col-sm-6 col-md-6">
-		<ul class="common-btn list-inline text-left">
-			<li><button ng-click="detailPopUp();" class="btn" ng-disabled="ispostDisable">Issue Material</button></li>
-		</ul>
-	</div>
-	<div class="col-xs-12 col-sm-6 col-md-6">
-		<ul class="common-btn list-inline text-right">
-			<li><button ng-click="Save();" class="btn" ng-disabled="ispostDisable"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-			<li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-		</ul>
-	</div>
-	<div class="clearfix"></div>
-	<div class="table-responsive modal-table col-md-12">
-		<table class="table table-striped">
-			<thead>
-				<tr>
-
-					@*<th>Cost Center</th>*@
-					<th>Material</th>
-					<th>Article</th>
-					<th>SKU1</th>
-					<th>SKU2</th>
-					<th>SKU3</th>
-					<th>Country Name</th>
-					<th>Issue Qty</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="x in detailList">
-					@*<td>{{x.CostCenter}}</td>*@
-					<td>{{x.MaterialMasterName}}</td>
-					<td>{{x.ArticleName}}</td>
-					<td>{{x.FirstCharacteristicText}}</td>
-					<td>{{x.SecondCharacteristicText}}</td>
-					<td>{{x.ThirdCharacteristicText}}</td>
-					<td>{{x.CountryName}}</td>
-					<td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
-					<td class="text-right table-td">
-						<ul class="list-inline">
-							<li><button ng-show="x.Id==null" ng-click="getSpecificMaterialStock(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Specific GRN"><i class="glyphicon glyphicon-list"></i></button></li>
-							<li><button ng-show="x.Id!=null" ng-click="getRequisitionList(x.Id);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Specific GRN"><i class="glyphicon glyphicon-list"></i></button></li>
-							<li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-							<li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
-						</ul>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+                    @*<th>Cost Center</th>*@
+                    <th>Material</th>
+                    <th>Article</th>
+                    <th>SKU1</th>
+                    <th>SKU2</th>
+                    <th>SKU3</th>
+                    <th>Country Name</th>
+                    <th>Issue Qty</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in detailList">
+                    @*<td>{{x.CostCenter}}</td>*@
+                    <td>{{x.MaterialMasterName}}</td>
+                    <td>{{x.ArticleName}}</td>
+                    <td>{{x.FirstCharacteristicText}}</td>
+                    <td>{{x.SecondCharacteristicText}}</td>
+                    <td>{{x.ThirdCharacteristicText}}</td>
+                    <td>{{x.CountryName}}</td>
+                    <td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
+                    <td class="text-right table-td">
+                        <ul class="list-inline">
+                            <li><button ng-show="x.Id==null" ng-click="getSpecificMaterialStock(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Specific GRN"><i class="glyphicon glyphicon-list"></i></button></li>
+                            <li><button ng-show="x.Id!=null" ng-click="getRequisitionList(x.Id);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Specific GRN"><i class="glyphicon glyphicon-list"></i></button></li>
+                            <li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                            <li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 <div class="aplos-grid-toggle">
 	@*<div class="row text-right">
@@ -806,12 +793,12 @@
                     <div e-column e-type="string" e-field="CustomerRefNo" e-headertext="Customer Ref. No" e-width="80"></div>
                     <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor Ref. No" e-width="80"></div>
                     <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Ref. No" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Style" e-headertext="Style" e-width="80"></div>
+                    <div e-column e-type="string" e-field="BuyerOrderReferenceNo" e-headertext="Style" e-width="80"></div>
                     <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="80"></div>
-                    <div e-column e-type="string" e-field="PR" e-headertext="PR" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Item" e-headertext="Item" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Color" e-headertext="Color" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Size" e-headertext="Size" e-width="80"></div>
+                    <div e-column e-type="string" e-field="PrO" e-headertext="PrO" e-width="80"></div>
+                    <div e-column e-type="string" e-field="BOQItemRefNo" e-headertext="Item" e-width="80"></div>
+                    <div e-column e-type="string" e-field="FirstCharacteristicsValue" e-headertext="Color" e-width="80"></div>
+                    <div e-column e-type="string" e-field="SecondCharacteristicsValue" e-headertext="Size" e-width="80"></div>
                 </div>
             </div>
             <script type="text/template" id="select">

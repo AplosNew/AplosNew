@@ -20,7 +20,7 @@ function loanController(accountService, bankService, cboService, commonMessage, 
     $scope.url = "accounts/Loan";
     $scope.postUrl = $scope.url + "/PostLoan";
     $scope.deleteUrl = $scope.url + "/DeleteLoan";
-
+    $(".searchableDDL1").select2();
     $scope.voucher = {
         Id: null,
         EntityId: null,
