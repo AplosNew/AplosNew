@@ -1395,14 +1395,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                 if (EmpCntForLoop == grdRowMaxCnt)
                                 {
-                                    //GetESICEligibleEmployee(sEmpSystemID, out dsESICEligibleEmp);
-                                    //dtESICEligibleEmp = dsESICEligibleEmp.Tables[0];
-                                    //dvESICEligibleEmp = new DataView();
-
-                                    //GetESICMonthlyEmpWiseCalculation(sEmpSystemID, out dsESICMntEmpWiseCal);
-                                    //dtESICMntEmpWiseCal = dsESICMntEmpWiseCal.Tables[0];
-                                    //dvESICMntEmpWiseCal = new DataView();
-
                                     //Get General Salary Amount Head Wise
                                     List<dicSalInfo> dicSalInfo = new List<dicSalInfo>();
                                     //if (para.dsSalInfo == null)
@@ -1421,24 +1413,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     if (dsEnumPF.Tables[0].Rows.Count > 0)
                                         dicEnum = dsEnumPF.Tables[0].ToList<EmployeeEligibleForSalaryHeadEnumSAL>();
 
-                                    //}
-                                    //else
-                                    //{
-                                    //    if (para.dsSalInfo.Tables[0].Rows.Count > 0)
-                                    //        dicSalInfo = para.dsSalInfo.Tables[0].ToList<dicSalInfo>();
-                                    //}
 
-                                    //sESICElgGentID = "";
-                                    //sESICDedGentID = "";
-                                    //sESICElgGentID = "ECE" + sESICElgGentID;
-
-                                    //GenRefSrNoID(DateTime.Now.ToShortDateString().ToString(), "ESIC_CALCULATION", dsUnTagEmp.Tables[0].Rows.Count, out sESICDedGentID);
-                                    //sESICDedGentID = "ECC" + sESICDedGentID;
                                     for (int iUnTgEmCnt = 0; iUnTgEmCnt < dsUnTagEmp.Tables[0].Rows.Count; iUnTgEmCnt++)
                                     {
-                                        //IsESICHolder = false;
-                                        //sESICEligibleEmpID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["ESICEligibleEmpID"].ToString().Trim();
-                                        //sESICMntEmpCalID = sESICDedGentID.ToString() + "-" + (iUnTgEmCnt + 1).ToString();
+                                        
                                         sEmpSysID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim();
                                         IsESICHolder = false;
                                         #region Salary Amount Insert Into Virtual Table
@@ -1700,44 +1678,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                     #endregion
 
                                                     #endregion Employer Contribution Amount
-
-                                                    #region Data Save IN Table [ESICMonthlyEmpWiseCalculation]
-
-                                                    //if (bIsActive == true)
-                                                    //{
-                                                    //    dvESICMntEmpWiseCal.Table = dtESICMntEmpWiseCal;
-                                                    //    dvESICMntEmpWiseCal.RowFilter = "ESICEligibleEmpID = '" + sESICEligibleEmpID + "' AND MonthNo = '" + Convert.ToDateTime(para.ToDate).Month + "' AND YearNo = '" + Convert.ToDateTime(para.ToDate).Year + "'";
-                                                    //    if (dvESICMntEmpWiseCal.Count == 0)
-                                                    //    {//Add new block
-                                                    //        drESICMntEmpWiseCal = dtESICMntEmpWiseCal.NewRow();
-                                                    //        UpdateTheDataRowInTableESICMonthlyEmpWiseCalculation("ADDNEW", sESICMntEmpCalID, sESICEligibleEmpID, para.ToDate, decEmpCtbtnAmount, decEmprCtbtnAmount, para.sUser, ref drESICMntEmpWiseCal);
-                                                    //        dtESICMntEmpWiseCal.Rows.Add(drESICMntEmpWiseCal);
-                                                    //    }
-                                                    //    else
-                                                    //    {//edit block
-                                                    //        drESICMntEmpWiseCal = dvESICMntEmpWiseCal[0].Row;
-                                                    //        drESICMntEmpWiseCal.BeginEdit();
-                                                    //        UpdateTheDataRowInTableESICMonthlyEmpWiseCalculation("EDIT", sESICMntEmpCalID, sESICEligibleEmpID, para.ToDate, decEmpCtbtnAmount, decEmprCtbtnAmount, para.sUser, ref drESICMntEmpWiseCal);
-                                                    //        drESICMntEmpWiseCal.EndEdit();
-                                                    //    }
-                                                    //}
-
-                                                    #endregion Data Save IN Table [ESICMonthlyEmpWiseCalculation]
-
-                                                    #region Data Save IN Table [ESICEligibleEmployee]
-
-                                                    //dvESICEligibleEmp.Table = dtESICEligibleEmp;
-                                                    //dvESICEligibleEmp.RowFilter = "ID = '" + sESICEligibleEmpID.Trim() + "'";
-                                                    //if (dvESICEligibleEmp.Count == 1)
-                                                    //{//Edit block
-                                                    //    drESICEligibleEmp = dvESICEligibleEmp[0].Row;
-                                                    //    drESICEligibleEmp.BeginEdit();
-                                                    //    UpdateTheDataRowInTableESICEligibleEmp("EDIT", sESICEligibleEmpID.Trim(), sEmpSysID, sESICMstID, sESICDtlID, System.DateTime.Now, dtEndDate, bIsActive, bMaturity, para.sUser, ref drESICEligibleEmp);
-                                                    //    drESICEligibleEmp.EndEdit();
-                                                    //}
-
-                                                    #endregion Data Save IN Table [ESICEligibleEmployee]
-
+                                                    
                                                 }
                                             }
                                         }//holder
@@ -1749,15 +1690,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 ////{
                                 TotProcComp += grdRowMaxCnt;
                                 TotSelectEmpForProc -= grdRowMaxCnt;
-                                //if (bIsActive == false & para.bStructure == true)
-                                //{
-                                //    SaveDataSets(dsESICMntEmpWiseCal, dsESICEligibleEmp);
-                                //}
-                                //else
-                                //{
-                                // SaveDataSets(dsESICEligibleEmp, dsESICMntEmpWiseCal);
-                                //}
-                                ////}
+                                
                                 if ((dsUnTagEmp.Tables[0].Rows.Count - TotProcComp) < 30)
                                 {
                                     SelectedEmpCnt += (dsUnTagEmp.Tables[0].Rows.Count - TotProcComp);
@@ -1772,10 +1705,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 //dsESICEligibleEmp = null;
                                 //dsESICMntEmpWiseCal = null;
                             }
-                            //if (bMaturity == true)
-                            //{
-                            //SaveDataSets(dsESICEligibleEmp, dsESICMntEmpWiseCal);
-                            //}
                         }
 
                         #endregion Tag Employee List

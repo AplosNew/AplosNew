@@ -865,7 +865,7 @@ namespace Aplos.Areas.Materials.Controllers
 
             try
             {
-                DataSet dsMaster, dsDetail;
+                DataSet dsMaster, dsDetail, dsGRNDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [BPDT].[FabricRollManagementMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -890,8 +890,9 @@ namespace Aplos.Areas.Materials.Controllers
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-
                 con.OpenDataSetThroughAdapter("SELECT * FROM BPDT.FabricRollManagementChild WHERE FabricRollManagementMasterId ='" + masterId + "'", out dsDetail, false, "1");
+
+                ///con.OpenDataSetThroughAdapter("Select * FROM TRN.InventoryReceiveDetail IRD Where Id='2020539-1'", out dsGRNDetail, false, "1");
 
                 int count = 0;
                 foreach (var item in grnDetailList)

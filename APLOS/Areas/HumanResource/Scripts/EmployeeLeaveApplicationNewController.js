@@ -73,6 +73,15 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         });
     };
 
+    //$scope.leaveTypelist = [];
+    //$scope.leavetypecbo = function () {
+    //    $http.get($scope.path + 'GetLeaveTypeCbo?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID)
+    //        .then(function (response) {
+    //            $scope.leaveTypelist = response.data;
+
+    //        });
+    //};
+
     $scope.empList = [];
     cboService.getEmployeeCbo(function (result) {
         $scope.empList = result;
