@@ -4040,6 +4040,7 @@
     <Content Include="Areas\Commercial\Views\InvoiceTaggedWithLC\InvoiceToAcceptancePost.cshtml" />
     <Content Include="Areas\Productions\Views\WasteIssue\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\InventoryIssue\inventoryIssueBOQ.cshtml" />
+    <Content Include="Areas\Products\Views\InventoryIssue\_StockBOQPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

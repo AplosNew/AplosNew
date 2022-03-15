@@ -5139,7 +5139,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		[HttpPost, Authorize]
 		public JsonResult GetCompanyBOQPartyDataListNew(string column, string value, string partyType)
 		{
-			PurchaseOrderBOQQueryService purchaseOrderBOQQueryService = new PurchaseOrderBOQQueryService(_sqlRepository);
+			 BOQQueryService purchaseOrderBOQQueryService = new  BOQQueryService(_sqlRepository);
 			 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			var res = purchaseOrderBOQQueryService.GetCompanyBOQPartyListNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
 			var jsondata = Json(res, JsonRequestBehavior.AllowGet);
