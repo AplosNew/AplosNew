@@ -237,16 +237,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                     throw new Exception("Plant is missing [Emp]" + sEmployeeSysID);
                 }
 
-                if (sSlrHD == "SHD202062")
-                {
-
-                }
-
-                //if(DisbCur==0)
-                //{
-                //    EntCur = 0;
-                //    DefCur = 0;
-                //}
 
                 ParaSalaryProcess ob_sp = new ParaSalaryProcess();
                 ob_sp.AcltExcDisbSlrHDAmt = AcltExcDisbSlrHDAmt;
@@ -415,54 +405,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataView dvSlrValDailyBsFil = null;
             DataView dvMonWiExtAmtFil = null;
             DataView dvSPChdFil = null;
-
-            //DataSet dsTaxDeducMonth = null;
-            //DataRow drTaxDeducMonth = null;
-            //DataView dvTaxDeducMonth = null;
-            //DataTable dtTaxDeducMonth = null;
-
-            //DataSet dsTaxDefinMast = null;
-            //DataRow drTaxDefinMast = null;
-            //DataView dvTaxDefinMast = null;
-            //DataTable dtTaxDefinMast = null;
-
-            //DataSet dsTaxDefinMastAft = null;
-            //DataRow drTaxDefinMastAft = null;
-            //DataView dvTaxDefinMastAft = null;
-            //DataTable dtTaxDefinMastAft = null;
-
-            //DataSet dsTaxDefinMastCRC = null;
-            //DataRow drTaxDefinMastCRC = null;
-            //DataView dvTaxDefinMastCRC = null;
-            //DataTable dtTaxDefinMastCRC = null;
-
-            //DataSet dsTaxSHCRC = null;
-            //DataRow drTaxSHCRC = null;
-            //DataView dvTaxSHCRC = null;
-            //DataTable dtTaxSHCRC = null;
-
-            //DataSet dsTaxDeducMonthCRC = null;
-            //DataRow drTaxDeducMonthCRC = null;
-            //DataView dvTaxDeducMonthCRC = null;
-            //DataTable dtTaxDeducMonthCRC = null;
-
-            //DataView dvTaxDeducMonthCRCFill = null;
-
-            //DataSet dsTaxDeducYearCRC = null;
-            //DataRow drTaxDeducYearCRC = null;
-            //DataView dvTaxDeducYearCRC = null;
-            //DataTable dtTaxDeducYearCRC = null;
-
-            //DataSet dsTaxPolicyMast = null;
-            //DataSet dsTaxPolicyGen = null;
-            //DataSet dsTaxSlab = null;
-            //DataSet dsTaxYearPeriod = null;
-
-            //DataTable dtTaxSHCRCYearlyIncome = null;
-            //DataView dvTaxSHCRCYearlyIncome = null;
-            //DataSet dsSalaryHeadToExclude = null;
-            //DataView dvSalaryHeadToExclude = null;
-
+                        
             clsSalaryProc objSlrProc = null;
             clsStaticInfo objStatic = null;
             OTSBD.clsTax objTaxPoli = null;
@@ -922,22 +865,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 List<EmployeeWeekOffOriginal> dicWeekOffOriginal = new List<EmployeeWeekOffOriginal>();
                                 if (dsWeekOffCount.Tables[0].Rows.Count > 0)
                                     dicWeekOffOriginal = dsWeekOffCount.Tables[0].ToList<EmployeeWeekOffOriginal>();
-                                #endregion
-
-                                #region Holiday as Payday count
-                                //DataSet dsWHCount = null;
-                                //GetWHCount(sEmpSysIDColl, para.FromDate, para.ToDate, para.PlantId, out dsWHCount);
-                                //List<EmployeeWHCount> dicWHCount = new List<EmployeeWHCount>();
-                                //if (dsWHCount.Tables[0].Rows.Count > 0)
-                                //    dicWHCount = dsWHCount.Tables[0].ToList<EmployeeWHCount>();
-
-
-                                //DataSet dsHolidayAsPaydayPolicy = null;//999
-                                //GetHolidayPaydaySalaryHeadPolicy(sEmpSysIDColl, out dsHolidayAsPaydayPolicy);
-                                //List<HolidayPaydaySHead> dicHolidayAsPaydayPolicy = new List<HolidayPaydaySHead>();
-                                //if (dsHolidayAsPaydayPolicy.Tables[0].Rows.Count > 0)
-                                //    dicHolidayAsPaydayPolicy = dsHolidayAsPaydayPolicy.Tables[0].ToList<HolidayPaydaySHead>();
-                                #endregion
+                                #endregion                               
 
                                 //////Get Employee Information For Save Loop
                                 SendNotification("Fetching Employees");
@@ -1055,37 +983,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 DataSet dsEmpOTEntitlement = null;
                                 GetOTEntitlementInfo(para.PlantId, sEmpSysIDColl, para.FromDate, para.ToDate, out dsEmpOTEntitlement);
 
-                                #region by monir 190916
-                                //////////Add OR UPDate
-                                ////objSlrProc.GetTaxDeductionInfoMonthWise(para.PlantId, sEmpInfoSysID, intMonthNo, intYearNo, out dsTaxDeducMonth);
-                                ////dtTaxDeducMonth = dsTaxDeducMonth.Tables[0];
-
-                                //////////Add OR UPDate
-                                ////objSlrProc.GetTaxDefineMaster(para.PlantId, sEmpInfoSysID, intMonthNo, intYearNo, para.FromDate, out dsTaxDefinMast);
-                                ////dtTaxDefinMast = dsTaxDefinMast.Tables[0];
-
-                                //////////Add OR UPDate
-                                ////objSlrProc.GetTaxDefineMasterAfter(para.PlantId, sEmpInfoSysID, para.FromDate, out dsTaxDefinMastAft);
-                                ////dtTaxDefinMastAft = dsTaxDefinMastAft.Tables[0];
-
-                                //////////Add OR UPDate
-                                ////objSlrProc.GetTaxDefineMasterSave(para.PlantId, para.lblTaxYearID, sEmpInfoSysID, out dsTaxDefinMastCRC);
-                                ////dtTaxDefinMastCRC = dsTaxDefinMastCRC.Tables[0];
-
-                                //////////Add OR UPDate
-                                ////objSlrProc.GetTaxableIncomeSalaryHeadWise(para.PlantId, para.lblTaxYearID, sEmpInfoSysID, out dsTaxSHCRC);
-                                ////dtTaxSHCRC = dsTaxSHCRC.Tables[0];
-                                //////objSlrProc.GetTaxableIncomeSalaryHeadWise
-
-                                //////////Add OR UPDate
-                                ////objSlrProc.GetTaxableYearlyActualIncomeSalaryHeadWise(para.PlantId, para.lblTaxYearID, sEmpInfoSysID, out dsTaxDeducYearCRC);
-                                ////dtTaxDeducYearCRC = dsTaxDeducYearCRC.Tables[0];
-
-                                //////////Add OR UPDate
-                                ////objSlrProc.GetTaxDeductionInfoMonthWise(para.PlantId, para.lblTaxYearID, para.FromDate, sEmpInfoSysID, out dsTaxDeducMonthCRC);
-                                ////dtTaxDeducMonthCRC = dsTaxDeducMonthCRC.Tables[0]; 
-                                #endregion
-
                                 //////Add OR UPDate
                                 SendNotification("Fetching Retention Allow Month Wise", TotProcComp, TotSelectEmpForProc);
                                 ///
@@ -1110,31 +1007,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 objSlrProc.GetPaymentModeWiseHeadAmount(para.PlantId, para.GroupId, out dsPMP);
                                 if (dsPMP.Tables[0].Rows.Count > 0)
                                     dicPMP = dsPMP.Tables[0].ToList<dicPaymentModeWiseHeadAmount>();
-
-                                #region by monir
-                                //List<dicEmpTax> dicEmpTax = new List<dicEmpTax>();
-                                //objSlrProc.GetEmpIncomeTax(para.PlantId, para.lblLocalCurrencyID.Trim(), sEmpInfoSysID, intMonthNo, intYearNo, out dsEmpTax);
-                                ////objSlrProc.GetEmpIncomeTax(para.PlantId, lblLocalCurrencyID.Text.Trim(), sEmpInfoSysID, intMonthNo, intYearNo, out dsEmpTax);
-                                //if (dsEmpTax.Tables[0].Rows.Count > 0)
-                                //    dicEmpTax = dsEmpTax.Tables[0].ToList<dicEmpTax>();
-
-                                //List<dicTaxSlab> dicTaxSlab = new List<dicTaxSlab>();
-                                //objSlrProc.GetTaxSlab(para.PlantId, para.lblTaxYearID, out dsTaxSlab);
-                                //if (dsTaxSlab.Tables[0].Rows.Count > 0)
-                                //    dicTaxSlab = dsTaxSlab.Tables[0].ToList<dicTaxSlab>();
-
-                                //List<dicTaxPolicyMast> dicTaxPolicyMast = new List<dicTaxPolicyMast>();
-                                //objSlrProc.GetTaxPolicyMaster(para.PlantId, para.lblTaxYearID, out dsTaxPolicyMast);
-                                //if (dsTaxPolicyMast.Tables[0].Rows.Count > 0)
-                                //    dicTaxPolicyMast = dsTaxPolicyMast.Tables[0].ToList<dicTaxPolicyMast>();
-
-                                //List<dicTaxPolicyGen> dicTaxPolicyGen = new List<dicTaxPolicyGen>();
-                                //objSlrProc.GetTaxPolicyGeneralWithYearlyActualTax(para.lblTaxYearID, sEmpInfoSysID, out dsTaxPolicyGen);
-                                //if (dsTaxPolicyGen.Tables[0].Rows.Count > 0)
-                                //    dicTaxPolicyGen = dsTaxPolicyGen.Tables[0].ToList<dicTaxPolicyGen>();
-
-                                //objTaxPoli.GetFactoryWisePeriod(para.PlantId, para.lblTaxYearID, out dsTaxYearPeriod); 
-                                #endregion
 
                                 //Get Bonus Amount
                                 SendNotification("Fetching Bonus Amount", TotProcComp, TotSelectEmpForProc);
@@ -1213,12 +1085,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 if (dsSalRulDayStOnlyDayTp.Tables[0].Rows.Count > 0)
                                     dicSalRulDayStOnlyDayTp = dsSalRulDayStOnlyDayTp.Tables[0].ToList<dicSalRulDayStOnlyDayTp>();
 
-                                //Only LeaveType commented by monir 190716
-                                //List<dicSalRulDayStOnlyLvTp> dicSalRulDayStOnlyLvTp = new List<dicSalRulDayStOnlyLvTp>();
-                                //objSlrProc.GetSalaryRuleDayStatusOnlyLeaveType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStOnlyLvTp);
-                                //if (dsSalRulDayStOnlyLvTp.Tables[0].Rows.Count > 0)
-                                //    dicSalRulDayStOnlyLvTp = dsSalRulDayStOnlyLvTp.Tables[0].ToList<dicSalRulDayStOnlyLvTp>();
-
+                            
                                 //Shift Type AND DayStatus
                                 SendNotification("Fetching Shift Type and Day Status", TotProcComp, TotSelectEmpForProc);
                                 List<dicSalRulDayStSfTpDayTp> dicSalRulDayStSfTpDayTp = new List<dicSalRulDayStSfTpDayTp>();
@@ -1226,18 +1093,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 if (dsSalRulDayStSfTpDayTp.Tables[0].Rows.Count > 0)
                                     dicSalRulDayStSfTpDayTp = dsSalRulDayStSfTpDayTp.Tables[0].ToList<dicSalRulDayStSfTpDayTp>();
 
-                                //Shift Type AND LeaveType commented by monir 190716
-                                //List<dicSalRulDayStSfTpLvTp> dicSalRulDayStSfTpLvTp = new List<dicSalRulDayStSfTpLvTp>();
-                                //objSlrProc.GetSalaryRuleDayStatusOnlyShiftTypeLeaveType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStSfTpLvTp);
-                                //if (dsSalRulDayStSfTpLvTp.Tables[0].Rows.Count > 0)
-                                //    dicSalRulDayStSfTpLvTp = dsSalRulDayStSfTpLvTp.Tables[0].ToList<dicSalRulDayStSfTpLvTp>();
-
-                                //DayStatus AND LeaveType commented by monir 190716
-                                //List<dicSalRulDayStDayTpLvTp> dicSalRulDayStDayTpLvTp = new List<dicSalRulDayStDayTpLvTp>();
-                                //objSlrProc.GetSalaryRuleDayStatusOnlyDayTypeLeaveType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStDayTpLvTp);
-                                //if (dsSalRulDayStDayTpLvTp.Tables[0].Rows.Count > 0)
-                                //    dicSalRulDayStDayTpLvTp = dsSalRulDayStDayTpLvTp.Tables[0].ToList<dicSalRulDayStDayTpLvTp>();
-
+                                
                                 SendNotification("Fetching Company Off Day", TotProcComp, TotSelectEmpForProc);
                                 List<dicCmpOffDay> dicCmpWrkOff = new List<dicCmpOffDay>();
                                 objSlrProc.GetCompanyOffDay(para.PlantId, para.FromDate, para.ToDate.Trim(), out dsCmpOffDay);
@@ -1255,16 +1111,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 decimal tempTotWorkingDay = TotWorkingDay;
                                 decimal tempTotWorkingDayWithHoli = TotWorkingDayWithHoli;
 
-                                //objSlrProc.GetSalaryHeadTobeExcluded(out dsSalaryHeadToExclude);
-
-                                ///GET Company Contributed TAX Amount For All Thee Selected Emps
-                                //objSlrProc.GetCompanyContributedTax(sEmpSysIDColl, para.FromDate, out dsComConTax);
-
-                                //List<dicDesigMst> dicDesigMst = new List<dicDesigMst>();
-                                //objSlrProc.GetEmployeeWiseDesignationMasterSetting(sEmpSysIDColl, out dsDesigMst);
-                                //if (dsDesigMst.Tables[0].Rows.Count > 0)
-                                //    dicDesigMst = dsDesigMst.Tables[0].ToList<dicDesigMst>();
-
+    
                                 clsSalaryProcessQuery spq = new clsSalaryProcessQuery();
                                 DataSet dsEOLILU = null;
                                 DataSet dsLeaveSpecific = null;
@@ -1316,9 +1163,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 SendNotification("Fetching Early Out", TotProcComp, TotSelectEmpForProc);
                                 DataSet dsEarlyOut = null;
                                 objSlrProc.GetEarlyOut(sEmpSysIDColl, para.FromDate, para.ToDate.Trim(), out dsEarlyOut);
-                                //if (dsLeavePost.Tables[0].Rows.Count > 0)
-                                // dicLeavePost = dsLeavePost.Tables[0].ToList<dicLvTrns>();
-                                //GetLeaveTransactionForAttdnBonusPRE_POST
+                                
                                 SendNotification("Fetching Leave Transaction For Attendance Bonus PRE_POST", TotProcComp, TotSelectEmpForProc);
                                 DataSet dsLeavePost = null;
                                 List<dicLvTrns> dicLeavePost = new List<dicLvTrns>();
@@ -1343,10 +1188,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 objSlrProc.GetEmployeeWiseSalaryValueMontlyContinuedBasis(para.ToDate.Trim(), sEmpSysIDColl, out dsSlrValDailyBs);
                                 if (dsSlrValDailyBs.Tables[0].Rows.Count > 0)
                                     dicSlrValDailyBs = dsSlrValDailyBs.Tables[0].ToList<dicSlrValDailyBs>();
-                                //List<dicVPF> dicVPF = new List<dicVPF>();
-                                //objSlrProc.GetEmployeeWisePFEmployeeVoluntaryValue(sEmpSysIDColl, para.ToDate.Trim(), out dsVPF);
-                                //if (dsVPF.Tables[0].Rows.Count > 0)
-                                //    dicVPF = dsVPF.Tables[0].ToList<dicVPF>();
+                                
 
                                 SendNotification("Fetching Retention Allowance Month Wise", TotProcComp, TotSelectEmpForProc);
                                 List<dicRetentionAllow> dicRetentionAllow = new List<dicRetentionAllow>();
@@ -1405,14 +1247,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                     ds = new DataSet();
                                     dtValue = new List<SPvalueHeadWise>();
-                                    ////dtValue = new DataTable();
-                                    ////dtValue.TableName = "TempTable";
-                                    ////dtValue.Columns.Add("EmpSystemID");
-                                    ////dtValue.Columns.Add("SalaryHeadID");
-                                    ////dtValue.Columns.Add("EntryCurrencyID");
-                                    ////dtValue.Columns.Add("EntryAmount");
-                                    ////dtValue.Columns.Add("EarningCurrencyID");
-                                    ////dtValue.Columns.Add("EarningAmount");
 
                                     dsDw = new DataSet();
                                     dtDw = new DataTable();
@@ -1626,9 +1460,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         }
                                         #endregion
 
-                                        //int HoliPayDayCount = 0;
-                                        //    GetHolidayAsPayday(dicWHCount, dicHolidayAsPaydayPolicy, _emp, "", out HoliPayDayCount);
-
+                                       
                                         #region OT entitlement
                                         //EmpSystemID
                                         DataView dvOTEN = new DataView(dsEmpOTEntitlement.Tables[0]);
@@ -1709,11 +1541,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                             #endregion Total Earning, Total Deduction & Net Payable CurrencyID
 
-                                            //int _child_salaryhead_seed = 0;
-                                            //clsSalaryReprocessUnit sru = new clsSalaryReprocessUnit();
-                                            //sru.CalculateHeadValue(para,dicLocal_Sub,AbsDay,DisbursedBtnMonth,TotWorkingDayWithHoli, intMonthNo,ref _child_salaryhead_seed, ref dtValue,ref dicSalaryHead,ref _childPK_seed_fromDB,ref _child_emp_seed,ref dicProcChild);
-
-                                            #region Save Child Main Part
+                                           #region Save Child Main Part
 
 
                                             int _child_salaryhead_seed = 0;
@@ -1825,16 +1653,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                     ///
                                                     var pEmployeeSysID = dicLocal_Sub[i].EmpInfoSystemID;
 
-
-
-                                                    var ss = dicLocal_Sub[i].SalaryHeadID;
-
-                                                    if (ss == "SHD20206")//SHD202023 SHD202065
-                                                    {
-
-                                                    }
-
-
+                                                    var ss = dicLocal_Sub[i].SalaryHeadID;                                                 
 
                                                     if (string.IsNullOrEmpty(sGNRApplicableMonthNo))
                                                     {
@@ -2410,47 +2229,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                     {
                                                                         IsAttdnBnsPamy = false;//continue for right slab
                                                                     }
-                                                                    //==========200528
-
-                                                                    #region DayType Collection
-                                                                    //if (sDayType == "P" || sDayType == "WP" || sDayType == "HP" || sDayType == "WHP" || sDayType == "HWP")
-                                                                    //{
-                                                                    //    sDayType = "Present";
-                                                                    //}
-                                                                    //else if (sDayType == "L" || sDayType == "WL" || sDayType == "HL" || sDayType == "WHL" || sDayType == "HWL")
-                                                                    //{
-                                                                    //    sDayType = "Late";
-                                                                    //}
-                                                                    //else if (sDayType == "A")
-                                                                    //{
-                                                                    //    sDayType = "Absent";
-                                                                    //}
-                                                                    //else if (sDayType == "LV" || sDayType == "LVP" || sDayType == "LVL" || sDayType == "WLV" || sDayType == "HLV" || sDayType == "WLVP" || sDayType == "HLVP" || sDayType == "WLVL" || sDayType == "HLVL" || sDayType == "WHLV" || sDayType == "HWLVP" || sDayType == "HWLVL" || sDayType == "WHLVP" || sDayType == "WHLVL" || sDayType == "HWLV")
-                                                                    //{
-                                                                    //    sDayType = "LV";
-                                                                    //}
-                                                                    //else if (sDayType == "MLV" || sDayType == "MLVP" || sDayType == "MLVL" || sDayType == "WMLV" || sDayType == "HMLV" || sDayType == "WMLVP" || sDayType == "HMLVP" || sDayType == "WMLVL" || sDayType == "HMLVL" || sDayType == "WHMLV" || sDayType == "" || sDayType == "WHMLVL" || sDayType == "HWMLV" || sDayType == "HWMLVP" || sDayType == "HWMLVL")
-                                                                    //{
-                                                                    //    sDayType = "MLv";
-                                                                    //}
-                                                                    //else if (sDayType == "w")
-                                                                    //{
-                                                                    //    sDayType = "WeekOff";
-                                                                    //}
-                                                                    //else if (sDayType == "H")
-                                                                    //{
-                                                                    //    sDayType = "HoliDay";
-                                                                    //}
-                                                                    //else if (sDayType == "WH")
-                                                                    //{
-                                                                    //    sDayType = "WeekOffHoliDay";
-                                                                    //}
-                                                                    #endregion DayType Collection
-                                                                    #region DayType Count Match With Employee DayStatus Count
-                                                                    
-                                                                    #endregion 
-
-                                                                    
+                                                                    //==========200528                                                                 
+                                                                                                                                        
                                                                 }//for
                                                             }//count
 
@@ -2895,13 +2675,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             string _SalaryRuleMasterSystemID = dsSelectedEmp.Tables[0].Rows[gd]["SalaryRuleMasterSystemID"].ToString().Trim();
                                             string _PaymentMode = dsSelectedEmp.Tables[0].Rows[gd]["PaymentMode"].ToString().Trim();
                                             string _EmpSystemID = dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim();
-                                            //string _EmpSystemID=dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim();
-                                            //dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim()
+                               
                                             _child_salaryhead_seed++;
-                                            //StampCalculation(_childPK_seed_fromDB,_child_emp_seed,_child_salaryhead_seed,dicPMP, _EmpSystemID, _SalaryRuleMasterSystemID, _PaymentMode, para,
-                                            //    dicLocal_Sub,ref dtSPChd, ref dsSPChd,ref decTotalDeductionAmt,ref decTmpTotalErnDedAmt,                                          
-                                            //    ref decTotalEarningAmt,ref decTmpTotalErnDedAmt,ref decTotalErnDedAmtDefinitionRate);
-
+                                            
                                             StampCalculation(dtValue, _childPK_seed_fromDB, _child_emp_seed, _child_salaryhead_seed, dicPMP, _EmpSystemID, _SalaryRuleMasterSystemID, _PaymentMode, para,
                                             dicLocal_Sub, ref dicProcChild, ref decTotalDeductionAmt, ref decTmpTotalErnDedAmt,
                                             ref decTotalEarningAmt, ref decTmpTotalErnDedAmt, ref decTotalErnDedAmtDefinitionRate);
@@ -3123,10 +2899,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                         sApprovalType = "";
                                                         decOTHour = 0;
 
-
-                                                        //monir 190515
-                                                        //if (decOTPmtAmtTemp < decOTPmtAmt)
-                                                        //{ decOTPmtAmtTemp = decOTPmtAmt; }
 
                                                         sOverTimePmtPolicyMasterID = dicOTPol_Sub[i].OverTimePmtPolicyMasterID;
                                                         sOverTimePmtPolicyDetailsID = dicOTPol_Sub[i].ID;
@@ -4161,12 +3933,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 ///dicSalaryHead
                                 ///
                                 obSS = new clsSalaryUtility();
-                                //obSS.ReLoadFormulaWithValueSalaryProc(sEmployeeSysID, para, sFormulaDesID, out sFormulaValue, IsBaseOnNetPay, dtValue, dicSalaryHead);
-                                //DefCur = Convert.ToDecimal(clsSalaryUtility.Evaluate(sFormulaValue.Trim()));
-                                //if (EntCur == 0)//if ss is zero 
-                                //{
-                                //    DefCur = 0;
-                                //}//
+                               
                                 clsSalaryReprocessUnit sru = new clsSalaryReprocessUnit();//
                                 for (int gd = 0; gd < dsSelectedEmp.Tables[0].Rows.Count; gd++)
                                 {
@@ -5939,26 +5706,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             {
             }
         }//End Function 
-        void GetHolidayAsPayday(List<EmployeeWHCount> dicWHCount, List<HolidayPaydaySHead> dicHolidayPolicy, string EmpSystemId, string SalaryHeadId, out int PayDayCount)
-        {
-            try
-            {
-                PayDayCount = 0;
-                var C_Policy = dicHolidayPolicy.FindAll(x => x.EmpSystemID == EmpSystemId && x.SalaryHeadId == SalaryHeadId);
-                if (C_Policy.Count() > 0)
-                {
-                    var c_payday = dicWHCount.FindAll(x => x.EmpSystemID == EmpSystemId);
-                    if (c_payday.Count() > 0)
-                    {
-                        PayDayCount = c_payday[0].WHounted;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
         private void CreateMessage(FunctionPara para, DataSet ds, out string msg)
         {
             try
@@ -6342,34 +6089,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                     {
                         if (Convert.ToDateTime(ToDate).Day > param.LastDay)//29>22  //23-jan to 29-jan  25-jan to 29-jan
                         {
-                            // //month n year will be that of next month
-                            // param.intMonthNo = intMonthNo;
-                            // param.intYearNo = intYearNo;
-                            // //get first day
-                            //// string LastDate = param.LastDay + "-" + bplib.clsWebLib.GetMonthName(param.intMonthNo.ToString()) + "-" + param.intYearNo;
-                            // DateTime dtFirstDate = fstDT;
-                            // param.FirstDayOfMonth = dtFirstDate;
-                            // param.LastDayOfMonth = Convert.ToDateTime(lstDT);
-
-                            // if (Convert.ToDateTime(FromDate) < dtFirstDate)//20 23
-                            // {
-                            //     param.IsFullProcess = false;
-                            throw new Exception("Duration can not be more than one month");
-                            //}
-                            //    else if (Convert.ToDateTime(FromDate) > dtFirstDate)//25 23
-                            //    {
-                            //        param.DaysInMonth = Convert.ToInt32(dyasInMonth);
-                            //        param.IsFullProcess = false;
-                            //        param.IsFirstProcess = false;
-                            //        param.IsLastProcess = false;
-                            //    }
-                            //    else
-                            //    {
-                            //        param.DaysInMonth = Convert.ToInt32(dyasInMonth);
-                            //        param.IsFullProcess = false;
-                            //        param.IsFirstProcess = true;
-                            //        param.IsLastProcess = false;
-                            //    }
+                              throw new Exception("Duration can not be more than one month");
+                            
                         }
                         else//25<31
                         {

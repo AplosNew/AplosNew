@@ -393,6 +393,7 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/InventoryReceive/FOC',
             controller: 'FOCController'
         })
+
         .when('/inventory-issue-boq', {
             templateUrl: 'Products/inventoryIssue/inventoryIssueBOQ',
             controller: 'inventoryIssueBOQController'
