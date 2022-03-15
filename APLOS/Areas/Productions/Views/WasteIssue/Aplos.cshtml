@@ -1,69 +1,179 @@
 ﻿<togglable name="{{title}}"></togglable>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-    <input type="hidden" ng-model="ModelNew.Id">
+    @*<input type="hidden" ng-model="ModelNew.Id">*@
     <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue Id<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Id" ng-model="ModelNew.Id" only-numbers ng-disabled="true" class="form-control" required tabindex="2" autocomplete="off" maxlength="15">
+            </div>
+        </div>
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
             <div class="col-sm-6 show-message">
-                <input type="text" name="EntityId" ng-model="Entity" ng-disabled="true" ng-click="selectEntity()" class="form-control" maxlength="200" tabindex="5">
+                <input type="text" name="Entity" ng-model="ModelNew.Entity" ng-disabled="true" @*ng-click="selectEntity()"*@ class="form-control" maxlength="200" tabindex="5" required>
             </div>
             <div class="col-sm-2">
                 <button ng-click="selectEntity()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
             </div>
         </div>
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Prepared By<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Prepared By" ng-model="ModelNew.PreparedBy" class="form-control" required tabindex="2" maxlength="10">
+                <div class="input-group">
+                    <span class="input-group-addon">{{ModelNew.PreparedByCode}}</span>
+                    <input type="text" name="Chaired By" ng-model="ModelNew.PreparedBy" class="form-control" required readonly>
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="showEmployeeListPopUp('Prepared')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
             </div>
         </div>
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Approved By" ng-model="ModelNew.ApprovedBy" class="form-control" required tabindex="2" maxlength="10">
+                <div class="input-group">
+                    <span class="input-group-addon">{{ModelNew.ApprovedByCode}}</span>
+                    <input type="text" name="Chaired By" ng-model="ModelNew.ApprovedBy" class="form-control" required readonly>
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="showEmployeeListPopUp('Approved')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
             </div>
         </div>
+
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Checked By<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Checked By" ng-model="ModelNew.CheckedBy" class="form-control" required tabindex="2" maxlength="10">
+                <div class="input-group">
+                    <span class="input-group-addon">{{ModelNew.CheckedByCode}}</span>
+                    <input type="text" name="Chaired By" ng-model="ModelNew.CheckedBy" class="form-control" required readonly>
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="showEmployeeListPopUp('Checked')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
             </div>
         </div>
 
-        
-     
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Waste<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Waste" ng-model="ModelNew.Waste" class="form-control" required tabindex="2" maxlength="150">
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Purpose</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select id="Department" class="form-control" ng-model="ModelNew.Purpose" name="IssueStatus<" tabindex="6" required>
-                        <option value="Active">Production</option>
-                        <option value="InProgress">Sales</option>
+                        <option value="Production">Production</option>
+                        <option value="Sales">Sales</option>
                     </select>
                 </div>
             </div>
         </div>
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
-                </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker ng-model="ModelNew.Date" e-value="FromDate" e-width="100%" />
             </div>
+        </div>
 
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="50" tabindex="6"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="150" tabindex="6"></textarea>
             </div>
         </div>
 
     </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="row">
+            <div id="wasteInfoGrid" ej-grid e-datasource="WasteDetailDataList"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="margin-top:10px;">
+                <div e-columns>
+                    <div e-column e-headertext="" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplates" e-textalign="center" e-width="30"></div>
+                    <div e-column e-field="Id" e-headertext="Id" e-width="60"></div>
+                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                    <div e-column e-field="WasteCategory" e-headertext="Waste Category" e-width="80"></div>
+                    <div e-column e-field="WasteSubCategory" e-headertext="Waste Sub Category" e-width="80"></div>
+                    <div e-column e-field="WasteName" e-headertext="Waste Name" e-width="80"></div>
+                    <div e-column e-field="UOM" e-headertext="UOM" e-width="80"></div>
+                    <div e-column e-field="StockQty" e-headertext="Stock Quantity" e-width="80"></div>
+                    <div e-column e-field="StdRate" e-headertext="Standard Rate" e-width="80"></div>
+                    <div e-column e-field="StdValue" e-headertext="Standard Value" e-width="80"></div>
+                    <div e-column e-headertext="Issue Quantity" e-template="#issueQuantityTemp" e-width="80"></div>
+                    <div e-column e-headertext="Balance Stock" e-template="#balanceStockTemp" e-width="80"></div>
+                    <div e-column e-headertext="Rate" e-template="#rateTemp" e-width="80"></div>
+                    <div e-column e-headertext="Issue Value" e-template="#issueValueTemp" e-width="80"></div>
+                    <div e-column e-headertext="Process" e-template="#processTemp" e-width="200"></div>
+                    <div e-column e-headertext="Remarks" e-template="#remarksTemp" e-width="100"></div>
+                    <div e-column e-template="#balanceStkValueTemp" e-headertext="Balance Stock Value" e-width="100"></div>
+                    <div e-column e-template="#otherStkValueTemp" e-headertext="Other Stock Value" e-width="100"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/template" id="checkboxTemplates">
+        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
+    </script>
+
+    @*<script type="text/x-jsrender" id="headerTemplate">
+
+            <input type="checkbox" id="headchk" />
+        </script>*@
+
+    <script type="text/template" id="issueQuantityTemp">
+        <input type="text" ng-model="data.IssueQty" ng-change="$parent.ShowpIssueQuantityCal(this)" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="rateTemp">
+        <input type="text" ng-model="data.Rate" ng-change="$parent.ShowpIssueQuantityCal(this)" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="processTemp">
+        <div class="form-group" show-errors>
+            <div class="col-sm-12 show-message">
+                <div class="input-group">
+                    <input type="text" name="Process" ng-model="data.Process" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="$parent.ShowpProcessPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </script>
+
+    <script type="text/template" id="remarksTemp">
+        <input type="text" ng-model="data.Remarks" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="issueValueTemp">
+        <input type="text" ng-model="data.IssueValue" ng-disabled="true" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="balanceStockTemp">
+        <input type="text" ng-model="data.BalanceStock" ng-disabled="true" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="balanceStkValueTemp">
+        <input type="text" ng-model="data.BalanceStkValue" ng-disabled="true" style="color:black; text-align:center" />
+    </script>
+
+    <script type="text/template" id="otherStkValueTemp">
+        <input type="text" ng-model="data.otherStkValue" ng-disabled="true" style="color:black; text-align:center" />
+    </script>
+
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -71,42 +181,9 @@
             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
-    <div class="row">
-        <div id="budCh" ej-grid e-datasource="SelBudList"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="margin-top:10px;">
-            <div e-columns>
-                <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
-                <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
-                <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
-                <div e-column e-field="Plant" e-headertext="Plant" e-width="100"></div>
-                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
 
-            </div>
-        </div>
-    </div>
 </div>
-@*<div class="row text-right aplos-grid-toggle">
-        <div class="col-xs-12 col-sm-12 col-sm-12">
-            <div class="search-form">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-3 col-md-3">
-                        <div class="select-style">
-                            <select ng-model="searchBy">
-                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-7 col-md-7">
-                        <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
-                    </div>
-                    <div class="col-xs-12 col-sm-2 col-md-2">
-                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>*@
+
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -126,128 +203,85 @@
         </div>
     </div>
 </div>
-<confirm-modal></confirm-modal>
 
-
-@*<div class="modal fade site-modal in" id="Budget" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button class="close" data-dismiss="modal">&times;</button>
-                    <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Budget</h1>
-                </div>
-                <div class="modal-body" style="min-height:300px; min-width:100%;">
-                    <div class="row" style="margin: 20px; font-style:italic"> </div>
-                    <p style="margin:10px;">
-                        Select The Budgets .
-                    <p>
-
-                        <div id="getBudgets" ej-grid e-datasource="BudgetList" e-templaterefresh="refreshTemplate"
-                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                             e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
-                             e-recorddoubleclick="doubleBudget">
-                            <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-                                <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
-                                <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
-                                <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
-                                <div e-column e-field="Plant" e-headertext="Plant" e-width="100"></div>
-                                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-
-                            </div>
-                        </div>
-
-
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-
-        </div>
-    </div>*@
-
-@*<div class="modal fade site-modal in" id="Budget" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button class="close" data-dismiss="modal">&times;</button>
-                    <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Budget</h1>
-                </div>
-                <div class="modal-body" style="min-height:300px; min-width:100%;">
-                    <div class="row" style="margin: 20px; font-style:italic"> </div>
-                    <p style="margin:10px;">
-                        Select The Budget by Double Clicking the Choice.
-                    <p>
-
-                        <div id="getBudget" ej-grid e-datasource="BudgetList"
-                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                             e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
-                             e-recorddoubleclick="doubleBudget">
-                            <div e-columns>
-                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
-                                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-                                <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
-                                <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
-                                <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
-                                <div e-column e-field="Plant" e-headertext="Plant" e-width="100"></div>
-                                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-
-                            </div>
-                        </div>
-
-
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-
-        </div>
-    </div>*@
-<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>
-
-<div class="modal fade site-modal in" id="BudgetPop" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
+<div class="modal fade site-modal in" id="processPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">Budget List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Please Select All the Budgets.</p>
-                        <div style="color:black;" id="GridBudget" ej-grid e-datasource="BudgetList"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
-                            <div e-columns>
-                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
-                                <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
-                                <div e-column e-field="Position" e-headertext="Position" e-width="120"></div>
-                                <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
-                                <div e-column e-field="Plant" e-headertext="Plant" e-width="100"></div>
-                                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-
+            <div class="modal-header">Process<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="processPopUpParameters.searchBy">
+                                                <option ng-repeat="option in processSearchList | orderBy:'name'" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="processPopUpParameters.search" ng-enter="getProcessData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getProcessData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
                             </div>
-
                         </div>
-                        <script type="text/template" id="checkboxTemplate">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
-                        </script>
-
-
-
                     </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="selectBudDetail();" class="btn"><i class=""></i> Select</button>
-                            <button ng-click="closeBudPopUp();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
-
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    @*<th>Select</th>*@
+                                    <th>Sequence</th>
+                                    <th>Code</th>
+                                    <th>Short Name</th>
+                                    <th>Standard Name</th>
+                                    <th>User Name</th>
+                                    <th>Production Process</th>
+                                    <th>Process Routing</th>
+                                    <th>Locked</th>
+                                    <th>Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in processPopUpDataList|itemsPerPage:processPopUpParameters.pageSize" ng-dblclick="processAdd(x);"
+                                    total-items="processPopUpParameters.total_count" pagination-id="metaData.name + 'processPopUpList'">
+                                    @*<td>
+                                            <div class="checkbox-site">
+                                                <label class="control-label">
+                                                    <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>*@
+                                    <td>{{x.Sequence}}</td>
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.StandardName}}</td>
+                                    <td>{{x.UserName}}</td>
+                                    <td>{{x.IsProductionProcess?'Yes':'No'}}</td>
+                                    <td>{{x.IsProcessRouting?'Yes':'No'}}</td>
+                                    <td>{{x.IsLocked?'Yes':'No'}}</td>
+                                    <td>{{x.Active?'Yes':'No'}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'processPopUpList'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getProcessData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button type="button" class="btn btn-default" ng-click="closeProcessPopUp();">Cancel</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -298,3 +332,86 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="employeePopUps" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Entity</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-dblclick="selectEmployeePopUp($index, x)" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB | dateFiltering}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.EmploymentType}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<confirm-modal></confirm-modal>
+
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>
