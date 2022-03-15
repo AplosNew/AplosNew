@@ -443,6 +443,7 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.detailDataList = response.data;
+                        console.log($scope.detailDataList);
                     }
                 },
                 function errorCallback(response) {
