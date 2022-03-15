@@ -237,16 +237,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                     throw new Exception("Plant is missing [Emp]" + sEmployeeSysID);
                 }
 
-                if (sSlrHD == "SHD202062")
-                {
-
-                }
-
-                //if(DisbCur==0)
-                //{
-                //    EntCur = 0;
-                //    DefCur = 0;
-                //}
 
                 ParaSalaryProcess ob_sp = new ParaSalaryProcess();
                 ob_sp.AcltExcDisbSlrHDAmt = AcltExcDisbSlrHDAmt;
@@ -875,22 +865,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 List<EmployeeWeekOffOriginal> dicWeekOffOriginal = new List<EmployeeWeekOffOriginal>();
                                 if (dsWeekOffCount.Tables[0].Rows.Count > 0)
                                     dicWeekOffOriginal = dsWeekOffCount.Tables[0].ToList<EmployeeWeekOffOriginal>();
-                                #endregion
-
-                                #region Holiday as Payday count
-                                //DataSet dsWHCount = null;
-                                //GetWHCount(sEmpSysIDColl, para.FromDate, para.ToDate, para.PlantId, out dsWHCount);
-                                //List<EmployeeWHCount> dicWHCount = new List<EmployeeWHCount>();
-                                //if (dsWHCount.Tables[0].Rows.Count > 0)
-                                //    dicWHCount = dsWHCount.Tables[0].ToList<EmployeeWHCount>();
-
-
-                                //DataSet dsHolidayAsPaydayPolicy = null;//999
-                                //GetHolidayPaydaySalaryHeadPolicy(sEmpSysIDColl, out dsHolidayAsPaydayPolicy);
-                                //List<HolidayPaydaySHead> dicHolidayAsPaydayPolicy = new List<HolidayPaydaySHead>();
-                                //if (dsHolidayAsPaydayPolicy.Tables[0].Rows.Count > 0)
-                                //    dicHolidayAsPaydayPolicy = dsHolidayAsPaydayPolicy.Tables[0].ToList<HolidayPaydaySHead>();
-                                #endregion
+                                #endregion                               
 
                                 //////Get Employee Information For Save Loop
                                 SendNotification("Fetching Employees");
@@ -1272,14 +1247,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                     ds = new DataSet();
                                     dtValue = new List<SPvalueHeadWise>();
-                                    ////dtValue = new DataTable();
-                                    ////dtValue.TableName = "TempTable";
-                                    ////dtValue.Columns.Add("EmpSystemID");
-                                    ////dtValue.Columns.Add("SalaryHeadID");
-                                    ////dtValue.Columns.Add("EntryCurrencyID");
-                                    ////dtValue.Columns.Add("EntryAmount");
-                                    ////dtValue.Columns.Add("EarningCurrencyID");
-                                    ////dtValue.Columns.Add("EarningAmount");
 
                                     dsDw = new DataSet();
                                     dtDw = new DataTable();
@@ -1493,9 +1460,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         }
                                         #endregion
 
-                                        //int HoliPayDayCount = 0;
-                                        //    GetHolidayAsPayday(dicWHCount, dicHolidayAsPaydayPolicy, _emp, "", out HoliPayDayCount);
-
+                                       
                                         #region OT entitlement
                                         //EmpSystemID
                                         DataView dvOTEN = new DataView(dsEmpOTEntitlement.Tables[0]);
@@ -1576,11 +1541,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                             #endregion Total Earning, Total Deduction & Net Payable CurrencyID
 
-                                            //int _child_salaryhead_seed = 0;
-                                            //clsSalaryReprocessUnit sru = new clsSalaryReprocessUnit();
-                                            //sru.CalculateHeadValue(para,dicLocal_Sub,AbsDay,DisbursedBtnMonth,TotWorkingDayWithHoli, intMonthNo,ref _child_salaryhead_seed, ref dtValue,ref dicSalaryHead,ref _childPK_seed_fromDB,ref _child_emp_seed,ref dicProcChild);
-
-                                            #region Save Child Main Part
+                                           #region Save Child Main Part
 
 
                                             int _child_salaryhead_seed = 0;
@@ -1692,16 +1653,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                     ///
                                                     var pEmployeeSysID = dicLocal_Sub[i].EmpInfoSystemID;
 
-
-
-                                                    var ss = dicLocal_Sub[i].SalaryHeadID;
-
-                                                    if (ss == "SHD20206")//SHD202023 SHD202065
-                                                    {
-
-                                                    }
-
-
+                                                    var ss = dicLocal_Sub[i].SalaryHeadID;                                                 
 
                                                     if (string.IsNullOrEmpty(sGNRApplicableMonthNo))
                                                     {
@@ -2277,47 +2229,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                     {
                                                                         IsAttdnBnsPamy = false;//continue for right slab
                                                                     }
-                                                                    //==========200528
-
-                                                                    #region DayType Collection
-                                                                    //if (sDayType == "P" || sDayType == "WP" || sDayType == "HP" || sDayType == "WHP" || sDayType == "HWP")
-                                                                    //{
-                                                                    //    sDayType = "Present";
-                                                                    //}
-                                                                    //else if (sDayType == "L" || sDayType == "WL" || sDayType == "HL" || sDayType == "WHL" || sDayType == "HWL")
-                                                                    //{
-                                                                    //    sDayType = "Late";
-                                                                    //}
-                                                                    //else if (sDayType == "A")
-                                                                    //{
-                                                                    //    sDayType = "Absent";
-                                                                    //}
-                                                                    //else if (sDayType == "LV" || sDayType == "LVP" || sDayType == "LVL" || sDayType == "WLV" || sDayType == "HLV" || sDayType == "WLVP" || sDayType == "HLVP" || sDayType == "WLVL" || sDayType == "HLVL" || sDayType == "WHLV" || sDayType == "HWLVP" || sDayType == "HWLVL" || sDayType == "WHLVP" || sDayType == "WHLVL" || sDayType == "HWLV")
-                                                                    //{
-                                                                    //    sDayType = "LV";
-                                                                    //}
-                                                                    //else if (sDayType == "MLV" || sDayType == "MLVP" || sDayType == "MLVL" || sDayType == "WMLV" || sDayType == "HMLV" || sDayType == "WMLVP" || sDayType == "HMLVP" || sDayType == "WMLVL" || sDayType == "HMLVL" || sDayType == "WHMLV" || sDayType == "" || sDayType == "WHMLVL" || sDayType == "HWMLV" || sDayType == "HWMLVP" || sDayType == "HWMLVL")
-                                                                    //{
-                                                                    //    sDayType = "MLv";
-                                                                    //}
-                                                                    //else if (sDayType == "w")
-                                                                    //{
-                                                                    //    sDayType = "WeekOff";
-                                                                    //}
-                                                                    //else if (sDayType == "H")
-                                                                    //{
-                                                                    //    sDayType = "HoliDay";
-                                                                    //}
-                                                                    //else if (sDayType == "WH")
-                                                                    //{
-                                                                    //    sDayType = "WeekOffHoliDay";
-                                                                    //}
-                                                                    #endregion DayType Collection
-                                                                    #region DayType Count Match With Employee DayStatus Count
-                                                                    
-                                                                    #endregion 
-
-                                                                    
+                                                                    //==========200528                                                                 
+                                                                                                                                        
                                                                 }//for
                                                             }//count
 
@@ -2986,10 +2899,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                         sApprovalType = "";
                                                         decOTHour = 0;
 
-
-                                                        //monir 190515
-                                                        //if (decOTPmtAmtTemp < decOTPmtAmt)
-                                                        //{ decOTPmtAmtTemp = decOTPmtAmt; }
 
                                                         sOverTimePmtPolicyMasterID = dicOTPol_Sub[i].OverTimePmtPolicyMasterID;
                                                         sOverTimePmtPolicyDetailsID = dicOTPol_Sub[i].ID;
@@ -5797,26 +5706,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             {
             }
         }//End Function 
-        void GetHolidayAsPayday(List<EmployeeWHCount> dicWHCount, List<HolidayPaydaySHead> dicHolidayPolicy, string EmpSystemId, string SalaryHeadId, out int PayDayCount)
-        {
-            try
-            {
-                PayDayCount = 0;
-                var C_Policy = dicHolidayPolicy.FindAll(x => x.EmpSystemID == EmpSystemId && x.SalaryHeadId == SalaryHeadId);
-                if (C_Policy.Count() > 0)
-                {
-                    var c_payday = dicWHCount.FindAll(x => x.EmpSystemID == EmpSystemId);
-                    if (c_payday.Count() > 0)
-                    {
-                        PayDayCount = c_payday[0].WHounted;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
         private void CreateMessage(FunctionPara para, DataSet ds, out string msg)
         {
             try

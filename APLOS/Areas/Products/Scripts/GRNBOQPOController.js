@@ -162,12 +162,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             $scope.productNew.CheckedBy = x.data.CheckedById;
             $scope.productNew.labelCheckAndApproved = 'To be checked by';
         }
-        getPartyPlantList();
+        getPartyPlantListBOQ();
         $scope.GetCurrencyExchangeRateList();
         $scope.hidePartyPopUp();
     };
 
-    function getPartyPlantList() {
+    function getPartyPlantListBOQ() {
         $scope.plantList = [];
         $http.get('Products/PurchaseOrder/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
             angular.forEach(response.data, function (item) {
@@ -607,9 +607,9 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                 else {
                                     ShowResult(response.data.Message, 'success');
                                     $scope.SaveButtonDisable = true;
-                                   /* $scope.setTabGRNList(1);*/
+                                    /* $scope.setTabGRNList(1);*/
                                     $scope.getDataList();
-                                   /* $scope.GRNListDetails();*/
+                                    /* $scope.GRNListDetails();*/
 
                                     $scope.productId = response.data.Id;
                                     $scope.productNew.Id = response.data.Id;
@@ -1205,4 +1205,320 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             click: $scope.onClickReportDownloadWord
         }
     }];
+
+    //#region Update of BOQ GRN PO
+    $scope.MasterGrid = function ($event) {
+        //debugger;
+        var x = $event;
+        var Id = x.data.Id;
+
+        //ClearFields();
+        $scope.productId = Id;
+        $scope.Action = 'Update';
+        $scope.ActionForEdit = 'Update';
+        $scope.POId1 = x.data.POID;
+        $scope.POID = x.data.POID;
+        $scope.product = $scope.products[$scope.index];
+        $scope.productNew = x.data;
+        $scope.productNew.NoteForAccounts = x.data.NoteForAccounts;
+        $scope.productNew.GRNDate = x.data.GRNDate1;
+        $scope.productNew.CheckedBy = x.data.CheckedBy;
+        $scope.AcceptanceId = x.data.PurchaseDocumentAcceptanceId;
+        $scope.AccDate = x.data.AcceptanceDate;
+        if ($scope.AcceptanceId === null || $scope.AcceptanceId === "" || $scope.AcceptanceId === undefined) {
+            $scope.status = 'PO';
+            $scope.productNew.PO = $scope.status;
+
+            $scope.tab1 = 1;
+            $scope.GetSavedPOList1BOQ(Id);
+        }
+        else {
+
+            $scope.status = 'Acceptance';
+            $scope.productNew.PO = $scope.status;
+            $scope.tab1 = 2;
+        }
+
+        getPartyPlantListBOQ();
+        getInventoryMaterialListBOQ(Id);
+        getServiceChargeListBOQ(Id);
+        $scope.GetAdvanceTaxInfoBOQ(Id);
+        $scope.productNew.TaxOptionAddiTax = 'Yes';
+        $scope.TotalSumAfterTCSBOQ();
+        $scope.ImagedataLoadBOQ(Id);
+        if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+            $scope.CheckedByStatusForNoti = false;
+            $scope.ApprovedByStatusForNoti = true;
+            $scope.productNew.CheckedBy = x.data.ApprovedById;
+        }
+        else if (!baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
+            $scope.CheckedByStatusForNoti = true;
+            $scope.ApprovedByStatusForNoti = true;
+            $scope.productNew.CheckedBy = x.data.CheckedById;
+        }
+
+        $scope.GetCheckedByAndApprovedBy1BoQ();
+
+
+        if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+
+            $scope.productNew.CheckedBy = x.data.ApprovedById;
+            $scope.productNew.labelCheckAndApproved = 'To be approved by';
+        }
+        else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
+
+            $scope.productNew.CheckedBy = x.data.CheckedById;
+            $scope.productNew.labelCheckAndApproved = 'To be checked by';
+        }
+        $scope.loadAcceptanceDetailBOQ();
+
+        if (!$rootScope.isCollapsed) $rootScope.toggle();
+
+    }
+    $scope.inventoryMaterialList = [];
+    $scope.sumORnot = false;
+    function getInventoryMaterialListBOQ(inveReveiveId) {
+        $scope.masterId5 = inveReveiveId;
+        $http.get($scope.path + 'GetInventoryMaterialListBOQ?inveReveiveId=' + inveReveiveId + '&POID=' + $scope.POID + '&AcceptanceId=' + $scope.AcceptanceId)
+            .then(function (response) {
+                $scope.inventoryMaterialList = [];
+                $scope.inventoryMaterialList = response.data.Rows;
+                $scope.POIDs = $scope.inventoryMaterialList.POId;
+                //$scope.productNew.CheckedBy = $scope.inventoryMaterialList[0].CheckedBy;
+                $scope.productNew.PODate = $scope.inventoryMaterialList[0].AddedDate;
+                checkSameValueInColumnListBOQ($scope.inventoryMaterialList, 'TransactionUoM');
+                getGrossAmountBOQ($scope.inventoryMaterialList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
+                $scope.GetMaterialTaxDataBOQ();
+            });
+    }
+    function getGrossAmountBOQ(list, key1, key2, key3, fieldName) {
+        $scope[fieldName] = 0;
+        for (var t = 0; t < baseService.arrayLength(list); t++) {
+            $scope[fieldName] += parseFloat(list[t][key1]);// + parseFloat(list[t][key2]) + parseFloat(list[t][key3]);
+        }
+    }
+    function checkSameValueInColumnListBOQ(list, fieldName) {
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            if (list[i][fieldName] === (i > 0 ? list[i - 1][fieldName] : list[i][fieldName]))
+                $scope.sumORnot = true;
+            else return $scope.sumORnot = false;
+        }
+    }
+    $scope.MaterialTaxList = [];
+    $scope.GetMaterialTaxDataBOQ = function () {
+        //debugger;
+        $scope.MaterialTaxList = [];
+        $http({
+            method: "GET",
+            url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + $scope.masterId5
+        }).then(function (response) {
+            $scope.MaterialTaxList = response.data;
+
+            for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
+                var linepk = $scope.inventoryMaterialList[i].InventoryReceiveDetailId;
+                var list = getMaterialtaxlistBOQ(linepk);
+                $scope.inventoryMaterialList[i].MaterialTaxList = list;
+            }
+        });
+    };
+    function getMaterialtaxlistBOQ(linepk) {
+        //debugger;
+        var result4 = [];
+        for (var i = 0; i < $scope.MaterialTaxList.length; i++) {
+            if ($scope.MaterialTaxList[i].PODetailId === linepk) {
+                result4.push($scope.MaterialTaxList[i]);
+            }
+        }
+        return result4;
+    }
+    function getServiceChargeListBOQ(inveReveiveId) {
+        $scope.masterId12 = inveReveiveId;
+        //debugger;
+        $http.get($scope.path + 'GetServiceChargeList?receiveId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.chargesList = [];
+                $scope.chargesList = response.data;
+                $scope.getServiceTaxListBOQ();
+
+            });
+    }
+    $scope.getServiceTaxListBOQ = function () { //,data, flag)
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetServiceTaxList?serviceId=' + $scope.masterId12//data.Id
+        }).then(function (response) {
+            $scope.ServiceTaxList = response.data;
+            for (var i = 0; i < $scope.chargesList.length; i++) {
+                var linepk1 = $scope.chargesList[i].Id;
+                var list11 = getServicetaxlist1BOQ(linepk1);
+                $scope.chargesList[i].ServiceTaxList = list11;
+            }
+        });
+    }
+    function getServicetaxlist1BOQ(linepk111) {
+        //debugger;
+        var result11 = [];
+        for (var i = 0; i < $scope.ServiceTaxList.length; i++) {
+            if ($scope.ServiceTaxList[i].InventoryServiceId === linepk111) {
+                result11.push($scope.ServiceTaxList[i]);
+            }
+        }
+        return result11;
+    }
+    $scope.advanceTaxesList = [];
+    $scope.GetAdvanceTaxInfoBOQ = function (Id) {
+
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/InventoryReceive/GetAdvanceTaxInfo?InventoryReceiveId=' + Id,
+        }).then(function successCallback(response) {
+            $scope.advanceTaxesList = response.data;
+
+        });
+    }
+    $scope.TotalSumAfterTCSBOQ = function () {
+
+        if ($scope.Action === 'Save') {
+            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+        }
+        else {
+            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+        }
+    }
+    $scope.Imagedata = [];
+    $scope.ImagedataLoadBOQ = function () {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/InventoryReceive/GRNDocumentMapData?POID=' + $scope.productNew.Id,
+        }).then(function successCallback(response) { //datagatefun
+            $scope.Imagedata = response.data;
+
+        });
+    };
+    $scope.checkedByList = [];
+    $scope.GetCheckedByAndApprovedBy1BoQ = function () {
+        if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
+            $http({
+                method: 'GET',
+                url: 'Products/InventoryReceive/GetCheckedByAndApprovedBY?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.checkedByList = response.data;
+            });
+        }
+        else {
+
+        }
+
+    }
+    $scope.loadAcceptanceDetailList = [];
+    $scope.loadAcceptanceDetailBOQ = function () {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: 'Products/GoodsReceiveNote/LoadAcceptanceDetails?AcceptanceId=' + $scope.AcceptanceId,
+        }).then(function successCallback(response) {
+
+
+            $scope.loadAcceptanceDetailList = response.data;
+
+            $scope.productNew.InvoicingPartyPlantId = $scope.loadAcceptanceDetailList[0].InvoicingPartyPlantId;
+            $scope.productNew.InvoicingByName = $scope.loadAcceptanceDetailList[0].InvoicingBy;
+            $scope.productNew.InvoicingPartyPlantId = $scope.loadAcceptanceDetailList[0].InvoicingPartyPlantId;
+            $scope.productNew.InvoicingPartyPlantId = $scope.loadAcceptanceDetailList[0].InvoicingPartyPlantId;
+            $scope.productNew.InvoicingByAddress = $scope.loadAcceptanceDetailList[0].InvoicingByAddress;
+
+            $scope.productNew.DeliveryPartyPlantId = $scope.loadAcceptanceDetailList[0].DeliveryPartyPlantId;
+            $scope.productNew.DeliveryByName = $scope.loadAcceptanceDetailList[0].DeliveryBy;
+            $scope.productNew.DeliveryPartyPlantId = $scope.loadAcceptanceDetailList[0].DeliveryPartyPlantId;
+            $scope.productNew.DeliveryPartyPlantId = $scope.loadAcceptanceDetailList[0].DeliveryPartyPlantId;
+            $scope.productNew.DeliveryByAddress = $scope.loadAcceptanceDetailList[0].DeliveryByAddress;
+            $scope.productNew.ToCurrencyRate = $scope.loadAcceptanceDetailList[0].AcceptanceRate;
+            $scope.productNew.CurrencyId = $scope.loadAcceptanceDetailList[0].CurrencyId;
+
+            $scope.productNew.PartyName = $scope.loadAcceptanceDetailList[0].PartyName;
+            $scope.productNew.DocRefNo = $scope.loadAcceptanceDetailList[0].DocRefNo;
+            $scope.productNew.DocDate = $scope.loadAcceptanceDetailList[0].DocDate;
+            $scope.productNew.CurrencyId = $scope.loadAcceptanceDetailList[0].CurrencyId;
+            $scope.productNew.ToCurrencyRate = $scope.loadAcceptanceDetailList[0].AcceptanceRate;
+            $scope.productNew.VoucherId = $scope.loadAcceptanceDetailList[0].VoucherId;
+            $scope.productNew.InvoiceNo = $scope.loadAcceptanceDetailList[0].InvoiceNo;
+            $scope.productNew.InvoiceDate = $scope.loadAcceptanceDetailList[0].InvoiceDate;
+            $scope.productNew.DueDate = $scope.loadAcceptanceDetailList[0].DueDate;
+            $scope.productNew.PurchaseLCId = $scope.loadAcceptanceDetailList[0].LCANo;
+            $scope.productNew.LCDate = $scope.loadAcceptanceDetailList[0].LCDate;
+            $scope.productNew.ContractId = $scope.loadAcceptanceDetailList[0].ContractId;
+
+            $scope.productNew.AcceptancePaymentSource = $scope.loadAcceptanceDetailList[0].AcceptancePaymentSource;
+            $scope.productNew.PartyId = $scope.loadAcceptanceDetailList[0].PartyId;
+            $scope.productNew.partySearchByList = $scope.loadAcceptanceDetailList[0].PartyId;
+            //$scope.productId = "";
+            $scope.AcceptanceId = $scope.AcceptanceId;
+            getPartyPlantListBOQ();
+            //getPartyPlantEditList();
+            GetInventoryMaterialListByPOBOQ(id1, $scope.AcceptanceId);
+            getServiceChargeListPOBOQ(id1);
+            $scope.productNew.PO = $scope.status;
+            if ($scope.loadAcceptanceDetailList[0].IsNonCreditable === 'Yes') {
+                $scope.productNew.IsNonCreditable = true;
+
+            }
+            else {
+                $scope.productNew.IsNonCreditable = false;
+
+
+            }
+        });
+    }
+    $scope.inventoryMaterialListPO = [];
+    function GetInventoryMaterialListByPOBOQ(inveReveiveId) {
+        //debugger;
+        $scope.masterId = inveReveiveId;
+        $http.get($scope.path + 'GetInventoryMaterialListByOnlyPO?inveReveiveId=' + inveReveiveId + '&AcceptanceId=' + $scope.AcceptanceId)
+            .then(function (response) {
+                $scope.inventoryMaterialListPO = [];
+                $scope.inventoryMaterialListPO = response.data.Rows;
+                $scope.POID = $scope.inventoryMaterialListPO.POID;
+                $scope.PreBal = $scope.inventoryMaterialListPO.Balance;
+                $scope.PODetailsID = $scope.inventoryMaterialListPO.InventoryReceiveDetailId;
+                $scope.productNew.InvoicingByAddress = $scope.inventoryMaterialListPO[0].InvoicingByAddress;
+                $scope.productNew.DeliveryByAddress = $scope.inventoryMaterialListPO[0].DeliveryByAddress;
+                $scope.inventoryMaterialListPO.BaseAmount = '0';
+                checkSameValueInColumnListBOQ($scope.inventoryMaterialListPO, 'TransactionUoM');
+                getGrossAmountBOQ($scope.inventoryMaterialListPO, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
+                $scope.GetPOMaterialTaxData();
+            });
+    }
+    $scope.chargesListPO = [];
+    function getServiceChargeListPOBOQ(inveReveiveId) {
+        $scope.inveReveiveId = inveReveiveId;
+        $http.get($scope.path + 'GetServiceChargeListPO?receiveId=' + inveReveiveId + '&AcceptanceId=' + $scope.AcceptanceId)
+            .then(function (response) {
+                $scope.chargesListPO = [];
+                $scope.chargesListPO = response.data;
+                $scope.GetPOServiceTaxData();
+            });
+    }
+    $scope.GetSavedPOListNew = [];
+    $scope.GetSavedPOList1BOQ = function (Id) {
+        //debugger;
+        var PoType = 'PO';
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/GoodsReceiveNote/GetSavedPOList?GRNId=' + Id,
+        }).then(function successCallback(response) {
+            //$scope.GetSavedPOListNew = [];
+            $scope.GetSavedPOListNew = response.data;
+            for (var i = 0; i < $scope.GetSavedPOListNew.length; i++) {
+                $scope.GriddataSelected.push($scope.GetSavedPOListNew[i]);
+            }
+
+        });
+    };
+    //#endregion
 }

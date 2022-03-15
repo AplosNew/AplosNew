@@ -26,6 +26,7 @@ function DailyAttendanceReportController(commonMessage, $scope, $rootScope, base
     $scope.IsWithLine = false;
     $scope.previousDay = null;
     $scope.GetList = [];
+  
     $scope.getData = function () {
         $http({
             method: 'GET',
@@ -173,68 +174,69 @@ function DailyAttendanceReportController(commonMessage, $scope, $rootScope, base
 
     $scope.AttendanceDailyStatusReport = function () {
         try {
-            $scope.fileName = "DailyAttendanceStatus.xls";
-            var parameters = [];
-            var gridObj = $("#empInfoGrid").data("ejGrid");
-            var filteredRecords = gridObj.getFilteredRecords();
-            if (filteredRecords.length == 0) {
-                filteredRecords = $scope.GetList;
-            }
+                $scope.fileName = "DailyAttendanceStatus.xls";
+                var parameters = [];
+                var gridObj = $("#empInfoGrid").data("ejGrid");
+                var filteredRecords = gridObj.getFilteredRecords();
+                if (filteredRecords.length == 0) {
+                    filteredRecords = $scope.GetList;
+                }
 
-            parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
-            parameters.push({ "Key": "DepartmentId", "Value": getString(filteredRecords, "DepId") });
-            parameters.push({ "Key": "DesignationId", "Value": getString(filteredRecords, "DesignationId") });
-            parameters.push({ "Key": "EmpCategoryId", "Value": getString(filteredRecords, "EmpCategoryId") });
-            parameters.push({ "Key": "SectionId", "Value": getString(filteredRecords, "SecId") });
-            parameters.push({ "Key": "SubSectionId", "Value": getString(filteredRecords, "SubSecId") });            
-            parameters.push({ "Key": "LineId", "Value": getString(filteredRecords, "LineId") });
-            parameters.push({ "Key": "JobLocation", "Value": getString(filteredRecords, "JobLocationId") });
+                parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
+                parameters.push({ "Key": "DepartmentId", "Value": getString(filteredRecords, "DepId") });
+                parameters.push({ "Key": "DesignationId", "Value": getString(filteredRecords, "DesignationId") });
+                parameters.push({ "Key": "EmpCategoryId", "Value": getString(filteredRecords, "EmpCategoryId") });
+                parameters.push({ "Key": "SectionId", "Value": getString(filteredRecords, "SecId") });
+                parameters.push({ "Key": "SubSectionId", "Value": getString(filteredRecords, "SubSecId") });
+                parameters.push({ "Key": "LineId", "Value": getString(filteredRecords, "LineId") });
+                parameters.push({ "Key": "JobLocation", "Value": getString(filteredRecords, "JobLocationId") });
 
-            var enttyList = parameters[0].Value;
-            var departmentList = parameters[1].Value;
-            var designationList = parameters[2].Value;
-            var empCategoryList = parameters[3].Value;
-            var sectionList = parameters[4].Value;
-            var subSectionList = parameters[5].Value;
-            var lineList = parameters[6].Value;
-            var JobLocation = parameters[7].Value;
+                var enttyList = parameters[0].Value;
+                var departmentList = parameters[1].Value;
+                var designationList = parameters[2].Value;
+                var empCategoryList = parameters[3].Value;
+                var sectionList = parameters[4].Value;
+                var subSectionList = parameters[5].Value;
+                var lineList = parameters[6].Value;
+                var JobLocation = parameters[7].Value;
 
-            var DropDownListObj = $("#AttendanceDayStatusList").data("ejDropDownList");
-            var dayStatus = DropDownListObj.getSelectedValue();
+                var DropDownListObj = $("#AttendanceDayStatusList").data("ejDropDownList");
+                var dayStatus = DropDownListObj.getSelectedValue();
 
-            var DropDownListObj = $("#ShiftList").data("ejDropDownList");
-            var shiftList = DropDownListObj.getSelectedValue();
-            if (dayStatus == "" || dayStatus == '') {
-                for (var i = 0; i < $scope.AttendanceDayStatusList.length; i++) {
-                    if (i < $scope.AttendanceDayStatusList.length - 1) {
-                        dayStatus += $scope.AttendanceDayStatusList[i].Value + ",";
+                var DropDownListObj = $("#ShiftList").data("ejDropDownList");
+                var shiftList = DropDownListObj.getSelectedValue();
+                if (dayStatus == "" || dayStatus == '') {
+                    for (var i = 0; i < $scope.AttendanceDayStatusList.length; i++) {
+                        if (i < $scope.AttendanceDayStatusList.length - 1) {
+                            dayStatus += $scope.AttendanceDayStatusList[i].Value + ",";
+                        }
+                        else {
+                            dayStatus += $scope.AttendanceDayStatusList[i].Value;
+                        }
+                    }
+
+                }
+                $http({
+                    method: 'POST',
+                    url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+                    data: {
+                        'workDate': $scope.effectiveDate, 'Entity': enttyList
+                        , 'Dept': departmentList, 'designationList': designationList
+                        , 'empCategoryList': empCategoryList, 'Sec': sectionList
+                        , 'SSec': subSectionList, 'lineList': lineList
+                        , 'dayStatus': dayStatus, 'shift': shiftList
+                        , 'Ydate': $scope.previousDay, 'WithFatherName': $scope.WithFatherName
+                        , 'JobLocation': JobLocation, 'IsWithLine': $scope.IsWithLine
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
                     }
                     else {
-                        dayStatus += $scope.AttendanceDayStatusList[i].Value;
+                        $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
                     }
-                }
-
-            }
-            $http({
-                method: 'POST',
-                url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
-                data: {
-                    'workDate': $scope.effectiveDate, 'Entity': enttyList
-                    , 'Dept': departmentList, 'designationList': designationList
-                    , 'empCategoryList': empCategoryList, 'Sec': sectionList
-                    , 'SSec': subSectionList, 'lineList': lineList
-                    , 'dayStatus': dayStatus, 'shift': shiftList
-                    , 'Ydate': $scope.previousDay, 'WithFatherName': $scope.WithFatherName
-                    , 'JobLocation': JobLocation, 'IsWithLine': $scope.IsWithLine
-                }
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                }
-            });
+                });
+           
         } catch (e) {
             ShowResult(e, 'failure');
         }

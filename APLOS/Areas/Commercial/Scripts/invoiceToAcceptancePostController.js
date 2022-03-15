@@ -1226,7 +1226,7 @@ function invoiceToAcceptancePostController(bankService, accountService, cboServi
     };
 
     $scope.report = function (voucherId) {
-        location.href = "accounts/invoice/VendorInvoicePaymentReport?voucherId=" + voucherId;
+        location.href = "Commercial/InvoiceToAcceptancePost/InvoiceToAcceptancePostReport?voucherId=" + voucherId;
     };
 
     cboService.getEnumCbo("enum/GetCboPaymentType", function (result) {
