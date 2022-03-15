@@ -717,6 +717,7 @@
     <Compile Include="Areas\Productions\Controllers\PrePackDefinitionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionGeneralReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinishedStockReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductiveAllowanceRateSetupController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAdjustmentController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAgeingReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteIssueController.cs" />
@@ -2053,6 +2054,7 @@
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductiveAllowanceRateSetupController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteIssueController.js" />
@@ -4040,6 +4042,9 @@
     <Content Include="Areas\Commercial\Views\InvoiceTaggedWithLC\InvoiceToAcceptancePost.cshtml" />
     <Content Include="Areas\Productions\Views\WasteIssue\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\InventoryIssue\inventoryIssueBOQ.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_Layout1.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_Layout2.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
