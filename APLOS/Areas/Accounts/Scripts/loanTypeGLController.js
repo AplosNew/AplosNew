@@ -776,6 +776,25 @@ function loanTypeGLController(cboService, commonMessage, $scope, $rootScope, bas
             $scope.chargesPayableActivityList = result;
         });
     };
+    //$scope.getData = function (pageno) {
+    //    baseService.pagination(pageno)
+    //        .then(function (result) {
+    //            $scope.costingSubCategoryList = result.Rows;
+
+    //        }, function () {
+    //            ShowResult(commonMessage.NetworkError, 'failure');
+    //        }).finally(function () {
+    //        });
+    //};
+    //$scope.getData();
+    $scope.searchByList = [{ name: 'Liability Type', value: 'LiabilityUserName' },
+        { name: 'Asset Type', value: 'AssetUserName' }
+  
+    //,{ name: 'Short Name', value: 'ShortName' },
+    //{ name: 'User Name', value: 'UserName' },
+    //    { name: 'Costing Segment', value: 'CostingSegment' }
+    ];
+
 
 
 
