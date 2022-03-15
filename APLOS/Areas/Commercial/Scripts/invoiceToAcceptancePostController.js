@@ -1,7 +1,7 @@
 ﻿"use strict";
 invoiceToAcceptancePostController.$inject = ["bankService", "accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
 function invoiceToAcceptancePostController(bankService, accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
-    $rootScope.title = "Payment";
+    $rootScope.title = "Acceptance Post";
     $scope.Action = "Save";
     $scope.index = -1;
     $scope.voucherList = [];
@@ -22,8 +22,8 @@ function invoiceToAcceptancePostController(bankService, accountService, cboServi
 
     baseService.init("Accounts/Invoice/GetInvoiceToAcceptancePostList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.url = "Accounts/Invoice";
-    $scope.postUrl = $scope.url + "/PostVendorPayment";
-    $scope.deleteUrl = $scope.url + "/DeleteWriteOff";
+    $scope.postUrl = $scope.url + "/PostInvoiceToAcceptance";
+    $scope.deleteUrl = $scope.url + "/DeleteInvoiceToAcceptance";
     $scope.voucher = {
         Id: null,
         PartyId: null,

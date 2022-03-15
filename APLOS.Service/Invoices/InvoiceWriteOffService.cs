@@ -3259,6 +3259,44 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+        public void PostInvoiceToAcceptance(string invoiceWriteOffId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var financing = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
+                CheckIsPosted(financing);
+
+                financing.IsPark = false;
+                AuditService.UpdatedLog(financing);
+                _invoiceWriteOffRepository.Update(financing);
+                _voucherService.PostVoucher(financing.VoucherId);
+                var grnBuilder = new System.Text.StringBuilder();
+                var buildergrnSql = @"UPDATE TRN.Invoice set IsPark =0 WHERE VoucherId='" + financing.VoucherId + "'";
+                grnBuilder.Append(buildergrnSql);
+                _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
 
         private static void CheckIsPosted(InvoiceWriteOff invoiceWriteOff)
         {
@@ -7290,6 +7328,85 @@ namespace Library.Service.Invoices
                     }
                     _adjustmentNoteRepository.Delete(adjustmentNote.Id);
                 }
+                _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        public void DeleteInvoiceToAcceptance(string invoiceWriteOffId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+                var invoiceWriteOff = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
+                var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
+                var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var invoicetds = _additionalTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+
+                foreach (var item in voucherdetail)
+                {
+                    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
+                    if (glTransactionDetail != null)
+                    {
+                        _voucherService.DeleteGLTransactionDetail(item.Id);
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+               
+                foreach (var item in invoiceWriteOffDetail)
+                {
+
+                    var invoice = _invoiceService.Find(item.InvoiceId);
+                    var invoiceDetail = _invoiceService.FindInvoiceDetail(item.InvoiceDetailId);
+                    invoiceDetail.WrittenOffAmount -= item.Amount;
+                    invoice.WrittenOffAmount -= item.Amount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+
+                    _invoiceService.UpdateInvoiceDetail(invoiceDetail);
+                    _invoiceService.Update(invoice);
+                    _invoiceWriteOffDetailRepository.Delete(item.Id);
+                }
+                _invoiceWriteOffRepository.Delete(invoiceWriteOffId);
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                vendorAdWrsql = @"delete from TRN.InvoiceDetail where InvoiceId in (select Id from TRN.Invoice  where VoucherId = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.Invoice  where VoucherId = '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+
                 _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;

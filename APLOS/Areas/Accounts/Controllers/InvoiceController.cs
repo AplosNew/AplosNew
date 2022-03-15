@@ -645,6 +645,19 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertInvoiceToAcceptancePost(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList)) });
         }
+        [HttpPost]
+        public ActionResult PostInvoiceToAcceptance(string invoiceWriteOffId)
+        {
+            _invoiceWriteOffService.PostInvoiceToAcceptance(invoiceWriteOffId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteInvoiceToAcceptance(string invoiceWriteOffId, string voucherId)
+        {
+            _invoiceWriteOffService.DeleteInvoiceToAcceptance(invoiceWriteOffId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
 
         [HttpPost]
         public ActionResult UpdateVendorPayment()
