@@ -620,7 +620,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult GetInvoiceToAcceptancePostList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_invoiceWriteOffService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorPayment), JsonRequestBehavior.AllowGet);
+            return Json(_invoiceWriteOffService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.InvoiceToAcceptance), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -631,20 +631,10 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            voucherVM.SourceType = SourceType.VendorPayment.ToString();
+            voucherVM.SourceType = SourceType.InvoiceToAcceptance.ToString();
             voucherVM.IsPark = true;
             if (voucherVM.CompanyCurrencyRate <= 0)
                 throw new CustomException("Please Input Rate.");
-            if ((voucherVM.PaymentSource == "Bank") && (voucherVM.BankMasterId == null))
-                throw new CustomException(Resources.SelectBank);
-            if ((voucherVM.PaymentSource == "Bank") && (voucherVM.BankAmount == 0))
-                throw new CustomException("Please input Bank Amount");
-            if ((voucherVM.PaymentSource == "Cash") && (voucherVM.CashMasterId == null))
-                throw new CustomException(Resources.SelectCash);
-            if ((voucherVM.PaymentSource == "Vendor") && (voucherVM.OtherPartyId == null))
-                throw new CustomException("Please select Vendor");
-            if ((voucherVM.PaymentSource == "Vendor") && (voucherVM.FinancingTypeId == null))
-                throw new CustomException("Please select transaction type");
 
             foreach (var advanceDetailVM in voucherDetailVMList)
             {

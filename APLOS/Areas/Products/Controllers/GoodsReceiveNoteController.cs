@@ -4957,6 +4957,12 @@ UNION ALL
             _inventoryService.InsertGraphNewBOQ(chargesListPO, POServiceTaxList, Id, AcceptanceId);
             return Json(new { Message = AplosMessage.Success });
         }
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialListBOQ(GridParameter parameters, string inveReveiveId, string POID, string AcceptanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.Query(parameters, inveReveiveId, POID, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
     }//
