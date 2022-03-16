@@ -874,6 +874,37 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+        public IEnumerable<object> QueryBOQ(string receiveId)
+        {
+            try
+            {
+                //var sql = @"SELECT A.Id, A.InventoryReceiveId, A.ServiceMasterId, B.UserName AS ServiceMasterName, A.Amount, A.TotalTaxAmount
+                //            FROM [TRN].[InventoryService] AS A JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id WHERE A.InventoryReceiveId='" + receiveId + "'";
+                var sql = @"SELECT A.Id
+                        , A.InventoryReceiveId
+                        , A.ServiceMasterId
+                        , B.UserName AS ServiceMasterName
+                         ,A.Amount Amount,A.Amount GRNServiceAmount
+                        , POT.Amount-A.Amount AS  Bal
+                        , POT.Amount As POAmount
+                        --, A.TotalTaxAmount
+                        ,A.POID
+						,A.POServiceId,IRT.TaxAmount TotalTaxAmount
+                        FROM [TRN].[InventoryService] AS A 
+                        JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
+                        left JOIN (select Id, Amount from TRN.POService) AS POT on A.POServiceId=POT.Id
+                        left join ( Select InventoryServiceId, sum(TaxAmount) TaxAmount from  trn.InventoryReceiveTax group by InventoryServiceId) IRT On IRT.InventoryServiceId=A.Id
+                        
+                        WHERE A.InventoryReceiveId='" + receiveId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
         public IEnumerable<object> QueryPurchaseReturnCharges(string receiveId) 
         {
             try
@@ -905,6 +936,70 @@ namespace Library.MaterialManagement.Inventory
             }
         }
         public IEnumerable<object> Query1(string receiveId,string AcceptanceId)
+        {
+            try
+            {
+                var sql = "";
+                if (receiveId != "null")
+                {
+                    string paramter = "";
+                    if (receiveId != "")
+                    {
+                        if (paramter == "")
+                            paramter += "A.InventoryReceiveId in(" + receiveId + ")";
+                        else
+                            paramter += " AND A.InventoryReceiveId in(" + receiveId + ")";
+                    }
+
+                     sql = @"SELECT A.Id, A.InventoryReceiveId
+                            , A.ServiceMasterId
+                            , B.UserName AS ServiceMasterName
+                            , A.Amount As POAmount
+                            --,A.Amount
+                            --, A.TotalTaxAmount
+                             ,POT.TaxAmount As POTaxAmount
+                             ,0 TotalTaxAmount
+                            --,TaxAmount
+                            ,null ChargeTaxList
+                            ,'True' enableid1
+                            ,GRNServiceAmount
+                            ,0 AS Amount
+                            ,AmountStatus
+                            FROM
+                            [TRN].[POService]
+                            AS A
+                           INner JOIN[HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id
+                           left JOIN (select InventoryServiceId, Sum(TaxAmount) as TaxAmount from TRN.PurchaseOrderTax group by InventoryServiceId) AS POT on A.id=POT.InventoryServiceId
+                           WHERE A.AmountStatus=0 AND  " + paramter + "";
+                }
+                else 
+                {
+                     sql = @"SELECT A.Id, A.PurchaseDocAcceptanceId
+                            , A.ServiceMasterId
+                            , B.UserName AS ServiceMasterName
+                            , A.Amount As POAmount                           
+                            ,POT.TaxAmount As TotalTaxAmount
+                            ,null ChargeTaxList
+                            ,'True' enableid1
+                            ,0 GRNServiceAmount
+                            ,(A.Amount-0) AS Amount
+                            ,0 AmountStatus
+                            FROM TRN.PurchaseDocAcceptanceService AS A
+                           INner JOIN[HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id
+                           left JOIN (select PurchaseDocAcceptanceId, Sum(TaxAmount) as TaxAmount from TRN.PurchaseDocAcceptanceTax group by PurchaseDocAcceptanceId) AS POT on A.PurchaseDocAcceptanceId=POT.PurchaseDocAcceptanceId
+                           WHERE A.PurchaseDocAcceptanceId='" + AcceptanceId + "'";
+                }
+                
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> Query1BOQ(string receiveId,string AcceptanceId)
         {
             try
             {

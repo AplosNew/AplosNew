@@ -13,12 +13,14 @@ namespace Library.MaterialManagement.Inventory
 		GridModel Querywithoutpo(GridParameter parameters, string inveReveiveId);
 
 		GridModel Query(GridParameter parameters, string inveReveiveId,string POID, string AcceptanceId); 
+		GridModel QueryBOQ(GridParameter parameters, string inveReveiveId,string POID, string AcceptanceId); 
          IEnumerable<object> GRNDetailsData( string inveReveiveId, string POID);
         //IEnumerable<object> JWGRNDetailsData(string inveReveiveId, string POID);
         IEnumerable<object> PurchaseReturnDetailsData(string PurchaseReturnId, string POID);
 
         GridModel Query1(GridParameter parameters, string inveReveiveId);
 		GridModel QueryOnlyPO(GridParameter parameters, string inveReveiveId,string AcceptanceId);
+		GridModel QueryOnlyPOBOQ(GridParameter parameters, string inveReveiveId,string AcceptanceId);
 		
         GridModel GetIssueMaterial(GridParameter parameters, string issueId,string companyId);
         GridModel GetPayableRejectMaterial(GridParameter parameters, string inveReveiveId);
