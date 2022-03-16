@@ -103,6 +103,7 @@
     <Compile Include="Production\GeneralWasteService.cs" />
     <Compile Include="Production\PackingMasterService.cs" />
     <Compile Include="Production\ProductionGeneralReportService.cs" />
+    <Compile Include="Production\ProductiveAllowanceRateSetupServices.cs" />
     <Compile Include="Production\StocksReportService.cs" />
     <Compile Include="ProformaInvoice\ProformaInvoice.cs" />
     <Compile Include="OrderControl\clsBOQUpload.cs" />

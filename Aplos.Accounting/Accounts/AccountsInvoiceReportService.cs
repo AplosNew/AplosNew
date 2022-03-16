@@ -2998,51 +2998,69 @@ namespace Library.Accounting.Accounts
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
             reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");
-            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());
             row++;
-
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
             reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");
-            reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
             row++;
-
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor");
             reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
-            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
             row++;
-
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
             reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
-            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
-
             row++;
-            colLast = companyCurrencyId == transcationCurrency ? 6 : 8;
-
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
             reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
+       
+            colLast = companyCurrencyId == transcationCurrency ? 6 : 8;
             sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
-            row++;
 
+
+            //colLast = companyCurrencyId == transcationCurrency ? 6 : 8;
+            //sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+        
+            row = 5;
             if (companyCurrencyId == transcationCurrency)
             {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");
+                reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());
+                row++;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");
+                reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
+                row++;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
+                reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
+                row++;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
+                reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
+                row++;
+                row++;
                 reportUtility.SetHeaderText(ref sheet, row, 5, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                 sheet[row, 5, row, 6].Merge();
                 sheet[row, 5, row, 6].BorderAround(ExcelLineStyle.Thin);
             }
             else
             {
+                reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Voucher Date");
+                reportUtility.SetText(ref sheet, row, 7, header["VoucherDate"].ToString());
+                row++;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 6, "DocDate");
+                reportUtility.SetText(ref sheet, row, 7, header["DocDate"].ToString());
+                row++;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Doc Ref");
+                reportUtility.SetText(ref sheet, row, 7, header["DocRefNo"].ToString());
+                row++;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Status");
+                reportUtility.SetText(ref sheet, row, 7, header["Status"].ToString());
+                row++;
+                row++;
                 reportUtility.SetHeaderText(ref sheet, row, 5, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
                 sheet[row, 5, row, 6].Merge();
+                sheet[row, 5, row, 6].BorderAround(ExcelLineStyle.Thin);
 
-                reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                reportUtility.SetHeaderText(ref sheet, row, 7, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                 sheet[row, 7, row, 8].Merge();
                 sheet[row, 7, row, 8].BorderAround(ExcelLineStyle.Thin);
             }
-
             row++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL", 20, ExcelHAlign.HAlignLeft);
             // reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); 
@@ -3163,8 +3181,8 @@ namespace Library.Accounting.Accounts
                     sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
                 }
 
-                sheet.Range[13, 1, row - 1, colLast].BorderInside(ExcelLineStyle.Hair);
-                sheet.Range[13, 1, row - 1, colLast].BorderAround(ExcelLineStyle.Hair);
+                //sheet.Range[13, 1, row - 1, colLast].BorderInside(ExcelLineStyle.Hair);
+                //sheet.Range[13, 1, row - 1, colLast].BorderAround(ExcelLineStyle.Hair);
 
                 row += 2;
                 reportUtility.SetText(ref sheet, row, 1, "In Word:", true);
@@ -3193,22 +3211,30 @@ namespace Library.Accounting.Accounts
                 sheet.Range[row, colGl].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 sheet[row, colGl].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 reportUtility.SetTextMiddle(ref sheet, row, colGl, "Prepared By", true);
-
-                reportUtility.SetSignatureText(ref sheet, row - 1, colParticulars - 1, header["PostedBy"].ToString());
-                sheet.Range[row, colParticulars - 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, colParticulars - 1, "Checked By", true);
-
-                sheet.Range[row, 6].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                if (companyCurrencyId != transcationCurrency)
+                {
+                    reportUtility.SetSignatureText(ref sheet, row - 1, colParticulars + 1, header["PostedBy"].ToString());
+                    sheet.Range[row, colParticulars + 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                    reportUtility.SetTextMiddle(ref sheet, row, colParticulars + 1, "Checked By", true);
+                }
+                else
+                {
+                    reportUtility.SetSignatureText(ref sheet, row - 1, colParticulars - 1, header["PostedBy"].ToString());
+                    sheet.Range[row, colParticulars - 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                    reportUtility.SetTextMiddle(ref sheet, row, colParticulars - 1, "Checked By", true);
+                }
+            
+                sheet.Range[row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, colLast, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, 6, header["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Invoice To Acceptance", companyId, plantId, plantName, null);
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
             }
             else
             {
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.CellStyle.Font.Size = 8;
-                reportUtility.CompanyPlantHeader(ref sheet, 5, header["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, 5, "Invoice To Acceptance", companyId, plantId, plantName, null);
                 reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
             }
             return workbook;

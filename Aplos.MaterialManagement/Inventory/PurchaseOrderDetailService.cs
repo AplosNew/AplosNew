@@ -3207,7 +3207,7 @@ namespace Library.MaterialManagement.Inventory
 
 							// insert in receive tax
 							//var list =
-							PurchaseOrderBOQQueryService purchaseOrderBOQQueryService =new PurchaseOrderBOQQueryService(_sqlRepository);
+							BOQQueryService purchaseOrderBOQQueryService =new BOQQueryService(_sqlRepository);
 							var list = purchaseOrderBOQQueryService.GetPOBOQTaxCategoryList(entity.CompanyGroupId, entity.InvoicingPartyPlantId, entity.PlantId, itemDetail.HSNCodeId);
 
 							if (list.IsNotNull())

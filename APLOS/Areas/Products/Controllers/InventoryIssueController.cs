@@ -30,6 +30,7 @@ using Syncfusion.Pdf;
 using Library.MaterialManagement.InventoryManagements;
 using Library.Accounting.Accounts;
 using Newtonsoft.Json;
+using Aplos.MaterialManagement.MaterialQuery;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -9666,6 +9667,14 @@ namespace Aplos.Areas.Products.Controllers
                 throw ex;
             }
 
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetSpecificMaterialStockBOQ(string pOId,string contractId,string masterOrderitemId,string salesOrderId, string issueDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
+            return Json(bOQQueryService.GetSpecificMaterialStockBOQ(identity.CompanyId, identity.PlantId, pOId, contractId, masterOrderitemId, salesOrderId, issueDate), JsonRequestBehavior.AllowGet);
         }
     }
 }
