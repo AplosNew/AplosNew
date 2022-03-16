@@ -1310,7 +1310,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.MaterialTaxList = [];
         $http({
             method: "GET",
-            url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + $scope.masterId5
+            url: $scope.path + 'GetReceiveTaxListBOQ?receiveDetailId=' + $scope.masterId5
         }).then(function (response) {
             $scope.MaterialTaxList = response.data;
 
@@ -1334,7 +1334,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     function getServiceChargeListBOQ(inveReveiveId) {
         $scope.masterId12 = inveReveiveId;
         //debugger;
-        $http.get($scope.path + 'GetServiceChargeList?receiveId=' + inveReveiveId)
+        $http.get($scope.path + 'GetServiceChargeListBOQ?receiveId=' + inveReveiveId)
             .then(function (response) {
                 $scope.chargesList = [];
                 $scope.chargesList = response.data;
@@ -1346,7 +1346,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
         $http({
             method: 'GET',
-            url: $scope.path + 'GetServiceTaxList?serviceId=' + $scope.masterId12//data.Id
+            url: $scope.path + 'GetServiceTaxListBOQ?serviceId=' + $scope.masterId12//data.Id
         }).then(function (response) {
             $scope.ServiceTaxList = response.data;
             for (var i = 0; i < $scope.chargesList.length; i++) {
@@ -1372,7 +1372,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/InventoryReceive/GetAdvanceTaxInfo?InventoryReceiveId=' + Id,
+            url: $scope.path + 'GetAdvanceTaxInfoBOQ?InventoryReceiveId=' + Id,
         }).then(function successCallback(response) {
             $scope.advanceTaxesList = response.data;
 
@@ -1392,7 +1392,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/InventoryReceive/GRNDocumentMapData?POID=' + $scope.productNew.Id,
+            url: $scope.path + 'GRNDocumentMapDataBOQ?POID=' + $scope.productNew.Id,
         }).then(function successCallback(response) { //datagatefun
             $scope.Imagedata = response.data;
 
@@ -1403,7 +1403,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
             $http({
                 method: 'GET',
-                url: 'Products/InventoryReceive/GetCheckedByAndApprovedBY?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
+                url: $scope.path +'GetCheckedByAndApprovedBYBOQ?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.checkedByList = response.data;
@@ -1420,7 +1420,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'Products/GoodsReceiveNote/LoadAcceptanceDetails?AcceptanceId=' + $scope.AcceptanceId,
+            url: 'Products/GoodsReceiveNote/LoadAcceptanceDetailsBOQ?AcceptanceId=' + $scope.AcceptanceId,
         }).then(function successCallback(response) {
 
 
@@ -1478,7 +1478,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     function GetInventoryMaterialListByPOBOQ(inveReveiveId) {
         //debugger;
         $scope.masterId = inveReveiveId;
-        $http.get($scope.path + 'GetInventoryMaterialListByOnlyPO?inveReveiveId=' + inveReveiveId + '&AcceptanceId=' + $scope.AcceptanceId)
+        $http.get($scope.path + 'GetInventoryMaterialListByOnlyPOBOQ?inveReveiveId=' + inveReveiveId + '&AcceptanceId=' + $scope.AcceptanceId)
             .then(function (response) {
                 $scope.inventoryMaterialListPO = [];
                 $scope.inventoryMaterialListPO = response.data.Rows;
@@ -1496,7 +1496,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.chargesListPO = [];
     function getServiceChargeListPOBOQ(inveReveiveId) {
         $scope.inveReveiveId = inveReveiveId;
-        $http.get($scope.path + 'GetServiceChargeListPO?receiveId=' + inveReveiveId + '&AcceptanceId=' + $scope.AcceptanceId)
+        $http.get($scope.path + 'GetServiceChargeListPOBOQ?receiveId=' + inveReveiveId + '&AcceptanceId=' + $scope.AcceptanceId)
             .then(function (response) {
                 $scope.chargesListPO = [];
                 $scope.chargesListPO = response.data;
@@ -1510,7 +1510,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/GoodsReceiveNote/GetSavedPOList?GRNId=' + Id,
+            url: 'Products/GoodsReceiveNote/GetSavedPOListBOQ?GRNId=' + Id,
         }).then(function successCallback(response) {
             //$scope.GetSavedPOListNew = [];
             $scope.GetSavedPOListNew = response.data;
@@ -1521,4 +1521,133 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         });
     };
     //#endregion
+
+    //#region Allocation Part 
+    $scope.Action1 = 'Save';
+    $scope.GRNAllowcationForSO = function (x, MaterialMasterId, InventoryReceiveDetailId, PODetailsID) {
+        $scope.Action1 = 'Update'
+        GRNAllowcationForSOListBOQ(x, MaterialMasterId, InventoryReceiveDetailId, PODetailsID);
+        angular.element(document.querySelector('#ListOfSoBoq')).modal('show');
+    };
+    $scope.ListOfSo = function () {
+        $scope.taxCategoryList = [];
+        angular.element(document.querySelector('#ListOfSoBoq')).modal('hide');
+    };
+    $scope.soList = [];
+    $scope.InventoryReceiveDetailId = '';
+    function GRNAllowcationForSOListBOQ(x, MaterialMasterId, InventoryReceiveDetailId, PODetailsID) {
+        //$scope.Action1 = 'Save';
+        $scope.InventoryReceiveDetailId = InventoryReceiveDetailId;
+        $http.get($scope.path + 'GetGRNDetailsForSoAllocationBOQ?InventoryReceiveDetailId=' + x)
+            .then(function (response) {
+                $scope.soList = response.data;
+                $scope.totalGRNVal = $scope.soList[0].GRNQty;
+                $scope.RejectionQty = $scope.soList[0].GRNRejectionQty;
+            });
+    }
+    $scope.soListNew = [];
+    $scope.GrnRequisitionAllocationSave = function () {
+        debugger;
+        try {
+            $scope.soListNew = [];
+            var totalGRNQty = 0;
+            var totalallowCatedQtyQty = 0;
+            var totalGRNQty1 = 0;
+            var totalallowCatedQtyQty1 = 0;
+            for (var i = 0; i < $scope.soList.length; i++) {
+
+                if ($scope.soList[i].Active === true) {
+                    var TotalSOQty = $filter('sumByKey')($filter('filter')($scope.soList), 'TransactionQty');
+                    var TotalRejectionQty = $filter('sumByKey')($filter('filter')($scope.soList), 'RejectionQty');
+                    if (TotalSOQty > $scope.totalGRNVal) {
+                        ShowResult('Allocated Qty can not grater than GRN Qty', 'failure', 'ListOfSoBoq');
+                        return false;
+                    }
+                    else if (TotalRejectionQty > $scope.RejectionQty) {
+                        ShowResult('Allocated Qty can not grater than Rejection Qty', 'failure', 'ListOfSoBoq');
+                        return false;
+                    }
+                    else if (baseService.isUndefinedOrNull($scope.soList[i].TransactionQty) || $scope.soList[i].TransactionQty === 0) {
+                        ShowResult('Enter the Qty', 'failure', 'ListOfSoBoq');
+                        return false;
+                    }
+                    else {
+                        $scope.soListNew.push($scope.soList[i]);
+                    }
+
+                    totalGRNQty += $scope.soList[i].TransactionQty;
+                    totalGRNQty1 += $scope.soList[i].RejectionQty;
+
+                }
+                else {
+                    totalallowCatedQtyQty += $scope.soList[i].allowCatedQty;
+                    totalallowCatedQtyQty1 += $scope.soList[i].RejectQty;
+                }
+
+                var res = totalGRNQty + totalallowCatedQtyQty;
+                var res1 = totalGRNQty1 + totalallowCatedQtyQty1;
+                if (res > $scope.totalGRNVal) {
+                    ShowResult('allocated qty can not grater than GRN Qty', 'failure', 'ListOfSoBoq');
+                    return false;
+                }
+                if (res1 > $scope.RejectionQty) {
+                    ShowResult('allocated qty can not grater than Rejection Qty', 'failure', 'ListOfSoBoq');
+                    return false;
+                }
+
+
+            }
+            if ($scope.soListNew.length === 0) {
+                ShowResult('Please select atlest one item', 'failure', 'ListOfSoBoq');
+                return false;
+            }
+            if ($scope.Action1 === 'Save') {
+                $http({
+                    method: 'POST',
+                    url: 'Products/GoodsReceiveNote/GrnRequisitionAllocationSaveBOQ',
+                    data: {
+                        entity: $scope.soListNew
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure', 'ListOfSoBoq');
+                    else {
+                        ShowResult(response.data.Message, 'success', 'ListOfSoBoq');
+                        GRNAllowcationForSOListBOQ($scope.InventoryReceiveDetailId);
+                        $scope.Action1 = "Update";
+                        //$scope.GetListForMasterOrder = [];
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure', 'ListOfSoBoq');
+                };
+
+            }
+            else if ($scope.Action1 === "Update") {
+                $http({
+                    method: 'POST',
+                    url: 'Products/GoodsReceiveNote/GrnRequisitionAllocationSaveBOQ',
+                    data: {
+                        entity: $scope.soListNew
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure', 'ListOfSoBoq');
+                    else {
+                        ShowResult(response.data.Message, 'success', 'ListOfSoBoq');
+                        GRNAllowcationForSOListBOQ($scope.InventoryReceiveDetailId);
+
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure', 'ListOfSoBoq');
+                };
+
+            }
+        } catch (e) {
+        }
+    };
+
+    //#endregion
+
 }
