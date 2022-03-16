@@ -164,6 +164,7 @@
                             <tr>
                                 <th>{{ColList[index+2].ColumnName}}</th>
                                 <th>Budget</th>
+                                <th>Deployment</th>
                                 <th>On Role</th>
                                 <th>In</th>
                                 <th>On Time In</th>
@@ -182,6 +183,7 @@
                             <tr ng-repeat="x in list">
                                 <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="setIndex(x);GetDetailDrillDownTableJS(x)">{{x.UserName}}</td>
                                 <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'BB')">{{x.BB}}</td>
+                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" >{{x.Dep}}</td>
                                 <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'OnRoll')">{{x.OnRoll}}</td>
                                 <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'OTIN')">{{x.OTIN}}</td>
                                 <td style="padding:2px; cursor:pointer;text-align:center" class="hoverItem" ng-click="TableClick(x,'InStat')">{{x.InStat}}</td>

@@ -1326,10 +1326,224 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        public IEnumerable<object> LoadAcceptanceDetailsBOQ(string AcceptanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var Sql = "";
+            try
+            {
 
+                Sql = @"--DECLARE @plantId VARCHAR(10)='20171';
+                            SELECT   Distinct PDA.Id AcceptanceId
+                                    ,IR.Id
+                                    ,CU1.Code
+                                    ,CU1.Id CurrencyId
+                                    ,PDA.AcceptanceRate
+                                    , REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+                                    , IR.CompanyGroupId
+                                    , IR.CompanyId
+                                    , IR.PlantId
+                                    , IR.PartyId
+                                    , P.Code AS PartyCode
+                                    , P.UserName AS PartyName
+                                    , CP.UserName AS PartyAccountGroupName
+                                    , IR.MaterialStorageId
+                                    , IR.DocRefNo
+                                    , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                                    , IR.CurrencyId
+                                    , CU.Code AS CurrencyCode
+                                    , IR.BaseCurrencyId
+                                    , IR.PaymentTermId
+                                    , IR.BaseNoOfDays
+                                    , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate
+                                    , REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+                                    , IR.FixedAssetOrInventory
+                                    , IR.PODepended
+                                    , IR.InvoicingPartyPlantId
+                                    , IPP.UserName AS InvoicingBy
+                                    , IR.InvoicingByAddress
+                                    , IR.DeliveryPartyPlantId
+                                    , DPP.UserName AS DeliveryBy
+                                    , IR.DeliveryByAddress
+                                    , IR.IsNonCreditable
+
+                                    , TU.TransactionUoMId
+                                    , UoM.UserName AS TransactionUoM
+
+                                    , IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState
+                                    ,S1.Id AS InvoicingStateId 
+                                    , S2.UserName AS DeliveryState
+                                    , PT.UserName AS PaymentTermName
+                                    , CP.TaxApplicable
+                                    , CP.IsTaxApplicableChangeable
+                                    , IR.IsTaxApplicable
+                                    , IR.IsApproved
+                                    , IR.IsPaymentHold
+                                    , SP.Id AS PlantStateId
+                                    ,IPP.UserName As InvoicingByName,PDA.AcceptanceDate
+                                    ,pgl.CtnId
+                                    , REPLACE(CONVERT(CHAR(11), PDA.EntryDate, 106),' ','-') AS EntryDate 
+                                    ,IR.PurchaseLCId
+                                    ,IR.ContractId
+	                                ,PDA.InvoiceNo
+									,REPLACE(CONVERT(CHAR(11), PDA.InvoiceDate, 106),' ','-') InvoiceDate
+									,REPLACE(CONVERT(CHAR(11), PDA.DueDate, 106),' ','-') DueDate
+                                    ,PDA.VoucherId
+									,PDA.AcceptancePaymentSource
+                                    ,Sum(PDAD.TransactionQty) TransactionQty
+                                    ,sum(PDAD.TransactionAmount) TransactionAmount
+									,PLC1.LCANo
+									,REPLACE(CONVERT(CHAR(11), PLC1.LCDate, 106),' ','-') LCDate ,IRD.POUoMId
+                                    FROM TRN.PurchaseDocAcceptance AS PDA
+                                    LEFT JOIN trn.PurchaseDocAcceptancePOMap PDAMAP ON PDAMAP.PurchaseDocAcceptanceId=PDA.Id
+                                    LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id= PDAMAP.POId
+                                    LEFT JOIN (select PurchaseDocAcceptanceId,Id, SUM(TransactionQty) TransactionQty ,Sum(MaterialTranAmount) TransactionAmount,Sum(MaterialTranAmount) BaseAmount 
+	                                    from TRN.PurchaseDocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId,Id
+	                                    ) PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
+                                    LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                                    LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable 
+                                    FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+                                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                                    LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                                    LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                                    LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                                    LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                                    LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                                    LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                                    LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                                    LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                                    LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+                                    LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+                                    LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+                                    LEFT JOIN (SELECT A.InventoryReceiveId,A.QtyStatus, A.BaseUOMId POUoMId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
+                                    JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + identity.PlantId + @"'  
+                                    GROUP BY A.InventoryReceiveId,A.QtyStatus,A.BaseUOMId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+                                    LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
+                                    WHERE B.PlantId='" + identity.PlantId + @"'  GROUP BY A.InventoryReceiveId, A.TransactionUoMId 
+                                    HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+                                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+                                    LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+                                    LEFT JOIN PurchaseLC PLC ON PLC.Id=PLC.CurrencyId
+									LEFT JOIN PurchaseLC PLC1 ON PLC1.Id=IR.PurchaseLCId
+                                    LEFT JOIN [SCS].[Currency] AS CU1 ON CU1.Id=CU.Id
+                                    WHERE --PDA.PlantId='" + identity.PlantId + @"'  AND
+									 PDA.VoucherId<>''
+                                    --AND PDA.Id not in(select PurchaseDocumentAcceptanceId from trn.InventoryReceive where PurchaseDocumentAcceptanceId is not null)
+                                    AND IR.IsClosed=0
+                                    AND IR.POType='PO'
+									and PDA.Id='" + AcceptanceId + @"'
+                                    GROUP BY
+                                    PDA.Id ,IR.Id
+                                    , IR.PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code 
+                                    , P.UserName , CP.UserName , IR.MaterialStorageId, IR.DocRefNo, IR.DocDate
+                                    , IR.CurrencyId, CU.Code, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+                                    , IR.BaseOnDueDate, IR.MatureDate, IR.FixedAssetOrInventory, IR.PODepended
+                                    , IR.InvoicingPartyPlantId, IPP.UserName , IR.InvoicingByAddress, IR.DeliveryPartyPlantId
+                                    , DPP.UserName , IR.DeliveryByAddress, IR.IsNonCreditable, TU.TransactionUoMId, UoM.UserName
+                                    , IR.ToCurrencyRate, S1.UserName ,S1.Id , S2.UserName , PT.UserName , CP.TaxApplicable
+                                    , CP.IsTaxApplicableChangeable, IR.IsTaxApplicable, IR.IsApproved, IR.IsPaymentHold, SP.Id
+                                    ,IPP.UserName ,PDA.AcceptanceDate,pgl.CtnId ,PDA.EntryDate,IR.PurchaseLCId,IR.ContractId
+                                    ,CU1.Code,CU1.Id,PDA.AcceptanceRate,PDA.VoucherId
+									,PDA.InvoiceNo
+									,PDA.InvoiceDate
+									,PDA.DueDate
+									,PDA.AcceptancePaymentSource,PLC1.LCANo,PLC1.LCDate,IRD.POUoMId
+                                    ORDER By IR.Id";
+
+
+
+
+                return _sqlRepository.GetDataCollection(Sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
 
         public IEnumerable<object> GetSavedPOList(string GRNId)
+        {
+            var Sql = "";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                Sql = @"SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+                        , CP.UserName AS PartyAccountGroupName
+                        , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                       
+                        , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+                        , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+                        , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
+                     
+                        , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+                       
+						, TU.TransactionUoMId, UoM.UserName AS TransactionUoM
+						 
+						, IR.ToCurrencyRate
+                        , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+                        , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+                        ,IPP.UserName As InvoicingByName
+                        ,pgl.CtnId
+						,0'Active',CU.Code Currency,IR.POType
+						,CON.UDNo,MLC.OpeningBank,Pr.UserName CustomerName,CON.ContractNo, PLC.LCRef LCNo
+						, Sum(IRD.TransactionQty) TransactionQty
+						, Sum(IRD.TransactionAmount) TransactionAmount
+						, Sum(IRD.BaseAmount) BaseAmount
+                        FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
+						LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId
+						left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+						LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId
+                        JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+                        LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+                        LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+                        LEFT JOIN (SELECT A.InventoryReceiveId,A.QtyStatus, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
+                        JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.InventoryReceiveId,A.QtyStatus) AS IRD ON IRD.InventoryReceiveId=IR.Id
+                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
+
+                        WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+                        LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+                        LEFT JOIN trn.POGGRNMap Aa ON Aa.POid=IR.Id
+                        WHERE IR.PlantId='" + identity.PlantId + @"'
+                        AND IR.IsClosed=0 --and IRD.QtyStatus=0  
+						AND (IR.POType='PO' OR IR.POType='POByReq') --AND pgl.CtnId is not null
+                        AND Aa.GRNID='" + GRNId + @"'
+                        Group BY REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code , P.UserName 
+                        , CP.UserName , IR.MaterialStorageId, IR.DocRefNo, DocDate             
+                        , IR.CurrencyId, CU.Code , IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+                        , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') , REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') 
+                        , IR.FixedAssetOrInventory, IR.PODepended,                     
+                        IR.InvoicingPartyPlantId, IPP.UserName , IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName , IR.DeliveryByAddress, IR.IsNonCreditable                       
+						, TU.TransactionUoMId, UoM.UserName ,IR.Id						 
+						, IR.ToCurrencyRate, S1.UserName ,S1.Id , S2.UserName , PT.UserName , CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+                        , IR.IsApproved, IR.IsPaymentHold, SP.Id,IPP.UserName ,pgl.CtnId, CU.Code, IR.POType,CON.UDNo,MLC.OpeningBank,Pr.UserName ,CON.ContractNo, PLC.LCRef ";
+
+                return _sqlRepository.GetDataCollection(Sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetSavedPOListBOQ(string GRNId)
         {
             var Sql = "";
             try
@@ -1738,6 +1952,30 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+
+        public IEnumerable<object> GetReceiveTaxListBOQ(string receiveDetailId)
+        {
+            try
+            {
+                //var sql = @"SELECT A.Id,A.InventoryReceiveDetailId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount,d.id As PODetailId
+                //            FROM [TRN].[InventoryReceiveTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
+                //            LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
+                //            WHERE A.InventoryReceiveDetailId='" + receiveDetailId + "' AND A.InventoryServiceId IS NULL ORDER BY TC.[Sequence]";
+                var sql = @"SELECT A.Id,A.InventoryReceiveDetailId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount,d.id As PODetailId
+                            FROM [TRN].[InventoryReceiveTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
+                            LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
+                            left join TRN.InventoryReceiveDetail d on d.id= A.InventoryReceiveDetailId
+                            WHERE A.InventoryReceiveId='" + receiveDetailId + "' AND A.InventoryServiceId IS NULL ORDER BY TC.[Sequence]";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
         public IEnumerable<object> GetReceiveTaxListPO(string receiveDetailId)
         {
             string paramter = "";
@@ -1804,7 +2042,28 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+        public IEnumerable<object> GetServiceTaxListBOQ(string serviceId)
+        {
+            try
+            {
+                //var sql = @"SELECT A.Id,A.InventoryServiceId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount,A.InventoryReceiveId,A.InventoryReceiveDetailId
+                //                        FROM [TRN].[InventoryReceiveTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
+                //                        LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
+                //                        WHERE A.InventoryServiceId='" + serviceId + "' AND A.InventoryReceiveDetailId IS NULL ORDER BY TC.[Sequence]";
+                var sql = @"SELECT A.Id,A.InventoryServiceId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
+				            FROM [TRN].[InventoryReceiveTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
+				            LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
+				            WHERE A.InventoryReceiveId='" + serviceId + "' AND A.InventoryReceiveDetailId IS NULL ORDER BY TC.[Sequence]";
 
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
         public IEnumerable<object> GetServiceTaxListPR(string serviceId)
         {
             try
@@ -16244,7 +16503,42 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
+        public IEnumerable<object> GetCheckedByAndApprovedBYBOQ(string CheckedBy, string ApprovedBy)
+        {
 
+            var sql = "";
+            try
+            {
+                //var DailySendMailRequisition = _notificationSetting.SqlQuery<bool>(@"Select NotificationAfterCreation  from NotificationSetting Where BusinessFlow = 'MaterialRequistion'").FirstOrDefault();
+                //if (DailySendMailRequisition == true)
+                //{
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (CheckedBy == "true" && ApprovedBy == "true")
+                {
+                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='GoodsReceiveNoteCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                }
+                else if (CheckedBy == "false" && ApprovedBy == "true")
+                {
+                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='GoodsReceiveNoteApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                }
+                else if (CheckedBy == "false" && ApprovedBy == "false")
+                {
+
+                }
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
         public IEnumerable<object> GetJWCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy)
         {
 

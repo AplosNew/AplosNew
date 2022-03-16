@@ -205,7 +205,7 @@ namespace Library.HumanResource.NewAttendanceProcess
        //                     ";
 
                 var sql = @"Select 
-                            c.Id , c.UserName, cg.Id  as ComapnyGroupId , cg.UserName as GroupName ,isnull(Sum(bud.TotalNumber),0) as BB , isnull(Sum(orole.OnRole),0) as OnRoll,
+                            c.Id , c.UserName, cg.Id  as ComapnyGroupId , cg.UserName as GroupName ,isnull(Sum(bud.TotalNumber),0) as BB ,isnull(Sum(Cast(bud.Deployment as decimal)),0) as Dep , isnull(Sum(orole.OnRole),0) as OnRoll,
                                                         isnull(Sum(orole.OTIN),0) as OTIN,
                                                         isnull(Sum(orole.InStat),0) as InStat,
                                                         isnull(Sum(orole.EarlyIn),0) as EarlyIn,
@@ -243,9 +243,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join 
                             (
                             Select * from (
-							                            Select rank() over (partition by ManpowerBudgetId order by  EffectiveDate DESC,Id) RNK, TotalNumber, ManpowerBudgetId, EffectiveDate
-                                                        from [MST].[ManpowerBudgetDetail]
-                                                        WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"')
+							                            Select rank() over (partition by ManpowerBudgetId order by  mb.EffectiveDate DESC,mb.Id) RNK, mb.TotalNumber, mb.ManpowerBudgetId, mb.EffectiveDate , mmb.Deployment
+                                                        from [MST].[ManpowerBudgetDetail] mb
+														left join  mst.ManpowerBudget mmb on mmb.Id = mb.ManpowerBudgetId
+                                                        WHERE CONVERT(DATE,(mb.EffectiveDate) )<= CONVERT(DATE,'15-Mar-2022')
 			                            ) as Bud where RNK = 1
                             ) as bud on bud.ManpowerBudgetId = mb.Id
                             left join org.Position pos on pos.Id = mb.PositionId
@@ -378,7 +379,7 @@ namespace Library.HumanResource.NewAttendanceProcess
        //                     " + groupSt+@"
        //                     ";
 
-                var sql = @"Select " + selSt + @" isnull(Sum(bud.TotalNumber),0) as BB , isnull(Sum(orole.OnRole),0) as OnRoll,
+                var sql = @"Select " + selSt + @" isnull(Sum(bud.TotalNumber),0) as BB ,isnull(Sum(Cast(bud.Deployment as decimal)),0) as Dep , isnull(Sum(orole.OnRole),0) as OnRoll,
                             isnull(Sum(orole.OTIN),0) as OTIN,
                             isnull(Sum(orole.InStat),0) as InStat,
                             isnull(Sum(orole.EarlyIn),0) as EarlyIn,
@@ -415,10 +416,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             ) as orole on orole.BudgetId = mb.Id
                             left join 
                             (
-                            Select * from (
-							                            Select rank() over (partition by ManpowerBudgetId order by  EffectiveDate DESC,Id) RNK, TotalNumber, ManpowerBudgetId, EffectiveDate
-                                                        from [MST].[ManpowerBudgetDetail]
-                                                        WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"')
+                             Select * from (
+							                            Select rank() over (partition by ManpowerBudgetId order by  mb.EffectiveDate DESC,mb.Id) RNK, mb.TotalNumber, mb.ManpowerBudgetId, mb.EffectiveDate , mmb.Deployment
+                                                        from [MST].[ManpowerBudgetDetail] mb
+														left join  mst.ManpowerBudget mmb on mmb.Id = mb.ManpowerBudgetId
+                                                        WHERE CONVERT(DATE,(mb.EffectiveDate) )<= CONVERT(DATE,'15-Mar-2022')
 			                            ) as Bud where RNK = 1
                             ) as bud on bud.ManpowerBudgetId = mb.Id
                             left join org.Position pos on pos.Id = mb.PositionId

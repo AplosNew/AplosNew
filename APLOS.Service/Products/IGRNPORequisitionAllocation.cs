@@ -16,6 +16,7 @@ namespace Library.Service.Products
 
         IEnumerable<object> GetPurchaseOrderGroupGridData();
         void InsertOrUpdateGraphNewGRNAllocation(IEnumerable<InventoryMaterialViewModel> entity);
+        void InsertOrUpdateGraphNewGRNAllocationBOQ(IEnumerable<InventoryMaterialViewModel> entity);
         IEnumerable<object> GetAllPurchaseOrderGroupDetails();
 
         IEnumerable<object> GetAllReqdata1();

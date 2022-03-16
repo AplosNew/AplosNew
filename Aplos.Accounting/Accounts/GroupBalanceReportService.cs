@@ -1948,9 +1948,12 @@ namespace Library.Accounting.Accounts
                         sheet[ROW, colPeriodicCR].NumberFormat = "#,##0.00;(#,##0.00)";
                         sheet[ROW, colBalanceDrCr].Number = clsStaticInfo.dbl(dtGroupBalanceBudget.Rows[i]["ActivityClosingBalance"].ToString());
                         sheet.Range[ROW, colBalanceDrCr].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                        sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
-                        sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                        if (Convert.ToInt32(dtGroupBalanceBudget.Rows[i]["ActivityOpeningBalance"]) == 0)
+                        if (Convert.ToInt32(dtGroupBalanceBudget.Rows[i]["ActivityClosingBalance"]) != 0)
+                        {
+                            sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
+                            sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        }
+                        if (Convert.ToInt32(dtGroupBalanceBudget.Rows[i]["ActivityOpeningBalance"]) != 0)
                         {
                             sheet[ROW, colOpenningDRCR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
                             sheet[ROW, colOpenningDRCR].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -1983,8 +1986,12 @@ namespace Library.Accounting.Accounts
                             sheet[ROW, colOpenningDRCR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
                             sheet[ROW, colOpenningDRCR].HorizontalAlignment = ExcelHAlign.HAlignRight;
                         }
-                        sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
-                        sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        if (Convert.ToInt32(dtGroupBalance.Rows[i]["BudgetClosingBalance"]) != 0)
+                        {
+                            sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
+                            sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        }
+
                     
                         sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                         sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -2009,12 +2016,17 @@ namespace Library.Accounting.Accounts
                 sheet[ROW, colBalanceDrCr].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBalanceDrCr) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colBalanceDrCr) + (ROW-1)+")";
                 sheet.Range[ROW, colBalanceDrCr].CellStyle.Font.Bold = true;
                 //sheet[ROW, colBalanceDrCr].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet.Range[ROW, colBalanceDrCr].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
-                sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet[ROW, colOpenningDRCR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
-                sheet[ROW, colOpenningDRCR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, colBalanceDrCr].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+              //  " IF(B125 > 0, "Dr", IF(B125 < 0, "Cr", IF(B125 = 0, "")));
+                sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + "> 0, \"Dr\",IF("+ reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + "< 0,\"Cr\",IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + "= 0 ,\" \")))";
+                sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + "> 0, \"Dr\", \"Cr\")";
+                //sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //sheet[ROW, colOpenningDRCR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + "> 0, \"Dr\", \"Cr\")";
+                sheet[ROW, colOpenningDRCR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + "> 0, \"Dr\",IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + "< 0,\"Cr\",IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + "= 0 ,\" \")))";
+sheet[ROW, colOpenningDRCR].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
                 sheet[ROW, colPeriodicCR].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colPeriodicCR) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colPeriodicCR) + (ROW - 1) + ")";
