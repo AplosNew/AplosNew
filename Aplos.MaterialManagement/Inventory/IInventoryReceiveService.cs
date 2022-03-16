@@ -21,9 +21,11 @@ namespace Library.MaterialManagement.Inventory
 
         IEnumerable<object> GetListForHold(string plantId,string PoType,string Status);
         IEnumerable<object> LoadAcceptanceDetails(string AcceptanceId);
+        IEnumerable<object> LoadAcceptanceDetailsBOQ(string AcceptanceId);
 
         
         IEnumerable<object> GetSavedPOList(string GRNId);
+        IEnumerable<object> GetSavedPOListBOQ(string GRNId);
 
         IEnumerable<object> GetSavedPOList1(string GRNId);
 
@@ -40,6 +42,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetTaxCategoryListForSales(string companyGroupId, string receiveId, string plantId, string hsnCodeId); 
 
         IEnumerable<object> GetReceiveTaxList(string receiveDetailId);
+        IEnumerable<object> GetReceiveTaxListBOQ(string receiveDetailId);
         IEnumerable<object> GetReceiveTaxListPO(string receiveDetailId);
         IEnumerable<object> GetMaterialLedger(string fromDate, string toDate);
 		IEnumerable<object> GetPurchaseRegister(string fromDate, string toDate, string Type);
@@ -52,6 +55,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetTotalReceiveTaxList(string receiveId);
 
         IEnumerable<object> GetServiceTaxList(string serviceId);
+        IEnumerable<object> GetServiceTaxListBOQ(string serviceId);
         IEnumerable<object> GetServiceTaxListPR(string serviceId);
         IEnumerable<object> GetServiceTaxListPO(string serviceId);
        
@@ -146,6 +150,7 @@ namespace Library.MaterialManagement.Inventory
 
         void DeletePurchaseReturnfinal(string id);
         IEnumerable<object> GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy);
+        IEnumerable<object> GetCheckedByAndApprovedBYBOQ(string CheckedBy, string ApprovedBy);
         // void InsertserviceTax(InventoryMaterialViewModel entity, IEnumerable<PurchaseOrderTax> taxCategoryList, string ServiceId);
         Dictionary<string, object> GetACCCutOffDate(string companyGroupId, string companyId);
         void InsertPODocMap(GRNDocumentMap entity, string POId, out string Id);

@@ -4961,7 +4961,101 @@ UNION ALL
         public JsonResult GetInventoryMaterialListBOQ(GridParameter parameters, string inveReveiveId, string POID, string AcceptanceId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryMaterialService.Query(parameters, inveReveiveId, POID, AcceptanceId), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryMaterialService.QueryBOQ(parameters, inveReveiveId, POID, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetReceiveTaxListBOQ(string receiveDetailId)
+        {
+            return Json(_inventoryReveiveService.GetReceiveTaxListBOQ(receiveDetailId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetServiceChargeListBOQ(string receiveId)
+        {
+            return Json(_inventoryService.QueryBOQ(receiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetServiceTaxListBOQ(string serviceId)
+        {
+            return Json(_inventoryReveiveService.GetServiceTaxListBOQ(serviceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetAdvanceTaxInfoBOQ(string InventoryReceiveId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.GetAdvanceTaxInfoBOQ(InventoryReceiveId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public JsonResult GRNDocumentMapDataBOQ(string POID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
+                return Json(obj.GRNDocumentMapDataBOQ(POID), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetCheckedByAndApprovedBYBOQ(string CheckedBy, string ApprovedBy)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetCheckedByAndApprovedBYBOQ(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult LoadAcceptanceDetailsBOQ(string AcceptanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.LoadAcceptanceDetailsBOQ(AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialListByOnlyPOBOQ(GridParameter parameters, string inveReveiveId, string AcceptanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.QueryOnlyPOBOQ(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetServiceChargeListPOBOQ(string receiveId, string AcceptanceId)
+        {
+            return Json(_inventoryService.Query1BOQ(receiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetSavedPOListBOQ(string GRNId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetSavedPOListBOQ(GRNId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetGRNDetailsForSoAllocationBOQ(string InventoryReceiveDetailId, string PODetailId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.GetGRNDetailsForSoAllocationBOQ(InventoryReceiveDetailId, PODetailId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+        public JsonResult GrnRequisitionAllocationSaveBOQ(IEnumerable<InventoryMaterialViewModel> entity)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocationBOQ(entity);
+            return Json(new { Message = AplosMessage.Success });
         }
         #endregion
 

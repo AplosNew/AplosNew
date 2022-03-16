@@ -7011,10 +7011,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         FROM AttdnProcessData AS apd
 
                                     LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=apd.EmpSystemID
-                                    --LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
-                                    --LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
-                                    --LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
-                                    --LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
                                     JOIN DayTypeWithValues AS ds ON ds.code=apd.DayStatus AND ds.HeaderId=apd.DayStatusHeaderId
                                     JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
 
