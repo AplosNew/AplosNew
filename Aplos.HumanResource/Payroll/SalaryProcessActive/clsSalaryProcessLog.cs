@@ -259,20 +259,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             try
             {
                 list_spd = new List<SalaryProcessLogDetail>();
-                //LoadDataSetFromDataGrid(para.SalaryStructureNotDefined, out dsSSND);
-                //LoadDataSetFromDataGrid(para.PresentDaysZero, out dsPZ);
-                //LoadDataSetFromDataGrid(para.DifferentStatus, out dsDS);
-
-                //InitList(para.SalaryStructureNotDefined, "Salary Structure Not defined", ref list_spd);
                 InitList(para.ActiveEmp, "Active", ref list_spd);
                 InitList(para.NewlyJoinedEmp, "NewlyJoined", ref list_spd);
                 InitList(para.PresentDaysZero, "Present Days Zero", ref list_spd);
                 InitList(para.DifferentStatus, "", ref list_spd);
-                //InitList(para.AttNotLocked, "AttendanceNotLocked", ref list_spd);
-                //InitList(para.ExcepEmp, "ExceptionEmployee", ref list_spd);
-                //InitList(para.ApprovedSalary, "ApprovedSalary", ref list_spd);
-                //InitList(para.ssna, "SalaryStructureNotApproved", ref list_spd);
-                //InitList(para.SeparatedEmp, "SeparatedEmp", ref list_spd);
+               
             }
             catch (Exception ex)
             {

@@ -838,11 +838,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                 Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR obj = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR();
                 FunctionPara m = obj.SalaryProcess(para);
 
-                //clsCarryForwardSalary cfob = new clsCarryForwardSalary();
-                //if (allds.IsNegativeSalaryApplicable)
-                //{
-
-                //}
                 #endregion
 
                 #region Save Log TBD

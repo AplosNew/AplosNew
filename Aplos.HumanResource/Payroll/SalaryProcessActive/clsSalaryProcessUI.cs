@@ -790,10 +790,8 @@ and isnull(locka.EmpSystemId,'')=''
 										left join mst.DesignationMaster dm on dm.id=dl.DesignationMasterId
 										LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = dm.DesignationId
 
-                                        --LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
-                                        --left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
-
+                                        
                               
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
                                         LEFT OUTER JOIN
