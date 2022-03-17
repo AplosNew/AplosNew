@@ -404,15 +404,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                         sd.CompanyGroupId = para.CompanyGroupId;
                         sd.PlantId = para.PlantId;
                         sd.SalaryProcessId = para.SalaryProcessId;
-                        sd.UpdatedBy = para.UserId;
-                        //if(empids.Length==0)
-                        //{
-                        //empids = "'" + sd.EmpSystemId + "'";
-                        //}
-                        //else
-                        //{
-                        //    empids += ", '" + sd.EmpSystemId + "'";
-                        //}
+                        sd.UpdatedBy = para.UserId;                        
 
                         dvLocal.RowFilter = "Id=''";//ever insert
                         if (dvLocal.Count == 0)

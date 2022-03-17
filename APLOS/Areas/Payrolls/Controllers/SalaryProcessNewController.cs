@@ -922,8 +922,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             List<MaternityRetun> r = null;
             try
             {
-                //clsSalaryProcessQuery objQ = null;
-                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery ui = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
+                clsSalaryProcessQuery ui = new clsSalaryProcessQuery();
                 DataSet dsactive = null;
                 string emp_pk = string.Empty;
                 GetEmpDelimitedMLVR(list, ref emp_pk);
