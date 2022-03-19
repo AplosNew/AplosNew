@@ -14,10 +14,10 @@ using System.Threading;
 
 namespace Aplos.MaterialManagement.MaterialQuery
 {
-    public class PurchaseOrderBOQQueryService
+    public class BOQQueryService
     {
         private readonly ISqlRepository _sqlRepository;
-        public PurchaseOrderBOQQueryService(ISqlRepository sqlRepository
+        public BOQQueryService(ISqlRepository sqlRepository
             )
         {
             _sqlRepository = sqlRepository;
@@ -114,6 +114,92 @@ namespace Aplos.MaterialManagement.MaterialQuery
 	                    OR TV.Different IS NULL)
                     ORDER BY TC.[Sequence]";
                 return _sqlRepository.GetModelCollection<PurchaseOrderTax>(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetSpecificMaterialStockBOQ(string companyId, string plantId,string POId, string ContractId, string masterOrderitemId, string salesOrderId, string issueDate)
+        {
+            try
+            {
+                var sql = "";
+               
+                    sql = @"select * from(
+                        SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId,grnmap.BOQDetailId
+ , IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
+	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
+						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
+						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor,IRD.BaseUoMFactor GRNBaseUoMFactor
+                        , round(IRD.MaterialTranRate,4) MaterialTranRate,  TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
+                        --, BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
+						, IRD.TrnCurrencyBaseRate BaseRate
+                        , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty
+                        --,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) 
+						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BaseCurrencyRate
+						, IRD.TransactionQty, IRD.BaseQty,grnmap.BaseQty GRNBOQQty
+						,ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0) StockQty
+						, ISNULL(II.IssueQty,0) IssueQty, ISNULL(II.IssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
+						 ,((((((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS BalanceStock
+                        ,ISNULL(IRD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
+						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
+						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
+						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
+                        ,round(ISNULL(II.IssueAmount,0),4) TotalIssueAmount
+                         ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
+                        ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
+                        ,0 SalesRate
+						,0 TotalAmount
+                        ,IM.MaterialMasterId
+						,IM.ArticleId
+						,IM.FirstCharacteristicsValueId
+						,IM.SecondCharacteristicsValueId
+						,IM.ThirdCharacteristicsValueId
+						
+						,IM.FirstCharacteristicsId
+						,IM.SecondCharacteristicsId
+						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
+                        ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
+						--,0 TrasactopmUomQty
+						,'' IssueTransactionUoMId
+						,'' IssueTransactionUoM
+                    FROM TRN.GRNPORequisitionAllocation grnmap
+					join [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
+                    left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
+                    left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                    left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
+					LEFT JOIN (
+									    select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, II.MaterialStorageId
+                                        , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,IID.IsAsset
+									    FROM TRN.InventoryIssueDetail IID  
+									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
+									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
+									    WHERE --convert(Date,II.IssueDate) <= CAST('" + issueDate + @"' AS DATE)  AND 
+                                        II.PlantId='" + plantId + @"'   
+									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
+									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
+                    left JOIN SCS.Country C On C.Id=IM.CountryId
+                    WHERE  IM.CompanyId='" + companyId + "' AND IM.PlantId='"+plantId+@"'
+                    --AND IR.[Status]='Posting' AND IR.IsFOC=0
+                    ----AND ISNULL(IM.ArticleId,'')='5777' AND ISNULL(IM.FirstCharacteristicsValueId,'')='423' AND  ISNULL(IM.SecondCharacteristicsValueId,'')=''
+                    --AND ISNULL(IM.ThirdCharacteristicsValueId,'')='' AND ISNULL(IM.CountryId,'')='' 
+					AND IRD.MaterialStorageId='7' 
+                    --AND ISNULL(IRD.IssueQty, 1)>0 
+					AND (IRD.POId IN ("+POId+ @") OR IRD.POId IN (''))
+					AND IRD.BaseQty !=ISNULL(II.IssueQty,0)
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) 
+					) x";
+               
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {

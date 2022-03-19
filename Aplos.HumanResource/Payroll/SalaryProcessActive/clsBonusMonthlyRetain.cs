@@ -1528,31 +1528,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         {
             #region Variable Dataset
             DataTable dtValue = null;
-            //DataSet dsBnsEligibleEmp = null;
-            //DataTable dtBnsEligibleEmp = null;
-            //DataRow drBnsEligibleEmp = null;
-            //DataView dvBnsEligibleEmp = null;
-
-            //DataSet dsBnsMntEmpWiseCal = null;
-            //DataTable dtBnsMntEmpWiseCal = null;
-            //DataRow drBnsMntEmpWiseCal = null;
-            //DataView dvBnsMntEmpWiseCal = null;
-
-            //DataSet dsBnsMntDist = null;
-            //DataTable dtBnsMntDist = null;
-            //DataRow drBnsMntDist = null;
-            //DataView dvBnsMntDist = null;
-
-            //DataSet dsBnsMntEmpWiseCalSt = null;
-            //DataTable dtBnsMntEmpWiseCalSt = null;
-            //DataRow drBnsMntEmpWiseCalSt = null;
-            //DataView dvBnsMntEmpWiseCalSt = null;
-
-            //DataSet dsBnsMntDistSt = null;
-            //DataTable dtBnsMntDistSt = null;
-            //DataRow drBnsMntDistSt = null;
-            //DataView dvBnsMntDistSt = null;
-
+           
             DataSet dsSalHd = null;
             DataTable dtSalHd = null;
 

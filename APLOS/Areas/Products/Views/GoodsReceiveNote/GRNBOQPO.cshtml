@@ -323,14 +323,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal fade site-modal in" id="ListOfSo" role="dialog" data-backdrop="static">
+                        <div class="modal fade site-modal in" id="ListOfSoBoq" role="dialog" data-backdrop="static">
                             <div class="modal-dialog modal-lg modellgModify">
                                 <div class="modal-content">
                                     <div class="modal-header">SO List FOR GRN Qty Allocation<button type="button" class="close" ng-click="ListOfSo();">&times;</button></div>
                                     <div class="modal-body form-elements form-horizontal">
-                                        <div style="padding-left: 900px;color:maroon;font-weight:bolder;"><label id="totalGRN" ng-model="totalGRNVal" class="text-right">Total GRN Qty:{{totalGRNVal}}|| RejectionQty:{{RejectionQty}}</label></div>
-                                        <div class="col-lg-12">
-                                            <div style="color:black;" id="GridReqso" ej-grid e-datasource="soList"
+                                        <div style="color:maroon;font-weight:bolder;"><label id="totalGRN" ng-model="totalGRNVal" class="text-right">Total GRN Qty:{{totalGRNVal}}|| RejectionQty:{{RejectionQty}}</label></div>
+                                        <div class="col-lg-12">                                            
+                                            <div style="color:black;" id="GridReqsoboq" ej-grid e-datasource="soList" 
                                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                                                  e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
                                                  e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
@@ -347,7 +347,7 @@
                                                     <div e-column e-field="allowCatedQty" e-headertext="Valid Qty Allocated" e-width="100"></div>
                                                     <div e-column e-field="RejectQty" e-headertext="Rejected Qty Allocated" e-width="100"></div>
                                                     <div e-column e-field="TransactionQty" e-template="#SOQty" e-headertext="GRNQtyAllocation" e-width="80"></div>
-                                                    <div e-column e-field="RejectionQty" e-template="#SORejQty" e-headertext="RejectionQtyAllocation" e-width="80"></div>
+                                                    <div e-column e-field="RejectionQty" e-template="#SORejQty" e-headertext="RejectionQtyAllocation" e-width="80"></div>                                                    
                                                     <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="70"></div>
                                                 </div>
                                             </div>
@@ -1836,7 +1836,7 @@
                                         <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Excel');" href="" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                                         <li><a class="btn btn-action" ng-click="GRNReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
                                     </ul>
-                                </td>                                
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -1848,7 +1848,7 @@
         </div>
     </div>
 
-</div>s
+</div>
 
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 <div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">

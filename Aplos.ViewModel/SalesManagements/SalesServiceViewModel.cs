@@ -29,4 +29,6 @@ namespace Library.ViewModel.SalesManagements
         public decimal BooksCurrencyTaxAmount { get; set; }
         public ICollection<SalesTaxViewModel> ServiceTaxList { get; set; }
     }
+
+  
 }
