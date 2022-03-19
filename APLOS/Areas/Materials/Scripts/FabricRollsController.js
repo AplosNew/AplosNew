@@ -9,6 +9,18 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.showfromto = true;
+    $scope.showgrndiv = false;
+
+    $scope.clickGo = function () {
+        $scope.showfromto = false;
+        $scope.showgrndiv = true;
+    }
+
+    $scope.clickBack = function () {
+        $scope.showfromto = true;
+        $scope.showgrndiv = false;
+    }
 
     $scope.fabricRollMaster = {
         CompanyGroupId: $window.companyGroupId,
@@ -153,17 +165,65 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.GRNsearchBy = "GRNNo";
     $scope.GRNsearch = "";
 
-    $scope.Get = function (args) {
+    $scope.obj = {};
+    $scope.SelectOption = function (args) {
 
-        $scope.fabricRollMaster = Object.assign({}, args.data);
-        console.log($scope.fabricRollMaster);
-        //$scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-        $scope.LoadMaterialSearchList();
+        $("#CreateNewPopUp").data("ejDialog").open();
+
+        $scope.obj = Object.assign({}, args.data);
+        console.log($scope.obj);
         angular.element(document.querySelector('#grnListPopUp')).modal('hide');
     };
+
+    $scope.Go = function () {
+        $scope.fabricRollMaster = Object.assign({}, $scope.obj);
+
+        $scope.LoadMaterialSearchList();
+        $scope.getSaveMaster($scope.fabricRollMaster.GRNNo);
+    }
+
+
+    $scope.getSaveMaster = function (GRNNo) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetSavedList?GRNId=" + GRNNo,
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.fabricRollMaster = Object.assign({}, response.data[0]);
+                $scope.getSaveChildData($scope.fabricRollMaster.Id);
+            }
+        });
+    }
+
+    $scope.getSaveChildData = function (masterId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetFabricRollChildList?FabricRollManagementMasterId=" + masterId,
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.grnDetailList = response.data;
+            }
+        });
+    }
+
+
+
+    $scope.closePopup = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+        try {
+            $("#" + popupName).data("ejDialog").close();
+        } catch (e) {
+
+        }
+    }
+    $scope.openPopup = function (popupName) {
+
+        try {
+            $("#" + popupName).data("ejDialog").open();
+        } catch (e) {
+
+        }
+    }
 
     //#region Display Material by GRN ID
     $scope.closeGRNPopUp = function (args) {
@@ -671,6 +731,17 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     ];
 
+    $scope.GetFromToDate = function () {
+        $http({
+            method: 'Get',
+            url: 'Materials/FabricRoll/GetFromToDate'
+        }).then(function (response) {
+            $scope.FromDate = response.data[0].FromDate;
+            $scope.ToDate = response.data[0].ToDate;
+        });
+    };
+    $scope.GetFromToDate();
+
     $scope.GRNGridList = [];
     $scope.LoadGRNSearchList = function () {
         $scope.GRNGridList = [];
@@ -679,7 +750,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             $http({
                 method: 'POST',
                 url: $scope.path + "GRNList",
-                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
+                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch, 'fromDate': $scope.FromDate, 'toDate': $scope.ToDate },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -748,20 +819,6 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             ShowResult(e, 'failure');
         }
     };
-
-    $scope.MasterList = [];
-    $scope.getMaster = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetSavedList",
-        }).then(function successCallback(response) {
-            $scope.MasterList = response.data;
-        });
-    }
-    $scope.getMaster();
-    //EndFile Upload
-
-    //Import File
 
 
     function GetShortList(list) {
@@ -946,14 +1003,14 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.setEmpData = function (obj) {
         var data = obj.data;
         if ($scope.name == 'Preparedby') {
-            $scope.fabricRollMaster.PreparedbyCode = data.EmployeeCode;
-            $scope.fabricRollMaster.PreparedbyId = data.SystemID;
-            $scope.fabricRollMaster.PreparedbyName = data.EmployeeName;
+            $scope.fabricRollMaster.PreparedByCode = data.EmployeeCode;
+            $scope.fabricRollMaster.PreparedById = data.SystemID;
+            $scope.fabricRollMaster.PreparedByName = data.EmployeeName;
         }
         else {
-            $scope.fabricRollMaster.CheckedbyCode = data.EmployeeCode;
-            $scope.fabricRollMaster.CheckedbyId = data.SystemID;
-            $scope.fabricRollMaster.CheckedbyName = data.EmployeeName;
+            $scope.fabricRollMaster.CheckedByCode = data.EmployeeCode;
+            $scope.fabricRollMaster.CheckedById = data.SystemID;
+            $scope.fabricRollMaster.CheckedByName = data.EmployeeName;
         }
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
 
@@ -962,14 +1019,14 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.ClearEmpdata = function (name) {
         $scope.name = name;
         if ($scope.name == 'Preparedby') {
-            $scope.fabricRollMaster.PreparedbyCode = null;
-            $scope.fabricRollMaster.PreparedbyId = null;
-            $scope.fabricRollMaster.PreparedbyName = null;
+            $scope.fabricRollMaster.PreparedByCode = null;
+            $scope.fabricRollMaster.PreparedById = null;
+            $scope.fabricRollMaster.PreparedByName = null;
         }
         else {
-            $scope.fabricRollMaster.CheckedbyCode = null;
-            $scope.fabricRollMaster.CheckedbyId = null;
-            $scope.fabricRollMaster.CheckedbyName = null;
+            $scope.fabricRollMaster.CheckedByCode = null;
+            $scope.fabricRollMaster.CheckedById = null;
+            $scope.fabricRollMaster.CheckedByName = null;
         }
     };
 
@@ -984,11 +1041,17 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.Action = "Save";
     $scope.SaveRollData = function () {
         try {
-            if (baseService.arrayLength($scope.fabricRollMaster.GRNNo)) {
+            if (baseService.isUndefinedOrNull($scope.fabricRollMaster.GRNNo)) {
                 throw "Please select GRN No.";
             }
 
-            $scope.modeldata.GRNId = $scope.fabricRollMaster.GRNNo; $scope.modeldata.GRNDate = $scope.fabricRollMaster.GRNDate;
+            $scope.modeldata.GRNId = $scope.fabricRollMaster.GRNNo;
+            $scope.modeldata.GRNDate = $scope.fabricRollMaster.GRNDate;
+            $scope.modeldata.PreparedById = $scope.fabricRollMaster.PreparedById;
+            $scope.modeldata.CheckedById = $scope.fabricRollMaster.CheckedById;
+            $scope.modeldata.Remarks = $scope.fabricRollMaster.Remarks;
+            $scope.modeldata.Comment = $scope.fabricRollMaster.Comment;
+
             if (baseService.arrayLength($scope.grnDetailList) == 0) {
                 throw "Detail list is requird.";
             }

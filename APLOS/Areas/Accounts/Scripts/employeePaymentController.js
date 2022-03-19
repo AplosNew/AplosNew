@@ -198,7 +198,7 @@ function employeePaymentController(cboService, commonMessage, $scope, $rootScope
 
     cboService.getEnumCbo('Enum/GetCboRoundingType', function (result) {
         $scope.roundingTypeList = result;
-        $scope.voucher.RoundingType == $scope.roundingTypeList[1].Value;
+        $scope.voucher.RoundingType = $scope.roundingTypeList[0].Value;
     });
 
     $scope.invalidDocDate = false;
@@ -588,6 +588,8 @@ function employeePaymentController(cboService, commonMessage, $scope, $rootScope
         $scope.voucher.CashName = null;
         $scope.voucher.Narration = null;
         $scope.voucher.PaymentSource = "Bank";
+        $scope.voucher.RoundingType = $scope.roundingTypeList[0].Value;
+        $scope.voucher.RoundingAmount = null;
         $scope.getCboVoucherTypeEmployeePaymentList();
         $scope.currencyExchangeRate = [];
         $scope.voucherDetailList = [];

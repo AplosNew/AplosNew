@@ -22,7 +22,20 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.ProcessList = [];
     $scope.ShiftList = [];
     $scope.POList = [];
+    $scope.PeriodList = [];
     $scope.ModelList = [];
+
+
+    // The Tab Switching Code
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
 
     //Get Operations
@@ -39,6 +52,13 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             url: $scope.path + 'GetProcess',
         }).then(function succ(resp) {
             $scope.ProcessList = resp.data;
+        });
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetPeriod',
+        }).then(function succ(resp) {
+            $scope.PeriodList = resp.data;
         });
 
         $http({
@@ -64,34 +84,26 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
-    ///// Setting of the Period Buttons
-    //Period Buttons
-    var p1 = document.getElementById("pp1");
-    var p2 = document.getElementById("pp2");
-    var p3 = document.getElementById("pp3");
-    var p4 = document.getElementById("pp4");
-    var p5 = document.getElementById("pp5");
-    var p6 = document.getElementById("pp6");
 
-  
-
-    $scope.PeriodValidation = function (e) {
-        document.getElementById("pp1").disable = true;
-        document.getElementById("pp2").disable = true;
-        document.getElementById("pp3").disable = true;
-        document.getElementById("pp4").disable = true;
-        document.getElementById("pp5").disable = true;
-        document.getElementById("pp6").disable = true;
-        document.getElementById('p'+$scope.periodId).disabled = false;
-    }
-
-    $scope.refreshPage = function (e) {
-        if (e.requestType == "paging") {
-            var gridObj = $("#GridEdit").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-        }
-        //var k = 100;
+    // Add Tiles
+    $scope.AddTile = function (e) {
+        console.log(e);
+        let ob = {};
+        Object.assign(ob, e);
+        ob.Id = null;
+        ob.EmployeeCode = null;
+        ob.EmployeeId = null;
+        ob.PeriodId = e.PeriodId;
+        ob.Qty = null;
+        //ob.Period2 = null;
+        //ob.Period3 = null;
+        //ob.Period4 = null;
+        //ob.Period5 = null;
+        //ob.Period6 = null;
+        ob.Remarks = null;
+        ob.isChanged = 0;
+        ob.Serial = parseInt(e.Serial) + 1;
+        $scope.ModelList.splice(e.Serial, 0, ob);
     }
     
     //Getting All the Data For the Saving
@@ -99,11 +111,11 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'GetOperationsData',
-            data: { 'PId': $scope.POId},
+            data: { 'PId': $scope.POId, 'Period' : $scope.periodId},
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
             for (var i = 0; i < $scope.ModelList.length; i++) {
-                Object.assign($scope.ModelList[i], {'Serial': parseInt(i+1) ,'isChanged': 0 });
+                Object.assign($scope.ModelList[i], {'Serial': parseInt(i+1) ,'isChanged': 0 , 'Remarks':null });
                 //$scope.refreshPage();
             }
         });
@@ -111,16 +123,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
    // While Changing the Places
     $scope.changeInData = function (e, col) {
-
-        if (col == $scope.periodId) {
-            e.isChanged = 1;
-        }
-        else if (col == 'emp' || col == 'rem') {
-            e.isChanged = 1;
-        }
-        else {
-            ShowResult('Please Enter Value in the Selected Period', 'failure');
-        }
+        e.isChanged = 1;
     }
 
     //Saving of the Data
@@ -142,7 +145,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 'ProcessId': $scope.ProcessId,
                 'ShiftId': $scope.shiftId,
                 'POId': $scope.POId ,
-                'Date': $scope.Date,
+                'Date': $scope.Date, 'PeriodId': $scope.periodId,
                   },
         }).then(function succ(resp) {
 
@@ -160,5 +163,45 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     //Clearing the grid
     $scope.ClearGrid = function(){
         $scope.ModelList = [];
+    }
+
+    // Getting the report
+    $scope.getReportView = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getReportView',
+        }).then(function succ(response) {
+            console.log(response.data.Data);
+            console.log(response.data.Cols);
+
+            var ColumnList = [
+                { field: 'OperationCode', width: 80, headerText: "Operation Code" },
+                { field: 'OperationName', width: 80, headerText: "Operation" },
+                { field: 'WorkCenter', width: 80, headerText: "WorkCenter" },
+                { field: 'ProductionOrderId', width: 80, headerText: "PO" },
+                { field: 'Process', width: 80, headerText: "Process" },
+                { field: 'EmployeeCode', width: 80, headerText: "Employee Code" },
+                { field: 'EmployeeName', width: 80, headerText: "Employee Name" },
+                { field: 'Date', width: 80, headerText: "Date" },
+            ];
+
+
+            for (var i = 0; i < response.data.Cols.length; i++) {
+                ColumnList.push({ field: response.data.Cols[i], width: 50, headerText: response.data.Cols[i], type: "number" });// format: "{0:N2}",
+            }
+
+            $("#summaryGrid").ejGrid({
+                dataSource: response.data.Data,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: ColumnList
+                //queryCellInfo: $scope.cellColorChange
+            });
+
+            var gridObj = $("#summaryGrid").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        });
     }
 }

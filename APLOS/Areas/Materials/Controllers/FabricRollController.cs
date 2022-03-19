@@ -24,6 +24,7 @@ using Library.Model.Enums;
 using Syncfusion.XlsIO;
 using OTSBD;
 using Library.Service.HumanResources.Profile;
+using Library.MaterialManagement.Material;
 
 #endregion using
 
@@ -35,6 +36,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         private readonly IFabricRollMasterService _fabricRollMasterService;
         private SqlRepository _sqlRepository = new SqlRepository();
+        FabricRollClass clsFabric = new FabricRollClass();
         public FabricRollController(IFabricRollMasterService fabricRollMasterService)
         {
             _fabricRollMasterService = fabricRollMasterService;
@@ -58,6 +60,13 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion Pages
 
         #region -- Operations
+
+        [HttpGet, Authorize]
+        public JsonResult GetFromToDate()
+        {
+            string sql = @"SELECT FORMAT(MIN(A.AddedDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(A.AddedDate),'dd-MMM-yyyy') ToDate FROM TRN.InventoryReceive A WHERE A.GRNType in('GRNBYPO','GRN' ,'EMPGRN')";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetList(GridParameter parameters, string paidHours)
@@ -132,261 +141,40 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult GRNList(string column, string value)
+        public ActionResult GRNList(string column, string value, string fromDate, string toDate)
         {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false)
-                strkey = column + " like '%" + value + "%'";
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT TOP 100 * FROM (SELECT IR.Id GRNNo
-                                    ,IR.Status GRNStatus
-                                    ,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
-                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-			                        , CP.UserName AS PartyAccountGroupName
-	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-	                                , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-									, IR.IsApproved, IR.IsPaymentHold
-                                    ,isnull(PO.POId,NULL) POId,PO.PODate
-									,isnull(PO.PurchaseLCId,NULL) PurchaseLCId
-									,isnull(PO.ContractId,NULL) ContractId
-                                    ,ISNull(po.ContractNo,NULL) ContractNo,isnull(PO.LCANo,NULL) LCANo,isnull(PO.LCDate,NULL) LCDate
-									,PO.VendorRefNo,PO.PINo,PO.PurchaseLCNo
-                                    ,IR.CheckedByStatus,IR.AuthorizedByStatus
-                                    ,isnull(IR.GateEntryNo,0) GateEntryNo
-									,isnull(PWG.UserName ,NULL) GateName,IR.NoteForAccounts--,ISNULL(PDA.Id,'') PurchaseDocumentAcceptanceId
-									,EI.EmployeeName CheckedBy,EI1.EmployeeName ApprovedBy
-                                    
-									,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,IR.GRNType
-									,IRD.GRNQTY,IRD.GRNValue,IRD.Shortageqty,IRD.ShortageRatePercent,IRD.ShortageValue
-									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
-							,PO.UDNo,ISNULL(MLC.OpeningBank,NULL) OpeningBank,ISNULL(Pr.UserName ,NULL) CustomerName
-							FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
-						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.AuthorizedBy
-                        LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount 
-						, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent 
-						,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount
-						FROM [TRN].[InventoryReceiveDetail] AS A
-		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		                            WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-                        left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
-						Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
-					
-						
-
-                         LEFT JOIN(SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
-								,POId=STUFF((select distinct ','+xpo.Id from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								,VendorRefNo=STUFF((select distinct ','+xpo.DocRefNo  from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,ContractId=STUFF((select distinct ','+xpo.ContractId from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,UDNo=STUFF((select distinct ','+C.UDNo from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,ContractNo=STUFF((select distinct ','+C.ContractNo from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								
-								,PurchaseLCId=STUFF((select distinct ','+PLC.Id from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								,PurchaseLCNo=STUFF((select distinct ','+PLC.LCRef from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								,LCANo=STUFF((select distinct ','+PLC.LCANo from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								,PINo=STUFF((select distinct ','+PLC.PINo from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								
-								,LCDate=STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), PLC.LCDate, 106),' ','-') from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,PODate=STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), xpo.PODate, 106),' ','-') from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								from  trn.POGGRNMap PDAMAP 
-							  LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
-							  LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
-							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate,PODate
-							)PO ON PO.GRNId = IR.Id
-							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
-							LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
-
-							JOIN 
-							(
-							SELECT DISTINCT IRD1.InventoryReceiveId FROM TRN.InventoryReceiveDetail IRD1
-							LEFT JOIN TRN.PurchaseOrder po1 on po1.id=IRD1.POId
-							LEFT JOIN TRN.InventoryMaterial IM ON IRD1.InventoryMaterialId=IM.Id
-							LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
-							LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
-							LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
-                        WHERE BP.BusinessProcessName='FabricRollManagement'
-						) D ON D.InventoryReceiveId=IR.Id and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')
-					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')) AS TEMP WHERE " + strkey;
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(clsFabric.GRNList(column, value, fromDate, toDate,identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
         public ActionResult MaterialList(string inventoryReceiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT 
-DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount
-,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
-,P.UserName PartyName,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId
-,IM.FirstCharacteristicsId SKUId,MM.UserName MaterialMasterName,MMA.StandardName ArticleName
-,C.UserName SKU1,C2.UserName SKU2,C3.UserName SKU3,CV.UserName SKUValue,CV2.UserName SKUValue2,CV3.UserName SKUValue3, C.UserName +':'+CV.UserName SKUInfo,CU.Code
-,MGM.UserName MaterialGroup
-FROM [TRN].[InventoryReceiveDetail] IRD
-                                        LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
-                                        LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
-                                        LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
-										--LEFT JOIN ORG.Plant PL ON IM.PlantId= PL.Id
-                                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-										LEFT JOIN scs.PlantConfig PL ON  PL.PlantId=IM.PlantId
-                                        LEFT JOIN SCS.UnitOfMeasurement UOM ON IRD.TransactionUoMId=UOM.Id
-                                        LEFT JOIN SCS.UnitOfMeasurement BUoM ON IRD.BaseUOMId=BUoM.Id
-                                        LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
-
-                                        LEFT JOIN MST.MaterialGroupMaster MGM ON MM.MaterialGroupMasterId=MGM.Id
-                                        LEFT JOIN MST.MaterialMasterArticle MMA ON IM.ArticleId=MMA.Id
-
-                                        LEFT JOIN HKP.Characteristics C ON IM.FirstCharacteristicsId=C.Id
-                                        LEFT JOIN HKP.Characteristics C2 ON IM.SecondCharacteristicsId=C2.Id
-                                        LEFT JOIN HKP.Characteristics C3 ON IM.ThirdCharacteristicsId=C3.Id
-
-                                        LEFT JOIN [HKP].[CharacteristicsValue] CV ON IM.FirstCharacteristicsValueId=CV.Id
-                                        LEFT JOIN [HKP].[CharacteristicsValue] CV2 ON IM.SecondCharacteristicsValueId=CV2.Id
-                                        LEFT JOIN [HKP].[CharacteristicsValue] CV3 ON IM.ThirdCharacteristicsValueId=CV3.Id
-                                        LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
-                                        LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
-										LEFT JOIN (SELECT COUNT(Id) SplitCount,Sum(VendorQty) TotalDistributeQty
-										,InventoryReceiveDetailId FROM TRN.FabricRollMaster 
-										GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
-WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(clsFabric.MaterialList(inventoryReceiveId), JsonRequestBehavior.AllowGet);
 
         }
 
         [HttpPost, Authorize]
         public ActionResult GetMaterialListData(string inventoryReceiveId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT 
-DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount
-,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
-,P.UserName PartyName,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId
-,IM.FirstCharacteristicsId SKUId,MM.UserName MaterialMasterName,MMA.StandardName ArticleName
-,C.UserName SKU1,C2.UserName SKU2,C3.UserName SKU3,CV.UserName SKUValue,CV2.UserName SKUValue2,CV3.UserName SKUValue3, C.UserName +':'+CV.UserName SKUInfo,CU.Code
-,MGM.UserName MaterialGroup,CAST(0 AS bit) Flag
-FROM [TRN].[InventoryReceiveDetail] IRD
-                                        LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
-                                        LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
-                                        LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
-										--LEFT JOIN ORG.Plant PL ON IM.PlantId= PL.Id
-                                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-										LEFT JOIN scs.PlantConfig PL ON  PL.PlantId=IM.PlantId
-                                        LEFT JOIN SCS.UnitOfMeasurement UOM ON IRD.TransactionUoMId=UOM.Id
-                                        LEFT JOIN SCS.UnitOfMeasurement BUoM ON IRD.BaseUOMId=BUoM.Id
-                                        LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
-
-                                        LEFT JOIN MST.MaterialGroupMaster MGM ON MM.MaterialGroupMasterId=MGM.Id
-                                        LEFT JOIN MST.MaterialMasterArticle MMA ON IM.ArticleId=MMA.Id
-
-                                        LEFT JOIN HKP.Characteristics C ON IM.FirstCharacteristicsId=C.Id
-                                        LEFT JOIN HKP.Characteristics C2 ON IM.SecondCharacteristicsId=C2.Id
-                                        LEFT JOIN HKP.Characteristics C3 ON IM.ThirdCharacteristicsId=C3.Id
-
-                                        LEFT JOIN [HKP].[CharacteristicsValue] CV ON IM.FirstCharacteristicsValueId=CV.Id
-                                        LEFT JOIN [HKP].[CharacteristicsValue] CV2 ON IM.SecondCharacteristicsValueId=CV2.Id
-                                        LEFT JOIN [HKP].[CharacteristicsValue] CV3 ON IM.ThirdCharacteristicsValueId=CV3.Id
-                                        LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
-                                        LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
-										LEFT JOIN (SELECT COUNT(Id) SplitCount,Sum(VendorQty) TotalDistributeQty
-										,InventoryReceiveDetailId FROM TRN.FabricRollMaster 
-										GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
-WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-
+            return Json(clsFabric.GetMaterialListData(inventoryReceiveId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
         public ActionResult FabricRollList(string inventoryReceiveDetailId)
         {
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + inventoryReceiveDetailId + @"'";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-
+            return Json(clsFabric.FabricRollList(inventoryReceiveDetailId), JsonRequestBehavior.AllowGet);
         }
+
+       
+
         [HttpGet, Authorize]
         public ActionResult DownloadRollReport(string inventoryReceiveDetailId)
         {
             try
             {
-                Library.OrderManagement.FabricRollClass.FabricRollClass RollReport = new Library.OrderManagement.FabricRollClass.FabricRollClass();
-                RollReport.DownloadReport(inventoryReceiveDetailId);
+                clsFabric.DownloadReport(inventoryReceiveDetailId);
 
                 return null;
             }
@@ -541,7 +329,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(2);
-              
+
 
                 #region Lunch Out
                 IWorksheet sheet1 = null;
@@ -555,17 +343,20 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRN Date"); xlsCol += 1;
-                sheet1[xlsRow, xlsCol].Text = fabricRollMaster["GRNDate"].ToString();
+                if (fabricRollMaster["GRNDate"] != null)
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["GRNDate"].ToString();
+                }
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Amount"); xlsCol++;
-                 sheet1[xlsRow, xlsCol].Text = fabricRollMaster["TransactionAmount"].ToString()+" "+ fabricRollMaster["CurrencyCode"].ToString();
+                sheet1[xlsRow, xlsCol].Text = fabricRollMaster["TransactionAmount"].ToString() + " " + fabricRollMaster["CurrencyCode"].ToString();
                 xlsCol += 1;
 
                 xlsRow++; xlsCol = 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO No"); xlsCol++;
-                 //sheet1[xlsRow, xlsCol].Text = fabricRollMaster["POId"].ToString();
+                //sheet1[xlsRow, xlsCol].Text = fabricRollMaster["POId"].ToString();
                 if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["POId"])))
                 {
                     sheet1[xlsRow, xlsCol].Text = fabricRollMaster["POId"].ToString();
@@ -574,13 +365,16 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PO Date"); xlsCol++;
                 //sheet1[xlsRow, xlsCol].Text = clsStaticInfo.SetDate(fabricRollMaster["PODate"].ToString());
-                clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
+                if (fabricRollMaster["PODate"] != null)
+                {
+                    clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
+                }
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Vendor Ref No"); xlsCol++;
                 if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["VendorRefNo"])))
                 {
-                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["VendorRefNo"].ToString(); 
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["VendorRefNo"].ToString();
                 }
                 xlsCol += 1;
 
@@ -589,19 +383,22 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC No"); xlsCol++;
                 if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PurchaseLCNo"])))
                 {
-                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PurchaseLCNo"].ToString(); 
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PurchaseLCNo"].ToString();
                 }
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC Date"); xlsCol++;
-                clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["LCDate"]).ToString("dd-MMM-yyyy"));
-               
+                if (fabricRollMaster["LCDate"] != null)
+                {
+                    clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["LCDate"]).ToString("dd-MMM-yyyy"));
+                }
+
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PI No");
                 if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PINo"])))
                 {
-                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PINo"].ToString(); 
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PINo"].ToString();
                 }
                 xlsCol += 1;
 
@@ -610,14 +407,14 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Vendor"); xlsCol++;
                 if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PartyName"])))
                 {
-                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PartyName"].ToString(); 
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PartyName"].ToString();
                 }
                 xlsCol += 1;
 
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Opening Bank"); xlsCol++;
                 if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["OpeningBank"])))
                 {
-                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["OpeningBank"].ToString(); 
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["OpeningBank"].ToString();
                 }
                 xlsCol += 1;
 
@@ -645,7 +442,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 //sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol;  xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MarkarCode"); colMarkarCode = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricGroup"); colFabricGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Length"); colLength = xlsCol; xlsCol += 1;
@@ -659,7 +456,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnRollNo"); colOwnRollNo = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BuyerRollNo"); colBuyerRollNo = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Grouping"); colGrouping = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); colRemarks = xlsCol; 
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); colRemarks = xlsCol;
 
 
                 endXlsCol = xlsCol;
@@ -751,7 +548,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
                             xlsRow++;
 
 
-                           
+
 
                         }
 
@@ -891,13 +688,17 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
         #region MyRegion
         [HttpGet, Authorize]
-        public JsonResult GetSavedList()
+        public JsonResult GetSavedList(string GRNId)
         {
             CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select F.*,P.UserName Plant,FORMAT(F.GRNDate,'dd-MMM-yyyy')GD from [BPDT].[FabricRollManagementMaster] F
-                            LEFT JOIN ORG.Plant P ON P.Id=F.PlantId
-                            Where PlantId='" + identity.PlantId + "'";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+            return Json(clsFabric.GetSavedList(GRNId,identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFabricRollChildList(string FabricRollManagementMasterId)
+        {
+            return Json(clsFabric.GetFabricRollChildList(FabricRollManagementMasterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -1064,7 +865,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
             try
             {
-                DataSet dsMaster, dsDetail;
+                DataSet dsMaster, dsDetail, dsGRNDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [BPDT].[FabricRollManagementMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -1089,8 +890,9 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-
                 con.OpenDataSetThroughAdapter("SELECT * FROM BPDT.FabricRollManagementChild WHERE FabricRollManagementMasterId ='" + masterId + "'", out dsDetail, false, "1");
+
+                ///con.OpenDataSetThroughAdapter("Select * FROM TRN.InventoryReceiveDetail IRD Where Id='2020539-1'", out dsGRNDetail, false, "1");
 
                 int count = 0;
                 foreach (var item in grnDetailList)

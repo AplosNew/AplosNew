@@ -50,8 +50,31 @@ namespace Aplos.Areas.Commercial.Controllers
 		#endregion
 
 		#region Operation
+		[HttpGet, Authorize]
+		public JsonResult GetVendorAvailableInvoiceListForInvoiceToAcceptancePost(GridParameter parameters, string partyId)
+		{
+			AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			return Json(_accountsInvoiceService.GetVendorAvailableInvoiceListForInvoiceToAcceptancePost(parameters, identity.CompanyGroupId, identity.CompanyId, partyId), JsonRequestBehavior.AllowGet);
+		}
+		[HttpGet, Authorize]
+		public ActionResult InvoiceToAcceptancePostReport(ReportFormat reportFormat, string voucherId)
+		{
+			AccountsInvoiceReportService _accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			var workbook = _accountsInvoiceReportService.GetAcceptancePostReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+			switch (reportFormat)
+			{
+				case ReportFormat.Pdf:
+					return RenderReportAsPdf(workbook, reportFileName);
 
+				case ReportFormat.Excel:
+					return RenderReportAsExcel(workbook, reportFileName);
 
+				default:
+					return RenderReportAsExcel(workbook, reportFileName);
+			}
+		}
 		#endregion
 
 	}

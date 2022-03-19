@@ -616,6 +616,49 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList)) });
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetInvoiceToAcceptancePostList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_invoiceWriteOffService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.InvoiceToAcceptance), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult InsertInvoiceToAcceptancePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+           , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.SourceType = SourceType.InvoiceToAcceptance.ToString();
+            voucherVM.IsPark = true;
+            if (voucherVM.CompanyCurrencyRate <= 0)
+                throw new CustomException("Please Input Rate.");
+
+            foreach (var advanceDetailVM in voucherDetailVMList)
+            {
+                if (advanceDetailVM.Amount == 0 || advanceDetailVM.Amount.ToString() == null)
+                    throw new CustomException("Amount should more than 0");
+                if (voucherVM.CurrencyId != advanceDetailVM.CurrencyId)
+                    throw new CustomException("Transaction currency and Payable currency should be same.!!!");
+            }
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertInvoiceToAcceptancePost(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList)) });
+        }
+        [HttpPost]
+        public ActionResult PostInvoiceToAcceptance(string invoiceWriteOffId)
+        {
+            _invoiceWriteOffService.PostInvoiceToAcceptance(invoiceWriteOffId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteInvoiceToAcceptance(string invoiceWriteOffId, string voucherId)
+        {
+            _invoiceWriteOffService.DeleteInvoiceToAcceptance(invoiceWriteOffId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
         [HttpPost]
         public ActionResult UpdateVendorPayment()
         {
