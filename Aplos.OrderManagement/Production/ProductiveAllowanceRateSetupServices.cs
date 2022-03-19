@@ -379,9 +379,24 @@ namespace Library.OrderManagement.Production
 
                 if (dtChild.Rows.Count > 0)
                 {
-                   
-                       return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
-                    
+                    if (dtChild.Rows.Count == 10)
+                    {
+                        return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                    }
+                    else
+                    {
+                        while (dtChild.Rows.Count < 10)
+                        {
+                            DataRow dr = dtChild.NewRow();
+                            dr["Id"] = null;
+                            dr["HeaderId"] = Id;
+                            dr["Effeciency"] = 0;
+                            dr["EffeciencyRate"] = 0;
+                            dr["Remarks"] = null;
+                            dtChild.Rows.Add(dr);
+                        }
+                        return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                    }
                 }
                 else
                 {
@@ -406,6 +421,7 @@ namespace Library.OrderManagement.Production
             }
         }
         #endregion Get All Rate setup
+
         #region SaveOps
         
         public Dictionary<string, object> saveHeaderRs(Dictionary<string, object> headerData, List<string> process, List<string> entity)
