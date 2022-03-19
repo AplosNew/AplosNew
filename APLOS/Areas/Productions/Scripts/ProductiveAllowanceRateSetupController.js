@@ -101,6 +101,8 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     }
     $scope.getMasterData();
 
+   
+
     //Double Clicking The PA Header Grid
     $scope.getPaHeaderGrid = function (e) {
         var processArr = e.data.Processes.split(',');
@@ -120,6 +122,8 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
         }
         
     }
+
+   
 
     //Saving the Header For ProductiveAllowance
     $scope.saveHeaderPA = function () {
@@ -166,47 +170,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     }
 
 
-    //Saving the Header For rateSetup
-    $scope.saveHeaderRS = function () {
-
-        //Getting the Values from the DropDowns
-        var DropDownJobLocationListObjP = $("#selProcessrs").data("ejDropDownList");
-        var processListsrs = DropDownJobLocationListObjP.getSelectedValue().split(",");
-
-        var DropDownJobLocationListObjE = $("#selEntityrs").data("ejDropDownList");
-        var entityListsrs = DropDownJobLocationListObjE.getSelectedValue().split(",");
-
-        if (processListsrs.length < 1) {
-            ShowResult('Process/Processes are not selected!', 'failure');
-            throw ("Invalid Request!");
-        }
-
-        if (entityListsrs.length < 1) {
-            ShowResult('Entity/Entities are not selected!', 'failure');
-            throw ("Invalid Request!");
-        }
-
-        $http({
-            method: 'POST',
-            url: $scope.path + "saveHeaderRs",
-            data: {
-                'headerData': $scope.HeaderRs,
-                'process': processListsrs,
-                'entity': entityListsrs,
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-
-            if (response.data.Error == "No") {
-                ShowResult(response.data.Msg, 'success');
-                //$scope.HeaderPa = response.data.Data;
-                Object.assign($scope.HeaderRs, response.data.Data);
-            }
-            else {
-                ShowResult(response.data.Msg, 'failure');
-            }
-        });
-    }
+    
 
     //Clearing Header PA
     $scope.clearHeaderPA = function () {
@@ -279,5 +243,147 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
             $scope.PaChildList[i].AdditionOperationAllowance = 0;
         }
     }
+
+    //--------------------------------
+    //--------------------------------
+
+    // Rate Setup Start Module
+
+    // Getting the RS MasterData start
+    $scope.getRsMasterData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getRsMasterData",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.RsHeaderList = response.data;
+        });
+    }
+    $scope.getRsMasterData();
+     // Getting the RS MasterData end
+
+    //Double Clicking The RS Header Grid
+    $scope.getRsHeaderGrid = function (e) {
+        var processArr = e.data.Processes.split(',');
+        var entityArr = e.data.Entity.split(',');
+
+        var Prs = $("#selProcessrs").data("ejDropDownList").selectItemByText(processArr);
+        var Ers = $("#selEntityrs").data("ejDropDownList").selectItemByText(entityArr);
+        Object.assign($scope.HeaderRs, e.data);
+        //$scope.HeaderPa.Id = e.data.Id;
+        //$scope.HeaderPa.UserName = e.data.UserName;
+        //$scope.HeaderPa.EffectiveDate = e.data.EffectiveDate;
+        //$scope.HeaderPa.Remarks = e.data.Remarks;
+        $scope.getRsChildList($scope.HeaderRs.Id);
+
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+
+    }
+
+    //Saving the Header For RateSetup
+    $scope.saveHeaderRS = function () {
+
+        //Getting the Values from the DropDowns
+        var DropDownJobLocationListObjP = $("#selProcessrs").data("ejDropDownList");
+        var processListsrs = DropDownJobLocationListObjP.getSelectedValue().split(",");
+
+        var DropDownJobLocationListObjE = $("#selEntityrs").data("ejDropDownList");
+        var entityListsrs = DropDownJobLocationListObjE.getSelectedValue().split(",");
+
+        if (processListsrs.length < 1) {
+            ShowResult('Process/Processes are not selected!', 'failure');
+            throw ("Invalid Request!");
+        }
+
+        if (entityListsrs.length < 1) {
+            ShowResult('Entity/Entities are not selected!', 'failure');
+            throw ("Invalid Request!");
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "saveHeaderRs",
+            data: {
+                'headerData': $scope.HeaderRs,
+                'process': processListsrs,
+                'entity': entityListsrs,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+
+            if (response.data.Error == "No") {
+                ShowResult(response.data.Msg, 'success');
+                //$scope.HeaderPa = response.data.Data;
+                Object.assign($scope.HeaderRs, response.data.Data);
+            }
+            else {
+                ShowResult(response.data.Msg, 'failure');
+            }
+        });
+    }
+
+    //Clearing Header RS
+    $scope.clearHeaderRS = function () {
+        $scope.HeaderRs = {
+            Id: null,
+            UserName: null,
+            EffectiveDate: null,
+            Remarks: null
+        };
+        $("#selProcessrs").data("ejDropDownList").clearText();
+        $("#selEntityrs").data("ejDropDownList").clearText();
+        $scope.RsChildList = [];
+    }
+
+
+    // Get Child Function List
+
+    $scope.getRsChildList = function (s) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getRsChildList",
+            data: { 'Id': s },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.RsChildList = response.data;
+        });
+    }
+
+    //Saving the Rs Child List
+    $scope.saveChildRs = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "saveChildRs",
+            data: {
+                'childData': $scope.RsChildList,
+                'headerId': $scope.HeaderRs.Id,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+
+            if (response.data.Error == "No") {
+
+                ShowResult(response.data.Msg, 'success');
+                //$scope.HeaderPa = response.data.Data;
+                Object.assign($scope.RsChildList, response.data.Data);
+            }
+            else {
+                ShowResult(response.data.Msg, 'failure');
+            }
+        });
+    }
+
+    // Clearing Child Rs
+    $scope.clearChildRs = function () {
+        for (var i = 0; i < $scope.RsChildList.length; i++) {
+            $scope.RsChildList[i].Effeciency = 0;
+            $scope.RsChildList[i].EffeciencyRate = 0;           
+            $scope.RsChildList[i].Remarks = null;
+        }
+    }
+
+   
     
 }

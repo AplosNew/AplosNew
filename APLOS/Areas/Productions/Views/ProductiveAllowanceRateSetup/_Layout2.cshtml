@@ -51,30 +51,51 @@
                     <ul class="list-inline text-right">
                         <li> <button ng-click="saveHeaderRS();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                         @*<li> <button data-toggle="modal" data-target="#confirmPopUpMaster" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                        <li> <button ng-click="clearHeader();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li> <button ng-click="clearHeaderRS();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
             </div>
         </div>
         <div class="clearfix"></div>
 
-        <div class="tab-design" id="tab_show">
-            <div class="site-tab">
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Child" role="tab" data-toggle="tab">Child</a></li>
-                    @*<li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="DayStatus" role="tab" data-toggle="tab">Day Status</a></li>*@
-                    @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Entry</a></li>*@
-                    @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="LeaveDayType" role="tab" data-toggle="tab">Leave Day Type Entry</a></li>*@
-                </ul>
-            </div>
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                    <div class="row">
-                        <p>Child 1</p>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 ">
+                <div id="ChildList" ej-grid e-datasource="RsChildList" e-templaterefresh="refreshTemplate"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:20px;">
+                    <div e-columns>
+
+                       
+                      
+                       <div e-column e-field="Effeciency" e-template="#effeciency" e-type="string" e-headertext="Effeciency" e-width="80"></div>
+                        <div e-column e-field="EfficiencyRate" e-template="#effRt" e-type="string" e-headertext="Efficiency Rate" e-width="50"></div>
+                        <div e-column e-field="Remarks" e-template="#remarks" e-type="string" e-headertext="Remarks" e-width="50"></div>
+                       
                     </div>
                 </div>
+                <script type="text/template" id="effeciency">
+                   
+                    <input type="number" ng-model="data.Effeciency" style="color:black; text-align:center" />
+                </script>
+                <script type="text/template" id="effRt">
+                    <input type="number" ng-model="data.EffeciencyRate" style="color:black; text-align:center" />
+                </script>
+                <script type="text/template" id="remarks">
+                    <input type="text" ng-model="data.Remarks" style="color:black; text-align:center" />
+                </script>
 
+                <div class="col-xs-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="saveChildRs();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            @*<li> <button data-toggle="modal" data-target="#confirmPopUpMaster" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                            <li> <button ng-click="clearChildRs();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
+
+
         </div>
     </div>
 
@@ -83,22 +104,20 @@
 <div class="row text-right aplos-grid-toggle">
 
     <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div style="color:black;" id="HeaderGrid" ej-grid e-datasource="HeaderList"
+        <div style="color:black;" id="HeaderGrid" ej-grid e-datasource="RsHeaderList"
              e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
-             e-allowselection="true" e-recorddoubleclick="getHeaderDetails" e-filtersettings-filterType="excel"
+             e-allowselection="true" e-recorddoubleclick="getRsHeaderGrid" e-filtersettings-filterType="excel"
              e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
             <div e-columns>
 
-                <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-                @* <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>*@
-                @*<div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>*@
+                
                 <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
-                @*<div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>*@
+                
+                <div e-column e-field="EffectiveDate" e-headertext="Effective Date" e-width="150"></div>
                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
-                <div e-column e-field="Date" e-headertext="Date" e-width="150"></div>
-                <div e-column e-field="Process" e-headertext="Process" e-width="150"></div>
+                <div e-column e-field="Processes" e-headertext="Process" e-width="150"></div>
                 <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
-                @*<div e-column e-field="Active" e-headertext="Active" e-width="50"></div>*@
+               
 
 
             </div>
