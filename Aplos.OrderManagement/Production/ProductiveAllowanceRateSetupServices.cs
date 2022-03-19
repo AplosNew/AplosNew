@@ -573,16 +573,16 @@ namespace Library.OrderManagement.Production
                 for (int i = 0; i < childData.Count; i++)
                 {
                     var jj = childData[i];
-                    if((int)(jj["Effeciency"]) > 0)
+                    if( clsStaticInfo.dbl(jj["Effeciency"].ToString()) > 0)
                     {
                         jj["Id"] = headerId + i;
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         dr["Id"] = headerId + i;
                         dr["HeaderId"] = headerId;
-                        dr["Effeciency"] = jj["Effeciency"];
-                        dr["EffeciencyRate"] = jj["EffeciencyRate"];
-                        dr["Remarks"] = jj["Remarks"];
+                        dr["Effeciency"] = clsStaticInfo.dbl(jj["Effeciency"].ToString());
+                        dr["EffeciencyRate"] = clsStaticInfo.dbl(jj["EffeciencyRate"].ToString());
+                        dr["Remarks"] = jj["Remarks"].ToString();
 
                     
                         dr["AddedBy"] = identity.Name;
@@ -592,10 +592,6 @@ namespace Library.OrderManagement.Production
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
                         dsMaster.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        
                     }
                 }
 
