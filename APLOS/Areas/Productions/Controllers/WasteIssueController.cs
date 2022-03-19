@@ -19,6 +19,9 @@ using Library.Data;
 using System.Reflection;
 using Library.Service.Logs;
 using Library.Service.Processes;
+using Syncfusion.XlsIO;
+using Library.Service.Helpers;
+using System.IO;
 
 #endregion Using
 
@@ -29,7 +32,7 @@ namespace Aplos.Areas.Productions.Controllers
         private readonly IProcessService _processService;
         WasteMasterService ws = new WasteMasterService();
         string TableName = "dbo.WasteMaster";
-        
+
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
@@ -44,34 +47,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
-        
-        
-        [Authorize, HttpPost]
-        public ActionResult getProcess()
-        {
-            return Json(ws.getProcess(), JsonRequestBehavior.AllowGet);
-        }
 
-        [Authorize, HttpGet]
-        public ActionResult getUOM()
-        {
-            return Json(ws.getUOM(), JsonRequestBehavior.AllowGet);
-        }
 
         [Authorize, HttpPost]
-        public ActionResult getBudget()
-        {
-            return Json(ws.getBudgetId(), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetCbo()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM dbo.WasteMaster"), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult GetWaste(string entityId,string Id)
+        public ActionResult GetWaste(string entityId, string Id)
         {
             try
             {
@@ -84,13 +63,13 @@ namespace Aplos.Areas.Productions.Controllers
 				                    from WasteTransactionData WTD
 				                    left join WasteMaster WM on WM.Id=WTD.WasteMasterId
 				                    left join SCS.UnitOfMeasurement UOM on UOM.Id=WM.UOMId
-									LEFT JOIN WasteIssueDetails WID ON WID.WasteTransactionDataId=WTD.Id AND WID.WasteIssueId='"+Id+@"'
+									LEFT JOIN WasteIssueDetails WID ON WID.WasteTransactionDataId=WTD.Id AND WID.WasteIssueId='" + Id + @"'
 									LEFT JOIN (select sum(IssueQty) OtherQty,WasteTransactionDataId,WasteIssueId from WasteIssueDetails group by WasteTransactionDataId,WasteIssueId) WIDS ON WIDS.WasteTransactionDataId=WTD.Id
-									AND WIDS.WasteIssueId<> '"+Id+@"'
+									AND WIDS.WasteIssueId<> '" + Id + @"'
 
                                     left join HKP.Process P on P.Id=WID.ProcessId
 				                    where EntityId='" + entityId + "' ";
-              
+
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -101,22 +80,6 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-       
-
-        [HttpPost]
-        public ActionResult GetList(string column, string value)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-            return Json(ws.GetList(strkey), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
-        {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
-        }
 
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -138,7 +101,7 @@ namespace Aplos.Areas.Productions.Controllers
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            
+
             dt.Rows.Add(dr);
         }
 
@@ -168,7 +131,7 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpPost, Authorize]
         public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> WasteData)
         {
-            
+
 
             try
             {
@@ -277,33 +240,48 @@ namespace Aplos.Areas.Productions.Controllers
 
         public ActionResult Delete(string id)
         {
+            string strUSQL, wasteSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                ws.Delete(id);
+                //talkingSQL = "delete from dbo.MeetingTalkingPoint Where MeetingItemHeaderId='" + id + "'";
+                //suggestionSQL = "delete from dbo.MeetingSuggestion Where MeetingItemHeaderId='" + id + "'";
+                //actionSQL = "delete from dbo.MeetingActionablePoints Where MeetingItemHeaderId='" + id + "'";
+                wasteSQL = "delete from dbo.WasteIssueDetails Where WasteIssueId='" + id + "'";
+                strUSQL = "delete dbo.WasteIssue Where Id='" + id + "'";
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                //objCon.ExecuteNonQueryWrapper(talkingSQL, true, "1");
+                //objCon.ExecuteNonQueryWrapper(suggestionSQL, true, "1");
+                //objCon.ExecuteNonQueryWrapper(actionSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(wasteSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strUSQL, true, "1");
+                objCon.CommitTransaction();
 
+                return Json(new { Message = AplosMessage.Deleted });
             }
             catch (Exception ex)
             {
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
             }
+            finally
+            {
 
-
+                objCon = null;
+            }
         }
 
-
-        
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
 
         [Authorize, HttpPost]
         public ActionResult getEntity()
@@ -312,7 +290,7 @@ namespace Aplos.Areas.Productions.Controllers
             string str = @"Select e.Id as EntityId, e.UserName as EntityName , p.UserName as Plant, c.UserName as Company from org.Entity e
                                 left join org.Plant p on p.Id = e.PlantId
                                 left join org.Company c on c.Id = p.CompanyId";
-           
+
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -351,5 +329,272 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult GetWasteMasterData()
+        {
+            string sql = @"select WI.*,E.Id EntityId,E.UserName Entity,EI.EmployeeCode PreparedByCode,EI.EmployeeName PreparedBy,EmpI.EmployeeCode ApprovedByCode
+												,EmpI.EmployeeName ApprovedBy,EmpInfo.EmployeeCode CheckedByCode,EmpInfo.EmployeeName CheckedBy
+					                            from WasteIssue WI
+					                            left join ORG.Entity E on E.Id=WI.EntityId
+					                            left join EmployeeInformation EI on EI.SystemId=WI.PreparedById
+					                            left join EmployeeInformation EmpI on EmpI.SystemId=WI.ApprovedById
+					                            left join EmployeeInformation EmpInfo on EmpInfo.SystemId=WI.CheckedById";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetWasteReport(Dictionary<string, string> Id)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = WasteReport(Id, "MeetingReport");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string WasteReport(Dictionary<string, string> Id, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "MeetingReports";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                MeetingReportSQL(Id, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sequence";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColSequence = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Waste Category";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColWasteCategory = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Waste Sub Category";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColWasteSubCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WasteName";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColWasteName = COL;
+                COL++;
+                sheet[ROW, COL].Text = "UOM";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColUOM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Stock Quantity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColStockQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Standard Rate";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColStdRate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Standard Value";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int ColStdValue = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Issue Quantity";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColIssueQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Balance Stock";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColBalanceStock = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Rate";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Issue Value";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColIssueValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColProcess = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColRemarks = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Balance Stock Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColBalanceStockValue = COL;
+                
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
+                    sheet[ROW, ColSequence].Text = clsStaticInfo.GetDate(data.Rows[i]["Sequence"].ToString());
+                    sheet[ROW, ColWasteCategory].Text = data.Rows[i]["WasteCategory"].ToString();
+                    sheet[ROW, ColWasteSubCategory].Text = data.Rows[i]["WasteSubCategory"].ToString();
+                    sheet[ROW, ColWasteName].Text = data.Rows[i]["WasteName"].ToString();
+                    sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
+                    sheet[ROW, ColStockQty].Text = data.Rows[i]["StockQty"].ToString();
+                    sheet[ROW, ColStdRate].Text = data.Rows[i]["StdRate"].ToString();
+                    sheet[ROW, ColStdValue].Text = data.Rows[i]["StdValue"].ToString();
+                    sheet[ROW, ColIssueQty].Text = data.Rows[i]["IssueQty"].ToString();
+                    sheet[ROW, ColBalanceStock].Text = data.Rows[i]["BalanceStock"].ToString();
+                    sheet[ROW, ColRate].Text = data.Rows[i]["Rate"].ToString();
+                    sheet[ROW, ColIssueValue].Text = data.Rows[i]["IssueValue"].ToString();
+
+                    //sheet[ROW, ColTargetDate].Text = clsStaticInfo.GetDate(data.Rows[i]["TargetDate"].ToString());
+
+                    sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
+                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                    sheet[ROW, ColBalanceStockValue].Text = data.Rows[i]["BalanceStkValue"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Meeting Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void MeetingReportSQL(Dictionary<string, string> Id, out DataTable data)
+        {
+            try
+            {
+
+                string strSQL = @"select WID.Id,WTD.Id WasteTransactionDataId,WM.Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName WasteName
+				                    ,UOM.UserName UOM,WTD.Quantity StockQty,WM.StandardRate StdRate,(WTD.Quantity*WM.StandardRate) StdValue
+				                    ,ISNULL(WID.IssueQty,0) IssueQty,ISNULL(WID.Rate,0) Rate,WID.ProcessId,P.UserName Process,WID.Remarks,(ISNULL(WID.IssueQty,0) * ISNULL(WID.Rate,0))as IssueValue
+									,ISNULL((WTD.Quantity-(WID.IssueQty+ISNULL(WIDS.OtherQty,0))),0) as BalanceStock
+									,((ISNULL(WTD.Quantity,0)*ISNULL(WM.StandardRate,0))-(ISNULL(WID.IssueQty,0)*ISNULL(WID.Rate,0))) as BalanceStkValue,ISNULL(WIDS.OtherQty,0) OtherQty
+				                    from WasteTransactionData WTD
+				                    left join WasteMaster WM on WM.Id=WTD.WasteMasterId
+				                    left join SCS.UnitOfMeasurement UOM on UOM.Id=WM.UOMId
+									LEFT JOIN WasteIssueDetails WID ON WID.WasteTransactionDataId=WTD.Id AND WID.WasteIssueId='" + Id + @"'
+									LEFT JOIN (select sum(IssueQty) OtherQty,WasteTransactionDataId,WasteIssueId from WasteIssueDetails group by WasteTransactionDataId,WasteIssueId) WIDS ON WIDS.WasteTransactionDataId=WTD.Id
+                                    AND WIDS.WasteIssueId<> '" + Id + @"'
+
+                                    left join HKP.Process P on P.Id=WID.ProcessId";
+
+                data = _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
+        {
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+                //string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(FullPath);
+                try
+                {
+                    System.IO.File.Delete(FullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
+        }
     }
 }

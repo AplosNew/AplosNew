@@ -5,8 +5,6 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Productions/WasteIssue/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
@@ -31,7 +29,7 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.ModelTemp = {
         Id: 0,
         WasteMasterId: null,
-       /* IssueId: null,*/
+        /* IssueId: null,*/
         Entity: null,
         EntityId: null,
         PreparedById: null,
@@ -63,18 +61,9 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
     //};
     //$scope.ModelWasteIssue = Object.assign({}, $scope.ModelWaste);
 
+    
+
     $scope.WasteDetailDataList = [];
-
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
-
-
-
 
     $scope.Save = function () {
 
@@ -128,8 +117,8 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
+                    $scope.Get();
+                    $scope.Clear();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -139,9 +128,30 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
     };
 
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
-        return true;
+        $scope.ModelNew = {
+            Id: 0,
+            WasteMasterId: null,
+            /* IssueId: null,*/
+            Entity: null,
+            EntityId: null,
+            PreparedById: null,
+            PreparedByCode: null,
+            PreparedBy: null,
+            ApprovedById: null,
+            ApprovedByCode: null,
+            ApprovedBy: null,
+            CheckedById: null,
+            CheckedByCode: null,
+            CheckedBy: null,
+            Waste: null,
+            Purpose: null,
+            Date: null,
+            Remarks: null,
+        };
+        $scope.WasteDetailDataList = [];
+        $scope.Action = 'Save';
     };
+
 
     function ClearFields(seq) {
         $scope.Action = 'Save';
@@ -428,5 +438,64 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
         obj.data.BalanceStock = obj.data.StockQty - (obj.data.IssueQty + obj.data.OtherQty);
         obj.data.IssueValue = obj.data.Rate * obj.data.IssueQty;
         obj.data.BalanceStkValue = obj.data.StdValue - obj.data.IssueValue;
+    }
+
+    $scope.GetWasteUpd = function (args) {
+
+        $scope.ModelNew = Object.assign({}, args.data);
+       
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+        $scope.Get();
+    };
+
+
+    $scope.GetWasteMaster = function () {
+        try {
+            $scope.ModelList = [];
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetWasteMasterData",
+                //data: {'Id': $scope.ModelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.ModelList = response.data;
+
+            });
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.GetWasteMaster();
+
+
+    $scope.Report = function (data) {
+        try {
+            $scope.fileName = "WasteReport.xlsx";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetWasteReport",
+                data: { 'Id': data.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+
+                if (response.data.Error == false) {
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
     }
 }
