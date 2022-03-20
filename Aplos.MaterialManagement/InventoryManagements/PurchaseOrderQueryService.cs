@@ -1445,6 +1445,37 @@ namespace Library.MaterialManagement.InventoryManagements
             }
         }
 
+        public IEnumerable<object> GRNDocumentMapDataBOQ(string POID)
+        {
+            try
+            {
+                var _sql = @"SELECT
+								Id
+							  ,CompanyGroupId							  
+							  ,GRNId
+							  ,UserFilename 
+							  ,SystemFileName
+							  ,Description
+							  ,Remarks
+							  ,AddedBy
+							  ,AddedDate
+							  ,AddedFromIP
+							  ,UpdatedBy
+							  ,UpdatedDate
+							  ,UpdatedFromIP
+						  FROM [TRN].[GRNDocumentMap] 
+							where GRNId='" + POID + @"'
+							ORDER BY UserFilename";
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
         public IEnumerable<object> GRNImageDelete(string Id)
         {
             try

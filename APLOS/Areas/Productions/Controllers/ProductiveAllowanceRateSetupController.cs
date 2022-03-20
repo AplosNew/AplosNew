@@ -46,10 +46,24 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(pa.getMasterData(), JsonRequestBehavior.AllowGet);
         }
 
+        // Get All Rate Set up Data start
+        [HttpPost, Authorize]
+        public ActionResult getRsMasterData()
+        {
+            return Json(pa.getRsMasterData(), JsonRequestBehavior.AllowGet);
+        }
+        // Get All Rate Set up Data end
+
         [HttpPost, Authorize]
         public ActionResult getPaChildList(string Id)
         {
             return Json(pa.getPaChildList(Id), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult getRsChildList(string Id)
+        {
+            return Json(pa.getRsChildList(Id), JsonRequestBehavior.AllowGet);
         }
 
         #endregion GetOperations
@@ -68,6 +82,7 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = "Yes", Msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
 
         [HttpPost]
         public ActionResult saveChildPa(List<Dictionary<string, object>> childData, string headerId)
@@ -98,6 +113,20 @@ namespace Aplos.Areas.Productions.Controllers
             catch (Exception ex)
             {
                 return Json(new { Error = "Yes", Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        // --------------------------------------Save Child RS
+        [HttpPost]
+        public ActionResult saveChildRs(List<Dictionary<string, object>> childData, string headerId)
+        {
+            try
+            {
+                return Json(new { Error = "No", Data = pa.saveChildRs(childData, headerId), Msg = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
             }
         }
         #endregion Savings

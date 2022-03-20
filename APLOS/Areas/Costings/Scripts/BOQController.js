@@ -212,6 +212,32 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     //    $scope.getPartyList();
     //};
 
+    $scope.searchByPartyList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'User Name',
+            'value': 'UserName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        },
+        {
+            'name': 'Short Name',
+            'value': 'ShortName'
+        },
+        {
+            'name': 'Party Group',
+            'value': 'PartyGroup'
+        }
+    ];
 
     $scope.showPartyPopUpNew = function (data) {
        

@@ -471,6 +471,212 @@ namespace Library.MaterialManagement.InventoryManagements
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
 			}
 		}
+		public IEnumerable<object> GetGRNDetailsForSoAllocationBOQ(string InventoryReceiveDetailId, string PODetailId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			try
+			{
+				var currentStatusCount = GetCompanyCurrencyId(InventoryReceiveDetailId);
+
+				var sql = "";
+				if (!string.IsNullOrEmpty(InventoryReceiveDetailId))
+				{
+					if (currentStatusCount.Count == 0)
+					{
+						sql = @"select a.Id GRNID
+						--,b.Id POdetailId
+						--,c.BOQDetailId
+						--,d.SalesOrderId 
+						,MGM.UserName AS MaterialGroupMasterName
+						,MM.Id AS MaterialMasterId
+						,MM.UserName
+						,IM.ArticleId
+						,ART.StandardName
+						,IM.FirstCharacteristicsId
+						,FC.UserName AS FirstCharacteristics
+						,IM.FirstCharacteristicsValueId
+						,FCV.UserName AS FirstCharacteristicsValue
+						,IM.SecondCharacteristicsId
+						,SC.UserName AS SecondCharacteristics
+						,IM.SecondCharacteristicsValueId
+						,SCV.UserName AS SecondCharacteristicsValue
+						,IM.ThirdCharacteristicsId
+						,TC.UserName AS ThirdCharacteristics
+						,IM.ThirdCharacteristicsValueId
+						,TCV.UserName AS ThirdCharacteristicsValue
+						,c.PODetailId
+						,C.BOQDetailId
+						,C.Id POBOQMAPID
+						,C.TransactionQty TransactionQtyForPO
+						,C.TransactionUoMId,uom.UserName TransactionUoM
+						,C.BaseQty
+						,C.BaseUoMId
+						,C.POBOQQty
+						,C.POUoMId
+						,d.BOMQty ReqQty
+						,0 allowQty
+						,b.TransactionQty POTransactionQty
+						,a.TransactionQty GRNQty
+						,a.RejectionQty  GRNRejectionQty
+						,isnull(GRN.Qty,0) allowCatedQty
+						,0 TransactionQty
+						,0 RejectionQty
+						,null Active
+						--,GRN.Id 
+						,GRN.RejectQty
+						,d.SalesOrderId
+						From trn.InventoryReceiveDetail a
+						LEFT JOIN trn.PurchaseOrderDetail b on b.Id=a.PODetailsId
+						left join trn.POBOQMAP c on c.PODetailId=b.Id
+						left join boq d On d.Id=c.BOQDetailId
+						left JOIN trn.InventoryMaterial IM ON IM.Id=a.InventoryMaterialId
+						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+						LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+						--LEFT JOIN (select Sum(TransactionQty) Qty,InventoryReceiveDetailid,Id,sum(RejectQty) RejectQty from trn.GRNPORequisitionAllocation where InventoryReceiveDetailid='" + InventoryReceiveDetailId + @"'  group by InventoryReceiveDetailid,Id ) GRN ON GRN.InventoryReceiveDetailid=a.Id
+                        left JOIN(select POBOQMapId ,Sum(TransactionQty) Qty,sum(RejectQty) RejectQty from trn.GRNPORequisitionAllocation  GROUP BY POBOQMapId)GRN ON GRN.POBOQMapId=c.Id						
+						left join scs.UnitOfMeasurement uom ON uom.Id=c.TransactionUoMId where a.Id='" + InventoryReceiveDetailId + "' Order By d.SalesOrderId";
+
+					}
+					else
+					{
+						sql = @"select           a.Id GRNID				
+								,MGM.UserName AS MaterialGroupMasterName
+								,MM.Id AS MaterialMasterId
+								,MM.UserName
+								,IM.ArticleId
+								,ART.StandardName
+								,IM.FirstCharacteristicsId
+								,FC.UserName AS FirstCharacteristics
+								,IM.FirstCharacteristicsValueId
+								,FCV.UserName AS FirstCharacteristicsValue
+								,IM.SecondCharacteristicsId
+								,SC.UserName AS SecondCharacteristics
+								,IM.SecondCharacteristicsValueId
+								,SCV.UserName AS SecondCharacteristicsValue
+								,IM.ThirdCharacteristicsId
+								,TC.UserName AS ThirdCharacteristics
+								,IM.ThirdCharacteristicsValueId
+								,TCV.UserName AS ThirdCharacteristicsValue
+								,c.PODetailId
+								,C.BOQDetailId
+								,C.Id POBOQMAPID
+								,C.TransactionQty TransactionQtyForPO
+								,C.TransactionUoMId,uom.UserName TransactionUoM
+								,C.BaseQty
+								,C.BaseUoMId
+								,C.POBOQQty
+								,C.POUoMId
+								,d.BOMQty ReqQty
+								,0 allowQty
+								,b.TransactionQty POTransactionQty
+								,a.TransactionQty GRNQty
+								,a.RejectionQty  GRNRejectionQty				
+								,0 TransactionQty
+								,0 RejectionQty
+								,null Active
+								,GRN.Id 
+								,GRN.RejectQty
+								,isnull(GRN.TransactionQty,0) allowCatedQty1
+								,d.SalesOrderId
+								,isnull(AllocatedSOQty.AllocatedSOQty,0) allowCatedQty
+								From trn.GRNPORequisitionAllocation  GRN
+								left join trn.POBOQMAP c on c.Id=GRN.POBOQMapId
+								left join boq d On d.Id=c.BOQDetailId
+								LEFT JOIN trn.InventoryReceiveDetail a ON a.Id=GRN.InventoryReceiveDetailId
+								LEFT JOIN trn.PurchaseOrderDetail b on b.Id=a.PODetailsId			
+								left JOIN trn.InventoryMaterial IM ON IM.Id=a.InventoryMaterialId
+								left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+								LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+								LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+								LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+								LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+								LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+								left join scs.UnitOfMeasurement uom ON uom.Id=c.TransactionUoMId 
+								--left JOIN(select SalesOrderId, Sum(TransactionQty) AllocatedSOQty from trn.GRNPORequisitionAllocation GROUP BY SalesOrderId)AllocatedSOQty ON AllocatedSOQty.SalesOrderId=d.SalesOrderId
+								left JOIN(select POBOQMapId, Sum(TransactionQty) AllocatedSOQty from trn.GRNPORequisitionAllocation GROUP BY POBOQMapId)AllocatedSOQty ON AllocatedSOQty.POBOQMapId=c.Id
+								where a.Id='" + InventoryReceiveDetailId + "' Order By d.SalesOrderId";
+					}
+				}
+				else
+				{
+					sql = @"select '' GRNID
+				--,b.Id POdetailId
+				--,c.BOQDetailId
+				--,d.SalesOrderId 
+				,MGM.UserName AS MaterialGroupMasterName
+				,MM.Id AS MaterialMasterId
+				,MM.UserName
+				,b.ArticleId
+				,ART.StandardName
+				,b.FirstCharacteristicsId
+				,FC.UserName AS FirstCharacteristics
+				,b.FirstCharacteristicsValueId
+				,FCV.UserName AS FirstCharacteristicsValue
+				,b.SecondCharacteristicsId
+				,SC.UserName AS SecondCharacteristics
+				,b.SecondCharacteristicsValueId
+				,SCV.UserName AS SecondCharacteristicsValue
+				,b.ThirdCharacteristicsId
+				,TC.UserName AS ThirdCharacteristics
+				,b.ThirdCharacteristicsValueId
+				,TCV.UserName AS ThirdCharacteristicsValue
+				,c.PODetailId
+				,C.BOQDetailId
+				,C.Id POBOQMAPID
+				,C.TransactionQty TransactionQtyForPO
+				,C.TransactionUoMId,uom.UserName TransactionUoM
+				,C.BaseQty
+				,C.BaseUoMId
+				,C.POBOQQty
+				,C.POUoMId
+				,d.BOMQty ReqQty
+				,0 allowQty
+				,b.TransactionQty POTransactionQty
+				,0 GRNQty
+				,0  GRNRejectionQty
+				--,GRN.Qty allowCatedQty
+				,0 TransactionQty
+				,0 RejectionQty
+				,null Active
+				--,GRN.Id 
+				--,GRN.RejectQty
+				,d.SalesOrderId
+				From trn.PurchaseOrderDetail b 
+				left join trn.POBOQMAP c on c.PODetailId=b.Id
+				left join boq d On d.Id=c.BOQDetailId
+				--left JOIN trn.InventoryMaterial IM ON IM.Id=b.InventoryMaterialId
+				left JOIN MST.MaterialMaster AS MM ON mm.Id = b.InventoryMaterialId
+				LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+				LEFT JOIN MST.MaterialMasterArticle AS ART ON b.ArticleId = ART.Id
+				LEFT JOIN HKP.Characteristics AS FC ON b.FirstCharacteristicsId = FC.Id
+				LEFT JOIN HKP.Characteristics AS SC ON b.SecondCharacteristicsId = SC.Id
+				LEFT JOIN HKP.Characteristics AS TC ON b.ThirdCharacteristicsId = TC.Id
+				LEFT JOIN HKP.CharacteristicsValue AS FCV ON b.FirstCharacteristicsValueId = FCV.Id
+				LEFT JOIN HKP.CharacteristicsValue AS SCV ON b.SecondCharacteristicsValueId = SCV.Id
+				LEFT JOIN HKP.CharacteristicsValue AS TCV ON b.ThirdCharacteristicsValueId = TCV.Id
+				--LEFT JOIN (select Sum(TransactionQty) Qty,InventoryReceiveDetailid,Id,sum(RejectQty) RejectQty from trn.GRNPORequisitionAllocation where InventoryReceiveDetailid='" + InventoryReceiveDetailId + @"'  group by InventoryReceiveDetailid,Id ) GRN ON GRN.InventoryReceiveDetailid=a.Id
+				left join scs.UnitOfMeasurement uom ON uom.Id=c.TransactionUoMId
+				where b.Id='" + PODetailId + @"'";
+				}
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+			}
+		}
 
 
 		public IEnumerable<object> GetMaterialListForProductionReq(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters, string SOMATART, string queryString)
@@ -3066,6 +3272,24 @@ namespace Library.MaterialManagement.InventoryManagements
 			}
 		}
 		public IEnumerable<object> GetAdvanceTaxInfo(string InventoryReceiveId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			try
+			{
+				var sql = "";
+				sql = @"Select a.Id,a.TaxCodeId,a.Percentage ValueOfFixed,a.TaxAmount,a.AddedBy,a.AddedDate,a.AddedFromIP,b.UserName TaxName,InventoryReceiveId
+						from [TRN].[InventoryReceiveAdditionalTax] a
+						left join [mst].[TAXCode] b ON b.Id=a.TaxCodeId where a.InventoryReceiveId='" + InventoryReceiveId + "'";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+			}
+		}
+		public IEnumerable<object> GetAdvanceTaxInfoBOQ(string InventoryReceiveId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
