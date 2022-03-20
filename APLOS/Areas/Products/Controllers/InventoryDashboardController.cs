@@ -751,7 +751,11 @@ namespace Aplos.Areas.Products.Controllers
 		public ActionResult DymnamicExpenseList(IEnumerable<ChartColumnList> ChartColumnList, int seq, string factDate, string fromDate, string toDate, string companyGroupId, string CompanyId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryDashboardService.DymnamicExpenseList(ChartColumnList, seq, factDate, fromDate, toDate, identity.CompanyGroupId, CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+			//return Json(_inventoryDashboardService.DymnamicExpenseList(ChartColumnList, seq, factDate, fromDate, toDate, identity.CompanyGroupId, CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+			var json = Json(_inventoryDashboardService.DymnamicExpenseList(ChartColumnList, seq, factDate, fromDate, toDate, identity.CompanyGroupId, CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+			json.MaxJsonLength = int.MaxValue;
+			return json;
+
 		}
 
 		[HttpPost, Authorize]

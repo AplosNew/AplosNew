@@ -643,6 +643,12 @@ namespace Aplos.Areas.Products.Controllers
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			return Json(_inventoryMaterialService.QueryForPurchaseOrderDetail(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
 		}
+		[Authorize, HttpGet]
+		public JsonResult GetPOBOQMAPList(GridParameter parameters, string inveReveiveId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			return Json(_inventoryMaterialService.GetPOBOQMAPList(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
+		}
 
 		[Authorize, HttpGet]
 		public JsonResult GetInventoryMaterialPayable(string inveReveiveId, string employeeId, bool isReversCharge)
@@ -4489,21 +4495,39 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		}
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
 		//public JsonResult detailPOUpdateForBOQ(IEnumerable<InventoryMaterialViewModel> entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
-		public JsonResult detailPOUpdateForBOQ(string entity, string groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
-
+		public JsonResult detailPOUpdateForBOQ(PurchaseOrder entity, string groupList, string boqmapList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			if (entity == null)
+			entity.CompanyGroupId = identity.CompanyGroupId;
+			entity.CompanyId = identity.CompanyId;
+			entity.PlantId = identity.PlantId;
+			if (identity.EmployeeId == entity.CheckedBy)
+			{
+				throw new CustomException("Please select another employee for Check by.");
+			}
+
+			entity.CheckedBy = entity.CheckedBy;
+			entity.CheckedByStatus = "Pending";
+			entity.AuthorizedBy = null;
+			entity.AuthorizedByStatus = null;
+			entity.POType = "POBOQ";
+			entity.IsApproved = false;
+
+			entity.IsClosed = false;
+			entity.MasterOrderId = null;
+			//entity.CheckedBy = "";
+			entity.AddedBy = null;
+			entity.EmployeeId = identity.EmployeeId;
+			if (groupList == null)
 			{
 				throw new CustomException("Please select Items");
 			}
 			else
 			{
-				List<InventoryMaterialViewModel> entityDetailVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entity);
-				List<InventoryMaterialViewModel> groupListDetailVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(groupList);
-				//_inventoryDetailService.InsertOrUpdateGraphPoForBOQItem(entityDetailVM, groupListDetailVM, taxCategoryList, PoId);
 
-				_purchseOrderDetailService.InsertOrUpdateGraphPoForBOQItemUpdate(entityDetailVM, groupListDetailVM, taxCategoryList, PoId);
+				List<InventoryMaterialViewModel> groupListDetailVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(groupList);
+				List<InventoryMaterialViewModel> boqmapListVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(boqmapList);
+				_purchseOrderDetailService.POBoqUpdate(entity, groupListDetailVM, boqmapListVM, taxCategoryList, PoId);
 			}
 			return Json(new { entity, Message = AplosMessage.Success });
 		}
@@ -5139,7 +5163,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 		[HttpPost, Authorize]
 		public JsonResult GetCompanyBOQPartyDataListNew(string column, string value, string partyType)
 		{
-			PurchaseOrderBOQQueryService purchaseOrderBOQQueryService = new PurchaseOrderBOQQueryService(_sqlRepository);
+			 BOQQueryService purchaseOrderBOQQueryService = new  BOQQueryService(_sqlRepository);
 			 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			var res = purchaseOrderBOQQueryService.GetCompanyBOQPartyListNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
 			var jsondata = Json(res, JsonRequestBehavior.AllowGet);

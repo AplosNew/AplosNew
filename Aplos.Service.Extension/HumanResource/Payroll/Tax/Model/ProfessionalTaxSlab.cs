@@ -28,12 +28,6 @@ namespace Library.Service.Extension.Payroll.Tax.Model
             {
                 if (this.MonthOfAdjustment == monthno)
                 {
-                    //if (this.AdjustingAmount > 0)
-                    //{
-                    //    _monthly_amount = this.AdjustingAmount;
-                    //}
-                    //else
-                    //{
                         decimal YearlyLimit = 0;
                         if (yearlySlabValue == null)
                         {
@@ -70,13 +64,7 @@ namespace Library.Service.Extension.Payroll.Tax.Model
             try
             {
                 if (this.MonthOfAdjustment == monthno)
-                {
-                    //if (this.AdjustingAmount > 0)
-                    //{
-                    //    _monthly_amount = this.AdjustingAmount;
-                    //}
-                    //else
-                    //{
+                {                    
                         if (Prev_PTax != null)
                         {
                             _monthly_amount = this.YearlyTaxAmount - Prev_PTax.StructureAmount;

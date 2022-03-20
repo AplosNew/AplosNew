@@ -305,8 +305,10 @@ namespace Library.OrderManagement.Costing
                 if (ItemData == null || ItemData.Count == 0)
                     throw new Exception("Please select at least one item");
 
-                if (string.IsNullOrEmpty(MasterData["UserName"].ToString()))
-                    throw new Exception("Please add user name.");
+                if (MasterData["UserName"]==null)
+                    throw new Exception("User name is required.");
+                //if (string.IsNullOrEmpty(MasterData["UserName"].ToString()))
+                //    throw new Exception("Please add user name.");
 
                 string SOIds = "''";
                 for (int i = 0; i < SalesOrderData.Count; i++)
@@ -627,6 +629,7 @@ namespace Library.OrderManagement.Costing
             dt.Columns.Add("BOMQty");
             dt.Columns.Add("RequiredQty");
             dt.Columns.Add("BOMAmount");
+            dt.Columns.Add("MasterOrderItemId");
 
             for (int i = 0; i < dt.Rows.Count; i++)
             {
@@ -740,15 +743,21 @@ namespace Library.OrderManagement.Costing
         }
         public void BOQ(string CostingBOQMasterId, string SalesOrderIds, string CostingItemIds, string CostingTemplateId, out DataSet dsExistingBOQ, out DataSet CompactBOQData)
         {
+            DataSet dsMISO ;
             BOQQuery(CostingBOQMasterId, SalesOrderIds, CostingItemIds, CostingTemplateId, out DataTable dtNewBOQ, out Dictionary<string, DataRow> dicNewData);
 
             ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager();
             ConManager.getDataSet("select * from CostingBOQ where SalesOrderId IN (" + SalesOrderIds + ") AND CostingItemId IN (" + CostingItemIds + ")", out dsExistingBOQ);
+            ConManager.getDataSet(@"select distinct MasterOrderItemId,Id from TRN.SalesOrder where Id IN (" + SalesOrderIds + ")", out  dsMISO);
 
+
+            dsExistingBOQ.Tables[0].Columns.Add("MasterOrderItemId");
             string KEY = "";
             Dictionary<string, DataRow> dicExistingData = new Dictionary<string, DataRow>();
             for (int i = 0; i < dsExistingBOQ.Tables[0].Rows.Count; i++)
             {
+               
+
                 KEY = BOMComparingString(dsExistingBOQ.Tables[0].Rows[i]);
                 dicExistingData.Add(KEY, dsExistingBOQ.Tables[0].Rows[i]);
             }
@@ -778,6 +787,10 @@ namespace Library.OrderManagement.Costing
                     CopyRow(dtNewBOQ.Rows[i], dr);
                     dr["Id"] = _id + "-" + (i + 1).ToString();
                     dr["CostingBOQMasterId"] = CostingBOQMasterId;
+
+                    //dsMISO.Tables[0].DefaultView.RowFilter = "Id='" + dr["SalesOrderId"] + "'";
+                    dr["MasterOrderItemId"] = dsMISO.Tables[0].DefaultView[0].Row["MasterOrderItemId"].ToString();
+
                     dsExistingBOQ.Tables[0].Rows.Add(dr);
 
                     dicExistingData.Add(KEY, dr);
@@ -792,7 +805,7 @@ namespace Library.OrderManagement.Costing
                     dr["BOMQty"] = dtNewBOQ.Rows[i]["BOMQty"];
                     dr["RequiredQty"] = dtNewBOQ.Rows[i]["RequiredQty"];
                     dr["BOMAmount"] = dtNewBOQ.Rows[i]["BOMAmount"];
-
+                    dr["MasterOrderItemId"] = dsMISO.Tables[0].DefaultView[0].Row["MasterOrderItemId"].ToString();
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -836,6 +849,7 @@ namespace Library.OrderManagement.Costing
                 {
                     SalesOrderId = DBNull.Value,
                     DestinationId = DBNull.Value,
+                    MasterOrderItemId = x["MasterOrderItemId"],
                     FGFirstCharacteristicsValueId = x["FGFirstCharacteristicsValueId"],
                     FGSecondCharacteristicsValueId = x["FGSecondCharacteristicsValueId"],
                     FGThirdCharacteristicsValueId = DBNull.Value,
@@ -852,7 +866,7 @@ namespace Library.OrderManagement.Costing
                                       .Select(x =>
                                       {
                                           DataRow row = dtTemp.NewRow();
-                                          row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = x.Key.FGFirstCharacteristicsValueId; row["FGSecondCharacteristicsValueId"] = x.Key.FGSecondCharacteristicsValueId; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
+                                          row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = x.Key.FGFirstCharacteristicsValueId; row["FGSecondCharacteristicsValueId"] = x.Key.FGSecondCharacteristicsValueId; row["FGThirdCharacteristicsValueId"] = DBNull.Value; row["MasterOrderItemId"] = x.Key.MasterOrderItemId;
                                           row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria; row["POCriteria"] = x.Key.POCriteria;
                                           row["OrderQty"] = x.Sum(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Sum(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                           return row;
@@ -897,6 +911,7 @@ namespace Library.OrderManagement.Costing
                 dtBOQ = dtTemp.AsEnumerable().GroupBy(x => new
                 {
                     SalesOrderId = DBNull.Value,
+                    MasterOrderItemId = x["MasterOrderItemId"],
                     DestinationId = x["DestinationId"],
                     FGFirstCharacteristicsValueId = DBNull.Value,
                     FGSecondCharacteristicsValueId = DBNull.Value,
@@ -915,6 +930,7 @@ namespace Library.OrderManagement.Costing
                                   {
                                       DataRow row = dtTemp.NewRow();
                                       row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = x.Key.DestinationId; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["MasterOrderItemId"] = x.Key.MasterOrderItemId;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria; row["POCriteria"] = x.Key.POCriteria;
                                       row["OrderQty"] = x.Sum(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Sum(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -952,6 +968,7 @@ namespace Library.OrderManagement.Costing
             {
                 dtBOQ = dtTemp.AsEnumerable().GroupBy(x => new
                 {
+                    MasterOrderItemId = x["MasterOrderItemId"],
                     SalesOrderId = DBNull.Value,
                     DestinationId = DBNull.Value,
                     FGFirstCharacteristicsValueId = DBNull.Value,
@@ -971,6 +988,7 @@ namespace Library.OrderManagement.Costing
                                   {
                                       DataRow row = dtTemp.NewRow();
                                       row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["MasterOrderItemId"] = x.Key.MasterOrderItemId;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria; row["POCriteria"] = x.Key.POCriteria;
                                       row["OrderQty"] = x.Sum(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Sum(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -1008,6 +1026,7 @@ namespace Library.OrderManagement.Costing
             {
                 dtBOQ = dtTemp.AsEnumerable().GroupBy(x => new
                 {
+                    MasterOrderItemId = x["MasterOrderItemId"],
                     SalesOrderId = x["SalesOrderId"],
                     DestinationId = DBNull.Value,
                     FGFirstCharacteristicsValueId = DBNull.Value,
@@ -1026,7 +1045,7 @@ namespace Library.OrderManagement.Costing
                                   .Select(x =>
                                   {
                                       DataRow row = dtTemp.NewRow();
-                                      row["SalesOrderId"] = x.Key.SalesOrderId; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["SalesOrderId"] = x.Key.SalesOrderId; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value; row["MasterOrderItemId"] = x.Key.MasterOrderItemId;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria; row["POCriteria"] = x.Key.POCriteria;
                                       row["OrderQty"] = x.Sum(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Sum(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -1066,6 +1085,7 @@ namespace Library.OrderManagement.Costing
             {
                 dtBOQ = dtTemp.AsEnumerable().GroupBy(x => new
                 {
+                    MasterOrderItemId = x["MasterOrderItemId"],
                     SalesOrderId = DBNull.Value,
                     DestinationId = DBNull.Value,
                     FGFirstCharacteristicsValueId = x["FGFirstCharacteristicsValueId"],
@@ -1084,7 +1104,7 @@ namespace Library.OrderManagement.Costing
                                   .Select(x =>
                                   {
                                       DataRow row = dtTemp.NewRow();
-                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = x.Key.FGFirstCharacteristicsValueId; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = x.Key.FGFirstCharacteristicsValueId; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value; row["MasterOrderItemId"] = x.Key.MasterOrderItemId;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria; row["POCriteria"] = x.Key.POCriteria;
                                       row["OrderQty"] = x.Sum(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Sum(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -1126,6 +1146,7 @@ namespace Library.OrderManagement.Costing
             {
                 dtBOQ = dtTemp.AsEnumerable().GroupBy(x => new
                 {
+                    MasterOrderItemId = x["MasterOrderItemId"],
                     SalesOrderId = DBNull.Value,
                     DestinationId = DBNull.Value,
                     FGFirstCharacteristicsValueId = DBNull.Value,
@@ -1145,6 +1166,7 @@ namespace Library.OrderManagement.Costing
                                   {
                                       DataRow row = dtTemp.NewRow();
                                       row["SalesOrderId"] = DBNull.Value; row["DestinationId"] = DBNull.Value; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = x.Key.FGSecondCharacteristicsValueId; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["MasterOrderItemId"] = x.Key.MasterOrderItemId;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria; row["POCriteria"] = x.Key.POCriteria;
                                       row["OrderQty"] = x.Sum(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Sum(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;
@@ -1186,6 +1208,7 @@ namespace Library.OrderManagement.Costing
             {
                 dtBOQ = dtTemp.AsEnumerable().GroupBy(x => new
                 {
+                    MasterOrderItemId = x["MasterOrderItemId"],
                     SalesOrderId = x["SalesOrderId"],
                     DestinationId = x["DestinationId"],
                     FGFirstCharacteristicsValueId = DBNull.Value,
@@ -1204,7 +1227,7 @@ namespace Library.OrderManagement.Costing
                                   .Select(x =>
                                   {
                                       DataRow row = dtTemp.NewRow();
-                                      row["SalesOrderId"] = x.Key.SalesOrderId; row["DestinationId"] = x.Key.DestinationId; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value;
+                                      row["SalesOrderId"] = x.Key.SalesOrderId; row["DestinationId"] = x.Key.DestinationId; row["FGFirstCharacteristicsValueId"] = DBNull.Value; row["FGSecondCharacteristicsValueId"] = DBNull.Value; row["FGThirdCharacteristicsValueId"] = DBNull.Value; row["MasterOrderItemId"] = x.Key.MasterOrderItemId;
                                       row["CostingItemId"] = x.Key.CostingItemId; row["Sequence"] = x.Key.Sequence; row["MaterialMasterId"] = x.Key.MaterialMasterId; row["ArticleId"] = x.Key.ArticleId; row["UoMId"] = x.Key.UoMId; row["CurrencyId"] = x.Key.CurrencyId; row["VendorId"] = x.Key.VendorId; row["BOQCriteria"] = x.Key.BOQCriteria; row["POCriteria"] = x.Key.POCriteria;
                                       row["OrderQty"] = x.Sum(r => (decimal)r["OrderQty"]); row["BOMQty"] = x.Sum(r => (decimal)r["BOMQty"]); row["RequiredQty"] = x.Sum(r => (decimal)r["RequiredQty"]); row["BOMAmount"] = x.Sum(r => (decimal)r["BOMAmount"]);
                                       return row;

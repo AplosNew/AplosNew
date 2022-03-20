@@ -175,6 +175,120 @@ namespace Library.Service.Products
 				}
 			}
 		}
+
+		public void InsertOrUpdateGraphNewGRNAllocationBOQ(IEnumerable<InventoryMaterialViewModel> entity)
+		{
+			var flag = false;
+			Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
+			try
+			{
+				_unitOfWork.BeginTransaction();
+				flag = true;
+
+				// _inventoryReceiveService.Insert(entity);
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				//var currentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 1) AS INT)), 0) Id FROM [TRN].[MaterialRequsitionDetails] WHERE //MaterialReqqusitionMasterId='{entity.MaterialReqqusitionMasterId}'").First();
+
+				//var currentId1 = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 1) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId='{entity.Id}'").First();
+				// var Temppodetailid = "";
+				foreach (var itemDetail in entity)
+				{
+					if (string.IsNullOrEmpty(itemDetail.Id))
+					{
+
+						var receiveDetail = new GRNPORequisitionAllocation
+						{
+
+							Id = GetPK(),
+							InventoryReceiveDetailId = itemDetail.GRNID,
+							POBOQMapId = itemDetail.POBOQMapId,
+							POReqDetailsID = itemDetail.POReqDetailsID,
+							BOQDetailId = itemDetail.BOQDetailId,
+							TransactionQty = Convert.ToDecimal(itemDetail.TransactionQty),
+							TransactionUoMId = itemDetail.TransactionUoMId,
+							BaseQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+							BaseUoMId = itemDetail.BaseUOMId,
+							POBOQQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+							POUoMId = itemDetail.POUoMId,
+							RejectQty = Convert.ToDecimal(itemDetail.RejectionQty),
+							RejectBaseQty = Convert.ToDecimal(itemDetail.RejectBaseQty),
+							SalesOrderId = itemDetail.SalesOrderId
+
+						};
+						try
+						{
+
+							InsertGraph(receiveDetail);
+
+						}
+						catch (DivideByZeroException ex)
+						{
+
+						}
+						finally
+						{
+
+						}
+					}
+					else
+					{
+						var receiveDetail = new GRNPORequisitionAllocation
+						{
+							Id = itemDetail.Id,
+							InventoryReceiveDetailId = itemDetail.GRNID,
+							POBOQMapId = itemDetail.POBOQMapId,
+							POReqDetailsID = itemDetail.POReqDetailsID,
+							BOQDetailId = itemDetail.BOQDetailId,
+							TransactionQty = Convert.ToDecimal(itemDetail.TransactionQty),
+							TransactionUoMId = itemDetail.TransactionUoMId,
+							BaseQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+							BaseUoMId = itemDetail.BaseUOMId,
+							POBOQQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+							POUoMId = itemDetail.POUoMId,
+							RejectQty = Convert.ToDecimal(itemDetail.RejectionQty),
+							RejectBaseQty = Convert.ToDecimal(itemDetail.RejectBaseQty),
+							SalesOrderId = itemDetail.SalesOrderId
+
+						};
+						try
+						{
+							UpdateGraph(receiveDetail);
+
+						}
+						catch (DivideByZeroException ex)
+						{
+						}
+						finally
+						{
+						}
+					}
+
+				}
+
+
+				_unitOfWork.SaveChanges();
+				flag = false;
+				_unitOfWork.Commit();
+			}
+			catch (CustomException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+				Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+				 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+			finally
+			{
+				if (flag)
+				{
+					_unitOfWork.Rollback();
+				}
+			}
+		}
+
 		public override void Insert(GRNPORequisitionAllocation entity)
 		{
 			try

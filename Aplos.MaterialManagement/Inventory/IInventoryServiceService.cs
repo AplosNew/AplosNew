@@ -15,9 +15,11 @@ namespace Library.MaterialManagement.Inventory
         void Delete(string serviceId);
 
         IEnumerable<object> Query(string receiveId);
+        IEnumerable<object> QueryBOQ(string receiveId);
         IEnumerable<object> QueryPurchaseReturnCharges(string receiveId);
        
         IEnumerable<object> Query1(string receiveId,string AcceptanceId);
+        IEnumerable<object> Query1BOQ(string receiveId,string AcceptanceId);
         IEnumerable<object> getTCSData(string receiveId);
     }
 }

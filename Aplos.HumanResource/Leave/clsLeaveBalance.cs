@@ -949,12 +949,15 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
         //first dictionary will contain employeeId,second one will hold the leave type wise balances
         public Dictionary<string, Dictionary<string, DataRow>> GetLeaveBalance(int MonthNo, int YearNo, string EmployeeIds, string UpToDate = "", string LeaveTypeIds = "")
         {
-            if (string.IsNullOrEmpty(UpToDate))
-                UpToDate = new DateTime(YearNo, MonthNo, DateTime.DaysInMonth(YearNo, MonthNo)).ToString("dd-MMM-yyyy");
+            //int dhruv = 0;
+            try
+            {
+                if (string.IsNullOrEmpty(UpToDate))
+                    UpToDate = new DateTime(YearNo, MonthNo, DateTime.DaysInMonth(YearNo, MonthNo)).ToString("dd-MMM-yyyy");
 
-            if (LeaveTypeIds != "")
-                LeaveTypeIds = " AND lt.Id IN (" + LeaveTypeIds + @") ";
-            string sql = @"SELECT lt.Sequence, ELs.EmployeeId, els.LeaveTypeId,lt.LeaveType, lt.Code AS LeaveCode,
+                if (LeaveTypeIds != "")
+                    LeaveTypeIds = " AND lt.Id IN (" + LeaveTypeIds + @") ";
+                string sql = @"SELECT lt.Sequence, ELs.EmployeeId, els.LeaveTypeId,lt.LeaveType, lt.Code AS LeaveCode,
                                 els.CurrentYearAllocation,els.CarryForwardOpeningBalance,els.BroughtForward,
                                 SUM(ISNULL(CR.EarnedValue,0))CurrentPeriodEarned,SUM(ISNULL(cr.AvailedValue,0)) AS CurrentPeriodAvailed,
                                  CASE WHEN lt.LeaveType<>'Earn' THEN  ISNULL(els.CurrentYearAllocation,0)+ISNULL(els.CarryForwardOpeningBalance,0)+ISNULL(els.BroughtForward,0)+SUM(ISNULL(CR.EarnedValue,0)) 
@@ -983,25 +986,36 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 
                                 ORDER BY  ELs.EmployeeId,lt.Sequence";
 
-            DataTable dt = _sqlRepository.GetDataTable(sql);
+                DataTable dt = _sqlRepository.GetDataTable(sql);
 
-            Dictionary<string, Dictionary<string, DataRow>> empLeaveData = new Dictionary<string, Dictionary<string, DataRow>>();
-            Dictionary<string, DataRow> LeaveData = new Dictionary<string, DataRow>();
-            string employeeId = "";
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                if (employeeId != dt.Rows[i]["EmployeeId"].ToString())
+                Dictionary<string, Dictionary<string, DataRow>> empLeaveData = new Dictionary<string, Dictionary<string, DataRow>>();
+                Dictionary<string, DataRow> LeaveData = new Dictionary<string, DataRow>();
+                string employeeId = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    LeaveData = new Dictionary<string, DataRow>();
-                    empLeaveData.Add(dt.Rows[i]["EmployeeId"].ToString(), LeaveData);
+                    if (i == 1116)
+                    { 
+
+                    }
+                    //dhruv = i;
+                    string empx = dt.Rows[i]["EmployeeId"].ToString();
+                    if (employeeId != dt.Rows[i]["EmployeeId"].ToString())
+                    {
+                        LeaveData = new Dictionary<string, DataRow>();
+                        empLeaveData.Add(dt.Rows[i]["EmployeeId"].ToString(), LeaveData);
+                    }
+
+                    LeaveData.Add(dt.Rows[i]["LeaveTypeId"].ToString(), dt.Rows[i]);
+
+                    employeeId = dt.Rows[i]["EmployeeId"].ToString();
                 }
 
-                LeaveData.Add(dt.Rows[i]["LeaveTypeId"].ToString(), dt.Rows[i]);
-
-                employeeId = dt.Rows[i]["EmployeeId"].ToString();
+                return empLeaveData;
+            }catch(Exception ex)
+            {
+                //var x = dhruv;
+                throw ex;
             }
-
-            return empLeaveData;
         }
 
         public Dictionary<string, Dictionary<string, DataRow>> GetLeaveBalance(DateTime UpToDate, string EmployeeIds)

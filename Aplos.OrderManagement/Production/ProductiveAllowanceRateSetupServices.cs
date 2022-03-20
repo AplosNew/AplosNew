@@ -327,10 +327,103 @@ namespace Library.OrderManagement.Production
 
         #endregion ProductiveAllowance
 
+        //--------------------------- Rate Setup
+
         #region RateSetup
+        #region Get All Rate setup
+        public IEnumerable<object> getRsMasterData()
+        {
+            try
+            {
+                var str = @"Select Id, UserName, EffectiveDate, Remarks,
+                            STUFF((
+                            SELECT ',' + p.UserName
+
+                            FROM dbo.IncentiveRateSetupProcess irp 
+                            left join hkp.Process p on p.Id = irp.ProcessId
+                            where irp.HeaderId = pm.Id
+                            FOR XML PATH('')
+
+                            ),1,1,'') AS Processes,
+                            STUFF((
+                            SELECT ',' + e.UserName
+
+                            FROM dbo.IncentiveRateSetupEntity ire 
+                            left join org.Entity e on e.Id = ire.EntityId
+                            where ire.HeaderId = pm.Id
+                            FOR XML PATH('')
+
+                            ),1,1,'') AS Entity
+                            from dbo.IncentiveRateSetupHeader pm
+                            ";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        // Get RS Child List
+        public IEnumerable<object> getRsChildList(string Id)
+        {
+            try
+            {
+                var str = @"Select irc.* from dbo.IncentiveRateSetupChild irc where headerId ='" + Id + "'";
+                            
+                             
+
+                DataTable dtChild = _sqlRepository.GetDataTable(str);
+
+
+                if (dtChild.Rows.Count > 0)
+                {
+                    if (dtChild.Rows.Count == 10)
+                    {
+                        return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                    }
+                    else
+                    {
+                        while (dtChild.Rows.Count < 10)
+                        {
+                            DataRow dr = dtChild.NewRow();
+                            dr["Id"] = null;
+                            dr["HeaderId"] = Id;
+                            dr["Effeciency"] = 0;
+                            dr["EffeciencyRate"] = 0;
+                            dr["Remarks"] = null;
+                            dtChild.Rows.Add(dr);
+                        }
+                        return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        DataRow dr = dtChild.NewRow();
+                        dr["Id"] = null;
+                        dr["HeaderId"] = Id;
+                        dr["Effeciency"] = 0;
+                        dr["EffeciencyRate"] = 0 ;
+                        dr["Remarks"] = null ;
+                        dtChild.Rows.Add(dr);
+                    }
+                }
+
+                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Get All Rate setup
 
         #region SaveOps
-
+        
         public Dictionary<string, object> saveHeaderRs(Dictionary<string, object> headerData, List<string> process, List<string> entity)
         {
             try
@@ -448,6 +541,69 @@ namespace Library.OrderManagement.Production
                 _info.SaveDataSets(dsMaster, dsProcessChild, dsEntityChild);
 
                 return headerData;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
+        // -------------------------Save Child RS
+        public List<Dictionary<string, object>> saveChildRs(List<Dictionary<string, object>> childData, string headerId)
+        {
+            try
+            {
+                //Master Table - Wastw-Transaction
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string TableName = "dbo.IncentiveRateSetupChild";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where headerId = '" + headerId + "'", out dsMaster, false, "1");
+
+                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                {
+                    dsMaster.Tables[0].DefaultView[0].Delete();
+                }
+
+                #region data Upload
+                for (int i = 0; i < childData.Count; i++)
+                {
+                    var jj = childData[i];
+                    if( clsStaticInfo.dbl(jj["Effeciency"].ToString()) > 0)
+                    {
+                        jj["Id"] = headerId + i;
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        dr["Id"] = headerId + i;
+                        dr["HeaderId"] = headerId;
+                        dr["Effeciency"] = clsStaticInfo.dbl(jj["Effeciency"].ToString());
+                        dr["EffeciencyRate"] = clsStaticInfo.dbl(jj["EffeciencyRate"].ToString());
+                        dr["Remarks"] = jj["Remarks"].ToString();
+
+                    
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+
+                #endregion data Upload
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return childData;
 
             }
             catch (Exception ex)

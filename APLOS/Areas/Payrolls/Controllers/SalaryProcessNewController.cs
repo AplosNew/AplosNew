@@ -838,11 +838,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                 Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR obj = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR();
                 FunctionPara m = obj.SalaryProcess(para);
 
-                //clsCarryForwardSalary cfob = new clsCarryForwardSalary();
-                //if (allds.IsNegativeSalaryApplicable)
-                //{
-
-                //}
                 #endregion
 
                 #region Save Log TBD
@@ -927,8 +922,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             List<MaternityRetun> r = null;
             try
             {
-                //clsSalaryProcessQuery objQ = null;
-                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery ui = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
+                clsSalaryProcessQuery ui = new clsSalaryProcessQuery();
                 DataSet dsactive = null;
                 string emp_pk = string.Empty;
                 GetEmpDelimitedMLVR(list, ref emp_pk);

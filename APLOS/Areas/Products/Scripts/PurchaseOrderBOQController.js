@@ -59,6 +59,9 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         });
     };
     $scope.getalldata();
+    //#region Tab
+    
+    //#region all Tab Function of PO Index
 
     $scope.POTypeStatus = '';
     $scope.tab1 = 1;
@@ -73,6 +76,51 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         return $scope.tab1 === tabNum;
     };
 
+    $scope.setTabCHRIndex = function (newTab) {
+        //alert('tabCHR');
+
+        $scope.POTypeStatus = 'CheckedHoldRej';
+        $scope.getalldata();
+        $scope.tab1 = newTab;
+
+    };
+    $scope.isSetCHRIndex = function (tabNum) {
+        return $scope.tab1 === tabNum;
+    };
+
+    $scope.setTabCheckedIndex = function (newTab) {
+
+        $scope.POTypeStatus = 'Checked';
+        $scope.getalldata();
+        $scope.tab1 = newTab;
+
+
+    };
+    $scope.isSetCheckedIndex = function (tabNum) {
+        return $scope.tab1 === tabNum;
+    };
+    $scope.setTabAHRIndex = function (newTab) {
+        $scope.ApproveRejectHold = 'HoldReject';
+        $scope.getalldataPoApp();
+        $scope.tab1 = newTab;
+    };
+    $scope.isSetAHRIndex = function (tabNum) {
+        return $scope.tab1 === tabNum;
+    };
+
+
+
+    $scope.setTabIndex1 = function (newTab) {
+        $scope.ApproveRejectHold = 'Approved';
+        $scope.getalldataPoApp();
+        $scope.tab1 = newTab;
+    };
+    $scope.isSetIndex1 = function (tabNum) {
+        return $scope.tab1 === tabNum;
+    };
+
+    //#endregion
+    //#endregion
 
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
@@ -683,6 +731,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             $scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id);
                             $scope.LoadTermsAndConditionDetailGrid();
                             $scope.Action = "Update";
+                            $scope.ActionPOBOQ = "Update";
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
@@ -692,8 +741,8 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             }
 
             else if ($scope.ActionPOBOQ === "Update") {
-                $scope.materialValidationForBOQItem();
-                if (!$scope.UOMValidation() && !$scope.trnRateDiff()) {
+                //$scope.materialValidationForBOQItem();
+                if (!$scope.UOMValidation() /*&& !$scope.trnRateDiff()*/) {
                     $http({
                         method: 'POST',
                         url: 'Products/PurchaseOrder/detailPOUpdateForBOQ',
@@ -707,13 +756,13 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
                         if (response.data.Error === true)
-                            ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial1');
+                            ShowResult(response.data.Message, 'failure');
                         else {
-                            ShowResult(response.data.Message, 'success', 'ListOfPOMaterial1');
+                            ShowResult(response.data.Message, 'success');
                             getInventoryMaterialList($scope.productNew.Id);
                         }
                     }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial1');
+                        ShowResult(response.data.Message, 'failure');
                     };
 
                 }
@@ -723,7 +772,21 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             //ShowResult(e, 'fail', 'detailPopUp');
         }
     };
+    $scope.materialValidationForBOQItem = function () {
+        for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
+            var getRow3 = $filter("filter")($scope.inventoryMaterialList, { "InventoryMaterialId": $scope.GetListForMasterOrdernew[i].MaterialMasterId, "ArticleId": $scope.GetListForMasterOrdernew[i].ArticleId, "FirstCharacteristicsValueId": $scope.GetListForMasterOrdernew[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.GetListForMasterOrdernew[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.GetListForMasterOrdernew[i].ThirdCharacteristicsValueId });
 
+            if (getRow3 == 0) {
+                $scope.invalid = true;
+            }
+            else {
+                ShowResult('Material Combination Already Exist', 'failure', 'ListOfPOMaterial');
+                $scope.invalid = false;
+            }
+        }
+
+
+    };
     $scope.serviceChargePopUp = function () {
         $scope.productNew.TaxOptionService = 'Yes';
         if (baseService.arrayLength($scope.poBoqItemListNew) === 0)
@@ -1029,7 +1092,26 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             });
 
     }
+    function getPOBOQMAPList(inveReveiveId) {
+        $http.get($scope.path + 'GetPOBOQMAPList?inveReveiveId=' + inveReveiveId)
+            .then(function (response) {                
+                $scope.tempList = response.data.Rows;                
+            });
 
+    }
+    function checkSameValueInColumnList(list, fieldName) {
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            if (list[i][fieldName] === (i > 0 ? list[i - 1][fieldName] : list[i][fieldName]))
+                $scope.sumORnot = true;
+            else return $scope.sumORnot = false;
+        }
+    }
+    function getGrossAmount(list, key1, key2, key3, fieldName) {
+        $scope[fieldName] = 0;
+        for (var t = 0; t < baseService.arrayLength(list); t++) {
+            $scope[fieldName] += parseFloat(list[t][key1]);// + parseFloat(list[t][key2]) + parseFloat(list[t][key3]);
+        }
+    }
     $scope.GetSalesTaxData = function (salesId) {
         $scope.TaxList = [];
         $http({
@@ -1094,6 +1176,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.GetTerms($scope.productNew.Id);
         getPartyPlantEditList($scope.productNew.InvoicingPartyPlantId, $scope.productNew.InvoicingByAddress, $scope.productNew.DeliveryPartyPlantId, $scope.productNew.DeliveryByAddress, $scope.productNew.DeliveryState, $scope.productNew.DeliveryGSTIN);
         getInventoryMaterialList($scope.productNew.Id);
+        getPOBOQMAPList($scope.productNew.Id);
         getServiceChargeList($scope.productNew.Id);
         $scope.productNew.OrderSpecific = 'Yes';
         $scope.isSubmitted='Yes'
@@ -1123,6 +1206,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         }
         $scope.LoadTermsAndConditionGrid($scope.productNew.TermsAndConditionsId, $scope.productNew.Id)
         $scope.Action = 'Update';
+        $scope.ActionPOBOQ = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
 
 
