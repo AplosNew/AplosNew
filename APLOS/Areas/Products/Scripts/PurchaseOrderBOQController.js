@@ -59,6 +59,9 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         });
     };
     $scope.getalldata();
+    //#region Tab
+    
+    //#region all Tab Function of PO Index
 
     $scope.POTypeStatus = '';
     $scope.tab1 = 1;
@@ -73,6 +76,51 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         return $scope.tab1 === tabNum;
     };
 
+    $scope.setTabCHRIndex = function (newTab) {
+        //alert('tabCHR');
+
+        $scope.POTypeStatus = 'CheckedHoldRej';
+        $scope.getalldata();
+        $scope.tab1 = newTab;
+
+    };
+    $scope.isSetCHRIndex = function (tabNum) {
+        return $scope.tab1 === tabNum;
+    };
+
+    $scope.setTabCheckedIndex = function (newTab) {
+
+        $scope.POTypeStatus = 'Checked';
+        $scope.getalldata();
+        $scope.tab1 = newTab;
+
+
+    };
+    $scope.isSetCheckedIndex = function (tabNum) {
+        return $scope.tab1 === tabNum;
+    };
+    $scope.setTabAHRIndex = function (newTab) {
+        $scope.ApproveRejectHold = 'HoldReject';
+        $scope.getalldataPoApp();
+        $scope.tab1 = newTab;
+    };
+    $scope.isSetAHRIndex = function (tabNum) {
+        return $scope.tab1 === tabNum;
+    };
+
+
+
+    $scope.setTabIndex1 = function (newTab) {
+        $scope.ApproveRejectHold = 'Approved';
+        $scope.getalldataPoApp();
+        $scope.tab1 = newTab;
+    };
+    $scope.isSetIndex1 = function (tabNum) {
+        return $scope.tab1 === tabNum;
+    };
+
+    //#endregion
+    //#endregion
 
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
