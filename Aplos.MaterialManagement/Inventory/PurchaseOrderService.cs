@@ -611,8 +611,6 @@ namespace Library.MaterialManagement.Inventory
             }
             try
             {
-
-
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var Sql = "";
                 if (POTypeStatus == "Pending")

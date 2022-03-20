@@ -100,7 +100,7 @@ namespace Aplos.Areas.Productions.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             DataSet dsDetail;
-            DataSet dsHistory;
+            DataSet dsHistory, dsScanData;
             if (salesMaterialVMList != null)
             {
                 foreach (var item in salesMaterialVMList)
@@ -145,16 +145,47 @@ namespace Aplos.Areas.Productions.Controllers
             }
             GetIssueDetail(PackingId, out dsDetail);
             GetIssueHistory(PackingId, out dsHistory);
-            //List<Dictionary<string,object>> InventoryIssueDetail = new List<Dictionary<string, object>>();
-            //InventoryIssueDetail = dsDetail.Tables[0].ToList<Dictionary<string, object>>();
-            //List<Dictionary<string, object>> InventoryHistoryList = dsHistory.Tables[0].ToList<Dictionary<string, object>>();
 
 
             _salesService.PackingInvoiceInsert(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList, dsDetail, dsHistory);
+
+            #region ItemScanChild
+
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            string sql = @"Select * from dbo.ItemScanChild Where PackingId IN(
+                                            Select Id from trn.POLotReference Where PackingLineItemId IN (
+                                            Select PackingLineItemId from trn.PackingLineItem Where PackingId IN(" + PackingId + ")))";
+            con.OpenDataSetThroughAdapter(sql, out dsScanData, false, "1");
+
+            if (dsScanData.Tables[0].Rows.Count > 0)
+            {
+                for (int j = 0; j < dsScanData.Tables[0].Rows.Count; j++)
+                {
+                    dsScanData.Tables[0].DefaultView.RowFilter = "Id='" + dsScanData.Tables[0].Rows[j]["Id"].ToString() + "'";
+
+                    if (dsScanData.Tables[0].DefaultView.Count > 0)
+                    {
+                        //edit
+                        DataRow dr = dsScanData.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["SalesId"] = voucherVM.Id;
+                        dr["IsDespatch"] = true;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr.EndEdit();
+                    }
+                }
+            }
+
+            clsStaticInfo obj = new clsStaticInfo();
+            obj.SaveDataSets(dsScanData);
+            #endregion
+
             return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
         }
 
-        public void GetIssueHistory(string packingid,out DataSet dsRef)
+        public void GetIssueHistory(string packingid, out DataSet dsRef)
         {
             try
             {
@@ -175,7 +206,8 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public void GetIssueDetail(string packingid,out DataSet dsRef)
+       
+        public void GetIssueDetail(string packingid, out DataSet dsRef)
         {
             try
             {
