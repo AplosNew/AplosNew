@@ -694,11 +694,7 @@ public class clsSalaryProcessAplosR
             GetHRSettingPlantWise(para.PlantId, out dsHrsetting);
             if (dsHrsetting.Tables[0].Rows.Count > 0)
             {
-                //bool _isToCheckDayLock = Convert.ToBoolean(dsHrsetting.Tables[0].Rows[0]["CheckAttendanceLockForSalaryProcess"].ToString());
-                //bool _IsAttendanceLockApplicable = Convert.ToBoolean(dsHrsetting.Tables[0].Rows[0]["IsAttendanceLockApplicable"].ToString());
-                //IsAttendanceLockApplicable
-                //if (_isToCheckDayLock && _IsAttendanceLockApplicable)
-                //{
+             
                 if (para.IsMaternity || para.IsSeparated)
                 {
                     CheckIndividualAttendanceLock(para);
@@ -1049,46 +1045,11 @@ public class clsSalaryProcessAplosR
                             if (dsExtraAbsentHoliday.Tables[0].Rows.Count > 0)
                                 dicExtraAbsenteeismHoliday = dsExtraAbsentHoliday.Tables[0].ToList<ExtraAbsenteeism>();
 
-                            //if(dsSPAttdnProc.Tables[0].Rows.Count>0)
-                            //{
-                            //    ListSPA = dsSPAttdnProc.Tables[0].ToList<dicSalaryProceAttdnData>();
-                            //}
                             SendNotification("Fetching OT Entitlement Info", TotProcComp, TotSelectEmpForProc);
 
                             DataSet dsEmpOTEntitlement = null;
                             GetOTEntitlementInfo(para.PlantId, sEmpSysIDColl, para.FromDate, para.ToDate, out dsEmpOTEntitlement);
-
-                            #region by monir 190916
-                            //////////Add OR UPDate
-                            ////objSlrProc.GetTaxDeductionInfoMonthWise(para.PlantId, sEmpInfoSysID, intMonthNo, intYearNo, out dsTaxDeducMonth);
-                            ////dtTaxDeducMonth = dsTaxDeducMonth.Tables[0];
-
-                            //////////Add OR UPDate
-                            ////objSlrProc.GetTaxDefineMaster(para.PlantId, sEmpInfoSysID, intMonthNo, intYearNo, para.FromDate, out dsTaxDefinMast);
-                            ////dtTaxDefinMast = dsTaxDefinMast.Tables[0];
-
-                            //////////Add OR UPDate
-                            ////objSlrProc.GetTaxDefineMasterAfter(para.PlantId, sEmpInfoSysID, para.FromDate, out dsTaxDefinMastAft);
-                            ////dtTaxDefinMastAft = dsTaxDefinMastAft.Tables[0];
-
-                            //////////Add OR UPDate
-                            ////objSlrProc.GetTaxDefineMasterSave(para.PlantId, para.lblTaxYearID, sEmpInfoSysID, out dsTaxDefinMastCRC);
-                            ////dtTaxDefinMastCRC = dsTaxDefinMastCRC.Tables[0];
-
-                            //////////Add OR UPDate
-                            ////objSlrProc.GetTaxableIncomeSalaryHeadWise(para.PlantId, para.lblTaxYearID, sEmpInfoSysID, out dsTaxSHCRC);
-                            ////dtTaxSHCRC = dsTaxSHCRC.Tables[0];
-                            //////objSlrProc.GetTaxableIncomeSalaryHeadWise
-
-                            //////////Add OR UPDate
-                            ////objSlrProc.GetTaxableYearlyActualIncomeSalaryHeadWise(para.PlantId, para.lblTaxYearID, sEmpInfoSysID, out dsTaxDeducYearCRC);
-                            ////dtTaxDeducYearCRC = dsTaxDeducYearCRC.Tables[0];
-
-                            //////////Add OR UPDate
-                            ////objSlrProc.GetTaxDeductionInfoMonthWise(para.PlantId, para.lblTaxYearID, para.FromDate, sEmpInfoSysID, out dsTaxDeducMonthCRC);
-                            ////dtTaxDeducMonthCRC = dsTaxDeducMonthCRC.Tables[0]; 
-                            #endregion
-
+                                                   
                             //////Add OR UPDate
                             SendNotification("Fetching Retention Allow Month Wise", TotProcComp, TotSelectEmpForProc);
                             ///
@@ -1114,31 +1075,6 @@ public class clsSalaryProcessAplosR
                             if (dsPMP.Tables[0].Rows.Count > 0)
                                 dicPMP = dsPMP.Tables[0].ToList<dicPaymentModeWiseHeadAmount>();
 
-                            #region by monir
-                            //List<dicEmpTax> dicEmpTax = new List<global::dicEmpTax>();
-                            //objSlrProc.GetEmpIncomeTax(para.PlantId, para.lblLocalCurrencyID.Trim(), sEmpInfoSysID, intMonthNo, intYearNo, out dsEmpTax);
-                            ////objSlrProc.GetEmpIncomeTax(para.PlantId, lblLocalCurrencyID.Text.Trim(), sEmpInfoSysID, intMonthNo, intYearNo, out dsEmpTax);
-                            //if (dsEmpTax.Tables[0].Rows.Count > 0)
-                            //    dicEmpTax = dsEmpTax.Tables[0].ToList<dicEmpTax>();
-
-                            //List<dicTaxSlab> dicTaxSlab = new List<global::dicTaxSlab>();
-                            //objSlrProc.GetTaxSlab(para.PlantId, para.lblTaxYearID, out dsTaxSlab);
-                            //if (dsTaxSlab.Tables[0].Rows.Count > 0)
-                            //    dicTaxSlab = dsTaxSlab.Tables[0].ToList<dicTaxSlab>();
-
-                            //List<dicTaxPolicyMast> dicTaxPolicyMast = new List<global::dicTaxPolicyMast>();
-                            //objSlrProc.GetTaxPolicyMaster(para.PlantId, para.lblTaxYearID, out dsTaxPolicyMast);
-                            //if (dsTaxPolicyMast.Tables[0].Rows.Count > 0)
-                            //    dicTaxPolicyMast = dsTaxPolicyMast.Tables[0].ToList<dicTaxPolicyMast>();
-
-                            //List<dicTaxPolicyGen> dicTaxPolicyGen = new List<global::dicTaxPolicyGen>();
-                            //objSlrProc.GetTaxPolicyGeneralWithYearlyActualTax(para.lblTaxYearID, sEmpInfoSysID, out dsTaxPolicyGen);
-                            //if (dsTaxPolicyGen.Tables[0].Rows.Count > 0)
-                            //    dicTaxPolicyGen = dsTaxPolicyGen.Tables[0].ToList<dicTaxPolicyGen>();
-
-                            //objTaxPoli.GetFactoryWisePeriod(para.PlantId, para.lblTaxYearID, out dsTaxYearPeriod); 
-                            #endregion
-
                             //Get Bonus Amount
                             SendNotification("Fetching Bonus Amount", TotProcComp, TotSelectEmpForProc);
                             List<dicBonus> dicBonus = new List<global::dicBonus>();
@@ -1150,9 +1086,7 @@ public class clsSalaryProcessAplosR
                             SendNotification("Fetching Empployee Salary Definition For Salary Process List", TotProcComp, TotSelectEmpForProc);
                             //Dictionary<string, List<dicLocal>> dicLocal = new Dictionary<string, List<global::dicLocal>>();
                             objSlrProc.LoadEmpSlrDefForSlrProcessList(para.PlantId, sEmpInfoSysID, para.FromDate, para.ToDate.Trim(), out Dictionary<string, List<dicLocal>> dicLocal);//LoadEmpSlrDefForSlrProcessList
-                            //objSlrProc.LoadEmpSlrDefForSlrProcess(para.PlantId, sEmpInfoSysID, para.FromDate, para.ToDate.Trim(), out dsLocal);//LoadEmpSlrDefForSlrProcessList
-                            //if (dsLocal.Tables[0].Rows.Count > 0)
-                            //    dicLocal = dsLocal.Tables[0].ToList<dicLocal>();
+                            
                             #endregion
 
                             #region ids
@@ -1216,31 +1150,14 @@ public class clsSalaryProcessAplosR
                             if (dsSalRulDayStOnlyDayTp.Tables[0].Rows.Count > 0)
                                 dicSalRulDayStOnlyDayTp = dsSalRulDayStOnlyDayTp.Tables[0].ToList<dicSalRulDayStOnlyDayTp>();
 
-                            //Only LeaveType commented by monir 190716
-                            //List<dicSalRulDayStOnlyLvTp> dicSalRulDayStOnlyLvTp = new List<global::dicSalRulDayStOnlyLvTp>();
-                            //objSlrProc.GetSalaryRuleDayStatusOnlyLeaveType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStOnlyLvTp);
-                            //if (dsSalRulDayStOnlyLvTp.Tables[0].Rows.Count > 0)
-                            //    dicSalRulDayStOnlyLvTp = dsSalRulDayStOnlyLvTp.Tables[0].ToList<dicSalRulDayStOnlyLvTp>();
-
+                           
                             //Shift Type AND DayStatus
                             SendNotification("Fetching Shift Type and Day Status", TotProcComp, TotSelectEmpForProc);
                             List<dicSalRulDayStSfTpDayTp> dicSalRulDayStSfTpDayTp = new List<global::dicSalRulDayStSfTpDayTp>();
                             objSlrProc.GetSalaryRuleDayStatusShiftTypeDayType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStSfTpDayTp);
                             if (dsSalRulDayStSfTpDayTp.Tables[0].Rows.Count > 0)
                                 dicSalRulDayStSfTpDayTp = dsSalRulDayStSfTpDayTp.Tables[0].ToList<dicSalRulDayStSfTpDayTp>();
-
-                            //Shift Type AND LeaveType commented by monir 190716
-                            //List<dicSalRulDayStSfTpLvTp> dicSalRulDayStSfTpLvTp = new List<global::dicSalRulDayStSfTpLvTp>();
-                            //objSlrProc.GetSalaryRuleDayStatusOnlyShiftTypeLeaveType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStSfTpLvTp);
-                            //if (dsSalRulDayStSfTpLvTp.Tables[0].Rows.Count > 0)
-                            //    dicSalRulDayStSfTpLvTp = dsSalRulDayStSfTpLvTp.Tables[0].ToList<dicSalRulDayStSfTpLvTp>();
-
-                            //DayStatus AND LeaveType commented by monir 190716
-                            //List<dicSalRulDayStDayTpLvTp> dicSalRulDayStDayTpLvTp = new List<global::dicSalRulDayStDayTpLvTp>();
-                            //objSlrProc.GetSalaryRuleDayStatusOnlyDayTypeLeaveType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStDayTpLvTp);
-                            //if (dsSalRulDayStDayTpLvTp.Tables[0].Rows.Count > 0)
-                            //    dicSalRulDayStDayTpLvTp = dsSalRulDayStDayTpLvTp.Tables[0].ToList<dicSalRulDayStDayTpLvTp>();
-
+                           
                             SendNotification("Fetching Company Off Day", TotProcComp, TotSelectEmpForProc);
                             List<dicCmpOffDay> dicCmpWrkOff = new List<global::dicCmpOffDay>();
                             objSlrProc.GetCompanyOffDay(para.PlantId, para.FromDate, para.ToDate.Trim(), out dsCmpOffDay);
@@ -1257,17 +1174,7 @@ public class clsSalaryProcessAplosR
                             decimal TotWorkingDayWithHoli = DaysInMonth - dsCmpWeekOffDay.Tables[0].Rows.Count;
                             decimal tempTotWorkingDay = TotWorkingDay;
                             decimal tempTotWorkingDayWithHoli = TotWorkingDayWithHoli;
-
-                            //objSlrProc.GetSalaryHeadTobeExcluded(out dsSalaryHeadToExclude);
-
-                            ///GET Company Contributed TAX Amount For All Thee Selected Emps
-                            //objSlrProc.GetCompanyContributedTax(sEmpSysIDColl, para.FromDate, out dsComConTax);
-
-                            //List<dicDesigMst> dicDesigMst = new List<global::dicDesigMst>();
-                            //objSlrProc.GetEmployeeWiseDesignationMasterSetting(sEmpSysIDColl, out dsDesigMst);
-                            //if (dsDesigMst.Tables[0].Rows.Count > 0)
-                            //    dicDesigMst = dsDesigMst.Tables[0].ToList<dicDesigMst>();
-
+                                                        
                             clsSalaryProcessQuery spq = new clsSalaryProcessQuery();
                             DataSet dsEOLILU = null;
                             DataSet dsLWP = null;
@@ -1305,6 +1212,7 @@ public class clsSalaryProcessAplosR
                             objSlrProc.GetEmployeeWiseOTPolicy(para.FromDate, para.ToDate, sEmpSysIDColl, para.PlantId, out dsOTPol);
                             if (dsOTPol.Tables[0].Rows.Count > 0)
                                 dicOTPol = dsOTPol.Tables[0].ToList<dicOTPol>();
+                            
                             //OT entittle
                             SendNotification("Fetching OT Hour", TotProcComp, TotSelectEmpForProc);
                             List<dicOTHour> dicOTHour = new List<global::dicOTHour>();
@@ -1322,9 +1230,7 @@ public class clsSalaryProcessAplosR
                             SendNotification("Fetching Early Out", TotProcComp, TotSelectEmpForProc);
                             DataSet dsEarlyOut = null;
                             objSlrProc.GetEarlyOut(sEmpSysIDColl, para.FromDate, para.ToDate.Trim(), out dsEarlyOut);
-                            //if (dsLeavePost.Tables[0].Rows.Count > 0)
-                            // dicLeavePost = dsLeavePost.Tables[0].ToList<dicLvTrns>();
-                            //GetLeaveTransactionForAttdnBonusPRE_POST
+                            
                             SendNotification("Fetching Leave Transaction For Attendance Bonus PRE_POST", TotProcComp, TotSelectEmpForProc);
                             DataSet dsLeavePost = null;
                             List<dicLvTrns> dicLeavePost = new List<global::dicLvTrns>();
@@ -1349,10 +1255,7 @@ public class clsSalaryProcessAplosR
                             objSlrProc.GetEmployeeWiseSalaryValueMontlyContinuedBasis(para.ToDate.Trim(), sEmpSysIDColl, out dsSlrValDailyBs);
                             if (dsSlrValDailyBs.Tables[0].Rows.Count > 0)
                                 dicSlrValDailyBs = dsSlrValDailyBs.Tables[0].ToList<dicSlrValDailyBs>();
-                            //List<dicVPF> dicVPF = new List<global::dicVPF>();
-                            //objSlrProc.GetEmployeeWisePFEmployeeVoluntaryValue(sEmpSysIDColl, para.ToDate.Trim(), out dsVPF);
-                            //if (dsVPF.Tables[0].Rows.Count > 0)
-                            //    dicVPF = dsVPF.Tables[0].ToList<dicVPF>();
+                            
 
                             SendNotification("Fetching Retention Allowance Month Wise", TotProcComp, TotSelectEmpForProc);
                             List<dicRetentionAllow> dicRetentionAllow = new List<global::dicRetentionAllow>();
@@ -1627,9 +1530,6 @@ public class clsSalaryProcessAplosR
                                     }
                                     #endregion
 
-                                    //int HoliPayDayCount = 0;
-                                    //    GetHolidayAsPayday(dicWHCount, dicHolidayAsPaydayPolicy, _emp, "", out HoliPayDayCount);
-
                                     #region OT entitlement
                                     //EmpSystemID
                                     DataView dvOTEN = new DataView(dsEmpOTEntitlement.Tables[0]);
@@ -1709,11 +1609,7 @@ public class clsSalaryProcessAplosR
                                         }
 
                                         #endregion Total Earning, Total Deduction & Net Payable CurrencyID
-
-                                        //int _child_salaryhead_seed = 0;
-                                        //clsSalaryReprocessUnit sru = new clsSalaryReprocessUnit();
-                                        //sru.CalculateHeadValue(para,dicLocal_Sub,AbsDay,DisbursedBtnMonth,TotWorkingDayWithHoli, intMonthNo,ref _child_salaryhead_seed, ref dtValue,ref dicSalaryHead,ref _childPK_seed_fromDB,ref _child_emp_seed,ref dicProcChild);
-
+                                                                                
                                         #region Save Child Main Part
 
 
@@ -3464,13 +3360,9 @@ public class clsSalaryProcessAplosR
                                         string _SalaryRuleMasterSystemID = dsSelectedEmp.Tables[0].Rows[gd]["SalaryRuleMasterSystemID"].ToString().Trim();
                                         string _PaymentMode = dsSelectedEmp.Tables[0].Rows[gd]["PaymentMode"].ToString().Trim();
                                         string _EmpSystemID = dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim();
-                                        //string _EmpSystemID=dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim();
-                                        //dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim()
+                                      
                                         _child_salaryhead_seed++;
-                                        //StampCalculation(_childPK_seed_fromDB,_child_emp_seed,_child_salaryhead_seed,dicPMP, _EmpSystemID, _SalaryRuleMasterSystemID, _PaymentMode, para,
-                                        //    dicLocal_Sub,ref dtSPChd, ref dsSPChd,ref decTotalDeductionAmt,ref decTmpTotalErnDedAmt,                                          
-                                        //    ref decTotalEarningAmt,ref decTmpTotalErnDedAmt,ref decTotalErnDedAmtDefinitionRate);
-
+                                      
                                         StampCalculation(dtValue, _childPK_seed_fromDB, _child_emp_seed, _child_salaryhead_seed, dicPMP, _EmpSystemID, _SalaryRuleMasterSystemID, _PaymentMode, para,
                                         dicLocal_Sub, ref dicProcChild, ref decTotalDeductionAmt, ref decTmpTotalErnDedAmt,
                                         ref decTotalEarningAmt, ref decTmpTotalErnDedAmt, ref decTotalErnDedAmtDefinitionRate);
@@ -4352,10 +4244,7 @@ public class clsSalaryProcessAplosR
 
                             List<EmpSalaryHeadAmount> _List_BonusRetainHeadValue = null;
                             List<EmpSalaryHeadAmount> _List_PFHeadValue = null;
-                            //List<EmpSalaryHeadAmount> _List_ESICHeadValue = null;
-
-
-
+                      
                             try
                             {
 
@@ -4445,11 +4334,7 @@ public class clsSalaryProcessAplosR
                                 if (dsPF.Tables[0].Rows.Count > 0)
                                     dicPF = dsPF.Tables[0].ToList<dicPF>();//
 
-                                //List<dicESIC> dicESIC = new List<global::dicESIC>();
-                                //objSlrProc.GetESICStructureData(sEmpSysIDColl, para.ToDate.Trim(), out dsESIC);
-                                //if (dsESIC.Tables[0].Rows.Count > 0)
-                                //    dicESIC = dsESIC.Tables[0].ToList<dicESIC>();///
-
+                               
                                 if (dsSelectedEmp.Tables[0].Rows.Count > 0)
                                 {
                                     string _childPK_seed_fromDB = string.Empty;
@@ -4762,12 +4647,7 @@ public class clsSalaryProcessAplosR
                             ///dicSalaryHead
                             ///
                             obSS = new clsSalaryUtility();
-                            //obSS.ReLoadFormulaWithValueSalaryProc(sEmployeeSysID, para, sFormulaDesID, out sFormulaValue, IsBaseOnNetPay, dtValue, dicSalaryHead);
-                            //DefCur = Convert.ToDecimal(clsSalaryUtility.Evaluate(sFormulaValue.Trim()));
-                            //if (EntCur == 0)//if ss is zero 
-                            //{
-                            //    DefCur = 0;
-                            //}//
+                           
                             clsSalaryReprocessUnit sru = new clsSalaryReprocessUnit();//
                             for (int gd = 0; gd < dsSelectedEmp.Tables[0].Rows.Count; gd++)
                             {
@@ -5130,8 +5010,7 @@ public class clsSalaryProcessAplosR
                             ///TG CTC NETPAY                            
                             GetNotionalFormula(dsSelectedEmp, para, dicLocal, dicProcChild, dtValue, dicSalaryHead);
                             GetDS(dicProcChild, out dsSPChd);
-                            //objSlrProc.SaveDataSetsForSalaryProcess(dsSPChd, dsRetenAllow, dsSPAttdnProc);
-                            ///BCP201013
+                            
                             SendNotification("Saving Data", TotProcComp, TotSelectEmpForProc);
 
                             OTSBD.clsStaticInfo _save = new clsStaticInfo();
@@ -5207,12 +5086,9 @@ public class clsSalaryProcessAplosR
 
             }
             return para;
-            //displayMsgs("Processed Successfully Completed...!!!!", "Ok", "Save");
-            //Session["VERIFICATION_STATE"] = 1;
         }
         catch (Exception ex)
         {
-            //sendMessage(ex.Message);
             SendNotification(ex.ToString());
 
             throw ex;
