@@ -9670,11 +9670,27 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetSpecificMaterialStockBOQ(string pOId,string contractId,string masterOrderitemId,string salesOrderId, string issueDate)
+        public JsonResult GetSpecificMaterialStockBOQ(string pOId, string contractId, string masterOrderitemId, string salesOrderId, string issueDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
             return Json(bOQQueryService.GetSpecificMaterialStockBOQ(identity.CompanyId, identity.PlantId, pOId, contractId, masterOrderitemId, salesOrderId, issueDate), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateBOQIssue(string entities, string specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, string entitiesAll, string BoqAllocationList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
+            inventoryIssue.CompanyId = identity.CompanyId;
+            inventoryIssue.PlantId = identity.PlantId;
+            List<InventoryMaterialViewModel> entitiesVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entities);
+            List<InventoryMaterialViewModel> specificStockListVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(specificStockList);
+            List<InventoryMaterialViewModel> entitiesAllVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entitiesAll);
+
+
+            _inventoryIssueService.InsertGraph(entitiesVM, specificStockListVM, inventoryIssue, IssueTypeStatus, entitiesAllVM);
+            return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
         }
     }
 }

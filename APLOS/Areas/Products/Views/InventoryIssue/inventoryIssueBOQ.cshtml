@@ -146,7 +146,6 @@
     <div class="col-xs-12 col-sm-6 col-md-6">
         <ul class="common-btn list-inline text-left">
             <li><button ng-click="SearchPopup();" class="btn" ng-disabled="ispostDisable">Search BOQ</button></li>
-            <li><button ng-click="detailPopUp();" class="btn" ng-disabled="ispostDisable">Issue Material</button></li>
         </ul>
     </div>
     <div class="clearfix"></div>
@@ -171,13 +170,13 @@
             </div>
         </div>
     </div>
+    <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <ul class="common-btn list-inline text-left">
             <li><button ng-show="x.Id==null" ng-click="getSpecificMaterialStockNew();" class="btn" tooltip data-placement="top" title="Select Specific GRN">Select GRN BOQ</button></li>
         </ul>
     </div>
 
-    <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <ul class="common-btn list-inline text-right">
             <li><button ng-click="Save();" class="btn" ng-disabled="ispostDisable"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
@@ -210,7 +209,7 @@
                     <td>{{x.SecondCharacteristicText}}</td>
                     <td>{{x.ThirdCharacteristicText}}</td>
                     <td>{{x.CountryName}}</td>
-                    <td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
+                    <td>{{x.RequisitionQty}}  {{x.TransactionUoM}}</td>
                     <td class="text-right table-td">
                         <ul class="list-inline">
                             <li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>

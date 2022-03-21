@@ -114,12 +114,7 @@
         .when('/issue-master', {
             templateUrl: 'QMS/IssueMaster/Aplos',
             controller: 'IssueMasterController'
-        })
-
-        .when('/productive-allowance-rate', {
-            templateUrl: 'QMS/ProductiveAllowanceRate/Aplos',
-            controller: 'ProductiveAllowanceRateController'
-        })
+        })  
 
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];
