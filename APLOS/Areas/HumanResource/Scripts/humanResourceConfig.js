@@ -707,5 +707,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/PerformancePeriod/Aplos',
             controller: 'PerformancePeriodController'
         })
+        .when('/performance-group', {
+            templateUrl: 'humanResource/PerformanceGroup/Aplos',
+            controller: 'PerformanceGroupController'
+        })
         ;
 }
