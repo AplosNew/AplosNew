@@ -41,6 +41,7 @@ namespace Library.MaterialManagement.Inventory
         void InsertOrUpdateGraphPoForBOQItemUpdate(IEnumerable<InventoryMaterialViewModel> entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId);
         void DeletePOMaterial(string receiveDetailId, string OrderSpecific);
         void POBoqInsertUpdate(PurchaseOrder entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<InventoryMaterialViewModel> boqmapList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId);
+        void POBoqUpdate(PurchaseOrder entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<InventoryMaterialViewModel> boqmapList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId);
     }
 
 }

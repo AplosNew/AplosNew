@@ -155,7 +155,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
                         ,0 SalesRate
 						,0 TotalAmount
                         ,IM.MaterialMasterId
+						,MM.UserName MaterialMasterName
 						,IM.ArticleId
+						,MMA.StandardName ArticleName
 						,IM.FirstCharacteristicsValueId
 						,IM.SecondCharacteristicsValueId
 						,IM.ThirdCharacteristicsValueId
@@ -170,7 +172,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
                     FROM TRN.GRNPORequisitionAllocation grnmap
 					join [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
+					LEFT JOIN mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
+					LEFT JOIN mst.MaterialMasterArticle MMA ON MMA.Id=Im.ArticleId
                     left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id

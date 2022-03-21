@@ -110,7 +110,7 @@ namespace Library.MaterialManagement.Inventory
                         SET @totalServiceAmount=(SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[POService] WHERE InventoryReceiveId=@inventoryReceiveId)
                         SET @totalSvcTaxAmount=(SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveId=@inventoryReceiveId AND InventoryServiceId<>'')
                        SELECT IRD.Id,IRD.Id AS InventoryReceiveDetailId
-                            , MGM.UserName AS MaterialGroupMasterName
+                            , MGM.UserName AS MaterialGroupMasterName,Im.MaterialMasterId
                             , IRD.InventoryMaterialId, MM.UserName
                             , IRD.ArticleId, ART.StandardName
                             , IRD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
@@ -153,7 +153,7 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId=FCV.Id
                         LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId=SCV.Id
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId=TCV.Id
-                        --left JOIN [TRN].[PurchaseOrderDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
+                        LEFT JOIN Trn.InventoryMaterial AS im ON im.Id = IRD.InventoryMaterialId
                         left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                         left JOIN [TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId=IR.Id
                         JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id 
@@ -180,7 +180,20 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-
+        public GridModel GetPOBOQMAPList(GridParameter parameters, string inveReveiveId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT * FROM trn.POBOQMAP AS p WHERE p.PODetailId IN (SELECT Id FROM trn.PurchaseOrderDetail AS pod WHERE pod.InventoryReceiveId ='"+ inveReveiveId + @"')";
+                return _sqlRepository.GetDifferentGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
         public IEnumerable<object> GetInventoryMaterialForImprestPayable(string companyId, string plantId, string inveReveiveId)
         {
             try

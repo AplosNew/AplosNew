@@ -338,7 +338,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     }
 
 
-    // Get Child Function List
+    // Get Rs Child Function List
 
     $scope.getRsChildList = function (s) {
         $http({

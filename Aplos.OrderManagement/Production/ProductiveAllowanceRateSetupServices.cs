@@ -379,13 +379,13 @@ namespace Library.OrderManagement.Production
 
                 if (dtChild.Rows.Count > 0)
                 {
-                   if(dtChild.Rows.Count == 10)
+                    if (dtChild.Rows.Count == 10)
                     {
                         return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
                     }
-                   else
+                    else
                     {
-                        while(dtChild.Rows.Count < 10)
+                        while (dtChild.Rows.Count < 10)
                         {
                             DataRow dr = dtChild.NewRow();
                             dr["Id"] = null;
@@ -397,8 +397,6 @@ namespace Library.OrderManagement.Production
                         }
                         return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
                     }
-                       
-                    
                 }
                 else
                 {
@@ -423,6 +421,7 @@ namespace Library.OrderManagement.Production
             }
         }
         #endregion Get All Rate setup
+
         #region SaveOps
         
         public Dictionary<string, object> saveHeaderRs(Dictionary<string, object> headerData, List<string> process, List<string> entity)
@@ -574,7 +573,7 @@ namespace Library.OrderManagement.Production
                 for (int i = 0; i < childData.Count; i++)
                 {
                     var jj = childData[i];
-                    if(clsStaticInfo.dbl(jj["Effeciency"].ToString()) > 0)
+                    if( clsStaticInfo.dbl(jj["Effeciency"].ToString()) > 0)
                     {
                         jj["Id"] = headerId + i;
                         DataRow dr = dsMaster.Tables[0].NewRow();
@@ -593,10 +592,6 @@ namespace Library.OrderManagement.Production
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
                         dsMaster.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        
                     }
                 }
 
