@@ -361,7 +361,7 @@ namespace Library.OrderManagement.Production
             }
             catch (Exception ex)
             {
-                throw ex;
+                    throw ex;
             }
         }
 
@@ -379,8 +379,25 @@ namespace Library.OrderManagement.Production
 
                 if (dtChild.Rows.Count > 0)
                 {
-                   
-                       return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                   if(dtChild.Rows.Count == 10)
+                    {
+                        return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                    }
+                   else
+                    {
+                        while(dtChild.Rows.Count < 10)
+                        {
+                            DataRow dr = dtChild.NewRow();
+                            dr["Id"] = null;
+                            dr["HeaderId"] = Id;
+                            dr["Effeciency"] = 0;
+                            dr["EffeciencyRate"] = 0;
+                            dr["Remarks"] = null;
+                            dtChild.Rows.Add(dr);
+                        }
+                        return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                    }
+                       
                     
                 }
                 else
@@ -557,16 +574,16 @@ namespace Library.OrderManagement.Production
                 for (int i = 0; i < childData.Count; i++)
                 {
                     var jj = childData[i];
-                    if((int)(jj["Effeciency"]) > 0)
+                    if(clsStaticInfo.dbl(jj["Effeciency"].ToString()) > 0)
                     {
                         jj["Id"] = headerId + i;
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         dr["Id"] = headerId + i;
                         dr["HeaderId"] = headerId;
-                        dr["Effeciency"] = jj["Effeciency"];
-                        dr["EffeciencyRate"] = jj["EffeciencyRate"];
-                        dr["Remarks"] = jj["Remarks"];
+                        dr["Effeciency"] = clsStaticInfo.dbl(jj["Effeciency"].ToString());
+                        dr["EffeciencyRate"] = clsStaticInfo.dbl(jj["EffeciencyRate"].ToString());
+                        dr["Remarks"] = jj["Remarks"].ToString();
 
                     
                         dr["AddedBy"] = identity.Name;
