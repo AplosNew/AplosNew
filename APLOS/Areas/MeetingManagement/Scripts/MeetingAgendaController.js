@@ -408,7 +408,6 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
     function headCheckChangeMeeting(e) {
         if (e.model.checkState == "check") {
 
-            // var gridObj = $("#Gridmeeting").data("ejGrid");
             var filtered = $("#Gridmeeting").data("ejGrid").getFilteredRecords();
             if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
                 for (var i = 0; i < $scope.MeetingList.length; i++) {
