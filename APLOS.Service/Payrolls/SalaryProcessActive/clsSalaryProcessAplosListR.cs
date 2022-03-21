@@ -1171,9 +1171,9 @@ public class clsSalaryProcessAplosR
                                 dicCmpWeekOffDay = dsCmpWeekOffDay.Tables[0].ToList<dicCmpWeekOffDay>();
 
                             decimal TotWorkingDay = DaysInMonth - dsCmpOffDay.Tables[0].Rows.Count;
-                            decimal TotWorkingDayWithHoli = DaysInMonth - dsCmpWeekOffDay.Tables[0].Rows.Count;
+                            decimal TotWorkingDayWithHoliDay = DaysInMonth - dsCmpWeekOffDay.Tables[0].Rows.Count;
                             decimal tempTotWorkingDay = TotWorkingDay;
-                            decimal tempTotWorkingDayWithHoli = TotWorkingDayWithHoli;
+                            decimal tempTotWorkingDayWithHoli = TotWorkingDayWithHoliDay;
                                                         
                             clsSalaryProcessQuery spq = new clsSalaryProcessQuery();
                             DataSet dsEOLILU = null;
@@ -1519,8 +1519,7 @@ public class clsSalaryProcessAplosR
                                     {
 
                                     }
-                                    //sendMessage("Preparing employee " + _emp + " " + (gd + 1) + "/" + dsSelectedEmp.Tables[0].Rows.Count + ", Current block total employee: " + SelectedEmpCnt + " and block no" + blockCount);
-
+                                    
                                     #region Weekoff Original
                                     int _emp_weekoff_count = 0;
                                     var weekOffOriginal = dicWeekOffOriginal.FindAll(x => x.EmpSystemID == _emp);
@@ -1816,8 +1815,6 @@ public class clsSalaryProcessAplosR
 
                                                     #region Disbusment Calculation
 
-                                                    //if (IsBaseOnNetPay == false)
-                                                    //{
                                                     #region Calculation WithOut DayStatus
                                                     if (string.IsNullOrEmpty(dicLocal_Sub[i].SalaryRuleDayStatusSystemID) == true)
                                                     {
@@ -1949,24 +1946,7 @@ public class clsSalaryProcessAplosR
                                                                     }
                                                                 }
                                                                 else//DOJ DOS
-                                                                {
-                                                                    ////get week off        
-                                                                    //int _Week_off_count = 0;
-                                                                    //GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _Week_off_count);
-                                                                    ////if (dicMMDSSI_Sub.TotalWeekOff > 0)
-                                                                    //decimal PerDaySalary = DefCur / (DaysInMonth - _Week_off_count);
-
-                                                                    //_Week_off_count = dicMMDSSI_Sub.TotalWeekOff;
-                                                                    //decimal DivFactor = DaysInMonth - LocalWeekOff;
-                                                                    //DisbCur = (DefCur / DivFactor) * (TotalDaysSlr - _Week_off_count);//www
-
-                                                                    ////New Calculation (Tarek)
-                                                                    //int _MonthlyTotalWeekoffCount = 0;
-                                                                    //GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _MonthlyTotalWeekoffCount);
-                                                                    //int _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
-                                                                    //decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
-                                                                    //DisbCur = _PerDaySalary * (TotalDaysSlr - _WeekoffCountAfterJoin);
-
+                                                                {                                                                    
 
                                                                     //New Calculation (Tarek)
                                                                     int _MonthlyTotalWeekoffCount = 0;
@@ -1998,9 +1978,9 @@ public class clsSalaryProcessAplosR
                                                                 //DisbCur = (DefCur / (TotalDaysSlr - WkOFDay)) * AbsDay;
                                                             }
 
-                                                            tempDaysInMonth = TotWorkingDayWithHoli;
+                                                            tempDaysInMonth = TotWorkingDayWithHoliDay;
                                                             tempTotWorkingDay = (TotalDaysSlr - AbsDay);
-                                                            TotWorkingDay = TotWorkingDayWithHoli;
+                                                            TotWorkingDay = TotWorkingDayWithHoliDay;
                                                         }
                                                         #endregion working day(excluding W)
                                                         //by monir ends
@@ -2013,8 +1993,6 @@ public class clsSalaryProcessAplosR
                                                             tempTotWorkingDay = (TotalDaysSlr - AbsDay);
                                                         }
                                                         #endregion Fixed Disbusment
-                                                        //else if(dicLocal_Sub[i].SalaryCategory == "PF")
-                                                        //{ DisbCur = DefCur; }
                                                     }
                                                     #endregion Calculation WithOut DayStatus
                                                     #region DayStatus Wise Calculation

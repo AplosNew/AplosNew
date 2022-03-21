@@ -440,24 +440,12 @@ namespace OTSBD
 													  SELECT SystemID, SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, 
 															 AmtDefinitionCurrencyID, AmtDefinitionRate, AddedBy, DateAdded, UpdatedBy, DateUpdated
 													  FROM SalaryInfoDefine
-													--	UNION
-													--  (
-													--   SELECT SystemID, SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, 
-													--		  AmtDefinitionCurrencyID, AmtDefinitionRate, AddedBy, DateAdded, UpdatedBy, DateUpdated                   
-													--   FROM SalaryInfoBack
-													--  )
 													 ) SD
 								                    INNER JOIN 
 															(
 															 SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
 																	IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
 															 FROM SalaryInfoDefineMaster
-															--  UNION 
-															-- (
-															--  SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
-															--		 IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
-															--  FROM SalaryInfoBackMaster
-															-- )
 															) SLM ON SLM.SystemID = SD.SalaryID
 								                    INNER JOIN SalaryRuleMaster SRM ON SLM.SalaryRuleMasterSystemID = SRM.SystemID
 								                    INNER JOIN SalaryRuleDayStatusMaster SRDSM ON SRM.SystemID = SRDSM.SalaryRuleMasterSystemID AND SD.SalaryHeadID = SRDSM.SalaryHeadID
@@ -501,24 +489,12 @@ namespace OTSBD
 														  SELECT SystemID, SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, 
 																 AmtDefinitionCurrencyID, AmtDefinitionRate, AddedBy, DateAdded, UpdatedBy, DateUpdated
 														  FROM SalaryInfoDefine
-														--   UNION
-														--  (
-														--   SELECT SystemID, SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, 
-														--		  AmtDefinitionCurrencyID, AmtDefinitionRate, AddedBy, DateAdded, UpdatedBy, DateUpdated                   
-														--   FROM SalaryInfoBack
-														-- )
 														) SD
 								                        INNER JOIN 
 															    (
 															     SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
 																	    IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
 															     FROM SalaryInfoDefineMaster
-															    --  UNION 
-															    -- (
-															    --  SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
-																--	     IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
-															    --  FROM SalaryInfoBackMaster
-															    -- )
 															    ) SLM ON SLM.SystemID = SD.SalaryID
 								                                INNER JOIN SalaryRuleMaster SRM ON SLM.SalaryRuleMasterSystemID = SRM.SystemID
 								                                INNER JOIN SalaryRuleDayStatusMaster SRDSM ON SRM.SystemID = SRDSM.SalaryRuleMasterSystemID
@@ -635,24 +611,14 @@ namespace OTSBD
 														   SELECT SystemID, SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, 
 																  AmtDefinitionCurrencyID, AmtDefinitionRate, AddedBy, DateAdded, UpdatedBy, DateUpdated
 														   FROM SalaryInfoDefine
-															--UNION
-															--(
-															--SELECT SystemID, SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, 
-															--		AmtDefinitionCurrencyID, AmtDefinitionRate, AddedBy, DateAdded, UpdatedBy, DateUpdated                   
-															--FROM SalaryInfoBack
-															--)
+															
 														  ) SD
 														INNER JOIN 
 																(
 																 SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
 																		IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
 																 FROM SalaryInfoDefineMaster
-																--  UNION 
-																-- (
-																--  SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
-																--		 IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
-																--  FROM SalaryInfoBackMaster
-																-- )
+																
 																) SLM ON SLM.SystemID = SD.SalaryID
 								                        INNER JOIN SalaryRuleMaster SRM ON SLM.SalaryRuleMasterSystemID = SRM.SystemID
 								                        INNER JOIN SalaryRuleDayStatusMaster SRDSM ON SRM.SystemID = SRDSM.SalaryRuleMasterSystemID
