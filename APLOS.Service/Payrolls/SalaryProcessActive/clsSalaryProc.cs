@@ -2286,20 +2286,7 @@ namespace OTSBD
             string strSql = "";
             try
             {
-                //         strSql = @"SELECT ABPDT.AttdnBonusPmtPolicyDetailsID, ABPDT.DayType,  
-                //                        ABPDT.DayTypeOperator, ABPDT.DayTypeOperatorValue,IsEarlyOutApplicable,MaxEarlyOutAllowed 
-                //                     FROM [dbo].[AttdnBonusPmtPolicyDetails] ABPD
-                //                         INNER JOIN [dbo].[AttdnBonusPmtPolicyDayType] ABPDT ON ABPD.ID = ABPDT.AttdnBonusPmtPolicyDetailsID
-                //                         INNER JOIN (
-                //                            SELECT E.SystemId EmpSystemID, D.SalaryRuleMasterId, D.IsOTEntitled, D.AttdnBonusPmtPolicyMasterId, D.PFPolicyMasterID
-                //	                            FROM EmployeeInformation E
-                //					            INNER JOIN (SELECT DC.LeavePolicyMasterId,DC.SalaryRuleMasterId,DC.IsOTEntitled,DC.AttdnBonusPmtPolicyMasterId,DC.PFPolicyMasterID,DM.DesignationId,DC.PlantId
-                // FROM MST.DesignationMaster DM
-                //LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId) D ON D.DesignationId = E.GivenDesignationId AND E.PlantId=D.PlantId
-                //                            WHERE D.AttdnBonusPmtPolicyMasterId IS NOT NULL AND E.SystemId IN (" + sEmpInfo + @") 
-                //                            ) DM ON ABPD.AttdnBonusPmtPolicyID = DM.AttdnBonusPmtPolicyMasterId
-                //                     ORDER BY ABPDT.AttdnBonusPmtPolicyDetailsID";
-
+                
                 strSql = @"SELECT ABPD.ID AttdnBonusPmtPolicyDetailsID
                                             ,IsEarlyOutApplicable
                                             ,IsLunchOutApplicable
@@ -2322,11 +2309,7 @@ namespace OTSBD
                                             ,LeaveWithOutPayToValue
                                             ,FixedOrFormula
                                             ,IsRouteApplicableForLate
-                                            --,MaxEarlyOutAllowed
-                                            --,DayTypeOperatorValue
-                                            --,DayTypeOperator
-                                            --,DayType
-                            FROM [dbo].[AttdnBonusPmtPolicyDetails] ABPD
+                                 FROM [dbo].[AttdnBonusPmtPolicyDetails] ABPD
 				                            INNER JOIN (
 							                            SELECT E.SystemId EmpSystemID, D.SalaryRuleMasterId, D.IsOTEntitled, D.AttdnBonusPmtPolicyMasterId, D.PFPolicyMasterID
 								                            FROM EmployeeInformation E
@@ -2391,12 +2374,7 @@ namespace OTSBD
                                             --, OTPD.OverTimePmtPolicyID OverTimePmtPolicyMasterID
                                             , OTPD.ID
                                             ,ee.OverTimePmtPolicyMasterID                                           
-                                                --,isnull(IsOTEntitle,0) IsOTEntitled
-                                                --,CAST(ISNULL(IsOTEntitle,0) AS bit) IsOTEntitled
-                                            --,IsOTEntitled=case when ISNULL(OTEN.IsOTEntitle,0)=1 then  true
-                                           -- when D.IsOTEntitled=1 and D.OverTimePmtPolicyMasterID is not null then true
-                                           -- else false end
-                                            ,CAST(ISNULL(ee.IsOTEntitle,0) AS bit) IsOTEntitled
+                                              ,CAST(ISNULL(ee.IsOTEntitle,0) AS bit) IsOTEntitled
 
                                             , ee.SalaryRuleMasterId, OTPD.OverTimeDayType, 
                                                                               OTPD.IsFixed, OTPD.FixedValue, OTPD.IsFormula, OTPD.FormulaDes, OTPD.FormulaDesID, SROTM.SalaryHeadID,  
