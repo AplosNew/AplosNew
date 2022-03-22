@@ -605,11 +605,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 GetHRSettingPlantWise(para.PlantId, out dsHrsetting);
                 if (dsHrsetting.Tables[0].Rows.Count > 0)
                 {
-                    //bool _isToCheckDayLock = Convert.ToBoolean(dsHrsetting.Tables[0].Rows[0]["CheckAttendanceLockForSalaryProcess"].ToString());
-                    //bool _IsAttendanceLockApplicable = Convert.ToBoolean(dsHrsetting.Tables[0].Rows[0]["IsAttendanceLockApplicable"].ToString());
-                    //IsAttendanceLockApplicable
-                    //if (_isToCheckDayLock && _IsAttendanceLockApplicable)
-                    //{
                     if (para.IsMaternity || para.IsSeparated)
                     {
                         CheckIndividualAttendanceLock(para);
@@ -618,7 +613,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                     {
                         LockValidation(para.PlantId, Convert.ToDateTime(para.FromDate).ToString("dd-MMM-yyyy"), Convert.ToDateTime(para.ToDate).ToString("dd-MMM-yyyy"));
                     }
-                    //}//
                 }
 
                 #endregion
@@ -5486,15 +5480,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             try
             {
-                //strSql = @"select 
-                //            offday =case when AlignWithCC = 1 then(select DefaultWeekOff from PlantWiseHRMSSetting where PlantID = '" + _plantid + @"')
-                //            else FstOffDay end
-                //            , w.EmpSystemID,AlignWithCC
-
-                //             from EmployeeWeekOffByDay w
-                //            inner join(select max(EffectiveDate) ed, EmpSystemID from EmployeeWeekOffByDay where EffectiveDate<= '" + ToDate + @"' group by EmpSystemID) m
-                //             on w.EmpSystemID = m.EmpSystemID and w.EffectiveDate = m.ed";
-
                 strSql = @"SELECT distinct ei.SystemId AS EmpSystemID,offday=CASE WHEN ISNULL(w.AlignWithCC,1)=1 THEN s.DefaultWeekOff ELSE w.FstOffDay END,
                             ISNULL(w.AlignWithCC,1) AS AlignWithCC
                               FROM EmployeeInformation AS ei
