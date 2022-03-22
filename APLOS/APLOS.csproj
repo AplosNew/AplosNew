@@ -578,6 +578,7 @@
     <Compile Include="Areas\HumanResource\Controllers\EmployeeShiftUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\PerformanceGroupController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformanceManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformancePeriodController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PhysicalVerificationReportController.cs" />
@@ -720,6 +721,7 @@
     <Compile Include="Areas\Productions\Controllers\ProductiveAllowanceRateSetupController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAdjustmentController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAgeingReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\WasteLocationController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteIssueController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteTransactionReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteMasterController.cs" />
@@ -1936,6 +1938,7 @@
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
+    <Content Include="Areas\HumanResource\Scripts\PerformanceGroupController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceManagementMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformancePeriodController.js" />
     <Content Include="Areas\HumanResource\Scripts\PhysicalVerificationReportController.js" />
@@ -2057,6 +2060,7 @@
     <Content Include="Areas\Productions\Scripts\ProductiveAllowanceRateSetupController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
+    <Content Include="Areas\Productions\Scripts\WasteLocationController.js" />
     <Content Include="Areas\Productions\Scripts\WasteIssueController.js" />
     <Content Include="Areas\Productions\Scripts\WasteTransactionReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteMasterController.js" />
@@ -4046,6 +4050,8 @@
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_Layout1.cshtml" />
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_Layout2.cshtml" />
     <Content Include="Areas\Products\Views\InventoryIssue\_StockBOQPopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PerformanceGroup\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\WasteLocation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

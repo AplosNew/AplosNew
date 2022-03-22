@@ -133,7 +133,7 @@ namespace Library.HumanResource.Attendance
                         , LG.UserName Designation
                          , kk.PrvDayStatus,kk.YesterDayDayCategory
 						,kk.YesterdayOTHr,ap.IsManualInTime,ap.IsManualOutTime,hr.OTConsiderOn
-                        ,ISNULL(L.UserName,'') Line
+                        ,ISNULL(L.UserName,'') Line,s.UserName Section,ss.UserName SubSection
                         from EmployeeInformation e
 
                         left join AttdnProcessData ap on ap.EmpSystemID = e.SystemId
@@ -534,6 +534,8 @@ namespace Library.HumanResource.Attendance
                     var cDesignation = 0; var cGivenDesignation = 0; var cLD = 0; var cLeaveType = 0;
                     var cLine = 0; var cEmpCatg = 0; var cEmpLocation = 0; var cDepertment = 0; var cEntity = 0; var cSl = 0;
                     var endXlsCol = 0;
+                    var cSection = 0;
+                    var cSubsection = 0;
                     var colNum = 0;
                     var cYesterdayDaystatus = 0;
                     var cYesterdayOverStayHour = 0;
@@ -551,6 +553,8 @@ namespace Library.HumanResource.Attendance
                     }
 
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department", 19); cDepertment = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section", 19); cSection = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Subsection", 19); cSubsection = xlsCol; xlsCol++;
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 17); cLD = xlsCol; xlsCol++;
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp. Category", 10); cEmpCatg = xlsCol; xlsCol++;
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp. Location", 13); cEmpLocation = xlsCol; xlsCol++;
@@ -607,7 +611,8 @@ namespace Library.HumanResource.Attendance
                             oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
                             oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, daylyAttdnEmpInfo.Rows[i]["EmployeeCode"].ToString());
                             oRU.SetText(ref sheet1, xlsRow, cDepertment, daylyAttdnEmpInfo.Rows[i]["Department"].ToString());
-                            //oRU.SetText(ref sheet1, xlsRow, cEntity, daylyAttdnEmpInfo.Rows[i]["Entity"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cSection, daylyAttdnEmpInfo.Rows[i]["Section"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cSubsection, daylyAttdnEmpInfo.Rows[i]["SubSection"].ToString());
 
                             oRU.SetText(ref sheet1, xlsRow, cName, daylyAttdnEmpInfo.Rows[i]["EmployeeName"].ToString());
                             if (WithFatherName == true)
@@ -774,7 +779,7 @@ namespace Library.HumanResource.Attendance
                         , LG.UserName Designation
                          , kk.PrvDayStatus
 						,kk.YesterdayOTHr,ap.IsManualInTime,ap.IsManualOutTime,hr.OTConsiderOn
-                        ,ISNULL(L.UserName,'') Line
+                        ,ISNULL(L.UserName,'') Line,s.UserName Section,ss.UserName SubSection
                         from EmployeeInformation e
 
                         left join AttdnProcessData ap on ap.EmpSystemID = e.SystemId

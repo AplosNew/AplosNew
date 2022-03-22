@@ -8,6 +8,7 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
+    $scope.downloadgriddataUrlPath = 'Productions/WasteIssue/DownloadUsingFullPath';
     baseService.init($scope.getListUrl);
     $scope.searchBy = null; $scope.search = null;
 
@@ -92,6 +93,7 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
                         ShowResult(response.data.Message, 'success');
                         $scope.ModelNew.Id = response.data.Id;
                         $scope.Get();
+                        $scope.GetWasteMaster();
                         $scope.Clear();
                     }
                 }), function errorCallBack(response) {
@@ -118,6 +120,7 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.Get();
+                    $scope.GetWasteMaster();
                     $scope.Clear();
                 }
                 function errorCallBack(response) {
@@ -152,17 +155,7 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.Action = 'Save';
     };
 
-
-    function ClearFields(seq) {
-        $scope.Action = 'Save';
-        $scope.CompanyId = null;
-        $scope.PlantId = null;
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
-        $scope.BudgetIds = [];
-        $scope.WasteDetailDataList = [];
-    }
-
+        
     // Addition of the Modal Operations for Budget Child
     $scope.closeBudPopUp = function () {
         angular.element(document.querySelector('#BudgetPop')).modal('hide');
@@ -435,8 +428,8 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
     };
 
     $scope.ShowpIssueQuantityCal = function (obj) {
-        obj.data.BalanceStock = obj.data.StockQty - (obj.data.IssueQty + obj.data.OtherQty);
-        obj.data.IssueValue = obj.data.Rate * obj.data.IssueQty;
+        obj.data.BalanceStock = obj.data.StockQty - (parseFloat(obj.data.IssueQty) + obj.data.OtherQty);
+        obj.data.IssueValue = obj.data.Rate * parseFloat(obj.data.IssueQty);
         obj.data.BalanceStkValue = obj.data.StdValue - obj.data.IssueValue;
     }
 
@@ -473,13 +466,13 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.GetWasteMaster();
 
 
-    $scope.Report = function (data) {
+    $scope.Report = function (obj) {
         try {
             $scope.fileName = "WasteReport.xlsx";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetWasteReport",
-                data: { 'Id': data.Id },
+                data: { 'Id': obj.data.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
 

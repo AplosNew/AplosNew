@@ -1018,7 +1018,8 @@ upanelApp.controller("EmployeeOperationsController", EmployeeOperationsControlle
 upanelApp.controller("GroupBalanceReportController", GroupBalanceReportController);
 upanelApp.controller("WasteIssueController", WasteIssueController);
 upanelApp.controller("inventoryIssueBOQController", inventoryIssueBOQController);
-
+upanelApp.controller("WasteMasterController", WasteMasterController);
+upanelApp.controller("WasteLocationController", WasteLocationController);
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

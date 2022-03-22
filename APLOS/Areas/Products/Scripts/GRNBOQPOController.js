@@ -396,6 +396,45 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 }
             }).then(function successCallback(response) {
                 $scope.MasterList = response.data;
+                $scope.getDetailsDataNew();
+            });
+        } catch (e) {
+            ShowResult(e, 'info')
+        }
+    }
+    $scope.getDetailsDataNew = function () {
+        try {
+            var parameters = [];
+            var filteredRecords = [];
+            for (var i = 0; i < $scope.DetailList.length; i++) {
+                if ($scope.DetailList[i].IsActives) {
+                    filteredRecords.push($scope.DetailList[i]);
+                }
+            }
+            parameters.push({ "Key": "POId", "Value": getString(filteredRecords, "POId") });
+            parameters.push({ "Key": "ContractId", "Value": getString(filteredRecords, "ContractId") });
+            parameters.push({ "Key": "SalesOrderIds", "Value": getString(filteredRecords, "SalesOrderId") });
+
+            var POId = parameters[0].Value;
+            var ContractId = parameters[1].Value;
+            var SalesOrderId = parameters[2].Value;
+            var masterOrderitemId = parameters[2].Value;
+
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: 'Products/GoodsReceiveNote/GetPOBOQItemForGRN',
+                data: {
+                    'POId': POId,
+                    'ContractId': ContractId,
+                    'masterOrderitemId': masterOrderitemId,
+                    'SalesOrderId': SalesOrderId,
+                    'MaterialMasterId': $scope.MaterialMasterId,
+                    'ArticleId': $scope.ArticleId,
+                }
+            }).then(function successCallback(response) {
+                $scope.MasterListNew = response.data;
+                console.log($scope.MasterListNew);
             });
         } catch (e) {
             ShowResult(e, 'info')

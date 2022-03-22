@@ -28,7 +28,7 @@
             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                 <input type="text" ng-model="purchaseLCNew.PartyName" class="form-control" readonly>
                 <span class="input-group-btn">
-                    <button ng-click="showPartyPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="showPartyPopUpNew()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                 </span>
             </div>
@@ -371,14 +371,14 @@
                 <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
                 <div e-column e-type="string" e-field="ContractRemarks" e-headertext="Contract Remarks" e-width="100"></div>
                 @*<div e-column e-headertext="Actions" e-width="10">
-            <div class="common-btn">
-                <ul class="list-inline text-left">
-                    <li>
-                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" ng-disabled="data.Version!=1" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this);" style="margin: -6px;"></i></button>
-                    </li>
-                </ul>
-            </div>
-        </div>*@
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" ng-disabled="data.Version!=1" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this);" style="margin: -6px;"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>*@
             </div>
         </div>
         <script type="text/template" id="ShowActionButtonsBOM">
@@ -387,8 +387,8 @@
     </div>
 </div>
 <confirm-modal></confirm-modal>
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
 
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 <div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
