@@ -775,11 +775,7 @@ public class clsSalaryProcessAplosR
                         #region empids
                         if ((dsGrid.Tables[0].Rows[GrdEmp]["ProcessStatus"].ToString().Trim()) == "OK" || bplib.clsWebLib.GetBoolData(dsGrid.Tables[0].Rows[GrdEmp]["IsApproved"].ToString().Trim()) == false)
                         {
-                            test_cocunt++;
-                            if (test_cocunt == 434)
-                            {
-
-                            }
+                            test_cocunt++;                            
                             grdEmpCntEmpForProc++;
                             if (string.IsNullOrEmpty(sEmpInfoSysID) == true)
                             {
@@ -796,7 +792,6 @@ public class clsSalaryProcessAplosR
                         }//Overlap OR GAP
                         else
                         {
-                            //throw new Exception("Salary of Employee [" + dsGrid.Tables[0].Rows[GrdEmp]["EmployeeCode"].ToString().Trim() + "] has already been processed upto [" + dsGrid.Tables[0].Rows[GrdEmp]["ToDate"].ToString().Trim() + "]");//EmployeeCode
                             strAbstractEmp += "Salary of Employee [" + dsGrid.Tables[0].Rows[GrdEmp]["EmployeeCode"].ToString().Trim() + "] has already been processed upto [" + dsGrid.Tables[0].Rows[GrdEmp]["ToDate"].ToString().Trim() + "]";
                         }
                         #endregion
@@ -818,8 +813,7 @@ public class clsSalaryProcessAplosR
                         {
                             #region Start
                             blockCount++;
-                            //sendMessage("Current block total employee: " + SelectedEmpCnt + " and block no" + blockCount);
-
+                          
                             StringCollection sSalaryIDColl = new StringCollection();
                             TotProcComp += grdRowMaxCnt;
 
@@ -934,7 +928,6 @@ public class clsSalaryProcessAplosR
                             objSlrProc.GetSelectedEmployee(sEmpSysIDColl, para.FromDate, para.ToDate, out dsSelectedEmp);
 
                             //////Add OR UPDate
-                            //objSlrProc.GetSlrProcMst(intMonthNo, intYearNo, this.lblSalaryProcSystemId.Text.Trim(), out dsSPMst);
                             objSlrProc.GetSlrProcMst(intMonthNo, intYearNo, para.lblSalaryProcSystemId.Trim(), out dsSPMst);
                             dtSPMst = dsSPMst.Tables[0];
                             dvSPMst = new DataView();
@@ -950,12 +943,9 @@ public class clsSalaryProcessAplosR
                             List<ProcChild> dicProcChild = new List<global::ProcChild>();
                             if (dsSPChd.Tables[0].Rows.Count > 0)
                                 dicProcChild = dsSPChd.Tables[0].ToList<ProcChild>();
+                         
                             #endregion
-                            //dicProcChild = dsMMDSSI.Tables[0].ToList<ProcChild>();
-                            //================================
-
-
-
+                         
 
 
                             #region Carry Forward Salary
@@ -1025,14 +1015,14 @@ public class clsSalaryProcessAplosR
                                 dicMMDSSI = dsMMDSSI.Tables[0].ToList<dicMMDSSI>();
 
                             //////Add OR UPDate 
-                            //List<dicSalaryProceAttdnData> ListSPA = new List<global::dicSalaryProceAttdnData>();
+                          
                             SendNotification("Fetching Attendance data", TotProcComp, TotSelectEmpForProc);
 
                             objSlrProc.GetSalaryProceAttdnData(intMonthNo, intYearNo, sEmpSysID, out dsSPAttdnProc);
                             dtSPAttdnProc = dsSPAttdnProc.Tables[0];
                             //weekend
+                            
                             SendNotification("Fetching Extra Absent", TotProcComp, TotSelectEmpForProc);
-
                             objSlrProc.GetExtraAbsent(intMonthNo, intYearNo, sEmpSysID, out dsExtraAbsent);
                             List<ExtraAbsenteeism> dicExtraAbsenteeism = new List<global::ExtraAbsenteeism>();
                             if (dsExtraAbsent.Tables[0].Rows.Count > 0)
@@ -1132,7 +1122,6 @@ public class clsSalaryProcessAplosR
                             SendNotification("Fetching Currency Rule Salary Head Category", TotProcComp, TotSelectEmpForProc);
                             List<dicCrRulSlrHD> dicCrRulSlrHD = new List<global::dicCrRulSlrHD>();
                             objSlrProc.GetCurrencyRuleChildWithSlrHDCat("", para.PlantId, out dsCrRulSlrHD);
-                            //objSlrProc.GetCurrencyRuleChildWithSlrHDCat("", ddlPlant.SelectedValue.Trim(), out dsCrRulSlrHD);
                             if (dsCrRulSlrHD.Tables[0].Rows.Count > 0)
                                 dicCrRulSlrHD = dsCrRulSlrHD.Tables[0].ToList<dicCrRulSlrHD>();
 
@@ -1298,7 +1287,6 @@ public class clsSalaryProcessAplosR
                             }
                             else
                             {
-                                //objStatic.CheckAccess(lblAccessCreate, lblAccessEdit, lblAccessDelete, clsStaticInfo.EnumAccess.EDIT);
                                 drSPMst = dvSPMst[0].Row;
                                 drSPMst.BeginEdit();
                                 UpdateSlrProcMstDataRow("EDIT", IsCmpMonthSlr, paramSalary, para, ref drSPMst);
@@ -3476,22 +3464,14 @@ public class clsSalaryProcessAplosR
                                             {
                                                 if (dicOTPol_Sub[i].HeadCategory != "Total Earning" && dicOTPol_Sub[i].HeadCategory != "Total Deduction" && dicOTPol_Sub[i].HeadCategory != "Net Payable")
                                                 {
-                                                    //_IsOTEntitled = dicOTPol_Sub[i].IsOTEntitled;
                                                     tempDisbCur = 0;
                                                     DisbCur = 0;
                                                     sFormulaDesID = "";
                                                     sFormulaResult = "";
-                                                    //sDayType = "";
-                                                    //sDayTypeOperator = "";
                                                     decDayTypeOperatorValue = 0;
                                                     sLeaveTypeID = "";
                                                     sApprovalType = "";
                                                     decOTHour = 0;
-
-
-                                                    //monir 190515
-                                                    //if (decOTPmtAmtTemp < decOTPmtAmt)
-                                                    //{ decOTPmtAmtTemp = decOTPmtAmt; }
 
                                                     sOverTimePmtPolicyMasterID = dicOTPol_Sub[i].OverTimePmtPolicyMasterID;
                                                     sOverTimePmtPolicyDetailsID = dicOTPol_Sub[i].ID;
@@ -3511,8 +3491,7 @@ public class clsSalaryProcessAplosR
                                                     sFormulaDes = dicOTPol_Sub[i].FormulaDes;
                                                     sFormulaDesID = dicOTPol_Sub[i].FormulaDesID;
                                                     DisbCurID = dicOTPol_Sub[i].DisbusmentCurrencyID;
-                                                    // sEmployeeSysID = dicOTPol_Sub[i].EmpSystemID;//by monir
-
+                                                  
                                                     sSlrRulMstSysID = dicOTPol_Sub[i].SalaryRuleMasterId;
                                                     sSlrHD = dicOTPol_Sub[i].SalaryHeadID;
                                                     sEntCurID = dicOTPol_Sub[i].EntryCurrencyID;
@@ -4016,18 +3995,7 @@ public class clsSalaryProcessAplosR
                                         dvSPAttdnProc.Table = dtSPAttdnProc;
                                         dvSPAttdnProc.RowFilter = "EmpSystemID = '" + sEmployeeSysID.Trim() + "'";
 
-                                        //var _spa_ob = ListSPA.Where(r => r.EmpSystemID == sEmployeeSysID).FirstOrDefault();
-                                        //if(_spa_ob==null)
-                                        //{
-                                        //    _spa_ob = new global::dicSalaryProceAttdnData();
-                                        //    UpdateSlrProcAttdenDataRow("ADDNEW", para, sEmployeeSysID, sPlantID, TotProcDay, PresDay, LateDay, LWPDays, AbsDay, LvDay, MLvDay, CALDay, WkOFDay, HDDay, WkOFHDDay, OTHDay, NorOTHDay, ExtOTHDay, ref _spa_ob);
-                                        //    ListSPA.Add(_spa_ob);
-                                        //}
-                                        //else
-                                        //{                                            
-                                        //    UpdateSlrProcAttdenDataRow("EDIT", para, sEmployeeSysID, sPlantID, TotProcDay, PresDay, LateDay, LWPDays, AbsDay, LvDay, MLvDay, CALDay, WkOFDay, HDDay, WkOFHDDay, OTHDay, NorOTHDay, ExtOTHDay, ref _spa_ob);
-
-                                        //}
+                                       
                                         para.IsOTEntitled = IsOTEntitle;
                                         para.OTRate = OTRate;
                                         if (dvSPAttdnProc.Count == 0)
@@ -4115,6 +4083,7 @@ public class clsSalaryProcessAplosR
                                                         ParaSalaryProcess ob_sp = SetValue(_childPK_seed_fromDB, _child_emp_seed, _child_salaryhead_seed, sEmployeeSysID, sSalaryID, sPlantID, sSlrRulMstSysID, sSlrHD, sEntCurID, ref EntCur, sDefCurID, ref DefCur, sDisbCurID, DisbCur, sAcltExcDisbSlrHDID, AcltExcDisbSlrHDAmt, IsNetPayEffect);
                                                         SaveDataRow(ref dicProcChild, ob_sp, para);
                                                         #endregion
+                                                    
                                                     }//head total
                                                 }//for
                                             }//total variable
@@ -4176,6 +4145,7 @@ public class clsSalaryProcessAplosR
                                 objBnsGnt.CalculateBonusRetain(Bnspara, out _List_BonusRetainHeadValue);
                                 //objBnsGnt.GeneratorBonusEligibleEmployee(Bnspara);
                                 #endregion Bonus Monthly Retain
+
                                 #region Generate PF
                                 SendNotification("Calculating Earned PF", TotProcComp, TotSelectEmpForProc);
 
@@ -4197,22 +4167,7 @@ public class clsSalaryProcessAplosR
                                 objPFGnt.CalculateEarnPF(PFpara, out _List_PFHeadValue);//CalculateEarnPF
                                                                                         //objPFGnt.GeneratorPFEligibleEmployee(PFpara);//CalculateEarnPF
                                 #endregion Generate PF
-                                #region Generate ESIC commented
-                                //ESICParaList ESICpara = new OTSBD.ESICParaList();
-                                //ESICpara.GroupID = para.GroupId.ToString().Trim();
-                                //ESICpara.PlantID = para.PlantId.ToString().Trim();
-                                //ESICpara.sEmpSystemID = sEmpSysIDColl.Trim();
-                                //ESICpara.LocalCurrencyID = para.lblLocalCurrencyID.Trim();
-                                //ESICpara.ForeignCurRate = para.txtForeignCurRate.Trim();
-                                //ESICpara.FromDate = para.FromDate;//FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.FromDate)).ToString();
-                                //ESICpara.ToDate = para.ToDate;// FirstDayOfNextMonthFromDateTime(Convert.ToDateTime(para.ToDate)).ToString();
-                                //ESICpara.sUser = para.USER;
-                                //ESICpara.dsSalInfo = ds;
-                                //ESICpara.dicProcChild = dicProcChild;
-                                //ESICpara.dtValue = dtValue;
-                                //ESICpara.ShouldNotProcessUntaggedEmp = true;
-                                //objESICGnt.CalculateEarnESIC(ESICpara, out _List_ESICHeadValue);
-                                #endregion Generate ESIC
+                               
                             }
                             catch (Exception ex)
                             {
@@ -4247,6 +4202,7 @@ public class clsSalaryProcessAplosR
                                     for (int gd = 0; gd < dsSelectedEmp.Tables[0].Rows.Count; gd++)
                                     {
                                         _child_emp_seed++;
+
                                         #region PF Employee Value
 
                                         var dicPF_Sub = dicPF.FindAll(x => x.EmpSystemID == dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim());
@@ -4392,8 +4348,6 @@ public class clsSalaryProcessAplosR
                                         }//if
 
                                         #endregion PF Employee Value
-
-
 
                                         #region Bonus Retain Employee Value
 
@@ -4915,7 +4869,7 @@ public class clsSalaryProcessAplosR
                             
                             SendNotification("Saving Data", TotProcComp, TotSelectEmpForProc);
 
-                            OTSBD.clsStaticInfo _save = new clsStaticInfo();
+                            clsStaticInfo _save = new clsStaticInfo();
                             _save.SaveDataSets(dsSPChd, dsRetenAllow, dsSPAttdnProc, dsCarryForwardSalary);
                             dsSPChd.Tables[0].DefaultView.RowFilter = null;
 
